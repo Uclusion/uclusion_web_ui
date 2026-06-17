@@ -1,9 +1,10 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { FormControl, FormControlLabel, Radio, RadioGroup, Typography } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
+import ChoicePills from '../../Buttons/ChoicePills';
 import _ from 'lodash';
 import { useHistory } from 'react-router';
 import { goToChosenWizard } from './ComposeWizard';
@@ -21,37 +22,16 @@ function ChooseGroupStep (props) {
       <Typography className={classes.introText}>
         Create in which view?
       </Typography>
-      <FormControl component="fieldset">
-        <RadioGroup
-          aria-labelledby="group-choice"
-          onChange={(event) => {
-            const { value } = event.target;
-            updateFormData({ groupId: value });
-          }}
-          value={groupId || ''}
-        >
-          {groups.map((group) => {
-            const groupId = group.id;
-            return (
-                <FormControlLabel
-                  id={`type${groupId}`}
-                  key={groupId}
-                  /* prevent clicking the label stealing focus */
-                  onMouseDown={e => e.preventDefault()}
-                  control={<Radio />}
-                  className={classes.certaintyValue}
-                  classes={{
-                    label: classes.certaintyValueLabel
-                  }}
-                  style={{paddingRight: '0.5rem'}}
-                  label={group.name}
-                  labelPlacement="end"
-                  value={groupId}
-                />
-            );
-          })}
-        </RadioGroup>
-      </FormControl>
+      <ChoicePills
+        ariaLabel="group-choice"
+        value={groupId || ''}
+        onChange={(value) => updateFormData({ groupId: value })}
+        options={groups.map((group) => ({
+          value: group.id,
+          id: `type${group.id}`,
+          label: group.name,
+        }))}
+      />
       <div className={classes.borderBottom} />
       <WizardStepButtons
         {...props}

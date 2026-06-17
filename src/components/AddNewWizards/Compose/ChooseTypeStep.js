@@ -1,19 +1,12 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import {
-  FormControl,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  Typography,
-  useMediaQuery,
-  useTheme
-} from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
+import ChoicePills from '../../Buttons/ChoicePills';
 import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
-import { FormattedMessage } from 'react-intl';
+import { useIntl } from 'react-intl';
 import _ from 'lodash';
 import { useHistory } from 'react-router';
 import { goToChosenWizard } from './ComposeWizard';
@@ -22,8 +15,7 @@ function ChooseTypeStep (props) {
   const { marketId, groupId, updateFormData = () => {}, formData = {} } = props;
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
-  const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const intl = useIntl();
   const allowedTypes = ['JOB', QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, 'GROUP', 'WORKSPACE'];
   const { useType } = formData;
   const isFinal = !_.isEmpty(groupId) || ['WORKSPACE', 'GROUP'].includes(useType) ;
@@ -38,36 +30,24 @@ function ChooseTypeStep (props) {
       <Typography className={classes.introSubText} variant="subtitle1">
         These are the top level types.
       </Typography>
-      <FormControl component="fieldset">
-        <RadioGroup
-          aria-labelledby="type-choice"
-          onChange={(event) => {
-            const { value } = event.target;
-            updateFormData({ useType: value });
-          }}
-          value={useType || ''}
-        >
-          {allowedTypes.map((objectType) => {
-            return (
-                <FormControlLabel
-                  id={`type${objectType}`}
-                  key={objectType}
-                  style={{marginBottom: mobileLayout ? '0.5rem' : undefined, paddingRight: '0.5rem'}}
-                  /* prevent clicking the label stealing focus */
-                  onMouseDown={e => e.preventDefault()}
-                  control={<Radio />}
-                  className={classes.certaintyValue}
-                  classes={{
-                    label: classes.certaintyValueLabel
-                  }}
-                  label={<FormattedMessage id={`${objectType}ComposeLabel`} />}
-                  labelPlacement="end"
-                  value={objectType}
-                />
-            );
-          })}
-        </RadioGroup>
-      </FormControl>
+      <ChoicePills
+        ariaLabel="type-choice"
+        vertical
+        value={useType || ''}
+        onChange={(value) => updateFormData({ useType: value })}
+        options={allowedTypes.map((objectType) => {
+          // Label is "Name - description"; show the name in the pill and the
+          // rest as inline text after it (C-all-977).
+          const full = intl.formatMessage({ id: `${objectType}ComposeLabel` });
+          const sep = full.indexOf(' - ');
+          return {
+            value: objectType,
+            id: `type${objectType}`,
+            label: sep >= 0 ? full.slice(0, sep) : full,
+            description: sep >= 0 ? full.slice(sep) : undefined,
+          };
+        })}
+      />
       <div className={classes.borderBottom} />
       <WizardStepButtons
         {...props}

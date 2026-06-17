@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormControl, FormControlLabel, Radio, RadioGroup, Typography } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import WizardStepContainer from './WizardStepContainer';
 import { wizardStyles } from './WizardStylesContext';
 import WizardStepButtons from './WizardStepButtons';
+import ChoicePills from '../Buttons/ChoicePills';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments';
 import { FormattedMessage } from 'react-intl';
 import _ from 'lodash';
@@ -33,36 +34,16 @@ function ChooseCommentTypeStep (props) {
       </Typography>
       <JobDescription marketId={marketId} investibleId={investibleId}/>
       <div className={classes.borderBottom}/>
-      <FormControl component="fieldset">
-        <RadioGroup
-          aria-labelledby="comment-type-choice"
-          onChange={(event) => {
-            const { value } = event.target;
-            updateFormData({ useType: value })
-          }}
-          value={useType || ''}
-        >
-          {allowedTypes.map((commentType) => {
-            return (
-              <FormControlLabel
-                id={`commentAddLabel${commentType}`}
-                key={commentType}
-                /* prevent clicking the label stealing focus */
-                onMouseDown={e => e.preventDefault()}
-                control={<Radio />}
-                className={classes.certaintyValue}
-                classes={{
-                  label: classes.certaintyValueLabel
-                }}
-                style={{paddingRight: '0.5rem'}}
-                label={<FormattedMessage id={`${commentType.toLowerCase()}Review`}/>}
-                labelPlacement="end"
-                value={commentType}
-              />
-            );
-          })}
-        </RadioGroup>
-      </FormControl>
+      <ChoicePills
+        ariaLabel="comment-type-choice"
+        value={useType || ''}
+        onChange={(value) => updateFormData({ useType: value })}
+        options={allowedTypes.map((commentType) => ({
+          value: commentType,
+          id: `commentAddLabel${commentType}`,
+          label: <FormattedMessage id={`${commentType.toLowerCase()}Review`} />,
+        }))}
+      />
       <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}

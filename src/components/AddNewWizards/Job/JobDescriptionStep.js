@@ -1,10 +1,11 @@
 import React, { useContext, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Tooltip, Typography } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import _ from 'lodash';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
+import ChoicePills from '../../Buttons/ChoicePills';
 import {
   editorEmpty,
   focusEditor,
@@ -23,8 +24,7 @@ import {
 import { processTextAndFilesForSave } from '../../../api/files';
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { bugRadioStyles } from '../Bug/BugDescriptionStep';
+import { useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
 import { createJobNameFromComments } from '../../../pages/Dialog/Planning/userUtils';
 import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
@@ -45,7 +45,6 @@ function JobDescriptionStep (props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
-  const radioClasses = bugRadioStyles();
   const groupPresences = getGroupPresences(presences, groupPresencesState, marketId, groupId) || [];
   const myGroupPresence = groupPresences.find((presence) => presence.id === myPresenceId);
   const isMovingTasks = !_.isEmpty(roots);
@@ -112,17 +111,6 @@ function JobDescriptionStep (props) {
       focusEditor(editorName);
     }
   }
-  function handleRadioGroupKeyDown(event) {
-    if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
-      arrowKeyChangeRef.current = true;
-    } else {
-      arrowKeyChangeRef.current = false;
-    }
-  }
-  function handleRadioGroupMouseDown() {
-    arrowKeyChangeRef.current = false;
-  }
-
   function doIncrement(resolved) {
     if (resolved?.isMissingName) {
       nextStep();
@@ -247,44 +235,26 @@ function JobDescriptionStep (props) {
       <Typography className={classes.introSubText} variant="subtitle1" style={{marginBottom: 0}}>
         Fill the description below and the job name will be created automatically. A bullet list will become tasks.
       </Typography>
-      <FormControl>
-        <FormLabel
-          className={radioClasses.certaintyLabel}
-          id="add-vote-certainty"
-        >
-        </FormLabel>
-        <RadioGroup
-          aria-labelledby="add-vote-certainty"
-          style={{display: 'flex', flexDirection: 'row'}}
-          onChange={onChange}
-          onKeyDown={handleRadioGroupKeyDown}
-          onMouseDown={handleRadioGroupMouseDown}
-          value={currentValue}
-        >
-          {jobTypes.map(certainty => {
-            return (
-              <Tooltip title={<h3>
-                {intl.formatMessage({ id: `certaintyTip${certainty}` })}
-              </h3>} placement="top">
-                <FormControlLabel
-                  key={certainty}
-                  id={`${certainty}`}
-                  className={radioClasses.certaintyValue}
-                  classes={{
-                    label: radioClasses.certaintyValueLabel
-                  }}
-                  /* prevent clicking the label stealing focus */
-                  onMouseDown={e => e.preventDefault()}
-                  control={<Radio />}
-                  label={<FormattedMessage id={`jobTypeLabel${certainty}`} />}
-                  labelPlacement="start"
-                  value={certainty}
-                />
-              </Tooltip>
-            );
-          })}
-        </RadioGroup>
-      </FormControl>
+      <ChoicePills
+        ariaLabel="add-vote-certainty"
+        value={currentValue}
+        onChange={(value) => onChange({ target: { value } })}
+        options={jobTypes.map((certainty) => {
+          // Label is "Name - description"; pill shows the name, and the hover
+          // shows the explanatory remainder with the keystroke in parentheses
+          // after it (S-1 / C-all-979).
+          const full = intl.formatMessage({ id: `jobTypeLabel${certainty}` });
+          const sep = full.indexOf(' - ');
+          const remainder = sep >= 0 ? full.slice(sep + 3) : '';
+          const keys = intl.formatMessage({ id: `certaintyTip${certainty}` });
+          return {
+            value: certainty,
+            id: `${certainty}`,
+            label: sep >= 0 ? full.slice(0, sep) : full,
+            tooltip: remainder ? `${remainder} (${keys})` : `(${keys})`,
+          };
+        })}
+      />
       {Editor}
       <div className={classes.borderBottom} />
       <WizardStepButtons

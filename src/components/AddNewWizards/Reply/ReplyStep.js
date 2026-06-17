@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
-import { FormControl, FormControlLabel, FormLabel, makeStyles, Radio, RadioGroup, Typography } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import {
   addCommentToMarket, getComment,
   getCommentRoot,
@@ -23,6 +23,7 @@ import _ from 'lodash';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { formCommentLink, formInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import WizardStepContainer from '../WizardStepContainer';
+import ChoicePills from '../../Buttons/ChoicePills';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { REPLY_TYPE, REPORT_TYPE, TODO_TYPE } from '../../../constants/comments';
 import CommentAdd, { hasCommentValue } from '../../Comments/CommentAdd';
@@ -38,36 +39,9 @@ export function hasReply(comment) {
     'reply');
 }
 
-const useStyles = makeStyles(
-  theme => {
-    return {
-      certaintyLabel: {
-        marginBottom: theme.spacing(2),
-        textTransform: "capitalize"
-      },
-      certaintyValue: {
-        borderRadius: 6,
-        paddingLeft: theme.spacing(1),
-        margin: theme.spacing(0, 2, 2, 0),
-        '& .MuiRadio-root': {
-          color: theme.palette.type === 'dark' ? 'rgba(255, 255, 255, 0.7)' : undefined,
-        },
-        '& .MuiRadio-colorSecondary.Mui-checked': {
-          color: theme.palette.type === 'dark' ? '#ffffff' : undefined,
-        }
-      },
-      certaintyValueLabel: {
-        fontWeight: "bold"
-      },
-    };
-  },
-  { name: "ReplyAdd" }
-);
-
 function ReplyStep(props) {
   const { marketId, commentId, isSubtask, updateFormData = () => {}, formData = {} } = props;
   const history = useHistory();
-  const radioClasses = useStyles();
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -191,38 +165,16 @@ function ReplyStep(props) {
         useCompression={useCompression}
       />
       {showSubTask && (
-        <FormControl>
-          <FormLabel
-            className={radioClasses.certaintyLabel}
-            id="add-vote-certainty"
-          >
-          </FormLabel>
-          <RadioGroup
-            aria-labelledby="add-reply-type"
-            style={{display: 'flex', flexDirection: 'row'}}
-            onChange={(event) => setCommentType(event.target.value)}
-            value={commentType}
-          >
-            {[REPLY_TYPE, REPORT_TYPE].map(aType => {
-              return (
-                <FormControlLabel
-                  key={aType}
-                  id={`${aType}`}
-                  className={radioClasses.certaintyValue}
-                  classes={{
-                    label: radioClasses.certaintyValueLabel
-                  }}
-                  /* prevent clicking the label stealing focus */
-                  onMouseDown={e => e.preventDefault()}
-                  control={<Radio />}
-                  label={<FormattedMessage id={`commentTypeLabel${showSubTask && aType === REPLY_TYPE ? 'SubTask' : ''}${aType}`} />}
-                  labelPlacement="start"
-                  value={aType}
-                />
-              );
-            })}
-          </RadioGroup>
-        </FormControl>
+        <ChoicePills
+          ariaLabel="add-reply-type"
+          value={commentType}
+          onChange={(value) => setCommentType(value)}
+          options={[REPLY_TYPE, REPORT_TYPE].map((aType) => ({
+            value: aType,
+            id: `${aType}`,
+            label: <FormattedMessage id={`commentTypeLabel${showSubTask && aType === REPLY_TYPE ? 'SubTask' : ''}${aType}`} />,
+          }))}
+        />
       )}
       {!showSubTask && !noteOnly && (
         <div className={classes.borderBottom}/>

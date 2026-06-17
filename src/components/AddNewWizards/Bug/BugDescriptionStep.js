@@ -1,16 +1,11 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import {
-  FormControl,
-  FormControlLabel,
-  FormLabel,
   makeStyles,
-  Radio,
-  RadioGroup,
-  Tooltip,
   Typography
 } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
+import ChoicePills from '../../Buttons/ChoicePills';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { TODO_TYPE } from '../../../constants/comments';
 import CommentAdd, { hasCommentValue } from '../../Comments/CommentAdd';
@@ -61,7 +56,6 @@ function BugDescriptionStep (props) {
   const [commentAddBugState, updateCommentAddBugState, commentAddStateBugReset] =
     getPageReducerPage(commentAddBugStateFull, commentAddBugDispatch, groupId);
   const classes = useContext(WizardStylesContext);
-  const radioClasses = bugRadioStyles();
   const { newQuantity } = formData;
   const defaultFromPage = commentType === undefined ? undefined :
     (commentType === '0' ? 'RED' : (commentType === '1' ? 'YELLOW' : 'BLUE'));
@@ -92,42 +86,17 @@ function BugDescriptionStep (props) {
       <Typography className={classes.introText}>
         How would you describe this bug?
       </Typography>
-      <FormControl>
-        <FormLabel
-          className={radioClasses.certaintyLabel}
-          id="add-vote-certainty"
-        >
-        </FormLabel>
-        <RadioGroup
-          aria-labelledby="add-vote-certainty"
-          style={{display: 'flex', flexDirection: 'row'}}
-          onChange={onChange}
-          value={currentQuantity}
-        >
-          {['RED', 'YELLOW', 'BLUE'].map(certainty => {
-            return (
-              <Tooltip title={<h3>
-                {intl.formatMessage({ id: `certaintyTip${certainty}` })}
-              </h3>} placement="top">
-                <FormControlLabel
-                  key={certainty}
-                  id={`${certainty}`}
-                  className={radioClasses.certaintyValue}
-                  classes={{
-                    label: radioClasses.certaintyValueLabel
-                  }}
-                  /* prevent clicking the label stealing focus */
-                  onMouseDown={e => e.preventDefault()}
-                  control={<Radio />}
-                  label={<FormattedMessage id={`notificationLabel${certainty}`} />}
-                  labelPlacement="start"
-                  value={certainty}
-                />
-              </Tooltip>
-            );
-          })}
-        </RadioGroup>
-      </FormControl>
+      <ChoicePills
+        ariaLabel="add-vote-certainty"
+        value={currentQuantity}
+        onChange={(value) => onChange({ target: { value } })}
+        options={['RED', 'YELLOW', 'BLUE'].map((certainty) => ({
+          value: certainty,
+          id: `${certainty}`,
+          label: <FormattedMessage id={`notificationLabel${certainty}`} />,
+          tooltip: intl.formatMessage({ id: `certaintyTip${certainty}` }),
+        }))}
+      />
       <CommentAdd
         nameKey="CommentAddBug"
         type={TODO_TYPE}

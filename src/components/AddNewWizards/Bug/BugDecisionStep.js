@@ -1,9 +1,10 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { FormControl, FormControlLabel, Radio, RadioGroup, Typography } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
+import ChoicePills from '../../Buttons/ChoicePills';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
@@ -68,37 +69,16 @@ function BugDecisionStep (props) {
         useCompression={useCompression}
       />
       <div style={{marginBottom: '2rem'}} />
-      <FormControl component="fieldset">
-        <RadioGroup
-          aria-labelledby="type-choice"
-          onChange={(event) => {
-            const { value } = event.target;
-            updateFormData({ useType: value });
-          }}
-          value={useType || ''}
-        >
-          {allowedTypes.map((objectType) => {
-            return (
-              <FormControlLabel
-                id={`type${objectType}`}
-                key={objectType}
-                /* prevent clicking the label stealing focus */
-                onMouseDown={e => e.preventDefault()}
-                className={classes.certaintyValue}
-                classes={{
-                  label: classes.certaintyValueLabel
-                }}
-                control={<Radio />}
-                style={{paddingRight: '0.5rem'}}
-                label={<FormattedMessage id={doesTypeMatch(objectType) ? `${objectType}OtherMoveLabel`
-                  : `${objectType}Label`}/>}
-                labelPlacement="end"
-                value={objectType}
-              />
-            );
-          })}
-        </RadioGroup>
-      </FormControl>
+      <ChoicePills
+        ariaLabel="type-choice"
+        value={useType || ''}
+        onChange={(value) => updateFormData({ useType: value })}
+        options={allowedTypes.map((objectType) => ({
+          value: objectType,
+          id: `type${objectType}`,
+          label: <FormattedMessage id={doesTypeMatch(objectType) ? `${objectType}OtherMoveLabel` : `${objectType}Label`} />,
+        }))}
+      />
       <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}

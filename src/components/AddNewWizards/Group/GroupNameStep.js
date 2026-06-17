@@ -1,13 +1,8 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types'
 import {
-  FormControl,
-  FormControlLabel,
   InputAdornment,
   OutlinedInput,
-  Radio,
-  RadioGroup,
-  Tooltip,
   Typography
 } from '@material-ui/core'
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -15,6 +10,7 @@ import _ from 'lodash'
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
+import ChoicePills from '../../Buttons/ChoicePills';
 import { doCreateGroup } from './groupCreator'
 import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
@@ -31,7 +27,6 @@ import {
   usePresences
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { fixName } from '../../../utils/userFunctions';
-import { bugRadioStyles } from '../Bug/BugDescriptionStep';
 
 function GroupNameStep (props) {
   const { updateFormData = () => {}, formData = {}, marketId } = props;
@@ -41,7 +36,6 @@ function GroupNameStep (props) {
   const selectedGroupType = formData.groupType || '';
   const validForm = !_.isEmpty(value) && !_.isEmpty(selectedGroupType);
   const classes = useContext(WizardStylesContext);
-  const radioClasses = bugRadioStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [groupsState, groupsDispatch] = useContext(MarketGroupsContext);
   const [, diffDispatch] = useContext(DiffContext);
@@ -121,36 +115,19 @@ function GroupNameStep (props) {
         backlog. It also controls the addressing of notifications unless using mentions or a subscription to a
         job. {_.isEmpty(myAutonomousGroups) && 'A My work view has only you and shows your work across views.'}
       </Typography>
-      <FormControl component="fieldset" style={{display: 'flex', marginBottom: '1rem'}}>
-        <RadioGroup
-          aria-labelledby="group-type-choice"
-          style={{display: 'flex', flexDirection: 'row'}}
-          onChange={onGroupTypeChange}
+      <div style={{display: 'flex', marginBottom: '1rem'}}>
+        <ChoicePills
+          ariaLabel="group-type-choice"
           value={selectedGroupType}
-        >
-          {groupTypeChoices.map((groupType) => {
-            return (
-              <Tooltip key={groupType} title={<h3>
-                <FormattedMessage id={`groupTypeTip${groupType}`} />
-              </h3>} placement="top">
-                <FormControlLabel
-                  id={`groupType${groupType}`}
-                  className={radioClasses.certaintyValue}
-                  classes={{
-                    label: radioClasses.certaintyValueLabel
-                  }}
-                  /* prevent clicking the label stealing focus */
-                  onMouseDown={e => e.preventDefault()}
-                  control={<Radio />}
-                  label={<FormattedMessage id={`groupTypeLabel${groupType}`} />}
-                  labelPlacement="end"
-                  value={groupType}
-                />
-              </Tooltip>
-            );
-          })}
-        </RadioGroup>
-      </FormControl>
+          onChange={(value) => onGroupTypeChange({ target: { value } })}
+          options={groupTypeChoices.map((groupType) => ({
+            value: groupType,
+            id: `groupType${groupType}`,
+            label: <FormattedMessage id={`groupTypeLabel${groupType}`} />,
+            tooltip: intl.formatMessage({ id: `groupTypeTip${groupType}` }),
+          }))}
+        />
+      </div>
       <OutlinedInput
         id="groupName"
         className={classes.input}

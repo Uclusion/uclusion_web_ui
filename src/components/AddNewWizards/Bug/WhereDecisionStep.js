@@ -1,9 +1,10 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { FormControl, FormControlLabel, Radio, RadioGroup, Typography } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
+import ChoicePills from '../../Buttons/ChoicePills';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { formCommentLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
@@ -121,36 +122,16 @@ function WhereDecisionStep (props) {
         useCompression={useCompression}
       />
       <div style={{marginBottom: '2rem'}} />
-      <FormControl component="fieldset">
-        <RadioGroup
-          aria-labelledby="type-choice"
-          onChange={(event) => {
-            const { value } = event.target;
-            updateFormData({ destination: value });
-          }}
-          value={destination || ''}
-        >
-          {allowedTypes.map((objectType) => {
-            return (
-              <FormControlLabel
-                id={`type${objectType}`}
-                key={objectType}
-                /* prevent clicking the label stealing focus */
-                onMouseDown={e => e.preventDefault()}
-                style={{paddingRight: '0.5rem'}}
-                control={<Radio />}
-                className={classes.certaintyValue}
-                classes={{
-                  label: classes.certaintyValueLabel
-                }}
-                label={<FormattedMessage id={`${objectType !== 'Discussion' ? useType : ''}${objectType}MoveLabel`}/>}
-                labelPlacement="end"
-                value={objectType}
-              />
-            );
-          })}
-        </RadioGroup>
-      </FormControl>
+      <ChoicePills
+        ariaLabel="type-choice"
+        value={destination || ''}
+        onChange={(value) => updateFormData({ destination: value })}
+        options={allowedTypes.map((objectType) => ({
+          value: objectType,
+          id: `type${objectType}`,
+          label: <FormattedMessage id={`${objectType !== 'Discussion' ? useType : ''}${objectType}MoveLabel`} />,
+        }))}
+      />
       <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}

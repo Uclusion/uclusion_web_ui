@@ -1,9 +1,10 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { FormControl, FormControlLabel, Radio, RadioGroup, Typography } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
+import ChoicePills from '../../Buttons/ChoicePills';
 import { FormattedMessage } from 'react-intl';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
@@ -57,37 +58,16 @@ function JobReadyStep(props) {
       </Typography>
       <JobDescription marketId={marketId} investibleId={investibleId} showAssigned={false}/>
       <div style={{ marginBottom: '2rem' }} />
-      <FormControl component="fieldset">
-        <RadioGroup
-          aria-labelledby="comment-type-choice"
-          onChange={(event) => {
-            const { value } = event.target;
-            updateFormData({ useAnswer: value });
-          }}
-          value={useAnswer || defaultAnswer}
-        >
-          {['Yes', 'No'].map((answer) => {
-            const id = `${answer}Ready`;
-            return (
-              <FormControlLabel
-                id={id}
-                key={answer}
-                /* prevent clicking the label stealing focus */
-                onMouseDown={e => e.preventDefault()}
-                style={{paddingRight: '0.5rem'}}
-                control={<Radio />}
-                className={classes.certaintyValue}
-                classes={{
-                  label: classes.certaintyValueLabel
-                }}
-                label={<FormattedMessage id={id}/>}
-                labelPlacement="end"
-                value={answer}
-              />
-            );
-          })}
-        </RadioGroup>
-      </FormControl>
+      <ChoicePills
+        ariaLabel="comment-type-choice"
+        value={useAnswer || defaultAnswer}
+        onChange={(value) => updateFormData({ useAnswer: value })}
+        options={['Yes', 'No'].map((answer) => ({
+          value: answer,
+          id: `${answer}Ready`,
+          label: <FormattedMessage id={`${answer}Ready`} />,
+        }))}
+      />
       <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}

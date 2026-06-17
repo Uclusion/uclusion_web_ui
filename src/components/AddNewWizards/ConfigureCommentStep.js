@@ -1,9 +1,10 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { FormControl, FormControlLabel, Radio, RadioGroup, Typography } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import WizardStepContainer from './WizardStepContainer';
 import { WizardStylesContext } from './WizardStylesContext';
 import WizardStepButtons from './WizardStepButtons';
+import ChoicePills from '../Buttons/ChoicePills';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments';
 import { FormattedMessage } from 'react-intl';
 import { getMentionsFromText, saveComment, sendComment, updateComment } from '../../api/comments';
@@ -175,37 +176,15 @@ function ConfigureCommentStep(props) {
           Notify team of this issue?
         </Typography>
       )}
-      <FormControl component="fieldset">
-        <RadioGroup
-          aria-labelledby="comment-type-choice"
-          onChange={(event) => {
-            const { value } = event.target;
-            updateFormData({ useAnswer: value });
-          }}
-          value={useAnswer || defaultAnswer}
-        >
-          {['Yes', 'No'].map((answer) => {
-            const answerId = `${useType}${answer}`;
-            return (
-              <FormControlLabel
-                id={answerId}
-                key={answer}
-                /* prevent clicking the label stealing focus */
-                onMouseDown={e => e.preventDefault()}
-                style={{paddingRight: '0.5rem'}}
-                control={<Radio />}
-                className={classes.certaintyValue}
-                classes={{
-                  label: classes.certaintyValueLabel
-                }}
-                label={<FormattedMessage id={`${answerId}Config`} />}
-                labelPlacement="end"
-                value={answer}
-              />
-            );
-          })}
-        </RadioGroup>
-      </FormControl>
+      <ChoicePills
+        ariaLabel="comment-type-choice"
+        value={useAnswer || defaultAnswer}
+        onChange={(value) => updateFormData({ useAnswer: value })}
+        options={['Yes', 'No'].map((answer) => {
+          const answerId = `${useType}${answer}`;
+          return { value: answer, id: answerId, label: <FormattedMessage id={`${answerId}Config`} /> };
+        })}
+      />
       <div className={classes.borderBottom} />
       <WizardStepButtons
         {...props}

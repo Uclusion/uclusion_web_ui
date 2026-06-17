@@ -5,15 +5,13 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import {
   darken,
   FormControl,
-  FormControlLabel,
   makeStyles,
   MenuItem,
-  Radio,
-  RadioGroup,
-  Select, Tooltip,
+  Select,
   useMediaQuery,
   useTheme
 } from '@material-ui/core';
+import ChoicePills from '../../../components/Buttons/ChoicePills';
 import { updateInvestment } from '../../../api/marketInvestibles';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
@@ -210,35 +208,17 @@ function AddEditVote(props) {
               <div style={{marginBottom: '1rem'}}/>
             )}
             {!mobileLayout && (
-              <RadioGroup
-                aria-labelledby="add-vote-certainty"
-                className={classes.certaintyGroup}
-                onChange={onChange}
-                value={approveQuantity || 0}
-              >
-                {certainties.map(certainty => {
-                  return (
-                    <Tooltip title={<h3>
-                      {intl.formatMessage({ id: `certaintyTip${certainty}` })}
-                    </h3>} placement="top">
-                      <FormControlLabel
-                        key={certainty}
-                        id={`${isInbox ? 'inbox' : ''}${certainty}`}
-                        className={classes.certaintyValue}
-                        classes={{
-                          label: classes.certaintyValueLabel
-                        }}
-                        /* prevent clicking the label stealing focus */
-                        onMouseDown={e => e.preventDefault()}
-                        control={<Radio />}
-                        label={<FormattedMessage id={`certainty${certainty}`} />}
-                        labelPlacement="start"
-                        value={certainty}
-                      />
-                    </Tooltip>
-                  );
-                })}
-              </RadioGroup>
+              <ChoicePills
+                ariaLabel="add-vote-certainty"
+                value={`${approveQuantity || 0}`}
+                onChange={(value) => onChange({ target: { value } })}
+                options={certainties.map((certainty) => ({
+                  value: `${certainty}`,
+                  id: `${isInbox ? 'inbox' : ''}${certainty}`,
+                  label: <FormattedMessage id={`certainty${certainty}`} />,
+                  tooltip: intl.formatMessage({ id: `certaintyTip${certainty}` }),
+                }))}
+              />
             )}
           </FormControl>
           {Editor}

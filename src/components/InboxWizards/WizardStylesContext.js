@@ -129,7 +129,7 @@ export const wizardStyles = makeStyles(
         width: 200,
         backgroundColor: '#2D9CDB',
         color: 'white !important',
-        borderRadius: '8px',
+        borderRadius: '999px',
         textTransform: 'unset !important',
         marginRight: '20px',
         '&:hover': {
@@ -145,7 +145,7 @@ export const wizardStyles = makeStyles(
         border: '2px solid #2D9CDB',
         color: 'black !important',
         backgroundColor: 'white',
-        borderRadius: '8px',
+        borderRadius: '999px',
         textTransform: 'unset !important',
         maxHeight: '2.6rem',
         whiteSpace: 'nowrap',
@@ -168,7 +168,7 @@ export const wizardStyles = makeStyles(
       },
       actionSecondary: {
         backgroundColor: '#e0e0e0',
-        borderRadius: '8px',
+        borderRadius: '999px',
         textTransform: 'unset',
         marginRight: '20px',
         '@media (hover: hover)': {

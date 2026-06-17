@@ -47,8 +47,9 @@ import { getInvestible } from '../../contexts/InvestibesContext/investiblesConte
 const useStyles = makeStyles((theme) => ({
   magicButton: {
     textTransform: 'none',
-    borderRadius: '8px',
-    padding: '6px 16px',
+    borderRadius: '999px',
+    padding: '3px 12px',
+    fontSize: '0.9rem',
     color: 'black',
     backgroundColor: theme.palette.background.actionButton,
     transition: 'background-color 0.2s ease, box-shadow 0.2s ease',

@@ -689,7 +689,13 @@ def get_env_paths(env):
 
 
 def load_config(json_path):
-    config_path = os.path.join(os.path.expanduser('~'), '.uclusion', json_path)
+    # Prefer a project-local config in the current directory (written by a
+    # project-level install) so `uclusion` run inside a project uses that
+    # project's sources/report settings; fall back to the user-global
+    # ~/.uclusion copy. Credentials always stay user-global (see get_credentials).
+    local_path = os.path.join(os.getcwd(), json_path)
+    config_path = local_path if os.path.exists(local_path) else \
+        os.path.join(os.path.expanduser('~'), '.uclusion', json_path)
     try:
         with open(config_path, 'r') as f:
             return json.load(f)

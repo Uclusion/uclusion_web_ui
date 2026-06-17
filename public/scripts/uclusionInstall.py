@@ -2,19 +2,28 @@
 """Install the Uclusion CLI and MCP Proxy scripts and configure them.
 
 Downloads ``uclusionCLI.py`` and ``uclusionMCPProxy.py`` from the Uclusion site
-(environment-specific) into a versioned install directory and exposes them on
-``PATH`` via symlinks in ``/usr/local/bin``, mirroring how the AWS CLI is laid
-out (``/usr/local/bin/aws -> /usr/local/aws-cli/v2/current/bin/aws``).
+(environment-specific) into a versioned install directory under ``~/.local`` and
+exposes them on ``PATH`` via symlinks in ``~/.local/bin`` (the same user-local
+bin Claude and Codex install into). The install is always user-local, so it
+never needs root or sudo.
 
 The CLI file is named ``uclusion.py`` in the install directory and is exposed
 on ``PATH`` via a ``uclusion`` symlink, so users invoke it simply as
 ``uclusion`` rather than the legacy ``uclusionCLI.py`` filename.
 
-Also writes a workspace config to ``~/.uclusion/uclusion.json`` and registers
-the Uclusion MCP server in ``~/.cursor/mcp.json`` and ``~/.claude.json`` if
-those files already exist, and in ``~/.codex/config.toml`` if the ``~/.codex``
-directory exists (Codex treats ``config.toml`` as optional, so directory
-presence — not file presence — is the install signal).
+The installer then asks whether to configure Uclusion globally (the default) or
+at the project level:
+
+* Global writes a workspace config to ``~/.uclusion/uclusion.json`` and registers
+  the Uclusion MCP server in ``~/.cursor/mcp.json`` and ``~/.claude.json`` if
+  those files already exist, and in ``~/.codex/config.toml`` if the ``~/.codex``
+  directory exists (Codex treats ``config.toml`` as optional, so directory
+  presence — not file presence — is the install signal).
+* Project level writes everything into a directory the user supplies: the
+  workspace config (``uclusion.json``), project-scoped MCP registrations
+  (``.mcp.json`` for Claude Code, ``.cursor/mcp.json`` for Cursor), and the
+  workflow docs (``CLAUDE.md``, ``.cursor/rules/uclusion.mdc``, ``AGENTS.md``).
+  The CLI binaries themselves always stay user-global under ``~/.local``.
 """
 import argparse
 import json
@@ -27,12 +36,15 @@ import tempfile
 import urllib.request
 
 
-SCRIPT_INSTALL_PREFIX = '/usr/local/uclusion-cli'
+LOCAL_PREFIX = os.path.join(os.path.expanduser('~'), '.local')
+SCRIPT_INSTALL_PREFIX = os.path.join(LOCAL_PREFIX, 'uclusion-cli')
 SCRIPT_INSTALL_VERSION = 'v1'
 SCRIPT_INSTALL_DIR = os.path.join(
     SCRIPT_INSTALL_PREFIX, SCRIPT_INSTALL_VERSION, 'current', 'bin'
 )
-SYMLINK_DIR = '/usr/local/bin'
+# Symlinks land in ~/.local/bin (where Claude and Codex install too), so the
+# install is always user-writable and never needs root or sudo.
+SYMLINK_DIR = os.path.join(LOCAL_PREFIX, 'bin')
 
 # Connect/read timeout (seconds) for every network fetch. Without it a stalled
 # TLS handshake or read blocks urlopen forever and the installer has to be
@@ -95,47 +107,32 @@ def make_executable(path):
     os.chmod(path, current | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
 
-def ensure_dir_with_sudo_if_needed(path):
-    """Create ``path`` (and parents) world-readable, escalating to sudo on EACCES."""
-    try:
-        os.makedirs(path, exist_ok=True)
-        return
-    except PermissionError:
-        pass
-
-    print(f"  🔐 Need elevated permissions to create {path}; using sudo.")
-    subprocess.run(['sudo', 'install', '-d', '-m', '0755', path], check=True)
+def ensure_dir(path):
+    """Create ``path`` and any missing parents. Always under ~/.local, so no sudo."""
+    os.makedirs(path, exist_ok=True)
 
 
-def install_file_with_sudo_if_needed(src_path, dest_path):
-    """Move ``src_path`` to ``dest_path``, falling back to ``sudo`` on EACCES."""
-    try:
-        shutil.move(src_path, dest_path)
-        make_executable(dest_path)
-        return
-    except PermissionError:
-        pass
-
-    print(f"  🔐 Need elevated permissions to write {dest_path}; using sudo.")
-    subprocess.run(['sudo', 'install', '-m', '0755', src_path, dest_path], check=True)
-    try:
-        os.remove(src_path)
-    except OSError:
-        pass
+def install_file(src_path, dest_path):
+    """Move ``src_path`` to ``dest_path`` and mark it executable."""
+    shutil.move(src_path, dest_path)
+    make_executable(dest_path)
 
 
-def create_symlink_with_sudo_if_needed(target, link_path):
+def create_symlink(target, link_path):
     """Create or replace a symlink at ``link_path`` pointing to ``target``."""
-    try:
-        if os.path.lexists(link_path):
-            os.remove(link_path)
-        os.symlink(target, link_path)
-        return
-    except PermissionError:
-        pass
+    if os.path.lexists(link_path):
+        os.remove(link_path)
+    os.symlink(target, link_path)
 
-    print(f"  🔐 Need elevated permissions to write {link_path}; using sudo.")
-    subprocess.run(['sudo', 'ln', '-sfn', target, link_path], check=True)
+
+def warn_if_not_on_path(directory):
+    """Print a hint if ``directory`` is not on ``PATH`` so symlinks aren't found."""
+    target = os.path.normpath(directory)
+    entries = [os.path.normpath(p) for p in os.environ.get('PATH', '').split(os.pathsep) if p]
+    if target in entries:
+        return
+    print(f"  ⚠️  {directory} is not on your PATH; the 'uclusion' command won't be found.")
+    print(f"      Add it, e.g.:  export PATH=\"{directory}:$PATH\"")
 
 
 def install_scripts(env):
@@ -144,7 +141,8 @@ def install_scripts(env):
     print(f"    install dir : {SCRIPT_INSTALL_DIR}")
     print(f"    symlink dir : {SYMLINK_DIR}")
 
-    ensure_dir_with_sudo_if_needed(SCRIPT_INSTALL_DIR)
+    ensure_dir(SCRIPT_INSTALL_DIR)
+    ensure_dir(SYMLINK_DIR)
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         for source_name, installed_name, symlink_name in SCRIPT_FILES:
@@ -154,17 +152,19 @@ def install_scripts(env):
             make_executable(tmp_path)
 
             install_path = os.path.join(SCRIPT_INSTALL_DIR, installed_name)
-            install_file_with_sudo_if_needed(tmp_path, install_path)
+            install_file(tmp_path, install_path)
             print(f"  ✅ Installed {install_path}")
 
             symlink_path = os.path.join(SYMLINK_DIR, symlink_name)
-            create_symlink_with_sudo_if_needed(install_path, symlink_path)
+            create_symlink(install_path, symlink_path)
             print(f"  🔗 Linked {symlink_path} -> {install_path}")
 
+    warn_if_not_on_path(SYMLINK_DIR)
 
-def write_uclusion_config(workspace_id, view_id):
-    print(f"🗂  Writing workspace config to {UCLUSION_CONFIG_PATH}")
-    os.makedirs(UCLUSION_HOME, exist_ok=True)
+
+def write_uclusion_config(workspace_id, view_id, config_path):
+    print(f"🗂  Writing workspace config to {config_path}")
+    os.makedirs(os.path.dirname(config_path), exist_ok=True)
     config = {
         'workspaceId': workspace_id,
         'extensionsList': ['js', 'py'],
@@ -174,36 +174,47 @@ def write_uclusion_config(workspace_id, view_id):
     }
     if view_id is not None and view_id != workspace_id:
         config['todoViewId'] = view_id
-    with open(UCLUSION_CONFIG_PATH, 'w', encoding='utf-8') as out:
+    with open(config_path, 'w', encoding='utf-8') as out:
         json.dump(config, out, indent=2)
         out.write('\n')
-    print(f"  ✅ Wrote {UCLUSION_CONFIG_PATH}")
+    print(f"  ✅ Wrote {config_path}")
 
 
-def update_cursor_mcp(workspace_id, env):
-    if not os.path.exists(CURSOR_MCP_PATH):
-        print(f"ℹ️  No {CURSOR_MCP_PATH} found; skipping MCP server registration.")
+def register_mcp_json(path, label, workspace_id, env, require_existing):
+    """Register the Uclusion MCP server in a JSON config at ``path``.
+
+    Handles every ``{"mcpServers": {...}}`` surface: the global Cursor
+    ``mcp.json`` and Claude Code ``~/.claude.json``, plus the project-scoped
+    ``.mcp.json`` / ``.cursor/mcp.json`` written by a project-level install.
+    ``require_existing`` skips the file when it is absent — the global files are
+    owned by those tools, so we never create them from scratch — whereas project
+    files are ours to create and pass ``require_existing=False``.
+    """
+    exists = os.path.exists(path)
+    if require_existing and not exists:
+        print(f"ℹ️  No {path} found; skipping {label} MCP server registration.")
         return
 
-    print(f"🧩 Registering Uclusion MCP server in {CURSOR_MCP_PATH}")
-    try:
-        with open(CURSOR_MCP_PATH, 'r', encoding='utf-8') as src:
-            mcp_config = json.load(src)
-    except json.JSONDecodeError as err:
-        print(f"  ❌ {CURSOR_MCP_PATH} is not valid JSON: {err}")
-        return
-
-    if not isinstance(mcp_config, dict):
-        print(f"  ❌ {CURSOR_MCP_PATH} top-level value must be a JSON object.")
-        return
+    print(f"🧩 Registering Uclusion MCP server in {path}")
+    config = {}
+    if exists:
+        try:
+            with open(path, 'r', encoding='utf-8') as src:
+                config = json.load(src)
+        except json.JSONDecodeError as err:
+            print(f"  ❌ {path} is not valid JSON: {err}")
+            return
+        if not isinstance(config, dict):
+            print(f"  ❌ {path} top-level value must be a JSON object.")
+            return
 
     args = [MCP_PROXY_SYMLINK_PATH, workspace_id]
     if env is not None:
         args.append(env)
 
-    servers = mcp_config.setdefault('mcpServers', {})
+    servers = config.setdefault('mcpServers', {})
     if not isinstance(servers, dict):
-        print(f"  ❌ 'mcpServers' in {CURSOR_MCP_PATH} must be a JSON object.")
+        print(f"  ❌ 'mcpServers' in {path} must be a JSON object.")
         return
 
     servers['Uclusion'] = {
@@ -211,47 +222,11 @@ def update_cursor_mcp(workspace_id, env):
         'args': args,
     }
 
-    with open(CURSOR_MCP_PATH, 'w', encoding='utf-8') as out:
-        json.dump(mcp_config, out, indent=2)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as out:
+        json.dump(config, out, indent=2)
         out.write('\n')
-    print(f"  ✅ Updated {CURSOR_MCP_PATH}")
-
-
-def update_claude_json_mcp(workspace_id, env):
-    if not os.path.exists(CLAUDE_JSON_PATH):
-        print(f"ℹ️  No {CLAUDE_JSON_PATH} found; skipping Claude Code MCP server registration.")
-        return
-
-    print(f"🧩 Registering Uclusion MCP server in {CLAUDE_JSON_PATH}")
-    try:
-        with open(CLAUDE_JSON_PATH, 'r', encoding='utf-8') as src:
-            claude_config = json.load(src)
-    except json.JSONDecodeError as err:
-        print(f"  ❌ {CLAUDE_JSON_PATH} is not valid JSON: {err}")
-        return
-
-    if not isinstance(claude_config, dict):
-        print(f"  ❌ {CLAUDE_JSON_PATH} top-level value must be a JSON object.")
-        return
-
-    args = [MCP_PROXY_SYMLINK_PATH, workspace_id]
-    if env is not None:
-        args.append(env)
-
-    servers = claude_config.setdefault('mcpServers', {})
-    if not isinstance(servers, dict):
-        print(f"  ❌ 'mcpServers' in {CLAUDE_JSON_PATH} must be a JSON object.")
-        return
-
-    servers['Uclusion'] = {
-        'command': 'python3',
-        'args': args,
-    }
-
-    with open(CLAUDE_JSON_PATH, 'w', encoding='utf-8') as out:
-        json.dump(claude_config, out, indent=2)
-        out.write('\n')
-    print(f"  ✅ Updated {CLAUDE_JSON_PATH}")
+    print(f"  ✅ Updated {path}")
 
 
 def build_codex_mcp_block(workspace_id, env):
@@ -379,6 +354,60 @@ def prompt_yes_no(question):
     return answer.strip().lower() in ('y', 'yes')
 
 
+def prompt_line(question):
+    """Prompt for a free-text line, reading from /dev/tty so it works under curl|bash.
+
+    Mirrors prompt_yes_no's terminal handling. Returns the entered text (stripped
+    of the trailing newline) or None when no terminal is available to read from.
+    """
+    prompt = f"{question} "
+    try:
+        tty_in = open('/dev/tty', 'r', encoding='utf-8')
+    except OSError:
+        try:
+            return input(prompt)
+        except EOFError:
+            return None
+
+    try:
+        try:
+            with open('/dev/tty', 'w', encoding='utf-8') as tty_out:
+                tty_out.write(prompt)
+                tty_out.flush()
+        except OSError:
+            sys.stderr.write(prompt)
+            sys.stderr.flush()
+        answer = tty_in.readline()
+    finally:
+        tty_in.close()
+
+    if not answer:
+        return None
+    return answer.rstrip('\n')
+
+
+def prompt_install_scope():
+    """Ask whether to configure Uclusion globally (default) or at the project level.
+
+    Returns the absolute project directory for a project-level install, or None
+    to fall back to the global (home-directory) install. A project install needs
+    a path, so if none can be read (no terminal, or an empty answer) we fall back
+    to global rather than guessing a directory.
+    """
+    if not prompt_yes_no("Configure Uclusion at the project level instead of globally?"):
+        return None
+
+    path = prompt_line("  Project directory path:")
+    if path is None:
+        print("  ⏭  No terminal to read a path from; using a global install.")
+        return None
+    path = path.strip()
+    if not path:
+        print("  ⏭  No path given; using a global install.")
+        return None
+    return os.path.abspath(os.path.expanduser(path))
+
+
 def make_workflow_md_fetcher(env):
     """Return a callable that downloads ``CLAUDE.md`` at most once and caches it.
 
@@ -502,23 +531,24 @@ def install_workflow_md(fetch_md, target_path, client_label, require_dir=None):
         print(f"  ❌ Could not write {target_path}: {err}")
 
 
-def install_cursor_mdc(fetch_md):
-    """Install or refresh ~/.cursor/rules/uclusion.mdc as a Cursor rule.
+def install_cursor_mdc(fetch_md, target_path=CURSOR_MDC_PATH):
+    """Install or refresh a Cursor rule (.mdc) at ``target_path``.
 
-    The body of the rule is the same workflow markdown that lands in
-    CLAUDE.md — we take the (shared, cached) CLAUDE.md content, strip the
-    install markers, prepend a description-based Cursor frontmatter, and write
-    the result. Keeping CLAUDE.md as the single source of truth means the two
-    surfaces never drift.
+    ``target_path`` is ~/.cursor/rules/uclusion.mdc for a global install and
+    ``<project>/.cursor/rules/uclusion.mdc`` for a project-level one. The body of
+    the rule is the same workflow markdown that lands in CLAUDE.md — we take the
+    (shared, cached) CLAUDE.md content, strip the install markers, prepend a
+    description-based Cursor frontmatter, and write the result. Keeping CLAUDE.md
+    as the single source of truth means the two surfaces never drift.
     """
-    exists = os.path.exists(CURSOR_MDC_PATH)
+    exists = os.path.exists(target_path)
     if exists:
-        print(f"📝 Found existing {CURSOR_MDC_PATH}")
-        prompt = f"  Refresh Uclusion Cursor rule at {CURSOR_MDC_PATH}?"
+        print(f"📝 Found existing {target_path}")
+        prompt = f"  Refresh Uclusion Cursor rule at {target_path}?"
         verb = 'Refreshed'
     else:
-        print(f"📝 No {CURSOR_MDC_PATH} found.")
-        prompt = f"  Create {CURSOR_MDC_PATH} with Uclusion job workflow?"
+        print(f"📝 No {target_path} found.")
+        prompt = f"  Create {target_path} with Uclusion job workflow?"
         verb = 'Wrote'
 
     if not prompt_yes_no(prompt):
@@ -535,12 +565,12 @@ def install_cursor_mdc(fetch_md):
     mdc_content = CURSOR_MDC_FRONTMATTER + body
 
     try:
-        os.makedirs(os.path.dirname(CURSOR_MDC_PATH), exist_ok=True)
-        with open(CURSOR_MDC_PATH, 'w', encoding='utf-8') as out:
+        os.makedirs(os.path.dirname(target_path), exist_ok=True)
+        with open(target_path, 'w', encoding='utf-8') as out:
             out.write(mdc_content)
-        print(f"  ✅ {verb} {CURSOR_MDC_PATH}")
+        print(f"  ✅ {verb} {target_path}")
     except OSError as err:
-        print(f"  ❌ Could not write {CURSOR_MDC_PATH}: {err}")
+        print(f"  ❌ Could not write {target_path}: {err}")
 
 
 def build_parser():
@@ -564,23 +594,54 @@ def build_parser():
     return parser
 
 
+def install_global(workspace_id, view_id, mcp_env, fetch_md):
+    """Configure Uclusion in the user's home directory (the default)."""
+    write_uclusion_config(workspace_id, view_id, UCLUSION_CONFIG_PATH)
+    register_mcp_json(CURSOR_MCP_PATH, 'Cursor', workspace_id, mcp_env, require_existing=True)
+    register_mcp_json(CLAUDE_JSON_PATH, 'Claude Code', workspace_id, mcp_env, require_existing=True)
+    update_codex_config(workspace_id, mcp_env)
+    install_workflow_md(fetch_md, CLAUDE_MD_PATH, 'Claude Code')
+    install_cursor_mdc(fetch_md)
+    install_workflow_md(fetch_md, CODEX_AGENTS_MD_PATH, 'Codex', require_dir=CODEX_HOME)
+
+
+def install_project_level(workspace_id, view_id, mcp_env, fetch_md, project_dir):
+    """Configure Uclusion inside ``project_dir`` instead of the home directory.
+
+    Writes the workspace config and the project-scoped MCP registrations and
+    workflow docs into the project. The CLI binaries stay user-global under
+    ~/.local; only configuration becomes project-local. Codex has no per-project
+    MCP config mechanism (its config.toml is global), so project mode registers
+    only Codex's AGENTS.md workflow doc and leaves ~/.codex untouched.
+    """
+    print(f"📁 Project-level install into {project_dir}")
+    os.makedirs(project_dir, exist_ok=True)
+
+    write_uclusion_config(workspace_id, view_id, os.path.join(project_dir, 'uclusion.json'))
+    register_mcp_json(os.path.join(project_dir, '.mcp.json'),
+                      'Claude Code (project)', workspace_id, mcp_env, require_existing=False)
+    register_mcp_json(os.path.join(project_dir, '.cursor', 'mcp.json'),
+                      'Cursor (project)', workspace_id, mcp_env, require_existing=False)
+    install_workflow_md(fetch_md, os.path.join(project_dir, 'CLAUDE.md'), 'Claude Code (project)')
+    install_cursor_mdc(fetch_md, os.path.join(project_dir, '.cursor', 'rules', 'uclusion.mdc'))
+    install_workflow_md(fetch_md, os.path.join(project_dir, 'AGENTS.md'), 'Codex (project)')
+
+
 def main():
     args = build_parser().parse_args()
     env = args.environment
     workspace_id = args.workspace_id
     view_id = args.view_id
+    mcp_env = None if env == 'production' else env
 
     try:
         install_scripts(env)
-        write_uclusion_config(workspace_id, view_id)
-        mcp_env = None if env == 'production' else env
-        update_cursor_mcp(workspace_id, mcp_env)
-        update_claude_json_mcp(workspace_id, mcp_env)
-        update_codex_config(workspace_id, mcp_env)
+        project_dir = prompt_install_scope()
         fetch_md = make_workflow_md_fetcher(env)
-        install_workflow_md(fetch_md, CLAUDE_MD_PATH, 'Claude Code')
-        install_cursor_mdc(fetch_md)
-        install_workflow_md(fetch_md, CODEX_AGENTS_MD_PATH, 'Codex', require_dir=CODEX_HOME)
+        if project_dir is None:
+            install_global(workspace_id, view_id, mcp_env, fetch_md)
+        else:
+            install_project_level(workspace_id, view_id, mcp_env, fetch_md, project_dir)
     except subprocess.CalledProcessError as err:
         print(f"❌ Command failed: {err}")
         return 1

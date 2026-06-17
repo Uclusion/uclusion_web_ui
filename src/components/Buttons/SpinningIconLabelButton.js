@@ -16,6 +16,12 @@ import FocusRippleButton from './FocusRippleButton';
 // The hover lift + active press give the tactile feedback the button lacked.
 const pillBase = {
   marginRight: '1rem',
+  // The comment/bug action row is a flex container with the default
+  // align-items: stretch, so buttons stretch to the tallest sibling. On a bug
+  // that's the taller severity dropdown / checkbox, which made the buttons
+  // taller (un-tight) than on a task. align-self: center keeps each button at
+  // its natural tight height regardless of the row.
+  alignSelf: 'center',
   '& .MuiButton-label': {
     textTransform: 'none'
   },

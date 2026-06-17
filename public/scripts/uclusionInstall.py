@@ -316,15 +316,21 @@ def update_codex_config(workspace_id, env):
         print(f"  ❌ Could not write {CODEX_CONFIG_PATH}: {err}")
 
 
-def prompt_yes_no(question):
-    """Prompt for a y/N answer; return True only on explicit yes.
+def prompt_yes_no(question, default=False):
+    """Prompt for a yes/no answer, returning ``default`` on an empty response.
+
+    ``default`` controls both the displayed hint ([Y/n] vs [y/N]) and what an
+    empty answer (just Enter) means. Refresh prompts pass ``default=True`` so
+    that re-running the installer keeps the managed Uclusion blocks current
+    without the user having to type ``y`` each time.
 
     Reads from /dev/tty so the prompt still works when the installer is run via
     ``curl ... | bash`` (in which case stdin is the pipe, not the terminal).
     Uses separate read/write handles to avoid buffering quirks that can make a
     shared ``r+`` handle return EOF on the first ``readline`` call.
     """
-    prompt = f"{question} [y/N] "
+    hint = '[Y/n]' if default else '[y/N]'
+    prompt = f"{question} {hint} "
     answer = None
     try:
         tty_in = open('/dev/tty', 'r', encoding='utf-8')
@@ -347,11 +353,18 @@ def prompt_yes_no(question):
         try:
             answer = input(prompt)
         except EOFError:
-            return False
+            return default
 
     if not answer:
+        return default
+    text = answer.strip().lower()
+    if not text:
+        return default
+    if text in ('y', 'yes'):
+        return True
+    if text in ('n', 'no'):
         return False
-    return answer.strip().lower() in ('y', 'yes')
+    return default
 
 
 def prompt_line(question):
@@ -490,16 +503,19 @@ def install_workflow_md(fetch_md, target_path, client_label, require_dir=None):
         print(f"📝 Found Uclusion workflow block in {target_path}")
         action = 'replace'
         prompt = f"  Refresh Uclusion job workflow in {target_path}?"
+        default_yes = True
     elif exists:
         print(f"📝 Found existing {target_path}")
         action = 'append'
         prompt = f"  Append Uclusion job workflow to {target_path}?"
+        default_yes = False
     else:
         print(f"📝 No {target_path} found.")
         action = 'create'
         prompt = f"  Create {target_path} with Uclusion job workflow?"
+        default_yes = False
 
-    if not prompt_yes_no(prompt):
+    if not prompt_yes_no(prompt, default=default_yes):
         print(f"  ⏭  Skipped {os.path.basename(target_path)} update.")
         return
 
@@ -546,12 +562,14 @@ def install_cursor_mdc(fetch_md, target_path=CURSOR_MDC_PATH):
         print(f"📝 Found existing {target_path}")
         prompt = f"  Refresh Uclusion Cursor rule at {target_path}?"
         verb = 'Refreshed'
+        default_yes = True
     else:
         print(f"📝 No {target_path} found.")
         prompt = f"  Create {target_path} with Uclusion job workflow?"
         verb = 'Wrote'
+        default_yes = False
 
-    if not prompt_yes_no(prompt):
+    if not prompt_yes_no(prompt, default=default_yes):
         print("  ⏭  Skipped uclusion.mdc update.")
         return
 

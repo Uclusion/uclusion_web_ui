@@ -42,6 +42,56 @@ import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMem
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 import BugListItem from '../../components/Comments/BugListItem';
 
+// Assistance-section indicators (C-all-988 / Q-all-135, option O-2). Each
+// reason a job sits in assistance becomes a compact tinted icon badge whose
+// COLOR encodes the type - matching the outlined CommentTypeChip used on the
+// comment rows in the same card and across the rest of the app. The older
+// bare icons used color for urgency (red = unread message, orange = none),
+// which clashed with that vocabulary. Urgency now rides on a small red dot
+// (unread message) plus a fuller-saturation badge; read items are muted.
+//   0 blocker, 1 suggestion, 2 question, 3 needs-assignment ("Ready").
+const ASSIST_VISUAL = {
+  0: { Icon: Block,             base: '#E85757', icon: '#C8362F', baseDark: '#E85757', iconDark: '#ef8b8b' },
+  1: { Icon: LightbulbOutlined, base: '#F29100', icon: '#B96F00', baseDark: '#F29100', iconDark: '#f3ad4d' },
+  2: { Icon: QuestionIcon,      base: '#2F80ED', icon: '#2F80ED', baseDark: '#4d96f5', iconDark: '#7db4f7' },
+  3: { Icon: PersonSearch,      base: '#43A047', icon: '#2E7D32', baseDark: '#5fa55f', iconDark: '#7db05a' },
+};
+
+function hexToRgba(hex, alpha) {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.substring(0, 2), 16);
+  const g = parseInt(h.substring(2, 4), 16);
+  const b = parseInt(h.substring(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+// forwardRef so MUI Tooltip can attach to the badge root.
+const AssistanceBadge = React.forwardRef(function AssistanceBadge(props, ref) {
+  const { assistanceType, unread, ...other } = props;
+  const theme = useTheme();
+  const isDark = theme.palette.type === 'dark';
+  const v = ASSIST_VISUAL[assistanceType];
+  if (!v) {
+    return null;
+  }
+  const Icon = v.Icon;
+  const border = isDark ? v.baseDark : v.base;
+  const iconColor = isDark ? v.iconDark : v.icon;
+  const tint = hexToRgba(v.base, isDark ? 0.22 : 0.13);
+  const dotBorder = theme.palette.background.paper || (isDark ? '#2b2f36' : '#fff');
+  return (
+    <span ref={ref} {...other} style={{ position: 'relative', display: 'inline-flex', alignItems: 'center',
+      justifyContent: 'center', width: 26, height: 26, borderRadius: 7, boxSizing: 'border-box',
+      border: `1.5px solid ${border}`, backgroundColor: tint, opacity: unread ? 1 : 0.72 }}>
+      <Icon style={{ fontSize: 17, color: iconColor }} />
+      {unread && (
+        <span style={{ position: 'absolute', top: -2, right: -3, width: 8, height: 8, borderRadius: '50%',
+          backgroundColor: '#E53935', border: `1.5px solid ${dotBorder}`, boxSizing: 'border-box' }} />
+      )}
+    </span>
+  );
+});
+
 function getInvestibleOnClick(id, marketId, history) {
   const link = formInvestibleLink(marketId, id);
   navigate(history, link);
@@ -115,9 +165,9 @@ function ArchiveInvestible(props) {
               <div style={{whiteSpace: 'nowrap', fontSize: '.75rem'}}>
                 {viewIndicator}
               </div>
-              <div style={{display: 'flex', alignItems: 'center', marginTop: '0.35rem'}}>
+              <div style={{display: 'flex', alignItems: 'center', gap: '6px', marginTop: '0.35rem'}}>
                 {TypeIconList.map((item, index) => {
-                  const { TypeIcon, typeExplanation, myMessage, myLink } = item;
+                  const { assistanceType, typeExplanation, myMessage, myLink } = item;
                   return (<div
                   key={`${id}-icon-${index}`}
                   onClick={(event) => {
@@ -137,7 +187,7 @@ function ArchiveInvestible(props) {
                   }}
                 >
                   <Tooltip title={intl.formatMessage({ id: typeExplanation })}>
-                    {TypeIcon}
+                    <AssistanceBadge assistanceType={assistanceType} unread={!!myMessage} />
                   </Tooltip>
                 </div>);
                 })}
@@ -201,33 +251,29 @@ function ArchiveInvestbiles(props) {
   function getIcon(assistanceType, messages, isAssigned) {
     // Just go to the first message associated with this investible - further work questions do not have one
     const myMessage = !_.isEmpty(messages) ? messages[0] : undefined;
-    let TypeIcon;
     let typeExplanation;
     switch (assistanceType) {
       case 0:
-        TypeIcon = myMessage ? <Block htmlColor='#E85757' /> : <Block htmlColor='#F29100' />;
         typeExplanation = 'issuePresent';
         break;
       case 1:
-        TypeIcon = myMessage ? <LightbulbOutlined htmlColor='#E85757' /> : <LightbulbOutlined htmlColor='#F29100' />;
         typeExplanation = isAssigned ? 'suggestPresent' : 'suggestPresentBacklog';
         break;
       case 2:
-        TypeIcon = myMessage ? <QuestionIcon htmlColor='#E85757' /> : <QuestionIcon htmlColor='#F29100' />;
         typeExplanation = isAssigned ? 'questionPresent' : 'questionPresentBacklog';
         break;
       case 3:
-        TypeIcon = myMessage ? <PersonSearch htmlColor='#E85757' /> : <PersonSearch htmlColor='#F29100' />;
         typeExplanation = 'readyToStartDisplay';
         break;
       default:
-        TypeIcon = undefined;
         typeExplanation = undefined;
     }
     if (myMessage) {
       typeExplanation = 'messagePresent';
     }
-    return {TypeIcon, typeExplanation, myMessage};
+    // Color now encodes type, not urgency; the unread/message signal rides on
+    // AssistanceBadge's dot + saturation (see ASSIST_VISUAL).
+    return {assistanceType, typeExplanation, myMessage};
   }
 
   function getInvestibles() {

@@ -2,13 +2,18 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Box, Card, makeStyles } from '@material-ui/core';
 import clsx from 'clsx'
+import { CARD_BORDER_COLOR, DARK_CARD_BORDER_COLOR } from '../Buttons/ButtonConstants'
 
 const useStyles = makeStyles((theme) => {
+  // Visible card border so cards read as distinct from the main area without
+  // changing their progression fills (T-all-2173, Q-all-128 / C-all-980).
+  const cardBorder = `1px solid ${theme.palette.type === 'dark' ? DARK_CARD_BORDER_COLOR : CARD_BORDER_COLOR}`;
   return {
   card: {
     padding: '8px',
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    border: cardBorder
   },
   rowStyle: {
     "&:hover": { boxShadow: '0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px black'},
@@ -18,12 +23,13 @@ const useStyles = makeStyles((theme) => {
   noClass: {
 
   },
-  
+
   highlightedCard: {
     "&:hover": { boxShadow: '0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px black'},
     display: 'flex',
     flexDirection: 'column',
-    backgroundColor: theme.palette.primary.highlight
+    backgroundColor: theme.palette.primary.highlight,
+    border: cardBorder
   }
   }
 });

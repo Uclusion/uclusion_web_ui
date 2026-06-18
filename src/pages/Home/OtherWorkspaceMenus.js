@@ -68,7 +68,7 @@ function OtherWorkspaceMenus(props) {
   const [searchResults] = useContext(SearchResultsContext);
   const [online] = useContext(OnlineStateContext);
   const [gravatarExists, setGravatarExists] = useState(undefined);
-  const { actionButtonColor, infoColor } = useButtonColors();
+  const { actionButtonColor, sidebarColor, sidebarSelectedColor } = useButtonColors();
   const { search } = searchResults;
   const markets = unfilteredMarkets.filter((market) => !market.is_banned);
   const notCurrentMarkets = markets.filter((market) => market.id !== defaultMarket?.id);
@@ -183,10 +183,10 @@ function OtherWorkspaceMenus(props) {
                   label={intl.formatMessage({ id: 'collaborators' })}
                   rootStyles={{
                     '.css-nx2aea': {
-                      backgroundColor: infoColor
+                      backgroundColor: sidebarColor
                     }
                   }}
-                  style={{backgroundColor: (action === 'wizard' && type === ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()) ? (isDark ? 'black' : '#e0e0e0') : undefined, borderRadius: 22}}
+                  style={{backgroundColor: (action === 'wizard' && type === ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()) ? sidebarSelectedColor : undefined, borderRadius: 22}}
                   key="collaborators" open >
               <div style={{marginLeft: '2rem'}}>
                 <GravatarGroup users={presencesOrdered} gravatarClassName={classes.smallGravatar} 
@@ -258,10 +258,10 @@ function OtherWorkspaceMenus(props) {
             label={intl.formatMessage({ id: 'messages' })}
             rootStyles={{
               '.css-18unl23': {
-                backgroundColor: infoColor
+                backgroundColor: sidebarColor
               },
               '.css-nx2aea': {
-                backgroundColor: infoColor
+                backgroundColor: sidebarColor
               }
             }}
             onClick={(event) => {
@@ -269,7 +269,7 @@ function OtherWorkspaceMenus(props) {
               updatePageState({messagesOpen: !messagesOpen});
             }}
             key="messagesKey" open={messagesOpen || isSearch}>
-            <MenuItem style={{backgroundColor: action === 'inbox' ? (isDark ? 'grey' : '#e0e0e0') : undefined, borderRadius: 22}}
+            <MenuItem style={{backgroundColor: action === 'inbox' ? sidebarSelectedColor : undefined, borderRadius: 22}}
               icon={<Inbox htmlColor={isDark ? DARK_ACTION_BUTTON_COLOR : 'black'} style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                 key="inboxKey" id="inboxId"
                 rootStyles={{
@@ -291,7 +291,7 @@ function OtherWorkspaceMenus(props) {
                 </div>
               </Tooltip>
             </MenuItem>
-            <MenuItem style={{backgroundColor: action === 'outbox' ? (isDark ? 'grey' : '#e0e0e0') : undefined, borderRadius: 22}}
+            <MenuItem style={{backgroundColor: action === 'outbox' ? sidebarSelectedColor : undefined, borderRadius: 22}}
              icon={<OutboxIcon htmlColor={isDark ? DARK_ACTION_BUTTON_COLOR : 'black'} style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                     key="outboxKey" id="outboxId"
                     rootStyles={{
@@ -318,10 +318,10 @@ function OtherWorkspaceMenus(props) {
                   label={intl.formatMessage({ id: 'integrationPreferencesHeader' })}
                   rootStyles={{
                     '.css-18unl23': {
-                      backgroundColor: infoColor
+                      backgroundColor: sidebarColor
                     },
                     '.css-nx2aea': {
-                      backgroundColor: infoColor
+                      backgroundColor: sidebarColor
                     }
                   }}
                   onClick={(event) => {
@@ -337,7 +337,7 @@ function OtherWorkspaceMenus(props) {
                           marginRight: 0,
                         }
                       }}
-                      style={{backgroundColor: (action === 'integrationPreferences' && integrationType === 'gravatar') ? (isDark ? 'grey' : '#e0e0e0') : undefined, 
+                      style={{backgroundColor: (action === 'integrationPreferences' && integrationType === 'gravatar') ? sidebarSelectedColor : undefined, 
                         borderRadius: 22}}
                       onClick={(event) => {
                         preventDefaultAndProp(event);
@@ -358,7 +358,7 @@ function OtherWorkspaceMenus(props) {
                         marginRight: 0,
                       }
                     }}
-                    style={{backgroundColor: (action === 'integrationPreferences' && integrationType === 'cli') ? (isDark ? 'grey' : '#e0e0e0') : undefined, 
+                    style={{backgroundColor: (action === 'integrationPreferences' && integrationType === 'cli') ? sidebarSelectedColor : undefined, 
                       borderRadius: 22}}
                     onClick={(event) => {
                       preventDefaultAndProp(event);
@@ -379,7 +379,7 @@ function OtherWorkspaceMenus(props) {
                           marginRight: 0,
                         },
                       }}
-                      style={{backgroundColor: (action === 'integrationPreferences' && integrationType === 'slack') ? (isDark ? 'grey' : '#e0e0e0') : undefined, 
+                      style={{backgroundColor: (action === 'integrationPreferences' && integrationType === 'slack') ? sidebarSelectedColor : undefined, 
                         borderRadius: 22}}
                       onClick={(event) => {
                         preventDefaultAndProp(event);
@@ -431,13 +431,13 @@ function OtherWorkspaceMenus(props) {
         <SubMenu id='switchWorkspace' label={intl.formatMessage({ id: 'switchWorkspace' })}
                   rootStyles={{
                     '.css-ewdv3l': {
-                      backgroundColor: infoColor
+                      backgroundColor: sidebarColor
                     },
                     '.css-nx2aea': {
-                      backgroundColor: infoColor
+                      backgroundColor: sidebarColor
                     }
                   }}
-                  style={{backgroundColor: (action === 'wizard' && type === WORKSPACE_WIZARD_TYPE.toLowerCase()) ? (isDark ? 'grey' : '#e0e0e0') : undefined, 
+                  style={{backgroundColor: (action === 'wizard' && type === WORKSPACE_WIZARD_TYPE.toLowerCase()) ? sidebarSelectedColor : undefined, 
                     borderRadius: 22}}
                   key="switchWorkspace" open >
           {activeFirstFiveMarkets.map((market) => {

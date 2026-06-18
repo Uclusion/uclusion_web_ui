@@ -61,7 +61,7 @@ import { findMessagesForGroupId } from '../../utils/messageUtils';
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { INDEX_COMMENT_TYPE, INDEX_INVESTIBLE_TYPE } from '../../contexts/SearchIndexContext/searchIndexContextMessages';
-import { DARK_ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants';
+import { DARK_ACTION_BUTTON_COLOR, DARK_SIDEBAR_COLOR, SIDEBAR_COLOR } from '../../components/Buttons/ButtonConstants';
 import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 
 export const screenStyles = makeStyles((theme) => ({
@@ -133,7 +133,9 @@ export const screenStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     flex: '1 0 auto',
-    backgroundColor: theme.palette.background.paper,
+    // Match the sidebar panel color so the area behind the menu is uniform
+    // with it (T-all-2173). Constant in ButtonConstants for easy tuning.
+    backgroundColor: theme.palette.type === 'dark' ? DARK_SIDEBAR_COLOR : SIDEBAR_COLOR,
     height: '100%',
     zIndex: 8,
     position: 'fixed',

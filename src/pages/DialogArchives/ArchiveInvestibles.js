@@ -12,6 +12,7 @@ import {
 } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { makeStyles } from '@material-ui/core/styles';
+import { CARD_BORDER_COLOR, DARK_CARD_BORDER_COLOR } from '../../components/Buttons/ButtonConstants';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments';
 import {
   getFullStage,
@@ -50,7 +51,9 @@ const myArchiveClasses = makeStyles(
   theme => {
     return {
       outlined: {
-        border: `1px solid ${theme.palette.grey["400"]}`,
+        // Stronger, theme-matched border so the Job-assistance cards read
+        // clearly against the section background (T-all-2173).
+        border: `2px solid ${theme.palette.type === 'dark' ? DARK_CARD_BORDER_COLOR : CARD_BORDER_COLOR}`,
         borderRadius: theme.spacing(1),
         padding: theme.spacing(1, 2)
       },

@@ -17,8 +17,8 @@ import { SearchResultsContext } from '../../contexts/SearchResultsContext/Search
 
 function processRegularItem(properties) {
   const {history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, isBlue, complexIcon,
-    index, openMenuItems, isSubMenu, onEnterFunc, onLeaveFunc, endIcon: EndIcon, linkHref, resetFunction, tipText, idPrepend='', 
-    numSuffix='', infoColor, isDark} = properties;
+    index, openMenuItems, isSubMenu, onEnterFunc, onLeaveFunc, endIcon: EndIcon, linkHref, resetFunction, tipText, idPrepend='',
+    numSuffix='', sidebarColor, sidebarSelectedColor, isDark} = properties;
   if (!text) {
     return React.Fragment
   }
@@ -46,7 +46,10 @@ function processRegularItem(properties) {
   const key = `${index}${textNoSpaces}`;
   const isLink = isBold && !isBlue;
   const isActive = isBold && !isSubMenu && isBlue;
-  const backgroundColor = isActive ? (isDark ? 'grey' : '#e0e0e0') : undefined;
+  // Selected item: a clean elevated pill (white in light, lighter slate in
+  // dark) that reads clearly against the deeper teal sidebar (C-all-981).
+  const backgroundColor = isActive ? sidebarSelectedColor : undefined;
+  const boxShadow = isActive ? '0 1px 3px rgba(16, 40, 40, 0.22)' : undefined;
   const textInner = isBold ? (<span
       style={{fontWeight: 'bold', color: isLink ? '#2F80ED' : undefined}}>{text}</span>)
     : <span>{text}</span>;
@@ -60,7 +63,7 @@ function processRegularItem(properties) {
   return (
     <div key={`sidebarMenuHolder${key}`}>
       <MenuItem icon={complexIcon ? Icon : <Icon htmlColor={iconColor} style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
-                style={{backgroundColor, borderRadius: 22}}
+                style={{backgroundColor, boxShadow, borderRadius: 22}}
                 rootStyles={{
                   '.css-wx7wi4': {
                     marginRight: 0,
@@ -107,11 +110,11 @@ function processRegularItem(properties) {
         {textRepresentation}
       </MenuItem>
       {!_.isEmpty(openMenuItems) && (
-        <div style={{paddingLeft: '1rem', backgroundColor: infoColor}} key="openMenuItems">
+        <div style={{paddingLeft: '1rem', backgroundColor: sidebarColor}} key="openMenuItems">
           {openMenuItems.map((subItem, index) => {
             const { text, target, num, icon: Icon, onClickFunc, isBold } = subItem
             return processRegularItem({history, text, target, num, Icon, onClickFunc,
-              isBold, index, isSubMenu: true, infoColor, isDark})
+              isBold, index, isSubMenu: true, sidebarColor, sidebarSelectedColor, isDark})
           })}
         </div>
       )}
@@ -127,7 +130,11 @@ export default function Sidebar(props) {
   const [searchResults] = useContext(SearchResultsContext);
   const isSearch = !_.isEmpty(searchResults?.search);
   const { marketId, navigationOptions, idPrepend='' } = props;
-  const { actionButtonColor, infoColor } = useButtonColors();
+  const { actionButtonColor, sidebarColor, sidebarSelectedColor } = useButtonColors();
+  // Single deeper teal for the whole sidebar panel so it reads as distinct
+  // from the main area; sub-views use the same color (no banding). Colors are
+  // named constants in ButtonConstants (SIDEBAR_COLOR etc.) for easy tuning
+  // (T-all-2173).
   const [pageStateFull, pageDispatch] = usePageStateReducer('sidebarMenus');
   const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, marketId || 'sidebarState',
     {viewsOpen: true});
@@ -137,7 +144,7 @@ export default function Sidebar(props) {
   const firstFiveNavListItemTextArray = navListItemTextArray?.slice(0, 5);
   const moreFiveNavListItemTextArray = navListItemTextArray?.slice(5);
   return (
-    <ProSidebar width="16rem" backgroundColor={infoColor} style={{borderRightWidth: '0px'}}>
+    <ProSidebar width="16rem" backgroundColor={sidebarColor} style={{borderRightWidth: '0px'}}>
         {navMenu}
         {!_.isEmpty(navMenu) && (
           <Menu rootStyles={{
@@ -158,7 +165,7 @@ export default function Sidebar(props) {
                     label={intl.formatMessage({ id: 'viewInGroup' })}
                     rootStyles={{
                       '.ps-menuitem-root': {
-                        backgroundColor: infoColor
+                        backgroundColor: sidebarColor
                       }
                     }}
                       key="views" open >
@@ -167,7 +174,7 @@ export default function Sidebar(props) {
                           onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref, iconColor } = navItem;
                         return processRegularItem({history, text, target, num, numSuffix,Icon, complexIcon, onClickFunc, isBold,
                           isBlue, linkHref, index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction,
-                          tipText, idPrepend, infoColor, iconColor, isDark})
+                          tipText, idPrepend, sidebarColor, sidebarSelectedColor, iconColor, isDark})
                       })}
                       {navListItemTextArray.length > 5 && (
                         <MenuItem
@@ -188,7 +195,7 @@ export default function Sidebar(props) {
                           onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref, iconColor } = navItem;
                         return processRegularItem({history, text, target, num, numSuffix,Icon, complexIcon, onClickFunc, isBold,
                           isBlue, linkHref, index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction,
-                          tipText, idPrepend, infoColor, iconColor, isDark})
+                          tipText, idPrepend, sidebarColor, sidebarSelectedColor, iconColor, isDark})
                       })}
               </SubMenu>
           </Menu>
@@ -206,7 +213,7 @@ export default function Sidebar(props) {
                 onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref, iconColor } = navItem;
               return processRegularItem({history, text, target, num, Icon, complexIcon, onClickFunc, isBold,
                 isBlue, linkHref, index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction,
-                tipText, idPrepend, infoColor, iconColor, isDark})
+                tipText, idPrepend, sidebarColor, sidebarSelectedColor, iconColor, isDark})
             })}
           </Menu>
         )}

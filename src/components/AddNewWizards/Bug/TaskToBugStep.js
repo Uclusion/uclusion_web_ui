@@ -55,7 +55,7 @@ function TaskToBugStep (props) {
       {...props}
       isLarge
     >
-      <Typography className={classes.introText}>
+      <Typography className={classes.introText} style={{marginBottom: '1.5rem'}}>
         What level is this bug?
       </Typography>
       <ChoicePills

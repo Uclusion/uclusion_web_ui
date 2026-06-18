@@ -39,10 +39,10 @@ export const wizardStyles = makeStyles(
       baseCard: {
         width: '100%',
         paddingTop: '16px',
-        paddingLeft: '32px',
+        marginLeft: '5%',
         paddingRight: '32px',
         [theme.breakpoints.down('md')]: {
-          paddingLeft: '12px',
+          marginLeft: 'unset',
           paddingRight: '12px',
         },
         [theme.breakpoints.down('xs')]: {
@@ -247,7 +247,7 @@ export const wizardStyles = makeStyles(
       },
       borderBottom: {
         borderBottom: '1px solid transparent',
-        margin: '25px 0',
+        margin: '14px 0',
         width: '100%',
       },
       dateContainer: {

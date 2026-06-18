@@ -162,17 +162,17 @@ function ConfigureCommentStep(props) {
       {...props}
     >
       {useType === QUESTION_TYPE && (
-        <Typography className={classes.introText}>
+        <Typography className={classes.introText} style={{marginBottom: '1.5rem'}}>
           Can a user approve more than one option?
         </Typography>
       )}
       {useType === SUGGEST_CHANGE_TYPE && (
-        <Typography className={classes.introText}>
+        <Typography className={classes.introText} style={{marginBottom: '1.5rem'}}>
           Will users besides you be able to see the voting?
         </Typography>
       )}
       {useType === ISSUE_TYPE && (
-        <Typography className={classes.introText}>
+        <Typography className={classes.introText} style={{marginBottom: '1.5rem'}}>
           Notify team of this issue?
         </Typography>
       )}

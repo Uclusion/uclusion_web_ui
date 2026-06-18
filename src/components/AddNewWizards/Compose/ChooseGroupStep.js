@@ -19,7 +19,7 @@ function ChooseGroupStep (props) {
     <WizardStepContainer
       {...props}
     >
-      <Typography className={classes.introText}>
+      <Typography className={classes.introText} style={{marginBottom: '1.5rem'}}>
         Create in which view?
       </Typography>
       <ChoicePills

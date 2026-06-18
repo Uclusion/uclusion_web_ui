@@ -391,6 +391,7 @@ export const useCommentStyles = makeStyles(
       rootCheckbox: {
         color: 'black',
         opacity: 0.54,
+        padding: '4px',
       },
       checkedCheckbox: {
         opacity: 1,
@@ -1122,7 +1123,7 @@ function Comment(props) {
               <FormControlLabel
                 id='inProgressCheckbox'
                 className={classes.formControlLabel}
-                style={{maxHeight: '1rem', marginTop: mobileLayout ? '0.35rem' : '0.7rem', color: 'black'}}
+                style={{color: 'black', alignSelf: 'center', marginLeft: '4px'}}
                 control={
                   <Checkbox
                     classes={{
@@ -1178,7 +1179,7 @@ function Comment(props) {
               <FormControlLabel
                 id='isVisibleCheckbox'
                 className={classes.formControlLabel}
-                style={{maxHeight: '1rem', marginTop: mobileLayout ? '0.35rem' : '0.7rem', color: 'black'}}
+                style={{color: 'black', alignSelf: 'center', marginLeft: '4px'}}
                 control={
                   <Checkbox
                     id={`isVisibleCheckbox${id}`}
@@ -1203,7 +1204,7 @@ function Comment(props) {
                   }}
                   onChange={onNotificationTypeChange}
                   onClick={(event) => event.stopPropagation()}
-                  style={{marginRight: '1rem', marginTop: '0.35rem', color: 'black'}}
+                  style={{marginRight: '1rem', color: 'black', alignSelf: 'center'}}
                 >
                   <MenuItem value='RED'>
                     {intl.formatMessage({ id: 'immediate' })}

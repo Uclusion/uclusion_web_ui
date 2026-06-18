@@ -83,7 +83,7 @@ function BugDescriptionStep (props) {
       {...props}
       isLarge
     >
-      <Typography className={classes.introText}>
+      <Typography className={classes.introText} style={{marginBottom: '1.5rem'}}>
         How would you describe this bug?
       </Typography>
       <ChoicePills

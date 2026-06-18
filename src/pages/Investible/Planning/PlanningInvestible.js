@@ -59,7 +59,6 @@ import {
 import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { getStagesInfo } from '../../../utils/stageUtils';
 import PlanningInvestibleNav, { useMetaDataStyles } from './PlanningInvestibleNav';
-import { getIcon } from '../../../components/Comments/CommentEdit';
 import GravatarAndName from '../../../components/Avatars/GravatarAndName';
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
@@ -77,7 +76,10 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import EditIcon from '@material-ui/icons/Edit';
 import { hasJobComment } from '../../../components/AddNewWizards/JobComment/AddCommentStep';
 import Link from '@material-ui/core/Link';
-import InfoIcon from '@material-ui/icons/Info';
+import InfoOutlined from '@material-ui/icons/InfoOutlined';
+import AssignmentOutlined from '@material-ui/icons/AssignmentOutlined';
+import ContactSupportOutlined from '@material-ui/icons/ContactSupportOutlined';
+import NoteOutlined from '@material-ui/icons/NoteOutlined';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
@@ -754,23 +756,25 @@ function PlanningInvestible(props) {
         style={{ paddingBottom: '0.25rem', zIndex: 8, position: mobileLayout ? undefined : 'fixed',
           paddingTop: mobileLayout ? undefined : '0.5rem', width: '100%', marginTop: '-15px', paddingLeft: 0,
           marginLeft: '-0.5rem' }}>
-        <GmailTabItem icon={<InfoIcon />} tagLabel={numNewOverviewMessages > 0 && _.isEmpty(search) ? 'new' : getTagLabel('total')}
+        {/* C-all-994 (Q-all-138, O-4): clean text tabs on desktop; icons only on
+           mobile, where the label is blanked for space - refined to outlined icons. */}
+        <GmailTabItem icon={mobileLayout ? <InfoOutlined /> : undefined} tagLabel={numNewOverviewMessages > 0 && _.isEmpty(search) ? 'new' : getTagLabel('total')}
                       label={intl.formatMessage({id: 'descriptionVotingLabel'})}
                       toolTipId='jobOverviewToolTip' tagColor={hasNewOverviewMessages ? warningColor : undefined}
                       tag={descriptionSectionResults === 0 ? 
                           (hasNewOverviewMessages ? `${numNewOverviewMessages}` : undefined) 
                           : `${descriptionSectionResults}`} />
-        <GmailTabItem icon={getIcon(TODO_TYPE)} label={intl.formatMessage({id: 'openTasksSection'})}
+        <GmailTabItem icon={mobileLayout ? <AssignmentOutlined /> : undefined} label={intl.formatMessage({id: 'openTasksSection'})}
                       tagColor={hasNewTodoMessages ? warningColor : undefined}
                       toolTipId='jobTasksToolTip' tagLabel={hasNewTodoMessages && _.isEmpty(search) ? 'new' : getTagLabel('total')}
                       tag={hasNewTodoMessages && _.isEmpty(search) ? `${numNewTodoMessages}` : countUnresolved(todoCommentsSearched, search)} />
         {displayAssistanceSection && (
-          <GmailTabItem icon={getIcon(QUESTION_TYPE)} toolTipId='jobAssistanceToolTip'
+          <GmailTabItem icon={mobileLayout ? <ContactSupportOutlined /> : undefined} toolTipId='jobAssistanceToolTip'
                         label={intl.formatMessage({id: 'requiresInputStageLabel'})}
                         tagColor={hasNewAssistanceMessages ? warningColor : undefined} tag={assistanceTag}
                         tagLabel={hasNewAssistanceMessages && _.isEmpty(search) ? 'new' : getTagLabel('open')} />
         )}
-        <GmailTabItem icon={getIcon(REPORT_TYPE, 'BLUE')} label={intl.formatMessage({id: 'notesSection'})}
+        <GmailTabItem icon={mobileLayout ? <NoteOutlined /> : undefined} label={intl.formatMessage({id: 'notesSection'})}
                       tagColor={hasNewNotesMessages ? warningColor : undefined}
                       toolTipId='jobNotesToolTip' tagLabel={hasNewNotesMessages && _.isEmpty(search) ? 'new' : getTagLabel('total')}
                       tag={hasNewNotesMessages && _.isEmpty(search) ? `${numNewNotesMessages}` : 

@@ -1,8 +1,9 @@
 import React, { useContext } from 'react';
-import { IconButton, ListItemIcon, ListItemText, makeStyles, Menu, MenuItem, Tooltip } from '@material-ui/core';
+import { IconButton, ListItemIcon, ListItemText, makeStyles, Menu, MenuItem, Tooltip, useTheme } from '@material-ui/core';
 import ListAltIcon from '@material-ui/icons/ListAlt';
 import QuestionIcon from '@material-ui/icons/ContactSupport';
-import { Block, Notes } from '@material-ui/icons';
+import { Block } from '@material-ui/icons';
+import AssignmentIcon from '@material-ui/icons/Assignment';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import { useIntl } from 'react-intl';
 import { navigate, preventDefaultAndProp, formInvestibleAddCommentLink, decomposeMarketPath, formWizardLink } from '../../../utils/marketIdPathFunctions';
@@ -23,6 +24,19 @@ import { refreshInvestibles } from '../../../contexts/InvestibesContext/investib
 import LightbulbOutlined from '../../../components/CustomChip/LightbulbOutlined';
 import { ISSUE_TYPE } from '../../../constants/notifications';
 import { useButtonColors } from '../../../components/Buttons/ButtonConstants';
+
+// Type colors for the "add a typed comment" toolbar icons (C-all-992 / Q-all-137,
+// option O-1) - the same red/orange/blue/green vocabulary as CommentTypeChip and
+// the assistance badges, so each button shows what it adds. The structural icons
+// (promote/demote arrows, make-task, vote) keep the neutral actionButtonColor.
+const TYPE_ICON_COLORS = {
+  task:     { light: '#2E7D32', dark: '#7db05a' },
+  issue:    { light: '#C8362F', dark: '#ef8b8b' },
+  suggest:  { light: '#B96F00', dark: '#f3ad4d' },
+  question: { light: '#2F80ED', dark: '#7db4f7' },
+  // Vote/approve isn't a comment type - give it its own purple identity.
+  vote:     { light: '#7C3AED', dark: '#B794F6' },
+};
 
 const useStyles = makeStyles(() => ({
   paperMenu: {
@@ -45,6 +59,9 @@ function OptionMenu(props) {
   const classes = useStyles();
   const intl = useIntl();
   const history = useHistory();
+  const theme = useTheme();
+  const isDark = theme.palette.type === 'dark';
+  const tColor = (key) => isDark ? TYPE_ICON_COLORS[key].dark : TYPE_ICON_COLORS[key].light;
   const { actionButtonColor } = useButtonColors();
   const location = useLocation();
   const proposedStage = getProposedOptionsStage(marketStagesState, marketId);
@@ -134,7 +151,7 @@ function OptionMenu(props) {
           }}>
             <Tooltip placement='top' title={intl.formatMessage({ id: `createNewApproval` })}>
               <IconButton size="small" id="approvalButton" noPadding>
-                <ThumbsUpDownIcon htmlColor={actionButtonColor} />
+                <ThumbsUpDownIcon htmlColor={tColor('vote')} />
               </IconButton>
             </Tooltip>
           </div>
@@ -147,7 +164,7 @@ function OptionMenu(props) {
           }}>
             <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${TODO_TYPE}Option` })}>
               <IconButton size="small" id="createTODOOptionButton" noPadding>
-                <Notes htmlColor={actionButtonColor} />
+                <AssignmentIcon htmlColor={tColor('task')} />
               </IconButton>
             </Tooltip>
         </div>
@@ -159,7 +176,7 @@ function OptionMenu(props) {
           }}>
             <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${ISSUE_TYPE}` })}>
               <IconButton size="small" id="issueButton" noPadding>
-                <Block htmlColor={actionButtonColor} />
+                <Block htmlColor={tColor('issue')} />
               </IconButton>
             </Tooltip>
         </div>
@@ -171,7 +188,7 @@ function OptionMenu(props) {
           }}>
             <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${SUGGEST_CHANGE_TYPE}` })}>
               <IconButton size="small" id="suggestButton" noPadding>
-                <LightbulbOutlined htmlColor={actionButtonColor} />
+                <LightbulbOutlined htmlColor={tColor('suggest')} />
               </IconButton>
             </Tooltip>
         </div>
@@ -183,7 +200,7 @@ function OptionMenu(props) {
           }}>
             <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${QUESTION_TYPE}` })}>
               <IconButton size="small" id="questionButton" noPadding>
-                <QuestionIcon htmlColor={actionButtonColor} />
+                <QuestionIcon htmlColor={tColor('question')} />
               </IconButton>
             </Tooltip>
         </div>
@@ -262,8 +279,8 @@ function OptionMenu(props) {
                   undefined, typeObjectId));
             }}
           >
-            <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><ThumbsUpDownIcon size='small' 
-              style={{marginRight: '0.5rem'}} /></ListItemIcon>
+            <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><ThumbsUpDownIcon size='small'
+              htmlColor={tColor('vote')} style={{marginRight: '0.5rem'}} /></ListItemIcon>
             <Tooltip placement='top' title={intl.formatMessage({ id: 'createApprovalExplanation' })}>
               <ListItemText>
                 {intl.formatMessage({ id: 'createNewApproval' })}
@@ -279,8 +296,8 @@ function OptionMenu(props) {
                   TODO_TYPE, typeObjectId));
             }}
           >
-            <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><Notes size='small' 
-              style={{marginRight: '0.5rem'}} /></ListItemIcon>
+            <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><AssignmentIcon size='small'
+              htmlColor={tColor('task')} style={{marginRight: '0.5rem'}} /></ListItemIcon>
             <Tooltip placement='top' title={intl.formatMessage({ id: 'createNewTODOOptionExplanation' })}>
               <ListItemText>
                 {intl.formatMessage({ id: `createNew${TODO_TYPE}Option` })}
@@ -295,8 +312,8 @@ function OptionMenu(props) {
                   ISSUE_TYPE, typeObjectId));
             }}
           >
-            <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><Block size='small' 
-              style={{marginRight: '0.5rem'}} /></ListItemIcon>
+            <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><Block size='small'
+              htmlColor={tColor('issue')} style={{marginRight: '0.5rem'}} /></ListItemIcon>
             <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${ISSUE_TYPE}Explanation` })}>
               <ListItemText>
                 {intl.formatMessage({ id: `createNew${ISSUE_TYPE}` })}
@@ -311,8 +328,8 @@ function OptionMenu(props) {
                   SUGGEST_CHANGE_TYPE, typeObjectId));
             }}
           >
-            <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><LightbulbOutlined size='small' 
-              style={{marginRight: '0.5rem'}} /></ListItemIcon>
+            <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><LightbulbOutlined size='small'
+              htmlColor={tColor('suggest')} style={{marginRight: '0.5rem'}} /></ListItemIcon>
             <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${SUGGEST_CHANGE_TYPE}Explanation` })}>
               <ListItemText>
                 {intl.formatMessage({ id: `createNew${SUGGEST_CHANGE_TYPE}` })}
@@ -327,8 +344,8 @@ function OptionMenu(props) {
                   QUESTION_TYPE, typeObjectId));
             }}
           >
-            <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><QuestionIcon size='small' 
-              style={{marginRight: '0.5rem'}} /></ListItemIcon>
+            <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><QuestionIcon size='small'
+              htmlColor={tColor('question')} style={{marginRight: '0.5rem'}} /></ListItemIcon>
             <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${QUESTION_TYPE}Explanation` })}>
               <ListItemText>
                 {intl.formatMessage({ id: `createNew${QUESTION_TYPE}` })}

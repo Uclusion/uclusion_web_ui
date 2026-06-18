@@ -41,6 +41,7 @@ import { getGroupPresences } from '../../contexts/MarketPresencesContext/marketP
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 import BugListItem from '../../components/Comments/BugListItem';
+import TintedIconBadge from '../../components/CustomChip/TintedIconBadge';
 
 // Assistance-section indicators (C-all-988 / Q-all-135, option O-2). Each
 // reason a job sits in assistance becomes a compact tinted icon badge whose
@@ -49,6 +50,7 @@ import BugListItem from '../../components/Comments/BugListItem';
 // bare icons used color for urgency (red = unread message, orange = none),
 // which clashed with that vocabulary. Urgency now rides on a small red dot
 // (unread message) plus a fuller-saturation badge; read items are muted.
+// Rendered with the shared TintedIconBadge (also used by the swimlane clock).
 //   0 blocker, 1 suggestion, 2 question, 3 needs-assignment ("Ready").
 const ASSIST_VISUAL = {
   0: { Icon: Block,             base: '#E85757', icon: '#C8362F', baseDark: '#E85757', iconDark: '#ef8b8b' },
@@ -57,39 +59,15 @@ const ASSIST_VISUAL = {
   3: { Icon: PersonSearch,      base: '#43A047', icon: '#2E7D32', baseDark: '#5fa55f', iconDark: '#7db05a' },
 };
 
-function hexToRgba(hex, alpha) {
-  const h = hex.replace('#', '');
-  const r = parseInt(h.substring(0, 2), 16);
-  const g = parseInt(h.substring(2, 4), 16);
-  const b = parseInt(h.substring(4, 6), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
-
+// Thin wrapper: look up the type's palette/icon and render the shared badge.
 // forwardRef so MUI Tooltip can attach to the badge root.
 const AssistanceBadge = React.forwardRef(function AssistanceBadge(props, ref) {
   const { assistanceType, unread, ...other } = props;
-  const theme = useTheme();
-  const isDark = theme.palette.type === 'dark';
   const v = ASSIST_VISUAL[assistanceType];
   if (!v) {
     return null;
   }
-  const Icon = v.Icon;
-  const border = isDark ? v.baseDark : v.base;
-  const iconColor = isDark ? v.iconDark : v.icon;
-  const tint = hexToRgba(v.base, isDark ? 0.22 : 0.13);
-  const dotBorder = theme.palette.background.paper || (isDark ? '#2b2f36' : '#fff');
-  return (
-    <span ref={ref} {...other} style={{ position: 'relative', display: 'inline-flex', alignItems: 'center',
-      justifyContent: 'center', width: 26, height: 26, borderRadius: 7, boxSizing: 'border-box',
-      border: `1.5px solid ${border}`, backgroundColor: tint, opacity: unread ? 1 : 0.72 }}>
-      <Icon style={{ fontSize: 17, color: iconColor }} />
-      {unread && (
-        <span style={{ position: 'absolute', top: -2, right: -3, width: 8, height: 8, borderRadius: '50%',
-          backgroundColor: '#E53935', border: `1.5px solid ${dotBorder}`, boxSizing: 'border-box' }} />
-      )}
-    </span>
-  );
+  return <TintedIconBadge ref={ref} icon={v.Icon} palette={v} unread={unread} dim={!unread} {...other} />;
 });
 
 function getInvestibleOnClick(id, marketId, history) {

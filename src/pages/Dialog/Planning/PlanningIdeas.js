@@ -48,6 +48,7 @@ import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { useButtonColors } from '../../../components/Buttons/ButtonConstants'
 import { outlinedChipStyle } from '../../../components/CustomChip/chipStyles'
+import TintedIconBadge from '../../../components/CustomChip/TintedIconBadge'
 import { getTicketNumber, stripHTML } from '../../../utils/stringFunctions';
 import { Schedule } from '@material-ui/icons';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -72,6 +73,11 @@ import { calculateInvestibleVoters } from '../../../utils/votingUtils';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import DismissableText from '../../../components/Notifications/DismissableText';
 import { BLUE_LEVEL } from '../../../constants/notifications';
+
+// Orange palette for the swimlane overdue/report-required clock badge, matching
+// the assistance-section Suggestion badge so the two views read the same
+// (C-all-990 / Q-all-136, option O-1).
+const CLOCK_PALETTE = { base: '#F29100', icon: '#B96F00', baseDark: '#F29100', iconDark: '#f3ad4d' };
 
 export const usePlanningIdStyles = makeStyles(
   theme => {
@@ -585,7 +591,7 @@ function StageInvestible(props) {
   } = props;
   const intl = useIntl();
   const theme = useTheme();
-  const { countColor, warningColor } = useButtonColors();
+  const { countColor } = useButtonColors();
   const { completion_estimate: daysEstimate, assigned, group_id: groupId, stage: stageId,
     open_for_investment: openForInvestment } = marketInfo;
   const { id, name, labels } = investible;
@@ -629,9 +635,12 @@ function StageInvestible(props) {
       const myMessages = isHighlighted ? newMessages : messages;
       return (
         <Tooltip title={intl.formatMessage({ id: 'messagePresent' })}>
-          <span className={'MuiTabItem-tag'} style={{backgroundColor: warningColor, cursor: 'pointer',
-            marginRight: '0.5rem', color: 'white', borderRadius: 22, paddingLeft: '6px', paddingRight: '5px',
-            paddingTop: '2px', maxHeight: '20px'}}
+          {/* Outlined-red chip (C-all-990) - this "N new" pill had escaped the
+             shared outlined-chip format and was still a solid fill. */}
+          <span className={'MuiTabItem-tag'} style={{...outlinedChipStyle('red', theme.palette.type === 'dark'),
+            cursor: 'pointer', marginRight: '0.5rem', borderRadius: 22, paddingLeft: '8px', paddingRight: '8px',
+            paddingTop: '2px', paddingBottom: '2px', display: 'inline-flex', alignItems: 'center',
+            fontSize: '0.75rem', lineHeight: 1.2}}
                 onClick={(event) => {
                   preventDefaultAndProp(event);
                   // TODO same here 
@@ -740,7 +749,11 @@ function StageInvestible(props) {
           {messagesChip}
           {!_.isEmpty(doesRequireStatusMessage) && (
             <Tooltip title={intl.formatMessage({ id: 'reportRequired'})}>
-            <span className={'MuiTabItem-tag'} style={{ marginRight: '0.5rem', paddingTop: '0.25rem' }} onClick={(event) => {
+            {/* Overdue / report-required clock as a tinted orange badge matching
+               the assistance section; a red dot marks an unread inbox report
+               (C-all-990 / Q-all-136, option O-1). */}
+            <span style={{ marginRight: '0.5rem', display: 'inline-flex',
+                   cursor: isInInbox(doesRequireStatusMessage) ? 'pointer' : undefined }} onClick={(event) => {
                    if (isInInbox(doesRequireStatusMessage)) {
                      preventDefaultAndProp(event);
                      return dehighlightMessage(doesRequireStatusMessage, messagesDispatch, true)
@@ -748,7 +761,8 @@ function StageInvestible(props) {
                    }
                  }}
             >
-              <Schedule style={{fontSize: 24, color: '#F29100'}}/>
+              <TintedIconBadge icon={Schedule} palette={CLOCK_PALETTE}
+                               unread={isInInbox(doesRequireStatusMessage)} />
             </span>
             </Tooltip>
           )}

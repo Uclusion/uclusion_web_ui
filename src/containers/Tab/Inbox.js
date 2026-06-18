@@ -49,7 +49,8 @@ export function GmailTabItem(props) {
       label={
         <div className={'MuiTabItem-label'} style={{color: defaultColor, opacity: 0.6}}>
           {useLabel} {tag && <span className={'MuiTabItem-tag'} style={{
-          ...(hasChip ? outlinedChipStyle(variantForColor(tagColor), isDark) : {color: defaultColor}),
+          ...(hasChip ? outlinedChipStyle(variantForColor(tagColor), isDark)
+            : {backgroundColor: 'unset', color: defaultColor}),
           borderRadius: 22, paddingLeft: '7px', paddingRight: '7px',
           marginLeft: mobileLayout ? '-8px' : undefined}}>
           {tag} {useTagLabel}</span>}

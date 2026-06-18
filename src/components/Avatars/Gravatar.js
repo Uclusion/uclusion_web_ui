@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Avatar, Tooltip } from '@material-ui/core'
 import md5 from 'md5';
 import _ from 'lodash';
+import { useTheme } from '@material-ui/core';
 
 function nameToAvatarText(name) {
   const chunks = name.split(' ');
@@ -23,7 +24,8 @@ function Gravatar (props) {
     className,
     onClick
   } = props;
-
+  const theme = useTheme();
+  const isDark = theme.palette.type === 'dark';
   const blankCode = useBlank ? 'blank' : '404';
   const url = `https://www.gravatar.com/avatar/${md5(email, { encoding: 'binary' })}?d=${blankCode}`;
   const isAI = email === '' && name === 'AI';
@@ -38,7 +40,7 @@ function Gravatar (props) {
           <Avatar
             className={className}
             key={email}
-            src={isAI ? '/images/sparkle.png' : url}
+            src={isAI ? '/images/ai-icon-light.svg' : url}
             onClick={onClick}
           >
             {nameToAvatarText(name)}

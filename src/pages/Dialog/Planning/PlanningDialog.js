@@ -39,11 +39,11 @@ import {
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks';
-import AssignmentIcon from '@material-ui/icons/Assignment';
+import AssignmentOutlined from '@material-ui/icons/AssignmentOutlined';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
-import { AssignmentInd, BugReport } from '@material-ui/icons';
+import { AssignmentIndOutlined, BugReportOutlined } from '@material-ui/icons';
 import Backlog, { BacklogItem } from './Backlog';
 import { PAGE_SIZE } from '../../../components/Comments/BugListContext';
 import { getPaginatedItems } from '../../../utils/messageUtils';
@@ -130,6 +130,10 @@ function PlanningDialog(props) {
   const theme = useTheme();
   const refToTop = useRef();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
+  // C-all-1001: same treatment as the job header (C-all-994 / Q-all-138 O-4) -
+  // text-only view tabs on desktop, outlined icons only on mobile (where the
+  // GmailTabItem label is hidden for space at the sm breakpoint).
+  const iconOnlyTabs = useMediaQuery(theme.breakpoints.down('sm'));
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
@@ -590,19 +594,19 @@ const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOr
             resetFunction(value);
           }}
           indicatorColors={['#2F80ED', '#2F80ED', '#2F80ED', '#2F80ED']}>
-          <GmailTabItem icon={<AssignmentInd />} onDrop={onDropAssigned} 
+          <GmailTabItem icon={iconOnlyTabs ? <AssignmentIndOutlined /> : undefined} onDrop={onDropAssigned}
                         tagLabel={getTagLabel(_.isEmpty(search) ? tabCount0 : jobsSearchResults)}
                         onDragOver={(event)=>event.preventDefault()} toolTipId='statusJobsToolTip' tagColor='#E85757'
                         label={intl.formatMessage({id: 'planningDialogNavStoriesLabel'})}
                         tag={_.isEmpty(search) || jobsSearchResults === 0 ? tabCount0 : `${jobsSearchResults}`} />
-          <GmailTabItem icon={<AssignmentIcon />} onDrop={onDropBacklog} tagLabel={getTagLabel(_.isEmpty(search) ? tabCount1 : backlogSearchResults)}
+          <GmailTabItem icon={iconOnlyTabs ? <AssignmentOutlined /> : undefined} onDrop={onDropBacklog} tagLabel={getTagLabel(_.isEmpty(search) ? tabCount1 : backlogSearchResults)}
                         onDragOver={(event)=>event.preventDefault()} toolTipId='backlogJobsToolTip' tagColor='#E85757'
                         label={intl.formatMessage({id: 'planningDialogBacklog'})}
                         tag={_.isEmpty(search) || backlogSearchResults === 0 ? tabCount1 : `${backlogSearchResults}`} />
-          <GmailTabItem icon={<BugReport />} label={intl.formatMessage({id: 'todoSection'})}
+          <GmailTabItem icon={iconOnlyTabs ? <BugReportOutlined /> : undefined} label={intl.formatMessage({id: 'todoSection'})}
                         toolTipId='bugsToolTip' tagLabel={getTagLabel(_.isEmpty(search) ? tabCount2 : _.size(todoGroupComments), 2)} tagColor='#E85757'
                         tag={_.isEmpty(search) || _.isEmpty(todoGroupComments) ? tabCount2 : `${_.size(todoGroupComments)}` } />
-          <GmailTabItem icon={<LightbulbOutlined />} toolTipId='discussionToolTip' 
+          <GmailTabItem icon={iconOnlyTabs ? <LightbulbOutlined /> : undefined} toolTipId='discussionToolTip'
                         tagLabel={getTagLabel(_.isEmpty(search) ? tabCount3 : _.size(questionSuggestionGroupComments))}
                         label={intl.formatMessage({id: 'planningDialogDiscussionLabel'})} tagColor='#E85757'
                         tag={_.isEmpty(search) || _.isEmpty(questionSuggestionGroupComments) ? tabCount3 :

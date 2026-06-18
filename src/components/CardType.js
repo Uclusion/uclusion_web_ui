@@ -31,6 +31,7 @@ import UsefulRelativeTime from './TextFields/UseRelativeTime'
 import { Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { Block, Notes, Notifications } from '@material-ui/icons';
 import LightbulbOutlined from './CustomChip/LightbulbOutlined';
+import CommentTypeChip from './Comments/CommentTypeChip';
 import TooltipIconButton from './Buttons/TooltipIconButton'
 import { DARK_INFO_COLOR, useButtonColors } from './Buttons/ButtonConstants'
 
@@ -212,13 +213,21 @@ export default function CardType(props) {
       )}
       {label && (
         <>
-          {label && (
+          {/* Comment types and vote-certainty levels use the clean outlined
+              CommentTypeChip everywhere (C-all-986 / C-all-987); other CardType
+              uses keep the solid chip. */}
+          {([ISSUE_TYPE, SUGGEST_CHANGE_TYPE, QUESTION_TYPE, TODO_TYPE, REPORT_TYPE].includes(type)
+            || (typeof type === 'string' && type.startsWith('certainty'))) ? (
+            <span style={{marginRight: mobileLayout ? '0.25rem' : '1rem'}}>
+              <CommentTypeChip type={type} resolved={resolved} mobileLayout={mobileLayout} label={label} />
+            </span>
+          ) : (
             <div className={clsx(classes.root, className)}
                  style={{marginRight: mobileLayout ? '0.25rem' : '1rem'}}>
               <IconComponent className={classes.icon}/>
               {(!mobileLayout || IconComponent === NoIcon) && (
                 <span className={classes.label}>{label}</span>
-              )} 
+              )}
             </div>
           )}
           {gravatar}

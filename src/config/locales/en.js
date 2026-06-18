@@ -603,7 +603,7 @@ const messages = defineMessages({
   addNote: 'Add note',
 
   // card types
-  cardTypeLabelIssue: 'Blocking issue',
+  cardTypeLabelIssue: 'Blocker',
   cardTypeLabelTask: 'Task',
   cardTypeLabelQuestion: 'Question',
   cardTypeLabelSuggestedChange: 'Suggestion',

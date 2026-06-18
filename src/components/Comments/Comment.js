@@ -122,6 +122,7 @@ import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import SettingsIcon from '@material-ui/icons/Settings';
 import Options from './Options';
 import Reply from './Reply';
+import CommentTypeChip from './CommentTypeChip';
 import { isLargeDisplay, stripHTML } from '../../utils/stringFunctions';
 import Gravatar from '../Avatars/Gravatar';
 import styled from 'styled-components';
@@ -271,10 +272,14 @@ export const useCommentStyles = makeStyles(
         marginTop: "0.5rem"
       },
       containerBlueLink: {
-        boxShadow: "0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px blue",
+        // Clean card instead of the old blue glow box-shadow (T-all-2178):
+        // a subtle border + soft shadow.
         overflow: "visible",
         marginTop: "0.5rem",
-        cursor: 'pointer'
+        cursor: 'pointer',
+        borderRadius: '8px',
+        border: '1px solid rgba(0, 0, 0, 0.12)',
+        boxShadow: '0 1px 3px rgba(16, 40, 40, 0.14)'
       },
       containerWhite: {
         backgroundColor: "white",
@@ -911,6 +916,7 @@ function Comment(props) {
               linker={(linkerShouldBeFirst || reallyNoAuthor || isMarketTodo) && showLinker && linker}
     />
   );
+  const commentTypeChip = <CommentTypeChip type={commentType} resolved={resolved} mobileLayout={mobileLayout} />;
   const deleteWizardBaseLink = formWizardLink(DELETE_COMMENT_TYPE, marketId, undefined,
     undefined, id);
   const dateInfo = <>
@@ -996,9 +1002,10 @@ function Comment(props) {
       {!mobileLayout && intl.formatMessage({ id: showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'})}
     </SpinningIconLabelButton>
   )}</>;
-  const commentCard = <div style={{overflow: 'unset', backgroundColor: showHighlight ? undefined : (isDark ? DARK_TEXT_BACKGROUND_COLOR : 'white'), 
+  const commentCard = <div style={{overflow: 'unset', backgroundColor: showHighlight ? undefined : (isDark ? DARK_TEXT_BACKGROUND_COLOR : 'white'),
     borderRadius: '8px', marginTop: isSent === false || usePadding === false ? 0
-      : '1rem', width: removeActions ? 'fit-content' : undefined}} className={getCommentHighlightStyle()}
+      : '1rem', width: removeActions ? '100%' : undefined, maxWidth: removeActions ? '98%' : undefined}}
+                            className={getCommentHighlightStyle()}
                             ref={editBox}>
     <div onClick={(event) => {
       if (!invalidEditEvent(event, history)) {
@@ -1280,10 +1287,14 @@ function Comment(props) {
     strippedBody = dateInfo;
   }
   const associatedComments = investibleComments?.filter(comment => comment.associated_comment_id === id);
+  // Type-chip card for the compressed comment (T-all-2178 / Q-all-133 O-3): a
+  // clean full-width card with the comment type chip on the left (the same
+  // CardType chip the reply / uncompressed view shows, C-all-986), the body,
+  // and an expand chevron - instead of the cramped avatar + name row.
   const compressedCommentCard = <div className={getCommentHighlightStyle()}
-  style={{ display: 'flex', paddingBottom: '1rem', backgroundColor: (theme.palette.type === 'dark' ? DARK_TEXT_BACKGROUND_COLOR : 'white'),
-    height: '100%',
-    cursor: 'pointer', width: 'fit-content', maxWidth: '98%', marginTop: isSent === false || usePadding === false ? 0
+  style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px',
+    backgroundColor: (theme.palette.type === 'dark' ? DARK_TEXT_BACKGROUND_COLOR : 'white'),
+    cursor: 'pointer', width: '100%', maxWidth: '98%', marginTop: isSent === false || usePadding === false ? 0
       : '1rem' }} onClick={(event) => {
         if (!invalidEditEvent(event, history)) {
           if (isInbox) {
@@ -1293,22 +1304,20 @@ function Comment(props) {
           }
         }
       }}>
-    {cardTypeDisplay}
-    <div className={classes.compressedComment}>
+    {commentTypeChip}
+    <div className={classes.compressedComment} style={{ paddingLeft: 0, paddingTop: 0, marginTop: 0 }}>
       {strippedBody}</div>
     <div style={{ flexGrow: 1 }}/>
-    <div style={{ marginRight: '1rem', marginTop: '0.5rem' }}>
-      <TooltipIconButton
-        icon={<ExpandMoreIcon htmlColor={theme.palette.type === 'dark' ? 'black' : undefined} />}
-        onClick={(event) => {
-          preventDefaultAndProp(event);
-          toggleCompression();
-        }}
-        size="small"
-        noPadding
-        translationId="rowExpandComment"
-      />
-    </div>
+    <TooltipIconButton
+      icon={<ExpandMoreIcon htmlColor={theme.palette.type === 'dark' ? 'black' : undefined} />}
+      onClick={(event) => {
+        preventDefaultAndProp(event);
+        toggleCompression();
+      }}
+      size="small"
+      noPadding
+      translationId="rowExpandComment"
+    />
   </div>;
   if (useCompression && (compressAll || inboxMessageId !== id)) {
     const numInThread = _.size(comments.filter((aComment) => aComment.root_comment_id === id));

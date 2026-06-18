@@ -913,6 +913,7 @@ function Comment(props) {
     <CardType className={classes.commentType} type={commentType} resolved={resolved} compact compressed={useCompression}
               gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName} notificationFunc={notificationFunc}
               notificationIsHighlighted={myMessage?.is_highlighted}
+              alwaysShowTypeChip={compressAll}
               linker={(linkerShouldBeFirst || reallyNoAuthor || isMarketTodo) && showLinker && linker}
     />
   );

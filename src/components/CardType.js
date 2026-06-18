@@ -165,6 +165,7 @@ export default function CardType(props) {
     color,
     compact = false,
     compressed = false,
+    alwaysShowTypeChip = false,
     linker,
     notificationFunc,
     notificationIsHighlighted
@@ -204,24 +205,28 @@ export default function CardType(props) {
 
   // Comment types and vote-certainty levels render the clean outlined
   // CommentTypeChip (C-all-986 / C-all-987); other CardType uses keep the solid
-  // chip. TODO_TYPE and REPORT_TYPE have no default label in labelIntlIds, so the
-  // old `{label && ...}` gate dropped the chip when a compressed comment row was
-  // expanded (T-all-2179). Render the chip for these types regardless of label -
-  // CommentTypeChip supplies its own ("Task" / "Note").
+  // chip. The chip normally shows only when a label is present - which is the
+  // intentional suppression on pages where the type is obvious (e.g. the tasks
+  // page, where every row is a task, has no label so no chip). TODO_TYPE and
+  // REPORT_TYPE have no default label in labelIntlIds, so a caller that always
+  // wants the type chip even without a label (an expanded wizard comment row,
+  // T-all-2179) passes alwaysShowTypeChip; CommentTypeChip supplies its own
+  // "Task" / "Note" text.
   const isCommentChip = [ISSUE_TYPE, SUGGEST_CHANGE_TYPE, QUESTION_TYPE, TODO_TYPE, REPORT_TYPE].includes(type)
     || (typeof type === 'string' && type.startsWith('certainty'));
+  const showCommentChip = isCommentChip && (label || alwaysShowTypeChip);
   return (
     <div style={{display: 'flex', flexDirection: 'row', justifyContent: compressed ? undefined : 'space-between',
       width: compressed ? undefined : (compact ? '40%' : '100%'),
       maxWidth: compact && !compressed ? '25rem' : undefined}}>
-      {isCommentChip ? (
+      {showCommentChip ? (
         <>
           <span style={{marginRight: mobileLayout ? '0.25rem' : '1rem'}}>
             <CommentTypeChip type={type} resolved={resolved} mobileLayout={mobileLayout} label={label} />
           </span>
           {gravatar}
         </>
-      ) : label ? (
+      ) : label && !isCommentChip ? (
         <>
           <div className={clsx(classes.root, className)}
                style={{marginRight: mobileLayout ? '0.25rem' : '1rem'}}>
@@ -265,6 +270,7 @@ export default function CardType(props) {
 }
 CardType.propTypes = {
   label: PropTypes.node,
+  alwaysShowTypeChip: PropTypes.bool,
   subtype: PropTypes.oneOf([
     IN_VOTING,
     IN_VERIFIED,

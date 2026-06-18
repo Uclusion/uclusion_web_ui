@@ -202,36 +202,42 @@ export default function CardType(props) {
     [GENERIC_STORY_TYPE]: AssignmentIcon,
   }[subtype || type] : NoIcon;
 
+  // Comment types and vote-certainty levels render the clean outlined
+  // CommentTypeChip (C-all-986 / C-all-987); other CardType uses keep the solid
+  // chip. TODO_TYPE and REPORT_TYPE have no default label in labelIntlIds, so the
+  // old `{label && ...}` gate dropped the chip when a compressed comment row was
+  // expanded (T-all-2179). Render the chip for these types regardless of label -
+  // CommentTypeChip supplies its own ("Task" / "Note").
+  const isCommentChip = [ISSUE_TYPE, SUGGEST_CHANGE_TYPE, QUESTION_TYPE, TODO_TYPE, REPORT_TYPE].includes(type)
+    || (typeof type === 'string' && type.startsWith('certainty'));
   return (
     <div style={{display: 'flex', flexDirection: 'row', justifyContent: compressed ? undefined : 'space-between',
       width: compressed ? undefined : (compact ? '40%' : '100%'),
       maxWidth: compact && !compressed ? '25rem' : undefined}}>
-      {!label && gravatar && (
-        <div style={{marginLeft: compressed ? '0.5rem' : undefined}}>
-          {gravatar}
-        </div>
-      )}
-      {label && (
+      {isCommentChip ? (
         <>
-          {/* Comment types and vote-certainty levels use the clean outlined
-              CommentTypeChip everywhere (C-all-986 / C-all-987); other CardType
-              uses keep the solid chip. */}
-          {([ISSUE_TYPE, SUGGEST_CHANGE_TYPE, QUESTION_TYPE, TODO_TYPE, REPORT_TYPE].includes(type)
-            || (typeof type === 'string' && type.startsWith('certainty'))) ? (
-            <span style={{marginRight: mobileLayout ? '0.25rem' : '1rem'}}>
-              <CommentTypeChip type={type} resolved={resolved} mobileLayout={mobileLayout} label={label} />
-            </span>
-          ) : (
-            <div className={clsx(classes.root, className)}
-                 style={{marginRight: mobileLayout ? '0.25rem' : '1rem'}}>
-              <IconComponent className={classes.icon}/>
-              {(!mobileLayout || IconComponent === NoIcon) && (
-                <span className={classes.label}>{label}</span>
-              )}
-            </div>
-          )}
+          <span style={{marginRight: mobileLayout ? '0.25rem' : '1rem'}}>
+            <CommentTypeChip type={type} resolved={resolved} mobileLayout={mobileLayout} label={label} />
+          </span>
           {gravatar}
         </>
+      ) : label ? (
+        <>
+          <div className={clsx(classes.root, className)}
+               style={{marginRight: mobileLayout ? '0.25rem' : '1rem'}}>
+            <IconComponent className={classes.icon}/>
+            {(!mobileLayout || IconComponent === NoIcon) && (
+              <span className={classes.label}>{label}</span>
+            )}
+          </div>
+          {gravatar}
+        </>
+      ) : (
+        gravatar && (
+          <div style={{marginLeft: compressed ? '0.5rem' : undefined}}>
+            {gravatar}
+          </div>
+        )
       )}
       {linker}
       {notificationFunc && (

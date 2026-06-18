@@ -7,6 +7,7 @@ import GravatarGroup from '../../components/Avatars/GravatarGroup';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import { ExpandLess } from '@material-ui/icons';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 import _ from 'lodash';
 import DragImage from '../Dialogs/DragImage';
 import TooltipIconButton from '../Buttons/TooltipIconButton';
@@ -38,15 +39,16 @@ const Text = styled("div")`
 `;
 
 const Title = styled(Text)`
+  /* The title takes the room it needs and the secondary description yields the
+     remainder (flex-shrink:0). On strict mobile there is no description, so the
+     title element gets flex-grow/shrink/min-width:0 inline instead, to fill the
+     row and ellipsize at the kebab (C-all-998). */
   flex-shrink: 0;
   flex-grow: 0;
   margin-left: 0.5rem;
   & > *:not(:first-child) {
     font-size: 12px;
   };
-  @media (max-width: 768px) {
-    max-width: 200px;
-  }
 `;
 
 const TitleB = styled(Title)`
@@ -86,6 +88,11 @@ function OptionListItem(props) {
   } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  // Use the kebab "more" menu for the option actions not just on phones but
+  // through mid widths too - the inline icon toolbar needs a wide row, and at
+  // mid sizes it squeezes the title (or loses buttons). Only full desktop keeps
+  // the inline toolbar (C-all-996 / C-all-998).
+  const useMoreMenu = useMediaQuery(theme.breakpoints.down('md'));
   const [anchorEl, setAnchorEl] = useState(null);
   const [mouseX, setMouseX] = useState();
   const [mouseY, setMouseY] = useState();
@@ -144,8 +151,10 @@ function OptionListItem(props) {
               {!mobileLayout || _.isEmpty(people) ? React.Fragment :
                 <GravatarGroup users={people} highlightList={highlightList} />
               }
-              {isNew ? (<TitleB style={{ color: theme.palette.type === 'dark' ? 'white' : 'black' }}>{title}</TitleB>) : 
-              (<Title style={{ color: theme.palette.type === 'dark' ? 'white' : 'black' }}>{title}</Title>)}
+              {isNew ? (<TitleB style={{ color: theme.palette.type === 'dark' ? 'white' : 'black',
+                ...(mobileLayout ? { flexGrow: 1, flexShrink: 1, minWidth: 0 } : {}) }}>{title}</TitleB>) :
+              (<Title style={{ color: theme.palette.type === 'dark' ? 'white' : 'black',
+                ...(mobileLayout ? { flexGrow: 1, flexShrink: 1, minWidth: 0 } : {}) }}>{title}</Title>)}
               {!mobileLayout && (
                 <Text style={{ maxWidth: '55vw', marginLeft: '1rem' }}>{useDescription}</Text>
               )}
@@ -182,8 +191,17 @@ function OptionListItem(props) {
                 <div style={{marginRight: '1rem'}} />
               )}
               {expansionOpen && !removeActions && !inArchives && !questionResolved && (
-                <OptionMenu openForInvestment={isInVoting} marketId={marketId} investibleId={id} isAdmin={isAdmin} 
-                  marketPresences={marketPresences} />
+                useMoreMenu ? (
+                  // C-all-996 (Q-all-139, O-1) + C-all-998: the inline action toolbar
+                  // needs a wide row, so on phones AND mid widths collapse it to a kebab
+                  // that opens the same labeled action menu already rendered above for
+                  // right-click. Only full desktop keeps the inline toolbar.
+                  <TooltipIconButton translationId="more" onClick={recordPositionToggle} size="small" noPadding
+                    icon={<MoreVertIcon htmlColor={theme.palette.type === 'dark' ? '#b0b0b0' : '#5f6368'} />} />
+                ) : (
+                  <OptionMenu openForInvestment={isInVoting} marketId={marketId} investibleId={id} isAdmin={isAdmin}
+                    marketPresences={marketPresences} />
+                )
               )}
             </Div>
           </div>

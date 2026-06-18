@@ -112,6 +112,35 @@ reads correctly", or "does this feel right?", that is a step-2 question
 you missed. Stop and file it via `ask_question` before continuing.
 Never defer such questions to the step-6 review report.
 
+#### Visual options are an aid, not the option itself
+
+A job may ask you to show choices visually — a temporary build file or page
+with each option labeled, screenshots taken with Playwright, and so on. That
+temporary file is only a *picture of* the choices. The canonical, votable
+options still live on the question in Uclusion, created with `ask_question`
+(or `add_options` to extend an existing question). A choice that exists only
+as a labeled panel in a screenshot, or as prose in an `add_info` reply, is
+NOT an option — the user cannot vote on it and the next session cannot see it.
+
+- **Every direction you show must be a real Uclusion option.** When you share
+  the visual, make sure each labeled choice already has a matching option on
+  the question — `ask_question` creates the initial set; `add_options` adds
+  more to an existing question.
+- **Label each visual panel with the option's Uclusion identity** — its short
+  code (`O-1`, `O-2`, …) and/or its exact option name. Do NOT invent a
+  parallel scheme (A/B/C, 1/2/3): it shadows the platform's `O-` short codes,
+  and the user cannot tell which votable option a panel maps to.
+- **Keep the picture and the live options in lockstep.** If you revise the set
+  — drop a direction, change what one means, or add a new one — update
+  Uclusion in the SAME turn: `add_options` for new directions. If an existing
+  option's meaning has changed, do NOT silently reuse its label; either keep
+  the label tied to its original meaning or `resolve` the stale question and
+  open a fresh one. Never let a screenshot show options that differ from the
+  options currently on the question.
+- **Labels are stable identifiers.** Once `O-1` means a thing, it keeps
+  meaning that thing. A later iteration that means something different is a
+  new option, not a relabel.
+
 ### 3. Make suggestions
 
 Call `make_suggestion` when you see a better path than what the job

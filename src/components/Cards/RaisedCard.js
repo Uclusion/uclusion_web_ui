@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) => {
 });
 
 function RaisedCard(props) {
-  const { onClick = () => {}, elevation, className, cardClassName, isHighlighted, rowStyle, draggable, onDragStart, maxWidth } = props;
+  const { onClick = () => {}, elevation, className, cardClassName, isHighlighted, rowStyle, draggable, onDragStart, maxWidth, cardStyle } = props;
   const elevated = elevation ? elevation : 0;
   const classes = useStyles(onClick);
   let isClickable = typeof onClick === 'function' ? true : false;
@@ -55,7 +55,7 @@ function RaisedCard(props) {
         p={0}
         draggable={draggable}
         onDragStart={onDragStart}
-        style={{ height: '100%', cursor: isClickable ? 'pointer' : 'default'}}
+        style={{ height: '100%', cursor: isClickable ? 'pointer' : 'default', ...cardStyle}}
         className={clsx(useCardClassName, isHighlighted ? classes.highlightedCard :
           (rowStyle ? classes.rowStyle : classes.card))}
       >

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import cx from 'clsx';
 import styled from 'styled-components';
 import { Box, IconButton, Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
+import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments';
+import { DARK_TEXT_BACKGROUND_COLOR } from '../Buttons/ButtonConstants';
 import Checkbox from '@material-ui/icons/CheckBox';
 import CheckBoxOutlineBlank from '@material-ui/icons/CheckBoxOutlineBlank';
 import { useSizedIconButtonStyles } from '@mui-treasury/styles/iconButton/sized';
@@ -143,7 +145,8 @@ function BugListItem(props) {
     showChecked = true,
     activeInvestibles,
     maxWidth,
-    isResolved = false
+    isResolved = false,
+    commentType
   } = props;
   const [anchorEl, setAnchorEl] = useState(null);
   const [mouseX, setMouseX] = useState();
@@ -186,10 +189,40 @@ function BugListItem(props) {
   // A comment whose body is just an image strips down to an empty title, which would render a blank row.
   // Fall back to a "Picture" placeholder so the row stays readable.
   const displayTitle = _.isEmpty(title) ? intl.formatMessage({ id: 'pictureBugPlaceholder' }) : title;
+  // C-all-982: in the compact job-card variant (smallFont), give each item a
+  // clean white box with a border and a colored left edge indicating its type,
+  // plus dark readable text - instead of the muted teal box with grey text.
+  const isDarkMode = theme.palette.type === 'dark';
+  const typeAccent = {
+    [ISSUE_TYPE]: '#E85757',          // blocker
+    [SUGGEST_CHANGE_TYPE]: '#F29100', // suggestion
+    [QUESTION_TYPE]: '#2F80ED',       // question
+    [TODO_TYPE]: '#43A047',           // in progress
+    [REPORT_TYPE]: '#00897B',         // review
+  }[commentType] || '#8f8f8f';
+  // A light box in both modes (white in light, the #C7CBCA "paper" used by the
+  // comment cards in dark) with dark text, so the item reads as a clearly
+  // defined box in dark mode too - not a near-invisible dark slate.
+  // Use per-side longhand (not the `border` shorthand) together with the
+  // colored left edge: mixing the `border` shorthand with `borderLeft` in an
+  // inline style makes React clobber the accent when the style object updates
+  // on a light/dark switch (C-all-982 followup).
+  const edge = `1px solid rgba(0, 0, 0, ${isDarkMode ? 0.25 : 0.12})`;
+  const cardStyle = smallFont ? {
+    backgroundColor: isDarkMode ? DARK_TEXT_BACKGROUND_COLOR : '#ffffff',
+    borderTop: edge,
+    borderRight: edge,
+    borderBottom: edge,
+    borderLeft: `4px solid ${typeAccent}`,
+  } : undefined;
+  const titleStyle = {
+    fontSize: smallFont ? '12px' : undefined,
+    color: smallFont ? '#1c2b2e' : undefined,
+  };
   const titleWithHelp = toolTipId ? <Tooltip key={`inProgressRowKey${id}`} placement='top'
                                              title={<FormattedMessage id={toolTipId} />}>
-      <Title style={{fontSize: smallFont ? '12px' : undefined}}>{displayTitle}</Title></Tooltip> :
-    <Title style={{fontSize: smallFont ? '12px' : undefined}}>{displayTitle}</Title>;
+      <Title style={titleStyle}>{displayTitle}</Title></Tooltip> :
+    <Title style={titleStyle}>{displayTitle}</Title>;
   return (
     <div key={`fragBugListItem${id}`} onContextMenu={recordPositionToggle}>
       {anchorEl && marketId && (
@@ -200,7 +233,7 @@ function BugListItem(props) {
       {!hideRow && (
         <Item key={`listItem${id}`} id={id} style={{maxWidth, minWidth: (useSelect || !useMinWidth) ? undefined : '80vw'}}
               onDragStart={onDragStart} draggable>
-          <RaisedCard elevation={smallFont ? 1 : 3} rowStyle key={`raised${id}`}>
+          <RaisedCard elevation={smallFont ? 1 : 3} rowStyle key={`raised${id}`} cardStyle={cardStyle}>
             <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} key={`link${id}`}
                  onClick={
               (event) => {

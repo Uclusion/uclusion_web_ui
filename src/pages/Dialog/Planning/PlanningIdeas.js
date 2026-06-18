@@ -810,17 +810,17 @@ function StageInvestible(props) {
         </div>
         {showCompletion && !_.isEmpty(inProgressComments) && (
           inProgressComments.map((comment) => {
-            const { body, id: commentId } = comment;
+            const { body, id: commentId, comment_type: commentType } = comment;
             return <BugListItem key={commentId} id={commentId} title={stripHTML(body)} useMinWidth={false} useMobileLayout smallFont
-                                useSelect={false} toolTipId='inProgress'
+                                useSelect={false} toolTipId='inProgress' commentType={commentType}
                                 link={formCommentLink(marketId, marketInfo.group_id, id, commentId)} />;
           })
         )}
         {isReview && !_.isEmpty(reviewComments) && (
           reviewComments.map((comment) => {
-            const { body, id: commentId } = comment;
+            const { body, id: commentId, comment_type: commentType } = comment;
             return <BugListItem key={commentId} id={commentId} title={stripHTML(body)} useMinWidth={false} useMobileLayout smallFont
-                                useSelect={false} toolTipId='inReview'
+                                useSelect={false} toolTipId='inReview' commentType={commentType}
                                 link={formCommentLink(marketId, marketInfo.group_id, id, commentId)} />;
           })
         )}

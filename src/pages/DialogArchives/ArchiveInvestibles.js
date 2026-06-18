@@ -163,9 +163,9 @@ function ArchiveInvestible(props) {
               </Typography>))}
               {!_.isEmpty(inAssistanceComments) && (
                 inAssistanceComments.map((comment) => {
-                  const { body, id: commentId, group_id: groupId } = comment;
+                  const { body, id: commentId, group_id: groupId, comment_type: commentType } = comment;
                   return <BugListItem key={commentId} id={commentId} title={stripHTML(body)} useMinWidth={false} useMobileLayout smallFont
-                                      useSelect={false} toolTipId='WizardJobAssistance' maxWidth='16rem'
+                                      useSelect={false} toolTipId='WizardJobAssistance' maxWidth='16rem' commentType={commentType}
                                       link={formCommentLink(marketId, groupId, id, commentId)} />;
                 })
               )}

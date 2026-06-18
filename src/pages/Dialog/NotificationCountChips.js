@@ -6,7 +6,7 @@ import { useIntl } from 'react-intl'
 import Chip from '@material-ui/core/Chip'
 import { ReportOutlined } from '@material-ui/icons';
 import Approval from '../../components/CustomChip/Approval'
-import { useButtonColors } from '../../components/Buttons/ButtonConstants'
+import { outlinedChipStyle } from '../../components/CustomChip/chipStyles'
 import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 
 
@@ -36,7 +36,6 @@ function NotificationCountChips(props) {
   const intl = useIntl();
   const [themeMode] = useContext(ThemeModeContext);
   const isDark = themeMode === 'dark';
-  const { warningColor, infoColor } = useButtonColors();
 
   if (num > 0 && numSuffix) {
     const isNew = numSuffix === 'new';
@@ -44,7 +43,7 @@ function NotificationCountChips(props) {
     title={intl.formatMessage({ id: numSuffix })}>
       <Chip label={`${num}`} size="small" classes={{labelSmall: num === 1 ? classes.oneChipStyle : classes.numChipStyle}}
       style={{ marginLeft: '5px', backgroundClip: 'padding-box', height: '20px',
-      backgroundColor: isNew? warningColor : infoColor, color: isNew || isDark ? 'white' : 'black' }}/>
+      ...outlinedChipStyle(isNew ? 'red' : 'teal', isDark) }}/>
     </Tooltip>;
   }
 

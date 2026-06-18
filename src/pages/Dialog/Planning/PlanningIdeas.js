@@ -47,6 +47,7 @@ import { doRemoveEdit, doShowEdit } from './userUtils'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { useButtonColors } from '../../../components/Buttons/ButtonConstants'
+import { outlinedChipStyle } from '../../../components/CustomChip/chipStyles'
 import { getTicketNumber, stripHTML } from '../../../utils/stringFunctions';
 import { Schedule } from '@material-ui/icons';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -655,7 +656,8 @@ function StageInvestible(props) {
     }
     return (
       <Tooltip title={intl.formatMessage({ id: toolTipId })}>
-        <span className={'MuiTabItem-tag'} style={{backgroundColor: countColor, marginRight: '0.5rem', color: 'white',
+        <span className={'MuiTabItem-tag'} style={{...outlinedChipStyle('orange', theme.palette.type === 'dark'),
+          marginRight: '0.5rem',
           borderRadius: 22, paddingLeft: '8px', paddingRight: '8px', paddingTop: '2px', paddingBottom: '2px',
           display: 'inline-flex', alignItems: 'center', fontSize: '0.75rem', lineHeight: 1.2}}>
           {labelNum} {intl.formatMessage({ id: 'open' })}

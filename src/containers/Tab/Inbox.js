@@ -6,6 +6,7 @@ import { Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import { useIntl } from 'react-intl';
 import { useButtonColors, COUNT_COLOR, DARK_ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants';
+import { outlinedChipStyle, variantForColor } from '../../components/CustomChip/chipStyles';
 import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 
 const useTabHoverStyles = makeStyles(({ palette }) => ({
@@ -47,8 +48,9 @@ export function GmailTabItem(props) {
       style={{maxWidth: '16rem', width: '12rem'}}
       label={
         <div className={'MuiTabItem-label'} style={{color: defaultColor, opacity: 0.6}}>
-          {useLabel} {tag && <span className={'MuiTabItem-tag'} style={{backgroundColor: hasChip ? tagColor : 'unset',
-          color: hasChip ? undefined : defaultColor, borderRadius: 22, paddingLeft: '5px', paddingRight: '5px', 
+          {useLabel} {tag && <span className={'MuiTabItem-tag'} style={{
+          ...(hasChip ? outlinedChipStyle(variantForColor(tagColor), isDark) : {color: defaultColor}),
+          borderRadius: 22, paddingLeft: '7px', paddingRight: '7px',
           marginLeft: mobileLayout ? '-8px' : undefined}}>
           {tag} {useTagLabel}</span>}
         </div>

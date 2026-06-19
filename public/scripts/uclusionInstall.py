@@ -71,7 +71,7 @@ CURSOR_MDC_FRONTMATTER = (
     '---\n'
     'description: Uclusion job workflow — invoke when working on a Uclusion '
     'job/task/bug short code (J-*, T-*, B-*)\n'
-    'alwaysApply: false\n'
+    'alwaysApply: true\n'
     '---\n'
 )
 MCP_PROXY_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionMCPProxy.py')

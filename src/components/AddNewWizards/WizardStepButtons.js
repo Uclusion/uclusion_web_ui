@@ -7,6 +7,7 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import WorkspaceInviteLinker from '../../pages/Home/WorkspaceInviteLinker'
 import { ChevronRight } from '@material-ui/icons';
 import EditIcon from '@material-ui/icons/Edit';
+import { InlineWizardContext } from '../InlineWizard/InlineWizardContext';
 
 function WizardStepButtons (props) {
   const {
@@ -41,11 +42,22 @@ function WizardStepButtons (props) {
     isOtherFinal,
     otherNextValid,
     otherNextShowEdit,
-    focus
+    focus,
+    hideInlineCancel = false
   } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  // J-all-325 (T-all-2189/2195): when this wizard is rendered inline inside its container, reuse the
+  // existing terminate slot as the Cancel that returns to the normal page view - no separate button.
+  // If the step already shows a terminate (e.g. AddOptionStep's "Go to question") we leave it alone and
+  // add nothing. hideInlineCancel lets a step opt out entirely.
+  const { closeInlineWizard } = useContext(InlineWizardContext);
+  const useInlineCancel = !!closeInlineWizard && !hideInlineCancel && !showTerminate;
+  const terminateShown = showTerminate || useInlineCancel;
+  const terminateAction = useInlineCancel ? closeInlineWizard : onTerminate;
+  const terminateText = useInlineCancel ? 'cancel' : terminateLabel;
+  const terminateDoSpin = useInlineCancel ? false : terminateSpinOnClick;
   const lastStep = currentStep === totalSteps - 1; //zero indexed
 
 
@@ -125,10 +137,10 @@ function WizardStepButtons (props) {
       )}
 
       <div className={classes.actionContainer}>
-        {showTerminate && (
+        {terminateShown && (
           <SpinningButton id="OnboardingWizardTerminate" className={classes.actionSkip} variant="text"
-                          doSpin={terminateSpinOnClick} onClick={onTerminate}>
-            {intl.formatMessage({ id: terminateLabel })}
+                          doSpin={terminateDoSpin} onClick={terminateAction}>
+            {intl.formatMessage({ id: terminateText })}
           </SpinningButton>
         )}
       </div>
@@ -165,6 +177,7 @@ WizardStepButtons.propTypes = {
   terminateSpinOnClick: PropTypes.bool,
   onNextSkipStep: PropTypes.bool,
   isFinal: PropTypes.bool,
-  isOtherFinal: PropTypes.bool
+  isOtherFinal: PropTypes.bool,
+  hideInlineCancel: PropTypes.bool
 };
 export default WizardStepButtons;

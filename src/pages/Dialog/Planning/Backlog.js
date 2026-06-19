@@ -2,6 +2,8 @@ import React, { useContext, useReducer } from 'react';
 import { useIntl } from 'react-intl';
 import { formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
+import { JOB_WIZARD_TYPE } from '../../../constants/markets';
+import { useInlineWizardLaunch } from '../../../components/InlineWizard/InlineWizardContext';
 import _ from 'lodash';
 import DismissableText from '../../../components/Notifications/DismissableText';
 import BacklogListItem from '../../../components/Cards/BacklogListItem';
@@ -52,6 +54,7 @@ function Backlog(props) {
   const { market_id: marketId, id: groupId} = group || {};
   const intl = useIntl();
   const wizardClasses = wizardStyles();
+  const { openInlineWizard } = useInlineWizardLaunch();
   const history = useHistory();
   const [marketsState] = useContext(MarketsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -186,9 +189,9 @@ function Backlog(props) {
                       style={{marginBottom: isEmptyBacklog ? undefined : '1rem', 
                         marginLeft: mobileLayout ? undefined : '0.5rem'}}
                       variant="text" doSpin={false} toolTipId='hotKeyJob'
-                      onClick={() => {
-                        navigate(history, formMarketAddInvestibleLink(marketId, groupId, tabIndex));
-                      }}>
+                      onClick={() => openInlineWizard
+                        ? openInlineWizard({ wizardType: JOB_WIZARD_TYPE, marketId, groupId, jobType: tabIndex })
+                        : navigate(history, formMarketAddInvestibleLink(marketId, groupId, tabIndex))}>
         {intl.formatMessage({ id: 'addStoryLabel'})}
       </SpinningButton>
       <div style={{paddingBottom: isEmptyBacklog ? '1rem' : undefined}} />

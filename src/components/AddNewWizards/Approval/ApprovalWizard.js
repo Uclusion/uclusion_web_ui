@@ -48,7 +48,7 @@ export function commonQuick(result, commentsDispatch, marketId, commentsState, m
 }
 
 function ApprovalWizard(props) {
-  const { marketId, investibleId, groupId, voteFor } = props;
+  const { marketId, investibleId, groupId, voteFor, isInline } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
   const [marketsState] = useContext(MarketsContext);
@@ -75,7 +75,7 @@ function ApprovalWizard(props) {
                         userId: yourPresence?.id, approveReason: originalReason, approveReasonVersion: version,  originalReason}}>
         {marketType === PLANNING_TYPE && (
           <JobApproveStep marketId={marketId} groupId={groupId} investibleId={investibleId}
-                          currentReasonId={yourReason?.id} />
+                          currentReasonId={yourReason?.id} isInline={isInline} />
         )}
         {marketType === DECISION_TYPE && (
           <DecisionApproveStep market={market} investibleId={investibleId} hasOtherVote={hasOtherVote}

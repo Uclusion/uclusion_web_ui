@@ -46,7 +46,7 @@ export function hasJobComment(groupId, investibleId, commentType, unSentInvestib
 
 function AddCommentStep (props) {
   const { investibleId, marketId, useType, updateFormData = () => {}, formData = {}, resolveId, groupId, currentStageId,
-    assigned, onFinishCreation, subscribed, presences, decisionInvestibleId, decisionMarketId, isNote } = props;
+    assigned, onFinishCreation, subscribed, presences, decisionInvestibleId, decisionMarketId, isNote, isInline } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -129,21 +129,24 @@ function AddCommentStep (props) {
 
   const movingJob = isAssistance && !inAssistanceStage && userIsAssigned;
   const optionUrl = `${formInvestibleLink(marketId, investibleId)}#option${decisionInvestibleId}`;
+  const titleByType = {
+    [TODO_TYPE]: 'New Task',
+    [QUESTION_TYPE]: 'New Question',
+    [SUGGEST_CHANGE_TYPE]: 'New Suggestion',
+    [ISSUE_TYPE]: 'New Blocker',
+    [REPORT_TYPE]: 'New Progress Report'
+  };
+  const wizardTitle = isNote ? 'New Note' : (titleByType[useType] || 'New comment');
   return (
     <WizardStepContainer
       {...props}
-      isXLarge
     >
-      {isNote && (
-        <Typography className={classes.introText}>
-          What is your note?
-        </Typography>
-      )}
-      {!isNote && (
-        <Typography className={classes.introText}>
-          What is your {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })}?
-        </Typography>
-      )}
+      {/* J-all-325 (Q-all-148, O-5): a concise form-style heading instead of the casual "What is your task?",
+         with tighter typography than the shared 35px introText. */}
+      <Typography className={classes.introText} style={{ fontSize: '24px', lineHeight: '30px', marginTop: 0,
+        marginBottom: '1.25rem' }}>
+        {wizardTitle}
+      </Typography>
       {movingJob && !noSubscribedToSendTo && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Opening this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} moves the job to
@@ -160,7 +163,7 @@ function AddCommentStep (props) {
       )}
       {useType === TODO_TYPE && !decisionInvestibleId && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Opening a task prevents moving this job to Tasks Complete stage until resolved.
+          Tasks hold grouped tasks, notes, and in progress status.
         </Typography>
       )}
       {useType === TODO_TYPE && decisionInvestibleId && (
@@ -232,9 +235,13 @@ function AddCommentStep (props) {
           Add options to start voting on possible answers to this question.
         </Typography>
       )}
-      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments}
-                      useCompression={useCompression}
-                      toggleCompression={() => updateFormData({ useCompression: !useCompression })}/>
+      {/* J-all-325 (T-all-2187): inside the job container the name and assignment already show in the
+         job nav, so don't repeat the JobDescription header here. */}
+      {!isInline && (
+        <JobDescription marketId={marketId} investibleId={investibleId} comments={comments}
+                        useCompression={useCompression}
+                        toggleCompression={() => updateFormData({ useCompression: !useCompression })}/>
+      )}
       {decisionInvestibleId && (
         <div style={{marginTop: '2rem'}}>
           <JobDescription marketId={decisionMarketId} investibleId={decisionInvestibleId} useCompression={useCompression} useJobLink={optionUrl}

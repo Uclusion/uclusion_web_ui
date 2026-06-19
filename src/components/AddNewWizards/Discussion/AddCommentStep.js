@@ -3,12 +3,11 @@ import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
-import { useIntl } from 'react-intl';
 import CommentAdd, { hasCommentValue } from '../../Comments/CommentAdd';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-import { REPORT_TYPE } from '../../../constants/comments';
+import { QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 
 export function hasDiscussionComment(groupId, commentType) {
   return hasCommentValue(groupId, undefined, 'DiscussionCommentAdd', undefined,
@@ -17,7 +16,6 @@ export function hasDiscussionComment(groupId, commentType) {
 
 function AddCommentStep (props) {
   const { marketId, groupId, updateFormData, useType, onFinishCreation } = props;
-  const intl = useIntl();
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('addDecisionCommentWizard');
@@ -38,8 +36,12 @@ function AddCommentStep (props) {
       {...props}
       isLarge
     >
-      <Typography className={classes.introText}>
-        What is your {intl.formatMessage({ id: `${useType.toLowerCase()}Title` })}?
+      {/* J-all-325 (Q-all-148, O-5): concise form-style heading with tighter typography. */}
+      <Typography className={classes.introText} style={{ fontSize: '24px', lineHeight: '30px', marginTop: 0,
+        marginBottom: '1.25rem' }}>
+        {useType === QUESTION_TYPE ? 'New question'
+          : (useType === SUGGEST_CHANGE_TYPE ? 'New suggestion'
+            : (useType === REPORT_TYPE ? 'New note' : 'New comment'))}
       </Typography>
       {useType === REPORT_TYPE && (
         <Typography className={classes.introSubText} variant="subtitle1">

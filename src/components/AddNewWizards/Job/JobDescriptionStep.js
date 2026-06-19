@@ -133,7 +133,9 @@ function JobDescriptionStep (props) {
     navigate(history, `${formMarketAddInvestibleLink(marketId, groupId)}${checkedString}`);
   }
 
-  const defaultFromPage = jobType === undefined ? 'IMMEDIATE' : (jobType === '0' ? 'READY' : 'NOT_READY');
+  // T-all-2191 (same class): the open backlog section preselects the matching pill. Coerce to a string so
+  // this works whether the index arrives as a number (inline launch) or a string (full-screen /wizard URL).
+  const defaultFromPage = jobType === undefined ? 'IMMEDIATE' : (`${jobType}` === '0' ? 'READY' : 'NOT_READY');
   const currentValue = newQuantity || defaultFromPage || '';
 
   function createJob(useApprovals) {

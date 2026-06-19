@@ -57,8 +57,11 @@ function BugDescriptionStep (props) {
     getPageReducerPage(commentAddBugStateFull, commentAddBugDispatch, groupId);
   const classes = useContext(WizardStylesContext);
   const { newQuantity } = formData;
-  const defaultFromPage = commentType === undefined ? undefined :
-    (commentType === '0' ? 'RED' : (commentType === '1' ? 'YELLOW' : 'BLUE'));
+  // T-all-2191: the open bug section (tab index) preselects the matching pill. Coerce to a string so this
+  // works whether the index arrives as a number (inline launch) or a string (full-screen /wizard URL).
+  const commentTypeString = commentType === undefined ? undefined : `${commentType}`;
+  const defaultFromPage = commentTypeString === undefined ? undefined :
+    (commentTypeString === '0' ? 'RED' : (commentTypeString === '1' ? 'YELLOW' : 'BLUE'));
 
   function onChange(event) {
     updateFormData({

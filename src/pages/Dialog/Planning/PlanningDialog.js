@@ -65,11 +65,14 @@ import {
   BACKLOG_HASH,
   DISCUSSION_HASH,
   formGroupEditLink, formGroupManageLink,
-  formMarketAddCommentLink, formMarketAddInvestibleLink, formWizardLink,
+  formMarketAddInvestibleLink, formWizardLink,
   navigate,
   removeHash
 } from '../../../utils/marketIdPathFunctions';
-import { DISCUSSION_WIZARD_TYPE, JOB_STAGE_WIZARD_TYPE, SUPPORT_SUB_TYPE } from '../../../constants/markets';
+import { DISCUSSION_WIZARD_TYPE, JOB_STAGE_WIZARD_TYPE, JOB_WIZARD_TYPE,
+  SUPPORT_SUB_TYPE } from '../../../constants/markets';
+import InlineWizardHost from '../../../components/InlineWizard/InlineWizardHost';
+import { InlineWizardLaunchContext } from '../../../components/InlineWizard/InlineWizardContext';
 import DialogOutset from './DialogOutset';
 import SettingsIcon from '@material-ui/icons/Settings';
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
@@ -172,6 +175,19 @@ function PlanningDialog(props) {
     sectionOpen,
     tabIndex
   } = pageState;
+  // J-all-325 (T-all-2186): add wizards open inside this view instead of the full-screen /wizard route.
+  // Kept local (not in the URL) so navigating away and back shows the view normally (T-all-2188); any
+  // navigation clears it via the effect below.
+  const [inlineWizard, setInlineWizard] = useState(undefined);
+  function openInlineWizard(descriptor) {
+    setInlineWizard(descriptor);
+  }
+  function closeInlineWizard() {
+    setInlineWizard(undefined);
+  }
+  useEffect(() => {
+    setInlineWizard(undefined);
+  }, [location.pathname, location.hash]);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
   const isSingleUser = groupPresences?.length === 1;
@@ -254,18 +270,18 @@ function PlanningDialog(props) {
     return sectionOpen === section || (!sectionOpen && section === 'storiesSection');
   }
 
-  useHotkeys('ctrl+a', () => navigate(history, formMarketAddInvestibleLink(marketId, groupId)),
-    {enabled: !hidden && (isSectionOpen('backlogSection')||isSectionOpen('storiesSection'))},
-    [history, groupId, marketId]);
-  useHotkeys('ctrl+q', () => navigate(history,
-      formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId, QUESTION_TYPE)),
-    {enabled: !hidden}, [history, groupId, marketId]);
-  useHotkeys('ctrl+alt+s', () => navigate(history,
-      formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId, SUGGEST_CHANGE_TYPE)),
-    {enabled: !hidden}, [history, groupId, marketId]);
-  useHotkeys('ctrl+alt+n', () => navigate(history,
-      formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId, REPORT_TYPE)),
-    {enabled: !hidden}, [history, groupId, marketId]);
+  useHotkeys('ctrl+a', () => openInlineWizard({ wizardType: JOB_WIZARD_TYPE, marketId, groupId }),
+    {enabled: !hidden && !inlineWizard && (isSectionOpen('backlogSection')||isSectionOpen('storiesSection'))},
+    [groupId, marketId, hidden, inlineWizard]);
+  useHotkeys('ctrl+q', () => openInlineWizard({ wizardType: DISCUSSION_WIZARD_TYPE, marketId, groupId,
+      commentType: QUESTION_TYPE }),
+    {enabled: !hidden && !inlineWizard}, [groupId, marketId, hidden, inlineWizard]);
+  useHotkeys('ctrl+alt+s', () => openInlineWizard({ wizardType: DISCUSSION_WIZARD_TYPE, marketId, groupId,
+      commentType: SUGGEST_CHANGE_TYPE }),
+    {enabled: !hidden && !inlineWizard}, [groupId, marketId, hidden, inlineWizard]);
+  useHotkeys('ctrl+alt+n', () => openInlineWizard({ wizardType: DISCUSSION_WIZARD_TYPE, marketId, groupId,
+      commentType: REPORT_TYPE }),
+    {enabled: !hidden && !inlineWizard}, [groupId, marketId, hidden, inlineWizard]);
 
   useEffect(() => {
     if (hash && !hidden) { 
@@ -346,6 +362,8 @@ function PlanningDialog(props) {
   }
 
   function resetFunction(tabIndex) {
+    // J-all-325: switching tabs leaves the wizard's context, so close it.
+    closeInlineWizard();
     updatePageState({tabIndex});
     const anchorId = getAnchorId(tabIndex);
     openSubSection(anchorId);
@@ -617,6 +635,14 @@ const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOr
         <DialogOutset marketPresences={marketPresences} marketId={marketId} groupId={groupId} />
       <div style={{paddingTop: '0.5rem', width: '96%', marginLeft: 'auto', marginRight: 'auto', overflow: 'hidden'}}>
         <div ref={refToTop}></div>
+        <InlineWizardLaunchContext.Provider value={{ openInlineWizard, inlineWizard }}>
+        {/* J-all-325 (T-all-2186): an add wizard opened inside this view replaces the tab body, with the
+           view tabs still above (Q-all-145, O-1). */}
+        {inlineWizard && (
+          <InlineWizardHost inlineWizard={inlineWizard} onClose={closeInlineWizard} />
+        )}
+        {!inlineWizard && (
+        <>
         <DiscussionSection
           comments={notTodoGroupComments}
           resolvedComments={resolvedDiscussionComments}
@@ -670,7 +696,7 @@ const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOr
                   variant="text" doSpin={false}
                   style={{marginTop: '1rem', marginLeft: mobileLayout ? undefined : '0.5rem'}}
                   toolTipId='hotKeyJob'
-                  onClick={() => navigate(history, formMarketAddInvestibleLink(marketId, groupId))}>
+                  onClick={() => openInlineWizard({ wizardType: JOB_WIZARD_TYPE, marketId, groupId })}>
                   <FormattedMessage id='addStoryLabel'/>
                 </SpinningButton>
                 <div onDrop={onDropNext} onDragOver={onDragOverNext}
@@ -751,6 +777,9 @@ const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOr
                      setSectionOpen={() => {
                        updatePageState({sectionOpen: 'marketTodos', tabIndex: 2});
                      }} group={group} />
+        </>
+        )}
+        </InlineWizardLaunchContext.Provider>
       </div>
       </div>
     </Screen>

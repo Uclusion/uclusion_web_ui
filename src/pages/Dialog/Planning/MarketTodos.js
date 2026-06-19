@@ -35,6 +35,7 @@ import { deleteOrDehilightMessages } from '../../../api/users';
 import { stripHTML } from '../../../utils/stringFunctions';
 import { BLUE_LEVEL, RED_LEVEL, UNASSIGNED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications';
 import { BUG_WIZARD_TYPE } from '../../../constants/markets';
+import { useInlineWizardLaunch } from '../../../components/InlineWizard/InlineWizardContext';
 import BugListItem from '../../../components/Comments/BugListItem';
 import getReducer, {
   contractAll,
@@ -180,6 +181,7 @@ function MarketTodos(props) {
   } = props
   const classes = todoClasses();
   const wizardClasses = wizardStyles();
+  const { openInlineWizard } = useInlineWizardLaunch();
   const intl = useIntl();
   const history = useHistory();
   const theme = useTheme();
@@ -237,10 +239,11 @@ function MarketTodos(props) {
   const { first, last, data, hasMore, hasLess } = getPaginatedItems(tabComments, page,
     PAGE_SIZE);
 
-  useHotkeys('ctrl+a', () => navigate(history,
-      formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId, tabIndex)),
+  useHotkeys('ctrl+a', () => openInlineWizard
+      ? openInlineWizard({ wizardType: BUG_WIZARD_TYPE, marketId, groupId, commentType: tabIndex })
+      : navigate(history, formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId, tabIndex)),
     {enabled: !hidden && sectionOpen},
-    [history, groupId, marketId, tabIndex]);
+    [history, groupId, marketId, tabIndex, openInlineWizard]);
 
   useEffect(() => {
     if (hash && !hidden && !isInbox) {
@@ -474,8 +477,9 @@ function MarketTodos(props) {
                         style={{marginBottom: '1rem', marginTop: '1rem'}}
                         variant="text" doSpin={false}
                         icon={hasBug(groupId) ? EditIcon : AddIcon} iconColor="black" toolTipId='hotKeyTODO'
-                        onClick={() => navigate(history,
-                          formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId, tabIndex))}>
+                        onClick={() => openInlineWizard
+                          ? openInlineWizard({ wizardType: BUG_WIZARD_TYPE, marketId, groupId, commentType: tabIndex })
+                          : navigate(history, formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId, tabIndex))}>
           {intl.formatMessage({ id: 'createBug'})}
         </SpinningButton>
       )}

@@ -2,7 +2,8 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { IconButton, makeStyles, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core';
-import { useHistory } from 'react-router';
+import { useHistory, useLocation } from 'react-router';
+import { useHotkeys } from 'react-hotkeys-hook';
 import { FormattedMessage, useIntl } from 'react-intl';
 import Voting from '../Decision/Voting';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
@@ -51,7 +52,7 @@ import {
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import {
   formInboxItemLink,
-  formInvestibleAddCommentLink, formInvestibleLink, formMarketLink,
+  formInvestibleLink, formMarketLink,
   formWizardLink,
   navigate,
   preventDefaultAndProp
@@ -75,6 +76,7 @@ import { useGroupPresences } from '../../../contexts/MarketPresencesContext/mark
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import EditIcon from '@material-ui/icons/Edit';
 import { hasJobComment } from '../../../components/AddNewWizards/JobComment/AddCommentStep';
+import InlineWizardHost from '../../../components/InlineWizard/InlineWizardHost';
 import Link from '@material-ui/core/Link';
 import InfoOutlined from '@material-ui/icons/InfoOutlined';
 import AssignmentOutlined from '@material-ui/icons/AssignmentOutlined';
@@ -349,6 +351,7 @@ export function countUnresolved(comments, search) {
  */
 function PlanningInvestible(props) {
   const history = useHistory();
+  const location = useLocation();
   const intl = useIntl();
   const {
     investibleId,
@@ -417,6 +420,36 @@ function PlanningInvestible(props) {
     reportsOpenRaw
   } = pageState;
   const reportsOpen = !_.isEmpty(search) ? !_.isEmpty(reportsCommentsSearched) : reportsOpenRaw;
+  // J-all-325: the add wizards open inside this container instead of on the full-screen /wizard route.
+  // The open-state is kept local (not in the URL) so that navigating away and back shows the page as
+  // it normally displays (T-all-2188). Any navigation - including the post-submit navigate to the new
+  // item (Q-all-147) - clears it via the effect below.
+  const [inlineWizard, setInlineWizard] = useState(undefined);
+  function openInlineWizard(descriptor) {
+    setInlineWizard(descriptor);
+  }
+  function closeInlineWizard() {
+    setInlineWizard(undefined);
+  }
+  useEffect(() => {
+    // Clear the inline wizard whenever the location changes (navigating away, or the wizard navigating
+    // to the item it just created). Opening the wizard does not change the URL, so it is unaffected.
+    setInlineWizard(undefined);
+  }, [location.pathname, location.hash]);
+  useHotkeys('ctrl+a', () => openInlineWizard({ wizardType: JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
+    commentType: TODO_TYPE }), { enabled: !hidden && !inlineWizard }, [investibleId, marketId, hidden, inlineWizard]);
+  useHotkeys('ctrl+q', () => openInlineWizard({ wizardType: JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
+    commentType: QUESTION_TYPE }), { enabled: !hidden && !inlineWizard }, [investibleId, marketId, hidden, inlineWizard]);
+  useHotkeys('ctrl+alt+s', () => openInlineWizard({ wizardType: JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
+    commentType: SUGGEST_CHANGE_TYPE }), { enabled: !hidden && !inlineWizard }, [investibleId, marketId, hidden, inlineWizard]);
+  useHotkeys('ctrl+alt+b', () => openInlineWizard({ wizardType: JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
+    commentType: ISSUE_TYPE }), { enabled: !hidden && !inlineWizard }, [investibleId, marketId, hidden, inlineWizard]);
+  useHotkeys('ctrl+alt+n', () => openInlineWizard({ wizardType: JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
+    commentType: REPORT_TYPE, notificationType: 'BLUE' }), { enabled: !hidden && !inlineWizard },
+    [investibleId, marketId, hidden, inlineWizard]);
+  const showJobHeaderAboveWizard = !!inlineWizard && (inlineWizard.wizardType === APPROVAL_WIZARD_TYPE ||
+    (inlineWizard.wizardType === JOB_COMMENT_WIZARD_TYPE && inlineWizard.commentType === REPORT_TYPE &&
+      inlineWizard.notificationType !== 'BLUE'));
   const inCurrentVotingStage = getInCurrentVotingStage(
     marketStagesState,
     marketId
@@ -686,6 +719,7 @@ function PlanningInvestible(props) {
                                                assigned={assigned} isInVoting={isInVoting}
                                                investibleComments={investibleComments} labels={labels}
                                                marketInfo={marketInfo} marketId={marketId}
+                                               openInlineWizard={openInlineWizard}
                                                updatePageState={updatePageState} />;
   function getUseCompression(commentId) {
     if (compressionHash) {
@@ -747,6 +781,8 @@ function PlanningInvestible(props) {
         value={sections.findIndex((section) => section === sectionOpen)}
         addPaddingLeft='2rem' addMarginLeft={leftNavBreak ? '-0.25rem' : undefined}
         onChange={(event, value) => {
+          // J-all-325: switching tabs leaves the wizard's context, so close it.
+          closeInlineWizard();
           openSubSection(sections[value]);
           // Previous scroll position no longer relevant
           refToTop.current?.scrollIntoView({ block: "end" });
@@ -782,7 +818,24 @@ function PlanningInvestible(props) {
       </GmailTabs>
       <div style={{paddingLeft: mobileLayout ? undefined : '2rem', paddingRight: mobileLayout ? undefined : '1rem'}}>
         <div style={{paddingBottom: '0.5rem'}} ref={refToTop}></div>
-        {sectionOpen === 'descriptionVotingSection' && (
+        {/* J-all-325: an add wizard opened inside the container replaces the tab body (Q-all-145, O-1).
+           For add progress report and add approval the job title + description stay above it (T-all-2184). */}
+        {inlineWizard && (
+          <>
+            {showJobHeaderAboveWizard && marketId && investibleId && (
+              <div className={editClasses.container} style={{padding: '1rem', borderRadius: '8px',
+                marginBottom: '1rem', backgroundColor: isDark ? DARK_TEXT_BACKGROUND_COLOR : 'white'}}>
+                <Typography className={editClasses.title} variant="h3" component="h1">
+                  {name}
+                </Typography>
+                <DescriptionOrDiff id={investibleId} description={description} showDiff={showDiff}
+                                   backgroundColor={isDark ? DARK_TEXT_BACKGROUND_COLOR : 'white'} />
+              </div>
+            )}
+            <InlineWizardHost inlineWizard={inlineWizard} onClose={closeInlineWizard} />
+          </>
+        )}
+        {!inlineWizard && sectionOpen === 'descriptionVotingSection' && (
           <>
             <div style={{display: 'flex', marginRight: mobileLayout ? undefined : '2rem'}}>
               <CardType
@@ -874,7 +927,8 @@ function PlanningInvestible(props) {
                     <FormattedMessage id="decisionInvestibleOthersVoting"/> {displayVotingInput && investibleId
                      && <TooltipIconButton id="newApproval"
                         marginLeft='1rem'
-                        onClick={() => navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, groupId))}
+                        onClick={() => openInlineWizard({ wizardType: APPROVAL_WIZARD_TYPE, marketId, investibleId,
+                          groupId })}
                         icon={<AddIcon fontSize='small' />}
                         translationId="createNewApproval"
                       />}
@@ -909,7 +963,8 @@ function PlanningInvestible(props) {
                   <h2 id="progress" style={{ marginBottom: 0, paddingBottom: 0, marginTop: 0, paddingTop: 0 }}>
                     <FormattedMessage id="reportsSectionLabel"/> {showCommentAdd && isAssigned && <TooltipIconButton id="newReport"
                         marginLeft='1rem'
-                        onClick={() => navigate(history, formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, REPORT_TYPE))}
+                        onClick={() => openInlineWizard({ wizardType: JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
+                          commentType: REPORT_TYPE })}
                         icon={hasJobComment(groupId, investibleId, REPORT_TYPE, unSentInvestibleComments) ? <EditIcon fontSize='small' /> : <AddIcon fontSize='small' />}
                         translationId="createNewStatus"
                       />}
@@ -957,7 +1012,7 @@ function PlanningInvestible(props) {
               </div>
           </>
         )}
-        {sectionOpen !== 'descriptionVotingSection' && (
+        {!inlineWizard && sectionOpen !== 'descriptionVotingSection' && (
           <>
             {showCommentAdd && !_.isEmpty(allowedCommentTypes) && (
               <div style={{ display: mobileLayout ? undefined : 'flex', marginLeft: '0.5rem' }}>
@@ -975,10 +1030,9 @@ function PlanningInvestible(props) {
                       [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE, REPORT_TYPE].includes(allowedCommentType) ?
                                       `hotKey${allowedCommentType}`: undefined}
                                     variant="text" doSpin={false}
-                                    onClick={() => navigate(history,
-                                      formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
-                                        allowedCommentType, undefined, undefined, undefined, 
-                                        allowedCommentType === REPORT_TYPE ? 'BLUE' : undefined))}>
+                                    onClick={() => openInlineWizard({ wizardType: JOB_COMMENT_WIZARD_TYPE, investibleId,
+                                      marketId, commentType: allowedCommentType,
+                                      notificationType: allowedCommentType === REPORT_TYPE ? 'BLUE' : undefined })}>
                       {intl.formatMessage({ id: `createNew${allowedCommentType}${mobileLayout ? 'Mobile' : ''}`})}
                     </SpinningButton>
                   );

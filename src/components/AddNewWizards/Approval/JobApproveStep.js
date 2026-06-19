@@ -28,7 +28,7 @@ import { findMessageOfType } from '../../../utils/messageUtils';
 import { dismissWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 
 function JobApproveStep(props) {
-  const { marketId, groupId, updateFormData = () => {}, formData = {}, investibleId, currentReasonId } = props;
+  const { marketId, groupId, updateFormData = () => {}, formData = {}, investibleId, currentReasonId, isInline } = props;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -133,7 +133,11 @@ function JobApproveStep(props) {
           Your approval was deleted or expired.
         </Typography>
       )}
-      <JobDescription marketId={marketId} investibleId={investibleId}/>
+      {/* J-all-325 (T-all-2184): inline, the job title + description already show above the wizard in
+         the review section, so don't repeat the JobDescription header here. */}
+      {!isInline && (
+        <JobDescription marketId={marketId} investibleId={investibleId}/>
+      )}
       <div className={classes.borderBottom}/>
       <AddInitialVote
         marketId={marketId}

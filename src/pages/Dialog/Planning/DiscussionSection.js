@@ -14,7 +14,7 @@ import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 import { DISCUSSION_WIZARD_TYPE } from '../../../constants/markets';
 import { QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
-import { formMarketAddCommentLink, navigate, removeHash } from '../../../utils/marketIdPathFunctions';
+import { removeHash } from '../../../utils/marketIdPathFunctions';
 import BugListItem from '../../../components/Comments/BugListItem';
 import Comment from '../../../components/Comments/Comment';
 import getReducer, { PAGE_SIZE, pin, setPage, setTab } from '../../../components/Comments/BugListContext';
@@ -31,6 +31,7 @@ import { KeyboardArrowLeft } from '@material-ui/icons';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import { hasDiscussionComment } from '../../../components/AddNewWizards/Discussion/AddCommentStep';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
+import { useInlineWizardLaunch } from '../../../components/InlineWizard/InlineWizardContext';
 
 function DiscussionSection(props) {
   const {
@@ -49,6 +50,7 @@ function DiscussionSection(props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const wizardClasses = wizardStyles();
+  const { openInlineWizard } = useInlineWizardLaunch();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState] = useContext(NotificationsContext);
@@ -146,7 +148,8 @@ function DiscussionSection(props) {
           className={wizardClasses.actionNext}
           style={{ display: 'flex', marginRight: mobileLayout ? undefined : '2rem' }}
           variant="text" doSpin={false} toolTipId='hotKeyREPORT'
-          onClick={() => navigate(history, formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId, REPORT_TYPE))}>
+          onClick={() => openInlineWizard({ wizardType: DISCUSSION_WIZARD_TYPE, marketId, groupId,
+            commentType: REPORT_TYPE })}>
           {intl.formatMessage({ id: `createNote${mobileLayout ? 'Mobile' : ''}` })}
         </SpinningButton>
         <SpinningButton id="newMarketQuestion"
@@ -155,7 +158,8 @@ function DiscussionSection(props) {
           className={wizardClasses.actionNext}
           style={{ display: 'flex', marginRight: mobileLayout ? undefined : '2rem' }}
           variant="text" doSpin={false} toolTipId='hotKeyQUESTION'
-          onClick={() => navigate(history, formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId, QUESTION_TYPE))}>
+          onClick={() => openInlineWizard({ wizardType: DISCUSSION_WIZARD_TYPE, marketId, groupId,
+            commentType: QUESTION_TYPE })}>
           {intl.formatMessage({ id: `createQuestion${mobileLayout ? 'Mobile' : ''}` })}
         </SpinningButton>
         <SpinningButton id="createSuggestion"
@@ -164,7 +168,8 @@ function DiscussionSection(props) {
           className={wizardClasses.actionNext}
           style={{ display: 'flex' }}
           variant="text" doSpin={false} toolTipId='hotKeySUGGEST'
-          onClick={() => navigate(history, formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId, SUGGEST_CHANGE_TYPE))}>
+          onClick={() => openInlineWizard({ wizardType: DISCUSSION_WIZARD_TYPE, marketId, groupId,
+            commentType: SUGGEST_CHANGE_TYPE })}>
           {intl.formatMessage({ id: `createSuggestion${mobileLayout ? 'Mobile' : ''}` })}
         </SpinningButton>
       </div>

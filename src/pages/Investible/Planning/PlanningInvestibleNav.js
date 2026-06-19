@@ -88,7 +88,7 @@ const useStyles = makeStyles(
 export default function PlanningInvestibleNav(props) {
   const { name, marketInvestible, classes, userId, isAssigned, labels,
     pageState, marketPresences, assigned, isInVoting, investibleComments, marketInfo, marketId,
-    updatePageState, investibleId, yourVote } = props;
+    updatePageState, investibleId, yourVote, openInlineWizard } = props;
   const intl = useIntl();
   const history = useHistory();
   const [themeMode] = useContext(ThemeModeContext);
@@ -326,7 +326,9 @@ export default function PlanningInvestibleNav(props) {
         <div style={{display: 'flex'}}>
           <SpinningIconLabelButton
             doSpin={false}
-            onClick={()=>navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, groupId))}
+            onClick={() => openInlineWizard
+              ? openInlineWizard({ wizardType: APPROVAL_WIZARD_TYPE, marketId, investibleId, groupId })
+              : navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, groupId))}
             icon={ThumbUp} iconColor={isDark ? DARK_ACTION_BUTTON_COLOR : undefined} id='accept'>
             {intl.formatMessage({ id: 'accept' })}
           </SpinningIconLabelButton>

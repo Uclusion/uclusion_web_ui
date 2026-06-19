@@ -49,6 +49,7 @@ import TokenStorageManager from '../../authorization/TokenStorageManager'
 import { BLUE_LEVEL, NOT_FULLY_VOTED_TYPE } from '../../constants/notifications'
 import WizardStepButtons from '../InboxWizards/WizardStepButtons'
 import AddWizardStepButtons from '../AddNewWizards/WizardStepButtons'
+import { InlineWizardContext } from '../InlineWizard/InlineWizardContext'
 import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { getMarketInfo } from '../../utils/userFunctions';
@@ -320,6 +321,9 @@ function CommentAdd(props) {
   const placeHolderLabelId = getPlaceHolderLabelId(type, investibleId, wizardProps.showSubTask, wizardProps.isNote);
   const placeholder = intl.formatMessage({ id: placeHolderLabelId });
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  // J-all-325 (T-all-2196): when rendered inline, the note's "Skip" terminate (which otherwise just resets
+  // the editor and appears to do nothing) becomes a Cancel that closes the inline wizard.
+  const { closeInlineWizard } = useContext(InlineWizardContext);
   const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
   const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const investibleRequiresInput = (type === QUESTION_TYPE || type === SUGGEST_CHANGE_TYPE) && creatorIsAssigned
@@ -467,8 +471,9 @@ function CommentAdd(props) {
               nextLabel={`${wizardProps.isNote ? 'NOTE' : type}ApproveWizard`}
               onNext={() => handleSave( wizardProps.isSent !== false, wizardProps.isNote ? 'BLUE' : undefined)}
               showTerminate
+              onFinish={closeInlineWizard || wizardProps.onFinish}
               onTerminate={() => navigate(history, formInvestibleLink(marketId, investibleId))}
-              terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>
+              terminateLabel={closeInlineWizard ? 'cancel' : (wizardProps.terminateLabel || 'JobWizardGotoJob')}/>
           )}
           {(wizardProps.isAddWizard && !wizardProps.isNote) &&
             (type !== ISSUE_TYPE || isSingleUser || ourMarket.market_type !== PLANNING_TYPE) &&
@@ -581,6 +586,7 @@ function CommentAdd(props) {
               isFinal={false}
               otherNextLabel="createNewQUESTION"
               onOtherNext={() => handleSave( true, undefined,false)}
+              onOtherDoAdvance={false}
               isOtherFinal
               showTerminate={false}
             />

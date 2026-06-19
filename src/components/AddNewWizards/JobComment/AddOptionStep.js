@@ -156,7 +156,8 @@ function AddOptionStep(props) {
         otherNextLabel="JobCommentCreateAnotherOption"
         onTerminate={myOnFinish}
         showTerminate={true}
-        terminateLabel="JobOptionTerminate"/>
+        terminateLabel="JobOptionTerminate"
+        hideInlineCancel/>
     </WizardStepContainer>
   );
 }

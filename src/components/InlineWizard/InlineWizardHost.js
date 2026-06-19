@@ -5,6 +5,7 @@ import { InlineWizardContext } from './InlineWizardContext';
 import {
   APPROVAL_WIZARD_TYPE,
   BUG_WIZARD_TYPE,
+  DELETE_COMMENT_TYPE,
   DISCUSSION_WIZARD_TYPE,
   JOB_COMMENT_WIZARD_TYPE,
   JOB_WIZARD_TYPE
@@ -14,6 +15,7 @@ import ApprovalWizard from '../AddNewWizards/Approval/ApprovalWizard';
 import JobWizard from '../AddNewWizards/Job/JobWizard';
 import BugWizard from '../AddNewWizards/Bug/BugWizard';
 import DiscussionWizard from '../AddNewWizards/Discussion/DiscussionWizard';
+import DeleteWizard from '../AddNewWizards/Delete/DeleteWizard';
 
 /**
  * J-all-325: wizards that used to open on the full-screen /wizard route now open inside their
@@ -24,7 +26,8 @@ import DiscussionWizard from '../AddNewWizards/Discussion/DiscussionWizard';
  */
 
 function InlineWizardDispatch(props) {
-  const { wizardType, marketId, groupId, investibleId, commentType, notificationType, jobType, voteFor } = props;
+  const { wizardType, marketId, groupId, investibleId, commentType, notificationType, jobType, voteFor, commentId,
+    isInbox } = props;
   switch (wizardType) {
     case JOB_COMMENT_WIZARD_TYPE:
       return <JobCommentWizard investibleId={investibleId} marketId={marketId} commentType={commentType}
@@ -38,6 +41,8 @@ function InlineWizardDispatch(props) {
       return <BugWizard marketId={marketId} groupId={groupId} commentType={commentType} />;
     case DISCUSSION_WIZARD_TYPE:
       return <DiscussionWizard marketId={marketId} groupId={groupId} commentType={commentType} />;
+    case DELETE_COMMENT_TYPE:
+      return <DeleteWizard marketId={marketId} commentId={commentId} isInbox={isInbox} />;
     default:
       return null;
   }

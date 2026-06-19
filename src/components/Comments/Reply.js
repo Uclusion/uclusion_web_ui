@@ -47,6 +47,7 @@ import {
 } from '../../constants/markets';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { hasReply } from '../AddNewWizards/Reply/ReplyStep';
+import { useInlineWizardLaunch } from '../InlineWizard/InlineWizardContext';
 import EditIcon from '@material-ui/icons/Edit';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
@@ -209,6 +210,7 @@ function Reply(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { warningColor } = useButtonColors();
   const marketId = useMarketId();
+  const { openInlineWizard } = useInlineWizardLaunch();
   const idPrepend = usePrependId();
   const presences = usePresences(marketId);
   const commenter = useCommenter(comment, presences) || { name: "unknown", email: "" };
@@ -402,7 +404,10 @@ function Reply(props) {
             disabled={operationRunning !== false}
             onClick={(event) => {
                 preventDefaultAndProp(event);
-                if (isInbox) {
+                // J-all-325 (T-all-2197): open delete inline when inside a container that supports it.
+                if (openInlineWizard && !isInbox) {
+                  openInlineWizard({ wizardType: DELETE_COMMENT_TYPE, marketId, commentId: comment.id });
+                } else if (isInbox) {
                   navigate(history, `${deleteWizardBaseLink}&isInbox=${isInbox}`);
                 } else {
                   navigate(history, deleteWizardBaseLink);

@@ -33,6 +33,7 @@ import {
   changeMyPresence, usePresences
 } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import CommentEdit from './CommentEdit';
+import { useInlineWizardLaunch } from '../InlineWizard/InlineWizardContext';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { addMarketToStorage, getMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper';
 import CardType, { BUG, DECISION_TYPE, NOTE } from '../CardType';
@@ -542,6 +543,7 @@ function Comment(props) {
     inNotesTab=false } = props;
   const history = useHistory();
   const location = useLocation();
+  const { openInlineWizard } = useInlineWizardLaunch();
   const editBox = useRef(null);
   const [themeMode] = React.useContext(ThemeModeContext);
   const isDark = themeMode === 'dark';
@@ -1046,8 +1048,16 @@ function Comment(props) {
           <div style={{marginRight: '2rem'}}>
             <TooltipIconButton
               disabled={operationRunning !== false}
-              onClick={isInbox ? () => navigate(history, `${deleteWizardBaseLink}&isInbox=${isInbox}`) :
-                () => navigate(history, deleteWizardBaseLink)}
+              onClick={() => {
+                // J-all-325 (T-all-2197): open delete inline when inside a container that supports it.
+                if (openInlineWizard && !isInbox) {
+                  openInlineWizard({ wizardType: DELETE_COMMENT_TYPE, marketId, commentId: id });
+                } else if (isInbox) {
+                  navigate(history, `${deleteWizardBaseLink}&isInbox=${isInbox}`);
+                } else {
+                  navigate(history, deleteWizardBaseLink);
+                }
+              }}
               icon={<NotificationDeletion isRed={operationRunning === false} />}
               size={mobileLayout ? 'small' : undefined}
               translationId="commentRemoveLabel"

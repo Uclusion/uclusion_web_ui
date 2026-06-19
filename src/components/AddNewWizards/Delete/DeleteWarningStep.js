@@ -21,6 +21,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { TODO_TYPE } from '../../../constants/comments';
+import { InlineWizardContext } from '../../InlineWizard/InlineWizardContext';
 
 function DeleteWarningStep(props) {
   const { marketId, commentId, isInbox, formData = {}, updateFormData = () => {} } = props;
@@ -29,6 +30,9 @@ function DeleteWarningStep(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  // J-all-325 (T-all-2197): when delete opens inline, just close the inline wizard after removing (we are
+  // already on the page) instead of navigating, and the back button becomes Cancel.
+  const { closeInlineWizard } = useContext(InlineWizardContext);
   const commentToDelete = getComment(commentsState, marketId, commentId);
   const { useCompression } = formData;
 
@@ -38,7 +42,9 @@ function DeleteWarningStep(props) {
         addMarketComments(commentsDispatch, marketId, [comment]);
         removeMessagesForCommentId(comment.id, messagesState, messagesDispatch);
         setOperationRunning(false);
-        if (isInbox) {
+        if (closeInlineWizard) {
+          closeInlineWizard();
+        } else if (isInbox) {
           navigate(history, getInboxTarget());
         } else {
           const { investible_id: investibleId, comment_type: commentType, group_id: groupId } = comment;
@@ -84,7 +90,7 @@ function DeleteWarningStep(props) {
         nextLabel="commentRemoveLabel"
         focus
         onNext={remove}
-        showTerminate
+        showTerminate={!closeInlineWizard}
         onTerminate={() => navigate(history)}
         terminateLabel="OnboardingWizardGoBack"
       />

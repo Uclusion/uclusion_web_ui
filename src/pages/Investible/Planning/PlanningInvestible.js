@@ -77,6 +77,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import EditIcon from '@material-ui/icons/Edit';
 import { hasJobComment } from '../../../components/AddNewWizards/JobComment/AddCommentStep';
 import InlineWizardHost from '../../../components/InlineWizard/InlineWizardHost';
+import { InlineWizardLaunchContext } from '../../../components/InlineWizard/InlineWizardContext';
 import Link from '@material-ui/core/Link';
 import InfoOutlined from '@material-ui/icons/InfoOutlined';
 import AssignmentOutlined from '@material-ui/icons/AssignmentOutlined';
@@ -770,6 +771,8 @@ function PlanningInvestible(props) {
       noPadDesktop
       leftNavAdjust={mobileLayout ? undefined : (leftNavBreak ? 245 : 465)}
     >
+      {/* J-all-325 (T-all-2197): expose openInlineWizard to the comment delete buttons so delete opens inline. */}
+      <InlineWizardLaunchContext.Provider value={{ openInlineWizard, inlineWizard }}>
       {!mobileLayout && (
         <div className={classes.paper} style={{ paddingTop: mobileLayout ? undefined : '2rem', paddingBottom: '1rem',
           transform: mobileLayout ? undefined :
@@ -1134,6 +1137,7 @@ function PlanningInvestible(props) {
           </>
         )}
       </div>
+      </InlineWizardLaunchContext.Provider>
     </Screen>
   );
 }

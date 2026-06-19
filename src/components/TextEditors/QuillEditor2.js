@@ -52,6 +52,8 @@ Quill.register(DividerBlot);
 // one for the divider control here (once, at module load).
 const quillIcons = Quill.import('ui/icons');
 quillIcons['divider'] = '<svg viewBox="0 0 18 18"><line class="ql-stroke" x1="3" y1="9" x2="15" y2="9"></line></svg>';
+// Trash icon for the custom "clear the editor" toolbar button (T-all-2168 / S-1).
+quillIcons['clear'] = '<svg viewBox="0 0 24 24"><path class="ql-fill" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path></svg>';
 const useStyles = makeStyles(
   theme => {
     return {
@@ -242,6 +244,9 @@ function QuillEditor2 (props) {
         display: 'flex',
         flexDirection: 'column',
         maxHeight: maxHeight || (noOverflow ? undefined : '50vh'),
+        // Narrower, GMail-like composer width (T-all-2168 / Q-all-140 O-1); only
+        // for the editable composer, not the read-only (noToolbar) display.
+        maxWidth: noToolbar ? undefined : '680px',
       }}
     >
       <div

@@ -44,9 +44,35 @@ a[target="_blank"]::after {
         margin-bottom: 0;
     }
 }
-.ql-toolbar {
-    width: 100%;
-    background-color:lightgrey;
+/* GMail-style rounded toolbar pill (T-all-2168 / Q-all-140 O-1, S-1): the pill
+   wraps two control rows - the relocated Quill formatting toolbar on top and the
+   editor trash (clear) on a second row, far right - all inside one rounded
+   light-grey control instead of the old flat full-width grey bar. */
+.ql-toolbar.ql-snow {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    width: auto;
+    max-width: 100%;
+    box-sizing: border-box;
+    background-color: #f1f3f4;
+    border: none;
+    border-radius: 18px;
+    padding: 3px 10px;
+    margin: 6px 0 2px;
+}
+/* The clear (trash) button is the last toolbar group. On desktop push it to the
+   far right of the last row so the formatting icons fill the rows above it
+   (T-all-2168 / C-all-1003). On mobile leave it as a regular toolbar control - the
+   far-right push left it stranded on its own row when the toolbar wraps a lot. */
+.ql-toolbar.ql-snow .ql-formats:last-child {
+    margin-left: auto;
+    margin-right: 0;
+}
+@media screen and (max-width: 600px) {
+    .ql-toolbar.ql-snow .ql-formats:last-child {
+        margin-left: 0;
+    }
 }
 .ql-snow .ql-picker.ql-expanded .ql-picker-options {
     top: auto !important;

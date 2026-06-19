@@ -119,6 +119,7 @@ function addToolTips (toolbar) {
   setTooltip(toolbar, 'button.ql-list', 'Number List', 'Bullet List');
   setTooltip(toolbar, 'button.ql-table', 'Table');
   setTooltip(toolbar, 'button.ql-divider', 'Divider');
+  setTooltip(toolbar, 'button.ql-clear', 'Clear');
   setTooltip(toolbar, 'span.ql-color', 'Text Color');
   setTooltip(toolbar, 'span.ql-background', 'Background Color');
   setTooltip(toolbar, 'span.ql-align', 'Text Alignment');
@@ -352,7 +353,8 @@ export function generateEditorOptions (id, config) {
     mentionsAllowed,
     boundsId,
     placeholder,
-    scrollingContainer
+    scrollingContainer,
+    layout
   } = config;
 
   if (noToolbar) {
@@ -384,6 +386,13 @@ export function generateEditorOptions (id, config) {
           const range = editor.getSelection(true);
           editor.insertEmbed(range.index, 'divider', true, 'user');
           editor.setSelection(range.index + 1, 0, 'silent');
+        },
+        // Clear the whole editor (T-all-2168 / S-1). Editor-only control; the
+        // text-change pipeline empties the stored draft too.
+        'clear': () => {
+          const {editor} = QuillEditorRegistry.getEditor(id);
+          editor.setText('', 'user');
+          editor.focus();
         }
       },
       //for various reasons, the array form is stored in the container property when you're
@@ -398,6 +407,7 @@ export function generateEditorOptions (id, config) {
         ['link', 'code-block', 'image', 'video', 'divider'],
         ['table'],
         ['clean'],
+        ['clear'],
       ]
     },
     imageResize: {
@@ -433,6 +443,7 @@ export function generateEditorOptions (id, config) {
       ['bold', 'italic', 'underline', 'strike'],
       ['link', 'code-block'],
       ['clean'],
+      ['clear'],
     ];
     modules.s3Upload = false;
     modules.imageResize = false;
@@ -448,9 +459,18 @@ export function generateEditorOptions (id, config) {
       ['link', 'code-block', 'divider'],
       ['table'],
       ['clean'],
+      ['clear'],
     ];
     modules.s3Upload = false;
     modules.imageResize = false;
+  }
+
+  if (layout) {
+    // Mobile: drop the table button to save toolbar space so the controls stay
+    // within fewer rows (T-all-2168 / C-all-1003).
+    modules.toolbar.container = modules.toolbar.container
+      .map((group) => group.filter((item) => item !== 'table'))
+      .filter((group) => group.length > 0);
   }
 
   if (mentionsAllowed) {

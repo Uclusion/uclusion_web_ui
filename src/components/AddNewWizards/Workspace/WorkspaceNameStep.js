@@ -27,14 +27,13 @@ function WorkspaceNameStep (props) {
   return (
     <WizardStepContainer
       {...props}
-      isLarge
     >
       <div>
         <Typography className={classes.introText}>
           What do you want to call your workspace?
         </Typography>
         <Typography className={classes.introSubText} variant="subtitle1">
-            A workspace must have at least one view to organize and control who is notified by default.
+            A workspace has at least one view to organize and control who is notified.
         </Typography>
         {isDemoOn && (
           <Typography className={classes.introSubText} variant="subtitle1">

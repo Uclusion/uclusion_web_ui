@@ -104,7 +104,7 @@ function AddOptionStep(props) {
   }
 
   function myOnFinish() {
-    return sendComment(marketId, commentId, undefined, DECISION_TYPE).then((response) => {
+    return sendComment(marketId, commentId, DECISION_TYPE).then((response) => {
       let comment = response;
       changeInvestibleStageOnCommentOpen(false,
         creatorIsAssigned && currentStageId !== requiresInputStage.id, marketStagesState,

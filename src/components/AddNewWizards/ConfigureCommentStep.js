@@ -133,7 +133,7 @@ function ConfigureCommentStep(props) {
               quickAddComment(comment);
             });
         } else {
-          return sendComment(marketId, commentId, undefined, DECISION_TYPE).then((response) => {
+          return sendComment(marketId, commentId, DECISION_TYPE).then((response) => {
             quickAddComment(response);
           });
         }

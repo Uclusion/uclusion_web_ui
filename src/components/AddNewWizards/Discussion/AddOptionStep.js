@@ -84,7 +84,7 @@ function AddOptionStep(props) {
   }
 
   function myOnFinish(){
-    return sendComment(marketId, commentId, undefined, DECISION_TYPE).then((response) => {
+    return sendComment(marketId, commentId, DECISION_TYPE).then((response) => {
       addCommentToMarket(response, commentState, commentDispatch);
       setOperationRunning(false);
       navigate(history, formCommentLink(marketId, groupId, undefined, commentId));

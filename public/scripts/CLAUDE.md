@@ -103,6 +103,15 @@ or otherwise it is harder for the user to see what needs attention.
 If you have a preferred choice among the options for a question then
 vote on it with `approve_job_or_option` to inform the user of your opinion.
 
+Once you have voted a preference, hold a reasoned position. Do NOT reverse
+your recommendation just because the user restates, emphasizes, or pushes back
+on a priority — emphasis is not new evidence. Change your vote only when new
+evidence or a genuinely changed requirement warrants it, and when you do, say
+explicitly what changed. If the user stresses a concern, fold it into an honest
+tradeoff — and name the fact that would settle the choice — rather than
+silently flipping to agree. Flip-flopping to match the user's tone erodes trust
+in your judgment.
+
 Only options that are in stage 'In Dialog' can be voted on or 
 considered as choices for answering the question.
 

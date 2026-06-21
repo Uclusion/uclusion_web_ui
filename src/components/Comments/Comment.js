@@ -1045,6 +1045,24 @@ function Comment(props) {
         {cardTypeDisplay}
         <div style={{flexGrow: 1}}/>
         {(beingEdited || ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)) && dateInfo}
+        {isInbox && isSent && (
+          // T-all-2217: a single comment shown expanded (inboxMessageId === id, small body)
+          // renders this full card instead of the compressedCommentCard, so it was missing the
+          // explicit click-through affordance T-all-2181 added there. The card already navigates
+          // to the comment on click (isInbox && isSent), so back its blue outline with the same
+          // "open" icon.
+          <TooltipIconButton
+            icon={<OpenInNewIcon style={{ marginLeft: '0.5rem', marginRight: '1rem' }}
+                                 htmlColor={theme.palette.type === 'dark' ? 'black' : '#2F80ED'} />}
+            onClick={(event) => {
+              preventDefaultAndProp(event);
+              navigate(history, formCommentLink(marketId, groupId, investibleId, id));
+            }}
+            size="small"
+            noPadding
+            translationId="rowOpenComment"
+          />
+        )}
         {displayEditing && !beingEdited && (
           <TooltipIconButton
             onClick={toggleEdit}

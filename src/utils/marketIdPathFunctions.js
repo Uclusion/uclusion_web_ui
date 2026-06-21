@@ -128,7 +128,12 @@ function getNameForComment(comment, investibleState) {
 }
 
 export function getUrlForTicketPath(pathname, ticketState, marketsState, commentsState) {
-  const ticket = getTicket(ticketState, pathname.substring(1));
+  // The ticket index is keyed by `${marketId}/${ticketCode}`, matching the canonical short-code
+  // URL `/${marketId}/Q-all-156`. A normal in-app URL carries a leading `/dialog` action
+  // (e.g. `/dialog/${marketId}/Q-all-156`), so strip that prefix before looking the ticket up -
+  // that lets a short code pasted into a dialog URL resolve the same way (T-all-2214).
+  const ticketPathname = pathname.startsWith('/dialog/') ? pathname.substring('/dialog'.length) : pathname;
+  const ticket = getTicket(ticketState, ticketPathname.substring(1));
   if (ticket) {
     if (isInvestibleTicket(pathname)) {
       const { marketId, investibleId } = ticket;
@@ -152,6 +157,30 @@ export function getUrlForTicketPath(pathname, ticketState, marketsState, comment
     }
   }
   return undefined;
+}
+
+/**
+ * Resolve a bare short code (e.g. "Q-all-156") - as typed into search, with no marketId - to its
+ * canonical URL. The ticket index is keyed by `${marketId}/${ticketCode}`, so find the entry whose
+ * last segment matches and reuse getUrlForTicketPath to build the URL (handles jobs and
+ * comments alike). Restores short-code search (T-all-2214).
+ */
+export function getUrlForTicketCode(code, ticketState, marketsState, commentsState) {
+  const trimmedRaw   = code?.trim();
+  if (_.isEmpty(trimmedRaw)) {
+    return undefined;
+  }
+  const trimmed = trimmedRaw.toUpperCase();
+  if (isOptionTicket(`/${trimmed}`)) {
+    // Options are not supported in this context because they are in a different market
+    return undefined;
+  }
+  const key = Object.keys(ticketState || {}).find((aKey) => aKey === trimmed ||
+    aKey.endsWith(`/${trimmed}`) || decodeURI(aKey).endsWith(`/${trimmed}`));
+  if (!key) {
+    return undefined;
+  }
+  return getUrlForTicketPath(`/${key}`, ticketState, marketsState, commentsState);
 }
 
 export function getNameForUrl(url) {

@@ -97,6 +97,7 @@ function InvesibleCommentLinker(props) {
   let commitMessage = '';
   let decodedTicketCode = decodeURI(ticketCode);
   let shortTicketCode = transformTicketCode(decodedTicketCode);
+  const isOption = shortTicketCode?.startsWith('O-');
   if (commentId) {
     if (comment.ticket_code) {
       ticketCode = comment.ticket_code;
@@ -141,30 +142,35 @@ function InvesibleCommentLinker(props) {
           </Tooltip>  
         </IconButton>
       )}
-      <Tooltip title={
-        <h3>
-          {intl.formatMessage({
-            id: inMessageCopy && copiedMessageToClipboard ? 'commitMessageCopied': 'commitMessageDirections' })}
-        </h3>
-      }
-               placement="top">
-        <Button
-          className={classes.copyButton}
-          style={{textTransform: 'none', justifyContent: 'left', whiteSpace: 'nowrap', color: textColor,
-            paddingLeft: 0, paddingRight: 4, minWidth: 0}} disableRipple={true}
-                onClick={(event) => {
-                  preventDefaultAndProp(event);
-                  navigator.clipboard.writeText(commitMessage);
-                  setCopiedMessageToClipboard(true);
-                }} onMouseLeave={() => {
-                  setInMessageCopy(false);
-                  setCopiedMessageToClipboard(false);
-                }} onMouseEnter={() => setInMessageCopy(true)}>
-            { !useTextInsteadOfLink ? shortTicketCode
-                : intl.formatMessage({ id: 'copyCommitMessage' }) }
-        </Button>
-      </Tooltip>
-      {!useTextInsteadOfLink && decodedTicketCode ? (
+      {!isOption && (
+        <Tooltip title={
+          <h3>
+            {intl.formatMessage({
+              id: inMessageCopy && copiedMessageToClipboard ? 'commitMessageCopied': 'commitMessageDirections' })}
+          </h3>
+        }
+                placement="top">
+          <Button
+            className={classes.copyButton}
+            style={{textTransform: 'none', justifyContent: 'left', whiteSpace: 'nowrap', color: textColor,
+              paddingLeft: 0, paddingRight: 4, minWidth: 0}} disableRipple={true}
+                  onClick={(event) => {
+                    preventDefaultAndProp(event);
+                    navigator.clipboard.writeText(commitMessage);
+                    setCopiedMessageToClipboard(true);
+                  }} onMouseLeave={() => {
+                    setInMessageCopy(false);
+                    setCopiedMessageToClipboard(false);
+                  }} onMouseEnter={() => setInMessageCopy(true)}>
+              { !useTextInsteadOfLink ? shortTicketCode
+                  : intl.formatMessage({ id: 'copyCommitMessage' }) }
+          </Button>
+        </Tooltip>
+      )}
+      {isOption && (
+        <div>{shortTicketCode}</div>
+      )}
+      {!isOption && !useTextInsteadOfLink && decodedTicketCode ? (
         <IconButton
           className={`${classes.iconButton} ${classes.iconButtonTight}`}
           style={{textTransform: 'none', justifyContent: 'left', whiteSpace: 'nowrap', marginLeft: 0, padding: 2}}

@@ -21,14 +21,19 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import PropTypes from 'prop-types';
 import { getSearchResults } from '../../contexts/SearchIndexContext/searchIndexContextHelper';
+import { useHistory } from 'react-router';
+import { getUrlForTicketCode, navigate } from '../../utils/marketIdPathFunctions';
+import { TicketIndexContext } from '../../contexts/TicketContext/TicketIndexContext';
 
 function SearchBox(props) {
   const { disableSearch = false, marketId, investibleId, action, groupId } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const intl = useIntl();
+  const history = useHistory();
   const [index] = useContext(SearchIndexContext);
   const [searchResults, setSearchResults] = useContext(SearchResultsContext);
+  const [ticketState] = useContext(TicketIndexContext);
   const [commentsState] = useContext(CommentsContext);
   const [marketsState] = useContext(MarketsContext);
   const [groupState] = useContext(MarketGroupsContext);
@@ -105,6 +110,14 @@ function SearchBox(props) {
   }
 
   function updateIndex(searchQuery){
+    // A bare short code (e.g. Q-all-156) jumps straight to that item instead of text searching -
+    // restores short-code search (T-all-2214). Only navigates when the code resolves to a real
+    // ticket, so ordinary text queries fall through to the index search below.
+    const ticketUrl = getUrlForTicketCode(searchQuery, ticketState, marketsState, commentsState);
+    if (ticketUrl) {
+      navigate(history, ticketUrl);
+      return;
+    }
     // query the index
     const rawResults = getSearchResults(index, searchQuery) || [];
     // parents in a different hash so they can appear on the page but not be counted as results

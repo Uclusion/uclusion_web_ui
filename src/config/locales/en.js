@@ -380,6 +380,7 @@ const messages = defineMessages({
   rowCollapse: 'Click this row to collapse.',
   rowExpandDescription: 'ctrl+alt+e (shortcut global) Click description to expand',
   rowExpandComment: 'ctrl+alt+e (shortcut global) Click comment to expand.',
+  rowOpenComment: 'Navigate to the full comment.',
   notificationSummary: 'Summary',
   viewInGroup: 'Views',
   noViews: 'No views',

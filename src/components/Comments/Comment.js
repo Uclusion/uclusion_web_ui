@@ -108,6 +108,7 @@ import TooltipIconButton from '../Buttons/TooltipIconButton';
 import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks';
 import InlineInitiativeBox from '../../containers/CommentBox/InlineInitiativeBox';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import { getDiff } from '../../contexts/DiffContext/diffContextHelper';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 import DiffDisplay from '../TextEditors/DiffDisplay';
@@ -273,14 +274,21 @@ export const useCommentStyles = makeStyles(
         marginTop: "0.5rem"
       },
       containerBlueLink: {
-        // Clean card instead of the old blue glow box-shadow (T-all-2178):
-        // a subtle border + soft shadow.
+        // Clickable compressed comment/task card in wizards + inbox: the clean
+        // rounded card from T-all-2178, but with a blue (link) border so it
+        // reads as clickable/click-through instead of looking like a static
+        // card - the gray border lost that affordance (T-all-2181, Q-all-154
+        // O-1). Hover deepens the blue and adds a soft blue glow.
         overflow: "visible",
         marginTop: "0.5rem",
         cursor: 'pointer',
         borderRadius: '8px',
-        border: '1px solid rgba(0, 0, 0, 0.12)',
-        boxShadow: '0 1px 3px rgba(16, 40, 40, 0.14)'
+        border: '1px solid #2F80ED',
+        boxShadow: '0 1px 3px rgba(16, 40, 40, 0.14)',
+        "&:hover": {
+          border: '1px solid #1565C0',
+          boxShadow: '0 1px 8px 0 rgba(47, 128, 237, 0.4)'
+        }
       },
       containerWhite: {
         backgroundColor: "white",
@@ -1319,6 +1327,22 @@ function Comment(props) {
     <div className={classes.compressedComment} style={{ paddingLeft: 0, paddingTop: 0, marginTop: 0 }}>
       {strippedBody}</div>
     <div style={{ flexGrow: 1 }}/>
+    {isInbox && (
+      // Explicit click-through affordance (T-all-2181, Q-all-154 O-1 / Q-1):
+      // in wizards/inbox the row navigates to the full comment, so back the
+      // blue outline up with an "open" icon. Distinct from the expand chevron
+      // below, which only expands the comment in place.
+      <TooltipIconButton
+        icon={<OpenInNewIcon htmlColor={theme.palette.type === 'dark' ? 'black' : '#2F80ED'} />}
+        onClick={(event) => {
+          preventDefaultAndProp(event);
+          navigate(history, formCommentLink(marketId, groupId, investibleId, id));
+        }}
+        size="small"
+        noPadding
+        translationId="rowOpenComment"
+      />
+    )}
     <TooltipIconButton
       icon={<ExpandMoreIcon htmlColor={theme.palette.type === 'dark' ? 'black' : undefined} />}
       onClick={(event) => {

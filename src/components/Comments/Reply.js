@@ -32,6 +32,7 @@ import { findMessageForCommentId } from '../../utils/messageUtils';
 import { invalidEditEvent } from '../../utils/windowUtils';
 import TooltipIconButton from '../Buttons/TooltipIconButton';
 import { ScrollContext } from '../../contexts/ScrollContext';
+import { EditCommentContext } from '../../contexts/EditCommentContext/EditCommentContext';
 import ListAltIcon from '@material-ui/icons/ListAlt';
 import { LocalCommentsContext, useCommentStyles } from './Comment';
 import { stripHTML } from '../../utils/stringFunctions';
@@ -215,6 +216,7 @@ function Reply(props) {
   const presences = usePresences(marketId);
   const commenter = useCommenter(comment, presences) || { name: "unknown", email: "" };
   const [hashFragment, noHighlightId, setNoHighlightId] = useContext(ScrollContext);
+  const { editComment, openEditComment, closeEditComment } = useContext(EditCommentContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
@@ -258,10 +260,20 @@ function Reply(props) {
     preventDefaultAndProp(event);
     const id = comment.id;
     if (replyEditId) {
-      navigate(history, formCommentLink(marketId, groupId, investibleId, id));
+      // T-all-2209 / Q-all-156 O-2: close the top-level edit modal if this reply is
+      // open in it; otherwise fall back to the standalone /comment page navigation.
+      if (editComment?.commentId === id && closeEditComment) {
+        closeEditComment();
+      } else {
+        navigate(history, formCommentLink(marketId, groupId, investibleId, id));
+      }
     } else {
       setNoHighlightId(id);
-      navigate(history, `/comment/${marketId}/${id}`, false, true);
+      if (openEditComment) {
+        openEditComment(marketId, id);
+      } else {
+        navigate(history, `/comment/${marketId}/${id}`, false, true);
+      }
     }
   }
 

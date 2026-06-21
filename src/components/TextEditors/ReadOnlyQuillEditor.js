@@ -23,8 +23,11 @@ const useStyles = makeStyles(
         },
       },
       editable: {
+        // T-all-2209 (C-all-1013): editing a comment now opens a modal rather than
+        // editing in place, so hovering an editable comment shows the normal
+        // pointer (hand) instead of the inline-edit pencil cursor.
         "& > *": {
-          cursor: "url('/images/edit_cursor.svg') 0 24, pointer"
+          cursor: 'pointer'
         }
       },
       notEditable: {},

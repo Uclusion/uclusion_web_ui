@@ -1,9 +1,6 @@
 import React, { useContext, useRef, useState } from 'react';
 import { useIntl } from 'react-intl';
 import {
-  Card,
-  CardActions,
-  CardContent,
   darken,
   makeStyles,
   Typography,
@@ -51,14 +48,55 @@ import { navigate } from '../../utils/marketIdPathFunctions';
 const useStyles = makeStyles((theme) => ({
   visible: {
     overflow: 'visible',
-    backgroundColor: theme.palette.type === 'dark' ? DARK_TEXT_BACKGROUND_COLOR : 'white'
+    backgroundColor: 'transparent'
   },
   cardContent: {
     padding: 0,
-    paddingTop: '1rem'
+    paddingTop: '0.5rem'
   },
-  cardActions: {
-    padding: 8,
+  // T-all-2209 (Q-all-155 O-1): the edit screen used to read as two detached
+  // bordered blocks - the editor box and the floating toolbar pill - with a tall
+  // empty gap between them. Wrap the editor + its relocated toolbar in ONE
+  // rounded, bordered surface so it reads like a single GMail-style composer.
+  // All overrides are scoped under this class so the shared add/reply composers
+  // are untouched.
+  composer: {
+    maxWidth: '680px',
+    border: `1px solid ${theme.palette.type === 'dark' ? DARK_TEXT_BACKGROUND_COLOR : '#dadce0'}`,
+    borderRadius: '12px',
+    overflow: 'hidden',
+    backgroundColor: theme.palette.type === 'dark' ? DARK_TEXT_BACKGROUND_COLOR : 'white',
+    // Drop Quill's default full box border on the editor - the surface above
+    // now provides the single border.
+    '& .ql-container.ql-snow': {
+      border: 'none'
+    },
+    // Shrink the fixed 8rem empty editor box so a short comment no longer sits
+    // in a big blank area; it still grows with content.
+    '& [id^="editorBox-"]': {
+      minHeight: '3.5rem !important'
+    },
+    // Relocated toolbar: a flush full-width bar inside the surface with a
+    // hairline divider, instead of a detached rounded pill floating below.
+    '& .ql-toolbar.ql-snow': {
+      width: '100%',
+      maxWidth: '100%',
+      borderRadius: 0,
+      margin: 0,
+      borderTop: `1px solid ${theme.palette.type === 'dark' ? 'rgba(255,255,255,0.12)' : '#e8eaed'}`
+    }
+  },
+  // Action row (Update / Cancel / "Storing locally") lives INSIDE the composer
+  // surface, below the toolbar - like GMail's compose box where the Send button
+  // and the formatting controls are all inside the box you type into
+  // (T-all-2209, C-all-1011).
+  composerFooter: {
+    display: 'flex',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '4px',
+    padding: '6px 8px',
+    backgroundColor: theme.palette.type === 'dark' ? DARK_TEXT_BACKGROUND_COLOR : 'white'
   },
   storageIndicator: {
     display: 'inline-block',
@@ -349,11 +387,9 @@ function CommentEdit(props) {
           notified unless use @ mentions.
         </Typography>
       )}
-      <Card elevation={0} className={classes.visible} ref={editBox}>
-        <CardContent className={classes.cardContent}>
-          {Editor}
-        </CardContent>
-        <CardActions className={classes.cardActions}>
+      <div className={classes.composer} ref={editBox}>
+        {Editor}
+        <div className={classes.composerFooter}>
           <SpinningIconLabelButton
             icon={Update}
             onClick={() => handleSave(true)}
@@ -370,8 +406,8 @@ function CommentEdit(props) {
               {intl.formatMessage({ id: 'edited' })}
             </Typography>
           )}
-        </CardActions>
-      </Card>
+        </div>
+      </div>
       </>
   );
 }

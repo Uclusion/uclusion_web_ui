@@ -22,6 +22,8 @@ import { registerMarketTokenListeners } from '../../authorization/tokenUtils';
 import Wizard from '../../pages/Home/Wizard';
 import InboxFull from '../../pages/Home/YourWork/InboxFull';
 import CommentReplyEdit from '../../pages/Comment/CommentReplyEdit';
+import { EditCommentContext } from '../../contexts/EditCommentContext/EditCommentContext';
+import EditCommentModal from '../../components/Comments/EditCommentModal';
 import PlanningMarketEdit from '../../pages/Dialog/Planning/PlanningMarketEdit';
 import { getTicket, isTicketPath } from '../../contexts/TicketContext/ticketIndexContextHelper';
 import { TicketIndexContext } from '../../contexts/TicketContext/TicketIndexContext';
@@ -75,6 +77,14 @@ function Root(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [groupsState] = useContext(MarketGroupsContext);
   const [offlineTimer, setOfflineTimer] = useState(undefined);
+  // T-all-2209 (Q-all-156 O-2): top-level edit-comment modal state, keyed by
+  // comment id so it survives the comment's row unmounting when a task is moved.
+  const [editComment, setEditComment] = useState(undefined);
+  const editCommentValue = {
+    editComment,
+    openEditComment: (editMarketId, editCommentId) => setEditComment({ marketId: editMarketId, commentId: editCommentId }),
+    closeEditComment: () => setEditComment(undefined),
+  };
   const values = queryString.parse(search || '') || {};
   const { utm_campaign: utm } = values;
   const { marketDetails } = marketsState;
@@ -350,10 +360,12 @@ function Root(props) {
   // BillingHome - try remove from memory when not in use but Stripe does stuff with own Javascript VM anyway
   // InboxFull and Market - reduce churn by keeping out of existance until first market loaded
   return (
+    <EditCommentContext.Provider value={editCommentValue}>
     <div>
       <CssBaseline/>
+        <EditCommentModal />
         <div style={{ width: '100%', height: '100%',
-          backgroundColor: (hideMarket() && hideInvestible() && hideInbox() && hideOutbox() && hideDemoLoad() && hideDemosFull() 
+          backgroundColor: (hideMarket() && hideInvestible() && hideInbox() && hideOutbox() && hideDemoLoad() && hideDemosFull()
           && hideMarketLoad() && hideWorkspaceWizard() && hideCommentReplyEdit()) ? undefined : lightBlueColor}}>
           <Wizard hidden={hideWorkspaceWizard()} />
           <DemoFull hidden={hideDemosFull()} />
@@ -396,6 +408,7 @@ function Root(props) {
           <PageNotFound hidden={hidePNF}/>
         </div>
     </div>
+    </EditCommentContext.Provider>
   );
 }
 

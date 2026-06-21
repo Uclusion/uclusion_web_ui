@@ -109,6 +109,7 @@ import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateH
 import InlineInitiativeBox from '../../containers/CommentBox/InlineInitiativeBox';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import { EditCommentContext } from '../../contexts/EditCommentContext/EditCommentContext';
 import { getDiff } from '../../contexts/DiffContext/diffContextHelper';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 import DiffDisplay from '../TextEditors/DiffDisplay';
@@ -610,6 +611,7 @@ function Comment(props) {
   const hasUser = userIsLoaded(userState, marketsState);
   const enableActions = !inArchives && !stagePreventsActions;
   const enableEditing = enableActions && !resolved; //resolved comments or those in archive aren't editable
+  const { editComment, openEditComment, closeEditComment } = useContext(EditCommentContext);
   const [editStateFull, editDispatch] = usePageStateReducer('commentEdit');
   const [editState, updateEditState, editStateReset] = getPageReducerPage(editStateFull, editDispatch, id);
   const {
@@ -652,11 +654,25 @@ function Comment(props) {
   function toggleEdit(event) {
     preventDefaultAndProp(event);
     if (replyEditId) {
+      // Closing the editor (Update/Cancel, or re-clicking edit). When this comment
+      // is open in the top-level edit modal (T-all-2209 / Q-all-156 O-2) just close
+      // it; otherwise fall back to the standalone /comment page navigation.
       setNoHighlightId(undefined);
-      navigate(history, formCommentLink(marketId, groupId, investibleId, id));
+      if (editComment?.commentId === id && closeEditComment) {
+        closeEditComment();
+      } else {
+        navigate(history, formCommentLink(marketId, groupId, investibleId, id));
+      }
     } else {
+      // Opening the editor: open the top-level modal (decoupled from this row so it
+      // survives the task moving jobs mid-edit). Fall back to the /comment page if
+      // the context is somehow unavailable.
       setNoHighlightId(id);
-      navigate(history, `/comment/${marketId}/${id}`, false, true);
+      if (openEditComment) {
+        openEditComment(marketId, id);
+      } else {
+        navigate(history, `/comment/${marketId}/${id}`, false, true);
+      }
     }
   }
 
@@ -1029,7 +1045,7 @@ function Comment(props) {
         {cardTypeDisplay}
         <div style={{flexGrow: 1}}/>
         {(beingEdited || ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)) && dateInfo}
-        {displayEditing && isReallyMobileLayout && !beingEdited && (
+        {displayEditing && !beingEdited && (
           <TooltipIconButton
             onClick={toggleEdit}
             icon={<Edit fontSize='small' style={{marginRight: '1rem'}} />}
@@ -1073,7 +1089,16 @@ function Comment(props) {
           </div>
         )}
       </div>
-      <CardContent className={classes.cardContent}>
+      {/* T-all-2209 (C-all-1013/C-all-1015): make the whole comment body a click-to-edit
+          target with the pointer cursor, not just the text glyphs. The header buttons and the
+          footer CardActions are siblings outside this CardContent so they stay excluded, and
+          setBeingEdited's invalidEditEvent guard still skips link clicks and text selection.
+          Only when this comment is editable and not already being edited. */}
+      <CardContent className={classes.cardContent}
+        style={(displayEditing && !isReallyMobileLayout && !thisCommentBeingEdited)
+          ? { cursor: 'pointer' } : undefined}
+        onClick={(displayEditing && !isReallyMobileLayout && !thisCommentBeingEdited)
+          ? setBeingEdited : undefined}>
         {!noAuthor && mobileLayout && !beingEdited && (
           <GravatarAndName
             key={myPresence.id}

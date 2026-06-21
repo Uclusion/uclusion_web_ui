@@ -72,6 +72,12 @@ import { getComment } from '../../../contexts/CommentsContext/commentsContextHel
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { useInvestibleVoters } from '../../../utils/votingUtils';
 
+// T-all-2198 / C-all-1017: the bottom gap below an expanded option. Applied to BOTH
+// columns (the description/body on the left and the created-by/files actions on the
+// right) so whichever is taller still has a gap and nothing bumps the option below.
+// Single knob - tweak this one value.
+const OPTION_BOTTOM_PADDING = '2.5rem';
+
 const useStyles = makeStyles((theme) => ({
   root: {
     alignItems: "flex-start",
@@ -97,7 +103,9 @@ const useStyles = makeStyles((theme) => ({
   borderLeft: {
     paddingLeft: '2rem',
     paddingTop: '2rem',
-    marginBottom: '-42px',
+    // C-all-1017: was -42px, which pulled the actions column past the bottom of the
+    // option so a short-description option's created-by/files bumped the option below.
+    marginBottom: 0,
     marginTop: '-23px',
   },
   content: {
@@ -359,11 +367,10 @@ function DecisionInvestible(props) {
         toggleCompression={() => updateVotingPageState({ useCompression: !useCompression })}
         useCompression={useCompression}
       />
-      <div style={{marginTop: '1rem'}}/>
     </div>
   )}
     {showAfterDescriptionComments && (
-      <div style={{ paddingBottom: '1rem', marginTop: '1rem' }}>
+      <div style={{ marginTop: '1rem' }}>
         <h2 id="comments" style={{ marginTop: 0 }}>
           <FormattedMessage id="comments"/>
         </h2>
@@ -395,7 +402,10 @@ function DecisionInvestible(props) {
       </div>
     )
     }</>;
-  const contents = <div className={classes.votingCardContent}>
+  // T-all-2198: give the option body one permanent bottom padding below everything
+  // (so a name+description-only option isn't cramped at the bottom), and remove the
+  // per-element bottom padding from the voting/comments sections below so it isn't doubled.
+  const contents = <div className={classes.votingCardContent} style={{ paddingBottom: OPTION_BOTTOM_PADDING }}>
     {lockedBy && yourPresence.id !== lockedBy && isEditableByUser() && (
       <Typography>
         {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
@@ -423,8 +433,11 @@ function DecisionInvestible(props) {
     )}
     {afterDescription}
   </div>;
-  const actions = 
-    <div style={{marginBottom: !showAfterDescriptionVoting && !showAfterDescriptionComments ? '4rem' : undefined}}>
+  const actions =
+    // T-all-2198 / C-all-1017: the actions column gets the same permanent bottom gap as the
+    // body, so a short-description option (where this column is the taller one) doesn't bump
+    // into the option below.
+    <div style={{ paddingBottom: OPTION_BOTTOM_PADDING }}>
       {!removeActions && activeMarket && mobileLayout && (
         getActions()
       )}

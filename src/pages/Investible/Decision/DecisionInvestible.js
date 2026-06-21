@@ -422,6 +422,8 @@ function DecisionInvestible(props) {
             isWhiteText={theme.palette.type === 'dark'} description={description} showDiff={showDiff}/>
       </div>
     )}
+    {/* T-all-2215 / C-all-1019: on mobile there is no right action panel, so the pencil edit
+       button stays in the body. On desktop it moves to the right action panel (see actions). */}
     {mobileLayout && isEditableByUser() && (
       <div>
         <EditMarketButton
@@ -438,6 +440,16 @@ function DecisionInvestible(props) {
     // body, so a short-description option (where this column is the taller one) doesn't bump
     // into the option below.
     <div style={{ paddingBottom: OPTION_BOTTOM_PADDING }}>
+      {/* C-all-1019: on desktop the pencil edit button lives at the top of the right action panel. */}
+      {!mobileLayout && isEditableByUser() && (
+        <div>
+          <EditMarketButton
+            labelId="edit"
+            marketId={marketId}
+            onClick={(event) => mySetBeingEdited(event)}
+          />
+        </div>
+      )}
       {!removeActions && activeMarket && mobileLayout && (
         getActions()
       )}

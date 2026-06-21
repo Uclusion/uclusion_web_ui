@@ -13,6 +13,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { InlineWizardContext } from '../../InlineWizard/InlineWizardContext';
 
 function JobUnlockStep (props) {
   const { marketId, investible, onFinishUnlock, totalSteps } = props;
@@ -21,6 +22,8 @@ function JobUnlockStep (props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useContext(WizardStylesContext);
   const history = useHistory();
+  // T-all-2215: when hosted inline, "go back" closes the inline view rather than navigating.
+  const { closeInlineWizard } = useContext(InlineWizardContext);
   const presences = usePresences(marketId);
   const { locked_by: lockedBy, updated_at: updatedAt, id: investibleId } = investible || {};
   const lockedPresence = presences.find((presence) => presence.id === lockedBy);
@@ -54,7 +57,8 @@ function JobUnlockStep (props) {
           nextLabel="breakLock"
           onNext={breakLock}
           showTerminate
-          onTerminate={() => navigate(history, formInvestibleLink(marketId, investibleId))}
+          onTerminate={() => closeInlineWizard ? closeInlineWizard() :
+            navigate(history, formInvestibleLink(marketId, investibleId))}
           terminateLabel="OnboardingWizardGoBack"
         />
     </WizardStepContainer>

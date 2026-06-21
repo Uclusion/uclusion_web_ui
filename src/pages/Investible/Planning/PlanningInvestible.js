@@ -188,9 +188,11 @@ export const usePlanningInvestibleStyles = makeStyles(
       }
     },
     editRow: {
-      height: '3rem',
       display: "flex",
-      marginTop: '0.3rem'
+      // C-all-1019: top-align the pencil with the card type header (the old fixed height +
+      // top nudge were tuned for the mobile-only button and left it sitting too low on desktop).
+      alignItems: 'flex-start',
+      marginLeft: '0.5rem'
     },
     fullWidthCentered: {
       justifyContent: 'center',
@@ -220,7 +222,8 @@ export const usePlanningInvestibleStyles = makeStyles(
       }
     },
     fullWidthEditable: {
-      cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
+      // T-all-2215: plain hand (pointer) on hover instead of the pencil cursor.
+      cursor: 'pointer',
         maxWidth: '100%',
         flexBasis: '100%',
         paddingLeft: 'unset',
@@ -681,7 +684,8 @@ function PlanningInvestible(props) {
       pushMessage(LOCK_INVESTIBLE_CHANNEL, { event: LOCK_INVESTIBLE, marketId, investibleId });
     }
     setUclusionLocalStorageItem(`name-editor-${investibleId}`, name);
-    navigate(history, formWizardLink(JOB_EDIT_WIZARD_TYPE, marketId, investibleId));
+    // T-all-2215: open the job edit wizard inline instead of on the full-screen /wizard route.
+    openInlineWizard({ wizardType: JOB_EDIT_WIZARD_TYPE, marketId, investibleId });
   }
 
   const displayApprovalsBySearch = _.isEmpty(search) ? _.size(invested) : _.size(investmentReasonsSearched);
@@ -855,7 +859,8 @@ function PlanningInvestible(props) {
                 /></div>}
               />
               <div className={classes.editRow}>
-                {mobileLayout && !inMarketArchives && isEditableByUser() && (
+                {/* T-all-2215: pencil edit button now shows on desktop too (mobile guard removed). */}
+                {!inMarketArchives && isEditableByUser() && (
                   <div>
                     <EditMarketButton
                       labelId="edit"

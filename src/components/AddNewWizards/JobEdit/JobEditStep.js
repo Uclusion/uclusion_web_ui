@@ -18,10 +18,14 @@ import { realeaseInvestibleEditLock, updateInvestible } from '../../../api/inves
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
+import { InlineWizardContext } from '../../InlineWizard/InlineWizardContext';
 
 function JobEditStep(props) {
   const { marketId, investible, updateFormData = () => {}, formData = {} } = props;
   const intl = useIntl();
+  // T-all-2215: when hosted inline, finishing closes the inline view rather than navigating
+  // (we are already on the investible page, so the navigate would be a no-op there).
+  const { closeInlineWizard } = useContext(InlineWizardContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -70,7 +74,11 @@ function JobEditStep(props) {
         resetEditor(editorName);
         clearNameStoredState(investibleId);
         refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
-        navigate(history, formInvestibleLink(marketId, investibleId));
+        if (closeInlineWizard) {
+          closeInlineWizard();
+        } else {
+          navigate(history, formInvestibleLink(marketId, investibleId));
+        }
       });
   }
 
@@ -79,7 +87,11 @@ function JobEditStep(props) {
     return realeaseInvestibleEditLock(marketId, investibleId).then((newInv) => {
       setOperationRunning(false);
       refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]);
-      navigate(history, formInvestibleLink(marketId, investibleId));
+      if (closeInlineWizard) {
+        closeInlineWizard();
+      } else {
+        navigate(history, formInvestibleLink(marketId, investibleId));
+      }
     });
   }
 

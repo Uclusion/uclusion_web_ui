@@ -6,7 +6,8 @@ export const useInvestibleEditStyles = makeStyles(
       marginTop: '1rem'
     },
     containerEditable: {
-      cursor: 'url(\'/images/edit_cursor.svg\') 0 24, pointer',
+      // T-all-2215: plain hand (pointer) on hover instead of the pencil cursor (jobs and options).
+      cursor: 'pointer',
       [theme.breakpoints.down("sm")]: {
         paddingLeft: 'unset',
       }

@@ -8,11 +8,13 @@ import {
   DELETE_COMMENT_TYPE,
   DISCUSSION_WIZARD_TYPE,
   JOB_COMMENT_WIZARD_TYPE,
+  JOB_EDIT_WIZARD_TYPE,
   JOB_WIZARD_TYPE
 } from '../../constants/markets';
 import JobCommentWizard from '../AddNewWizards/JobComment/JobCommentWizard';
 import ApprovalWizard from '../AddNewWizards/Approval/ApprovalWizard';
 import JobWizard from '../AddNewWizards/Job/JobWizard';
+import JobEditWizard from '../AddNewWizards/JobEdit/JobEditWizard';
 import BugWizard from '../AddNewWizards/Bug/BugWizard';
 import DiscussionWizard from '../AddNewWizards/Discussion/DiscussionWizard';
 import DeleteWizard from '../AddNewWizards/Delete/DeleteWizard';
@@ -37,6 +39,10 @@ function InlineWizardDispatch(props) {
                              isInline />;
     case JOB_WIZARD_TYPE:
       return <JobWizard marketId={marketId} groupId={groupId} jobType={jobType} useType={commentType} />;
+    case JOB_EDIT_WIZARD_TYPE:
+      // T-all-2215: edit job (name + description) opens inline, replacing the Overview tab body
+      // (Q-all-159, O-2). The edit step closes the inline view itself on update/cancel.
+      return <JobEditWizard marketId={marketId} investibleId={investibleId} />;
     case BUG_WIZARD_TYPE:
       return <BugWizard marketId={marketId} groupId={groupId} commentType={commentType} />;
     case DISCUSSION_WIZARD_TYPE:

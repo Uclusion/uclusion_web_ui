@@ -93,6 +93,26 @@ step-2 question, not a silent decision. One tool call per question — do
 not pack multiple questions into one. Provide options when there is a
 discrete set of choices. 
 
+Options-style questions are not the only kind, and they are not the
+default. When you do not actually understand something the job depends
+on — how to reproduce a bug, what an observed behavior was, which screen
+or flow the report is about, what a term refers to, why the author
+believes the current behavior is wrong — ask a plain open-ended question
+with NO options via `ask_question`. Do NOT paper over a gap in your
+understanding by reconstructing a plausible story from the code and
+proceeding on it. Reverse-engineering "the path that would produce this
+bug" from the source is a guess, and guesses get implemented as the wrong
+fix. The tell: if you find yourself writing "the bug must be…", "this is
+presumably…", "I think the author means…", or building a multi-step
+chain of inference to explain what the job is even describing — stop and
+ask. In particular, for any bug whose reproduction steps are not spelled
+out, ask the user for the actual steps to reproduce before you diagnose
+or fix it. Asking "I don't understand X, can you explain / show me how to
+hit it?" is expected and welcome; it is far cheaper than confidently
+shipping a fix for a bug you only imagined. Bias toward asking the open
+question whenever your understanding rests on inference rather than
+something the user or the job actually stated. 
+
 A question counts as answered when there is a "For" vote on one of its options that is not 
 marked "From AI user" or when a not AI user has replied in the question with a clear direction.
 Call `resolve` on questions you feel have already been answered. 

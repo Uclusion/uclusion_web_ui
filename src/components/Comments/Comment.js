@@ -239,7 +239,8 @@ export const useCommentStyles = makeStyles(
         },
       },
       commentType: {
-        alignSelf: "start",
+        // T-all-2220: was alignSelf:'start', which pinned the type chip to the top of the header
+        // row above the centered author/timestamp/icon line. Let it center with the row instead.
         display: "inline-flex"
       },
       smallGravatar: {
@@ -908,14 +909,14 @@ function Comment(props) {
   // "Grouped" button beside it so a non-author can still open a grouped subtask or note.
   const showSubTaskButton = isTask && myPresence !== createdBy;
   const isDeletable = !isInbox && !beingEdited;
-  const linker = 
-    <div style={{marginRight: '1rem', marginTop: '-0.6rem'}}>
-      <InvesibleCommentLinker commentId={id} investibleId={investibleId} marketId={marketId} flushBottom 
+  const linker =
+    <div style={{marginRight: '1rem'}}>
+      <InvesibleCommentLinker commentId={id} investibleId={investibleId} marketId={marketId} flushBottom
           textColor='black' hideLink={marketType === DECISION_TYPE} />
     </div>;
   const gravatarWithName = useCompression && inboxMessageId ?
     <Gravatar name={createdBy.name} email={createdBy.email} className={classes.smallGravatar}/>
-    : <GravatarAndName key={myPresence.id} email={createdBy.email} useMarginBottom='10px'
+    : <GravatarAndName key={myPresence.id} email={createdBy.email}
                                             name={createdBy.name} typographyVariant="caption"
                                             typographyClassName={classes.createdBy}
                                             avatarClassName={classes.smallGravatar}
@@ -1041,9 +1042,18 @@ function Comment(props) {
         }
       }
     }}>
-      <div style={{display: 'flex'}}>
+      {/* T-all-2220: rationalize the header top row so the type chip, author, timestamp, edit
+          pencil, short code and delete icon all share one vertical center line. The row centers its
+          children (alignItems:'center'); the commentType class no longer pins the chip to the top
+          (alignSelf:'start' removed) and the author block no longer carries an asymmetric 10px
+          bottom margin, both of which used to ride above the centered cluster. The cluster gets its
+          own alignItems:'center' flex so its items line up regardless of individual button sizes.
+          The small paddingLeft gives the otherwise flush-left type chip a left inset that matches
+          the top breathing room it gets from the centered row. */}
+      <div style={{display: 'flex', alignItems: 'center', paddingLeft: '0.375rem'}}>
         {cardTypeDisplay}
         <div style={{flexGrow: 1}}/>
+        <div style={{display: 'flex', alignItems: 'center'}}>
         {(beingEdited || ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)) && dateInfo}
         {isInbox && isSent && (
           // T-all-2217: a single comment shown expanded (inboxMessageId === id, small body)
@@ -1101,11 +1111,12 @@ function Comment(props) {
                 }
               }}
               icon={<NotificationDeletion isRed={operationRunning === false} />}
-              size={mobileLayout ? 'small' : undefined}
+              size="small"
               translationId="commentRemoveLabel"
             />
           </div>
         )}
+        </div>
       </div>
       {/* T-all-2209 (C-all-1013/C-all-1015): make the whole comment body a click-to-edit
           target with the pointer cursor, not just the text glyphs. The header buttons and the

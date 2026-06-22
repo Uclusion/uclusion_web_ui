@@ -168,7 +168,11 @@ function InvesibleCommentLinker(props) {
         </Tooltip>
       )}
       {isOption && (
-        <div>{shortTicketCode}</div>
+        // T-all-2220: match the styled-button code used by non-option comments so the option short
+        // code lines up at the same height and font size instead of as an unstyled bare div.
+        <div style={{color: textColor, whiteSpace: 'nowrap', paddingRight: 4, fontSize: '0.875rem'}}>
+          {shortTicketCode}
+        </div>
       )}
       {!isOption && !useTextInsteadOfLink && decodedTicketCode ? (
         <IconButton

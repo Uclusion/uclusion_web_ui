@@ -2,10 +2,10 @@ import React, { useEffect, useReducer, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
 import { useIntl } from 'react-intl'
-import { makeStyles, withStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 import _ from 'lodash'
 import clsx from 'clsx'
-import { Card, Checkbox, TextField } from '@material-ui/core'
+import { Card, TextField } from '@material-ui/core'
 import Container from '@material-ui/core/Container'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import Avatar from '@material-ui/core/Avatar'
@@ -65,19 +65,12 @@ const useStyles = makeStyles(theme => ({
     lineHeight: '46px',
     display: 'flex',
     alignItems: 'end',
-    cursor: 'pointer'
-  },
-  googleButtonDisabled: {
-    marginTop: '2rem',
-    width: '100%',
-    height: '46px',
-    backgroundColor: '#EBEBE4',
-    border: 'none',
-    color: '#fff',
-    lineHeight: '46px',
-    display: 'flex',
-    alignItems: 'end',
-    cursor: 'not-allowed'
+    cursor: 'pointer',
+    '@media (hover: hover)': {
+      '&:hover': {
+        backgroundColor: '#2F80ED !important'
+      },
+    },
   },
   googleText: {
     lineHeight: '46px',
@@ -152,16 +145,6 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const GreenCheckbox = withStyles({
-  root: {
-    color: '#ff0000',
-    '&$checked': {
-      color: '#00cc00',
-    },
-  },
-  checked: {},
-})(props => <Checkbox {...props} />);
-
 function reducer(state, action) {
   const { name, value } = action;
   return {
@@ -183,8 +166,7 @@ function Signup(props) {
     name: '',
     email: qryEmail ? qryEmail : '',
     password: '',
-    repeat: '',
-    terms: false,
+    repeat: ''
   };
 
   const [userState, dispatch] = useReducer(reducer, empty);
@@ -237,15 +219,6 @@ function Signup(props) {
         target: { value },
       } = event;
       dispatch({ name, value });
-    };
-  }
-
-  function handleCheckedChange(name) {
-    return (event) => {
-      const {
-        target: { checked },
-      } = event;
-      dispatch({ name, value: checked });
     };
   }
 
@@ -311,16 +284,14 @@ function Signup(props) {
   }
 
   function doFederate(provider) {
-    if (terms) {
-      const aRedirect = getRedirect();
-      if (aRedirect !== '/') {
-        setRedirect(aRedirect);
-      }
-      Auth.federatedSignIn({ provider });
+    const aRedirect = getRedirect();
+    if (aRedirect !== '/') {
+      setRedirect(aRedirect);
     }
+    Auth.federatedSignIn({ provider });
   }
 
-  const { name, email, password, repeat, terms } = userState;
+  const { name, email, password, repeat } = userState;
 
   if (authState !== 'signUp' || !_.isEmpty(signUpWith)) {
     return <></>;
@@ -385,7 +356,7 @@ function Signup(props) {
   const hideNonEmailInput = _.isEmpty(userState.email) && !code;
   const noEmailInput = _.isEmpty(qryEmail) && _.isEmpty(email) && _.isEmpty(name);
   const hideNonNameInput = noEmailInput && code && _.isEmpty(name);
-  const formInvalid = !terms || _.isEmpty(name) || (_.isEmpty(email) && _.isEmpty(code)) || _.isEmpty(password) || _.isEmpty(repeat) || password !== repeat || password.length < 6;
+  const formInvalid = _.isEmpty(name) || (_.isEmpty(email) && _.isEmpty(code)) || _.isEmpty(password) || _.isEmpty(repeat) || password !== repeat || password.length < 6;
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline/>
@@ -463,13 +434,6 @@ function Signup(props) {
           </div>
           <Grid item xs={12}>
             <div style={{ display: 'inline-flex', alignItems: 'center', marginTop: '2rem' }}>
-              <GreenCheckbox
-                id="terms"
-                name="terms"
-                required
-                checked={terms}
-                onChange={handleCheckedChange('terms')}
-              />
               <Typography>
                 {intl.formatMessage({ id: 'signupAgreeTermsOfUse' })}
                 <Link
@@ -480,7 +444,7 @@ function Signup(props) {
               </Typography>
             </div>
           </Grid>
-          {noEmailInput && terms && (
+          {noEmailInput && (
             <GithubLoginButton
               style={{
                 lineHeight: '46px',
@@ -499,30 +463,8 @@ function Signup(props) {
               </div>
             </GithubLoginButton>
           )}
-          {noEmailInput && !terms && (
-            <GithubLoginButton
-              style={{
-                lineHeight: '46px',
-                display: 'inline-block',
-                width: '100%',
-                marginLeft: 'auto',
-                marginRight: 'auto',
-                fontSize: '1rem',
-                marginTop: '2rem',
-                paddingRight: '0px',
-                backgroundColor: '#EBEBE4',
-                cursor: 'not-allowed'
-              }}
-              preventActiveStyles
-              align="center"
-              onClick={() => doFederate('GithubLogin')}>
-              <div className={classes.textWrapper}>
-                {intl.formatMessage({ id: 'signupGithubSignup' })}
-              </div>
-            </GithubLoginButton>
-          )}
           {noEmailInput && (
-            <div className={terms ? classes.googleButton : classes.googleButtonDisabled} id="googleSignupDiv"
+            <div className={classes.googleButton} id="googleSignupDiv"
                  onClick={() => doFederate('Google')}>
               <img className={classes.googleImg} alt="Sign in with Google"
                    src={`/images/btn_google_dark_normal_ios.svg`}/>

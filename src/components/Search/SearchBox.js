@@ -29,6 +29,7 @@ function SearchBox(props) {
   const { disableSearch = false, marketId, investibleId, action, groupId } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const isDark = theme.palette.type === 'dark';
   const intl = useIntl();
   const history = useHistory();
   const [index] = useContext(SearchIndexContext);
@@ -177,7 +178,7 @@ function SearchBox(props) {
         size="small"
         defaultValue={searchResults.search}
         InputProps={{
-          style: { borderRadius: '8px' },
+          style: { borderRadius: '8px', backgroundColor: isDark ? undefined : 'white' },
           startAdornment: (
             <InputAdornment position="start">
               <SearchIcon color="action" />

@@ -96,9 +96,9 @@ function LeaderProvider(props) {
 
   useEffect(() => {
     if (isUserLoaded) {
+      const dispatchers = { marketsDispatch, marketStagesDispatch, groupsDispatch, presenceDispatch,
+        groupMembersDispatch, investiblesDispatch, commentsDispatch, diffDispatch, index, ticketsDispatch };
       if (isLeader) {
-        const dispatchers = { marketsDispatch, marketStagesDispatch, groupsDispatch, presenceDispatch,
-          groupMembersDispatch, investiblesDispatch, commentsDispatch, diffDispatch, index, ticketsDispatch };
         console.info('Leadership refreshing versions');
         // Try use set timeout and dispatchers for stability but my have to move to suspend
         setTimeout(() => refreshVersions(dispatchers).then(() => {
@@ -112,7 +112,7 @@ function LeaderProvider(props) {
         // period unless leadership arrives first and does the full refresh to disk.
         const timer = setTimeout(() => {
           console.info('Refreshing versions without leadership');
-          refreshVersions().catch(() => console.warn('Error refreshing'));
+          refreshVersions(dispatchers).catch(() => console.warn('Error refreshing'));
         }, 3000);
         return () => clearTimeout(timer);
       }

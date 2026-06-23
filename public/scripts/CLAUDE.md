@@ -126,7 +126,9 @@ problem must be…", "it must be getting overridden somewhere else."
 
 A question counts as answered when there is a "For" vote on one of its options that is not 
 marked "From AI user" or when a not AI user has replied in the question with a clear direction.
-Call `resolve` on questions you feel have already been answered. 
+Call `resolve` on questions you feel have already been answered and require no 
+further operations. Do not resolve a question and then reply or other operation to 
+something inside of it - that will error.
 
 Do this immediately when you first become aware the question is answered
 or otherwise it is harder for the user to see what needs attention.

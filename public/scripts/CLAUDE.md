@@ -280,7 +280,9 @@ already made, those are step-2 questions. Go back, file them via
   that are not refererencing a question. For a code comment that references a 
   question use the full link returned on question creation if you have it.
 - After the job review has been opened and you are offering to commmit, 
-  the commit message should begin with the short code.
+  the commit message should begin with the short code of what was done. However 
+  a job short code, begining with a 'J', in a commit message indicates the job is 
+  done so only use it when there are no tasks left on the job.
 
 # Uclusion single comment workflow
 A single comment markdown has no Job J-... header.

@@ -635,6 +635,13 @@ function PlanningInvestible(props) {
   const assistanceCommentsSearchedAll = assistanceCommentsSearched.concat(assistanceCommentsRepliesSearched);
   const newAssistanceMessages = findMessagesForCommentIds(assistanceCommentsSearchedAll?.map((comment) => comment.id), 
     messagesState, true);
+  const newInvestibleMessages = findMessagesForInvestibleIds([investibleId], messagesState, true);
+  newInvestibleMessages.forEach((message) => {
+    if (message.market_id !== marketId) {
+      // If message is part of a different market must be assistance
+      newAssistanceMessages.push(message);
+    }
+  });
   const numNewAssistanceMessages = _.size(newAssistanceMessages.filter((message) => isInInbox(message)));
   const newTodoMessages = findMessagesForCommentIds(openTodoCommentsSearchedAll?.map((comment) => comment.id), 
     messagesState, true);
@@ -643,7 +650,6 @@ function PlanningInvestible(props) {
   const newNotesMessages = findMessagesForCommentIds(notesCommentsAllSearched?.map((comment) => comment.id), 
   messagesState, true);
   const newNotOverviewMessages = newTodoMessages.concat(newAssistanceMessages).concat(newNotesMessages);
-  const newInvestibleMessages = findMessagesForInvestibleIds([investibleId], messagesState, true);
   const newOverviewMessages = newInvestibleMessages.filter((message) => isInInbox(message) && 
     !newNotOverviewMessages.includes(message));
   const numNewOverviewMessages = _.size(newOverviewMessages);

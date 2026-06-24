@@ -13,6 +13,30 @@ import {
 } from '../contexts/NotificationsContext/notificationsContextMessages';
 import { removeInvestments } from '../contexts/MarketPresencesContext/marketPresencesContextReducer';
 
+/**
+ * Builds a copy of an investible with its stage (and optionally assignments) moved, so the UI can drop
+ * the card into its new spot immediately while the backend stage change runs in parallel (J-all-322).
+ * updated_at is bumped so the moved card sorts to the top of its new column, matching where it lands
+ * once the backend responds. Returns undefined for a malformed investible.
+ */
+export function getOptimisticInvestibleMove(investible, marketId, targetStageId, assignments) {
+  if (!investible || !investible.investible) {
+    return undefined;
+  }
+  const now = new Date();
+  const marketInfos = (investible.market_infos || []).map((info) => {
+    if (info.market_id !== marketId) {
+      return info;
+    }
+    const moved = { ...info, stage: targetStageId, updated_at: now };
+    if (assignments) {
+      moved.assigned = assignments;
+    }
+    return moved;
+  });
+  return { ...investible, market_infos: marketInfos };
+}
+
 export function onInvestibleStageChange(targetStageId, newInv, investibleId, marketId, commentsState, commentsDispatch,
   invDispatch, diffDispatch, marketStagesState, removeTypes, fullStage, marketPresencesDispatch) {
   refreshInvestibles(invDispatch, diffDispatch, [newInv]);

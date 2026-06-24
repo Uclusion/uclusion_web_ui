@@ -23,7 +23,7 @@ import {
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import Chip from '@material-ui/core/Chip';
 import { stageChangeInvestible } from '../../../api/investibles';
-import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { getMarketInfo } from '../../../utils/userFunctions'
@@ -45,7 +45,7 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 import { doRemoveEdit, doShowEdit } from './userUtils'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
-import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
+import { getOptimisticInvestibleMove, onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { useButtonColors } from '../../../components/Buttons/ButtonConstants'
 import { outlinedChipStyle } from '../../../components/CustomChip/chipStyles'
 import TintedIconBadge from '../../../components/CustomChip/TintedIconBadge'
@@ -58,7 +58,6 @@ import {
   findMessagesForInvestibleId
 } from '../../../utils/messageUtils';
 import { IN_PROGRESS_WIZARD_TYPE, JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
-import DragImage from '../../../components/Dialogs/DragImage';
 import UsefulRelativeTime from '../../../components/TextFields/UseRelativeTime';
 import { isInPast } from '../../../utils/timerUtils';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
@@ -137,6 +136,12 @@ function PlanningIdeas(props) {
   const group = getGroup(groupState, marketId, groupId);
   const isAutonomous = isAutonomousGroup(groupPresences, group);
   const myPresence = (marketPresences || []).find((presence) => presence.current_user) || {};
+  // Id of the card just dropped into this row, so it can play a brief settle-in animation (J-all-322).
+  const [recentlyMovedId, setRecentlyMovedIdState] = useState(undefined);
+  function flagRecentlyMoved(investibleId) {
+    setRecentlyMovedIdState(investibleId);
+    setTimeout(() => setRecentlyMovedIdState((current) => (current === investibleId ? undefined : current)), 600);
+  }
 
   function isBlockedByTodo(investibleId, currentStageId, targetStageId) {
     const investibleComments = comments.filter((comment) => comment.investible_id === investibleId) || [];
@@ -151,8 +156,6 @@ function PlanningIdeas(props) {
     const investibleId = event.dataTransfer.getData('text');
     const currentStageId = event.dataTransfer.getData('stageId');
     if (!operationRunning && !isBlockedByTodo(investibleId, currentStageId, targetStageId)) {
-      const target = event.target;
-      target.style.cursor = 'wait';
       const moveInfo = {
         marketId,
         investibleId,
@@ -172,19 +175,40 @@ function PlanningIdeas(props) {
         moveInfo.stageInfo.assignments = assigned;
       }
       if (currentStageId !== targetStageId || isAssignToOther) {
+        // Optimistically drop the card into its new spot immediately and run the backend stage change in
+        // parallel - no waiting on the API (J-all-322). flagRecentlyMoved plays the settle-in animation.
+        const optimisticInvestible = getOptimisticInvestibleMove(investible, marketId, targetStageId,
+          moveInfo.stageInfo.assignments);
+        if (optimisticInvestible) {
+          refreshInvestibles(invDispatch, diffDispatch, [optimisticInvestible]);
+          flagRecentlyMoved(investibleId);
+        }
+        // Card already moved, but flag operationRunning so the Uclusion logo blinks to show the save is in
+        // progress (T-all-2224 Q-all-165 option O-2). Write actions are blocked until it returns, but the
+        // user can still navigate away - the promise is not tied to this component, so the stage change
+        // (and its state reconciliation) completes regardless of navigation.
         setOperationRunning(true);
         return stageChangeInvestible(moveInfo)
           .then((inv) => {
-            const fullStage = getFullStage(marketStagesState, marketId, currentStageId) || {};
-            onInvestibleStageChange(targetStageId, inv, investibleId, marketId, commentsState, commentsDispatch,
-              invDispatch, diffDispatch, marketStagesState, undefined, fullStage, marketPresencesDispatch);
-          }).finally(() => {
-            target.style.cursor = 'grab';
-            setOperationRunning(false);
-          });
+            if (inv) {
+              const fullStage = getFullStage(marketStagesState, marketId, currentStageId) || {};
+              onInvestibleStageChange(targetStageId, inv, investibleId, marketId, commentsState, commentsDispatch,
+                invDispatch, diffDispatch, marketStagesState, undefined, fullStage, marketPresencesDispatch);
+            }
+            return true;
+          })
+          .catch(() => {
+            // Stage change failed - revert the optimistic move back to the captured original. The error
+            // toast is already raised by stageChangeInvestible (J-all-322 Q-all-162 option O-1).
+            if (optimisticInvestible) {
+              refreshInvestibles(invDispatch, diffDispatch, [investible]);
+            }
+            return false;
+          })
+          .finally(() => setOperationRunning(false));
       }
     }
-    return Promise.resolve();
+    return Promise.resolve(true);
   }
 
   function removeDroppableById() {
@@ -212,7 +236,10 @@ function PlanningIdeas(props) {
       navigate(history,
         `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&stageId=${inDialogStageId}&assignId=${presenceId}`);
     } else {
-      return stageChange(event, inDialogStageId).then(() => {
+      return stageChange(event, inDialogStageId).then((success) => {
+        if (!success) {
+          return;
+        }
         if (!isAutonomous) {
           // Prompt for approval
           navigate(history,
@@ -341,6 +368,7 @@ function PlanningIdeas(props) {
           myPresence={myPresence}
           isAutonomous={isAutonomous}
           viewGroupId={groupId}
+          recentlyMovedId={recentlyMovedId}
         />
       </div>
       <div id={`${acceptedStageId}_${presenceId}`} onDrop={onDropAccepted} onDragEnd={removeDroppable}
@@ -361,6 +389,7 @@ function PlanningIdeas(props) {
           comments={comments}
           isAutonomous={isAutonomous}
           viewGroupId={groupId}
+          recentlyMovedId={recentlyMovedId}
         />
       </div>
       <div id={`${inReviewStageId}_${presenceId}`} onDrop={onDropReview}
@@ -383,6 +412,7 @@ function PlanningIdeas(props) {
           marketPresences={marketPresences}
           isAutonomous={isAutonomous}
           viewGroupId={groupId}
+          recentlyMovedId={recentlyMovedId}
         />
         <Link
           href="#"
@@ -423,7 +453,8 @@ function Stage(props) {
     presenceId,
     isAutonomous,
     viewGroupId,
-    myPresence
+    myPresence,
+    recentlyMovedId
   } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -434,12 +465,18 @@ function Stage(props) {
   });
 
   function investibleOnDragStart (event) {
-    const dragImage = document.getElementById(`dragImage${event.target.id}`);
-    if (dragImage) {
-      event.dataTransfer.setDragImage(dragImage, 100, 0);
-    }
+    // Show the whole card as the drag image (T-all-2221). The browser default isn't enough - the card
+    // contains links, so the native fallback is a tiny name+URL ghost; snapshot the card element itself
+    // instead. currentTarget is the draggable card even when the drag starts on a child, and we keep the
+    // grab point under the cursor so it reads as lifting the card.
+    const card = event.currentTarget;
+    // Hide the hover-only pencil (edit) icon before snapshotting so it isn't baked into the drag image -
+    // it only signals click-through and shouldn't ride along on the dragged card (C-all-1033).
+    doRemoveEdit(card.id);
+    const rect = card.getBoundingClientRect();
+    event.dataTransfer.setDragImage(card, event.clientX - rect.left, event.clientY - rect.top);
     event.dataTransfer.effectAllowed = 'move';
-    event.dataTransfer.setData('text', event.target.id);
+    event.dataTransfer.setData('text', card.id);
     event.dataTransfer.setData('stageId', id);
   }
 
@@ -472,10 +509,8 @@ function Stage(props) {
           isAutonomous={isAutonomous}
           viewGroupId={viewGroupId}
           investibleOnDragStart={investibleOnDragStart}
+          isRecentlyMoved={recentlyMovedId === investible.id}
         />
-        {!mobileLayout && (
-          <DragImage id={investible.id} name={investible.name} />
-        )}
       </React.Fragment>
     )});
 
@@ -567,6 +602,14 @@ const generalStageStyles = makeStyles((theme) => {
       overflowWrap: 'break-word',
       overflowX: 'hidden'
     },
+    // Brief settle-in when a card is optimistically dropped into its new column (J-all-322).
+    '@keyframes settleIn': {
+      '0%': { transform: 'scale(0.96)', opacity: 0.45 },
+      '100%': { transform: 'scale(1)', opacity: 1 },
+    },
+    entering: {
+      animation: '$settleIn 250ms ease-out',
+    },
   };
 });
 
@@ -587,7 +630,8 @@ function StageInvestible(props) {
     isVoting,
     isAutonomous,
     viewGroupId,
-    investibleOnDragStart
+    investibleOnDragStart,
+    isRecentlyMoved
   } = props;
   const intl = useIntl();
   const theme = useTheme();
@@ -704,7 +748,7 @@ function StageInvestible(props) {
                          openForInvestment={openForInvestment} marketPresences={marketPresences} />
       )}
       <div key={investible.id} id={investible.id} onDragStart={investibleOnDragStart} draggable
-           className={classes.outlinedAccepted}
+           className={clsx(classes.outlinedAccepted, isRecentlyMoved && classes.entering)}
            onContextMenu={recordPositionToggle}
            style={{minWidth: isReview ? (name?.length > 40 ? '90%' : '45%') : undefined, 
             backgroundColor: isReview ? (isDark ? '#3b5b5f' : '#F4FAFB' ) : (isVoting ? (isDark ? '#273c3f' : '#CCEBEE') : 

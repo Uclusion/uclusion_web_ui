@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Grid, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core';
+import { Grid, Tooltip, Typography } from '@material-ui/core';
 import _ from 'lodash';
 import { useIntl } from 'react-intl';
 import {
@@ -28,7 +28,6 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { Block } from '@material-ui/icons';
 import QuestionIcon from '@material-ui/icons/ContactSupport';
 import LightbulbOutlined from '../../components/CustomChip/LightbulbOutlined';
-import DragImage from '../../components/Dialogs/DragImage';
 import UsefulRelativeTime from '../../components/TextFields/UseRelativeTime';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { findMessagesForInvestibleId } from '../../utils/messageUtils';
@@ -105,8 +104,6 @@ function ArchiveInvestible(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const intl = useIntl();
   const history = useHistory();
-  const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [anchorEl, setAnchorEl] = useState(null);
   const backlogStage = getFurtherWorkStage(marketStagesState, marketId);
   const recordPositionToggle = (event) => {
@@ -201,9 +198,6 @@ function ArchiveInvestible(props) {
           </Link>
         </div>
       </div>
-      {!mobileLayout && (
-        <DragImage id={id} name={name} />
-      )}
     </React.Fragment>
   );
 }
@@ -292,10 +286,13 @@ function ArchiveInvestbiles(props) {
         return presence ? presence.name : '';
       });
       function onDragStart(event) {
-        const dragImage = document.getElementById(`dragImage${id}`);
-        if (dragImage) {
-          event.dataTransfer.setDragImage(dragImage, 100, 0);
-        }
+        // Use the whole assistance card as the drag image, matching the swimlane (T-all-2223). Snapshot the
+        // dragged element itself (relying on the browser default gives a name+URL link ghost because the card
+        // wraps a Link), and hide the hover-only pencil first so it isn't baked into the image (C-all-1033).
+        const card = event.currentTarget;
+        doRemoveEdit(id);
+        const rect = card.getBoundingClientRect();
+        event.dataTransfer.setDragImage(card, event.clientX - rect.left, event.clientY - rect.top);
         const stageId = stage ? stage.id : undefined;
         event.dataTransfer.setData("text", id);
         event.dataTransfer.setData("stageId", stageId);

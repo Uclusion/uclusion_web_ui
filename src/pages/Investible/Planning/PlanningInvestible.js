@@ -511,8 +511,8 @@ function PlanningInvestible(props) {
                     }
                     break;
                   } else {
-                    if (sectionOpen !== 'descriptionVotingSection') {
-                      updatePageState({ sectionOpen: 'descriptionVotingSection' });
+                    if (sectionOpen !== 'descriptionVotingSection' || !reportsOpenRaw) {
+                      updatePageState({ reportsOpenRaw: true, sectionOpen: 'descriptionVotingSection' });
                     }
                     break;
                   }
@@ -557,7 +557,7 @@ function PlanningInvestible(props) {
         }
       }
     }
-  }, [investibleComments, hash, sectionOpen, updatePageState, hidden, history, compressionHash]);
+  }, [investibleComments, hash, sectionOpen, updatePageState, hidden, history, compressionHash, reportsOpenRaw]);
 
   let lockedByName
   if (lockedBy) {

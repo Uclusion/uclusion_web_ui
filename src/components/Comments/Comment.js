@@ -887,8 +887,7 @@ function Comment(props) {
   const showMoveButton = isSent !== false
     && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(commentType)
     && !inArchives && !removeActions && enableActions && marketType === PLANNING_TYPE;
-  const showMakeTaskButton = showMoveButton && (myPresenceIsAssigned || inBacklog || myPresence === createdBy)
-    && commentType === SUGGEST_CHANGE_TYPE;
+  const showMakeTaskButton = (showMoveButton  && commentType === SUGGEST_CHANGE_TYPE) || isNote;
   const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId);
   const showConfigureVotingButton = commentType === QUESTION_TYPE && !inArchives &&
     !_.isEmpty(inlineInvestibles) && !resolved && !removeActions && myPresence === createdBy;

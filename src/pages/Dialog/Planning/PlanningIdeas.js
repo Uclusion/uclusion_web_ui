@@ -800,8 +800,8 @@ function StageInvestible(props) {
                    cursor: isInInbox(doesRequireStatusMessage) ? 'pointer' : undefined }} onClick={(event) => {
                    if (isInInbox(doesRequireStatusMessage)) {
                      preventDefaultAndProp(event);
-                     return dehighlightMessage(doesRequireStatusMessage, messagesDispatch, true)
-                     .then(() => navigate(history, formInboxItemLink(doesRequireStatusMessage)));
+                     dehighlightMessage(doesRequireStatusMessage, messagesDispatch);
+                     navigate(history, formInboxItemLink(doesRequireStatusMessage));
                    }
                  }}
             >

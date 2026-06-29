@@ -1286,7 +1286,7 @@ const messages = defineMessages({
   todoSection: 'Bugs',
   jobFromBugs: 'Bugs {ticketList}',
   switchTodoView: 'Switch view where bugs and jobs from code TODOs are created',
-  isVisibleJobToolTip: 'Appears in generated report',
+  isVisibleJobToolTip: 'Appears in the list that AI uses to find work',
   isVisibleCheckboxExplanation: 'Visible',
   isAIAbleExplanation: 'AI able',
   addLabel: 'Add label',

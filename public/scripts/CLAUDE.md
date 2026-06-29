@@ -7,6 +7,9 @@ a Uclusion job, task, bug, or comment (anything referenced by a short code
 like `J-Marketing-22`, `T-Marketing-180`, or `B-...`), follow the workflow
 below.
 
+If you have nothing to work on you can call `find_work` and present
+a list of options to the user for what to do next.
+
 ## Workflow
 
 Run the steps in order. Don't skip ahead: questions and suggestions come

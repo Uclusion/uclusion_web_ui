@@ -70,7 +70,6 @@ import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/Marke
 import { addMarketComments, getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { requiresAction } from '../../../components/AddNewWizards/JobStage/JobStageWizard';
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
-import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import NameField, { getNameStoredState } from '../../../components/TextFields/NameField';
 import { DARK_ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
 import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
@@ -106,7 +105,7 @@ export default function PlanningInvestibleNav(props) {
   const styles = useStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
-  const { stage, required_approvers:  requiredApprovers, open_for_investment: openForInvestment, is_visible: isVisibleRaw,
+  const { stage, required_approvers:  requiredApprovers, open_for_investment: openForInvestment, is_visible: isVisible,
     accepted, group_id: groupId, completion_estimate: marketDaysEstimate } = marketInfo;
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
   const addressed = useAddressed(groupPresences, marketPresences, investibleId, marketId);
@@ -114,9 +113,6 @@ export default function PlanningInvestibleNav(props) {
   const attachedFiles =  marketInvestible?.investible?.attached_files;
   // No quick add from your vote so have to check that as well
   const unaccepted = isAssigned && !accepted?.includes(userId) && (!isAssigned || _.isEmpty(yourVote));
-  const groupIsVisibleRaw = getGroup(groupsState, marketId, groupId)?.is_public;
-  const groupIsVisible = groupIsVisibleRaw === undefined ? true : groupIsVisibleRaw;
-  const isVisible = isVisibleRaw === undefined ? groupIsVisible : isVisibleRaw;
   const labelsSorted = _.reverse(_.sortBy(labels, "updated_at"));
   const label = _.isEmpty(labelsSorted) ? undefined : labelsSorted[0].label;
 
@@ -476,7 +472,7 @@ export default function PlanningInvestibleNav(props) {
                 />
               }
               label={<Typography variant="body2" style={{marginLeft: '0.8rem'}}>
-                {intl.formatMessage({ id: 'isVisibleCheckboxExplanation' })}</Typography>}
+                {intl.formatMessage({ id: 'isAIAbleExplanation' })}</Typography>}
             />
           </Tooltip>
         </div>

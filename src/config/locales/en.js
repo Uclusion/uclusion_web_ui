@@ -1288,6 +1288,7 @@ const messages = defineMessages({
   switchTodoView: 'Switch view where bugs and jobs from code TODOs are created',
   isVisibleJobToolTip: 'Appears in generated report',
   isVisibleCheckboxExplanation: 'Visible',
+  isAIAbleExplanation: 'AI able',
   addLabel: 'Add label',
   labelPlaceholder: 'New Label',
   label: 'Label',

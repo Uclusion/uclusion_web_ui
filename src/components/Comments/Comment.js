@@ -1271,7 +1271,7 @@ function Comment(props) {
                     disabled={operationRunning !== false}
                   />
                 }
-                label={intl.formatMessage({ id: 'isVisibleCheckboxExplanation' })}
+                label={intl.formatMessage({ id: isNote ? 'isVisibleCheckboxExplanation' : 'isAIAbleExplanation' })}
               />
             )}
             {enableEditing && !removeActions && commentType === TODO_TYPE && !investibleId && (

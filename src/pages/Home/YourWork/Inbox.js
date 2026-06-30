@@ -37,9 +37,13 @@ import Link from '@material-ui/core/Link';
 import PropTypes from 'prop-types';
 import { useHotkeys } from 'react-hotkeys-hook';
 
-function createWorkspaceGroupHeader(market, group, history) {
+function createWorkspaceGroupHeader(market, group, history, message) {
   const link = formMarketLink(market.id, group.id);
-return (<div id={`inboxGroupHeader${group.id}`} key={`inboxGroupHeaderKey${group.id}`} style={{marginTop: '1rem'}}>
+  // A group can legitimately surface more than once in the rendered list, so keying the header by group.id
+  // alone produced duplicate React keys (C-all-1040). The triggering message id is unique per header.
+  const keySuffix = getMessageId(message) || group.id;
+return (<div id={`inboxGroupHeader${group.id}_${keySuffix}`} key={`inboxGroupHeaderKey${group.id}_${keySuffix}`}
+             style={{marginTop: '1rem'}}>
     Workspace {market.name} and view <Link href={link} onClick={
     (event) => {
       preventDefaultAndProp(event);
@@ -115,7 +119,7 @@ function Inbox(props) {
           const market = getMarket(marketsState, group.market_id);
           if (market) {
             if ((isInbox && !isOutbox)||(!isInbox && isOutbox)) {
-              rows.push(createWorkspaceGroupHeader(market, group, history));
+              rows.push(createWorkspaceGroupHeader(market, group, history, message));
             }
           }
         }

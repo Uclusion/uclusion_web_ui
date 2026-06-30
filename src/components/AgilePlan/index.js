@@ -11,9 +11,6 @@ export const usePlanFormStyles = makeStyles(
     rootCheckbox: {
       color: 'black',
       opacity: 0.54,
-      '&$checked': {
-        color: theme.palette.type === 'dark' ? 'black' : undefined,
-      },
     },
     checkedCheckbox: {
       opacity: 1,

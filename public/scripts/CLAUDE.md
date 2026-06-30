@@ -7,8 +7,12 @@ a Uclusion job, task, bug, or comment (anything referenced by a short code
 like `J-Marketing-22`, `T-Marketing-180`, or `B-...`), follow the workflow
 below.
 
-If you have nothing to work on you can call `find_work` and present
-a list of options to the user for what to do next.
+When you first come up with nothing specific in front of you to work on,
+call `find_work` on your own initiative — do not wait for the user to ask —
+and present what it returns as a numbered list of options. The user will
+either pick one of those options or tell you to do something else instead.
+Calling `find_work` and showing the list is your opening move; do not skip
+it and do not sit idle waiting to be told what to do.
 
 ## Workflow
 

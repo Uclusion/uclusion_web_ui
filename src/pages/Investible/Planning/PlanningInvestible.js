@@ -816,7 +816,7 @@ function PlanningInvestible(props) {
         <GmailTabItem icon={mobileLayout ? <AssignmentOutlined /> : undefined} label={intl.formatMessage({id: 'openTasksSection'})}
                       tagColor={hasNewTodoMessages ? warningColor : undefined}
                       toolTipId='jobTasksToolTip' tagLabel={hasNewTodoMessages && _.isEmpty(search) ? 'new' : getTagLabel('total')}
-                      tag={hasNewTodoMessages && _.isEmpty(search) ? `${numNewTodoMessages}` : countUnresolved(todoCommentsSearched, search)} />
+                      tag={hasNewTodoMessages && _.isEmpty(search) ? `${numNewTodoMessages}` : countUnresolved(openTodoCommentsSearched, search)} />
         {displayAssistanceSection && (
           <GmailTabItem icon={mobileLayout ? <ContactSupportOutlined /> : undefined} toolTipId='jobAssistanceToolTip'
                         label={intl.formatMessage({id: 'requiresInputStageLabel'})}

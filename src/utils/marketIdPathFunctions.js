@@ -175,8 +175,14 @@ export function getUrlForTicketCode(code, ticketState, marketsState, commentsSta
     // Options are not supported in this context because they are in a different market
     return undefined;
   }
-  const key = Object.keys(ticketState || {}).find((aKey) => aKey === trimmed ||
-    aKey.endsWith(`/${trimmed}`) || decodeURI(aKey).endsWith(`/${trimmed}`));
+  // Match case-insensitively: ticket keys keep the code's original casing (e.g. `${marketId}/J-all-247`)
+  // while `trimmed` is uppercased, so compare both sides uppercased or a mixed-case market segment
+  // (like "all") never matches and the code wrongly falls through to text search (T-all-2234).
+  const key = Object.keys(ticketState || {}).find((aKey) => {
+    const upperKey = aKey.toUpperCase();
+    return upperKey === trimmed || upperKey.endsWith(`/${trimmed}`) ||
+      decodeURI(aKey).toUpperCase().endsWith(`/${trimmed}`);
+  });
   if (!key) {
     return undefined;
   }

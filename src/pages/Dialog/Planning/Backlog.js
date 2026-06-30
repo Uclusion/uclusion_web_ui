@@ -68,9 +68,11 @@ function Backlog(props) {
   const [backlogState, backlogDispatch] = useReducer(getReducer(),
     {page: 1, tabIndex: 0, pageState: {}, defaultPage: 1});
   const { tabIndex, page } = backlogState;
-  // During search collapse sub-tabs and show only live (non-Not-Doing) items combined
+  // During search collapse sub-tabs and show all matching backlog items combined - including
+  // Not Doing, so the displayed list matches the backlog tab's search count which counts them
+  // too (T-all-2233); otherwise a matching Not Doing job is counted but never shown.
   const tabInvestiblesRaw = isSearchActive
-    ? [...(furtherWorkReadyToStart || []), ...(furtherWorkInvestibles || [])]
+    ? [...(furtherWorkReadyToStart || []), ...(furtherWorkInvestibles || []), ...(notDoingInvestibles || [])]
     : (tabIndex === 0 ? furtherWorkReadyToStart
         : (tabIndex === 1 ? furtherWorkInvestibles : notDoingInvestibles));
   const tabInvestibles = _.orderBy(tabInvestiblesRaw, [(inv) => inv.investible.created_at],

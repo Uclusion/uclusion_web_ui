@@ -494,6 +494,9 @@ function PlanningDialog(props) {
 
   const tabTitle = `${groupName} ${intl.formatMessage({id: 'tabGroupAppend'})}`;
   const swimlaneEmptyPreText = 'There are no assigned jobs.';
+  // Set inside getTabCount(2) so getTagLabel can tell whether the autonomous Bugs badge is the
+  // "immediate" (red open bug) count or an unread-notification count (T-all-2237 / Q-all-175).
+  let bugTabCountIsImmediate = false;
   function getTabCount(tabIndex) {
     if (!_.isEmpty(search)) {
       return undefined;
@@ -518,15 +521,32 @@ function PlanningDialog(props) {
       }
     }
     if (tabIndex === 2) {
-      const commentIds = (todoGroupComments || []).map((comment) => comment.id);
-      const numNewMessagesRaw = findMessagesForCommentIds(commentIds, messagesState, !isAutonomous);
+      const todoRootIds = (todoGroupComments || []).map((comment) => comment.id);
+      const todoRootIdSet = new Set(todoRootIds);
+      // A reply is notified under its own comment id, and a reply can race ahead of its bug being resolved,
+      // so fold in open-bug replies plus resolved bug roots and their replies (T-all-2237 / Q-all-174 / Q-all-175).
+      const todoReplyIds = unResolvedGroupComments.filter((comment) => comment.comment_type === REPLY_TYPE &&
+        todoRootIdSet.has(comment.root_comment_id)).map((comment) => comment.id);
+      const commentIds = todoRootIds.concat(todoReplyIds)
+        .concat((resolvedTodoGroupComments || []).map((comment) => comment.id));
+      const numNewMessagesRaw = findMessagesForCommentIds(commentIds, messagesState, true);
       const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
-      if ((isAutonomous && !_.isEmpty(criticalTodoGroupComments))||!_.isEmpty(numNewMessages)) {
-        return isAutonomous ? `${_.size(criticalTodoGroupComments)}` : `${_.size(numNewMessages)}`;
+      if (!_.isEmpty(numNewMessages)) {
+        bugTabCountIsImmediate = false;
+        return `${_.size(numNewMessages)}`;
+      }
+      if (isAutonomous && !_.isEmpty(criticalTodoGroupComments)) {
+        bugTabCountIsImmediate = true;
+        return `${_.size(criticalTodoGroupComments)}`;
       }
     }
     if (tabIndex === 3) {
-      const commentIds = (questionSuggestionGroupComments || []).map((comment) => comment.id);
+      const discussionRootIds = (questionSuggestionGroupComments || []).map((comment) => comment.id);
+      const discussionRootIdSet = new Set(discussionRootIds);
+      // Fold in replies to questions/suggestions so their notifications count too (Q-all-174).
+      const discussionReplyIds = unResolvedGroupComments.filter((comment) => comment.comment_type === REPLY_TYPE &&
+        discussionRootIdSet.has(comment.root_comment_id)).map((comment) => comment.id);
+      const commentIds = discussionRootIds.concat(discussionReplyIds);
       const numNewMessagesRaw = findMessagesForCommentIds(commentIds, messagesState, true);
       const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
       if (!_.isEmpty(numNewMessages)) {
@@ -541,7 +561,7 @@ function PlanningDialog(props) {
         return intl.formatMessage({ id: 'match' });
       }
       if (isAutonomous && tabIndex === 2) {
-        return intl.formatMessage({ id: 'immediateLower' });
+        return intl.formatMessage({ id: bugTabCountIsImmediate ? 'immediateLower' : 'new' });
       }
       return intl.formatMessage({ id: 'new' });
     }

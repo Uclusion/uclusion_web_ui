@@ -232,6 +232,9 @@ function MarketTodos(props) {
   const unreadRedCount = getUnreadCount(redComments, messagesState);
   const unreadYellowCount = getUnreadCount(yellowComments, messagesState);
   const unreadBlueCount = getUnreadCount(blueComments, messagesState);
+  // resolvedTodoComments bundles resolved bug roots AND their replies, so this counts unread notifications
+  // on either - including a reply that raced ahead of the bug being resolved (T-all-2237).
+  const unreadResolvedCount = getUnreadCount(resolvedTodoComments, messagesState);
   const tabComments = _.orderBy(tabCommentsRaw,
     [(comment) => _.size(findMessagesForCommentIds(comment.id, messagesState, true)),
       'updated_at'], ['desc', 'desc']);
@@ -526,6 +529,9 @@ function MarketTodos(props) {
                         onDragOver={(event)=>event.preventDefault()} />
           <GmailTabItem icon={<CheckCircleOutline />} label={intl.formatMessage({id: 'resolvedBugsHeader'})}
                         color='black'
+                        tagColor={unreadResolvedCount > 0 ? warningColor : undefined}
+                        tagLabel={unreadResolvedCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
+                        tag={unreadResolvedCount > 0 ? `${unreadResolvedCount}` : undefined}
                         onDrop={onDropResolve} toolTipId='resolvedToolTip'
                         onDragOver={(event)=>event.preventDefault()} />
         </GmailTabs>

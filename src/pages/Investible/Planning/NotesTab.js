@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Typography, useTheme } from '@material-ui/core';
@@ -6,6 +6,7 @@ import CommentBox from '../../../containers/CommentBox/CommentBox';
 import CondensedTodos from './CondensedTodos';
 import { groupNotesByDay } from './notesGrouping';
 import { getBrowserTz, formatDayLabel } from '../../../utils/timezoneUtils';
+import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 
 function NotesTab(props) {
   const {
@@ -22,9 +23,16 @@ function NotesTab(props) {
     isInBlocking
   } = props;
   const theme = useTheme();
+  const [searchResults] = useContext(SearchResultsContext);
+  const { results = [], parentResults = [], search } = searchResults || {};
   const viewerTz = getBrowserTz();
   const tasks = (investibleComments || []).filter((comment) => comment.comment_type === 'TODO');
-  const days = groupNotesByDay(notes, tasks, viewerTz);
+  // During a search, only resolved tasks that themselves match get a header; matching notes still render
+  // their task header via the note's sub-group, so context isn't lost (T-all-2235 / Q-all-176).
+  const resolvedTaskMatchIds = _.isEmpty(search) ? undefined
+    : new Set(tasks.filter((task) => results.find((item) => item.id === task.id)
+        || parentResults.find((id) => id === task.id)).map((task) => task.id));
+  const days = groupNotesByDay(notes, tasks, viewerTz, resolvedTaskMatchIds);
 
   if (_.isEmpty(days)) {
     return null;

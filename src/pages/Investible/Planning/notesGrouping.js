@@ -25,7 +25,9 @@ import { getLocalDayKey } from '../../../utils/timezoneUtils';
 // floor(updated_at) per Q-all-54, and a resolved task's day is
 // floor(task.updated_at) per Q-all-62 (resolved comments cannot be edited so
 // updated_at reflects the resolve event).
-export function groupNotesByDay(notes, tasks, viewerTz) {
+// resolvedTaskMatchIds (optional Set): when supplied (an active search), only resolved tasks whose id is in
+// the set get a header injected; pass undefined to inject all resolved tasks as before (T-all-2235).
+export function groupNotesByDay(notes, tasks, viewerTz, resolvedTaskMatchIds) {
   const safeNotes = notes || [];
   const safeTasks = tasks || [];
 
@@ -75,6 +77,11 @@ export function groupNotesByDay(notes, tasks, viewerTz) {
 
   safeTasks.forEach((task) => {
     if (!task?.resolved || !task.updated_at) {
+      return;
+    }
+    // During an active search only inject a resolved-task header when the task itself matches; a task whose
+    // note matched still surfaces via that note's sub-group above (T-all-2235 / Q-all-176).
+    if (resolvedTaskMatchIds && !resolvedTaskMatchIds.has(task.id)) {
       return;
     }
     const dayKey = getLocalDayKey(task.updated_at, task.tz || viewerTz);

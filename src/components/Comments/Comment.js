@@ -1275,7 +1275,7 @@ function Comment(props) {
               />
             )}
             {enableEditing && !removeActions && commentType === TODO_TYPE && !investibleId && (
-              <FormControl size='small'>
+              <FormControl size='small' style={{marginRight: '1rem', alignSelf: 'center'}}>
                 <Select
                   value={myNotificationType}
                   classes={{
@@ -1283,7 +1283,20 @@ function Comment(props) {
                   }}
                   onChange={onNotificationTypeChange}
                   onClick={(event) => event.stopPropagation()}
-                  style={{marginRight: '1rem', color: 'black', alignSelf: 'center'}}
+                  style={{color: 'black'}}
+                  // Standard-variant Select pads 3px top / 7px bottom (bottom reserved
+                  // for the underline), which lifts the text ~2px above center. Rebalance
+                  // to 5px/5px (same total height, same underline) so the value lines up
+                  // vertically with the adjacent Reply/Move/Resolve pills.
+                  SelectDisplayProps={{ style: { paddingTop: '5px', paddingBottom: '5px' } }}
+                  // The dark theme forces every menu paper to #1e1e1e, which clashes with
+                  // the (light) bug card. Match the dropdown menu to the card background and
+                  // keep the text black, consistent with the card and the value shown above.
+                  MenuProps={{
+                    PaperProps: {
+                      style: { backgroundColor: isDark ? DARK_TEXT_BACKGROUND_COLOR : 'white', color: 'black' }
+                    }
+                  }}
                 >
                   <MenuItem value='RED'>
                     {intl.formatMessage({ id: 'immediate' })}

@@ -7,12 +7,21 @@ a Uclusion job, task, bug, or comment (anything referenced by a short code
 like `J-Marketing-22`, `T-Marketing-180`, or `B-...`), follow the workflow
 below.
 
-When you first come up with nothing specific in front of you to work on,
-call `find_work` on your own initiative — do not wait for the user to ask —
-and present what it returns as a numbered list of options. The user will
-either pick one of those options or tell you to do something else instead.
-Calling `find_work` and showing the list is your opening move; do not skip
-it and do not sit idle waiting to be told what to do.
+Whenever you have no specific work in front of you, call `find_work` on
+your own initiative — do not wait to be asked — and present what it returns
+as a numbered list of options. This applies in two moments, not just one:
+
+- **At the start of a session** when the user has not named a specific job,
+  task, file, or question. Treat a greeting or an open-ended "what should I
+  do?" as no specific work.
+- **Right after you finish a piece of work** and nothing else is queued.
+  Finishing is not a stopping point — before you report back and go idle,
+  call `find_work` so your "done" message already carries the next options.
+
+The user will either pick one of the options or point you at something
+else. The only time you skip this is when the user has just named concrete
+work to do next; reaching the end of a task is itself a trigger, not an
+exemption.
 
 ## Workflow
 

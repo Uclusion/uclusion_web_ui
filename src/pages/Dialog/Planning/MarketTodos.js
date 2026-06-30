@@ -355,7 +355,7 @@ function MarketTodos(props) {
       const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
       return (
         <BugListItem id={id} key={id} replyNum={replies.length + 1} title={stripHTML(body)}
-                     newMessages={getNewBugNotifications(comment, messagesState)}
+                     newMessages={getNewBugNotifications(comment, messagesState, replies)}
                      date={intl.formatDate(updatedAt)} marketId={marketId} groupId={groupId}
                      useSelect={!isInArchives} expansionPanel={expansionPanel} checked={checked}
                      expansionOpen={!!expansionState[id]} determinateDispatch={determinateDispatch}

@@ -39,11 +39,15 @@ export function getNewMessages(inv, messagesState) {
   return myMessages.filter((message) => message.is_highlighted);
 }
 
-export function getNewBugNotifications(comment, messagesState) {
-  const myMessages = findMessagesForCommentIds([comment.id], messagesState) || [];
+export function getNewBugNotifications(comment, messagesState, replies = []) {
+  // A bug's notification can be keyed on a reply's own id, so check the whole thread (root + replies)
+  // when replies are supplied - this is what bolds a row that has a notification anywhere in its thread,
+  // including resolved bugs whose root notification cleared but a reply's did not (C-all-1047).
+  const threadIds = [comment.id, ...replies.map((reply) => reply.id)];
+  const myMessages = findMessagesForCommentIds(threadIds, messagesState) || [];
   return myMessages.filter((myMessage) => {
     if (myMessage?.highlighted_list !== undefined) {
-      return myMessage.highlighted_list.includes(comment.id);
+      return !_.isEmpty(_.intersection(myMessage.highlighted_list, threadIds));
     }
     return myMessage?.is_highlighted;
   });

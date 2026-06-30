@@ -248,9 +248,10 @@ function PlanningDialog(props) {
     ? getInvestiblesInStage(investiblesFullAssist, inReviewStage.id, marketId)
     : swimlaneCompleteInvestibles;
   const jobProgressSearchList = !_.isEmpty(search)
-    ? blockedOrRequiresInputOrReadyInvestiblesFullAssist
+    // Order by the date each row shows (investible.created_at) so most recent is on top (T-all-2236).
+    ? _.orderBy(blockedOrRequiresInputOrReadyInvestiblesFullAssist
         .concat(swimlaneInvestibles)
-        .concat(allCompleteInvestibles)
+        .concat(allCompleteInvestibles), [(inv) => inv.investible.created_at], ['desc'])
     : [];
   const activeInvestibles = swimlaneInvestibles.filter((inv) => {
     const marketInfo = getMarketInfo(inv, marketId) || {};

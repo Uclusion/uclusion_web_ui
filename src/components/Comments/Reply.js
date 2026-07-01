@@ -245,8 +245,11 @@ function Reply(props) {
   const isTopLevelSubTask = isSubTask && rootComment?.id === comment.reply_id;
   const isMySubTask = isTopLevelSubTask && rootComment?.created_by === userId;
   const inProgress = comment.in_progress;
-  const thisIsMyNote = comment.created_by === userId && rootComment?.notification_type === BLUE_LEVEL 
-   && rootComment?.comment_type === REPORT_TYPE && parentComment?.created_by ===  userId;
+  // Mine if I wrote it under my own note, or it's a BLUE note reply I made on someone else's note
+  // via the Add Note button (T-all-2247) - same BLUE test isSubTask uses above.
+  const thisIsMyNote = comment.created_by === userId && rootComment?.notification_type === BLUE_LEVEL
+   && rootComment?.comment_type === REPORT_TYPE && (parentComment?.created_by ===  userId
+    || comment.notification_type === BLUE_LEVEL);
 
   function useMarketId() {
     return React.useContext(LocalCommentsContext).marketId;

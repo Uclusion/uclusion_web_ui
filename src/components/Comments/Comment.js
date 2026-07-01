@@ -828,7 +828,10 @@ function Comment(props) {
         <FormattedMessage id="issueReplyLabel" />) : (isInfo ? <FormattedMessage id="todoInfo" /> :
       (inNotesTab && isNote ? undefined :
         (inNotesTab && commentType === TODO_TYPE ? <FormattedMessage id="cardTypeLabelTask" /> :
-          (isNote ? <FormattedMessage id="reportNote" /> : undefined))));
+          (isNote ? <FormattedMessage id="reportNote" /> :
+            // A progress report in a wizard row otherwise falls through to the type chip's default
+            // "Note" text - label it correctly (T-all-2249).
+            (commentType === REPORT_TYPE && compressAll ? <FormattedMessage id="reportPresent" /> : undefined)))));
   const color = isMarketTodo ? myNotificationType : undefined;
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
   const showActions = (!replyBeingEdited || replies.length > 0) && !removeActions;
@@ -944,7 +947,9 @@ function Comment(props) {
               linker={(linkerShouldBeFirst || reallyNoAuthor || isMarketTodo) && showLinker && linker}
     />
   );
-  const commentTypeChip = <CommentTypeChip type={commentType} resolved={resolved} mobileLayout={mobileLayout} />;
+  const commentTypeChip = <CommentTypeChip type={commentType} resolved={resolved} mobileLayout={mobileLayout}
+                                           label={commentType === REPORT_TYPE && !isNote ?
+                                             <FormattedMessage id="reportPresent" /> : undefined} />;
   const deleteWizardBaseLink = formWizardLink(DELETE_COMMENT_TYPE, marketId, undefined,
     undefined, id);
   const dateInfo = <>

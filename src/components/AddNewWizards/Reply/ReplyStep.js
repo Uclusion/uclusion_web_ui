@@ -180,7 +180,8 @@ function ReplyStep(props) {
           }))}
         />
       )}
-      {!showSubTask && !noteOnly && !noteReply && (
+      {/* noteReply keeps the divider - it separates the parent note from the editor (T-all-2248). */}
+      {!showSubTask && !noteOnly && (
         <div className={classes.borderBottom}/>
       )}
       <CommentAdd

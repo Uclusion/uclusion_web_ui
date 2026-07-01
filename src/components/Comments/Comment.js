@@ -140,7 +140,7 @@ import { getMarketClient } from '../../api/marketLogin';
 import { isMyPokableComment } from '../../pages/Home/YourWork/InboxExpansionPanel';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { ThemeModeContext } from '../../contexts/ThemeModeContext';
-import { DARK_INFO_COLOR, DARK_TEXT_BACKGROUND_COLOR } from '../Buttons/ButtonConstants';
+import { ACTION_BUTTON_COLOR, DARK_INFO_COLOR, DARK_TEXT_BACKGROUND_COLOR } from '../Buttons/ButtonConstants';
 import CondensedTodos from '../../pages/Investible/Planning/CondensedTodos';
 
 export const useCommentStyles = makeStyles(
@@ -406,6 +406,11 @@ export const useCommentStyles = makeStyles(
         color: 'black',
         opacity: 0.54,
         padding: '4px',
+        // The dark theme's disabled color is faint white, invisible on the light card - keep the
+        // forced-checked disabled "Show AI" check mark black so it can be seen (T-all-2244).
+        '&.Mui-disabled': {
+          color: theme.palette.type === 'dark' ? 'black' : undefined,
+        },
       },
       checkedCheckbox: {
         opacity: 1,
@@ -1071,7 +1076,7 @@ function Comment(props) {
         {displayEditing && !beingEdited && (
           <TooltipIconButton
             onClick={toggleEdit}
-            icon={<Edit fontSize='small' style={{marginRight: '1rem'}} />}
+            icon={<Edit fontSize='small' style={{marginRight: '1rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
             translationId="edit"
           />
         )}
@@ -1223,7 +1228,7 @@ function Comment(props) {
                 id={`commentReplyButton${id}`}
                 doSpin={false}
               >
-                {!mobileLayout && intl.formatMessage({ id: showSubTask ? 'commentSubTaskLabel' : (thisIsMyNote ? 'addNote' : 'commentReplyLabel') })} {hasReply(comment) && <EditIcon />}
+                {!mobileLayout && intl.formatMessage({ id: showSubTask ? 'commentSubTaskLabel' : (thisIsMyNote ? 'addNote' : 'commentReplyLabel') })} {hasReply(comment) && <EditIcon htmlColor={ACTION_BUTTON_COLOR} />}
               </SpinningIconLabelButton>
             )}
             {isSent !== false && enableEditing && !removeActions && showSubTaskButton && (

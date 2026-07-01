@@ -64,9 +64,10 @@ function ReplyStep(props) {
   const showSubTask = market?.market_type === PLANNING_TYPE && parentCommentType === TODO_TYPE && investibleId
     && (myPresence.id === createdById || isSubtask) && !noteOnly;
   // addingNote is set when the non-author "Note" button launches this wizard on someone else's note, so
-  // they can create a sub note (associated REPORT_TYPE comment) the way AI does - see T-all-2157.
+  // they can create a sub note the way AI does - a REPLY with BLUE notification, the same shape the
+  // grouped-subtask reply uses, NOT a top level report - see T-all-2157 / T-all-2245.
   const noteReply = !!addingNote;
-  const useCommentType = (noteOnly || noteReply) ? REPORT_TYPE : commentType;
+  const useCommentType = noteOnly ? REPORT_TYPE : commentType;
   const inv = comment.investible_id ? getInvestible(investibleState, investibleId) : undefined;
   const investibleComments = getInvestibleComments(inv?.investible?.id, marketId, commentState);
   const marketComments = getMarketComments(commentState, marketId, comment?.group_id);
@@ -187,6 +188,7 @@ function ReplyStep(props) {
         type={useCommentType}
         parent={comment}
         wizardProps={{...props, isReply: useCommentType === REPLY_TYPE, isNote: useCommentType === REPORT_TYPE,
+          isNoteReply: noteReply,
           onResolve: showSubTask || noteOnly || noteReply ? () => {} : resolve, showSubTask, parentIsTopLevel}}
         commentAddState={commentAddReplyState}
         updateCommentAddState={updateCommentAddReplyState}

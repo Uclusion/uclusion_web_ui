@@ -445,7 +445,9 @@ function Reply(props) {
             doFloatRight
           />
         )}
-        {enableEditing && isEditable && mobileLayout && (
+        {/* Not just mobile - desktop only had the undiscoverable click-body-to-edit, so show the
+            pencil on replies everywhere like top level comments do (T-all-2246 follow-on). */}
+        {enableEditing && isEditable && (
           <TooltipIconButton
             onClick={handleEditClick}
             icon={<Edit fontSize='small' htmlColor={ACTION_BUTTON_COLOR} />}

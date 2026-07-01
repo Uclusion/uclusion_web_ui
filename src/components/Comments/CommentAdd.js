@@ -69,6 +69,9 @@ function getPlaceHolderLabelId(type, investibleId, showSubTask=false, isNote=fal
       if (showSubTask) {
         return 'commentAddSubTaskDefault';
       }
+      if (isNote) {
+        return 'commentAddNoteDefault';
+      }
       return 'commentAddReplyDefault';
     case REPORT_TYPE:
       if (investibleId && !isNote) {
@@ -318,7 +321,8 @@ function CommentAdd(props) {
   const isSingleAutonomousUser = isSingleUser && group?.group_type === 'AUTONOMOUS';
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const creatorIsAssigned = (assigned || []).includes(myPresence.id);
-  const placeHolderLabelId = getPlaceHolderLabelId(type, investibleId, wizardProps.showSubTask, wizardProps.isNote);
+  const placeHolderLabelId = getPlaceHolderLabelId(type, investibleId, wizardProps.showSubTask,
+    wizardProps.isNote || wizardProps.isNoteReply);
   const placeholder = intl.formatMessage({ id: placeHolderLabelId });
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   // J-all-325 (T-all-2196): when rendered inline, the note's "Skip" terminate (which otherwise just resets
@@ -441,12 +445,13 @@ function CommentAdd(props) {
               {...wizardProps}
               validForm={hasValue}
               nextLabel={wizardProps.showSubTask ? 'JobCommentAddTODO' : 'commentAddSendLabel'}
-              onNext={() => handleSave( true, wizardProps.showSubTask ? BLUE_LEVEL : undefined)}
+              onNext={() => handleSave( true, wizardProps.showSubTask || wizardProps.isNoteReply ? BLUE_LEVEL
+                : undefined)}
               showOtherNext={rootComment?.comment_type !== REPORT_TYPE && wizardProps.parentIsTopLevel &&
                 (ourMarket.market_type !== DECISION_TYPE || rootComment?.comment_type !== TODO_TYPE)}
               otherNextLabel={wizardProps.showSubTask ? 'addAnother' : 'commentAddSendResolve'}
-              onOtherNext={() => handleSave( true, wizardProps.showSubTask ? BLUE_LEVEL : undefined, undefined,
-                true).then(() => {
+              onOtherNext={() => handleSave( true, wizardProps.showSubTask || wizardProps.isNoteReply ? BLUE_LEVEL
+                : undefined, undefined, true).then(() => {
                 wizardProps.onResolve();
                 if (wizardProps.showSubTask) {
                   focusEditor(editorName);

@@ -40,7 +40,7 @@ export function hasReply(comment) {
 }
 
 function ReplyStep(props) {
-  const { marketId, commentId, isSubtask, updateFormData = () => {}, formData = {} } = props;
+  const { marketId, commentId, isSubtask, isNote: addingNote, updateFormData = () => {}, formData = {} } = props;
   const history = useHistory();
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
@@ -63,7 +63,10 @@ function ReplyStep(props) {
   // grouped subtask or note on someone else's task even though they are not the task author.
   const showSubTask = market?.market_type === PLANNING_TYPE && parentCommentType === TODO_TYPE && investibleId
     && (myPresence.id === createdById || isSubtask) && !noteOnly;
-  const useCommentType = noteOnly ? REPORT_TYPE : commentType;
+  // addingNote is set when the non-author "Note" button launches this wizard on someone else's note, so
+  // they can create a sub note (associated REPORT_TYPE comment) the way AI does - see T-all-2157.
+  const noteReply = !!addingNote;
+  const useCommentType = (noteOnly || noteReply) ? REPORT_TYPE : commentType;
   const inv = comment.investible_id ? getInvestible(investibleState, investibleId) : undefined;
   const investibleComments = getInvestibleComments(inv?.investible?.id, marketId, commentState);
   const marketComments = getMarketComments(commentState, marketId, comment?.group_id);
@@ -128,7 +131,7 @@ function ReplyStep(props) {
       {...props}
       isLarge
     >
-      {!showSubTask && !noteOnly && (
+      {!showSubTask && !noteOnly && !noteReply && (
         <Typography className={classes.introText}>
           What is your reply?
         </Typography>
@@ -138,12 +141,12 @@ function ReplyStep(props) {
           What is your grouped task or note?
         </Typography>
       )}
-      {noteOnly && (
+      {(noteOnly || noteReply) && (
         <Typography className={classes.introText}>
           What is your note?
         </Typography>
       )}
-      {!showSubTask && !noteOnly && (
+      {!showSubTask && !noteOnly && !noteReply && (
         <Typography className={classes.introSubText} variant="subtitle1">
           For response from more than the author of this comment use @ mentions.
         </Typography>
@@ -176,7 +179,7 @@ function ReplyStep(props) {
           }))}
         />
       )}
-      {!showSubTask && !noteOnly && (
+      {!showSubTask && !noteOnly && !noteReply && (
         <div className={classes.borderBottom}/>
       )}
       <CommentAdd
@@ -184,7 +187,7 @@ function ReplyStep(props) {
         type={useCommentType}
         parent={comment}
         wizardProps={{...props, isReply: useCommentType === REPLY_TYPE, isNote: useCommentType === REPORT_TYPE,
-          onResolve: showSubTask || noteOnly ? () => {} : resolve, showSubTask, parentIsTopLevel}}
+          onResolve: showSubTask || noteOnly || noteReply ? () => {} : resolve, showSubTask, parentIsTopLevel}}
         commentAddState={commentAddReplyState}
         updateCommentAddState={updateCommentAddReplyState}
         commentAddStateReset={commentAddStateReplyReset}

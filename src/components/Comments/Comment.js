@@ -624,6 +624,9 @@ function Comment(props) {
   const otherInProgress = previousInProgress(myPresence.id, comment, investiblesState, commentsState, notDoingStage.id);
   const isDisplayOfSubTask = isSubTask(comment, commentsState, marketType === PLANNING_TYPE);
   const thisIsMyNote = createdBy === myPresence && isNote;
+  // A note that has a reply is always shown to the AI (the back end already includes such notes in the
+  // MD), so lock its "Show AI" checkbox on - see T-all-2242.
+  const noteHasReply = isNote && !_.isEmpty(replies);
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
@@ -1235,6 +1238,20 @@ function Comment(props) {
                 {!mobileLayout && intl.formatMessage({ id: 'commentSubTaskLabel' })}
               </SpinningIconLabelButton>
             )}
+            {/* On someone else's note the single button stays a plain "Reply"; offer a separate
+                "Note" button beside it so a non-author can create a sub note the way AI does. */}
+            {isSent !== false && enableEditing && !removeActions && isNote && !thisIsMyNote && (
+              <SpinningIconLabelButton
+                onClick={() => navigate(history, `${formWizardLink(REPLY_WIZARD_TYPE, marketId,
+                  undefined, undefined, id, typeObjectId)}&isNote=true`)}
+                icon={AddIcon}
+                iconOnly={mobileLayout}
+                id={`commentSubNoteButton${id}`}
+                doSpin={false}
+              >
+                {!mobileLayout && intl.formatMessage({ id: 'addNote' })}
+              </SpinningIconLabelButton>
+            )}
             {isSent !== false && isTask && resolved && enableActions && !removeActions && (
               <SpinningIconLabelButton
                 onClick={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
@@ -1255,13 +1272,13 @@ function Comment(props) {
                 control={
                   <Checkbox
                     id={`isVisibleCheckbox${id}`}
-                    checked={operationRunning === `isVisibleCheckbox${id}` ? !isVisible : isVisible}
+                    checked={noteHasReply ? true : (operationRunning === `isVisibleCheckbox${id}` ? !isVisible : isVisible)}
                     classes={{
                       root: classes.rootCheckbox,
                       checked: classes.checkedCheckbox,
                     }}
                     onClick={handleToggleIsVisible}
-                    disabled={operationRunning !== false}
+                    disabled={noteHasReply || operationRunning !== false}
                   />
                 }
                 label={intl.formatMessage({ id: isNote ? 'isVisibleCheckboxExplanation' : 'isAIAbleExplanation' })}

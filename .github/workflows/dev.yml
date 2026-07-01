@@ -17,4 +17,5 @@ jobs:
           secret_key: ${{ secrets.SECRET_KEY }}
           workspace_id: ${{ secrets.WORKSPACE_ID }}
           github-event-message: ${{ github.event.head_commit.message }}
+          label: "Awaiting deploy"
     

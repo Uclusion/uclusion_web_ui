@@ -14,7 +14,7 @@ import {
   MenuItem,
   ListItemIcon, Checkbox, ListItemText
 } from '@material-ui/core';
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles, useTheme } from '@material-ui/styles'
 import { useIntl } from 'react-intl'
 import { toastError } from '../../utils/userMessage'
 import Screen from '../../containers/Screen/Screen'
@@ -38,7 +38,7 @@ import { isFederated } from '../../contexts/CognitoUserContext/cognitoUserContex
 import { CognitoUserContext } from '../../contexts/CognitoUserContext/CongitoUserContext';
 
 const useStyles = makeStyles(
-  {
+  (theme) => ({
     action: {
       boxShadow: "none",
       padding: "4px 16px",
@@ -55,11 +55,13 @@ const useStyles = makeStyles(
       }
     },
     whiteCardScope: {
+      // Light theme paper is teal, so cards need forcing to white there; in dark mode
+      // keep the theme's dark card so the light text stays readable (T-all-2258).
       "& .MuiCard-root": {
-        backgroundColor: "white"
+        backgroundColor: theme.palette.type === 'dark' ? undefined : "white"
       }
     }
-  }, {name: 'change'}
+  }), {name: 'change'}
 )
 function AccountPreferences(props) {
   const { hidden } = props;
@@ -77,6 +79,7 @@ function AccountPreferences(props) {
   const [chosenMarketId, setChosenMarketId] = useState(undefined);
   const intl = useIntl();
   const classes = useStyles();
+  const theme = useTheme();
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   let markets = [];
   if (myNotHiddenMarketsState.marketDetails) {
@@ -168,7 +171,7 @@ function AccountPreferences(props) {
       title={intl.formatMessage({ id: 'changePasswordHeader' })}
       tabTitle={intl.formatMessage({ id: 'changePasswordHeader' })}
       hidden={hidden}
-      pageBackground="#A9D4D9"
+      pageBackground={theme.palette.type === 'dark' ? undefined : "#A9D4D9"}
     >
       <div className={classes.whiteCardScope} style={{height: '100%', overflow: 'hidden'}}>
       {canChangePassword && (

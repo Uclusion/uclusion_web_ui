@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { Card, Grid, Link, ListItem, makeStyles, Paper, Typography } from '@material-ui/core';
+import { Card, Grid, Link, ListItem, makeStyles, Paper, Typography, useTheme } from '@material-ui/core';
 import { FormattedMessage, useIntl } from 'react-intl';
 import Screen from '../../containers/Screen/Screen';
 import config from '../../config';
@@ -12,11 +12,13 @@ const useStyles = makeStyles((theme) => ({
   root: {
     padding: theme.spacing(2),
   },
+  // Light theme paper is teal, so cards need forcing to white there; in dark mode
+  // keep the theme's dark surfaces so the light text stays readable (S-all-102).
   section: {
     width: '100%',
     padding: theme.spacing(2),
     marginBottom: theme.spacing(2),
-    backgroundColor: 'white',
+    backgroundColor: theme.palette.type === 'dark' ? undefined : 'white',
     '&:last-child': {
       marginBottom: 0,
     },
@@ -27,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: 'auto',
     marginRight: 'auto',
     '& .MuiCard-root': {
-      backgroundColor: 'white',
+      backgroundColor: theme.palette.type === 'dark' ? undefined : 'white',
     },
   },
   row: {
@@ -61,6 +63,7 @@ function Support(props) {
   const [userState] = useContext(AccountContext);
   const intl = useIntl();
   const classes = useStyles();
+  const theme = useTheme();
   const { version } = config;
   const user = userState?.user;
   const externalId = user?.external_id;
@@ -71,7 +74,7 @@ function Support(props) {
       tabTitle={intl.formatMessage({ id: 'support' })}
       hidden={hidden}
       loading={!externalId}
-      pageBackground="#A9D4D9"
+      pageBackground={theme.palette.type === 'dark' ? undefined : "#A9D4D9"}
     >
       <div className={classes.container}>
         <Card>

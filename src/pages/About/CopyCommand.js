@@ -1,4 +1,4 @@
-import { IconButton, Tooltip } from "@material-ui/core";
+import { IconButton, Tooltip, useTheme } from "@material-ui/core";
 import { FileCopyOutlined } from "@material-ui/icons";
 import { useState } from "react";
 import PropTypes from 'prop-types';
@@ -6,12 +6,15 @@ import PropTypes from 'prop-types';
 function CopyCommand (props) {
     const { command } = props;
     const [copied, setCopied] = useState(false);
+    const theme = useTheme();
+    // GitHub-style code block; dark variant keeps it readable on the dark card (T-all-2258).
+    const isDark = theme.palette.type === 'dark';
     return (
       <div
         style={{
           position: 'relative',
-          backgroundColor: '#f6f8fa',
-          border: '1px solid #e1e4e8',
+          backgroundColor: isDark ? '#2d333b' : '#f6f8fa',
+          border: `1px solid ${isDark ? '#444c56' : '#e1e4e8'}`,
           borderRadius: '6px',
           padding: '12px 44px 12px 16px',
         }}
@@ -21,7 +24,7 @@ function CopyCommand (props) {
             display: 'block',
             fontFamily: 'Menlo, Consolas, monospace',
             fontSize: '0.875rem',
-            color: '#24292e',
+            color: isDark ? '#adbac7' : '#24292e',
             whiteSpace: 'pre-wrap',
             wordBreak: 'break-all',
             lineHeight: 1.5,
@@ -46,7 +49,7 @@ function CopyCommand (props) {
       </div>
     );
   }
-  
+
   CopyCommand.propTypes = {
     command: PropTypes.string.isRequired,
   };

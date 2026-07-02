@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Card, FormControl, Grid, ListItem, makeStyles, MenuItem, Select, Typography, } from '@material-ui/core';
+import { Card, FormControl, Grid, ListItem, makeStyles, MenuItem, Select, Typography, useTheme, } from '@material-ui/core';
 import { FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import config from '../../config';
@@ -25,13 +25,15 @@ const useStyles = makeStyles((theme) => ({
   disabled: {
     color: theme.palette.text.disabled,
   },
+  // Light theme paper is teal, so cards need forcing to white there; in dark mode
+  // keep the theme's dark card so the light text stays readable (T-all-2258).
   container: {
     maxWidth: '600px',
     display: 'block',
     marginLeft: 'auto',
     marginRight: 'auto',
     '& .MuiCard-root': {
-      backgroundColor: 'white',
+      backgroundColor: theme.palette.type === 'dark' ? undefined : 'white',
     },
   },
   containerLarge: {
@@ -40,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: 'auto',
     marginRight: 'auto',
     '& .MuiCard-root': {
-      backgroundColor: 'white',
+      backgroundColor: theme.palette.type === 'dark' ? undefined : 'white',
     },
   },
   action: {
@@ -78,6 +80,8 @@ function IntegrationPreferences (props) {
   const { hidden } = props;
   const intl = useIntl();
   const classes = useStyles();
+  const theme = useTheme();
+  const isDark = theme.palette.type === 'dark';
   const [userState] = useContext(AccountContext);
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -108,7 +112,7 @@ function IntegrationPreferences (props) {
       tabTitle={intl.formatMessage({ id: 'integrationPreferencesHeader' })}
       hidden={hidden}
       loading={!user}
-      pageBackground="#A9D4D9"
+      pageBackground={isDark ? undefined : "#A9D4D9"}
     >
       {(integrationType === undefined || integrationType === 'gravatar') && (
         <div className={classes.container} style={{marginTop: '3rem', marginBottom: '1rem'}}>
@@ -237,10 +241,11 @@ function IntegrationPreferences (props) {
               <CopyCommand
                 command={`curl -fsSL https://production.uclusion.com/scripts/install.sh | bash -s -- ${marketId} ${useGroupId}`}
               />
-              <div style={{display: 'flex', alignItems: 'center', margin: '0.75rem 0', color: '#6a737d'}}>
-                <div style={{flex: 1, height: '1px', backgroundColor: '#e1e4e8'}} />
+              <div style={{display: 'flex', alignItems: 'center', margin: '0.75rem 0',
+                color: isDark ? 'rgba(255,255,255,0.6)' : '#6a737d'}}>
+                <div style={{flex: 1, height: '1px', backgroundColor: isDark ? 'rgba(255,255,255,0.2)' : '#e1e4e8'}} />
                 <Typography variant="caption" style={{padding: '0 0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em'}}>or</Typography>
-                <div style={{flex: 1, height: '1px', backgroundColor: '#e1e4e8'}} />
+                <div style={{flex: 1, height: '1px', backgroundColor: isDark ? 'rgba(255,255,255,0.2)' : '#e1e4e8'}} />
               </div>
               <CopyCommand
                 command={`wget -qO- https://production.uclusion.com/scripts/install.sh | bash -s -- ${marketId} ${useGroupId}`}

@@ -17,7 +17,7 @@ import {
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import _ from 'lodash'
 import ShowInVerifiedStageAge from './ShowInVerifiedStageAge'
-import { makeStyles, Typography } from '@material-ui/core';
+import { makeStyles, Typography, useTheme } from '@material-ui/core';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -47,6 +47,7 @@ function PlanningMarketEdit() {
   const intl = useIntl();
   const classes = usePlanFormStyles();
   const myClasses = useStyles();
+  const theme = useTheme();
   const history = useHistory();
   const { location } = history;
   const { pathname } = location;
@@ -106,7 +107,7 @@ function PlanningMarketEdit() {
       tabTitle={intl.formatMessage({ id: 'editWorkspace' })}
       hidden={false}
       loading={_.isEmpty(market)}
-      pageBackground="#A9D4D9"
+      pageBackground={theme.palette.type === 'dark' ? undefined : "#A9D4D9"}
     >
     <Card className={classes.overflowVisible}>
       <CardContent className={classes.cardContent}>

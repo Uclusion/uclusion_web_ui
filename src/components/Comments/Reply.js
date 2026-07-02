@@ -352,6 +352,7 @@ function Reply(props) {
     <div style={{ flexGrow: 1 }}/>
     <div style={{ marginRight: '1rem' }}>
       <TooltipIconButton
+        lightSurface
         icon={<ExpandMoreIcon />}
         size="small"
         noPadding
@@ -402,6 +403,7 @@ function Reply(props) {
         )}
         {myMessage?.type_object_id && !isInbox && !replyBeingEdited && (
           <TooltipIconButton
+            lightSurface
             onClick={(event) => {
               if (!invalidEditEvent(event, history)) {
                 dehighlightMessage(myMessage, messagesDispatch);
@@ -416,6 +418,7 @@ function Reply(props) {
         )}
         {enableActions && isDeletable && (
           <TooltipIconButton
+            lightSurface
             disabled={operationRunning !== false}
             onClick={(event) => {
                 preventDefaultAndProp(event);
@@ -436,6 +439,7 @@ function Reply(props) {
         )}
         {isMyPokableComment(comment, presences, groupPresencesState, marketId) && !isNoNotification() && enableEditing && isEditable && !isSubTask && (
           <TooltipIconButton
+            lightSurface
             disabled={operationRunning !== false}
             onClick={(event) => {
               preventDefaultAndProp(event);
@@ -452,6 +456,7 @@ function Reply(props) {
             pencil on replies everywhere like top level comments do (T-all-2246 follow-on). */}
         {enableEditing && isEditable && (
           <TooltipIconButton
+            lightSurface
             onClick={handleEditClick}
             icon={<Edit fontSize='small' htmlColor={ACTION_BUTTON_COLOR} />}
             size='small'
@@ -461,6 +466,7 @@ function Reply(props) {
         )}
         {showConvert && (
           <TooltipIconButton
+            lightSurface
             disabled={operationRunning !== false}
             onClick={(event) => {
               preventDefaultAndProp(event);
@@ -476,6 +482,7 @@ function Reply(props) {
         )}
         {showConvert && !mobileLayout && (
           <TooltipIconButton
+            lightSurface
             disabled={operationRunning !== false}
             onClick={(event) => {
               preventDefaultAndProp(event);
@@ -494,6 +501,7 @@ function Reply(props) {
         )}
         {showConvert && isTopLevelSubTask && !rootComment?.resolved && (
           <TooltipIconButton
+            lightSurface
             disabled={operationRunning !== false}
             onClick={(event) => {
               preventDefaultAndProp(event);

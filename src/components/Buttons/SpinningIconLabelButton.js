@@ -57,6 +57,11 @@ const outlinedPill = {
     transform: 'translateY(1px) scale(0.985)',
     boxShadow: 'none',
   },
+  // These pills sit on light surfaces in both modes, but the dark theme's disabled
+  // tint is white-alpha, which disappears while an operation is running (T-all-2256).
+  '&.Mui-disabled': {
+    color: 'rgba(0, 0, 0, 0.38)',
+  },
 };
 
 // Explicit white pill for the whiteBackground variant, used where the button
@@ -83,6 +88,11 @@ const useStyles = makeStyles(
         '&:hover': {
           backgroundColor: '#46585a',
           boxShadow: '0 3px 10px rgba(0, 0, 0, 0.45)',
+        },
+        // Keep the dark pill while disabled so the light-alpha tint stays readable
+        // on the dark surface this variant is made for (T-all-2256).
+        '&.Mui-disabled': {
+          color: 'rgba(255, 255, 255, 0.4)',
         },
       },
       buttonWhiteBackground: whitePill,
@@ -156,8 +166,11 @@ function SpinningIconLabelButton(props) {
   const myDisabled = spinningDisabled || disabled;
   // The main affirmative action gets a white icon to sit on the blue fill.
   const resolvedIconColor = primary && !myDisabled ? 'white' : iconColor;
+  // color='disabled' resolves to the theme's white-alpha in dark mode, invisible on the
+  // light pills; match the label's disabled tint per variant instead (T-all-2256).
+  const disabledIconColor = useDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.38)';
   const myIcon = spinningDisabled || disabled ?
-    <Icon color='disabled' style={{fontSize: iconOnly ? 24 : undefined}} /> :
+    <Icon htmlColor={disabledIconColor} style={{fontSize: iconOnly ? 24 : undefined}} /> :
     <Icon style={{ fontSize: iconOnly ? 24 : undefined }} htmlColor={resolvedIconColor} />;
   const BaseButton = focus ? FocusRippleButton : Button;
   let className;
@@ -167,7 +180,7 @@ function SpinningIconLabelButton(props) {
     className = whiteBackground ? classes.buttonNoMarginWhite : classes.buttonNoMargin;
   } else if (whiteBackground) {
     className = classes.buttonWhiteBackground;
-  } else if (useDark && !myDisabled) {
+  } else if (useDark) {
     className = classes.buttonDark;
   } else {
     className = classes.button;

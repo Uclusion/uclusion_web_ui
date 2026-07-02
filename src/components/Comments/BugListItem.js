@@ -293,12 +293,14 @@ function BugListItem(props) {
                 {!mobileLayout && (
                   <DateLabelHovered>
                     {expansionOpen ? <TooltipIconButton
+                        lightSurface={smallFont}
                         icon={<ExpandLess />}
                         size="small"
                         noPadding
                         translationId="rowCollapse"
                       />
                       : <TooltipIconButton
+                        lightSurface={smallFont}
                         icon={<ExpandMoreIcon />}
                         size="small"
                         noPadding

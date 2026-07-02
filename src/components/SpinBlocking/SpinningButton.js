@@ -44,9 +44,11 @@ function SpinningButton(props) {
     autoFocus={focus}
     onClick={myOnClick}
     id={id}
-    endIcon={EndIcon ? (spinningDisabled || disabled ? <EndIcon color='disabled' /> : <EndIcon htmlColor={iconColor} />)
+    // Disabled wizard buttons keep a light #ecf0f1 fill in both modes, so use a dark
+    // disabled tint instead of color='disabled', which is white-alpha in dark mode (T-all-2256).
+    endIcon={EndIcon ? (spinningDisabled || disabled ? <EndIcon htmlColor='rgba(0, 0, 0, 0.38)' /> : <EndIcon htmlColor={iconColor} />)
       : undefined}
-    startIcon={Icon ? (spinningDisabled || disabled ? <Icon color='disabled' /> : <Icon htmlColor={iconColor} />)
+    startIcon={Icon ? (spinningDisabled || disabled ? <Icon htmlColor='rgba(0, 0, 0, 0.38)' /> : <Icon htmlColor={iconColor} />)
       : undefined}
     {...rest}
   >

@@ -102,6 +102,9 @@ const useStyles = makeStyles((theme) => ({
     display: 'inline-block',
     fontSize: '10px',
     fontWeight: 'bold',
+    // The composer footer keeps its light surface in dark mode, so the theme's
+    // white text is unreadable here (T-all-2254).
+    color: theme.palette.type === 'dark' ? 'black' : undefined,
   },
   button: {
     borderRadius: '4px',

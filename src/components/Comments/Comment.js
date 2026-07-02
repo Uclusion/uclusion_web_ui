@@ -1067,6 +1067,7 @@ function Comment(props) {
           // to the comment on click (isInbox && isSent), so back its blue outline with the same
           // "open" icon.
           <TooltipIconButton
+            lightSurface
             icon={<OpenInNewIcon style={{ marginLeft: '0.5rem', marginRight: '1rem' }}
                                  htmlColor={theme.palette.type === 'dark' ? 'black' : '#2F80ED'} />}
             onClick={(event) => {
@@ -1080,6 +1081,7 @@ function Comment(props) {
         )}
         {displayEditing && !beingEdited && (
           <TooltipIconButton
+            lightSurface
             onClick={toggleEdit}
             icon={<Edit fontSize='small' style={{marginRight: '1rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
             translationId="edit"
@@ -1088,6 +1090,7 @@ function Comment(props) {
         {showLinker && !linkerShouldBeFirst && !reallyNoAuthor && !isMarketTodo && linker}
         {isMyPokableComment(comment, presences, groupPresencesState, marketId) && enableActions && isEditable && !beingEdited && (
           <TooltipIconButton
+            lightSurface
             disabled={operationRunning !== false}
             onClick={(event) => {
               preventDefaultAndProp(event);
@@ -1104,6 +1107,7 @@ function Comment(props) {
         {enableActions && isDeletable && (
           <div style={{marginRight: '2rem'}}>
             <TooltipIconButton
+              lightSurface
               disabled={operationRunning !== false}
               onClick={() => {
                 // J-all-325 (T-all-2197): open delete inline when inside a container that supports it.
@@ -1419,6 +1423,7 @@ function Comment(props) {
       // blue outline up with an "open" icon. Distinct from the expand chevron
       // below, which only expands the comment in place.
       <TooltipIconButton
+        lightSurface
         icon={<OpenInNewIcon htmlColor={theme.palette.type === 'dark' ? 'black' : '#2F80ED'} />}
         onClick={(event) => {
           preventDefaultAndProp(event);
@@ -1430,6 +1435,7 @@ function Comment(props) {
       />
     )}
     <TooltipIconButton
+      lightSurface
       icon={<ExpandMoreIcon htmlColor={theme.palette.type === 'dark' ? 'black' : undefined} />}
       onClick={(event) => {
         preventDefaultAndProp(event);

@@ -801,7 +801,9 @@ function PlanningInvestible(props) {
           refToTop.current?.scrollIntoView({ block: "end" });
         }}
         id='investible-header'
-        indicatorColors={['#2F80ED', '#2F80ED', '#2F80ED']}
+        // Four entries: with the Assistance tab shown, Notes is the fourth tab and an
+        // uncovered index falls back to the treasury styles' black indicator (T-all-2257).
+        indicatorColors={['#2F80ED', '#2F80ED', '#2F80ED', '#2F80ED']}
         style={{ paddingBottom: '0.25rem', zIndex: 8, position: mobileLayout ? undefined : 'fixed',
           paddingTop: mobileLayout ? undefined : '0.5rem', width: '100%', marginTop: '-15px', paddingLeft: 0,
           marginLeft: '-0.5rem' }}>

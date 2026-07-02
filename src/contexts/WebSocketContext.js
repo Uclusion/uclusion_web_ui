@@ -7,7 +7,7 @@ import { sendInfoPersistent, toastError } from '../utils/userMessage'
 import { pushMessage } from '../utils/MessageBusUtils'
 import { getLoginPersistentItem, setLoginPersistentItem } from '../components/localStorageUtils'
 import { isMobileDevice, isSignedOut, onSignOut } from '../utils/userFunctions'
-import { refreshNotifications, refreshVersions, VERSIONS_EVENT } from '../api/versionedFetchUtils';
+import { ensureRefreshRunner, refreshNotifications, refreshVersions, VERSIONS_EVENT } from '../api/versionedFetchUtils';
 import { PUSH_ACCOUNT_CHANNEL, PUSH_HOME_USER_CHANNEL } from './AccountContext/accountContextMessages'
 import { getLogin } from '../api/homeAccount';
 import { getAppVersion } from '../api/sso';
@@ -166,12 +166,15 @@ function WebSocketProvider(props) {
   }, [hasNonDemo]);
 
   useEffect(() => {
-    const interval = setInterval((refresh) => {
+    const interval = setInterval(() => {
       if (!isSignedOut()) {
-        refresh();
+        // The drift runner in versionedFetchUtils already refreshes every MAX_DRIFT_TIME;
+        // calling refreshVersions here too stacked a second full sync every five minutes
+        // (C-all-1066). Just guarantee the runner exists (it also restarts a dead one).
+        ensureRefreshRunner();
         checkAppVersion(hasNonDemoRef);
       }
-    }, 300000, ()=>refreshVersions().then(() => console.info('Refreshed versions from interval')));
+    }, 300000);
     return () => {
       clearInterval(interval);
     };

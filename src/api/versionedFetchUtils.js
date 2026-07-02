@@ -76,7 +76,18 @@ let runner;
 let refreshInProgress = false;
 let refreshQueued = false;
 let queuedDispatchers = undefined;
+// When the last refresh completed without error - lets speculative (focus/visibility/online)
+// refreshes skip when the data is known fresh (C-all-1066).
+let lastSuccessfulRefreshMs = 0;
 const matchErrorHandlingVersionRefresh = (dispatchers=undefined) => {
+  // A dead link burns 30s abort + retry per call and chains queued refreshes behind the
+  // failures, so on bad internet the tab syncs back to back continuously. The browser
+  // reliably knows definite offline - skip outright and let the 'online' listener or the
+  // drift runner pick up when connectivity returns (C-all-1066).
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    console.info('Not refreshing while offline');
+    return Promise.resolve(false);
+  }
   if (refreshInProgress) {
     refreshQueued = true;
     if (dispatchers) {
@@ -85,8 +96,10 @@ const matchErrorHandlingVersionRefresh = (dispatchers=undefined) => {
     return Promise.resolve(false);
   }
   refreshInProgress = true;
+  let refreshSucceeded = true;
   return doVersionRefresh(dispatchers)
     .catch((error) => {
+      refreshSucceeded = false;
       if (error instanceof MatchError) {
         // just log match problems
         console.info('Ignoring match error');
@@ -98,6 +111,9 @@ const matchErrorHandlingVersionRefresh = (dispatchers=undefined) => {
       }
     })
     .then(() => {
+      if (refreshSucceeded) {
+        lastSuccessfulRefreshMs = Date.now();
+      }
       refreshInProgress = false;
       if (refreshQueued) {
         refreshQueued = false;
@@ -113,16 +129,35 @@ export function startRefreshRunner() {
 }
 
 /**
+ * Starts the drift runner if this tab does not have one, otherwise does nothing.
+ * Lets periodic callers guarantee max drift without stacking an extra refresh on top of
+ * the runner's own interval (C-all-1066 collapsed the duplicate 5 minute repeaters).
+ */
+export function ensureRefreshRunner() {
+  if (runner == null) {
+    return startRefreshRunner();
+  }
+}
+
+/**
  * Executes a version refresh, coalescing with any refresh already running in this tab,
  * and makes sure a refreshRunner is started so max drift is honored
  * @param dispatchers
+ * @param skipIfRefreshedWithinMs marks the refresh speculative (nothing says data changed -
+ *        e.g. window focus): skip when a refresh is already in flight or one succeeded
+ *        within this many millis, instead of queueing another full cycle
  * @returns {Promise<*>}
  */
-export function refreshVersions (dispatchers=undefined) {
+export function refreshVersions (dispatchers=undefined, skipIfRefreshedWithinMs=undefined) {
   // Unless leader this refresh will only update memory and not disk - so safe
   if (isSignedOut()) {
     console.info('Not refreshing when signed out')
     return Promise.resolve(true); // also do nothing when signed out
+  }
+  if (skipIfRefreshedWithinMs !== undefined &&
+      (refreshInProgress || Date.now() - lastSuccessfulRefreshMs < skipIfRefreshedWithinMs)) {
+    console.info('Skipping speculative refresh - already fresh or in progress');
+    return Promise.resolve(true);
   }
   return matchErrorHandlingVersionRefresh(dispatchers).then(() => {
     // If missing always start a runner so max drift is honored

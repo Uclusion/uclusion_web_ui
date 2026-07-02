@@ -60,6 +60,9 @@ import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContext
 const DATA_POLL_FAST_MS = 2000;
 const DATA_POLL_SLOW_MS = 30000;
 const DATA_POLL_FAST_CUTOFF_MS = 60000;
+// Focus/visibility/online triggered refreshes are speculative - skip them when a sync
+// succeeded this recently (websocket pushes and the drift runner cover real changes).
+const VIEW_CHANGE_REFRESH_STALENESS_MS = 30000;
 
 function Root(props) {
   const { authState } = props;
@@ -76,7 +79,12 @@ function Root(props) {
   const [commentsState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [groupsState] = useContext(MarketGroupsContext);
-  const [offlineTimer, setOfflineTimer] = useState(undefined);
+  // A ref, not state: the window listeners below are registered exactly once, so they
+  // must read the current timer through a stable ref. When this was state, the 'online'
+  // listener's stale closure forced re-registering all listeners while the timer was set
+  // (the old `|| offlineTimer` guard escape), which piled up duplicate listeners on every
+  // wifi flap and multiplied sync cycles on bad internet (C-all-1066).
+  const offlineTimerRef = useRef(undefined);
   // T-all-2209 (Q-all-156 O-2): top-level edit-comment modal state, keyed by
   // comment id so it survives the comment's row unmounting when a task is moved.
   const [editComment, setEditComment] = useState(undefined);
@@ -301,11 +309,18 @@ function Root(props) {
         // refresh if entering - lock will prevent concurrent refresh
         // Concurrent market load is something already happening potentially from leader context
         // However, should not be anything to get until invite or demo api called
-        refreshVersions().catch(() => console.warn('Error refreshing'));
+        // Speculative refresh: skip when a refresh is in flight or one succeeded recently,
+        // so focus + visibilitychange both firing on a tab return costs one cycle, not two,
+        // and rapid tab flipping on bad internet does not queue endless syncs (C-all-1066).
+        refreshVersions(undefined, VIEW_CHANGE_REFRESH_STALENESS_MS)
+          .catch(() => console.warn('Error refreshing'));
       }
     }
 
-    if ((!window.myListenerMarker || offlineTimer) && isUserLoaded) {
+    // Register exactly once per page load. Everything mutable the listeners touch is a
+    // ref or a stable setter, so there is no stale-closure reason to ever re-register
+    // (the old offlineTimer escape hatch duplicated listeners on every wifi flap).
+    if (!window.myListenerMarker && isUserLoaded) {
       window.myListenerMarker = true;
 
       window.addEventListener('load', () => {
@@ -319,18 +334,22 @@ function Root(props) {
       window.addEventListener('online', () => {
         console.info('Online listener');
         setOnline(true);
-        clearTimeout(offlineTimer);
-        setOfflineTimer(undefined);
+        clearTimeout(offlineTimerRef.current);
+        offlineTimerRef.current = undefined;
         setShowOfflineMessage(false);
         setOperationInProgress(false);
+        // Connectivity is back - sync now instead of waiting for the next interval tick,
+        // with the same staleness guard so a flapping connection cannot cause churn.
+        refreshVersions(undefined, VIEW_CHANGE_REFRESH_STALENESS_MS)
+          .catch(() => console.warn('Error refreshing'));
       }, { passive: true })
       window.addEventListener('offline', () => {
         console.info('Offline listener');
         setOnline(false);
-        const offlineTimer = setTimeout(() => {
+        clearTimeout(offlineTimerRef.current);
+        offlineTimerRef.current = setTimeout(() => {
           setShowOfflineMessage(true);
         }, 5000);
-        setOfflineTimer(offlineTimer);
       }, { passive: true })
       document.addEventListener('visibilitychange', () => {
         console.info('Visibility change listener');
@@ -340,7 +359,7 @@ function Root(props) {
     //  window.onanimationiteration = console.debug;
       registerMarketTokenListeners();
     }
-  },  [history, setOnline, location, isUserLoaded, offlineTimer, setShowOfflineMessage]);
+  },  [history, setOnline, isUserLoaded, setShowOfflineMessage]);
 
   if (authState !== 'signedIn' || action === 'supportWorkspace' || (action === 'demo' && marketsState.initializing) || 
     (isRootPath && marketJoinedUser && _.isEmpty(defaultMarketLink))||(isTicketPath(pathname)&&!getTicket(ticketState, pathname.substring(1)))) {

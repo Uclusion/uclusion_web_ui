@@ -143,6 +143,22 @@ import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 import { ACTION_BUTTON_COLOR, DARK_INFO_COLOR, DARK_TEXT_BACKGROUND_COLOR } from '../Buttons/ButtonConstants';
 import CondensedTodos from '../../pages/Investible/Planning/CondensedTodos';
 
+// On the Notes tab a note's day header is bucketed by the note's own tz (getLocalDayKey with
+// note.tz, per Q-all-59) so a note's day does not move when the viewer travels. The mobile card
+// date must render in that same tz or the header and card disagree (B-all-459) - traveling to a
+// far tz otherwise buckets a note under one day while its card shows the next. Everywhere else the
+// viewer's local tz is correct, so only the Notes tab passes a tz.
+function formatCommentDate(intl, comment, inNotesTab) {
+  if (inNotesTab && !_.isEmpty(comment.tz)) {
+    try {
+      return intl.formatDate(comment.updated_at, { timeZone: comment.tz });
+    } catch {
+      // Invalid/unknown tz - fall through to the viewer's local formatting.
+    }
+  }
+  return intl.formatDate(comment.updated_at);
+}
+
 export const useCommentStyles = makeStyles(
   theme => {
     return {
@@ -955,7 +971,7 @@ function Comment(props) {
   const dateInfo = <>
     {mobileLayout && (
       <Typography className={classes.timeElapsed} variant="body2">
-        {intl.formatDate(comment.updated_at)}
+        {formatCommentDate(intl, comment, inNotesTab)}
       </Typography>
     )}
     {!mobileLayout && (

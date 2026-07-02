@@ -7,7 +7,7 @@ import { sendInfoPersistent, toastError } from '../utils/userMessage'
 import { pushMessage } from '../utils/MessageBusUtils'
 import { getLoginPersistentItem, setLoginPersistentItem } from '../components/localStorageUtils'
 import { isMobileDevice, isSignedOut, onSignOut } from '../utils/userFunctions'
-import { ensureRefreshRunner, refreshNotifications, refreshVersions, VERSIONS_EVENT } from '../api/versionedFetchUtils';
+import { ensureRefreshRunner, refreshNotifications, refreshVersionsFromPush, VERSIONS_EVENT } from '../api/versionedFetchUtils';
 import { PUSH_ACCOUNT_CHANNEL, PUSH_HOME_USER_CHANNEL } from './AccountContext/accountContextMessages'
 import { getLogin } from '../api/homeAccount';
 import { getAppVersion } from '../api/sso';
@@ -119,7 +119,8 @@ function WebSocketProvider(props) {
         console.info('WebSocket message received', message);
         const { event_type: event, version, app_version: currentVersion,
           cache_clear_version: cacheClearVersion,
-          script_reinstall_version: scriptReinstallVersion} = JSON.parse(message.data);
+          script_reinstall_version: scriptReinstallVersion,
+          object_id: objectId, object_id_one_two: objectIdOneTwo } = JSON.parse(message.data);
         switch (event) {
           case 'pong':
             break;
@@ -134,11 +135,15 @@ function WebSocketProvider(props) {
             pushMessage(PUSH_ACCOUNT_CHANNEL, { event: VERSIONS_EVENT, version });
             break;
           case 'notification':
-            refreshVersions().then(() => console.info('Refreshed versions from notifications push'));
+            // Notifications are not market objects so there is nothing to verify in storage
+            refreshVersionsFromPush().then(() => console.info('Refreshed versions from notifications push'));
             refreshNotifications();
             break;
           default:
-            refreshVersions().then(() => console.info('Refreshed versions from push'));
+            // event_type is the object_type and object_id the market id (T-all-2259), so the
+            // refresh can verify the pushed object landed and retry with backoff if not
+            refreshVersionsFromPush({ objectType: event, marketId: objectId, version, objectIdOneTwo })
+              .then(() => console.info('Refreshed versions from push'));
             break;
         }
       },

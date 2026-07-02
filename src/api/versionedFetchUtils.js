@@ -110,7 +110,7 @@ const matchErrorHandlingVersionRefresh = (dispatchers=undefined) => {
         console.error(error);
       }
     })
-    .then(() => {
+    .then((dirtyMarketCount) => {
       if (refreshSucceeded) {
         lastSuccessfulRefreshMs = Date.now();
       }
@@ -121,6 +121,8 @@ const matchErrorHandlingVersionRefresh = (dispatchers=undefined) => {
         queuedDispatchers = undefined;
         return matchErrorHandlingVersionRefresh(dispatchersForQueued);
       }
+      // undefined after an error (the catch above), a number after a clean run
+      return dirtyMarketCount;
     });
 };
 export function startRefreshRunner() {
@@ -159,11 +161,83 @@ export function refreshVersions (dispatchers=undefined, skipIfRefreshedWithinMs=
     console.info('Skipping speculative refresh - already fresh or in progress');
     return Promise.resolve(true);
   }
-  return matchErrorHandlingVersionRefresh(dispatchers).then(() => {
+  return matchErrorHandlingVersionRefresh(dispatchers).then((dirtyMarketCount) => {
     // If missing always start a runner so max drift is honored
     if (runner == null){
-      return startRefreshRunner();
+      return startRefreshRunner().then(() => dirtyMarketCount);
     }
+    return dirtyMarketCount;
+  });
+}
+
+// Verified push sync (T-all-2259): a push names the exact object and version that caused
+// it, so instead of trusting one refresh we keep refreshing with backoff until that object
+// is actually in storage - covering the async version indicator write racing the refresh
+// (T-all-2252). Capped; the drift runner remains the final backstop.
+const PUSH_VERIFY_MAX_ATTEMPTS = 5;
+const PUSH_VERIFY_BASE_DELAY_MS = 2000;
+const pendingPushChecks = [];
+let pushVerifyTimer = undefined;
+
+function signatureForPush(push) {
+  const { objectType, version, objectIdOneTwo } = push;
+  // object_id_one_two is `${object_id_one}_${object_id_two}` for pair types (investment,
+  // group_capability, market_investible) and just object_id_one otherwise (Q-all-193 O-1).
+  const [objectIdOne, objectIdTwo] = objectIdOneTwo.split('_');
+  const signature = { object_type: objectType, version, object_id_one: objectIdOne };
+  if (objectIdTwo) {
+    signature.object_id_two = objectIdTwo;
+  }
+  return signature;
+}
+
+function verifyPendingPushes() {
+  if (_.isEmpty(pendingPushChecks)) {
+    return;
+  }
+  return getStorageStates().then((storageStates) => {
+    _.remove(pendingPushChecks, (check) => {
+      if (checkSignatureInStorage(check.marketId, check.signature, storageStates)) {
+        return true;
+      }
+      if (check.attempts >= PUSH_VERIFY_MAX_ATTEMPTS) {
+        console.warn('Giving up waiting for pushed object - drift runner will cover');
+        console.warn(check.signature);
+        return true;
+      }
+      return false;
+    });
+    if (_.isEmpty(pendingPushChecks) || pushVerifyTimer) {
+      return;
+    }
+    // Back off on the youngest check so a fresh push keeps the next retry snappy
+    const attempts = Math.min(...pendingPushChecks.map((check) => check.attempts));
+    const delay = PUSH_VERIFY_BASE_DELAY_MS * Math.pow(2, attempts);
+    console.info(`Pushed object not in storage yet - retrying sync in ${delay}ms`);
+    pushVerifyTimer = setTimeout(() => {
+      pushVerifyTimer = undefined;
+      pendingPushChecks.forEach((check) => { check.attempts += 1; });
+      refreshVersions()
+        .then(() => verifyPendingPushes())
+        .catch(() => console.warn('Error in push verify refresh'));
+    }, delay);
+  });
+}
+
+/**
+ * Refresh for a server push. When the push payload identifies the changed object
+ * (object_type/market id/version/object_id_one_two per T-all-2259), refresh and then
+ * verify that object landed in storage, retrying with backoff until it does.
+ * @param push {objectType, marketId, version, objectIdOneTwo} - omit for pushes that
+ *        do not carry a market object (e.g. notification events)
+ */
+export function refreshVersionsFromPush(push=undefined) {
+  if (push?.objectIdOneTwo && push?.version !== undefined && push?.marketId) {
+    pendingPushChecks.push({ marketId: push.marketId, signature: signatureForPush(push), attempts: 0 });
+  }
+  return refreshVersions().then((dirtyMarketCount) => {
+    verifyPendingPushes();
+    return dirtyMarketCount;
   });
 }
 
@@ -379,6 +453,9 @@ export async function doVersionRefresh(dispatchers) {
   await updateMarkets(backgroundList, backgroundMarketsStruct, MAX_CONCURRENT_ARCHIVE_API_CALLS, storageStates);
   sendMarketsStruct(backgroundMarketsStruct, dispatchers);
   console.info('Ending versions update');
+  // How many markets were dirty - lets push-triggered callers detect a refresh that
+  // raced the async version indicator write and found nothing (T-all-2252).
+  return inlineList.length + foregroundList.length + backgroundList.length;
 }
 
 /**

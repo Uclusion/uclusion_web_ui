@@ -59,6 +59,8 @@ export const wizardStyles = makeStyles(
       introSubText: {
         marginTop: '1rem',
         marginBottom: '1rem',
+        // Match the 4px left inset comment cards get from CommentBox's Grid spacing (B-all-458).
+        paddingLeft: '4px',
       },
       containerAll: {
         background: '#efefef',

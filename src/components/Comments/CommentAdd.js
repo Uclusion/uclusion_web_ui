@@ -435,8 +435,11 @@ function CommentAdd(props) {
       });
   }
 
+  // Comment cards in wizards carry a 4px left inset from CommentBox's Grid spacing (JobDescription
+  // compensates the same way), so inset the composer to keep it left aligned with them - B-all-458.
   return (
-    <div className={classes.editor} style={{paddingBottom: isWizard ? undefined : '1rem'}}>
+    <div className={classes.editor}
+         style={{paddingBottom: isWizard ? undefined : '1rem', marginLeft: isWizard ? '4px' : undefined}}>
       {Editor}
       {isWizard && (
         <div style={{marginTop: '40px'}}>

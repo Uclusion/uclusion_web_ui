@@ -168,17 +168,20 @@ function ReplyStep(props) {
         isReply
         useCompression={useCompression}
       />
+      {/* 4px inset keeps the pills left aligned with the comment card and composer - B-all-458. */}
       {showSubTask && (
-        <ChoicePills
-          ariaLabel="add-reply-type"
-          value={commentType}
-          onChange={(value) => setCommentType(value)}
-          options={[REPLY_TYPE, REPORT_TYPE].map((aType) => ({
-            value: aType,
-            id: `${aType}`,
-            label: <FormattedMessage id={`commentTypeLabel${showSubTask && aType === REPLY_TYPE ? 'SubTask' : ''}${aType}`} />,
-          }))}
-        />
+        <div style={{marginLeft: '4px'}}>
+          <ChoicePills
+            ariaLabel="add-reply-type"
+            value={commentType}
+            onChange={(value) => setCommentType(value)}
+            options={[REPLY_TYPE, REPORT_TYPE].map((aType) => ({
+              value: aType,
+              id: `${aType}`,
+              label: <FormattedMessage id={`commentTypeLabel${showSubTask && aType === REPLY_TYPE ? 'SubTask' : ''}${aType}`} />,
+            }))}
+          />
+        </div>
       )}
       {/* noteReply keeps the divider - it separates the parent note from the editor (T-all-2248). */}
       {!showSubTask && !noteOnly && (

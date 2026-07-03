@@ -911,8 +911,8 @@ function Comment(props) {
   const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId);
   const showConfigureVotingButton = commentType === QUESTION_TYPE && !inArchives &&
     !_.isEmpty(inlineInvestibles) && !resolved && !removeActions && myPresence === createdBy;
-  const showResolve = isSent !== false && enableActions && !resolved && !isInfo && (!isNote || !investibleId);
-  const showReopen = resolved && enableActions && (commentType !== REPORT_TYPE || !investibleId);
+  const showResolve = isSent !== false && !inArchives && !removeActions && !resolved && !isInfo && (!isNote || !investibleId);
+  const showReopen = resolved && !inArchives && !removeActions && (commentType !== REPORT_TYPE || !investibleId);
   const showAddVoting = commentType === SUGGEST_CHANGE_TYPE && !inArchives && !resolved && !inlineMarketId
     && marketType === PLANNING_TYPE && !removeActions && !isSingleUser;
   const yourVote = myInlinePresence && myInlinePresence.investments &&

@@ -267,7 +267,7 @@ function WorkListItem(props) {
                 {isDeletable && (
                   <TooltipIconButton
                     onClick={remove}
-                    icon={<NotificationDeletion />}
+                    icon={<NotificationDeletion fill={theme.palette.type === 'dark' ? 'white' : undefined} />}
                     size="small"
                     noPadding
                     translationId="notificationDismiss"

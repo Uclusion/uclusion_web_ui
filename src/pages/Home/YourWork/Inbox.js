@@ -198,7 +198,7 @@ function Inbox(props) {
             )}
             {(checkAll || !_.isEmpty(determinate)) && 0 === tabIndex && !isOnWorkItem && (
               <TooltipIconButton
-                icon={<NotificationDeletion />}
+                icon={<NotificationDeletion fill={theme.palette.type === 'dark' ? 'white' : undefined} />}
                 onClick={() => {
                   // UNREAD are the only ones that can be selected
                   let toProcess = messagesFull.filter((message) => message.type_object_id.startsWith('UNREAD'));

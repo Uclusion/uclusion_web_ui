@@ -54,6 +54,14 @@ const StyledIconButton = styled(IconButton)`
   &.MailListItem-checked {
     color: rgba(0, 0, 0, 0.87);
   }
+  /* T-all-2262: rows follow the dark theme, so black-alpha checkbox colors vanish there */
+  &.MailListItem-dark {
+    color: rgba(255, 255, 255, 0.3);
+  }
+  &.MailListItem-dark:hover,
+  &.MailListItem-dark.MailListItem-checked {
+    color: white;
+  }
 `;
 
 const Text = styled("div")`
@@ -235,7 +243,7 @@ function WorkListItem(props) {
             <Box flexShrink={0} className={gutterStyles.parent} key={`box${id}`}>
               {!mobileLayout && (
                 <StyledIconButton
-                  className={cx(checked && "MailListItem-checked")}
+                  className={cx(checked && "MailListItem-checked", theme.palette.type === 'dark' && "MailListItem-dark")}
                   style={{visibility: useSelect ? 'visible' : 'hidden'}}
                   classes={actionStyles}
                   onClick={(event) => {

@@ -624,7 +624,7 @@ function Comment(props) {
   const [userState] = useContext(AccountContext);
   const [hashFragment, noHighlightId, setNoHighlightId] = useContext(ScrollContext);
   const hasUser = userIsLoaded(userState, marketsState);
-  const enableActions = !inArchives && !stagePreventsActions;
+  const enableActions = !inArchives && !stagePreventsActions && !removeActions;
   const enableEditing = enableActions && !resolved; //resolved comments or those in archive aren't editable
   const { editComment, openEditComment, closeEditComment } = useContext(EditCommentContext);
   const [editStateFull, editDispatch] = usePageStateReducer('commentEdit');
@@ -911,18 +911,15 @@ function Comment(props) {
   const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId);
   const showConfigureVotingButton = commentType === QUESTION_TYPE && !inArchives &&
     !_.isEmpty(inlineInvestibles) && !resolved && !removeActions && myPresence === createdBy;
-  const showResolve = isSent !== false && enableActions && !resolved && !removeActions && !isInfo
-    && (!isNote || !investibleId);
-  const showReopen = resolved && !removeActions && enableActions
-    && (commentType !== REPORT_TYPE || !investibleId);
+  const showResolve = isSent !== false && enableActions && !resolved && !isInfo && (!isNote || !investibleId);
+  const showReopen = resolved && enableActions && (commentType !== REPORT_TYPE || !investibleId);
   const showAddVoting = commentType === SUGGEST_CHANGE_TYPE && !inArchives && !resolved && !inlineMarketId
     && marketType === PLANNING_TYPE && !removeActions && !isSingleUser;
   const yourVote = myInlinePresence && myInlinePresence.investments &&
     myInlinePresence.investments.find((investment) => !investment.deleted);
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&
-    !myInlinePresence.abstain && !yourVote && !removeActions && myMessage?.type === NOT_FULLY_VOTED_TYPE;
-  const showUnmute = !removeActions && myInlinePresence.abstain && !resolved && enableActions
-    && ([QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType));
+    !myInlinePresence.abstain && !yourVote && myMessage?.type === NOT_FULLY_VOTED_TYPE;
+  const showUnmute = myInlinePresence.abstain && !resolved && enableActions && ([QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType));
   const showSubTask = isTask && myPresence === createdBy;
   // On a task authored by someone else the single button stays a plain "Reply"; offer a separate
   // "Grouped" button beside it so a non-author can still open a grouped subtask or note.
@@ -1282,7 +1279,7 @@ function Comment(props) {
                 {!mobileLayout && intl.formatMessage({ id: 'addNote' })}
               </SpinningIconLabelButton>
             )}
-            {isSent !== false && isTask && resolved && enableActions && !removeActions && (
+            {isSent !== false && isTask && resolved && enableActions && (
               <SpinningIconLabelButton
                 onClick={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
                   undefined, undefined, id, typeObjectId))}
@@ -1294,7 +1291,7 @@ function Comment(props) {
                 {!mobileLayout && intl.formatMessage({ id: 'addNote' })}
               </SpinningIconLabelButton>
             )}
-            {(!investibleId || isNote) && !removeActions && enableEditing && !mobileLayout && (
+            {(!investibleId || isNote) && !removeActions && !mobileLayout && (
               <FormControlLabel
                 id='isVisibleCheckbox'
                 className={classes.formControlLabel}

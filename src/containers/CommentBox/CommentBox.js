@@ -6,7 +6,7 @@ import Comment from '../../components/Comments/Comment';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
-import { getFullStage, isNotDoingStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getFullStage, getInReviewStage, isNotDoingStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { getFormerStageId, isSingleAssisted } from '../../utils/commentFunctions';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { getInvestibleComments } from '../../contexts/CommentsContext/commentsContextHelper';
@@ -157,7 +157,7 @@ function CommentBox(props) {
             <Comment
               resolvedStageId={(isRequiresInput && [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commmentType))
               || (isInBlocking && commmentType === ISSUE_TYPE) ? resolvedStageId : undefined}
-              stagePreventsActions={isNotDoingStage(useFullStage) || removeActions}
+              stagePreventsActions={isNotDoingStage(useFullStage) || getInReviewStage(useFullStage)}
               removeActions={removeActions}
               investibleComments={investibleComments}
               showVoting={showVoting}

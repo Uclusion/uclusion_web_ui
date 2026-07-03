@@ -57,7 +57,7 @@ function JobDescription(props) {
   const nonTodoComments = comments?.filter((comment) => comment.comment_type !== TODO_TYPE);
   const nonTodoCommentsRoots = nonTodoComments?.filter((comment) => comment.comment_type !== REPLY_TYPE);
   const normalDescriptionDisplay = showDiff || !isLargeDisplay(description);
-  const fullDescription = <DescriptionOrDiff id={investibleId} description={description} showDiff={showDiff} darkModeNoBackground={isDark} />;
+  const fullDescription = <DescriptionOrDiff id={investibleId} description={description} showDiff={showDiff} darkModeNoBackground={isDark} isWhiteText={isDark} />;
   const planningMarketId = commentMarketId || marketId;
 
   return (

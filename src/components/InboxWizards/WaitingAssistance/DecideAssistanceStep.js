@@ -25,8 +25,12 @@ import { getFormerStageId, handleAcceptSuggestion, isSingleAssisted } from '../.
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
 import { pokeComment } from '../../../api/users';
-import Link from '@material-ui/core/Link';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
+import { getCommentPokeList } from '../../../utils/pokeUtils';
+import PokeReminder from '../PokeReminder';
 import { YELLOW_LEVEL } from '../../../constants/notifications';
 import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
@@ -55,6 +59,11 @@ function DecideAssistanceStep(props) {
   const isSingle = commentRoot.investible_id ? isSingleAssisted(investibleComments, assigned) : false;
   const isSuggest = commentRoot.comment_type === SUGGEST_CHANGE_TYPE;
   const { useCompression, parentElementId } = formData;
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const pokeList = getCommentPokeList(commentRoot, marketId, marketPresences, groupPresencesState,
+    marketPresencesState, marketComments);
 
   function myOnFinish() {
     if (commentRoot.investible_id) {
@@ -110,24 +119,14 @@ function DecideAssistanceStep(props) {
           ' critical bug'))}?
       </Typography>
       {isSingle && (
-        <Typography className={classes.introSubText} variant="subtitle1">
-          Resolving moves this job to {nextStageName}. Poke to resend notifications and
-          message <Link href="https://documentation.uclusion.com/notifications" target="_blank">configured
-          channels</Link>.
-        </Typography>
+        <PokeReminder pokeList={pokeList} prefix={<>Resolving moves this job to {nextStageName}.</>} />
       )}
       {isBug && (
-        <Typography className={classes.introSubText} variant="subtitle1">
-          Moving this bug to normal removes it from triage but sends a one time notification. Poke to resend
-          notifications and message <Link href="https://documentation.uclusion.com/notifications" target="_blank">configured
-          channels</Link>.
-        </Typography>
+        <PokeReminder pokeList={pokeList}
+                      prefix="Moving this bug to normal removes it from triage but sends a one time notification." />
       )}
       {!isBug && !isSingle && (
-        <Typography className={classes.introSubText} variant="subtitle1">
-          Poke to resend notifications and message <Link href="https://documentation.uclusion.com/notifications"
-                                                         target="_blank">configured channels</Link>.
-        </Typography>
+        <PokeReminder pokeList={pokeList} />
       )}
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
                       removeActions

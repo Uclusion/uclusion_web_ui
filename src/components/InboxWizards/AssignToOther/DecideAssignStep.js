@@ -12,14 +12,21 @@ import UsefulRelativeTime from '../../TextFields/UseRelativeTime';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { useIntl } from 'react-intl';
 import { pokeInvestible } from '../../../api/users';
-import Link from '@material-ui/core/Link';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { getHumanPresences } from '../../../utils/pokeUtils';
+import PokeReminder from '../PokeReminder';
 
 function DecideAssignStep(props) {
   const { marketId, investibleId } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [investiblesState] = useContext(InvestiblesContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const pokeList = getHumanPresences(marketPresences.filter((presence) =>
+    marketInfo.assigned?.includes(presence.id)));
   const intl = useIntl();
   const classes = wizardStyles();
 
@@ -30,11 +37,10 @@ function DecideAssignStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({ id: 'DecideAssignTitle' })}
       </Typography>
-      <Typography className={classes.introSubText} variant="subtitle1">
-        You assigned this job <UsefulRelativeTime value={new Date(marketInfo.last_stage_change_date)}/> and
-        the assignee has not accepted. Poke to resend notifications and
-        message <Link href="https://documentation.uclusion.com/notifications" target="_blank">configured channels</Link>.
-      </Typography>
+      <PokeReminder pokeList={pokeList}
+                    prefix={<>You assigned this job <UsefulRelativeTime
+                      value={new Date(marketInfo.last_stage_change_date)}/> and
+                      the assignee has not accepted.</>} />
       <JobDescription marketId={marketId} investibleId={investibleId}/>
       <div className={classes.borderBottom}/>
       <WizardStepButtons

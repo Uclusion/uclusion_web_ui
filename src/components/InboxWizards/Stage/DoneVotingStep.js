@@ -17,7 +17,6 @@ import { getMarketPresences } from '../../../contexts/MarketPresencesContext/mar
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
-import Link from '@material-ui/core/Link';
 import { pokeInvestible } from '../../../api/users';
 import { getAcceptedStage, getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { stageChangeInvestible } from '../../../api/investibles';
@@ -27,6 +26,9 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions';
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
+import { getInvestiblePokeList } from '../../../utils/pokeUtils';
+import PokeReminder from '../PokeReminder';
 
 function DoneVotingStep(props) {
   const { marketId, investibleId, groupId, formData = {}, updateFormData = () => {} } = props;
@@ -51,6 +53,9 @@ function DoneVotingStep(props) {
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { stage: currentStageId } = marketInfo;
   const { useCompression } = formData;
+  const [groupPresencesState] = useContext(GroupMembersContext);
+  const pokeList = getInvestiblePokeList(marketId, investibleId, marketInfo, marketPresences, groupPresencesState,
+    marketsState, investiblesState, marketComments);
 
   function accept() {
     const startedStage = getAcceptedStage(marketStagesState, marketId);
@@ -80,10 +85,7 @@ function DoneVotingStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({ id: 'finishApprovalQ' })}
       </Typography>
-      <Typography className={classes.introSubText} variant="subtitle1">
-        Approval expiration is set to {market.investment_expiration} days. Poke to resend notifications and
-        message <Link href="https://documentation.uclusion.com/notifications" target="_blank">configured channels</Link>.
-      </Typography>
+      <PokeReminder pokeList={pokeList} />
       <JobDescription marketId={marketId} investibleId={investibleId} removeActions/>
       <Voting
         investibleId={investibleId}

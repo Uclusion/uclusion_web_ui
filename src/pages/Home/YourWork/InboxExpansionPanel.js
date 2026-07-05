@@ -18,7 +18,6 @@ import { getComment, getMarketComments } from '../../../contexts/CommentsContext
 import { ISSUE_TYPE, QUESTION_TYPE, REPLY_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import QuestionIcon from '@material-ui/icons/ContactSupport';
 import { getMarketInfo } from '../../../utils/userFunctions';
-import { calculateInvestibleVoters } from '../../../utils/votingUtils';
 import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions';
 import { Typography } from '@material-ui/core';
 import { PENDING_INDEX } from './InboxContext';
@@ -48,6 +47,7 @@ import { NOT_FULLY_VOTED_TYPE, RED_LEVEL, UNREAD_JOB_APPROVAL_REQUEST } from '..
 import TriageWizard from '../../../components/InboxWizards/Triage/TriageWizard';
 import InvestibleEditedWizard from '../../../components/InboxWizards/JobEdited/InvestibleEditedWizard';
 import Approval from '../../../components/CustomChip/Approval';
+import { getCommentPokeList, getHumanPresences, getInvestiblePokeList } from '../../../utils/pokeUtils';
 
 function setItem(item, isOpen, panel, titleId, intl) {
   if (isOpen) {
@@ -221,8 +221,7 @@ function getMessageForInvestible(investible, market, labelId, Icon, intl) {
   };
 }
 
-function getMessageForComment(comment, market, type, Icon, intl, investibleState, marketStagesState,
-  comments, marketPresences) {
+function getMessageForComment(comment, market, type, Icon, intl, investibleState, marketStagesState) {
   const commentId = comment.id;
   const groupId = comment.group_id;
   const message = {
@@ -251,24 +250,6 @@ function getMessageForComment(comment, market, type, Icon, intl, investibleState
     }
     if (investible?.investible?.name) {
       message.investible = investible.investible.name;
-    }
-  }
-  if (!_.isEmpty(comment.mentions)) {
-    // add mentioned with no reply in the thread - could extend to inline activity but parent is still unresolved
-    const debtors = [];
-    comment.mentions.forEach((mention) => {
-      const { user_id: userId } = mention;
-      const aComment = comments.find((aComment) => aComment.root_comment_id === comment.id &&
-        aComment.created_by === userId);
-      if (!aComment) {
-        const user = marketPresences.find((presence) => presence.id === userId);
-        if (user) {
-          debtors.push(user);
-        }
-      }
-    });
-    if (!_.isEmpty(debtors)) {
-      message.debtors = debtors;
     }
   }
   return message;
@@ -310,9 +291,9 @@ export function getWorkspaceData(planningDetailsRaw, marketPresencesState, inves
     const unresolvedRoots = comments.filter((comment) => !comment.resolved && !comment.reply_id);
     const myUnresolvedRoots = unresolvedRoots.filter((comment) => comment.created_by === myPresence.id);
     const questions = myUnresolvedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);
-    const issues = unresolvedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE);
+    const issues = myUnresolvedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE);
     const suggestions = myUnresolvedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);
-    const bugs = unresolvedRoots.filter((comment) => comment.comment_type === TODO_TYPE && !comment.investible_id &&
+    const bugs = myUnresolvedRoots.filter((comment) => comment.comment_type === TODO_TYPE && !comment.investible_id &&
       comment.notification_type === RED_LEVEL);
     return { market, comments, inVotingInvestibles: inVotingInvestibles.concat(inVotingNotAcceptedMarked), questions,
       issues, suggestions, bugs, approvedInvestibles};
@@ -346,9 +327,14 @@ function isPokableComment(comment, marketPresences, groupPresencesState, marketI
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId,
     comment.group_id) || [];
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-  const otherGroupPresences = groupPresences?.filter((presence) => presence.id !== myPresence.id);
+  // The AI does not count towards poking
+  const otherGroupPresences = getHumanPresences(groupPresences)
+    .filter((presence) => presence.id !== myPresence.id);
+  const humanPresences = getHumanPresences(marketPresences);
+  const mentionsHuman = (comment.mentions || []).find((mention) =>
+    humanPresences.find((presence) => presence.id === mention.user_id));
   // Only process if there is someone to poke
-  return otherGroupPresences?.length > 0 || !_.isEmpty(comment.mentions);
+  return otherGroupPresences?.length > 0 || !_.isEmpty(mentionsHuman);
 }
 
 export function getOutboxMessages(props) {
@@ -364,6 +350,20 @@ export function getOutboxMessages(props) {
 
   const messages = [];
 
+  function addCommentMessage(comment, market, type, icon, marketPresences, comments) {
+    const debtors = getCommentPokeList(comment, market.id, marketPresences, groupPresencesState,
+      marketPresencesState, comments);
+    // No humans left to poke means no From You row
+    if (_.isEmpty(debtors)) {
+      return;
+    }
+    const message = getMessageForComment(comment, market, type, icon, intl, investiblesState, marketStagesState);
+    if (message) {
+      message.debtors = debtors;
+      messages.push(message);
+    }
+  }
+
   decisionDetails.forEach((market) => {
     const comment = getComment(commentsState, market.parent_comment_market_id, market.parent_comment_id);
     const marketPresences = getMarketPresences(marketPresencesState, market.parent_comment_market_id) || [];
@@ -372,28 +372,16 @@ export function getOutboxMessages(props) {
       const { questions, issues, suggestions, comments, marketPresences } =
         getDecisionData(market, marketPresencesState, commentsState);
       questions.forEach((comment) => {
-        const message = getMessageForComment(comment, market, QUESTION_TYPE,
-          <QuestionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
-          comments, marketPresences)
-        if (message) {
-          messages.push(message);
-        }
+        addCommentMessage(comment, market, QUESTION_TYPE,
+          <QuestionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, marketPresences, comments);
       });
       issues.forEach((comment) => {
-        const message = getMessageForComment(comment, market, ISSUE_TYPE,
-          <Block style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
-          comments, marketPresences)
-        if (message) {
-          messages.push(message);
-        }
+        addCommentMessage(comment, market, ISSUE_TYPE,
+          <Block style={{ fontSize: 24, color: '#E85757', }}/>, marketPresences, comments);
       });
       suggestions.forEach((comment) => {
-        const message = getMessageForComment(comment, market, SUGGEST_CHANGE_TYPE,
-          <LightbulbOutlined style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
-          comments, marketPresences)
-        if (message) {
-          messages.push(message);
-        }
+        addCommentMessage(comment, market, SUGGEST_CHANGE_TYPE,
+          <LightbulbOutlined style={{ fontSize: 24, color: '#ffc61a', }}/>, marketPresences, comments);
       });
     }
   });
@@ -403,86 +391,42 @@ export function getOutboxMessages(props) {
     const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
     inVotingInvestibles.forEach((investible) => {
       const marketInfo = getMarketInfo(investible, market.id);
-      const groupPresences = getGroupPresences(marketPresences, groupPresencesState, market.id,
-        marketInfo.group_id) || [];
-      const isSingular = groupPresences?.length === 1;
-      // Only process if there is someone to poke
-      if (!isSingular || !_.isEmpty(marketInfo.required_approvers)) {
-        const investibleId = investible.investible.id;
-        const notAccepted = investible.notAccepted;
-        const label = notAccepted ? 'planningUnacceptedLabel' : 'startJobQ';
-        let messageIcon = notAccepted ? <PersonAddOutlined style={{ fontSize: 24, color: '#ffc61a', }}/> :
-          <Assignment style={{ fontSize: 24, color: '#ffc61a', }}/>;
-        const message = getMessageForInvestible(investible, market, label, messageIcon, intl)
-        const votersForInvestibleRaw = calculateInvestibleVoters(investibleId, market.id, marketsState,
-          investiblesState, marketPresences, true);
-        const votersForInvestible = votersForInvestibleRaw.filter((voter) => !voter.isExpired && !voter.deleted);
-        if (!notAccepted) {
-          message.isWaitingStart = true;
-          message.icon = <Approval style={{ fontSize: 24, color: '#ffc61a', }}/>;
-        }
-        let debtors = [];
-        if (notAccepted) {
-          debtors = marketPresences.filter((presence) => marketInfo.assigned?.includes(presence.id));
-        } else if (!_.isEmpty(marketInfo.required_approvers)) {
-          //add required approvers that have not voted or commented
-          marketInfo.required_approvers.forEach((userId) => {
-            const aComment = comments.find((comment) => !comment.resolved && comment.investible_id === investibleId &&
-              comment.created_by === userId && [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type));
-            if (!aComment && !votersForInvestible.includes(userId)) {
-              const user = marketPresences.find((presence) => presence.id === userId);
-              if (user) {
-                debtors.push(user);
-              }
-            }
-          });
-        }
-        if (!_.isEmpty(debtors)) {
-          message.debtors = debtors;
-        }
-
-        messages.push(message);
+      const investibleId = investible.investible.id;
+      const notAccepted = investible.notAccepted;
+      const debtors = notAccepted ?
+        getHumanPresences(marketPresences.filter((presence) => marketInfo.assigned?.includes(presence.id))) :
+        getInvestiblePokeList(market.id, investibleId, marketInfo, marketPresences, groupPresencesState,
+          marketsState, investiblesState, comments);
+      // No humans left to poke means no From You row
+      if (_.isEmpty(debtors)) {
+        return;
       }
+      const label = notAccepted ? 'planningUnacceptedLabel' : 'startJobQ';
+      let messageIcon = notAccepted ? <PersonAddOutlined style={{ fontSize: 24, color: '#ffc61a', }}/> :
+        <Assignment style={{ fontSize: 24, color: '#ffc61a', }}/>;
+      const message = getMessageForInvestible(investible, market, label, messageIcon, intl)
+      if (!notAccepted) {
+        message.isWaitingStart = true;
+        message.icon = <Approval style={{ fontSize: 24, color: '#ffc61a', }}/>;
+      }
+      message.debtors = debtors;
+      messages.push(message);
     });
     questions.forEach((comment) => {
-      if (isPokableComment(comment, marketPresences, groupPresencesState, market.id)) {
-        const message = getMessageForComment(comment, market, QUESTION_TYPE,
-          <QuestionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
-          comments, marketPresences)
-        if (message) {
-          messages.push(message);
-        }
-      }
+      addCommentMessage(comment, market, QUESTION_TYPE,
+        <QuestionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, marketPresences, comments);
     });
     issues.forEach((comment) => {
-      if (isPokableComment(comment, marketPresences, groupPresencesState, market.id)) {
-        const message = getMessageForComment(comment, market, ISSUE_TYPE,
-          <Block style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
-          comments, marketPresences)
-        if (message) {
-          messages.push(message);
-        }
-      }
+      addCommentMessage(comment, market, ISSUE_TYPE,
+        <Block style={{ fontSize: 24, color: '#E85757', }}/>, marketPresences, comments);
     });
     suggestions.forEach((comment) => {
-      if (isPokableComment(comment, marketPresences, groupPresencesState, market.id)) {
-        const message = getMessageForComment(comment, market, SUGGEST_CHANGE_TYPE,
-          <LightbulbOutlined style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
-          comments, marketPresences)
-        if (message) {
-          messages.push(message);
-        }
-      }
+      addCommentMessage(comment, market, SUGGEST_CHANGE_TYPE,
+        <LightbulbOutlined style={{ fontSize: 24, color: '#ffc61a', }}/>, marketPresences, comments);
     });
     bugs.forEach((comment) => {
-      if (isPokableComment(comment, marketPresences, groupPresencesState, market.id)) {
-        const message = getMessageForComment(comment, market, TODO_TYPE,
-          <BugReportOutlined style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
-          comments, marketPresences)
-        if (message) {
-          messages.push(message);
-        }
-      }
+      addCommentMessage(comment, market, TODO_TYPE,
+        <BugReportOutlined style={{ fontSize: 24, color: '#E85757', }}/>, marketPresences, comments);
     });
   });
 

@@ -150,6 +150,8 @@ function Voting(props) {
         <SpinningIconLabelButton
           icon={ExpandLess}
           doSpin={false}
+          useDark={isDark}
+          iconColor={isDark ? 'white' : 'black'}
           onClick={(event) => {
             preventDefaultAndProp(event);
             toggleCompression();

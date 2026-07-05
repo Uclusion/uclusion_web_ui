@@ -187,7 +187,7 @@ export function createDefaultInboxRow(messagesOrdered, tabIndex) {
     return (
       <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                   variant="body1">
-        Your From You is empty.<br/><br/> Process or poke anything waiting on others here.
+        Pokable is empty.<br/><br/> Process or poke anything waiting on others here.
       </Typography>
     );
   }
@@ -195,7 +195,7 @@ export function createDefaultInboxRow(messagesOrdered, tabIndex) {
   return (
     <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                 variant="body1">
-      Your For You is empty.<br/><br/> Notifications from others display here.
+      You able is empty.<br/><br/> Notifications from others display here.
     </Typography>
   );
 }

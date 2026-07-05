@@ -54,7 +54,7 @@ function DecideReviewStep(props) {
       </Typography>
       {isNotDoing && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          This job has been moved to Not Doing.
+          This job has been moved to Skippable.
         </Typography>
       )}
       {!isNotDoing && (

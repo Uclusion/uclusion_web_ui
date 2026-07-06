@@ -73,6 +73,42 @@ function filterUploadsUsedInText (uploadedFiles, text) {
   });
 }
 
+// All editable composers cap out at this width (the GMail-style composer from
+// T-all-2168 / T-all-2209 - see QuillEditor2 and CommentEdit).
+const COMPOSER_WIDTH = 680;
+
+/**
+ * J-all-338 T-all-2281 (Q-all-206 O-2): the image resize module stores pixel
+ * widths bounded by the composer, but the displayed comment card is wider - so
+ * dragging an image to fill the composer could never fill the display. Convert
+ * stored pixel widths to percentages of the composer width; the percent width
+ * attribute round-trips through Quill (unlike a style) and browsers render it
+ * relative to the display surface. Height is dropped so the aspect ratio follows.
+ */
+function convertImageWidthsToPercent (text) {
+  if (!text || !text.includes('<img')) {
+    return text;
+  }
+  const parser = new DOMParser();
+  const parsed = parser.parseFromString(text, 'text/html');
+  const imgs = parsed.getElementsByTagName('img') || [];
+  let changed = false;
+  [...imgs].forEach((img) => {
+    const width = img.getAttribute('width');
+    if (width && !width.includes('%')) {
+      const pixels = parseInt(width, 10);
+      if (pixels > 0) {
+        const percent = Math.min(100, Math.round((pixels / COMPOSER_WIDTH) * 100));
+        img.setAttribute('width', `${percent}%`);
+        img.removeAttribute('height');
+        changed = true;
+      }
+    }
+  });
+  // Avoid a DOM round trip of the body when nothing needed conversion
+  return changed ? parsed.body.innerHTML : text;
+}
+
 /**
  * Does all manipulations necessary to make the uploaded files
  * and text safe for saving to the backend
@@ -82,6 +118,6 @@ function filterUploadsUsedInText (uploadedFiles, text) {
  */
 export function processTextAndFilesForSave (uploadedFiles, text) {
   const newUploaded = filterUploadsUsedInText(uploadedFiles, text);
-  return { uploadedFiles: newUploaded, text };
+  return { uploadedFiles: newUploaded, text: convertImageWidthsToPercent(text) };
 }
 

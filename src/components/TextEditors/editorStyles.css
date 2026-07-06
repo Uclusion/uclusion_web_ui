@@ -134,3 +134,12 @@ a[target="_blank"]::after {
     white-space: -o-pre-wrap;
     word-wrap: break-word;
 }
+
+/* J-all-338 T-all-2280: an image can be stored wider than the surface showing
+   it - a natural-size paste, or a percent width meant for a wider card. Scale
+   it to fit instead of overflowing, keeping the aspect ratio. Applies to the
+   composer and the read-only display alike so editing matches what displays. */
+.ql-editor img {
+    max-width: 100%;
+    height: auto;
+}

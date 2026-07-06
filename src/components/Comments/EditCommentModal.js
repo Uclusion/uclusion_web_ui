@@ -88,8 +88,11 @@ function EditCommentModal() {
                         allowedTypes={allowedTypes} />
           </div>
         )}
+        {/* usePadding false: CommentBox otherwise pads 45vh below for page-level
+            scroll room, which here just stretches the dialog with dead space
+            under the composer (T-all-2282). */}
         <CommentBox comments={[comment]} marketId={marketId} replyEditId={commentId} displayRepliesAsTop
-                    allowedTypes={allowedTypes} />
+                    allowedTypes={allowedTypes} usePadding={false} />
       </DialogContent>
     </Dialog>
   );

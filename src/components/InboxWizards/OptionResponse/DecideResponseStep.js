@@ -19,8 +19,9 @@ import { REPLY_WIZARD_TYPE } from '../../../constants/markets';
 import { hasReply } from '../../AddNewWizards/Reply/ReplyStep';
 
 function DecideResponseStep(props) {
-  const { marketId, commentId, message } = props;
+  const { marketId, commentId, message, formData = {}, updateFormData = () => {} } = props;
   const { decision_investible_id: decisionInvestibleId } = message;
+  const { useCompression } = formData;
   const history = useHistory();
   const [commentState] = useContext(CommentsContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
@@ -48,16 +49,29 @@ function DecideResponseStep(props) {
       <Typography className={classes.introSubText} variant="subtitle1">
         A comment was opened inside an option on this question.
       </Typography>
-      <div className={classes.wizardCommentBoxDiv}>
+      {/* B-all-466: the parent question is context, not the payload - show it as
+          the one-line compressed card (expandable) and drop the shared 40px
+          wizard gap so the option block reads as attached to it. */}
+      <div className={classes.wizardCommentBoxDiv} style={{ marginBottom: 0, paddingBottom: '0.5rem' }}>
         <CommentBox
           comments={[parentCommentRoot]}
           marketId={parentMarketId}
           allowedTypes={[]}
           isInbox
           removeActions
+          compressAll
+          useCompression={useCompression}
+          toggleCompression={() => updateFormData({ useCompression: !useCompression })}
         />
       </div>
-      <div style={{ width: '90%', marginLeft: 'auto', marginRight: 'auto', }}>
+      {/* The option and the new comment inside it are one nested block: a left
+          border in the question accent color shows the containment, with the
+          new comment the only prominent card. */}
+      <div style={{ borderLeft: '2px solid #2F80ED', paddingLeft: '1rem', marginLeft: '0.5rem',
+        marginTop: '0.5rem' }}>
+        <Typography variant="subtitle2" style={{ paddingLeft: '4px' }}>
+          {intl.formatMessage({ id: 'inOptionLabel' })}
+        </Typography>
         <JobDescription marketId={marketId} investibleId={decisionInvestibleId}
                         comments={optionComments}
                         removeActions

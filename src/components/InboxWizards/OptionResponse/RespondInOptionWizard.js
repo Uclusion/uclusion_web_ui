@@ -8,7 +8,8 @@ function RespondInOptionWizard(props) {
   const { marketId, commentId, message } = props;
   const  parentElementId = getMessageId(message);
   return (
-    <FormdataWizard name={`option_response_wizard${commentId}`} defaultFormData={{parentElementId}}>
+    <FormdataWizard name={`option_response_wizard${commentId}`}
+                    defaultFormData={{parentElementId, useCompression: true}}>
       <DecideResponseStep marketId={marketId} commentId={commentId} message={message}/>
     </FormdataWizard>
   );

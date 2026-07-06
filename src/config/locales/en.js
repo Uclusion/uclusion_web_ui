@@ -1170,6 +1170,7 @@ const messages = defineMessages({
   DecideAnswerTitle: 'Can you help answer?',
   DecideVoteTitle: 'How do you vote?',
   DecideResponseTitle: 'How do you respond?',
+  inOptionLabel: 'In option',
   DecideIdeaTitle: 'Good idea?',
   DecidePromotionTitle: 'Allow voting on option?',
   JobStatusTitle: 'Will you update?',

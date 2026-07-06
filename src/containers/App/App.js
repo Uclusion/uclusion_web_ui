@@ -48,12 +48,14 @@ function App(props) {
     window.myErrorListenerMarker = true;
     window.onerror = function (message, source, lineno, colno,
       error) {
-      console.error('Global error caught:', message, source, lineno, colno, error);
+      // Log the stack as a string so log capture (e.g. Cypress) records the original throw
+      // site instead of just the rethrow position in the minified bundle
+      console.error('Global error caught:', message, source, lineno, colno, error?.stack || error);
       return true; // Prevents the browser's default error handling
     };
 
     window.addEventListener('unhandledrejection', function (event) {
-      console.error('Unhandled promise rejection:', event.reason);
+      console.error('Unhandled promise rejection:', event.reason?.stack || event.reason);
       event.preventDefault(); // Prevents the default error handling
     });
   }

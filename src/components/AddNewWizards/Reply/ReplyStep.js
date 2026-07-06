@@ -35,7 +35,7 @@ import { PLANNING_TYPE } from '../../../constants/markets';
 import { FormattedMessage } from 'react-intl';
 
 export function hasReply(comment) {
-  return hasCommentValue(comment.group_id, comment, 'CommentAddReply', undefined,
+  return hasCommentValue(comment?.group_id, comment, 'CommentAddReply', undefined,
     'reply');
 }
 

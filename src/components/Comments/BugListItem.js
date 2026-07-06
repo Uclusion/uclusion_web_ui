@@ -218,6 +218,10 @@ function BugListItem(props) {
   const titleStyle = {
     fontSize: smallFont ? '12px' : undefined,
     color: smallFont ? '#1c2b2e' : undefined,
+    // B-all-465: a caller-constrained row (maxWidth) can be narrower than the
+    // 13vw the Title otherwise insists on, which pushes the text past the
+    // Card's hidden overflow and clips it before the ellipsis can render.
+    minWidth: maxWidth ? 0 : undefined,
   };
   const titleWithHelp = toolTipId ? <Tooltip key={`inProgressRowKey${id}`} placement='top'
                                              title={<FormattedMessage id={toolTipId} />}>
@@ -281,7 +285,8 @@ function BugListItem(props) {
                   <Chip label={`${replyNum}`} size="small" style={{ marginLeft: '5px', marginRight: '15px',
                     backgroundColor: theme.palette.type === 'dark' ? 'grey' : 'white' }}/>
                 </Tooltip>: React.Fragment}
-                {isNew ? (<TitleB style={{ color: theme.palette.type === 'dark' ? 'white' : 'black' }}>{displayTitle}</TitleB>) : titleWithHelp}
+                {isNew ? (<TitleB style={{ color: theme.palette.type === 'dark' ? 'white' : 'black',
+                  minWidth: maxWidth ? 0 : undefined }}>{displayTitle}</TitleB>) : titleWithHelp}
                 {mobileLayout || !date ? React.Fragment : 
                 (isNew ? (<DateLabelBNotHovered style={{ color: theme.palette.type === 'dark' ? 'white' : 'black' }}>{date}</DateLabelBNotHovered>) :
                   (<DateLabelNotHovered>{date}</DateLabelNotHovered>))}

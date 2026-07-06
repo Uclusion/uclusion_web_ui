@@ -170,7 +170,6 @@ const useReplyStyles = makeStyles(
         overflow: 'unset',
         marginRight: '0.25rem',
         paddingRight: '0.5rem',
-        paddingTop: '1rem',
         cursor: 'pointer'
       },
       containerYellow: {

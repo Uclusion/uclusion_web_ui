@@ -51,19 +51,24 @@ function DecideResponseStep(props) {
       </Typography>
       {/* B-all-466: the parent question is context, not the payload - show it as
           the one-line compressed card (expandable) and drop the shared 40px
-          wizard gap so the option block reads as attached to it. */}
-      <div className={classes.wizardCommentBoxDiv} style={{ marginBottom: 0, paddingBottom: '0.5rem' }}>
-        <CommentBox
-          comments={[parentCommentRoot]}
-          marketId={parentMarketId}
-          allowedTypes={[]}
-          isInbox
-          removeActions
-          compressAll
-          useCompression={useCompression}
-          toggleCompression={() => updateFormData({ useCompression: !useCompression })}
-        />
-      </div>
+          wizard gap so the option block reads as attached to it.
+          B-all-468: the inline market record or the parent comment can be transiently
+          missing from state when this wizard renders off a fresh notification, so hold
+          the card back until the parent comment loads. */}
+      {parentCommentRoot && (
+        <div className={classes.wizardCommentBoxDiv} style={{ marginBottom: 0, paddingBottom: '0.5rem' }}>
+          <CommentBox
+            comments={[parentCommentRoot]}
+            marketId={parentMarketId}
+            allowedTypes={[]}
+            isInbox
+            removeActions
+            compressAll
+            useCompression={useCompression}
+            toggleCompression={() => updateFormData({ useCompression: !useCompression })}
+          />
+        </div>
+      )}
       {/* The option and the new comment inside it are one nested block: a left
           border in the question accent color shows the containment, with the
           new comment the only prominent card. */}

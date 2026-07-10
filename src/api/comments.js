@@ -27,9 +27,9 @@ export function sendComment(marketId, commentId, marketType) {
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
 
-export function alterComment(marketId, commentId, notificationType) {
+export function alterComment(marketId, commentId, notificationType, groupId) {
   return getMarketClient(marketId)
-    .then((client) => client.investibles.alterComment(commentId, notificationType))
+    .then((client) => client.investibles.alterComment(commentId, notificationType, groupId))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
 

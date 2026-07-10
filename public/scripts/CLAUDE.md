@@ -210,6 +210,15 @@ Call `make_suggestion` when you see a better path than what the job
 describes. Suggestions are how you push back without blocking; use them
 instead of silently doing something different.
 
+This is not limited to jobs. Whenever you feel strongly enough about an
+idea that you would voice it as a suggestion in chat — an improvement,
+a better approach, a follow-up worth doing — do NOT make it a chat-only
+remark. First create the suggestion in Uclusion with `make_suggestion`
+(omit `job_id` when it is not about a job — the suggestion then lives at
+the view level), and only then tell the human about it in chat, including
+the link returned on creation. A suggestion that exists only in chat is
+invisible to other sessions and cannot be voted on.
+
 **Precondition — do NOT offer to do work on a task or approve the job while any question on it is still open and unanswered.** 
 
 If some tasks in the job are completely disjoint from other tasks you may ask the user about starting 

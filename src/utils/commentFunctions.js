@@ -160,11 +160,14 @@ export function onCommentsMove(fromCommentIds, messagesState, marketComments, in
   let threads = []
   fromCommentIds.forEach((commentId) => {
     removeMessagesForCommentId(commentId, messagesState, messagesDispatch);
+    const movedRoot = movedComments.find((aComment) => aComment.id === commentId);
     const thread = marketComments.filter((aComment) => {
       return aComment.root_comment_id === commentId;
     });
     const fixedThread = thread.map((aComment) => {
-      return {...aComment, investible_id: investibleId};
+      // Children follow their root's group so a move across views doesn't strand them
+      // while the backend syncs them asynchronously
+      return {...aComment, investible_id: investibleId, group_id: movedRoot?.group_id || aComment.group_id};
     });
     threads = threads.concat(fixedThread);
   });

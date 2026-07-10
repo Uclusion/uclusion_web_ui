@@ -26,7 +26,7 @@ import {
   SUGGEST_CHANGE_TYPE,
   TODO_TYPE,
 } from '../../constants/comments';
-import { reopenComment, resolveComment, updateComment } from '../../api/comments';
+import { alterComment, reopenComment, resolveComment, updateComment } from '../../api/comments';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import {
@@ -81,7 +81,7 @@ import {
   changeInvestibleStage,
   handleAcceptSuggestion,
   isSingleAssisted,
-  onCommentOpen
+  onCommentOpen, onCommentsMove
 } from '../../utils/commentFunctions';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import {
@@ -139,6 +139,7 @@ import { previousInProgress } from '../AddNewWizards/TaskInProgress/TaskInProgre
 import { getMarketClient } from '../../api/marketLogin';
 import { isMyPokableComment } from '../../pages/Home/YourWork/InboxExpansionPanel';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
+import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 import { ACTION_BUTTON_COLOR, DARK_INFO_COLOR, DARK_TEXT_BACKGROUND_COLOR } from '../Buttons/ButtonConstants';
 import CondensedTodos from '../../pages/Investible/Planning/CondensedTodos';
@@ -582,6 +583,7 @@ function Comment(props) {
   const mediumLayout = useMediaQuery('(min-width:1400px)');
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
+  const [groupsState] = useContext(MarketGroupsContext);
   const intl = useIntl();
   const classes = useCommentStyles();
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
@@ -882,6 +884,24 @@ function Comment(props) {
       });
   }
 
+  function onViewChange(event) {
+    const { value: newGroupId } = event.target;
+    if (newGroupId === groupId) {
+      return;
+    }
+    setOperationRunning(true);
+    return alterComment(marketId, id, undefined, newGroupId)
+      .then((movedComment) => {
+        const marketComments = getMarketComments(commentsState, marketId, groupId);
+        onCommentsMove([id], messagesState, marketComments, investibleId, commentsDispatch, marketId,
+          [movedComment], messagesDispatch);
+        setOperationRunning(false);
+        navigate(history, formCommentLink(marketId, movedComment.group_id, investibleId, id));
+      }).finally(() => {
+        setOperationRunning(false);
+      });
+  }
+
   function moveToTask() {
     return updateComment({marketId, commentId: id, commentType: TODO_TYPE}).then((taskComment) => {
       handleAcceptSuggestion({
@@ -907,6 +927,11 @@ function Comment(props) {
   const showMoveButton = isSent !== false
     && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(commentType)
     && !inArchives && !removeActions && enableActions && marketType === PLANNING_TYPE;
+  // Market-level bugs and notes/discussion can change view (T-all-2285) - jobs have their own switcher in the nav
+  const marketGroups = _.sortBy(groupsState[marketId], 'name');
+  const showViewSelect = isSent !== false && enableEditing && !removeActions && !investibleId && groupId
+    && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE].includes(commentType)
+    && marketType === PLANNING_TYPE && _.size(marketGroups) > 1;
   const showMakeTaskButton = (showMoveButton  && commentType === SUGGEST_CHANGE_TYPE) || isNote;
   const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId);
   const showConfigureVotingButton = commentType === QUESTION_TYPE && !inArchives &&
@@ -1344,6 +1369,32 @@ function Comment(props) {
                   <MenuItem value='BLUE'>
                     {intl.formatMessage({ id: 'convenient' })}
                   </MenuItem>
+                </Select>
+              </FormControl>
+            )}
+            {showViewSelect && (
+              <FormControl size='small' style={{marginRight: '1rem', alignSelf: 'center'}}>
+                <Select
+                  value={groupId}
+                  classes={{
+                    icon: classes.selectIcon
+                  }}
+                  onChange={onViewChange}
+                  onClick={(event) => event.stopPropagation()}
+                  style={{color: 'black'}}
+                  // Same padding rebalance and menu paper treatment as the severity dropdown above
+                  SelectDisplayProps={{ style: { paddingTop: '5px', paddingBottom: '5px' } }}
+                  MenuProps={{
+                    PaperProps: {
+                      style: { backgroundColor: isDark ? DARK_TEXT_BACKGROUND_COLOR : 'white', color: 'black' }
+                    }
+                  }}
+                >
+                  {marketGroups.map((group) => (
+                    <MenuItem key={`view${group.id}`} value={group.id}>
+                      {group.name}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             )}

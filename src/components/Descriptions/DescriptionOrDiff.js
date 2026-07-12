@@ -30,6 +30,7 @@ function DescriptionOrDiff(props) {
     return (
       <DiffDisplay
         id={id}
+        isWhiteText={isWhiteText}
       />
     );
   }

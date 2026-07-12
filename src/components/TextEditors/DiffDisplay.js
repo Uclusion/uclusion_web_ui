@@ -29,7 +29,7 @@ const useStyles = makeStyles(
 function DiffDisplay(props) {
   const classes = useStyles();
   const ref = useRef(null);
-  const { id } = props;
+  const { id, isWhiteText = false } = props;
   const [diffState] = useContext(DiffContext);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
   const diff = marketsState.initializing || _.isEmpty(tokensHash) ? undefined : getDiff(diffState, id);
@@ -53,13 +53,17 @@ function DiffDisplay(props) {
 
   return (
     <div>
-      <div ref={ref} className={classes.diffContainer}/>
+      {/* B-all-472: same color contract as QuillEditor2 - black unless the surface behind is
+          dark (isWhiteText). Inheriting the dark theme's white made diffs unreadable on the
+          light comment and description cards. */}
+      <div ref={ref} className={classes.diffContainer} style={{color: isWhiteText ? 'white' : 'black'}}/>
     </div>
   );
 }
 
 DiffDisplay.propTypes = {
-  id: PropTypes.string.isRequired
+  id: PropTypes.string.isRequired,
+  isWhiteText: PropTypes.bool
 };
 
 export default DiffDisplay;

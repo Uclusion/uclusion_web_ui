@@ -38,8 +38,13 @@ function OptionVoting(props) {
       />
     }
     const description = stripHTML(inv.investible.description);
+    // B-all-471: an investment record without quantity only means the presence is addressed
+    // (participating in a comment inside the option, e.g. the AI replying to a nested question) -
+    // see calculateInvestibleVoters. Avatars on an option row mean votes, so require quantity;
+    // a notification inside the option is already indicated by bolding the row (isNew).
     const investors = marketPresences.filter((presence) =>
-      presence.investments?.find((investment) => !investment.deleted && investment.investible_id === investibleId));
+      presence.investments?.find((investment) => !investment.deleted && investment.quantity &&
+        investment.investible_id === investibleId));
     const newlyVoted = investors.filter((investor) => !_.isEmpty(findMessageByInvestmentUserId(investor.id, investibleId, messagesState)));
     const highlightList = newlyVoted.map((investor) => investor.id);
     return (

@@ -175,7 +175,9 @@ function Options(props) {
   }
 
   const proposed = getInlineInvestiblesForStage(proposedStage);
-  const unreadCount = _.size(underConsideration.filter((inv) => isNew(inv)));
+  // B-all-471: isNew was called without messagesState here, so the red "new" tag on the
+  // Approvable Options tab could never show even when a row was bolded as new.
+  const unreadCount = _.size(underConsideration.filter((inv) => isNew(inv, messagesState)));
   const htmlColor = _.isEmpty(underConsideration) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
   const tabInvestibles = useTabIndex === 0 ? underConsideration : proposed;
   return (

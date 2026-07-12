@@ -356,9 +356,11 @@ export default function PlanningInvestibleNav(props) {
                     id={`readyToStartCheckbox${investibleId}`}
                     value={openForInvestment}
                     className={styles.myCheckbox}
-                    style={{color: mobileLayout ? 'black' : 'white',
-                      backgroundColor: mobileLayout ? (readyToStartChecked ? 'white' : 'lightgrey') :
-                        (readyToStartChecked ? 'black' : 'white'),
+                    // B-all-474: match the comment card checkboxes - secondary "green" glyph over a
+                    // constant white backing so the check mark reads white. Inline color also wins
+                    // over the theme's faint disabled color, so the box can no longer go black
+                    // while an operation is running or offline.
+                    style={{color: theme.palette.secondary.main, backgroundColor: 'white',
                       padding: 0, borderRadius: 0}}
                     disabled={operationRunning !== false}
                     checked={readyToStartChecked}
@@ -462,9 +464,8 @@ export default function PlanningInvestibleNav(props) {
                   id={`isVisibleCheckbox${investibleId}`}
                   value={isVisible}
                   className={styles.myCheckbox}
-                  style={{color: mobileLayout ? 'black' : 'white',
-                    backgroundColor: mobileLayout ? (isVisibleChecked ? 'white' : 'lightgrey') :
-                      (isVisibleChecked ? 'black' : 'white'),
+                  // B-all-474: same treatment as the ready-to-start checkbox above.
+                  style={{color: theme.palette.secondary.main, backgroundColor: 'white',
                     padding: 0, borderRadius: 0}}
                   disabled={operationRunning !== false}
                   checked={isVisibleChecked} 

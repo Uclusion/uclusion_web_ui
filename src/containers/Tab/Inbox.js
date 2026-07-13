@@ -24,6 +24,17 @@ const useTabHoverStyles = makeStyles(({ palette }) => ({
   },
 }));
 
+// B-all-475: the treasury gmail style insets the indicator line 8px on each side
+// (margin: '0 8px' on the child div), so the blue line stopped short of the
+// hover background, which covers the full tab. Span the whole tab instead.
+const useIndicatorStyles = makeStyles({
+  indicator: {
+    '& > div': {
+      margin: 0,
+    },
+  },
+});
+
 export function GmailTabItem(props) {
   const { color='#2F80ED', label, tag, tagLabel, hasChip=true, tagColor=COUNT_COLOR, toolTipId, icon,
     ...other } = props;
@@ -62,6 +73,7 @@ export function GmailTabItem(props) {
 
 export function GmailTabs(props) {
   const tabsStyles = useGmailTabsStyles({ ...props });
+  const indicatorStyles = useIndicatorStyles();
   const tabsProps = {...props};
   const { removeBoxShadow, addPaddingLeft, addMarginLeft, useColor=true } = props;
   const { lighterBlueColor } = useButtonColors();
@@ -73,7 +85,7 @@ export function GmailTabs(props) {
   return (
     <Tabs
       {...tabsProps}
-      classes={tabsStyles}
+      classes={{ ...tabsStyles, indicator: `${tabsStyles.indicator} ${indicatorStyles.indicator}` }}
       style={{boxShadow: removeBoxShadow ? 'unset' : undefined, paddingLeft: addPaddingLeft, marginLeft: addMarginLeft,
         backgroundColor: useColor ? lighterBlueColor : undefined }}
       TabIndicatorProps={{

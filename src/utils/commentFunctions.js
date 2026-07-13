@@ -17,6 +17,7 @@ import TokenStorageManager from '../authorization/TokenStorageManager'
 import { PUSH_INVESTIBLES_CHANNEL } from '../api/versionedFetchUtils'
 import { removeMessagesForCommentId } from './messageUtils';
 import { getMarketInfo } from './userFunctions';
+import { getMarketPresences } from '../contexts/MarketPresencesContext/marketPresencesHelper';
 import { TOKEN_TYPE_MARKET } from '../api/tokenConstants';
 import { BLUE_LEVEL } from '../constants/notifications';
 
@@ -90,6 +91,9 @@ export function changeInvestibleStage(newStage, assigned, updatedAt, info, marke
     ...info,
     stage: newStage.id,
     stage_name: newStage.name,
+    // Record the stage being left like the backend does, so a later
+    // changeInvestibleStageOnCommentClose can restore it before sync catches up
+    former_stage_id: info?.stage,
     last_stage_change_date: updatedAt
   };
   if (_.isEmpty(assigned)) {
@@ -152,6 +156,12 @@ export function changeInvestibleStageOnCommentClose(market_infos, rootInvestible
   const { former_stage_id: formerStageId, assigned, market_id: marketId } = (info || {});
   const nextStageId = getFormerStageId(formerStageId, marketId, marketStagesState);
   const newStage = getFullStage(marketStagesState, marketId, nextStageId);
+  if (!newStage) {
+    // No former stage recorded (info was synthesized client-side before T-all-2297 or never stage
+    // changed) - leave the stage for sync to fix. Throwing here rejected the move chain and left
+    // the wizard spinner running forever (https://stage.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/Q-all-216).
+    return;
+  }
   changeInvestibleStage(newStage, assigned, updatedAt, info, market_infos, rootInvestible, investibleDispatch);
 }
 
@@ -172,6 +182,48 @@ export function onCommentsMove(fromCommentIds, messagesState, marketComments, in
     threads = threads.concat(fixedThread);
   });
   addMarketComments(commentsDispatch, marketId, [...movedComments, ...threads]);
+}
+
+// T-all-2298: an AI-authored assistance comment is "Responded" once a human reply or a human vote
+// in its thread is more recent than the AI's latest reply or vote there. Human-authored assistance
+// is never Responded - it waits on the AI or gets resolved. The AI user is the only presence
+// without an email.
+export function isAssistanceRespondedByHuman(rootComment, investibleComments, marketPresences,
+  marketPresencesState) {
+  const isAIPresenceId = (presenceId) => (marketPresences || []).find((presence) =>
+    presence.id === presenceId && _.isEmpty(presence.email)) !== undefined;
+  if (!isAIPresenceId(rootComment.created_by)) {
+    return false;
+  }
+  let aiLatest = new Date(rootComment.updated_at).getTime();
+  let humanLatest = undefined;
+  const thread = (investibleComments || []).filter((comment) => comment.root_comment_id === rootComment.id);
+  thread.forEach((comment) => {
+    const commentTime = new Date(comment.updated_at).getTime();
+    if (isAIPresenceId(comment.created_by)) {
+      aiLatest = Math.max(aiLatest, commentTime);
+    } else {
+      humanLatest = Math.max(humanLatest || 0, commentTime);
+    }
+  });
+  if (rootComment.inline_market_id) {
+    const inlinePresences = getMarketPresences(marketPresencesState, rootComment.inline_market_id) || [];
+    inlinePresences.forEach((presence) => {
+      const isAI = _.isEmpty(presence.email);
+      (presence.investments || []).forEach((investment) => {
+        if (investment.deleted) {
+          return;
+        }
+        const investmentTime = new Date(investment.updated_at).getTime();
+        if (isAI) {
+          aiLatest = Math.max(aiLatest, investmentTime);
+        } else {
+          humanLatest = Math.max(humanLatest || 0, investmentTime);
+        }
+      });
+    });
+  }
+  return humanLatest !== undefined && humanLatest > aiLatest;
 }
 
 export function changeInvestibleStageOnCommentOpen(investibleBlocks, investibleRequiresInput, marketStagesState,

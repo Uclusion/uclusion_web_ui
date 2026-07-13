@@ -8,6 +8,7 @@ import RaisedCard from '../../components/Cards/RaisedCard';
 import { ExpandLess } from '@material-ui/icons';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import ThumbUpIcon from '@material-ui/icons/ThumbUp';
 import _ from 'lodash';
 import DragImage from '../Dialogs/DragImage';
 import TooltipIconButton from '../Buttons/TooltipIconButton';
@@ -149,7 +150,10 @@ function OptionListItem(props) {
           }>
             <Div key={`actions${id}`}>
               {!mobileLayout || _.isEmpty(people) ? React.Fragment :
-                <GravatarGroup users={people} highlightList={highlightList} />
+                <>
+                  <ThumbUpIcon style={{ fontSize: 16, color: '#2D9CDB', marginLeft: '0.25rem' }} />
+                  <GravatarGroup users={people} highlightList={highlightList} />
+                </>
               }
               {isNew ? (<TitleB style={{ color: theme.palette.type === 'dark' ? 'white' : 'black',
                 ...(mobileLayout ? { flexGrow: 1, flexShrink: 1, minWidth: 0 } : {}) }}>{title}</TitleB>) :
@@ -162,7 +166,11 @@ function OptionListItem(props) {
                 <div style={{flexGrow: 1}}/>
               )}
               {mobileLayout || _.isEmpty(people) ? React.Fragment :
-                <GravatarGroup users={people} highlightList={highlightList} />
+                <>
+                  {/* T-all-2300: avatars on an option row mean votes - make that unmistakable */}
+                  <ThumbUpIcon style={{ fontSize: 16, color: '#2D9CDB', marginRight: '0.25rem' }} />
+                  <GravatarGroup users={people} highlightList={highlightList} />
+                </>
               }
               {expandOrContract && mobileLayout && (
                 <div style={{paddingLeft: '0.5rem', paddingRight: '0.5rem'}}>

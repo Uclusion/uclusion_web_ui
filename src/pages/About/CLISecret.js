@@ -5,6 +5,7 @@ import { getSecret, newSecret } from '../../api/users';
 import { useIntl } from 'react-intl';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import CopyCommand from './CopyCommand';
+import { getUclusionEnvironment } from './installUtils';
 
 const styleClasses = makeStyles(
   {
@@ -25,6 +26,9 @@ function CLISecret (props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [secretUser, setSecretUser] = useState(undefined);
   const classes = styleClasses();
+  // The CLI and MCP proxy read env-specific credentials files (see uclusionCLI.py)
+  const env = getUclusionEnvironment();
+  const credentialsFile = env === 'production' ? 'credentials' : `${env}_credentials`;
 
   function getCliSecret() {
     return getSecret(marketId).then((user) => {
@@ -43,20 +47,20 @@ function CLISecret (props) {
   }
 
   return (
-    <div style={{marginTop: '2rem'}}>
+    <div>
       {!secretUser && (
         <Typography variant="subtitle1">
-          Press this button to show your Uclusion secret.
+          Press this button to show the command that installs your Uclusion secret.
         </Typography>
       )}
       {secretUser && (
         <Typography variant="subtitle1">
-          Create a .uclusion/credentials file with this:
+          Copy and run this command to create your credentials file:
         </Typography>
       )}
       {secretUser && (
         <CopyCommand
-          command={`secret_key_id = ${secretUser.external_id}_${secretUser.account_id}\nsecret_key = ${secretUser.client_secret}`}
+          command={`mkdir -p ~/.uclusion && cat > ~/.uclusion/${credentialsFile} <<'EOF'\nsecret_key_id = ${secretUser.external_id}_${secretUser.account_id}\nsecret_key = ${secretUser.client_secret}\nEOF`}
         />
       )}
       {!secretUser && (

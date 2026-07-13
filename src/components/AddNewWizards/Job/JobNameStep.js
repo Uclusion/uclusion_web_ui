@@ -70,9 +70,16 @@ function JobNameStep(props) {
           link,
         });
         if (moveFromComments) {
-          return moveFromComments(inv, formData, updateFormData);
+          // Same finish rules as without a move - otherwise the wizard strands the user
+          // on this step after the comments moved (found with S-1 under Q-all-216)
+          return moveFromComments(inv, formData, updateFormData).then(() => {
+            if (jobStage === 'IMMEDIATE' && (!isSingleUser || useApprovals)) {
+              return { link };
+            }
+            return onFinish({ link });
+          });
         }
-        if (jobStage === 'IMMEDIATE') {
+        if (jobStage === 'IMMEDIATE' && (!isSingleUser || useApprovals)) {
           return { link };
         }
         onFinish({ link });

@@ -3,29 +3,35 @@
 # environment-specific Uclusion site and runs it with the supplied arguments.
 #
 # Usage:
-#   install.sh <workspaceId> [environment]
+#   install.sh <workspaceId> <viewId> [environment] [--project] [--clients claude,cursor,codex]
+#
+# Extra flags after the positional arguments are forwarded to uclusionInstall.py;
+# --clients makes the install non-interactive and --project configures the
+# current working directory instead of the home directory.
 #
 # Typical invocation (one-liner):
-#   curl -fsSL https://production.uclusion.com/scripts/install.sh | bash -s -- <workspaceId>
+#   curl -fsSL https://production.uclusion.com/scripts/install.sh | bash -s -- <workspaceId> <viewId>
 set -euo pipefail
 
-if [ "$#" -lt 1 ]; then
-  echo "Usage: $0 <workspaceId> [environment]" >&2
+if [ "$#" -lt 2 ]; then
+  echo "Usage: $0 <workspaceId> <viewId> [environment] [--project] [--clients claude,cursor,codex]" >&2
   echo "  environment: dev | stage | production (default: production)" >&2
   exit 64
 fi
 
 WORKSPACE_ID="$1"
 VIEW_ID="$2"
-ENVIRONMENT="${3:-production}"
+shift 2
 
-case "$ENVIRONMENT" in
-  dev|stage|production) ;;
-  *)
-    echo "Error: environment must be one of: dev, stage, production (got '$ENVIRONMENT')" >&2
-    exit 64
-    ;;
-esac
+ENVIRONMENT="production"
+if [ "$#" -gt 0 ]; then
+  case "$1" in
+    dev|stage|production)
+      ENVIRONMENT="$1"
+      shift
+      ;;
+  esac
+fi
 
 if ! command -v python3 >/dev/null 2>&1; then
   echo "Error: python3 is required but was not found on PATH." >&2
@@ -50,4 +56,4 @@ else
   exit 1
 fi
 
-exec python3 "$INSTALL_SCRIPT" "$ENVIRONMENT" "$WORKSPACE_ID" "$VIEW_ID"
+exec python3 "$INSTALL_SCRIPT" "$ENVIRONMENT" "$WORKSPACE_ID" "$VIEW_ID" "$@"

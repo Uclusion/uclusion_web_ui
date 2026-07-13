@@ -10,8 +10,8 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 
+// T-all-2297: only suggestions reach this step - a moved question just stays open
 function DecideResolveStep(props) {
   const { marketId, commentId, marketComments, updateFormData = () => {}, formData = {} } = props;
   const [investibleState] = useContext(InvestiblesContext);
@@ -22,7 +22,6 @@ function DecideResolveStep(props) {
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
-  const isSuggestion = comment.comment_type === SUGGEST_CHANGE_TYPE;
   const { useCompression } = formData;
 
   if (comment.id === 'fake') {
@@ -34,18 +33,11 @@ function DecideResolveStep(props) {
       {...props}
       isLarge
     >
-      {isSuggestion && (
-        <Typography className={classes.introText}>
-          Will you move this suggestion to a task?
-        </Typography>
-      )}
-      {!isSuggestion && (
-        <Typography className={classes.introText}>
-          Will you resolve this question?
-        </Typography>
-      )}
+      <Typography className={classes.introText}>
+        Will you move this suggestion to a task?
+      </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        Jobs with open {isSuggestion ? 'suggestions' : 'questions'} move to Next / Assistance.
+        Jobs with open suggestions move to Next / Assistance.
       </Typography>
       <div className={classes.wizardCommentBoxDiv}>
         <CommentBox
@@ -64,28 +56,17 @@ function DecideResolveStep(props) {
           useCompression={useCompression}
         />
       </div>
-      {isSuggestion && (
-        <WizardStepButtons
-          {...props}
-          focus
-          nextLabel="wizardAcceptLabel"
-          onNext={() => updateFormData({doTaskId: commentId})}
-          showOtherNext
-          otherNextLabel="commentResolveLabelInstead"
-          onOtherNext={() => updateFormData({doResolveId: commentId})}
-          isFinal={false}
-          showSkip
-        />
-      )}
-      {!isSuggestion && (
-        <WizardStepButtons
-          {...props}
-          nextLabel="commentResolveLabel"
-          onNext={() => updateFormData({doResolveId: commentId})}
-          isFinal={false}
-          showSkip
-        />
-      )}
+      <WizardStepButtons
+        {...props}
+        focus
+        nextLabel="wizardAcceptLabel"
+        onNext={() => updateFormData({doTaskId: commentId})}
+        showOtherNext
+        otherNextLabel="commentResolveLabelInstead"
+        onOtherNext={() => updateFormData({doResolveId: commentId})}
+        isFinal={false}
+        showSkip
+      />
     </WizardStepContainer>
   );
 }

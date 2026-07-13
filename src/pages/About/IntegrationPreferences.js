@@ -20,6 +20,8 @@ import CLISecret from './CLISecret';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 import _ from 'lodash';
 import CopyCommand from './CopyCommand';
+import InstallSelector from './InstallSelector';
+import { getUclusionEnvironment } from './installUtils';
 
 const useStyles = makeStyles((theme) => ({
   disabled: {
@@ -94,6 +96,13 @@ function IntegrationPreferences (props) {
   const { integrationType } = values || {};
   const { user } = userState || {};
   const useGroupId = groupId || marketId;
+  // T-all-2296: PyTorch-style selector state turned into arguments on the install command
+  const [installScope, setInstallScope] = useState('global');
+  const [installClients, setInstallClients] = useState(['claude']);
+  const env = getUclusionEnvironment();
+  const installBaseUrl = config.ui_base_url;
+  const installArgs = `${marketId} ${useGroupId}${env === 'production' ? '' : ` ${env}`}` +
+    ` --clients ${installClients.join(',')}${installScope === 'project' ? ' --project' : ''}`;
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   let markets = [];
   const allowableGroups = groupsState[marketId];
@@ -234,12 +243,29 @@ function IntegrationPreferences (props) {
             >
               <Typography variant="subtitle1" style={{paddingBottom: '1rem'}}>
                 See <Link href="https://documentation.uclusion.com/github-and-cli-integrations/mcp" target="_blank">MCP</Link> documentation for details
-                on how Uclusion connects to your AI coding tools. Also 
+                on how Uclusion connects to your AI coding tools. Also
                 installs <Link href="https://documentation.uclusion.com/github-and-cli-integrations" target="_blank">Uclusion CLI</Link>.
-                Installation command:
               </Typography>
+              {/* T-all-2295: three copy-paste steps - credentials, options, install command */}
+              <Typography variant="h6" style={{paddingBottom: '0.5rem'}}>
+                Step 1. Install your credentials
+              </Typography>
+              <CLISecret marketId={marketId} />
+              <Typography variant="h6" style={{paddingTop: '1.5rem', paddingBottom: '0.5rem'}}>
+                Step 2. Choose your setup
+              </Typography>
+              <InstallSelector scope={installScope} setScope={setInstallScope} clients={installClients}
+                               setClients={setInstallClients} />
+              <Typography variant="h6" style={{paddingTop: '1.5rem', paddingBottom: '0.5rem'}}>
+                Step 3. Copy and run the install command
+              </Typography>
+              {installScope === 'project' && (
+                <Typography variant="subtitle1" style={{paddingBottom: '0.5rem'}}>
+                  Run this from your project's root directory — it configures the directory it runs in.
+                </Typography>
+              )}
               <CopyCommand
-                command={`curl -fsSL https://production.uclusion.com/scripts/install.sh | bash -s -- ${marketId} ${useGroupId}`}
+                command={`curl -fsSL ${installBaseUrl}/scripts/install.sh | bash -s -- ${installArgs}`}
               />
               <div style={{display: 'flex', alignItems: 'center', margin: '0.75rem 0',
                 color: isDark ? 'rgba(255,255,255,0.6)' : '#6a737d'}}>
@@ -248,9 +274,8 @@ function IntegrationPreferences (props) {
                 <div style={{flex: 1, height: '1px', backgroundColor: isDark ? 'rgba(255,255,255,0.2)' : '#e1e4e8'}} />
               </div>
               <CopyCommand
-                command={`wget -qO- https://production.uclusion.com/scripts/install.sh | bash -s -- ${marketId} ${useGroupId}`}
+                command={`wget -qO- ${installBaseUrl}/scripts/install.sh | bash -s -- ${installArgs}`}
               />
-              <CLISecret marketId={marketId} />
             </SubSection>
           </Card>
         </div>

@@ -58,6 +58,8 @@ import {
   preventDefaultAndProp
 } from '../../../utils/marketIdPathFunctions';
 import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { isAssistanceRespondedByHuman } from '../../../utils/commentFunctions';
 import { getStagesInfo } from '../../../utils/stageUtils';
 import PlanningInvestibleNav, { useMetaDataStyles } from './PlanningInvestibleNav';
 import GravatarAndName from '../../../components/Avatars/GravatarAndName';
@@ -421,8 +423,11 @@ function PlanningInvestible(props) {
     sectionOpen,
     compressionHash,
     showDiff,
-    reportsOpenRaw
+    reportsOpenRaw,
+    assistanceTabIndex
   } = pageState;
+  // T-all-2298: which Debatable sub-tab (0 Unresponded, 1 Responded, 2 Resolved) is open
+  const assistanceTab = assistanceTabIndex || 0;
   const reportsOpen = !_.isEmpty(search) ? !_.isEmpty(reportsCommentsSearched) : reportsOpenRaw;
   // J-all-325: the add wizards open inside this container instead of on the full-screen /wizard route.
   // The open-state is kept local (not in the URL) so that navigating away and back shows the page as
@@ -480,6 +485,20 @@ function PlanningInvestible(props) {
   const isCollaborator = collaboratorIds.includes(userId);
 
   useEffect(() => {
+    // T-all-2298: pick the Debatable sub-tab holding this root so a followed link lands on it
+    function assistanceTabFor(rootComment) {
+      if (rootComment.resolved) {
+        return 2;
+      }
+      return isAssistanceRespondedByHuman(rootComment, investibleComments, marketPresences,
+        marketPresencesState) ? 1 : 0;
+    }
+    function openAssistance(rootComment, extraState) {
+      const tabForComment = assistanceTabFor(rootComment);
+      if (sectionOpen !== 'assistanceSection' || assistanceTab !== tabForComment || extraState) {
+        updatePageState({ sectionOpen: 'assistanceSection', assistanceTabIndex: tabForComment, ...(extraState || {}) });
+      }
+    }
     if (hash && hash.length > 1 && !hidden && !hash.includes('header')) {
       const element = document.getElementById(hash.substring(1, hash.length));
       // Check if already on the right tab and only change tab if not
@@ -492,9 +511,15 @@ function PlanningInvestible(props) {
           updatePageState({ sectionOpen: 'tasksSection' });
           history.replace(window.location.pathname + window.location.search);
         } else if (hash.startsWith('#option')) {
-          if (sectionOpen !== 'assistanceSection') {
-            updatePageState({ sectionOpen: 'assistanceSection' });
+          const questionComment = investibleComments.find((comment) =>
+            comment.comment_type === QUESTION_TYPE && comment.inline_market_id &&
+            (getMarketInvestibles(investiblesState, comment.inline_market_id) || [])
+              .find((inv) => hash.includes(inv.investible.id)));
+          if (questionComment) {
+            openAssistance(questionComment);
             // Scroll context should send to the option now
+          } else if (sectionOpen !== 'assistanceSection') {
+            updatePageState({ sectionOpen: 'assistanceSection' });
           }
         } else if (hash.startsWith('#investibleCondensedTodos')) {
           updatePageState({ sectionOpen: 'descriptionVotingSection' });
@@ -537,17 +562,10 @@ function PlanningInvestible(props) {
                     } else {
                       newCompressionHash = { [rootComment.id]: false };
                     }
-                    if (newCompressionHash) {
-                      updatePageState({ sectionOpen: 'assistanceSection', compressionHash: newCompressionHash });
-                    } else {
-                      if (sectionOpen !== 'assistanceSection') {
-                        updatePageState({ sectionOpen: 'assistanceSection' });
-                      }
-                    }
+                    openAssistance(rootComment, newCompressionHash ?
+                      { compressionHash: newCompressionHash } : undefined);
                   } else {
-                    if (sectionOpen !== 'assistanceSection') {
-                      updatePageState({ sectionOpen: 'assistanceSection' });
-                    }
+                    openAssistance(rootComment);
                   }
                   break;
                 default:
@@ -557,7 +575,8 @@ function PlanningInvestible(props) {
         }
       }
     }
-  }, [investibleComments, hash, sectionOpen, updatePageState, hidden, history, compressionHash, reportsOpenRaw]);
+  }, [investibleComments, hash, sectionOpen, updatePageState, hidden, history, compressionHash, reportsOpenRaw,
+    assistanceTab, investiblesState, marketPresences, marketPresencesState]);
 
   let lockedByName
   if (lockedBy) {
@@ -624,6 +643,16 @@ function PlanningInvestible(props) {
   );
   const assistanceCommentsSearched = questionCommentsSearched.concat(suggestionCommentsSearched)
     .concat(blockingCommentsSearched);
+  // T-all-2298: split Debatable into Unresponded, Responded (a human added something later than
+  // the AI), and Resolved
+  const resolvedAssistanceComments = assistanceCommentsSearched.filter((comment) => comment.resolved);
+  const unresolvedAssistanceComments = assistanceCommentsSearched.filter((comment) => !comment.resolved);
+  const respondedAssistanceComments = unresolvedAssistanceComments.filter((comment) =>
+    isAssistanceRespondedByHuman(comment, investibleComments, marketPresences, marketPresencesState));
+  const unrespondedAssistanceComments = unresolvedAssistanceComments.filter((comment) =>
+    !respondedAssistanceComments.includes(comment));
+  const assistanceTabComments = [unrespondedAssistanceComments, respondedAssistanceComments,
+    resolvedAssistanceComments];
   const notesCommentsSearched = investibleCommentsSearched.filter(
     comment => comment.comment_type === REPORT_TYPE && comment.notification_type === 'BLUE'
   );
@@ -667,7 +696,7 @@ function PlanningInvestible(props) {
     if (canOpenBlocking()) {
       allowedCommentTypes.push(ISSUE_TYPE);
     }
-    sectionComments = assistanceCommentsSearched;
+    sectionComments = assistanceTabComments[assistanceTab] || [];
   } else if (sectionOpen === 'notesSection') {
     allowedCommentTypes = [REPORT_TYPE];
     sectionComments = notesCommentsSearched;
@@ -1030,18 +1059,18 @@ function PlanningInvestible(props) {
         )}
         {!inlineWizard && sectionOpen !== 'descriptionVotingSection' && (
           <>
+            {/* Vertical spacing lives on the wrapper so buttons and tabs space the same way as the
+                view level sections (DiscussionSection, MarketTodos, Backlog) */}
             {showCommentAdd && !_.isEmpty(allowedCommentTypes) && (
-              <div style={{ display: mobileLayout ? undefined : 'flex', marginLeft: '0.5rem' }}>
+              <div style={{ display: mobileLayout ? undefined : 'flex', marginLeft: '0.5rem', marginTop: '1rem',
+                marginBottom: '1rem' }}>
                 {allowedCommentTypes.map((allowedCommentType) => {
                   return (
                     <SpinningButton key={allowedCommentType} id={`new${allowedCommentType}`} className={wizardClasses.actionNext}
                                     icon={hasJobComment(groupId, investibleId, allowedCommentType, unSentInvestibleComments) ? EditIcon :
                                       AddIcon}
                                     iconColor="black"
-                                    style={{
-                                      display: 'flex', marginTop: '1.75rem',
-                                      marginRight: mobileLayout ? undefined : '2rem', marginBottom: '0.75rem'
-                                    }}
+                                    style={{ display: 'flex', marginRight: mobileLayout ? undefined : '2rem' }}
                                     toolTipId={
                       [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE, REPORT_TYPE].includes(allowedCommentType) ?
                                       `hotKey${allowedCommentType}`: undefined}
@@ -1086,15 +1115,12 @@ function PlanningInvestible(props) {
                                         investibleId)}&stageId=${inReviewStageId}`);
                                     }
                                   }}
-                                  style={{
-                                    display: 'flex', marginTop: '1.75rem',
-                                    marginRight: mobileLayout ? undefined : '2rem', marginBottom: '0.75rem'
-                                  }}>
+                                  style={{ display: 'flex', marginRight: mobileLayout ? undefined : '2rem' }}>
                     {intl.formatMessage({ id: 'allDoneButton'})}
                   </SpinningButton>
                 )}
                 {sectionOpen === 'tasksSection' && (
-                  <div style={{marginTop: '2.25rem', fontWeight: 'bold'}}><Link
+                  <div style={{marginTop: '0.5rem', fontWeight: 'bold'}}><Link
                     href={`${formInvestibleLink(marketId, investibleId)}#investibleCondensedTodos`}
                     color="primary"
                     onClick={(event) => {
@@ -1104,7 +1130,37 @@ function PlanningInvestible(props) {
                 )}
               </div>
             )}
-            <DismissableText textId="investibleCommentHelp" display={_.isEmpty(sectionComments)&&_.isEmpty(search)} noPad isLeft
+            {sectionOpen === 'assistanceSection' && (
+              <GmailTabs
+                value={assistanceTab}
+                onChange={(event, value) => {
+                  updatePageState({ assistanceTabIndex: value });
+                }}
+                indicatorColors={['#2F80ED', '#2F80ED', '#bdbdbd']}
+                style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
+                <GmailTabItem label={intl.formatMessage({ id: 'assistanceUnresponded' })} color='black'
+                              tag={_.size(unrespondedAssistanceComments) > 0 ?
+                                `${_.size(unrespondedAssistanceComments)}` : undefined} />
+                <GmailTabItem label={intl.formatMessage({ id: 'assistanceResponded' })} color='black'
+                              tag={_.size(respondedAssistanceComments) > 0 ?
+                                `${_.size(respondedAssistanceComments)}` : undefined} />
+                <GmailTabItem label={intl.formatMessage({ id: 'assistanceResolved' })} color='black'
+                              tag={_.size(resolvedAssistanceComments) > 0 ?
+                                `${_.size(resolvedAssistanceComments)}` : undefined} />
+              </GmailTabs>
+            )}
+            {sectionOpen === 'assistanceSection' && assistanceTab > 0 && _.isEmpty(sectionComments) && (
+              <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
+                          variant="body1">
+                {intl.formatMessage({ id: assistanceTab === 1 ? 'assistanceResponded' : 'assistanceResolved' })} is empty.<br/><br/>
+                {assistanceTab === 1 ?
+                  'AI questions and suggestions where a human responded display here.' :
+                  'Resolved questions, suggestions, and blockers display here.'}
+              </Typography>
+            )}
+            <DismissableText textId="investibleCommentHelp"
+                             display={_.isEmpty(sectionComments) && _.isEmpty(search) &&
+                               (sectionOpen !== 'assistanceSection' || assistanceTab === 0)} noPad isLeft
                              text={
                                sectionOpen === 'assistanceSection' ? (
                                  <ul style={{ paddingLeft: 0, marginLeft: '1rem' }}>

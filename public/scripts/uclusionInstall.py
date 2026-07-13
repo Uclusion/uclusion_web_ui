@@ -11,8 +11,15 @@ The CLI file is named ``uclusion.py`` in the install directory and is exposed
 on ``PATH`` via a ``uclusion`` symlink, so users invoke it simply as
 ``uclusion`` rather than the legacy ``uclusionCLI.py`` filename.
 
-The installer then asks whether to configure Uclusion globally (the default) or
-at the project level:
+With ``--clients`` (a comma list of ``claude``, ``cursor``, ``codex``) the
+install is fully non-interactive: only the selected clients are configured,
+their config files are created even when the client is not detected on the
+machine, and ``--project`` configures the current working directory instead of
+the home directory (T-all-2296 - the web setup page builds this command from a
+selector instead of the installer asking questions).
+
+Without ``--clients`` the installer asks whether to configure Uclusion globally
+(the default) or at the project level:
 
 * Global writes a workspace config to ``~/.uclusion/uclusion.json`` and registers
   the Uclusion MCP server in ``~/.cursor/mcp.json`` and ``~/.claude.json`` if
@@ -64,6 +71,10 @@ UCLUSION_CONFIG_PATH = os.path.join(UCLUSION_HOME, 'uclusion.json')
 CURSOR_MCP_PATH = os.path.join(os.path.expanduser('~'), '.cursor', 'mcp.json')
 CLAUDE_JSON_PATH = os.path.join(os.path.expanduser('~'), '.claude.json')
 CLAUDE_MD_PATH = os.path.join(os.path.expanduser('~'), '.claude', 'CLAUDE.md')
+CLAUDE_SETTINGS_PATH = os.path.join(os.path.expanduser('~'), '.claude', 'settings.json')
+# Explicit allow rules are checked before Claude Code's permission classifier, so the Uclusion
+# workflow tools never prompt or hit classifier outages (T-all-2299)
+CLAUDE_ALLOW_RULE = 'mcp__Uclusion__*'
 CLAUDE_MD_MARKER = '<!-- uclusion-workflow:v1 -->'
 CLAUDE_MD_END_MARKER = '<!-- /uclusion-workflow:v1 -->'
 CURSOR_MDC_PATH = os.path.join(os.path.expanduser('~'), '.cursor', 'rules', 'uclusion.mdc')
@@ -229,6 +240,51 @@ def register_mcp_json(path, label, workspace_id, env, require_existing):
     print(f"  ✅ Updated {path}")
 
 
+def add_claude_permissions(settings_path):
+    """Merge the Uclusion allow rule into a Claude Code settings file (T-all-2299).
+
+    ``settings_path`` is ``~/.claude/settings.json`` for a global install and
+    ``<project>/.claude/settings.local.json`` for a project-level one -
+    settings.local.json is the per-machine file Claude Code itself writes
+    approved permissions to, so each collaborator picks the rule up by running
+    the installer rather than through a committed file.
+    """
+    print(f"🔓 Allowing Uclusion MCP tools in {settings_path}")
+    config = {}
+    if os.path.exists(settings_path):
+        try:
+            with open(settings_path, 'r', encoding='utf-8') as src:
+                config = json.load(src)
+        except json.JSONDecodeError as err:
+            print(f"  ❌ {settings_path} is not valid JSON: {err}")
+            return
+        if not isinstance(config, dict):
+            print(f"  ❌ {settings_path} top-level value must be a JSON object.")
+            return
+
+    permissions = config.setdefault('permissions', {})
+    if not isinstance(permissions, dict):
+        print(f"  ❌ 'permissions' in {settings_path} must be a JSON object.")
+        return
+    allow = permissions.setdefault('allow', [])
+    if not isinstance(allow, list):
+        print(f"  ❌ 'permissions.allow' in {settings_path} must be a JSON array.")
+        return
+    if CLAUDE_ALLOW_RULE in allow:
+        print(f"  ⏭  {settings_path} already allows {CLAUDE_ALLOW_RULE}.")
+        return
+    allow.insert(0, CLAUDE_ALLOW_RULE)
+
+    try:
+        os.makedirs(os.path.dirname(settings_path), exist_ok=True)
+        with open(settings_path, 'w', encoding='utf-8') as out:
+            json.dump(config, out, indent=2)
+            out.write('\n')
+        print(f"  ✅ Added {CLAUDE_ALLOW_RULE} to {settings_path}")
+    except OSError as err:
+        print(f"  ❌ Could not write {settings_path}: {err}")
+
+
 def build_codex_mcp_block(workspace_id, env):
     """Return the marker-delimited ``[mcp_servers.Uclusion]`` table for config.toml.
 
@@ -253,19 +309,22 @@ def build_codex_mcp_block(workspace_id, env):
     return '\n'.join(lines) + '\n'
 
 
-def update_codex_config(workspace_id, env):
+def update_codex_config(workspace_id, env, force=False):
     """Register the Uclusion MCP server in ``~/.codex/config.toml``.
 
     Gated on the ``~/.codex`` directory rather than the file: Codex creates the
     directory on login but leaves ``config.toml`` optional, so requiring the file
     (as the Cursor/Claude paths do for their JSON) would skip most real users.
-    Our table is appended at the end of the file behind comment markers and, on
-    reruns, stripped and re-appended at the end so it never captures trailing
-    keys the user added after it.
+    ``force`` (an explicit ``--clients`` selection) creates the directory instead
+    of skipping. Our table is appended at the end of the file behind comment
+    markers and, on reruns, stripped and re-appended at the end so it never
+    captures trailing keys the user added after it.
     """
     if not os.path.isdir(CODEX_HOME):
-        print(f"ℹ️  No {CODEX_HOME} found; skipping Codex MCP server registration.")
-        return
+        if not force:
+            print(f"ℹ️  No {CODEX_HOME} found; skipping Codex MCP server registration.")
+            return
+        ensure_dir(CODEX_HOME)
 
     print(f"🧩 Registering Uclusion MCP server in {CODEX_CONFIG_PATH}")
     existing = ''
@@ -464,7 +523,7 @@ def make_workflow_md_fetcher(env):
     return fetch
 
 
-def install_workflow_md(fetch_md, target_path, client_label, require_dir=None):
+def install_workflow_md(fetch_md, target_path, client_label, require_dir=None, assume_yes=False):
     """Install or refresh the Uclusion workflow block in ``target_path``.
 
     Used for both ``~/.claude/CLAUDE.md`` (Claude Code) and ``~/.codex/AGENTS.md``
@@ -474,7 +533,8 @@ def install_workflow_md(fetch_md, target_path, client_label, require_dir=None):
     that on reruns we can replace it in place without disturbing anything the
     user appended afterwards. ``require_dir`` gates the install on a directory
     existing (Codex's ``~/.codex``) rather than on the target file. ``fetch_md``
-    supplies the (shared, cached) CLAUDE.md content.
+    supplies the (shared, cached) CLAUDE.md content. ``assume_yes`` (an explicit
+    ``--clients`` selection) writes without prompting.
     """
     if require_dir is not None and not os.path.isdir(require_dir):
         print(f"ℹ️  No {require_dir} found; skipping {client_label} workflow file.")
@@ -515,7 +575,7 @@ def install_workflow_md(fetch_md, target_path, client_label, require_dir=None):
         prompt = f"  Create {target_path} with Uclusion job workflow?"
         default_yes = False
 
-    if not prompt_yes_no(prompt, default=default_yes):
+    if not assume_yes and not prompt_yes_no(prompt, default=default_yes):
         print(f"  ⏭  Skipped {os.path.basename(target_path)} update.")
         return
 
@@ -547,7 +607,7 @@ def install_workflow_md(fetch_md, target_path, client_label, require_dir=None):
         print(f"  ❌ Could not write {target_path}: {err}")
 
 
-def install_cursor_mdc(fetch_md, target_path=CURSOR_MDC_PATH):
+def install_cursor_mdc(fetch_md, target_path=CURSOR_MDC_PATH, assume_yes=False):
     """Install or refresh a Cursor rule (.mdc) at ``target_path``.
 
     ``target_path`` is ~/.cursor/rules/uclusion.mdc for a global install and
@@ -569,7 +629,7 @@ def install_cursor_mdc(fetch_md, target_path=CURSOR_MDC_PATH):
         verb = 'Wrote'
         default_yes = False
 
-    if not prompt_yes_no(prompt, default=default_yes):
+    if not assume_yes and not prompt_yes_no(prompt, default=default_yes):
         print("  ⏭  Skipped uclusion.mdc update.")
         return
 
@@ -609,40 +669,95 @@ def build_parser():
         'view_id',
         help='Uclusion viewId to configure.',
     )
+    parser.add_argument(
+        '--clients',
+        help='Comma list of AI clients to configure (claude, cursor, codex). '
+             'Supplying this makes the install non-interactive and forces '
+             'configuration of the selected clients.',
+    )
+    parser.add_argument(
+        '--project',
+        action='store_true',
+        help='With --clients, configure the current working directory instead '
+             'of the home directory (run from your project root).',
+    )
     return parser
 
 
-def install_global(workspace_id, view_id, mcp_env, fetch_md):
-    """Configure Uclusion in the user's home directory (the default)."""
+def parse_clients(clients_arg):
+    """Validate the ``--clients`` comma list; exits with an error on unknown names."""
+    clients = {client.strip().lower() for client in clients_arg.split(',') if client.strip()}
+    unknown = clients - {'claude', 'cursor', 'codex'}
+    if unknown:
+        print(f"❌ Unknown --clients value(s): {', '.join(sorted(unknown))} "
+              f"(expected claude, cursor, codex)")
+        sys.exit(64)
+    if not clients:
+        print("❌ --clients was supplied but named no clients (expected claude, cursor, codex)")
+        sys.exit(64)
+    return clients
+
+
+def install_global(workspace_id, view_id, mcp_env, fetch_md, clients=None):
+    """Configure Uclusion in the user's home directory (the default).
+
+    Without ``clients`` every detected client is offered interactively. With
+    ``clients`` (an explicit ``--clients`` selection) only those clients are
+    configured, without prompts, and their config files are created even when
+    the client is not detected on the machine.
+    """
+    interactive = clients is None
     write_uclusion_config(workspace_id, view_id, UCLUSION_CONFIG_PATH)
-    register_mcp_json(CURSOR_MCP_PATH, 'Cursor', workspace_id, mcp_env, require_existing=True)
-    register_mcp_json(CLAUDE_JSON_PATH, 'Claude Code', workspace_id, mcp_env, require_existing=True)
-    update_codex_config(workspace_id, mcp_env)
-    install_workflow_md(fetch_md, CLAUDE_MD_PATH, 'Claude Code')
-    install_cursor_mdc(fetch_md)
-    install_workflow_md(fetch_md, CODEX_AGENTS_MD_PATH, 'Codex', require_dir=CODEX_HOME)
+    if interactive or 'cursor' in clients:
+        register_mcp_json(CURSOR_MCP_PATH, 'Cursor', workspace_id, mcp_env, require_existing=interactive)
+    if interactive or 'claude' in clients:
+        register_mcp_json(CLAUDE_JSON_PATH, 'Claude Code', workspace_id, mcp_env, require_existing=interactive)
+        if not interactive or os.path.exists(CLAUDE_JSON_PATH):
+            add_claude_permissions(CLAUDE_SETTINGS_PATH)
+    if interactive or 'codex' in clients:
+        update_codex_config(workspace_id, mcp_env, force=not interactive)
+    if interactive or 'claude' in clients:
+        install_workflow_md(fetch_md, CLAUDE_MD_PATH, 'Claude Code', assume_yes=not interactive)
+    if interactive or 'cursor' in clients:
+        install_cursor_mdc(fetch_md, assume_yes=not interactive)
+    if interactive or 'codex' in clients:
+        install_workflow_md(fetch_md, CODEX_AGENTS_MD_PATH, 'Codex',
+                            require_dir=CODEX_HOME if interactive else None,
+                            assume_yes=not interactive)
 
 
-def install_project_level(workspace_id, view_id, mcp_env, fetch_md, project_dir):
+def install_project_level(workspace_id, view_id, mcp_env, fetch_md, project_dir, clients=None):
     """Configure Uclusion inside ``project_dir`` instead of the home directory.
 
     Writes the workspace config and the project-scoped MCP registrations and
     workflow docs into the project. The CLI binaries stay user-global under
     ~/.local; only configuration becomes project-local. Codex has no per-project
     MCP config mechanism (its config.toml is global), so project mode registers
-    only Codex's AGENTS.md workflow doc and leaves ~/.codex untouched.
+    only Codex's AGENTS.md workflow doc and leaves ~/.codex untouched. With
+    ``clients`` (an explicit ``--clients`` selection) only those clients are
+    configured and nothing prompts.
     """
+    interactive = clients is None
     print(f"📁 Project-level install into {project_dir}")
     os.makedirs(project_dir, exist_ok=True)
 
     write_uclusion_config(workspace_id, view_id, os.path.join(project_dir, 'uclusion.json'))
-    register_mcp_json(os.path.join(project_dir, '.mcp.json'),
-                      'Claude Code (project)', workspace_id, mcp_env, require_existing=False)
-    register_mcp_json(os.path.join(project_dir, '.cursor', 'mcp.json'),
-                      'Cursor (project)', workspace_id, mcp_env, require_existing=False)
-    install_workflow_md(fetch_md, os.path.join(project_dir, 'CLAUDE.md'), 'Claude Code (project)')
-    install_cursor_mdc(fetch_md, os.path.join(project_dir, '.cursor', 'rules', 'uclusion.mdc'))
-    install_workflow_md(fetch_md, os.path.join(project_dir, 'AGENTS.md'), 'Codex (project)')
+    if interactive or 'claude' in clients:
+        register_mcp_json(os.path.join(project_dir, '.mcp.json'),
+                          'Claude Code (project)', workspace_id, mcp_env, require_existing=False)
+        add_claude_permissions(os.path.join(project_dir, '.claude', 'settings.local.json'))
+    if interactive or 'cursor' in clients:
+        register_mcp_json(os.path.join(project_dir, '.cursor', 'mcp.json'),
+                          'Cursor (project)', workspace_id, mcp_env, require_existing=False)
+    if interactive or 'claude' in clients:
+        install_workflow_md(fetch_md, os.path.join(project_dir, 'CLAUDE.md'), 'Claude Code (project)',
+                            assume_yes=not interactive)
+    if interactive or 'cursor' in clients:
+        install_cursor_mdc(fetch_md, os.path.join(project_dir, '.cursor', 'rules', 'uclusion.mdc'),
+                           assume_yes=not interactive)
+    if interactive or 'codex' in clients:
+        install_workflow_md(fetch_md, os.path.join(project_dir, 'AGENTS.md'), 'Codex (project)',
+                            assume_yes=not interactive)
 
 
 def main():
@@ -652,14 +767,20 @@ def main():
     view_id = args.view_id
     mcp_env = None if env == 'production' else env
 
+    clients = parse_clients(args.clients) if args.clients else None
+
     try:
         install_scripts(env)
-        project_dir = prompt_install_scope()
+        if clients is not None:
+            # Non-interactive: the web setup page's selector chose everything already
+            project_dir = os.getcwd() if args.project else None
+        else:
+            project_dir = prompt_install_scope()
         fetch_md = make_workflow_md_fetcher(env)
         if project_dir is None:
-            install_global(workspace_id, view_id, mcp_env, fetch_md)
+            install_global(workspace_id, view_id, mcp_env, fetch_md, clients)
         else:
-            install_project_level(workspace_id, view_id, mcp_env, fetch_md, project_dir)
+            install_project_level(workspace_id, view_id, mcp_env, fetch_md, project_dir, clients)
     except subprocess.CalledProcessError as err:
         print(f"❌ Command failed: {err}")
         return 1

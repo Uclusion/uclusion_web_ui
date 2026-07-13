@@ -163,6 +163,10 @@ Call `resolve` on questions you feel have already been answered and require no
 further operations. Do not resolve a question and then reply or other operation to 
 something inside of it - that will error.
 
+When you receive a reply, if there is any ambiguity at all in what it means,
+reply to that reply asking for clarification instead of resolving the
+question. Resolve only when the direction is completely clear.
+
 Do this immediately when you first become aware the question is answered
 or otherwise it is harder for the user to see what needs attention.
 

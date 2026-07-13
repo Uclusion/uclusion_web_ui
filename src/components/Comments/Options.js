@@ -69,14 +69,26 @@ function Options(props) {
   const underConsiderationStage = getInCurrentVotingStage(marketStagesState, anInlineMarket.id);
   const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id, searchResults, isInbox)
     || [];
+  const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
+  // T-all-2301: the AI user is the only presence without an email, and a vote requires quantity
+  // (see OptionVoting) - an investment without quantity only means the presence is addressed
+  function countVoters(investibleId, isHuman) {
+    return anInlineMarketPresences.filter((presence) => (isHuman === !_.isEmpty(presence.email)) &&
+      presence.investments?.find((investment) => !investment.deleted && investment.quantity &&
+        investment.investible_id === investibleId)).length;
+  }
   function getInlineInvestiblesForStage(stage) {
     const investiblesRaw = inlineInvestibles.filter((investible) => {
       const aMarketInfo = getMarketInfo(investible, anInlineMarket.id);
       return aMarketInfo && aMarketInfo.stage === stage?.id && !aMarketInfo.deleted;
     }) || [];
-    return _.orderBy(investiblesRaw, [(inv) => {
-      return isNew(inv, messagesState) ? 0 : 1;
-    }, (inv) => inv.investible.name]);
+    // T-all-2301: new rows first, then voted for with human votes ranking over AI votes
+    return _.orderBy(investiblesRaw, [
+      (inv) => isNew(inv, messagesState) ? 0 : 1,
+      (inv) => countVoters(inv.investible.id, true),
+      (inv) => countVoters(inv.investible.id, false),
+      (inv) => inv.investible.name
+    ], ['asc', 'desc', 'desc', 'asc']);
   }
   const underConsideration = getInlineInvestiblesForStage(underConsiderationStage);
   const firstConsidered = _.isEmpty(underConsideration) ? undefined : underConsideration[0];
@@ -91,7 +103,6 @@ function Options(props) {
       selectedInvestibleIdTabOne: selectedStageTab === 1 ? selectedInvestibleId : undefined,
       investibleIdTabZeroWasSet: false, investibleIdTabOneWasSet: false});
   const anInlineMarketInvestibleComments = getMarketComments(commentsState, anInlineMarket.id) || [];
-  const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
   const abstaining = anInlineMarketPresences.filter((presence) => presence.abstain);
   const { tabIndex, selectedInvestibleIdTabZero, selectedInvestibleIdTabOne, investibleIdTabZeroWasSet,
     investibleIdTabOneWasSet } = pageState;

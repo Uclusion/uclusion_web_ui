@@ -155,6 +155,10 @@ function JobWizard(props) {
   }
 
   const requiresInputId = getOpenQuestionSuggestionId();
+  // T-all-2297: only a suggestion gets the pre-move ask (convert to task or resolve) -
+  // a moved question just stays open, so don't ask about resolving it
+  const requiresInputComment = comments.find((comment) => comment.id === requiresInputId);
+  const showResolveStep = requiresInputComment?.comment_type === SUGGEST_CHANGE_TYPE;
   if (!_.isEmpty(fromCommentIds) && _.size(roots) !== _.size(fromCommentIds)) {
     return React.Fragment;
   }
@@ -163,7 +167,7 @@ function JobWizard(props) {
     <WizardStylesProvider>
       <FormdataWizard name={`job_wizard${_.isArray(fromCommentId) ? groupId : fromCommentId}`}
                       defaultFormData={{useCompression: true}} useLocalStorage={false}>
-        {requiresInputId && (
+        {requiresInputId && showResolveStep && (
           <ResolveCommentsStep marketId={marketId} commentId={requiresInputId} marketComments={comments} />
         )}
         {fromCommentId && isNewJob === undefined && (

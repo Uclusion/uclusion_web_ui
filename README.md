@@ -1,6 +1,6 @@
 # Uclusion UI
 
-[Uclusion](https://www.uclusion.com) makes this code publicly available as a learning resource for anyone coding in React, building PWA, using Amplify, using Material UI, etc.
+[Uclusion](https://www.uclusion.com) reserves all commercial rights to this code but it is available as a learning resource for anyone coding in React, building PWA, using Amplify, using Material UI, etc.
 
 ## List of articles about this code
 

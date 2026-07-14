@@ -1155,8 +1155,9 @@ function PlanningInvestible(props) {
                 }}
                 indicatorColors={['#2F80ED', '#2F80ED', '#bdbdbd']}
                 style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
-                {/* T-all-2308: a sub-tab with new messages shows their count like the sections do,
-                   and Resolved shows its contents count without a chip like resolved tasks */}
+                {/* T-all-2308: a sub-tab with new messages shows their count like the sections do.
+                   B-all-480: Resolved only grows so its contents count does not display - only new
+                   message and search match counts */}
                 <GmailTabItem label={intl.formatMessage({ id: 'assistanceUnresponded' })} color='black'
                               tagColor={assistanceTabNewCounts[0] > 0 ? warningColor : undefined}
                               tagLabel={assistanceTabNewCounts[0] > 0 && _.isEmpty(search) ? 'new' :
@@ -1172,12 +1173,12 @@ function PlanningInvestible(props) {
                                 `${assistanceTabNewCounts[1]}` : (_.size(respondedAssistanceComments) > 0 ?
                                   `${_.size(respondedAssistanceComments)}` : undefined)} />
                 <GmailTabItem label={intl.formatMessage({ id: 'assistanceResolved' })} color='black'
-                              hasChip={!_.isEmpty(search) || assistanceTabNewCounts[2] > 0}
                               tagColor={assistanceTabNewCounts[2] > 0 ? warningColor : undefined}
                               tagLabel={assistanceTabNewCounts[2] > 0 && _.isEmpty(search) ? 'new' :
                                 getTagLabel('total')}
                               tag={assistanceTabNewCounts[2] > 0 && _.isEmpty(search) ?
-                                `${assistanceTabNewCounts[2]}` : (_.size(resolvedAssistanceComments) > 0 ?
+                                `${assistanceTabNewCounts[2]}` : (!_.isEmpty(search) &&
+                                  _.size(resolvedAssistanceComments) > 0 ?
                                   `${_.size(resolvedAssistanceComments)}` : undefined)} />
               </GmailTabs>
             )}

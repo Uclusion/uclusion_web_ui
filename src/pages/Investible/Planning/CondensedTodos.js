@@ -274,13 +274,14 @@ function CondensedTodos(props) {
                         tag={`${_.size(openComments)}`}
                         onDrop={onDropOpen} toolTipId='openTasksToolTip'
                         onDragOver={(event)=>event.preventDefault()}/>
+          {/* B-all-480: resolved count only grows so it does not display - only new message and
+             search match counts */}
           <GmailTabItem label={intl.formatMessage({id: 'closedComments'})}
                         tagColor={hasResolvedTodoMessages ? warningColor : undefined}
-                        color='black' hasChip={isSearch || hasResolvedTodoMessages}
-                        tagLabel={isSearch ? intl.formatMessage({ id: 'match' }) : (hasResolvedTodoMessages ? intl.formatMessage({id: 'new'}) 
-                        : intl.formatMessage({id: 'total'}))}
-                        tag={isSearch ? (_.size(resolvedComments) > 0 ? `${_.size(resolvedComments)}` : undefined) : (hasResolvedTodoMessages ? 
-                          `${_.size(resolvedTodoMessages)}` : `${_.size(resolvedComments)}`)}
+                        color='black'
+                        tagLabel={isSearch ? intl.formatMessage({ id: 'match' }) : intl.formatMessage({id: 'new'})}
+                        tag={isSearch ? (_.size(resolvedComments) > 0 ? `${_.size(resolvedComments)}` : undefined) : (hasResolvedTodoMessages ?
+                          `${_.size(resolvedTodoMessages)}` : undefined)}
                         onDrop={onDropResolved} toolTipId='resolvedTasksToolTip'
                         onDragOver={(event)=>event.preventDefault()} />
         </GmailTabs>

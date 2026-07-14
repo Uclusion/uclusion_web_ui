@@ -189,6 +189,8 @@ function Options(props) {
   // B-all-471: isNew was called without messagesState here, so the red "new" tag on the
   // Approvable Options tab could never show even when a row was bolded as new.
   const unreadCount = _.size(underConsideration.filter((inv) => isNew(inv, messagesState)));
+  // B-all-480: proposed options can have notifications too, so that tab gets a new message count
+  const unreadProposedCount = _.size(proposed.filter((inv) => isNew(inv, messagesState)));
   const htmlColor = _.isEmpty(underConsideration) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
   const tabInvestibles = useTabIndex === 0 ? underConsideration : proposed;
   return (
@@ -203,15 +205,18 @@ function Options(props) {
           }}
           indicatorColors={[htmlColor, '#2F80ED']}
           style={{ paddingBottom: '1rem' }}>
+          {/* B-all-480: no content counts on option tabs - options are not worked down, so only
+             the new message count displays */}
           <GmailTabItem icon={<ThumbsUpDownIcon htmlColor={htmlColor} />} onDrop={onDropApprovable}
                         label={intl.formatMessage({id: 'decisionDialogCurrentVotingLabel'})}
                         color='black' tagLabel={unreadCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
                         tagColor={unreadCount > 0 ? '#E85757' : undefined} toolTipId='votedOptionsToolTip'
-                        tag={unreadCount > 0 ? `${unreadCount}` :
-                          (_.size(underConsideration) > 0 ? `${_.size(underConsideration)}` : undefined)} />
+                        tag={unreadCount > 0 ? `${unreadCount}` : undefined} />
           <GmailTabItem icon={<Block />} onDrop={onDropProposed} toolTipId='proposedOptionsToolTip'
                         label={intl.formatMessage({id: 'decisionDialogProposedOptionsLabel'})}
-                        tag={_.size(proposed) > 0 ? `${_.size(proposed)}` : undefined} />
+                        tagLabel={unreadProposedCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
+                        tagColor={unreadProposedCount > 0 ? '#E85757' : undefined}
+                        tag={unreadProposedCount > 0 ? `${unreadProposedCount}` : undefined} />
         </GmailTabs>
       </div>
       {_.isEmpty(tabInvestibles) && useTabIndex === 0 && (

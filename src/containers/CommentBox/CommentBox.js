@@ -31,7 +31,7 @@ function findGreatestUpdatedAt(roots, comments, rootUpdatedAt) {
   return myRootUpdatedAt;
 }
 
-export function getSortedRoots(allComments, searchResults, preserveOrder, isInboxExpansion) {
+export function getSortedRoots(allComments, searchResults, preserveOrder, isInboxExpansion, simpleOrdering) {
   const { results, parentResults, search } = searchResults;
   if (_.isEmpty(allComments)) {
     return [];
@@ -51,6 +51,10 @@ export function getSortedRoots(allComments, searchResults, preserveOrder, isInbo
     return { ...root, rootUpdatedAt: findGreatestUpdatedAt([root], comments) };
   });
   const simpleOrdered = _.orderBy(withRootUpdatedAt, ['rootUpdatedAt'], ['desc']) || [];
+  if (simpleOrdering) {
+    // T-all-2306: most recently updated thread first, no grouping by type
+    return simpleOrdered;
+  }
   const positions = {};
   const typeLengths = {};
   const fullOrdered = [];
@@ -100,11 +104,11 @@ function CommentBox(props) {
     fullStage = {}, stage, replyEditId, usePadding, issueWarningId, marketInfo, investible, removeActions, inboxMessageId,
     showVoting, selectedInvestibleIdParent, preserveOrder, isMove, toggleCompression, useCompression: rawUseCompression,
     useInProgressSorting, displayRepliesAsTop=false, compressAll=false, showNotes=false,
-    inNotesTab=false, investibleComments } = props;
+    inNotesTab=false, investibleComments, simpleOrdering } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [commentsState] = useContext(CommentsContext);
-  let sortedRoots = getSortedRoots(comments, searchResults, preserveOrder, isInbox);
+  let sortedRoots = getSortedRoots(comments, searchResults, preserveOrder, isInbox, simpleOrdering);
   if (useInProgressSorting) {
     const investibleComments = getInvestibleComments(marketInfo?.investible_id, marketId, commentsState);
     sortedRoots = sortInProgress(sortedRoots, investibleComments);

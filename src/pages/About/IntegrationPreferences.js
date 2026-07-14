@@ -219,23 +219,6 @@ function IntegrationPreferences (props) {
       )}
       {(integrationType === undefined || integrationType === 'cli') && useGroupId && (
         <div className={classes.containerLarge} style={{marginTop: '3rem', marginBottom: '10rem'}}>
-          {_.size(allowableGroups) > 1 && useGroupId && (
-            <>
-              <div>
-                <FormattedMessage id="switchTodoView"/>
-              </div>
-              <FormControl style={{marginBottom: '1rem'}}>
-                  <Select
-                    value={useGroupId}
-                    onChange={(event) => setGroupId(event.target.value)}
-                  >
-                    {allowableGroups.map((group) => {
-                      return <MenuItem key={`key${group.id}`} value={group.id}>{group.name}</MenuItem>
-                    })}
-                  </Select>
-              </FormControl>
-            </>
-          )}
           <Card>
             <SubSection
               title={intl.formatMessage({ id: 'cliIntegration' })}
@@ -254,6 +237,23 @@ function IntegrationPreferences (props) {
               <Typography variant="h6" style={{paddingTop: '1.5rem', paddingBottom: '0.5rem'}}>
                 Step 2. Choose your setup
               </Typography>
+              {/* T-all-2304: the view choice belongs with the other setup options; defaults to the
+                 view with the same ID as the workspace */}
+              {_.size(allowableGroups) > 1 && (
+                <div style={{display: 'flex', alignItems: 'center', marginBottom: '0.75rem'}}>
+                  <FormattedMessage id="switchTodoView"/>
+                  <FormControl style={{marginLeft: '1rem'}}>
+                    <Select
+                      value={useGroupId}
+                      onChange={(event) => setGroupId(event.target.value)}
+                    >
+                      {allowableGroups.map((group) => {
+                        return <MenuItem key={`key${group.id}`} value={group.id}>{group.name}</MenuItem>
+                      })}
+                    </Select>
+                  </FormControl>
+                </div>
+              )}
               <InstallSelector scope={installScope} setScope={setInstallScope} clients={installClients}
                                setClients={setInstallClients} />
               <Typography variant="h6" style={{paddingTop: '1.5rem', paddingBottom: '0.5rem'}}>
@@ -276,6 +276,16 @@ function IntegrationPreferences (props) {
               <CopyCommand
                 command={`wget -qO- ${installBaseUrl}/scripts/install.sh | bash -s -- ${installArgs}`}
               />
+              <Typography variant="h6" style={{paddingTop: '1.5rem', paddingBottom: '0.5rem'}}>
+                Step 4. Start working inside your AI tool
+              </Typography>
+              <Typography variant="subtitle1">
+                Launch your AI tool and type something like "go". The AI then runs Uclusion's find_work
+                and presents your work list. If no work is available, it asks whether you want a
+                tutorial. To skip typing "go" each time,
+                see <Link href="https://documentation.uclusion.com/github-and-cli-integrations/mcp/#starting-a-session-on-find_work" target="_blank">starting
+                a session on find_work</Link> to alias your agent.
+              </Typography>
             </SubSection>
           </Card>
         </div>

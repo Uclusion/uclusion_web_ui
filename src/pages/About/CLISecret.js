@@ -73,7 +73,7 @@ function CLISecret (props) {
         </SpinBlockingButton>
       )}
       <Typography variant="subtitle1" style={{marginTop: '2rem'}}>
-        Press this button to invalidate your current Uclusion secret and create a new one.
+        If your secret is compromised, this button invalidates it and creates a new one.
       </Typography>
       <SpinBlockingButton
         className={classes.getSecretButton}

@@ -672,7 +672,24 @@ function PlanningInvestible(props) {
     }
   });
   const numNewAssistanceMessages = _.size(newAssistanceMessages.filter((message) => isInInbox(message)));
-  const newTodoMessages = findMessagesForCommentIds(openTodoCommentsSearchedAll?.map((comment) => comment.id), 
+  // T-all-2308: per sub-tab notification counts - same rule as the sections, a sub-tab shows its
+  // new message count instead of its contents count when new messages are present
+  function countBucketNewMessages(bucketComments) {
+    const bucketAll = bucketComments.concat(investibleComments.filter((comment) =>
+      comment.comment_type === REPLY_TYPE &&
+      bucketComments.some((parent) => parent.id === comment.root_comment_id)));
+    const bucketMessages = findMessagesForCommentIds(bucketAll.map((comment) => comment.id),
+      messagesState, true);
+    newInvestibleMessages.forEach((message) => {
+      if (message.market_id !== marketId &&
+        bucketComments.find((comment) => comment.inline_market_id === message.market_id)) {
+        bucketMessages.push(message);
+      }
+    });
+    return _.size(bucketMessages.filter((message) => isInInbox(message)));
+  }
+  const assistanceTabNewCounts = assistanceTabComments.map((bucket) => countBucketNewMessages(bucket));
+  const newTodoMessages = findMessagesForCommentIds(openTodoCommentsSearchedAll?.map((comment) => comment.id),
     messagesState, true);
   // Do not include each unread task as its own message
   const numNewTodoMessages = _.size(newTodoMessages.filter((message) => isInInbox(message)));
@@ -1138,15 +1155,30 @@ function PlanningInvestible(props) {
                 }}
                 indicatorColors={['#2F80ED', '#2F80ED', '#bdbdbd']}
                 style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
+                {/* T-all-2308: a sub-tab with new messages shows their count like the sections do,
+                   and Resolved shows its contents count without a chip like resolved tasks */}
                 <GmailTabItem label={intl.formatMessage({ id: 'assistanceUnresponded' })} color='black'
-                              tag={_.size(unrespondedAssistanceComments) > 0 ?
-                                `${_.size(unrespondedAssistanceComments)}` : undefined} />
+                              tagColor={assistanceTabNewCounts[0] > 0 ? warningColor : undefined}
+                              tagLabel={assistanceTabNewCounts[0] > 0 && _.isEmpty(search) ? 'new' :
+                                getTagLabel('total')}
+                              tag={assistanceTabNewCounts[0] > 0 && _.isEmpty(search) ?
+                                `${assistanceTabNewCounts[0]}` : (_.size(unrespondedAssistanceComments) > 0 ?
+                                  `${_.size(unrespondedAssistanceComments)}` : undefined)} />
                 <GmailTabItem label={intl.formatMessage({ id: 'assistanceResponded' })} color='black'
-                              tag={_.size(respondedAssistanceComments) > 0 ?
-                                `${_.size(respondedAssistanceComments)}` : undefined} />
+                              tagColor={assistanceTabNewCounts[1] > 0 ? warningColor : undefined}
+                              tagLabel={assistanceTabNewCounts[1] > 0 && _.isEmpty(search) ? 'new' :
+                                getTagLabel('total')}
+                              tag={assistanceTabNewCounts[1] > 0 && _.isEmpty(search) ?
+                                `${assistanceTabNewCounts[1]}` : (_.size(respondedAssistanceComments) > 0 ?
+                                  `${_.size(respondedAssistanceComments)}` : undefined)} />
                 <GmailTabItem label={intl.formatMessage({ id: 'assistanceResolved' })} color='black'
-                              tag={_.size(resolvedAssistanceComments) > 0 ?
-                                `${_.size(resolvedAssistanceComments)}` : undefined} />
+                              hasChip={!_.isEmpty(search) || assistanceTabNewCounts[2] > 0}
+                              tagColor={assistanceTabNewCounts[2] > 0 ? warningColor : undefined}
+                              tagLabel={assistanceTabNewCounts[2] > 0 && _.isEmpty(search) ? 'new' :
+                                getTagLabel('total')}
+                              tag={assistanceTabNewCounts[2] > 0 && _.isEmpty(search) ?
+                                `${assistanceTabNewCounts[2]}` : (_.size(resolvedAssistanceComments) > 0 ?
+                                  `${_.size(resolvedAssistanceComments)}` : undefined)} />
               </GmailTabs>
             )}
             {sectionOpen === 'assistanceSection' && assistanceTab > 0 && _.isEmpty(sectionComments) && (
@@ -1201,6 +1233,7 @@ function PlanningInvestible(props) {
                 toggleCompression={sectionOpen === 'assistanceSection' ? toggleUseCompression : undefined}
                 useCompression={sectionOpen === 'assistanceSection' ? getUseCompression : undefined}
                 useInProgressSorting={sectionOpen === 'tasksSection'}
+                simpleOrdering={sectionOpen === 'assistanceSection' && assistanceTab === 1}
               />
             )}
           </>

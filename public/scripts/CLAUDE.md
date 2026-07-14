@@ -23,6 +23,14 @@ else. The only time you skip this is when the user has just named concrete
 work to do next; reaching the end of a task is itself a trigger, not an
 exemption.
 
+When `find_work` comes back with no work, ask "Your find work list is
+empty — would you like instructions for adding and working on a job?" If
+the user says yes, walk them through the instructions the tool returned
+with the empty list: creating a job, running find_work, selecting from
+the list, keeping a job out of Accepted until it should start, checking
+the job's Debatable section in Uclusion for questions and suggestions,
+and telling you they have responded (for example by typing "Responded.").
+
 ## Workflow
 
 Run the steps in order. Don't skip ahead: questions and suggestions come

@@ -23,6 +23,7 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import OptionListItem from '../../Comments/OptionListItem';
 import _ from 'lodash';
 import { getMarketInfo } from '../../../utils/userFunctions';
+import NamePreviewBar, { useNamePreview } from '../../TextFields/NamePreviewBar';
 
 function OptionDescriptionStep (props) {
   const { marketId, parentGroupId, parentInvestibleId, parentMarketId, parentCommentId, createdBy, updateFormData = () => {},
@@ -51,6 +52,7 @@ function OptionDescriptionStep (props) {
   const parentComment = getComment(commentsState, parentMarketId, parentCommentId);
   const allOptions = getMarketInvestibles(investibleState, marketId) || [];
   const { useCompression } = formData;
+  const { name: namePreview, updateName, refreshName } = useNamePreview(editorName);
 
   const editorSpec = {
     placeholder: "Ex: make magic happen via A, B, C",
@@ -58,7 +60,7 @@ function OptionDescriptionStep (props) {
     marketId,
     onUpload: setUploadedFiles,
     autoFocus: true,
-    onChange: () => setHasValue(!editorEmpty(getQuillStoredState(editorName))),
+    onChange: () => { setHasValue(!editorEmpty(getQuillStoredState(editorName))); updateName(); },
   };
 
   const [Editor] = useEditor(editorName, editorSpec);
@@ -84,6 +86,7 @@ function OptionDescriptionStep (props) {
         resetEditor(editorName, '', {placeholder: 'Your option...'});
         setUploadedFiles([]);
         setHasValue(false)
+        refreshName();
         setOperationRunning(false);
         navigateToOption(history, parentMarketId, parentInvestibleId, parentGroupId, inv.investible.id);
       });
@@ -126,6 +129,7 @@ function OptionDescriptionStep (props) {
       {_.isEmpty(allOptions) && (
         <div style={{ marginTop: '2rem' }} />
       )}
+      <NamePreviewBar name={namePreview} />
       {Editor}
       <div className={classes.borderBottom}/>
       <WizardStepButtons

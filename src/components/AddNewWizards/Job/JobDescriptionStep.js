@@ -36,6 +36,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { getGroupPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { TODO_TYPE } from '../../../constants/comments';
+import NamePreviewBar, { useNamePreview } from '../../TextFields/NamePreviewBar';
 
 function JobDescriptionStep (props) {
   const { marketId, groupId, updateFormData = () => {}, onFinish, roots, formData = {}, jobType, startOver, nextStep,
@@ -86,6 +87,7 @@ function JobDescriptionStep (props) {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const classes = useContext(WizardStylesContext);
+  const { name: namePreview, updateName, refreshName } = useNamePreview(editorName);
 
   const editorSpec = {
     placeholder: "Ex: Make magic happen. A bullet list in this description will be become tasks.",
@@ -94,7 +96,7 @@ function JobDescriptionStep (props) {
     autoFocus: true,
     maxHeight: '300px',
     onUpload: setUploadedFiles,
-    onChange: () => { setHasValue(!editorEmpty(getQuillStoredState(editorName))); },
+    onChange: () => { setHasValue(!editorEmpty(getQuillStoredState(editorName))); updateName(); },
   };
 
   const [Editor] = useEditor(editorName, editorSpec);
@@ -152,6 +154,7 @@ function JobDescriptionStep (props) {
         jobStage: currentValue
       });
       resetEditor(editorName);
+      refreshName();
       return Promise.resolve({isMissingName: true, useApprovals});
     }
     const addInfo = {
@@ -257,6 +260,7 @@ function JobDescriptionStep (props) {
           };
         })}
       />
+      <NamePreviewBar name={namePreview} />
       {Editor}
       <div className={classes.borderBottom} />
       <WizardStepButtons

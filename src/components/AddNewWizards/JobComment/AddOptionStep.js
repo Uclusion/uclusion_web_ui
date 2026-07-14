@@ -32,6 +32,7 @@ import { useHistory } from 'react-router';
 import OptionListItem from '../../Comments/OptionListItem';
 import { DECISION_TYPE } from '../../../constants/markets';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
+import NamePreviewBar, { useNamePreview } from '../../TextFields/NamePreviewBar';
 
 function AddOptionStep(props) {
   const { formData = {}, marketId, investibleId } = props;
@@ -59,6 +60,7 @@ function AddOptionStep(props) {
   const creatorIsAssigned = (assigned || []).includes(myPresence.id);
   const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const parentComment = getComment(commentState, marketId, commentId);
+  const { name: namePreview, updateName, refreshName } = useNamePreview(editorName);
 
   const editorSpec = {
     placeholder: "Your option...",
@@ -66,7 +68,7 @@ function AddOptionStep(props) {
     marketId: inlineMarketId,
     onUpload: setUploadedFiles,
     autoFocus: true,
-    onChange: () => setHasValue(!editorEmpty(getQuillStoredState(editorName))),
+    onChange: () => { setHasValue(!editorEmpty(getQuillStoredState(editorName))); updateName(); },
   };
 
   const [Editor] = useEditor(editorName, editorSpec);
@@ -92,6 +94,7 @@ function AddOptionStep(props) {
         resetEditor(editorName, '', {placeholder: 'Your option...'});
         setUploadedFiles([]);
         setHasValue(false);
+        refreshName();
       })
   }
 
@@ -140,6 +143,7 @@ function AddOptionStep(props) {
       <div style={{marginBottom: '2rem'}}>
         {allOptions.map((fullInvestible) => getOptionListItem(fullInvestible))}
       </div>
+      <NamePreviewBar name={namePreview} />
       {Editor}
       <div className={classes.borderBottom} />
       <WizardStepButtons

@@ -9,8 +9,12 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { getFullStage, getInReviewStage, isNotDoingStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { getFormerStageId, isSingleAssisted } from '../../utils/commentFunctions';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { getInvestibleComments } from '../../contexts/CommentsContext/commentsContextHelper';
+import { getInvestibleComments, getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
+import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 function findGreatestUpdatedAt(roots, comments, rootUpdatedAt) {
   let myRootUpdatedAt = rootUpdatedAt;
@@ -31,7 +35,33 @@ function findGreatestUpdatedAt(roots, comments, rootUpdatedAt) {
   return myRootUpdatedAt;
 }
 
-export function getSortedRoots(allComments, searchResults, preserveOrder, isInboxExpansion, simpleOrdering) {
+// T-all-2306: activity inside a comment's options - votes, option adds/edits/stage moves, and
+// comments on options - lives in the inline market, not the thread, so recency ordering has to
+// look there too or acting on an option leaves its thread buried
+function getInlineActivityTime(rootComment, investiblesState, marketPresencesState, commentsState) {
+  const inlineMarketId = rootComment.inline_market_id;
+  if (!inlineMarketId) {
+    return 0;
+  }
+  let latest = 0;
+  function fold(updatedAt) {
+    if (updatedAt) {
+      latest = Math.max(latest, new Date(updatedAt).getTime());
+    }
+  }
+  (getMarketComments(commentsState, inlineMarketId) || []).forEach((comment) => fold(comment.updated_at));
+  (getMarketInvestibles(investiblesState, inlineMarketId) || []).forEach((inv) => {
+    fold(inv.investible.updated_at);
+    (inv.market_infos || []).forEach((info) => fold(info.updated_at));
+  });
+  (getMarketPresences(marketPresencesState, inlineMarketId) || []).forEach((presence) => {
+    (presence.investments || []).forEach((investment) => fold(investment.updated_at));
+  });
+  return latest;
+}
+
+export function getSortedRoots(allComments, searchResults, preserveOrder, isInboxExpansion, simpleOrdering,
+  inlineActivityTime) {
   const { results, parentResults, search } = searchResults;
   if (_.isEmpty(allComments)) {
     return [];
@@ -50,11 +80,13 @@ export function getSortedRoots(allComments, searchResults, preserveOrder, isInbo
   const withRootUpdatedAt = threadRoots.map((root) => {
     return { ...root, rootUpdatedAt: findGreatestUpdatedAt([root], comments) };
   });
-  const simpleOrdered = _.orderBy(withRootUpdatedAt, ['rootUpdatedAt'], ['desc']) || [];
   if (simpleOrdering) {
-    // T-all-2306: most recently updated thread first, no grouping by type
-    return simpleOrdered;
+    // T-all-2306: most recently updated thread first, no grouping by type, counting activity
+    // in the thread's options as updates
+    return _.orderBy(withRootUpdatedAt, [(root) => Math.max(new Date(root.rootUpdatedAt).getTime(),
+      inlineActivityTime ? inlineActivityTime(root) : 0)], ['desc']);
   }
+  const simpleOrdered = _.orderBy(withRootUpdatedAt, ['rootUpdatedAt'], ['desc']) || [];
   const positions = {};
   const typeLengths = {};
   const fullOrdered = [];
@@ -108,7 +140,10 @@ function CommentBox(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [commentsState] = useContext(CommentsContext);
-  let sortedRoots = getSortedRoots(comments, searchResults, preserveOrder, isInbox, simpleOrdering);
+  const [investiblesState] = useContext(InvestiblesContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  let sortedRoots = getSortedRoots(comments, searchResults, preserveOrder, isInbox, simpleOrdering,
+    (root) => getInlineActivityTime(root, investiblesState, marketPresencesState, commentsState));
   if (useInProgressSorting) {
     const investibleComments = getInvestibleComments(marketInfo?.investible_id, marketId, commentsState);
     sortedRoots = sortInProgress(sortedRoots, investibleComments);

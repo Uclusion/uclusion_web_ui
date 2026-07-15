@@ -20,7 +20,7 @@ import CLISecret from './CLISecret';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 import _ from 'lodash';
 import CopyCommand from './CopyCommand';
-import InstallSelector from './InstallSelector';
+import InstallSelector, { INSTALL_CLIENTS } from './InstallSelector';
 import { getUclusionEnvironment } from './installUtils';
 
 const useStyles = makeStyles((theme) => ({
@@ -98,7 +98,8 @@ function IntegrationPreferences (props) {
   const useGroupId = groupId || marketId;
   // T-all-2296: PyTorch-style selector state turned into arguments on the install command
   const [installScope, setInstallScope] = useState('global');
-  const [installClients, setInstallClients] = useState(['claude']);
+  // T-all-2314: every AI tool starts selected
+  const [installClients, setInstallClients] = useState(INSTALL_CLIENTS.map((client) => client.key));
   const env = getUclusionEnvironment();
   const installBaseUrl = config.ui_base_url;
   const installArgs = `${marketId} ${useGroupId}${env === 'production' ? '' : ` ${env}`}` +

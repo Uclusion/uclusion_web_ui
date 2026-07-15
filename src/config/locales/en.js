@@ -618,7 +618,7 @@ const messages = defineMessages({
   // Notices
   noticeNewApplicationVersion: 'A new version is available! Refresh this page for the latest.',
   noticeVersionForceLogout: 'This version of the application requires signout which will happen when you close this message.',
-  noticeScriptReinstall: 'The Uclusion AI integration has been updated. Please re-run the installation command found under Integrations > MCP & CLI.',
+  noticeScriptReinstall: 'The Uclusion AI integration has been updated. Please re-run the installation command found under Integrations > AI Connection.',
   notifications: 'inbox',
   notification: 'notification',
   notificationDelete: 'Dismiss',

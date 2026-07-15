@@ -53,7 +53,12 @@ export const useLockedDialogStyles = makeStyles(
       issueWarningContent: {
         lineHeight: 3,
         minWidth: '35rem',
-        textAlign: "center"
+        textAlign: "center",
+        // B-all-469: a fixed min-width wider than a phone viewport pushes the
+        // dialog off screen on mobile
+        [theme.breakpoints.down("sm")]: {
+          minWidth: 'unset'
+        }
       },
       actions: {
         flexBasis: "unset",

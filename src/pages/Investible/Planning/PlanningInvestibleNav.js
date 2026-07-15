@@ -441,7 +441,7 @@ export default function PlanningInvestibleNav(props) {
       {isInReviewStage(fullStage)&&(
         <>
           <NameField id={`label${investibleId}`} setHasValue={setLabelHasValue} maxWidth='10rem'
-          placeHolder={intl.formatMessage({ id: 'label' })} label={'labelPlaceholder'} />
+          placeHolder={intl.formatMessage({ id: 'label' })} label={'labelPlaceholder'} autoFocus={false} />
           <SpinningIconLabelButton
             iconColor={isDark ? DARK_ACTION_BUTTON_COLOR : undefined}
               style={{marginBottom: '1rem'}}

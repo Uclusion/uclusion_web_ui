@@ -247,6 +247,39 @@ export function getNameForUrl(url) {
   return undefined;
 }
 
+// T-all-1704: a link's display name comes from its root comment (see getNameForUrl),
+// so a link whose root comment is resolved renders struck through in MyLink
+export function isUrlToResolvedComment(url) {
+  const commentsState = commentsContextHack;
+  const ticketState = ticketContextHack;
+  try {
+    // stored link hrefs can be relative - resolve them against this host
+    const urlParts = new URL(url, window.location.origin);
+    if (isTicketPath(urlParts.pathname)) {
+      if (isInvestibleTicket(urlParts.pathname)) {
+        return false;
+      }
+      const ticket = getTicket(ticketState, urlParts.pathname.substring(1));
+      if (ticket) {
+        const { marketId, commentId } = ticket;
+        const rootComment = getCommentRoot(commentsState, marketId, commentId);
+        return !!rootComment?.resolved;
+      }
+    } else if (urlParts.host === window.location.host && urlParts.hash && urlParts.hash.startsWith('#c')
+      && !urlParts.hash.startsWith('#cv')) {
+      const { action, marketId } = decomposeMarketPath(urlParts.pathname);
+      if (action === 'dialog') {
+        const commentId = urlParts.hash.substring(2, urlParts.hash.length);
+        const rootComment = getCommentRoot(commentsState, marketId, commentId);
+        return !!rootComment?.resolved;
+      }
+    }
+  } catch (e) {
+    return false;
+  }
+  return false;
+}
+
 export function openInNewTab(url) {
   const win = window.open(url, '_blank');
   win.focus();

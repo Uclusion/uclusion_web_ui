@@ -271,7 +271,7 @@ function CondensedTodos(props) {
           style={{ paddingBottom: '1rem' }}>
           <GmailTabItem label={intl.formatMessage({id: 'openHeader'})}
                         color='black' tagLabel={isSearch ? intl.formatMessage({ id: 'match' }) : intl.formatMessage({id: 'total'})}
-                        tag={`${_.size(openComments)}`}
+                        tag={_.size(openComments) > 0 ? `${_.size(openComments)}` : undefined}
                         onDrop={onDropOpen} toolTipId='openTasksToolTip'
                         onDragOver={(event)=>event.preventDefault()}/>
           {/* B-all-480: resolved count only grows so it does not display - only new message and

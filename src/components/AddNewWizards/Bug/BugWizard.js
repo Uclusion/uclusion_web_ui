@@ -37,7 +37,8 @@ function BugWizard(props) {
         {fromCommentId && !useType && (
           <BugDecisionStep marketId={marketId} comment={comment} comments={comments} typeObjectId={typeObjectId} />
         )}
-        {fromCommentId && (
+        {/* B-all-482: useType Bug converts a view level suggestion in place - no where decision needed */}
+        {fromCommentId && useType !== 'Bug' && (
           <WhereDecisionStep marketId={marketId} comment={comment} comments={comments} typeObjectId={typeObjectId} />
         )}
         {fromCommentId && (

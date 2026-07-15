@@ -94,6 +94,7 @@ import { invalidEditEvent } from '../../utils/windowUtils';
 import AddIcon from '@material-ui/icons/Add';
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
 import {
+  BugReport,
   Done,
   Edit,
   Eject,
@@ -932,7 +933,10 @@ function Comment(props) {
   const showViewSelect = isSent !== false && enableEditing && !removeActions && !investibleId && groupId
     && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE].includes(commentType)
     && marketType === PLANNING_TYPE && _.size(marketGroups) > 1;
-  const showMakeTaskButton = (showMoveButton  && commentType === SUGGEST_CHANGE_TYPE) || isNote;
+  // B-all-482: tasks only exist inside jobs - a view level suggestion converts to a bug in place instead
+  const showMakeTaskButton = (showMoveButton  && commentType === SUGGEST_CHANGE_TYPE && !_.isEmpty(investibleId))
+    || isNote;
+  const showMakeBugButton = showMoveButton && commentType === SUGGEST_CHANGE_TYPE && _.isEmpty(investibleId);
   const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId);
   const showConfigureVotingButton = commentType === QUESTION_TYPE && !inArchives &&
     !_.isEmpty(inlineInvestibles) && !resolved && !removeActions && myPresence === createdBy;
@@ -1040,6 +1044,18 @@ function Comment(props) {
       {intl.formatMessage({ id: 'makeTask' })}
     </SpinningIconLabelButton>
   )}
+  {showMakeBugButton && !mobileLayout && (
+    <SpinningIconLabelButton
+      onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId, groupId, undefined,
+        typeObjectId, BUG_WIZARD_TYPE)}&fromCommentId=${id}&useType=Bug`)}
+      id={`makeBug${id}`}
+      doSpin={false}
+      icon={BugReport}
+      focus={focusMove}
+    >
+      {intl.formatMessage({ id: 'makeBug' })}
+    </SpinningIconLabelButton>
+  )}
   {showMoveButton && !mobileLayout && (
     <SpinningIconLabelButton
       onClick={() => navigate(history,
@@ -1049,7 +1065,7 @@ function Comment(props) {
       id={`moveComment${id}`}
       doSpin={false}
       icon={Eject}
-      focus={focusMove && !showMakeTaskButton}
+      focus={focusMove && !showMakeTaskButton && !showMakeBugButton}
     >
       {intl.formatMessage({ id: "storyFromComment" })}
     </SpinningIconLabelButton>

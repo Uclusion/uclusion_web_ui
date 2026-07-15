@@ -759,6 +759,7 @@ const messages = defineMessages({
   storyFromComment: 'Move',
   makeTask: 'Make task',
   makeTaskExplanation: 'Make a task with a link to this option',
+  makeBug: 'Make bug',
   storyFromCommentNav: 'Move and go to job',
   channelOptions: 'View Options',
   marketOptions: 'Workspace Options',

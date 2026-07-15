@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import PropTypes from 'prop-types';
 import { FormControl, InputAdornment, OutlinedInput } from '@material-ui/core'
 import { useIntl } from 'react-intl';
@@ -25,6 +25,12 @@ function NameField(props) {
   const intl = useIntl();
   const defaultValue = getNameStoredState(id) || initialValue;
   const [charactersLeft, setCharactersLeft] = useState(NAME_MAX_LENGTH - (defaultValue || '').length);
+  // MUI v4 outlined inputs need an explicit labelWidth to notch the border around the label
+  const inputLabelRef = useRef(null);
+  const [labelWidth, setLabelWidth] = useState(0);
+  useEffect(() => {
+    setLabelWidth(inputLabelRef.current ? inputLabelRef.current.offsetWidth : 0);
+  }, []);
 
   const focusWorkAround = useCallback((element) => {
     if (element) {
@@ -65,11 +71,11 @@ function NameField(props) {
 
   return (
     <FormControl variant="outlined" style={{marginBottom: '10px', width: '100%', maxWidth: maxWidth}}>
-      <InputLabel htmlFor='display-name'>{intl.formatMessage({ id: label })}</InputLabel>
+      <InputLabel ref={inputLabelRef} htmlFor={id}>{intl.formatMessage({ id: label })}</InputLabel>
       <OutlinedInput
         id={id}
         onFocus={createDefaultName}
-        ref={focusWorkAround}
+        ref={autoFocus ? focusWorkAround : undefined}
         defaultValue={defaultValue}
         onChange={handleChange}
         autoFocus={autoFocus}
@@ -77,7 +83,7 @@ function NameField(props) {
         placeholder={intl.formatMessage({
           id: placeHolder
         })}
-        label={intl.formatMessage({ id: label })}
+        labelWidth={labelWidth}
         endAdornment={
           <InputAdornment position={'end'} style={{ marginRight: '1rem' }}>
             {charactersLeft}

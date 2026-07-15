@@ -27,7 +27,7 @@ When `find_work` comes back with no work, ask "Your find work list is
 empty — would you like instructions for adding and working on a job?" If
 the user says yes, walk them through the instructions the tool returned
 with the empty list: creating a job, running find_work, selecting from
-the list, keeping a job out of Accepted until it should start, checking
+the list, keeping a job out of Doable until it should start, checking
 the job's Debatable section in Uclusion for questions and suggestions,
 and telling you they have responded (for example by typing "Responded.").
 
@@ -38,13 +38,13 @@ BEFORE approval, approval comes BEFORE execution, and review comes AFTER a
 testable result exists.
 
 The job's **stage** is not the same as your **step**. The stage (for
-example "In Dialog" or "Accepted") tells you which actions Uclusion
+example "Approvable" or "Doable") tells you which actions Uclusion
 permits right now — it does NOT tell you which step you are on or let you
-skip earlier steps. Finding a job already in "Accepted" does NOT mean your 
+skip earlier steps. Finding a job already in "Doable" does NOT mean your 
 step-2 questions and step-3 suggestions are done.
 
 Always read the job, raise every question you have, and make your
-suggestions first; reaching "Accepted" only unlocks execution once those
+suggestions first; reaching "Doable" only unlocks execution once those
 questions are answered.
 
 When working on a Uclusion job, ALL workflow artifacts — questions,
@@ -178,7 +178,7 @@ question. Resolve only when the direction is completely clear.
 Do this immediately when you first become aware the question is answered
 or otherwise it is harder for the user to see what needs attention.
 
-Only options that are in stage 'In Dialog' can be voted on or 
+Only options that are in stage 'Approvable' can be voted on or 
 considered as choices for answering the question.
 
 If later — while approving, executing, or writing the review — you
@@ -236,7 +236,7 @@ invisible to other sessions and cannot be voted on.
 If some tasks in the job are completely disjoint from other tasks you may ask the user about starting 
 them before questions on the other tasks are answered.
 
-### 4. Approve - only applies if job is in stage "In Dialog" and there is no "From AI user" approval at the job level.
+### 4. Approve - only applies if job is in stage "Approvable" and there is no "From AI user" approval at the job level.
 
 Offering to approve a job with open questions defeats the workflow, because the
 implementation decisions those questions gate aren't pinned down yet.
@@ -261,16 +261,16 @@ have to challenge you before you check whether the job is actually worth doing.
 If the job markdown says that the AI user is a required approver then approval
 is mandatory. Otherwise ask if you should approve the job.
 
-### 5. Execute and document - only applies if the job is in stage "Accepted"
+### 5. Execute and document - only applies if the job is in stage "Doable"
 
-"Accepted" means a human has accepted this job into the work queue, which
+"Doable" means a human has accepted this job into the work queue, which
 unlocks implementation. It does NOT mean steps 2–3 are behind you: an
-already-Accepted job STILL requires you to first read it, file every
+already-Doable job STILL requires you to first read it, file every
 question you have, and make any suggestions. Begin implementation only
-once all of your questions are answered — never assume "Accepted" implies
+once all of your questions are answered — never assume "Doable" implies
 there is nothing left to ask.
 
-If the job is not yet in stage "Accepted" and you are ready to begin —
+If the job is not yet in stage "Doable" and you are ready to begin —
 having had all your questions answered and made any suggestions — then
 ask the user to change the job's stage.
 

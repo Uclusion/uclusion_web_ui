@@ -11,6 +11,10 @@ import { convertHTMLString } from '../ImageBlot';
 import { pushMessage } from '../../../utils/MessageBusUtils'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { marketPresencesContextHack } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { investibleContextHack } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { getMarketInfo } from '../../../utils/userFunctions';
+import { formInvestibleLink } from '../../../utils/marketIdPathFunctions';
 
 
 // static helper funcs
@@ -484,19 +488,56 @@ export function generateEditorOptions (id, config) {
       isolateCharacter: true,
       dataAttributes: ['id', 'value', 'denotationChar', 'link', 'target', 'externalId'],
       positioningStrategy: 'fixed',
+      // J-all-348: '#' mentions a job (Q-all-224 O-1). Job names and ticket codes need spaces,
+      // dashes and periods, which people mentions do not allow
+      mentionDenotationChars: ['@', '#'],
+      allowedChars: (mentionChar) => mentionChar === '#' ? /^[a-zA-Z0-9_\- .]*$/ : /^[a-zA-Z0-9_]*$/,
       renderItem: function (item) {
         // we want an html string here which gets slammed into inner html, so we have to do some trickery
         // to let react render the result
         return ReactDOMServer.renderToString(<MentionListItem mentionResult={item}/>);
       },
-      source: function (searchTerm, renderList) {
+      source: function (searchTerm, renderList, mentionChar) {
+        // J-all-348: the default 270px container wraps job names - widen the '#' list so an
+        // 80 character name fits on one line, and restore the CSS default for '@' people
+        const mentionModule = QuillEditorRegistry.getEditor(id).editor?.getModule('mention');
+        if (mentionModule?.mentionContainer) {
+          mentionModule.mentionContainer.style.width = mentionChar === '#' ? 'min(85ch, 90vw)' : '';
+          mentionModule.mentionContainer.style.fontSize = mentionChar === '#' ? '16px' : '';
+        }
+        if (mentionChar === '#') {
+          // J-all-348 (Q-all-226 O-1): every job in the workspace, matched on name or ticket code
+          const investiblesRaw = getMarketInvestibles(investibleContextHack, marketId) || [];
+          const jobs = [];
+          investiblesRaw.forEach((inv) => {
+            const marketInfo = getMarketInfo(inv, marketId);
+            if (marketInfo && !marketInfo.deleted) {
+              const { name, id } = inv.investible;
+              const ticketCode = marketInfo.ticket_code ? decodeURI(marketInfo.ticket_code) : '';
+              if (searchTerm.length === 0 || name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                ticketCode.toLowerCase().includes(searchTerm.toLowerCase())) {
+                // Q-all-227: the link is the same ticket code URL InvesibleCommentLinker copies,
+                // absolute because onSelect feeds it through the paste handler which only
+                // link-ifies absolute URLs
+                const link = `${window.location.protocol}//${window.location.host}${marketInfo.ticket_code ?
+                  `/${marketId}/${marketInfo.ticket_code}` : formInvestibleLink(marketId, id)}`;
+                jobs.push({ id, value: name, ticketCode, isJob: true, link });
+              }
+            }
+          });
+          // S-1 under Q-all-224: each list teaches the other trigger via a disabled hint row
+          renderList([{ id: 'jobsMentionHint', value: 'use @ for people', disabled: true },
+            ..._.orderBy(jobs, [(job) => job.value.toLowerCase()])], searchTerm);
+          return;
+        }
         const participantsRaw = getMarketPresences(marketPresencesContextHack, marketId) || [];
         const participants = participantsRaw.filter((presence) => !_.isEmpty(presence.email));
+        const peopleHint = { id: 'peopleMentionHint', value: 'use # for jobs', disabled: true };
         if (searchTerm.length === 0) {
-          renderList(participants.map((presence) => {
+          renderList([peopleHint, ...participants.map((presence) => {
             const { name, id, email, external_id } = presence;
             return { id, value: name, email, externalId: external_id };
-          }), searchTerm);
+          })], searchTerm);
         } else {
           const matches = [];
           participants.forEach((presence) => {
@@ -505,7 +546,24 @@ export function generateEditorOptions (id, config) {
               matches.push({ id, value: name, email, externalId: external_id });
             }
           });
-          renderList(matches, searchTerm);
+          renderList([peopleHint, ...matches], searchTerm);
+        }
+      },
+      onSelect: function (item, insertItem) {
+        // J-all-348 (Q-all-227): selecting a job replaces the typed '#term' with a paste of the
+        // linker URL through the real paste handler (CustomQuillClipboard.onCapturePaste), so a
+        // job mention and a hand-pasted InvesibleCommentLinker link cannot behave differently
+        if (item.denotationChar === '#') {
+          const { editor } = QuillEditorRegistry.getEditor(id);
+          const mention = editor.getModule('mention');
+          editor.deleteText(mention.mentionCharPos, mention.cursorPos - mention.mentionCharPos, 'user');
+          editor.setSelection(mention.mentionCharPos, 0, 'user');
+          editor.clipboard.onCapturePaste({
+            preventDefault: () => {},
+            clipboardData: { getData: (type) => type === 'text/plain' ? item.link : '' }
+          });
+        } else {
+          insertItem(item);
         }
       }
     };

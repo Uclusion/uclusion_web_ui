@@ -20,11 +20,15 @@ function Gravatar (props) {
     email = '',
     name = '',
     useBlank = false,
+    // J-all-348: d=404 relies on the img erroring and JS swapping in a fallback. Static HTML
+    // contexts (ReactDOMServer + innerHTML, like the mention dropdown) never run that fallback,
+    // so they pass 'mp' to get gravatar's server-side silhouette instead of a broken image.
+    defaultImage = '404',
     className,
     onClick
   } = props;
 
-  const blankCode = useBlank ? 'blank' : '404';
+  const blankCode = useBlank ? 'blank' : defaultImage;
   const url = `https://www.gravatar.com/avatar/${md5(email, { encoding: 'binary' })}?d=${blankCode}`;
   const isAI = email === '' && name === 'AI';
 
@@ -63,6 +67,7 @@ Gravatar.propTypes = {
   email: PropTypes.string,
   name: PropTypes.string,
   useBlank: PropTypes.bool,
+  defaultImage: PropTypes.string,
   onClick: PropTypes.func
 };
 

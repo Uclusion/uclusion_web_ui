@@ -11,6 +11,7 @@ function GravatarAndName(props) {
     name = '',
     label,
     useBlank = false,
+    defaultImage,
     avatarClassName = '',
     typographyClassName = '',
     typographyComponent,
@@ -27,7 +28,8 @@ function GravatarAndName(props) {
           {label}
         </Typography>
       )}
-      <Gravatar name={name} email={email} useBlank={useBlank} className={avatarClassName}/>
+      <Gravatar name={name} email={email} useBlank={useBlank} defaultImage={defaultImage}
+                className={avatarClassName}/>
       <Typography style={{marginLeft: 6, marginRight: 6, maxWidth: '11rem'}}
                   variant={typographyVariant} className={typographyClassName}
                   component={typographyComponent}>
@@ -40,6 +42,7 @@ function GravatarAndName(props) {
 GravatarAndName.propTypes = {
   email: PropTypes.string,
   name: PropTypes.string,
+  defaultImage: PropTypes.string,
   avatarClassName: PropTypes.string,
   typographyClassName: PropTypes.string,
   typographyComponent: PropTypes.string,

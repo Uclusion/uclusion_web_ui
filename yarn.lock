@@ -11950,7 +11950,7 @@ quill-image-resize-module-withfix@^4.0.1:
 
 "quill-mention-uclusion@https://github.com/Uclusion/quill-mention.git":
   version "3.0.0"
-  resolved "https://github.com/Uclusion/quill-mention.git#8ef6d5de8fb569e0e4e89e81098f6d988f2abfe1"
+  resolved "https://github.com/Uclusion/quill-mention.git#eb834d80b35027a60b95bf6c61032736577113ca"
   dependencies:
     quill "^2.0.0-dev.4"
 

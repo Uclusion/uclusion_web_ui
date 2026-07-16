@@ -305,6 +305,14 @@ When a set of tasks has a testable output, call `ask_for_review` with a
 concise progress report describing what is ready to look at. This is the
 signal that human or AI review can begin.
 
+Write the report as if the code will not get checked in: the review plus
+the job's other artifacts (questions, suggestions, notes) must together
+hold enough detail to reproduce the code without human help. Do not lean
+on the diff — name the approach taken, the files and functions changed
+and how, and the decisions that shaped the implementation. If something
+needed to rewrite the work exists only in the diff or in chat, add it to
+the job with `add_info` before opening the review.
+
 The report describes finished work — what was built, what was skipped
 and why, which tasks are now depicted and safe to resolve. It is NOT a
 place to surface choices you should have asked about earlier. If the
@@ -312,6 +320,10 @@ report contains "verify that X reads correctly", "flag if you'd rather
 Y", or any other request for the user to validate a judgment call you
 already made, those are step-2 questions. Go back, file them via
 `ask_question`, and only then send the review.
+
+End the report with a signature line naming the AI product, exact model
+version, and effort level that wrote it, for example
+"— Claude Code (claude-fable-5, high effort)".
 
 ## Notes
 

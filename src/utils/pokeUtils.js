@@ -56,5 +56,5 @@ export function getCommentPokeList(comment, marketId, marketPresences, groupPres
   return getHumanPresences(candidates).filter((presence) => presence.id !== comment.created_by &&
     presence.id !== myPresence.id && !inlineVotedExternalIds.includes(presence.external_id) &&
     !(comments || []).find((aComment) => aComment.root_comment_id === comment.id &&
-      aComment.created_by === presence.id));
+      aComment.id !== comment.id && aComment.created_by === presence.id));
 }

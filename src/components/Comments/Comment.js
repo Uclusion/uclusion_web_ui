@@ -498,7 +498,8 @@ function InitialReply(props) {
 }
 
 function calculateNumberHidden(comment, inboxMessageId, comments, parent) {
-  const wholeThreadBelow = comments.filter((aComment) => aComment.root_comment_id === comment.id);
+  const wholeThreadBelow = comments.filter((aComment) => aComment.root_comment_id === comment.id &&
+    aComment.id !== comment.id);
   const sizeWholeThreadBelow = _.size(wholeThreadBelow);
   if (!inboxMessageId) {
     return sizeWholeThreadBelow;
@@ -1527,7 +1528,8 @@ function Comment(props) {
     />
   </div>;
   if (useCompression && (compressAll || inboxMessageId !== id)) {
-    const numInThread = _.size(comments.filter((aComment) => aComment.root_comment_id === id));
+    const numInThread = _.size(comments.filter((aComment) => aComment.root_comment_id === id &&
+      aComment.id !== id));
     return (
     <>
       {inboxMessageId !== id ? compressedCommentCard :

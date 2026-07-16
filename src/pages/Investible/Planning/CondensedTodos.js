@@ -83,7 +83,7 @@ function CondensedTodos(props) {
     investibleComments);
   const resolvedCommentIds = resolvedComments.map((comment) => comment.id);
   const resolvedCommentsReplies = (investibleComments || []).filter((comment) =>
-    resolvedCommentIds.includes(comment.root_comment_id));
+    resolvedCommentIds.includes(comment.root_comment_id) && comment.root_comment_id !== comment.id);
   const resolvedTodoMessages = findMessagesForCommentIds(
     resolvedCommentIds.concat(resolvedCommentsReplies.map((comment) => comment.id)), messagesState, true);
   const hasResolvedTodoMessages = !_.isEmpty(resolvedTodoMessages);
@@ -111,7 +111,7 @@ function CondensedTodos(props) {
     }
     return tabComments.map((comment) => {
       const { id, body, updated_at: updatedAt, resolved } = comment;
-      const replies = comments.filter(comment => comment.root_comment_id === id) || [];
+      const replies = comments.filter(aComment => aComment.root_comment_id === id && aComment.id !== id) || [];
       const expansionPanel = <div id={resolved ? `c${id}` : `condensed${id}`}
                                   style={{marginBottom: '1rem', marginRight: '1rem', marginLeft: '1rem'}}>
         <Comment

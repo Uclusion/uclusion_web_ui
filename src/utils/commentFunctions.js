@@ -63,7 +63,7 @@ export function getThreads(parents, comments) {
     thread.push(comment);
     comments.forEach((treeCandidate) => {
       const { root_comment_id: rootId } = treeCandidate;
-      if (comment.id === rootId) {
+      if (comment.id === rootId && treeCandidate.id !== comment.id) {
         thread.push(treeCandidate);
       }
     })
@@ -77,7 +77,7 @@ export function getThreadIds(parents, comments) {
     commentIds.push(comment.id);
     comments.forEach((treeCandidate) => {
       const { root_comment_id: rootId } = treeCandidate;
-      if (comment.id === rootId) {
+      if (comment.id === rootId && treeCandidate.id !== comment.id) {
         commentIds.push(treeCandidate.id);
       }
     })
@@ -172,7 +172,7 @@ export function onCommentsMove(fromCommentIds, messagesState, marketComments, in
     removeMessagesForCommentId(commentId, messagesState, messagesDispatch);
     const movedRoot = movedComments.find((aComment) => aComment.id === commentId);
     const thread = marketComments.filter((aComment) => {
-      return aComment.root_comment_id === commentId;
+      return aComment.root_comment_id === commentId && aComment.id !== commentId;
     });
     const fixedThread = thread.map((aComment) => {
       // Children follow their root's group so a move across views doesn't strand them
@@ -197,7 +197,8 @@ export function isAssistanceRespondedByHuman(rootComment, investibleComments, ma
   }
   let aiLatest = new Date(rootComment.updated_at).getTime();
   let humanLatest = undefined;
-  const thread = (investibleComments || []).filter((comment) => comment.root_comment_id === rootComment.id);
+  const thread = (investibleComments || []).filter((comment) => comment.root_comment_id === rootComment.id &&
+    comment.id !== rootComment.id);
   thread.forEach((comment) => {
     const commentTime = new Date(comment.updated_at).getTime();
     if (isAIPresenceId(comment.created_by)) {

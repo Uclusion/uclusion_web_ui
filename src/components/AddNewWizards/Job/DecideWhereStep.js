@@ -59,7 +59,7 @@ function DecideWhereStep (props) {
       .then((response) => {
         addCommentToMarket(response, commentsState, commentsDispatch);
         const thread = marketComments.filter((aComment) => {
-          return aComment.root_comment_id === comment.id;
+          return aComment.root_comment_id === comment.id && aComment.id !== comment.id;
         });
         const fixedThread = thread.map((aComment) => {
           return _.omit(aComment, 'investible_id');

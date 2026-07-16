@@ -208,7 +208,7 @@ function DiscussionSection(props) {
           )}
           {data.map((comment) => {
             const allComments = [...comments, ...resolvedComments];
-            const replies = allComments.filter(c => c.root_comment_id === comment.id);
+            const replies = allComments.filter(c => c.root_comment_id === comment.id && c.id !== comment.id);
             const expansionPanel = (
               <div id={`c${comment.id}`} key={`c${comment.id}key`} style={{ marginBottom: '1rem' }}>
                 <Comment
@@ -292,7 +292,8 @@ function DiscussionSection(props) {
                 </div>
               )}
               {data.map((comment) => {
-                const replies = resolvedComments.filter(c => c.root_comment_id === comment.id);
+                const replies = resolvedComments.filter(c => c.root_comment_id === comment.id &&
+                  c.id !== comment.id);
                 const expansionPanel = (
                   <div id={`c${comment.id}`} key={`c${comment.id}key`} style={{ marginBottom: '1rem' }}>
                     <Comment

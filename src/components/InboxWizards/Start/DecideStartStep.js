@@ -51,7 +51,7 @@ function DecideStartStep(props) {
   }
 
   const { id, body, updated_at: updatedAt, notification_type: notificationType, group_id: groupId } = commentRoot;
-  const replies = comments.filter(comment => comment.root_comment_id === id) || [];
+  const replies = comments.filter(comment => comment.root_comment_id === id && comment.id !== id) || [];
   const expansionPanel = <div id={`c${id}`} key={`c${id}key`} style={{marginBottom: '1rem'}}>
     <Comment
       marketId={marketId}

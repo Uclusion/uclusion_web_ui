@@ -308,7 +308,8 @@ function MarketTodos(props) {
   function processTabNotifications() {
     const allMessages = [];
     data.forEach((comment) => {
-      const replies = comments.filter(comment => comment.root_comment_id === comment.id) || [];
+      const replies = comments.filter(aComment => aComment.root_comment_id === comment.id &&
+        aComment.id !== comment.id) || [];
       const myMessage = findMessageForCommentId(comment.id, messagesState);
       if (myMessage) {
         allMessages.push(myMessage);
@@ -338,7 +339,8 @@ function MarketTodos(props) {
     const numOpen = _.size(data.filter((comment) => !!expansionState[comment.id]));
     return data.map((comment) => {
       const { id, body, updated_at: updatedAt, notification_type: notificationType, resolved } = comment;
-      const replies = commentsForCurrentTab.filter(comment => comment.root_comment_id === id) || [];
+      const replies = commentsForCurrentTab.filter(aComment => aComment.root_comment_id === id &&
+        aComment.id !== id) || [];
       const expansionPanel = <div id={`c${id}`} key={`c${id}key`} style={{marginBottom: '1rem'}}>
         <Comment
           marketId={marketId}

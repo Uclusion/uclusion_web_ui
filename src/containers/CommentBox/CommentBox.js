@@ -119,8 +119,8 @@ export function sortInProgress(roots, investibleComments) {
   const inProgressSorted = [];
   roots.forEach((comment) => {
     const { in_progress: inProgressRaw, resolved } = comment;
-    const hasInProgress = !_.isEmpty(investibleComments?.find((aComment) => aComment.in_progress 
-    && aComment.root_comment_id === comment.id));
+    const hasInProgress = !_.isEmpty(investibleComments?.find((aComment) => aComment.in_progress
+    && aComment.root_comment_id === comment.id && aComment.id !== comment.id));
     const inProgress = inProgressRaw || hasInProgress;
     if (!inProgress || resolved) {
       sorted.push(comment);

@@ -24,7 +24,7 @@ import {
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import JobDescription from '../../InboxWizards/JobDescription';
-import { addCommentToMarket, getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { addCommentToMarket, getComment, getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import _ from 'lodash';
 import { resolveComment } from '../../../api/comments';
@@ -96,8 +96,13 @@ function AddCommentStep (props) {
       });
   }
 
+  // B-all-485: Make task is also reachable from an option of an already resolved question -
+  // then the 'Add and resolve' button must not show since resolving again would error
+  const fromDecisionMarket = getMarket(marketsState, decisionMarketId);
+  const questionAlreadyResolved = decisionInvestibleId ?
+    getComment(commentState, marketId, fromDecisionMarket?.parent_comment_id)?.resolved : undefined;
+
   function onCreateTaskQuestionResolve() {
-    const fromDecisionMarket = getMarket(marketsState, decisionMarketId);
     const { parent_comment_id: parentCommentId } = fromDecisionMarket;
     return resolveComment(marketId, parentCommentId)
       .then((comment) => {
@@ -253,6 +258,7 @@ function AddCommentStep (props) {
         nameKey="JobCommentAdd"
         type={useType}
         wizardProps={{ ...props, isAddWizard: true, isResolve, isNote: isNote,
+          questionResolved: questionAlreadyResolved,
           onResolve: decisionInvestibleId ? onCreateTaskQuestionResolve : onReportResolveOnly }}
         commentAddState={commentAddState}
         updateCommentAddState={updateCommentAddState}

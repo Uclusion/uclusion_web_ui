@@ -13,7 +13,7 @@ import { findMessageByInvestmentUserId } from '../../../utils/messageUtils';
 function OptionVoting(props) {
   const [marketsState] = useContext(MarketsContext);
   const { marketPresences = [], investibles = [], marketId, comments = [], isAdmin = false, inArchives, isSent, removeActions,
-    selectedInvestibleId, setSelectedInvestibleId, isInbox, isInVoting } = props;
+    selectedInvestibleId, setSelectedInvestibleId, isInbox, isInVoting, questionResolved, parentInvestibleId } = props;
   const [messagesState] = useContext(NotificationsContext);
   const myPresence = marketPresences.find((presence) => presence.current_user);
   const userId = myPresence?.id;
@@ -31,7 +31,7 @@ function OptionVoting(props) {
         marketPresences={marketPresences}
         investibleComments={comments.filter((comment) => comment.investible_id === investibleId)}
         isAdmin={isAdmin}
-        inArchives={inArchives}
+        inArchives={inArchives || questionResolved}
         isSent={isSent}
         isInbox={isInbox}
         removeActions={removeActions}
@@ -48,10 +48,11 @@ function OptionVoting(props) {
     const newlyVoted = investors.filter((investor) => !_.isEmpty(findMessageByInvestmentUserId(investor.id, investibleId, messagesState)));
     const highlightList = newlyVoted.map((investor) => investor.id);
     return (
-      <OptionListItem id={investibleId} expansionPanel={expansionPanel} isNew={isNew(inv, messagesState)} 
+      <OptionListItem id={investibleId} expansionPanel={expansionPanel} isNew={isNew(inv, messagesState)}
                       removeActions={removeActions} inArchives={inArchives} marketPresences={marketPresences}
                       people={investors} description={description} title={inv.investible.name} isInVoting={isInVoting}
-                      questionResolved={inArchives} isAdmin={isAdmin} highlightList={highlightList} marketId={marketId}
+                      questionResolved={questionResolved} parentInvestibleId={parentInvestibleId}
+                      isAdmin={isAdmin} highlightList={highlightList} marketId={marketId}
                       expandOrContract={() => {
                         if (expansionOpen) {
                           setSelectedInvestibleId(undefined);

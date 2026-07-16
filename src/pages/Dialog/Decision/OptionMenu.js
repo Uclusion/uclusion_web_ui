@@ -49,8 +49,10 @@ const useStyles = makeStyles(() => ({
 }));
 
 function OptionMenu(props) {
-  const { anchorEl, recordPositionToggle, marketId, investibleId, openForInvestment, mouseX, mouseY, isAdmin, 
-    marketPresences } = props;
+  // B-all-485: when the question is resolved its inline market is inactive, so stage moves,
+  // voting, and new comments are gone - making a task on the parent job is the one action left.
+  const { anchorEl, recordPositionToggle, marketId, investibleId, openForInvestment, mouseX, mouseY, isAdmin,
+    marketPresences, questionResolved } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -106,7 +108,7 @@ function OptionMenu(props) {
   if (!anchorEl) {
     return (
       <>
-        {!openForInvestment && isAdmin && (
+        {!openForInvestment && isAdmin && !questionResolved && (
           <div onClick={(event) => {
             preventDefaultAndProp(event);
             return changeStage();
@@ -118,7 +120,7 @@ function OptionMenu(props) {
             </Tooltip>
           </div>
         )}
-        {openForInvestment && isAdmin && (
+        {openForInvestment && isAdmin && !questionResolved && (
           <div onClick={(event) => {
             preventDefaultAndProp(event);
             return changeStage();
@@ -131,7 +133,7 @@ function OptionMenu(props) {
           </div>
         )}
         {parentInvestibleId && (
-          <div onClick={(event) => {
+          <div style={questionResolved ? {paddingRight: '0.5rem'} : undefined} onClick={(event) => {
             preventDefaultAndProp(event);
             return createTask();
           }}>
@@ -142,7 +144,7 @@ function OptionMenu(props) {
             </Tooltip>
           </div>
         )}
-        {openForInvestment && !yourVote && (
+        {openForInvestment && !yourVote && !questionResolved && (
           <div onClick={(event) => {
             preventDefaultAndProp(event);
             return navigate(history,
@@ -156,54 +158,58 @@ function OptionMenu(props) {
             </Tooltip>
           </div>
         )}
-        <div onClick={(event) => {
-            preventDefaultAndProp(event);
-            return navigate(history,
-              formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, marketId,
-                TODO_TYPE, typeObjectId));
-          }}>
-            <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${TODO_TYPE}Option` })}>
-              <IconButton size="small" id="createTODOOptionButton" noPadding>
-                <AssignmentIcon htmlColor={tColor('task')} />
-              </IconButton>
-            </Tooltip>
-        </div>
-        <div onClick={(event) => {
-            preventDefaultAndProp(event);
-            return navigate(history,
-              formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, marketId,
-                ISSUE_TYPE, typeObjectId));
-          }}>
-            <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${ISSUE_TYPE}` })}>
-              <IconButton size="small" id="issueButton" noPadding>
-                <Block htmlColor={tColor('issue')} />
-              </IconButton>
-            </Tooltip>
-        </div>
-        <div onClick={(event) => {
-            preventDefaultAndProp(event);
-            return navigate(history,
-              formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, marketId,
-                SUGGEST_CHANGE_TYPE, typeObjectId));
-          }}>
-            <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${SUGGEST_CHANGE_TYPE}` })}>
-              <IconButton size="small" id="suggestButton" noPadding>
-                <LightbulbOutlined htmlColor={tColor('suggest')} />
-              </IconButton>
-            </Tooltip>
-        </div>
-        <div style={{paddingRight: '0.5rem'}}  onClick={(event) => {
-            preventDefaultAndProp(event);
-            return navigate(history,
-              formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, marketId,
-                QUESTION_TYPE, typeObjectId));
-          }}>
-            <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${QUESTION_TYPE}` })}>
-              <IconButton size="small" id="questionButton" noPadding>
-                <QuestionIcon htmlColor={tColor('question')} />
-              </IconButton>
-            </Tooltip>
-        </div>
+        {!questionResolved && (
+          <>
+            <div onClick={(event) => {
+                preventDefaultAndProp(event);
+                return navigate(history,
+                  formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, marketId,
+                    TODO_TYPE, typeObjectId));
+              }}>
+                <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${TODO_TYPE}Option` })}>
+                  <IconButton size="small" id="createTODOOptionButton" noPadding>
+                    <AssignmentIcon htmlColor={tColor('task')} />
+                  </IconButton>
+                </Tooltip>
+            </div>
+            <div onClick={(event) => {
+                preventDefaultAndProp(event);
+                return navigate(history,
+                  formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, marketId,
+                    ISSUE_TYPE, typeObjectId));
+              }}>
+                <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${ISSUE_TYPE}` })}>
+                  <IconButton size="small" id="issueButton" noPadding>
+                    <Block htmlColor={tColor('issue')} />
+                  </IconButton>
+                </Tooltip>
+            </div>
+            <div onClick={(event) => {
+                preventDefaultAndProp(event);
+                return navigate(history,
+                  formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, marketId,
+                    SUGGEST_CHANGE_TYPE, typeObjectId));
+              }}>
+                <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${SUGGEST_CHANGE_TYPE}` })}>
+                  <IconButton size="small" id="suggestButton" noPadding>
+                    <LightbulbOutlined htmlColor={tColor('suggest')} />
+                  </IconButton>
+                </Tooltip>
+            </div>
+            <div style={{paddingRight: '0.5rem'}}  onClick={(event) => {
+                preventDefaultAndProp(event);
+                return navigate(history,
+                  formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, marketId,
+                    QUESTION_TYPE, typeObjectId));
+              }}>
+                <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${QUESTION_TYPE}` })}>
+                  <IconButton size="small" id="questionButton" noPadding>
+                    <QuestionIcon htmlColor={tColor('question')} />
+                  </IconButton>
+                </Tooltip>
+            </div>
+          </>
+        )}
       </>
     );
   }
@@ -224,7 +230,7 @@ function OptionMenu(props) {
         disableRestoreFocus
         classes={{ paper: classes.paperMenu }}
       >
-        {!openForInvestment && isAdmin && (
+        {!openForInvestment && isAdmin && !questionResolved && (
           <MenuItem key="moveOptionVotingKey" id="moveOptionVotingId" style={{backgroundColor: 'white'}}
                     onClick={(event) => {
                       preventDefaultAndProp(event);
@@ -239,7 +245,7 @@ function OptionMenu(props) {
             </Tooltip>
           </MenuItem>
         )}
-        {openForInvestment && isAdmin && (
+        {openForInvestment && isAdmin && !questionResolved && (
           <MenuItem key="moveOptionNotVotingKey" id="moveOptionNotVotingId" style={{backgroundColor: 'white'}}
                     onClick={(event) => {
                       preventDefaultAndProp(event);
@@ -270,7 +276,7 @@ function OptionMenu(props) {
             </Tooltip>
           </MenuItem>
         )}
-        {openForInvestment && !yourVote && (
+        {openForInvestment && !yourVote && !questionResolved && (
           <MenuItem key="createApprovalKey" id="createApprovalId"
             onClick={(event) => {
               preventDefaultAndProp(event);
@@ -288,7 +294,8 @@ function OptionMenu(props) {
             </Tooltip>
           </MenuItem>
         )}
-        <MenuItem key="createInfoKey" id="createInfoId"
+        {!questionResolved && (
+          <MenuItem key="createInfoKey" id="createInfoId"
             onClick={(event) => {
               preventDefaultAndProp(event);
               return navigate(history,
@@ -304,6 +311,8 @@ function OptionMenu(props) {
               </ListItemText>
             </Tooltip>
           </MenuItem>
+        )}
+        {!questionResolved && (
           <MenuItem key="createIssueKey" id="createIssueId"
             onClick={(event) => {
               preventDefaultAndProp(event);
@@ -320,6 +329,8 @@ function OptionMenu(props) {
               </ListItemText>
             </Tooltip>
           </MenuItem>
+        )}
+        {!questionResolved && (
           <MenuItem key="createSuggestKey" id="createSuggestId"
             onClick={(event) => {
               preventDefaultAndProp(event);
@@ -336,6 +347,8 @@ function OptionMenu(props) {
               </ListItemText>
             </Tooltip>
           </MenuItem>
+        )}
+        {!questionResolved && (
           <MenuItem key="createQuestionKey" id="createQuestionId"
             onClick={(event) => {
               preventDefaultAndProp(event);
@@ -352,6 +365,7 @@ function OptionMenu(props) {
               </ListItemText>
             </Tooltip>
           </MenuItem>
+        )}
       </Menu>
   );
 }

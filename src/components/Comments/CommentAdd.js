@@ -496,7 +496,7 @@ function CommentAdd(props) {
                 handleSave();
               } : (wizardProps.onTerminate ? wizardProps.onTerminate :
                 () => navigate(history, formInvestibleLink(marketId, investibleId)))}
-              showOtherNext={type === TODO_TYPE || wizardProps.isResolve}
+              showOtherNext={(type === TODO_TYPE && !wizardProps.questionResolved) || wizardProps.isResolve}
               otherNextLabel={type === TODO_TYPE ? (fromDecisionInvestibleId ? 'addResolve' : 'addAnother') : 'commentResolveLabelOnly'}
               isOtherFinal={!_.isEmpty(fromDecisionInvestibleId)}
               otherNextValid={wizardProps.isResolve ? true : undefined}

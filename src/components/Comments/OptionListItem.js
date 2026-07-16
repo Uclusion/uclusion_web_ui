@@ -85,6 +85,7 @@ function OptionListItem(props) {
     removeActions,
     inArchives,
     marketPresences,
+    parentInvestibleId,
     highlightList=[]
   } = props;
   const theme = useTheme();
@@ -130,12 +131,18 @@ function OptionListItem(props) {
 
   return (
     <>
-      <Item key={`optionListItem${id}`} id={id} onDragStart={onDragStart} draggable={!questionResolved && isAdmin} 
-        onContextMenu={(questionResolved || removeActions) ? undefined : recordPositionToggle}>
+      {/* B-all-485: a resolved question no longer hides the option actions outright - the menu
+          stays reachable so Make task (the only action still valid then) remains available.
+          When resolved and there is no parent job to make a task on, the menu would be empty,
+          so only then does it disappear. Real archives still remove everything. */}
+      <Item key={`optionListItem${id}`} id={id} onDragStart={onDragStart}
+        draggable={!questionResolved && !inArchives && isAdmin}
+        onContextMenu={((questionResolved && !parentInvestibleId) || removeActions || inArchives) ? undefined :
+          recordPositionToggle}>
         {anchorEl && (
-          <OptionMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle} openForInvestment={isInVoting} 
-            mouseX={mouseX} mouseY={mouseY} marketId={marketId} investibleId={id} isAdmin={isAdmin} 
-            marketPresences={marketPresences} />
+          <OptionMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle} openForInvestment={isInVoting}
+            mouseX={mouseX} mouseY={mouseY} marketId={marketId} investibleId={id} isAdmin={isAdmin}
+            marketPresences={marketPresences} questionResolved={questionResolved} />
         )}
         <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
           <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} key={`link${id}`}
@@ -198,7 +205,7 @@ function OptionListItem(props) {
               {!expandOrContract && (
                 <div style={{marginRight: '1rem'}} />
               )}
-              {expansionOpen && !removeActions && !inArchives && !questionResolved && (
+              {expansionOpen && !removeActions && !inArchives && (!questionResolved || parentInvestibleId) && (
                 useMoreMenu ? (
                   // C-all-996 (Q-all-139, O-1) + C-all-998: the inline action toolbar
                   // needs a wide row, so on phones AND mid widths collapse it to a kebab
@@ -208,7 +215,7 @@ function OptionListItem(props) {
                     icon={<MoreVertIcon htmlColor={theme.palette.type === 'dark' ? '#b0b0b0' : '#5f6368'} />} />
                 ) : (
                   <OptionMenu openForInvestment={isInVoting} marketId={marketId} investibleId={id} isAdmin={isAdmin}
-                    marketPresences={marketPresences} />
+                    marketPresences={marketPresences} questionResolved={questionResolved} />
                 )
               )}
             </Div>

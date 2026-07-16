@@ -241,7 +241,8 @@ function Options(props) {
         parentInvestibleId={investibleId}
         groupId={groupId}
         comments={anInlineMarketInvestibleComments}
-        inArchives={inArchives || anInlineMarket.market_stage !== ACTIVE_STAGE}
+        inArchives={inArchives}
+        questionResolved={anInlineMarket.market_stage !== ACTIVE_STAGE}
         isAdmin={isEditable}
         isSent={isSent}
         isInbox={isInbox}

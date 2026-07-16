@@ -84,6 +84,7 @@ function QuillEditor2 (props) {
     simple = false,
     marketId,
     mentionsAllowed = false,
+    mentionDenotationChars,
     placeholder = '',
     noOverflow,
     maxHeight,
@@ -214,6 +215,7 @@ function QuillEditor2 (props) {
         simple,
         uploadDisabled,
         mentionsAllowed,
+        mentionDenotationChars,
         boundsId,
         placeholder,
         value
@@ -224,7 +226,8 @@ function QuillEditor2 (props) {
     // due to the checks above (missing createEditor dep)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mobileLayout, noToolbar, onS3Upload, setUploadInProgress, setVideoDialogOpen, setLinkDialogOpen, simple,
-    uploadDisabled, mentionsAllowed, boundsId, boxRef, marketId, containerRef, placeholder, value
+    uploadDisabled, mentionsAllowed, mentionDenotationChars, boundsId, boxRef, marketId, containerRef, placeholder,
+    value
   ]);
 
   useEffect(() => {
@@ -298,6 +301,7 @@ QuillEditor2.propTypes = {
   id: PropTypes.string.isRequired,
   simple: PropTypes.bool,
   mentionsAllowed: PropTypes.bool,
+  mentionDenotationChars: PropTypes.arrayOf(PropTypes.string),
   dontManageState: PropTypes.bool
 };
 

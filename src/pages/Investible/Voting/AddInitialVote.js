@@ -78,6 +78,8 @@ function AddInitialVote(props) {
   const myEditor = <QuillEditor2
   id={editorName}
   marketId={marketId}
+  mentionsAllowed
+  mentionDenotationChars={['#']}
   value={getQuillStoredState(editorName) || defaultReason}
   placeholder={intl.formatMessage({ id: "yourReason" })}
 />;

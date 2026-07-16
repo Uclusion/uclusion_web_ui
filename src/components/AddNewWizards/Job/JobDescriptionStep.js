@@ -93,6 +93,8 @@ function JobDescriptionStep (props) {
     placeholder: "Ex: Make magic happen. A bullet list in this description will be become tasks.",
     value: getQuillStoredState(editorName),
     marketId,
+    mentionsAllowed: true,
+    mentionDenotationChars: ['#'],
     autoFocus: true,
     maxHeight: '300px',
     onUpload: setUploadedFiles,

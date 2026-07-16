@@ -355,6 +355,9 @@ export function generateEditorOptions (id, config) {
     simple,
     uploadDisabled,
     mentionsAllowed,
+    // S-all-115: which triggers the mention module offers - descriptions and vote reasons
+    // pass ['#'] so people can never be mentioned outside comments
+    mentionDenotationChars = ['@', '#'],
     boundsId,
     placeholder,
     scrollingContainer,
@@ -490,7 +493,7 @@ export function generateEditorOptions (id, config) {
       positioningStrategy: 'fixed',
       // J-all-348: '#' mentions a job (Q-all-224 O-1). Job names and ticket codes need spaces,
       // dashes and periods, which people mentions do not allow
-      mentionDenotationChars: ['@', '#'],
+      mentionDenotationChars,
       allowedChars: (mentionChar) => mentionChar === '#' ? /^[a-zA-Z0-9_\- .]*$/ : /^[a-zA-Z0-9_]*$/,
       renderItem: function (item) {
         // we want an html string here which gets slammed into inner html, so we have to do some trickery
@@ -525,16 +528,20 @@ export function generateEditorOptions (id, config) {
               }
             }
           });
-          // S-1 under Q-all-224: each list teaches the other trigger via a disabled hint row
-          renderList([{ id: 'jobsMentionHint', value: 'use @ for people', disabled: true },
+          // S-1 under Q-all-224: each list teaches the other trigger via a disabled hint row,
+          // skipped when the other trigger is not enabled (S-all-115)
+          const jobsHint = mentionDenotationChars.includes('@') ?
+            [{ id: 'jobsMentionHint', value: 'use @ for people', disabled: true }] : [];
+          renderList([...jobsHint,
             ..._.orderBy(jobs, [(job) => job.value.toLowerCase()])], searchTerm);
           return;
         }
         const participantsRaw = getMarketPresences(marketPresencesContextHack, marketId) || [];
         const participants = participantsRaw.filter((presence) => !_.isEmpty(presence.email));
-        const peopleHint = { id: 'peopleMentionHint', value: 'use # for jobs', disabled: true };
+        const peopleHint = mentionDenotationChars.includes('#') ?
+          [{ id: 'peopleMentionHint', value: 'use # for jobs', disabled: true }] : [];
         if (searchTerm.length === 0) {
-          renderList([peopleHint, ...participants.map((presence) => {
+          renderList([...peopleHint, ...participants.map((presence) => {
             const { name, id, email, external_id } = presence;
             return { id, value: name, email, externalId: external_id };
           })], searchTerm);
@@ -546,7 +553,7 @@ export function generateEditorOptions (id, config) {
               matches.push({ id, value: name, email, externalId: external_id });
             }
           });
-          renderList([peopleHint, ...matches], searchTerm);
+          renderList([...peopleHint, ...matches], searchTerm);
         }
       },
       onSelect: function (item, insertItem) {

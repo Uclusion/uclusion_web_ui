@@ -16,6 +16,7 @@ export function useEditor (name, spec) {
     simple,
     noToolbar,
     mentionsAllowed,
+    mentionDenotationChars,
     className,
     onChange,
     onImageDeletion,
@@ -71,6 +72,7 @@ export function useEditor (name, spec) {
       placeholder={placeholder}
       participants={participants}
       mentionsAllowed={mentionsAllowed}
+      mentionDenotationChars={mentionDenotationChars}
       uploadDisabled={uploadDisabled}
       simple={simple}
       noToolbar={noToolbar}

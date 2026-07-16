@@ -122,6 +122,8 @@ function AddEditVote(props) {
   const editorName = getEditVoteEditorName(investibleId, isInbox);
   const editorSpec = {
     marketId,
+    mentionsAllowed: true,
+    mentionDenotationChars: ['#'],
     placeholder: intl.formatMessage({ id: 'yourReason' }),
     value: getQuillStoredState(editorName) || originalReason,
     onUpload: (files) => updateFormData({uploadedFiles: files})

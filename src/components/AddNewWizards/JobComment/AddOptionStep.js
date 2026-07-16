@@ -66,6 +66,8 @@ function AddOptionStep(props) {
     placeholder: "Your option...",
     value: getQuillStoredState(editorName),
     marketId: inlineMarketId,
+    mentionsAllowed: true,
+    mentionDenotationChars: ['#'],
     onUpload: setUploadedFiles,
     autoFocus: true,
     onChange: () => { setHasValue(!editorEmpty(getQuillStoredState(editorName))); updateName(); },

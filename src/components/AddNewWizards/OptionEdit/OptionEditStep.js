@@ -38,6 +38,8 @@ function OptionEditStep(props) {
   const editorSpec = {
     onUpload: (files) => updateFormData({uploadedFiles: files}),
     marketId,
+    mentionsAllowed: true,
+    mentionDenotationChars: ['#'],
     placeholder: intl.formatMessage({ id: 'investibleAddDescriptionDefault' }),
     value: useDescription,
     autoFocus: true

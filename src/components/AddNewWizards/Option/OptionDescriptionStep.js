@@ -58,6 +58,8 @@ function OptionDescriptionStep (props) {
     placeholder: "Ex: make magic happen via A, B, C",
     value: getQuillStoredState(editorName),
     marketId,
+    mentionsAllowed: true,
+    mentionDenotationChars: ['#'],
     onUpload: setUploadedFiles,
     autoFocus: true,
     onChange: () => { setHasValue(!editorEmpty(getQuillStoredState(editorName))); updateName(); },

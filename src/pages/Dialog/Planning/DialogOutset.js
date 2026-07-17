@@ -19,6 +19,12 @@ import { changeGroupParticipation } from '../../../api/markets';
 import { modifyGroupMembers } from '../../../contexts/GroupMembersContext/groupMembersContextReducer';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
+import {
+  DARK_ACTION_BUTTON_COLOR,
+  DARK_CARD_BORDER_COLOR,
+  DARK_SIDEBAR_COLOR
+} from '../../../components/Buttons/ButtonConstants';
 
 export const DIALOG_OUTSET_STATE_HACK = {};
 
@@ -28,6 +34,9 @@ function DialogOutset(props) {
   const intl = useIntl();
   const [groupPresencesState, groupPresencesDispatch] = useContext(GroupMembersContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [themeMode] = useContext(ThemeModeContext);
+  const isDark = themeMode === 'dark';
+  const iconColor = isDark ? DARK_ACTION_BUTTON_COLOR : 'black';
   const groupCollaborators = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId)
   const classes = usePlanningInvestibleStyles();
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
@@ -54,8 +63,9 @@ function DialogOutset(props) {
         overflowY: 'none',
         zIndex: 3,
         position: 'absolute',
-        boxShadow: "2px 2px 2px lightgrey",
-        backgroundColor: 'white',
+        boxShadow: isDark ? '2px 2px 2px black' : '2px 2px 2px lightgrey',
+        border: isDark ? `1px solid ${DARK_CARD_BORDER_COLOR}` : undefined,
+        backgroundColor: isDark ? DARK_SIDEBAR_COLOR : 'white',
         display: 'none'
       }}
            onMouseEnter={() => {
@@ -67,10 +77,10 @@ function DialogOutset(props) {
            }}
            onMouseLeave={closeOutset}
       >
-        <ProSidebar width="10rem">
+        <ProSidebar width="10rem" backgroundColor={isDark ? DARK_SIDEBAR_COLOR : 'white'}>
           <div style={{paddingTop: '1rem'}} />
             <Menu rootStyles={{'.ps-menu-button': {paddingLeft: 0, height: 'unset'}}}>
-              <MenuItem icon={<SettingsIcon htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />} 
+              <MenuItem icon={<SettingsIcon htmlColor={iconColor} style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                         key={`groupSettings${groupId}`}
                         rootStyles={{
                           '.css-wx7wi4': {
@@ -89,7 +99,7 @@ function DialogOutset(props) {
                 {!isCurrentUserMember && (
                   <div>
                     <Menu rootStyles={{'.ps-menu-button': {paddingLeft: 0, height: 'unset'}}}>
-                      <MenuItem icon={<AddIcon htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+                      <MenuItem icon={<AddIcon htmlColor={iconColor} style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                                 key="addMeKey" id="addMeId"
                                 rootStyles={{
                                   '.css-wx7wi4': {
@@ -120,7 +130,7 @@ function DialogOutset(props) {
                 )}
                 <div>
                   <Menu rootStyles={{'.ps-menu-button': {paddingLeft: 0, height: 'unset'}}}>
-                    <MenuItem icon={<PersonAddIcon htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+                    <MenuItem icon={<PersonAddIcon htmlColor={iconColor} style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                               key="manageMembersKey" id="manageMembersId"
                               rootStyles={{
                                 '.css-wx7wi4': {

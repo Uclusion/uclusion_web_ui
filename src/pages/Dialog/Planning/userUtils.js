@@ -35,18 +35,6 @@ export function getUserPendingAcceptanceInvestibles(userId, marketId, investible
   });
 }
 
-function getUpdatedAt(updatedAt, comments) {
-  let mostRecentUpdate = updatedAt;
-  comments.forEach((comment) => {
-    const { updated_at: commentUpdatedAt } = comment;
-    const fixed = new Date(commentUpdatedAt);
-    if (fixed > mostRecentUpdate) {
-      mostRecentUpdate = fixed;
-    }
-  });
-  return mostRecentUpdate;
-}
-
 function hasInProgress(investibleId, marketComments) {
   // Limit to TO-DO type because subtask in progress with parent not doesn't prove anything
   return !_.isEmpty(marketComments.find((comment) => !comment.resolved && comment.investible_id === investibleId &&
@@ -79,13 +67,12 @@ export function getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId,
     stageInvestibles = stageInvestibles.filter((investible) => {
       const aMarketInfo = getMarketInfo(investible, marketId);
       const investibleId = investible.investible.id;
-      const investibleOpenComments = marketComments.filter(comment => comment.investible_id === investibleId &&
-        !comment.resolved && !comment.deleted) || [];
-      const investibleOverallUpdatedAt = getUpdatedAt(new Date(aMarketInfo.updated_at), investibleOpenComments);
       const messages = findMessagesForInvestibleId(investibleId, messagesState);
-      // If an investible has a notification then show it regardless of age
+      // Age off the stage entered date but show regardless of age when there is a notification
+      // so swimlanes stay a notification path alongside the inbox
+      // (https://stage.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/Q-all-242)
       return !_.isEmpty(messages)||
-        (Date.now() - investibleOverallUpdatedAt.getTime() < limitInvestiblesAge*24*60*60*1000);
+        (Date.now() - new Date(aMarketInfo.last_stage_change_date).getTime() < limitInvestiblesAge*24*60*60*1000);
     });
   }
   return stageInvestibles;

@@ -75,7 +75,7 @@ function processRegularItem(properties) {
                   : (EndIcon ? <IconButton id={`end${useIdPrepend}${textNoSpaces}`} size="small" 
                     style={{transform: 'translateX(5px)'}}
                   onClick={(event) => onClickFunc(event)}>
-                      <EndIcon htmlColor="black" fontSize="small" /></IconButton>
+                      <EndIcon htmlColor={isDark ? DARK_ACTION_BUTTON_COLOR : 'black'} fontSize="small" /></IconButton>
                     : undefined)}
                 onClick={
                   (event) => {

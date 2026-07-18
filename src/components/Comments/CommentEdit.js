@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useRef } from 'react';
 import { useIntl } from 'react-intl';
 import {
   darken,
@@ -269,7 +269,6 @@ function CommentEdit(props) {
   const presences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = presences?.find((presence) => presence.current_user) || {};
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [imagesDeleted, setImagesDeleted] = useState(false);
   const groupPresences = getGroupPresences(presences, groupPresencesState, marketId, groupId) || [];
   const investedOrAddressed = calculateInvestibleVoters(investibleId, marketId, marketsState, investiblesState,
     presences, true, true);
@@ -286,9 +285,6 @@ function CommentEdit(props) {
 
   const editorName = `comment-edit-editor${id}`;
   const editorSpec = {
-    onImageDeletion: () => {
-      setImagesDeleted(true);
-    },
     value: getQuillStoredState(editorName) || initialBody,
     onUpload: (files) => updateEditState({uploadedFiles: files}),
     mentionsAllowed: true,
@@ -298,15 +294,20 @@ function CommentEdit(props) {
   const [Editor] = useEditor(editorName, editorSpec);
 
   function handleSave(isSent) {
-    const imagesLoaded = allImagesLoaded(editBox?.current, initialUploadedFiles);
-    if (!imagesLoaded && !imagesDeleted) {
+    const body = getQuillStoredState(editorName) !== null ? getQuillStoredState(editorName) : initialBody;
+    // Only images the body still references must be loaded - a path absent from the
+    // body was removed by the user, not a load failure. Deriving removal from the
+    // body instead of session state survives the remounts and refreshes that used
+    // to wedge saves after a delete plus add (B-all-488)
+    const requiredUploads = (initialUploadedFiles || []).filter((file) => body.includes(file.path));
+    const imagesLoaded = allImagesLoaded(editBox?.current, requiredUploads);
+    if (!imagesLoaded) {
       sendInfoPersistent({ id: 'loadImageError' }, {});
       return Promise.resolve(false);
     }
     const currentUploadedFiles = uploadedFiles || [];
     const existingUploadedFiles = initialUploadedFiles || [];
     const newUploadedFiles = _.uniqBy([...existingUploadedFiles, ...currentUploadedFiles], 'path');
-    const body = getQuillStoredState(editorName) !== null ? getQuillStoredState(editorName) : initialBody;
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,

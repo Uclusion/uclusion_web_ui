@@ -407,6 +407,41 @@ def add_suggestion(credentials, job_short_code, suggestion):
     return send(data, 'POST', suggestion_api_url, credentials['api_token'])
 
 
+EXPORT_SEPARATOR = '<br/><br/>\n***\n'
+EXPORT_MARKER_RE = re.compile(r'^<!-- uclusion:(marketInvestible|comment):([^:]+):([^ ]+) -->\n',
+                              re.MULTILINE)
+
+
+def make_export_marker(id_type, an_id, stamp):
+    return f'<!-- uclusion:{id_type}:{an_id}:{stamp} -->\n'
+
+
+def parse_export_sections(file_path):
+    """Reads a marker-formatted export into {(id_type, id): (stamp, section_text)}.
+
+    Returns None when the file is absent or holds no markers (legacy blob or first run)."""
+    if file_path is None:
+        return None
+    try:
+        with open(file_path, 'r', encoding='utf-8') as export_file:
+            content = export_file.read()
+    except OSError:
+        return None
+    matches = list(EXPORT_MARKER_RE.finditer(content))
+    if not matches:
+        return None
+    sections = {}
+    for index, match in enumerate(matches):
+        end = matches[index + 1].start() if index + 1 < len(matches) else len(content)
+        text = content[match.end():end]
+        # The group separator is written between the investible and comment groups on
+        # assembly, so it cannot stay glued to a reused section
+        if text.endswith(EXPORT_SEPARATOR):
+            text = text[:-len(EXPORT_SEPARATOR)]
+        sections[(match.group(1), match.group(2))] = (match.group(3), text)
+    return sections
+
+
 def fetch_export_batch(export_api_url, id_type, ids, credentials, failed_ids):
     full_export_api_url = export_api_url + f'?idType={id_type}&id=' + '&id='.join(ids)
     batch_content = send(None, 'GET', full_export_api_url, credentials['api_token'])
@@ -425,31 +460,99 @@ def fetch_export_batch(export_api_url, id_type, ids, credentials, failed_ids):
     return content
 
 
-def fetch_workspace_export(credentials):
-    export_list_api_url = 'https://summaries.' + credentials['api_url'] + '/export_list'
-    response = send(None, 'GET', export_list_api_url, credentials['api_token'])
-    if response is None:
-        return None
-    market_investible_ids = response['market_investible_ids']
+def fetch_export_sections(export_api_url, id_type, ids, credentials, failed_ids):
+    """Fetches changed sections as {id: (stamp, markdown)} via format=json, falling back to
+    per-id fetches when a batch fails so one bad object cannot lose the run."""
+    fetched = {}
+    for batch in batched(ids, 20):
+        url = f'{export_api_url}?format=json&idType={id_type}&id=' + '&id='.join(batch)
+        got = send(None, 'GET', url, credentials['api_token'])
+        if got is None:
+            for an_id in batch:
+                single = send(None, 'GET', f'{export_api_url}?format=json&idType={id_type}&id={an_id}',
+                              credentials['api_token'])
+                if single is None:
+                    failed_ids.append(f'{id_type}:{an_id}')
+                else:
+                    for item in single:
+                        fetched[item['id']] = (item['stamp'], item['markdown'])
+        else:
+            for item in got:
+                fetched[item['id']] = (item['stamp'], item['markdown'])
+    return fetched
+
+
+def build_incremental_export(credentials, list_response, existing_sections, failed_ids, stale_ids):
     export_api_url = 'https://summaries.' + credentials['api_url'] + '/export'
-    failed_ids = []
+    existing_sections = existing_sections or {}
+    listed = (('marketInvestible', list_response['market_investibles']),
+              ('comment', list_response['comments']))
+    parts_by_type = {'marketInvestible': [], 'comment': []}
+    for id_type, entries in listed:
+        changed_ids = [entry['id'] for entry in entries
+                       if existing_sections.get((id_type, entry['id']), (None,))[0] != entry['stamp']]
+        fetched = fetch_export_sections(export_api_url, id_type, changed_ids, credentials, failed_ids)
+        for entry in entries:
+            an_id = entry['id']
+            if an_id in fetched:
+                stamp, markdown = fetched[an_id]
+                parts_by_type[id_type].append(make_export_marker(id_type, an_id, stamp) + markdown)
+            else:
+                old = existing_sections.get((id_type, an_id))
+                if old is None:
+                    # fetch failed with nothing to reuse - already recorded in failed_ids
+                    continue
+                old_stamp, old_text = old
+                if old_stamp != entry['stamp']:
+                    # fetch failed but an out of date copy exists - keeping it beats dropping it
+                    stale_ids.append(f'{id_type}:{an_id}')
+                    if f'{id_type}:{an_id}' in failed_ids:
+                        failed_ids.remove(f'{id_type}:{an_id}')
+                parts_by_type[id_type].append(make_export_marker(id_type, an_id, old_stamp) + old_text)
+    return ''.join(parts_by_type['marketInvestible']) + EXPORT_SEPARATOR + ''.join(parts_by_type['comment'])
+
+
+def build_full_export(credentials, list_response, failed_ids):
+    market_investible_ids = list_response['market_investible_ids']
+    export_api_url = 'https://summaries.' + credentials['api_url'] + '/export'
     new_file_content = ''
     for batch in batched(market_investible_ids, 20):
         new_file_content += fetch_export_batch(export_api_url, 'marketInvestible', batch,
                                                credentials, failed_ids)
-    new_file_content += '<br/><br/>\n'
-    new_file_content += '***\n'
-    comment_ids = response['comment_ids']
+    new_file_content += EXPORT_SEPARATOR
+    comment_ids = list_response['comment_ids']
     for batch in batched(comment_ids, 20):
         new_file_content += fetch_export_batch(export_api_url, 'comment', batch,
                                                credentials, failed_ids)
+    return new_file_content
+
+
+def fetch_workspace_export(credentials, file_path=None):
+    export_list_api_url = 'https://summaries.' + credentials['api_url'] + '/export_list?stamps=true'
+    response = send(None, 'GET', export_list_api_url, credentials['api_token'])
+    if response is None:
+        return None
+    failed_ids = []
+    stale_ids = []
+    if 'market_investibles' in response and 'comments' in response:
+        existing_sections = parse_export_sections(file_path)
+        new_file_content = build_incremental_export(credentials, response, existing_sections,
+                                                    failed_ids, stale_ids)
+    else:
+        # Back end without incremental support returns the id-list shape - full blob export
+        new_file_content = build_full_export(credentials, response, failed_ids)
+    warnings = ''
     if failed_ids:
         print(f"  ⚠️ {len(failed_ids)} objects failed to export and are missing from the file:")
         print(f"     {', '.join(failed_ids)}")
-        warning = (f"<!-- uclusion-export-warning: {len(failed_ids)} objects failed to export "
-                   f"and are missing from this file: {', '.join(failed_ids)} -->\n")
-        new_file_content = warning + new_file_content
-    return new_file_content
+        warnings += (f"<!-- uclusion-export-warning: {len(failed_ids)} objects failed to export "
+                     f"and are missing from this file: {', '.join(failed_ids)} -->\n")
+    if stale_ids:
+        print(f"  ⚠️ {len(stale_ids)} objects failed to export; their sections are out of date:")
+        print(f"     {', '.join(stale_ids)}")
+        warnings += (f"<!-- uclusion-export-warning: {len(stale_ids)} objects failed to export "
+                     f"and their sections are out of date: {', '.join(stale_ids)} -->\n")
+    return warnings + new_file_content
 
 
 def write_uclusion_md(config, credentials, short_code_id, job_report_path='job_report.md'):
@@ -462,7 +565,7 @@ def write_uclusion_md(config, credentials, short_code_id, job_report_path='job_r
         file_type = config.get('uclusionMDFileType')
         print(f"  ✅ Processing: '{file_path}'")
         if file_type == 'export':
-            new_file_content = fetch_workspace_export(credentials)
+            new_file_content = fetch_workspace_export(credentials, file_path)
         else:
             report_api_url = 'https://summaries.' + credentials['api_url'] + '/report'
             new_file_content = send(None, 'GET', report_api_url, credentials['api_token'])
@@ -810,7 +913,7 @@ def cmd_export(args):
         file_path = config.get('uclusionMDFilePath')
     else:
         file_path = 'uclusion_export.md'
-    new_file_content = fetch_workspace_export(credentials)
+    new_file_content = fetch_workspace_export(credentials, file_path)
     if new_file_content is None:
         print(f"     -> ❌ Fetch failed; not writing '{file_path}'")
         return 1

@@ -1328,6 +1328,7 @@ const messages = defineMessages({
   // Search
   searchBoxPlaceholder: 'Search',
   searchBoxPlaceholderMobile: ' Search',
+  searchInfoTooltip: 'Finds recent items containing your text - browser storage limits how far back it reaches, and results display in a guided way. For complex searches, like "do we have a backlog job about X?", ask your AI agent - it searches the entire workspace.',
   previousInbox: 'ctrl+shift+arrowLeft Previous',
   nextInbox: 'ctrl+shift+arrowRight Next',
   NotificationResultJustify: 'Vote In:',

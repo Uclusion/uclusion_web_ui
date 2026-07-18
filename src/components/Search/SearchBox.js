@@ -1,8 +1,9 @@
 import React, { useContext, useRef } from 'react'
 import { SearchIndexContext } from '../../contexts/SearchIndexContext/SearchIndexContext'
-import { InputAdornment, TextField, useMediaQuery, useTheme } from '@material-ui/core';
+import { InputAdornment, TextField, Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
 import _ from 'lodash'
 import SearchIcon from '@material-ui/icons/Search'
+import InfoIcon from '@material-ui/icons/Info'
 import { useIntl } from 'react-intl'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import {
@@ -157,7 +158,7 @@ function SearchBox(props) {
 
   return (
     <div id='search-box' onClick={(event) => event.stopPropagation()}
-         style={{maxWidth: mobileLayout ? undefined : '50rem'}}>
+         style={{maxWidth: mobileLayout ? undefined : '50rem', display: 'flex', alignItems: 'center'}}>
       <TextField
         variant="outlined"
         style={{width: '100%', minWidth: mobileLayout ? '10rem' : '30rem'}}
@@ -193,6 +194,11 @@ function SearchBox(props) {
           ),
         }}
       />
+      {!mobileLayout && (
+        <Tooltip title={intl.formatMessage({ id: 'searchInfoTooltip' })}>
+          <InfoIcon color='primary' style={{marginLeft: '0.35rem'}} />
+        </Tooltip>
+      )}
     </div>
   );
 }

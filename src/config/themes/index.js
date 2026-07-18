@@ -40,6 +40,15 @@ const lightThemeDefinition = {
       secondary: 'rgba(0, 0, 0, 0.54)',
     },
   },
+  overrides: {
+    MuiTooltip: {
+      tooltip: {
+        // The MUI default is semi-transparent grey; opaque like dark mode so
+        // hover text stays readable over busy content (T-all-2333)
+        backgroundColor: '#333333',
+      },
+    },
+  },
 };
 
 const darkThemeDefinition = {

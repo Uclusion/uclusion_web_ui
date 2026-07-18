@@ -325,14 +325,27 @@ End the report with a signature line naming the AI product, exact model
 version, and effort level that wrote it, for example
 "— Claude Code (claude-fable-5, high effort)".
 
-## Recalling past decisions
+## Searching the workspace
 
-Resolved questions keep their options, votes, and reasons forever, and the
-whole workspace exports to local markdown. Before re-opening a debate, or
-whenever you need to know if something was already decided ("what did we
-decide about X?"), run `uclusion export` in the shell and search the file it
-reports writing. Cite the short codes you find instead of re-litigating a
-decision; reopen a found decision only when there is new evidence.
+The whole workspace exports to local markdown: every job, task, bug, note,
+question, and suggestion with its options, votes, and reasons — resolved or
+not. Run `uclusion export` in the shell and search the file it reports
+writing whenever the user asks anything the workspace data can answer and
+the answer is not already in front of you. That is much broader than
+decision recall — for example: "do we have a backlog job that includes work
+X?", "did we resolve a bug on Y recently?", "who approved Z and how certain
+were they?", "what is still open on the mobile release?".
+
+Present each found item with enough inline detail to judge relevance — you
+have the full contents locally, so never make the user open Uclusion just to
+see what a result says. Offer to drill into any found item right in the
+conversation, and include each item's short code so the user can open the
+live object in Uclusion when they want to act on it.
+
+Decisions are the special case: before re-opening a debate, or whenever you
+need to know if something was already decided ("what did we decide about
+X?"), search the export first. Cite what you find instead of re-litigating;
+reopen a found decision only when there is new evidence.
 
 ## Notes
 

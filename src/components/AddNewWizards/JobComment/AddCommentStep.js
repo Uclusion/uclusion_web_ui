@@ -9,7 +9,8 @@ import CommentAdd, { hasCommentValue } from '../../Comments/CommentAdd';
 import { useHistory } from 'react-router';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { addInvestible, getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { changeInvestibleStageOnCommentClose, isSingleAssisted } from '../../../utils/commentFunctions';
 import {
   ISSUE_TYPE,
   QUESTION_TYPE,
@@ -107,26 +108,14 @@ function AddCommentStep (props) {
     return resolveComment(marketId, parentCommentId)
       .then((comment) => {
         addCommentToMarket(comment, commentState, commentDispatch);
-        const needsAssistanceComments = investibleComments?.filter((aComment) => aComment.id !== comment.id &&
-          [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(aComment.comment_type));
-        if (inAssistanceStage && _.isEmpty(needsAssistanceComments)) {
+        // B-all-486: only unresolved assistance holds a job in Requires Input, and for
+        // questions and suggestions only when authored by an assignee - the same rules the
+        // resolve button path and the back end apply via isSingleAssisted
+        if (inAssistanceStage && isSingleAssisted(investibleComments, assigned)) {
           const inv = getInvestible(investiblesState, investibleId);
           const marketInfo = getMarketInfo(inv, marketId);
-          console.debug(`former stage is ${marketInfo.former_stage_id} and current stage is ${currentStageId} and requires is ${requiresInputStage.id}`)
-          if (marketInfo.former_stage_id && ![requiresInputStage.id, blockingStage.id].includes(marketInfo.former_stage_id)) {
-            const newInfo = {
-              ...marketInfo,
-              stage: marketInfo.former_stage_id,
-              former_stage_id: currentStageId,
-              last_stage_change_date: comment.updated_at,
-            };
-            const newInfos = _.unionBy([newInfo], inv.market_infos, 'id');
-            const newInvestible = {
-              investible: inv.investible,
-              market_infos: newInfos
-            };
-            addInvestible(investiblesDispatch, () => {}, newInvestible);
-          }
+          changeInvestibleStageOnCommentClose([marketInfo], inv.investible, investiblesDispatch,
+            comment.updated_at, marketStagesState);
         }
         removeMessagesForCommentId(parentCommentId, messagesState, messagesDispatch);
       });

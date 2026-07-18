@@ -325,6 +325,15 @@ End the report with a signature line naming the AI product, exact model
 version, and effort level that wrote it, for example
 "— Claude Code (claude-fable-5, high effort)".
 
+## Recalling past decisions
+
+Resolved questions keep their options, votes, and reasons forever, and the
+whole workspace exports to local markdown. Before re-opening a debate, or
+whenever you need to know if something was already decided ("what did we
+decide about X?"), run `uclusion export` in the shell and search the file it
+reports writing. Cite the short codes you find instead of re-litigating a
+decision; reopen a found decision only when there is new evidence.
+
 ## Notes
 
 - Every question, option, suggestion, approval, and progress note lives

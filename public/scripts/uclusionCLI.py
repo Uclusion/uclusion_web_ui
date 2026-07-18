@@ -407,6 +407,51 @@ def add_suggestion(credentials, job_short_code, suggestion):
     return send(data, 'POST', suggestion_api_url, credentials['api_token'])
 
 
+def fetch_export_batch(export_api_url, id_type, ids, credentials, failed_ids):
+    full_export_api_url = export_api_url + f'?idType={id_type}&id=' + '&id='.join(ids)
+    batch_content = send(None, 'GET', full_export_api_url, credentials['api_token'])
+    if batch_content is not None:
+        return batch_content
+    # One object the back end cannot render fails its whole batch, so retry
+    # one at a time and collect the bad ids instead of losing the export.
+    content = ''
+    for an_id in ids:
+        single = send(None, 'GET', f'{export_api_url}?idType={id_type}&id={an_id}',
+                      credentials['api_token'])
+        if single is None:
+            failed_ids.append(f'{id_type}:{an_id}')
+        else:
+            content += single
+    return content
+
+
+def fetch_workspace_export(credentials):
+    export_list_api_url = 'https://summaries.' + credentials['api_url'] + '/export_list'
+    response = send(None, 'GET', export_list_api_url, credentials['api_token'])
+    if response is None:
+        return None
+    market_investible_ids = response['market_investible_ids']
+    export_api_url = 'https://summaries.' + credentials['api_url'] + '/export'
+    failed_ids = []
+    new_file_content = ''
+    for batch in batched(market_investible_ids, 20):
+        new_file_content += fetch_export_batch(export_api_url, 'marketInvestible', batch,
+                                               credentials, failed_ids)
+    new_file_content += '<br/><br/>\n'
+    new_file_content += '***\n'
+    comment_ids = response['comment_ids']
+    for batch in batched(comment_ids, 20):
+        new_file_content += fetch_export_batch(export_api_url, 'comment', batch,
+                                               credentials, failed_ids)
+    if failed_ids:
+        print(f"  ⚠️ {len(failed_ids)} objects failed to export and are missing from the file:")
+        print(f"     {', '.join(failed_ids)}")
+        warning = (f"<!-- uclusion-export-warning: {len(failed_ids)} objects failed to export "
+                   f"and are missing from this file: {', '.join(failed_ids)} -->\n")
+        new_file_content = warning + new_file_content
+    return new_file_content
+
+
 def write_uclusion_md(config, credentials, short_code_id, job_report_path='job_report.md'):
     if short_code_id is not None:
         file_path = job_report_path if job_report_path is not None else 'job_report.md'
@@ -417,23 +462,13 @@ def write_uclusion_md(config, credentials, short_code_id, job_report_path='job_r
         file_type = config.get('uclusionMDFileType')
         print(f"  ✅ Processing: '{file_path}'")
         if file_type == 'export':
-            export_list_api_url = 'https://summaries.' + credentials['api_url'] + '/export_list'
-            response = send(None, 'GET', export_list_api_url, credentials['api_token'])
-            market_investible_ids = response['market_investible_ids']
-            export_api_url = 'https://summaries.' + credentials['api_url'] + '/export'
-            new_file_content = ''
-            for batch in batched(market_investible_ids, 20):
-                full_export_api_url = export_api_url + '?idType=marketInvestible&id=' + '&id='.join(batch)
-                new_file_content += send(None, 'GET', full_export_api_url, credentials['api_token'])
-            new_file_content += '<br/><br/>\n'
-            new_file_content += '***\n'
-            comment_ids = response['comment_ids']
-            for batch in batched(comment_ids, 20):
-                full_export_api_url = export_api_url + '?idType=comment&id=' + '&id='.join(batch)
-                new_file_content += send(None, 'GET', full_export_api_url, credentials['api_token'])
+            new_file_content = fetch_workspace_export(credentials)
         else:
             report_api_url = 'https://summaries.' + credentials['api_url'] + '/report'
             new_file_content = send(None, 'GET', report_api_url, credentials['api_token'])
+    if new_file_content is None:
+        print(f"     -> ❌ Fetch failed; not writing '{file_path}'")
+        return
     try:
         with open(file_path, 'w', encoding='utf-8') as uclusion_file:
             uclusion_file.write(new_file_content)
@@ -764,6 +799,31 @@ def cmd_sync(args):
     return 0
 
 
+def cmd_export(args):
+    result = initialize(args.env)
+    if result is None:
+        return 1
+    credentials, config, _stages = result
+    if args.output is not None:
+        file_path = args.output
+    elif config.get('uclusionMDFileType') == 'export':
+        file_path = config.get('uclusionMDFilePath')
+    else:
+        file_path = 'uclusion_export.md'
+    new_file_content = fetch_workspace_export(credentials)
+    if new_file_content is None:
+        print(f"     -> ❌ Fetch failed; not writing '{file_path}'")
+        return 1
+    try:
+        with open(file_path, 'w', encoding='utf-8') as uclusion_file:
+            uclusion_file.write(new_file_content)
+        print(f"  ✅ Wrote workspace export to '{file_path}'")
+    except Exception as e:
+        print(f"     -> ❌ Error writing export: {e} with path: {file_path}")
+        return 1
+    return 0
+
+
 def cmd_report(args):
     result = initialize(args.env)
     if result is None:
@@ -878,6 +938,18 @@ def build_parser():
         help='Write the Uclusion MD file and sync TODOs in the configured source directories.',
     )
     sync_parser.set_defaults(func=cmd_sync)
+
+    export_parser = subparsers.add_parser(
+        'export',
+        help='Write the full workspace markdown export for searching past decisions and backup.',
+    )
+    export_parser.add_argument(
+        '-o', '--output',
+        default=None,
+        help="Path to write the export to (default: the configured uclusionMDFilePath when "
+             "uclusionMDFileType is 'export', else uclusion_export.md).",
+    )
+    export_parser.set_defaults(func=cmd_export)
 
     report_parser = subparsers.add_parser(
         'report',

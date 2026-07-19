@@ -347,6 +347,30 @@ need to know if something was already decided ("what did we decide about
 X?"), search the export first. Cite what you find instead of re-litigating;
 reopen a found decision only when there is new evidence.
 
+## Job dependencies
+
+There is no first-class depends-on link between jobs; the convention is a
+blocker whose text links the dependency. When job A cannot start until job
+B completes:
+
+- **Record it as a blocker on A that links B.** You cannot create blockers
+  through the MCP tools, so ask the user to add a blocker on A that links B
+  — typing `#` in the blocker text picks the job to link — or names it by
+  short code (for example "Blocked until J-x-22 ships"). The blocker moves
+  A out of the doable flow and shows the reason and the link in one place.
+- **Sweep for unblocks whenever a job completes.** Completion moments: you
+  `resolve` the job, its J- short code goes into a commit message, or the
+  user tells you it shipped or is done. At each one, run `uclusion export`
+  and search the file for the completed job's short code inside open
+  blockers on other jobs. For each hit, show the user the blocked job and
+  offer to `resolve` its blocker so that job re-enters the flow. Do not
+  resolve without asking — the blocker may be waiting on more than the
+  completed dependency.
+- A dependency known before work starts does not always need a blocker:
+  simply not moving the job to Doable also prevents execution while
+  approval proceeds. Use a blocker when the wait should be visible on the
+  job itself and caught by the completion sweep.
+
 ## Notes
 
 - Every question, option, suggestion, approval, and progress note lives
@@ -361,6 +385,8 @@ reopen a found decision only when there is new evidence.
   the commit message should begin with the short code of what was done. However 
   a job short code, begining with a 'J', in a commit message indicates the job is 
   done so only use it when there are no tasks left on the job.
+- A completed job may unblock others — whenever a job finishes, run the
+  completion sweep described in "Job dependencies".
 
 # Uclusion single comment workflow
 A single comment markdown has no Job J-... header.

@@ -512,35 +512,16 @@ def build_incremental_export(credentials, list_response, existing_sections, fail
     return ''.join(parts_by_type['marketInvestible']) + EXPORT_SEPARATOR + ''.join(parts_by_type['comment'])
 
 
-def build_full_export(credentials, list_response, failed_ids):
-    market_investible_ids = list_response['market_investible_ids']
-    export_api_url = 'https://summaries.' + credentials['api_url'] + '/export'
-    new_file_content = ''
-    for batch in batched(market_investible_ids, 20):
-        new_file_content += fetch_export_batch(export_api_url, 'marketInvestible', batch,
-                                               credentials, failed_ids)
-    new_file_content += EXPORT_SEPARATOR
-    comment_ids = list_response['comment_ids']
-    for batch in batched(comment_ids, 20):
-        new_file_content += fetch_export_batch(export_api_url, 'comment', batch,
-                                               credentials, failed_ids)
-    return new_file_content
-
-
 def fetch_workspace_export(credentials, file_path=None):
-    export_list_api_url = 'https://summaries.' + credentials['api_url'] + '/export_list?stamps=true'
+    export_list_api_url = 'https://summaries.' + credentials['api_url'] + '/export_list'
     response = send(None, 'GET', export_list_api_url, credentials['api_token'])
     if response is None:
         return None
     failed_ids = []
     stale_ids = []
-    if 'market_investibles' in response and 'comments' in response:
-        existing_sections = parse_export_sections(file_path)
-        new_file_content = build_incremental_export(credentials, response, existing_sections,
-                                                    failed_ids, stale_ids)
-    else:
-        # Back end without incremental support returns the id-list shape - full blob export
-        new_file_content = build_full_export(credentials, response, failed_ids)
+    existing_sections = parse_export_sections(file_path)
+    new_file_content = build_incremental_export(credentials, response, existing_sections,
+                                                failed_ids, stale_ids)
     warnings = ''
     if failed_ids:
         print(f"  ⚠️ {len(failed_ids)} objects failed to export and are missing from the file:")

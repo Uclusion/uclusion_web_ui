@@ -77,10 +77,16 @@ export function usePresences(marketId) {
   return getMarketPresences(presencesState, marketId) || [];
 }
 
+// The AI user is the only presence without an email (T-all-2298) and is not assignable,
+// so it never counts towards single user (B-all-489)
+export function getHumanPresences(presences) {
+  return (presences || []).filter((presence) => !_.isEmpty(presence.email));
+}
+
 export function useGroupPresences(groupId, marketId, presences) {
   const [groupPresencesState] = useContext(GroupMembersContext);
   const groupPresences = getGroupPresences(presences, groupPresencesState, marketId, groupId) || [];
-  return groupPresences?.length === 1;
+  return getHumanPresences(groupPresences).length === 1;
 }
 
 export function isAutonomousGroup(groupPresences, group) {

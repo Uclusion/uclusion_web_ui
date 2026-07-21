@@ -19,7 +19,7 @@ import {
 import { getSortedRoots } from '../../../containers/CommentBox/CommentBox';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import {
-  getGroupPresences,
+  getGroupPresences, getHumanPresences,
   getMarketPresences,
   getPresenceMap, isAutonomousGroup
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
@@ -190,7 +190,8 @@ function PlanningDialog(props) {
   }, [location.pathname, location.hash]);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
-  const isSingleUser = groupPresences?.length === 1;
+  const humanGroupPresences = getHumanPresences(groupPresences);
+  const isSingleUser = humanGroupPresences.length === 1;
   const isAutonomous = isAutonomousGroup(groupPresences, group);
   const furtherWorkStage = marketStages.find((stage) => isFurtherWorkStage(stage)) || {};
   const investiblesFullAssist = marketInvestibles.filter((investible) => {
@@ -704,7 +705,7 @@ const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOr
                     inDialogStageId={inDialogStage?.id}
                     notDoingStageId={notDoingStage?.id}
                     furtherWorkStageId={furtherWorkStage?.id}
-                    singleUser={isSingleUser ? groupPresences[0] : undefined}
+                    singleUser={isSingleUser ? humanGroupPresences[0] : undefined}
                     suppressNotifications
                   />
                 ))}
@@ -789,7 +790,7 @@ const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOr
                    furtherWorkReadyToStart={furtherWorkReadyToStart} furtherWorkInvestibles={furtherWorkInvestibles}
                    notDoingInvestibles={notDoingInvestibles} furtherWorkStageId={furtherWorkStage?.id}
                    comments={marketComments} myGroupPresence={myGroupPresence} inDialogStageId={inDialogStage?.id} notDoingStageId={notDoingStage?.id}
-                   acceptedStageId={acceptedStage?.id} singleUser={isSingleUser ? groupPresences[0] : undefined} />
+                   acceptedStageId={acceptedStage?.id} singleUser={isSingleUser ? humanGroupPresences[0] : undefined} />
         </div>
         <MarketTodos comments={unResolvedGroupComments} resolvedTodoComments={resolvedTodoGroupComments}
                      marketId={marketId} groupId={groupId} isSupport={isSupport}

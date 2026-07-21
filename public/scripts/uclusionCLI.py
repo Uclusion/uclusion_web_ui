@@ -462,7 +462,8 @@ def fetch_export_batch(export_api_url, id_type, ids, credentials, failed_ids):
 
 def fetch_export_sections(export_api_url, id_type, ids, credentials, failed_ids):
     """Fetches changed sections as {id: (stamp, markdown)} via format=json, falling back to
-    per-id fetches when a batch fails so one bad object cannot lose the run."""
+    per-id fetches when a batch fails so one bad object cannot lose the run. Requested ids
+    absent from a successful response also count as failed so sections never drop silently."""
     fetched = {}
     for batch in batched(ids, 20):
         url = f'{export_api_url}?format=json&idType={id_type}&id=' + '&id='.join(batch)
@@ -479,6 +480,9 @@ def fetch_export_sections(export_api_url, id_type, ids, credentials, failed_ids)
         else:
             for item in got:
                 fetched[item['id']] = (item['stamp'], item['markdown'])
+    for an_id in ids:
+        if an_id not in fetched and f'{id_type}:{an_id}' not in failed_ids:
+            failed_ids.append(f'{id_type}:{an_id}')
     return fetched
 
 

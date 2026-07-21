@@ -191,8 +191,10 @@ function InboxRow(props) {
   const isMentioned = originalComment?.mentions?.find((mention) => mention.user_id === userId);
   item.icon = getPriorityIcon(message, isAssigned, isMentioned, originalComment);
 
-  const isStaleResolved = !!rootComment?.resolved && !typeObjectId?.includes('UNREAD_RESOLVED') &&
-    !typeObjectId?.includes('UNREAD_REPLY');
+  // Per T-all-2391 a resolved root only hides its own notification - thread notifications live on
+  // because the backend only removes them for the resolver, and one level deep for the creator
+  const isStaleResolved = !!rootComment?.resolved && rootComment?.id === commentId &&
+    !typeObjectId?.includes('UNREAD_RESOLVED');
   if (isStaleResolved && !expansionOpen) {
     // Per Q-all-105 notifications out of date with a resolved comment stay hidden in the list view
     console.warn('Notification out of date with a resolved comment')

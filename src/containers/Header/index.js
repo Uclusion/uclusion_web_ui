@@ -132,6 +132,14 @@ export const headerStyles = makeStyles((theme) => {
       alignItems: 'flex-start',
       width: '100%',
       flex: 1,
+      // B-all-490 pin the logo cell to the nav width so the search box
+      // starts on the left nav's edge (16rem, matching Sidebar/Screen paper)
+      [theme.breakpoints.up('lg')]: {
+        padding: '10px 10px 10px 0',
+        width: '16rem',
+        flex: '0 0 16rem',
+        boxSizing: 'border-box',
+      },
       '& svg': {
         '& path': {
           transition: 'fill 250ms ease'

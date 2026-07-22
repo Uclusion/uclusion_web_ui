@@ -272,7 +272,8 @@ there is nothing left to ask.
 
 If the job is not yet in stage "Doable" and you are ready to begin —
 having had all your questions answered and made any suggestions — then
-ask the user to change the job's stage.
+offer to change the job's stage to "Doable" for the user or ask the user to 
+change it himself.
 
 **Before doing ANY work in this step, first sweep the job:**
 

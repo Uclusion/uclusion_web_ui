@@ -708,7 +708,11 @@ function Comment(props) {
   const isMarketTodo = marketType === PLANNING_TYPE && commentType === TODO_TYPE && !investibleId && !isMove;
   const isTask = marketType === PLANNING_TYPE && commentType === TODO_TYPE && investibleId;
   const isInfo = marketType === DECISION_TYPE && commentType === TODO_TYPE && investibleId;
-  const isEditable = comment.created_by === myPresence.id || isMarketTodo || (isTask && myPresenceIsAssigned);
+  // Per C-all-1167 an AI authored comment grants author rights to any collaborator - the AI user
+  // is the only presence without an email
+  const isAiAuthored = !!createdBy.id && _.isEmpty(createdBy.email);
+  const isEditable = comment.created_by === myPresence.id || isAiAuthored || isMarketTodo ||
+    (isTask && myPresenceIsAssigned);
 
   function getDialog(anInlineMarket) {
     return (
@@ -940,7 +944,7 @@ function Comment(props) {
   const showMakeBugButton = showMoveButton && commentType === SUGGEST_CHANGE_TYPE && _.isEmpty(investibleId);
   const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId);
   const showConfigureVotingButton = commentType === QUESTION_TYPE && !inArchives &&
-    !_.isEmpty(inlineInvestibles) && !resolved && !removeActions && myPresence === createdBy;
+    !_.isEmpty(inlineInvestibles) && !resolved && !removeActions && (myPresence === createdBy || isAiAuthored);
   const showResolve = isSent !== false && !inArchives && !removeActions && !resolved && !isInfo && (!isNote || !investibleId);
   const showReopen = resolved && !inArchives && !removeActions && (commentType !== REPORT_TYPE || !investibleId);
   const showAddVoting = commentType === SUGGEST_CHANGE_TYPE && !inArchives && !resolved && !inlineMarketId

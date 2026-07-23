@@ -73,6 +73,7 @@ import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 import NameField, { getNameStoredState } from '../../../components/TextFields/NameField';
 import { DARK_ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
 import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
+import PokeAIButton from '../../../components/Buttons/PokeAIButton';
 
 const useStyles = makeStyles(
   () => ({
@@ -282,6 +283,16 @@ export default function PlanningInvestibleNav(props) {
         </div>
       )}
       <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} flushLeft textColor={isDark ? 'white' : undefined} />
+      {!!marketInfo.ticket_code && (
+        <div style={{display: 'flex'}}>
+          <PokeAIButton
+            marketId={marketId}
+            ticketCode={marketInfo.ticket_code}
+            id={`pokeAIJob${investibleId}`}
+            useDark={isDark}
+          />
+        </div>
+      )}
       {isInAccepted && (
         <DaysEstimate marketId={marketId} onChange={handleDateChange} value={marketDaysEstimate}
                       isAssigned={isAssigned} estimateMessage={estimateMessage} messagesDispatch={messagesDispatch} />

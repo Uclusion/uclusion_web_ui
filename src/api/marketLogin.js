@@ -14,6 +14,12 @@ export const getMarketClient = (marketId) => {
       .catch((error) => toastErrorAndThrow(error, 'errorMarketLoginFailed'));
 };
 
+export const getMarketToken = (marketId) => {
+  const tokenManager = new MarketTokenFetcher(AMPLIFY_IDENTITY_SOURCE, SSO_CLIENT, TOKEN_TYPE_MARKET, marketId);
+  return tokenManager.getToken()
+    .catch((error) => toastErrorAndThrow(error, 'errorMarketLoginFailed'));
+};
+
 export const getMarketLogin = (marketId) => {
   const tokenManager = new MarketTokenFetcher(AMPLIFY_IDENTITY_SOURCE, SSO_CLIENT, TOKEN_TYPE_MARKET, marketId);
   return tokenManager.getIdentityBasedTokenAndInfo();

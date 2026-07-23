@@ -144,6 +144,7 @@ import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGr
 import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 import { ACTION_BUTTON_COLOR, DARK_INFO_COLOR, DARK_TEXT_BACKGROUND_COLOR } from '../Buttons/ButtonConstants';
 import CondensedTodos from '../../pages/Investible/Planning/CondensedTodos';
+import PokeAIButton, { isPokeAICommentType } from '../Buttons/PokeAIButton';
 
 // On the Notes tab a note's day header is bucketed by the note's own tz (getLocalDayKey with
 // note.tz, per Q-all-59) so a note's day does not move when the viewer travels. The mobile card
@@ -954,6 +955,8 @@ function Comment(props) {
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&
     !myInlinePresence.abstain && !yourVote && myMessage?.type === NOT_FULLY_VOTED_TYPE;
   const showUnmute = myInlinePresence.abstain && !resolved && enableActions && ([QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType));
+  const showPokeAI = enableEditing && isSent !== false && !beingEdited && !!comment.ticket_code &&
+    isPokeAICommentType(commentType);
   const showSubTask = isTask && myPresence === createdBy;
   // On a task authored by someone else the single button stays a plain "Reply"; offer a separate
   // "Grouped" button beside it so a non-author can still open a grouped subtask or note.
@@ -1160,6 +1163,16 @@ function Comment(props) {
             size='small'
             translationId='poke'
             doFloatRight
+            noAlign
+          />
+        )}
+        {showPokeAI && (
+          <PokeAIButton
+            marketId={marketId}
+            ticketCode={comment.ticket_code}
+            id={`pokeAI${id}`}
+            iconOnly
+            lightSurface
             noAlign
           />
         )}

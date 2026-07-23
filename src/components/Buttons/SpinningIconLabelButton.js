@@ -143,6 +143,7 @@ function SpinningIconLabelButton(props) {
     iconOnly = false,
     id,
     toolTipId,
+    toolTipTitle,
     focus,
     useDark,
     primary = false,
@@ -207,10 +208,10 @@ function SpinningIconLabelButton(props) {
       />
     )}
   </BaseButton>;
-  if (toolTipId && !myDisabled) {
+  if ((toolTipId || toolTipTitle) && !myDisabled) {
     return <Tooltip title={
       <h3>
-        {intl.formatMessage({ id: toolTipId })}
+        {toolTipTitle || intl.formatMessage({ id: toolTipId })}
       </h3>
     } placement="top">
       {myButton}
@@ -223,7 +224,8 @@ SpinningIconLabelButton.propTypes = {
   disabled: PropTypes.bool,
   doSpin: PropTypes.bool,
   primary: PropTypes.bool,
-  icon: PropTypes.object.isRequired
+  icon: PropTypes.object.isRequired,
+  toolTipTitle: PropTypes.node,
 };
 
 export default SpinningIconLabelButton;

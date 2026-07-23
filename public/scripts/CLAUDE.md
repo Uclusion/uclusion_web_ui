@@ -29,7 +29,31 @@ the user says yes, walk them through the instructions the tool returned
 with the empty list: creating a job, running find_work, selecting from
 the list, keeping a job out of Doable until it should start, checking
 the job's Debatable section in Uclusion for questions and suggestions,
-and telling you they have responded (for example by typing "Responded.").
+and using Poke AI after responding so you continue without them typing a
+separate chat message.
+
+## Wait for Poke AI
+
+The Uclusion MCP proxy writes inbound Poke AI prompts to one local queue shared
+by Codex, Claude Code, and Cursor. Whenever you are waiting for a response to a
+Uclusion question, or `find_work` returned no work and you would otherwise go
+idle, keep the current turn alive and poll that queue:
+
+```sh
+uclusion wait --timeout 55
+```
+
+Use the same environment flag as every other Uclusion CLI command; for example,
+stage is `uclusion -e stage wait --timeout 55`. A silent return means the
+timeout expired, not that waiting is finished: repeat the command while the
+Uclusion response or work is still outstanding. If it prints a prompt such as
+`Start J-...` or `Responded.`, treat that line as the user's next instruction,
+call `get_job`, and resume this workflow.
+
+Queue consumption is atomic and intentionally follows "first poller wins": if
+multiple AI clients are running, only the first one to poll receives a prompt.
+Do not read, edit, or delete the inbox database directly. Stop polling if the
+user sends a newer chat instruction.
 
 ## Workflow
 
@@ -404,4 +428,3 @@ If the single comment that is a question use only the tools `get_job`, `add_info
 Use `add_info` to ask questions or explain the work done. 
 
 <!-- /uclusion-workflow:v1 -->
-

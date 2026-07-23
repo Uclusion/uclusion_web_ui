@@ -66,6 +66,7 @@ import { dehighlightMessage } from '../../contexts/NotificationsContext/notifica
 import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 import InvesibleCommentLinker from '../../pages/Dialog/InvesibleCommentLinker';
 import { BLUE_LEVEL } from '../../constants/notifications';
+import PokeAIButton from '../Buttons/PokeAIButton';
 
 const useReplyStyles = makeStyles(
   theme => {
@@ -449,6 +450,15 @@ function Reply(props) {
             size='small'
             translationId='poke'
             doFloatRight
+          />
+        )}
+        {isTopLevelSubTask && enableEditing && !comment.resolved && !!comment.ticket_code && (
+          <PokeAIButton
+            marketId={marketId}
+            ticketCode={comment.ticket_code}
+            id={`pokeAI${comment.id}`}
+            iconOnly
+            lightSurface
           />
         )}
         {/* Not just mobile - desktop only had the undiscoverable click-body-to-edit, so show the

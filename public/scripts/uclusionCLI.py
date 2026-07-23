@@ -1,12 +1,16 @@
 #!/usr/bin/python3
 import argparse
 import json
+import math
 import os
 import re
+import sqlite3
 import sys
+import time
 import urllib.request
 import urllib.parse
 import traceback
+from contextlib import closing
 from itertools import batched
 from datetime import datetime
 
@@ -22,6 +26,78 @@ DEV_API_URL = "dev.api.uclusion.com/v1"
 STAGE_API_URL = "stage.api.uclusion.com/v1"
 PRODUCTION_API_URL = "production.api.uclusion.com/v1"
 DEFAULT_EXPORT_FOLDER = os.path.join(os.path.expanduser('~'), '.uclusion', 'export')
+INBOX_FILE = 'poke_inbox.sqlite3'
+
+
+def get_inbox_path():
+    return os.path.join(os.path.expanduser('~'), '.uclusion', INBOX_FILE)
+
+
+def open_inbox():
+    """Open the inbox shared by every local AI client for this user."""
+    inbox_path = get_inbox_path()
+    os.makedirs(os.path.dirname(inbox_path), mode=0o700, exist_ok=True)
+    connection = sqlite3.connect(inbox_path, timeout=5)
+    connection.execute('PRAGMA busy_timeout = 5000')
+    connection.execute(
+        '''
+        CREATE TABLE IF NOT EXISTS poke_messages (
+            message_id TEXT NOT NULL,
+            environment TEXT NOT NULL,
+            workspace_id TEXT NOT NULL,
+            message TEXT NOT NULL,
+            received_at REAL NOT NULL,
+            consumed_at REAL,
+            PRIMARY KEY (environment, workspace_id, message_id)
+        )
+        '''
+    )
+    connection.execute(
+        '''
+        CREATE INDEX IF NOT EXISTS poke_messages_pending
+        ON poke_messages(environment, workspace_id, consumed_at, received_at)
+        '''
+    )
+    connection.commit()
+    try:
+        os.chmod(inbox_path, 0o600)
+    except OSError:
+        pass
+    return connection
+
+
+def claim_prompt(environment, workspace_id):
+    """Atomically claim the oldest prompt so the first polling agent wins."""
+    now = time.time()
+    with closing(open_inbox()) as connection, connection:
+        connection.execute('BEGIN IMMEDIATE')
+        connection.execute(
+            'DELETE FROM poke_messages WHERE consumed_at IS NOT NULL AND consumed_at < ?',
+            (now - 604800,)
+        )
+        row = connection.execute(
+            '''
+            SELECT message_id, message
+            FROM poke_messages
+            WHERE environment = ? AND workspace_id = ? AND consumed_at IS NULL
+            ORDER BY received_at, rowid
+            LIMIT 1
+            ''',
+            (environment, workspace_id)
+        ).fetchone()
+        if row is None:
+            connection.commit()
+            return None
+        cursor = connection.execute(
+            '''
+            UPDATE poke_messages SET consumed_at = ?
+            WHERE environment = ? AND workspace_id = ?
+                AND message_id = ? AND consumed_at IS NULL
+            ''',
+            (now, environment, workspace_id, row[0])
+        )
+        connection.commit()
+        return row[1] if cursor.rowcount == 1 else None
 
 
 def send(data, method, my_api_url, auth=None):
@@ -939,6 +1015,30 @@ def cmd_export(args):
     return 0
 
 
+def cmd_wait(args):
+    """Wait briefly for an inbound Poke AI prompt without making a network call."""
+    _api_url, json_path, _credentials_path = get_env_paths(args.env)
+    config = load_config(json_path)
+    if config is None:
+        return 1
+    workspace_id = config.get('workspaceId')
+    if workspace_id is None:
+        print("⚠️ Warning: No workspaceId in config.")
+        return 1
+
+    environment = args.env or 'production'
+    deadline = time.monotonic() + args.timeout
+    while True:
+        prompt = claim_prompt(environment, workspace_id)
+        if prompt is not None:
+            print(prompt)
+            return 0
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return 0
+        time.sleep(min(0.25, remaining))
+
+
 def cmd_report(args):
     result = initialize(args.env)
     if result is None:
@@ -1034,6 +1134,16 @@ def certainty_value(raw):
     return value
 
 
+def timeout_value(raw):
+    try:
+        value = float(raw)
+    except (TypeError, ValueError):
+        raise argparse.ArgumentTypeError(f'timeout must be a non-negative number, got {raw!r}')
+    if not math.isfinite(value) or value < 0:
+        raise argparse.ArgumentTypeError(f'timeout must be a finite non-negative number, got {raw!r}')
+    return value
+
+
 def build_parser():
     parser = argparse.ArgumentParser(
         prog='uclusionCLI',
@@ -1065,6 +1175,18 @@ def build_parser():
              "configured uclusionMDFolderPath (default: ~/.uclusion/export).",
     )
     export_parser.set_defaults(func=cmd_export)
+
+    wait_parser = subparsers.add_parser(
+        'wait',
+        help='Wait for and atomically consume a Poke AI prompt from the local proxy inbox.',
+    )
+    wait_parser.add_argument(
+        '--timeout',
+        type=timeout_value,
+        default=55,
+        help='Seconds to wait before returning with no output (default: 55).',
+    )
+    wait_parser.set_defaults(func=cmd_wait)
 
     report_parser = subparsers.add_parser(
         'report',

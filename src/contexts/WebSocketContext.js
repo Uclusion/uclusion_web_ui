@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from 'react'
+import React, { useCallback, useContext, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import useWebSocket from 'react-use-websocket';
@@ -19,11 +19,11 @@ import {
   marketIsDemo
 } from './MarketsContext/marketsContextHelper'
 import { PLANNING_TYPE } from '../constants/markets'
+import { getMarketToken } from '../api/marketLogin';
 
-const WebSocketContext = React.createContext([
-  {}, () => {
-  },
-]);
+const WebSocketContext = React.createContext({
+  pokeAI: () => Promise.resolve(),
+});
 
 export const LAST_LOGIN_APP_VERSION = 'login_version';
 export const LAST_SCRIPT_REINSTALL_VERSION = 'script_reinstall_version';
@@ -99,6 +99,16 @@ function subscribe(sendMessage) {
   }).catch((error) => console.error('Error subscribing', error));
 }
 
+export function sendPokeAI(sendMessage, marketId, message) {
+  return getMarketToken(marketId).then((marketToken) => {
+    return sendMessage(JSON.stringify({
+      action: 'poke_ai',
+      identity: marketToken,
+      message,
+    }));
+  });
+}
+
 function WebSocketProvider(props) {
   const { children, config } = props;
   const [marketsState] = useContext(MarketsContext);
@@ -158,6 +168,7 @@ function WebSocketProvider(props) {
       },
     }
   );
+  const pokeAI = useCallback((marketId, message) => sendPokeAI(sendMessage, marketId, message), [sendMessage]);
 
   // The toast notices do not survive a refresh or page close so check on load instead of
   // leaving a gap until the first interval tick. Runs again when the user's workspaces finish
@@ -186,7 +197,7 @@ function WebSocketProvider(props) {
   }, []);
 
   return (
-    <WebSocketContext.Provider value={null}>
+    <WebSocketContext.Provider value={{ pokeAI }}>
       {children}
     </WebSocketContext.Provider>
   );

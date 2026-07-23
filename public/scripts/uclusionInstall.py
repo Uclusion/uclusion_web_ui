@@ -180,8 +180,8 @@ def write_uclusion_config(workspace_id, view_id, config_path):
         'workspaceId': workspace_id,
         'extensionsList': ['js', 'py'],
         'sourcesList': ['./src'],
-        'uclusionMDFileType': 'report',
-        'uclusionMDFilePath': 'uclusion.md',
+        'uclusionMDFileType': 'export',
+        'uclusionMDFolderPath': '~/.uclusion/export',
     }
     if view_id is not None and view_id != workspace_id:
         config['todoViewId'] = view_id

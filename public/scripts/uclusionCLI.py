@@ -21,6 +21,7 @@ STAGE_CREDENTIALS_FILE = 'stage_credentials'
 DEV_API_URL = "dev.api.uclusion.com/v1"
 STAGE_API_URL = "stage.api.uclusion.com/v1"
 PRODUCTION_API_URL = "production.api.uclusion.com/v1"
+DEFAULT_EXPORT_FOLDER = os.path.join(os.path.expanduser('~'), '.uclusion', 'export')
 
 
 def send(data, method, my_api_url, auth=None):
@@ -540,14 +541,37 @@ def fetch_workspace_export(credentials, file_path=None):
     return warnings + new_file_content
 
 
+def get_workspace_export_destination(config, credentials):
+    """Returns (file_path, create_folder) for a workspace export.
+
+    New configurations name an export folder and the CLI gives each workspace
+    its own markdown file. Existing export configurations that name a complete
+    file path keep working so upgrading the CLI does not abandon their
+    incremental-export markers.
+    """
+    folder_path = config.get('uclusionMDFolderPath')
+    if folder_path is not None:
+        expanded_folder = os.path.expanduser(folder_path)
+        return os.path.join(expanded_folder, f"{credentials['workspace_id']}.md"), True
+    if config.get('uclusionMDFileType') == 'export':
+        legacy_file_path = config.get('uclusionMDFilePath')
+        if legacy_file_path is not None:
+            return legacy_file_path, False
+    return os.path.join(DEFAULT_EXPORT_FOLDER, f"{credentials['workspace_id']}.md"), True
+
+
 def write_uclusion_md(config, credentials, short_code_id, job_report_path='job_report.md'):
     if short_code_id is not None:
         file_path = job_report_path if job_report_path is not None else 'job_report.md'
         report_api_url = 'https://investibles.' + credentials['api_url'] + '/cli_report/' + short_code_id
         new_file_content = send(None, 'GET', report_api_url, credentials['api_token'])
     else:
-        file_path = config.get('uclusionMDFilePath')
         file_type = config.get('uclusionMDFileType')
+        create_export_folder = False
+        if file_type == 'export':
+            file_path, create_export_folder = get_workspace_export_destination(config, credentials)
+        else:
+            file_path = config.get('uclusionMDFilePath')
         print(f"  ✅ Processing: '{file_path}'")
         if file_type == 'export':
             new_file_content = fetch_workspace_export(credentials, file_path)
@@ -558,6 +582,8 @@ def write_uclusion_md(config, credentials, short_code_id, job_report_path='job_r
         print(f"     -> ❌ Fetch failed; not writing '{file_path}'")
         return
     try:
+        if short_code_id is None and create_export_folder:
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
         with open(file_path, 'w', encoding='utf-8') as uclusion_file:
             uclusion_file.write(new_file_content)
     except Exception as e:
@@ -892,17 +918,18 @@ def cmd_export(args):
     if result is None:
         return 1
     credentials, config, _stages = result
+    create_export_folder = False
     if args.output is not None:
         file_path = args.output
-    elif config.get('uclusionMDFileType') == 'export':
-        file_path = config.get('uclusionMDFilePath')
     else:
-        file_path = 'uclusion_export.md'
+        file_path, create_export_folder = get_workspace_export_destination(config, credentials)
     new_file_content = fetch_workspace_export(credentials, file_path)
     if new_file_content is None:
         print(f"     -> ❌ Fetch failed; not writing '{file_path}'")
         return 1
     try:
+        if create_export_folder:
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
         with open(file_path, 'w', encoding='utf-8') as uclusion_file:
             uclusion_file.write(new_file_content)
         print(f"  ✅ Wrote workspace export to '{file_path}'")
@@ -1034,8 +1061,8 @@ def build_parser():
     export_parser.add_argument(
         '-o', '--output',
         default=None,
-        help="Path to write the export to (default: the configured uclusionMDFilePath when "
-             "uclusionMDFileType is 'export', else uclusion_export.md).",
+        help="Full path to write the export to. Without -o, writes <workspaceId>.md in the "
+             "configured uclusionMDFolderPath (default: ~/.uclusion/export).",
     )
     export_parser.set_defaults(func=cmd_export)
 

@@ -97,6 +97,7 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { calculateInvestibleVoters } from '../../../utils/votingUtils';
 import { getSwimlaneInvestiblesForStage } from './userUtils';
 import LightbulbOutlined from '../../../components/CustomChip/LightbulbOutlined';
+import { getResolvedTodoThreadComments } from './marketTodoUtils';
 
 function getAnchorId(tabIndex) {
   switch (tabIndex) {
@@ -154,12 +155,7 @@ function PlanningDialog(props) {
   const marketComments = getMarketComments(commentsState, marketId) || [];
   const unResolvedGroupComments = marketComments.filter(comment => !comment.investible_id &&
     !comment.resolved && comment.group_id === groupId) || [];
-  const resolvedTodoRoots = marketComments.filter(comment => !comment.investible_id &&
-    comment.resolved && comment.group_id === groupId && comment.comment_type === TODO_TYPE) || [];
-  const resolvedTodoRootIds = new Set(resolvedTodoRoots.map((c) => c.id));
-  const resolvedTodoReplies = marketComments.filter(comment => comment.comment_type === REPLY_TYPE &&
-    resolvedTodoRootIds.has(comment.root_comment_id));
-  const resolvedTodoGroupComments = resolvedTodoRoots.concat(resolvedTodoReplies);
+  const resolvedTodoGroupComments = getResolvedTodoThreadComments(marketComments, groupId);
   // There is no link to a reply so including them should be okay
   const notTodoGroupComments = unResolvedGroupComments.filter(comment =>
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || [];

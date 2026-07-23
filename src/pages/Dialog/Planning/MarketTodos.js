@@ -66,6 +66,7 @@ import { dehighlightCriticalMessage } from '../../../contexts/NotificationsConte
 import EditIcon from '@material-ui/icons/Edit';
 import { hasBug } from '../../../components/AddNewWizards/Bug/BugDescriptionStep';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { isTodoRoot } from './marketTodoUtils';
 
 export const todoClasses = makeStyles(
   theme => {
@@ -203,13 +204,16 @@ function MarketTodos(props) {
   const { tabIndex, page: originalPage, expansionState, pinned } = bugState;
   const { results, parentResults, search } = searchResults;
   const todoComments = comments.filter(comment => {
-    if (_.isEmpty(search)) {
-      return comment.comment_type === TODO_TYPE;
+    if (!isTodoRoot(comment)) {
+      return false;
     }
-    return comment.comment_type === TODO_TYPE && (results.find((item) => item.id === comment.id)
-      || parentResults.find((id) => id === comment.id));
+    if (_.isEmpty(search)) {
+      return true;
+    }
+    return results.find((item) => item.id === comment.id)
+      || parentResults.find((id) => id === comment.id);
   }) || [];
-  const resolvedRoots = (resolvedTodoComments || []).filter((comment) => comment.comment_type === TODO_TYPE);
+  const resolvedRoots = (resolvedTodoComments || []).filter(isTodoRoot);
   const resolvedComments = resolvedRoots.filter((comment) => {
     if (_.isEmpty(search)) {
       return true;
@@ -250,15 +254,16 @@ function MarketTodos(props) {
 
   useEffect(() => {
     if (hash && !hidden && !isInbox) {
-      const todoParents = comments.filter(comment => comment.comment_type === TODO_TYPE &&
+      const todoParents = comments.filter(comment => isTodoRoot(comment) &&
         !comment.investible_id && !comment.resolved) || [];
       const todoCommentIds = getThreadIds(todoParents, comments);
       let foundCommentId = todoCommentIds.find((anId) => hash.includes(anId));
       let searchComments = comments;
       if (!foundCommentId) {
-        const resolvedParents = (resolvedTodoComments || []).filter((comment) =>
-          comment.comment_type === TODO_TYPE);
-        const resolvedCommentIds = getThreadIds(resolvedParents, resolvedTodoComments || []);
+        const resolvedCommentIds = getThreadIds(
+          (resolvedTodoComments || []).filter(isTodoRoot),
+          resolvedTodoComments || [],
+        );
         foundCommentId = resolvedCommentIds.find((anId) => hash.includes(anId));
         searchComments = resolvedTodoComments || [];
       }

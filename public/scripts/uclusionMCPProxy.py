@@ -25,6 +25,7 @@ STAGE_WEBSOCKET_URL = "wss://stage.ws.uclusion.com/v1"
 PRODUCTION_WEBSOCKET_URL = "wss://production.ws.uclusion.com/v1"
 INBOX_FILE = 'poke_inbox.sqlite3'
 WEBSOCKET_ACCEPT_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
+CONSUMED_RETENTION_SECONDS = 7 * 24 * 60 * 60
 
 
 def get_inbox_path():
@@ -66,15 +67,17 @@ def open_inbox():
     return connection
 
 
-def reset_inbox(environment, workspace_id):
-    """Discard stale pending prompts while retaining retry de-duplication."""
+def prune_inbox(environment, workspace_id):
+    """Remove expired retry tombstones without discarding pending prompts."""
+    cutoff = time.time() - CONSUMED_RETENTION_SECONDS
     with closing(open_inbox()) as connection, connection:
         connection.execute(
             '''
             DELETE FROM poke_messages
-            WHERE environment = ? AND workspace_id = ? AND consumed_at IS NULL
+            WHERE environment = ? AND workspace_id = ?
+                AND consumed_at IS NOT NULL AND consumed_at < ?
             ''',
-            (environment, workspace_id)
+            (environment, workspace_id, cutoff)
         )
 
 
@@ -96,7 +99,7 @@ def enqueue_prompt(environment, workspace_id, payload):
     with closing(open_inbox()) as connection, connection:
         connection.execute(
             'DELETE FROM poke_messages WHERE consumed_at IS NOT NULL AND consumed_at < ?',
-            (now - 604800,)
+            (now - CONSUMED_RETENTION_SECONDS,)
         )
         cursor = connection.execute(
             '''
@@ -386,7 +389,7 @@ def main():
         credentials['workspace_id'] = market_id
 
         token = login(api_url, credentials)['uclusion_token']
-        reset_inbox(environment, market_id)
+        prune_inbox(environment, market_id)
         listener = threading.Thread(
             target=listen_for_pokes,
             args=(websocket_url, token, environment, market_id, stop_event),

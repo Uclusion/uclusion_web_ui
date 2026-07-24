@@ -35,9 +35,12 @@ separate chat message.
 ## Wait for Poke AI
 
 The Uclusion MCP proxy writes inbound Poke AI prompts to one local queue shared
-by Codex, Claude Code, and Cursor. Whenever you are waiting for a response to a
-Uclusion question, or `find_work` returned no work and you would otherwise go
-idle, keep the current turn alive and poll that queue:
+by Codex, Claude Code, and Cursor. Whenever the next workflow step depends on
+human activity in Uclusion — including an answer or reply on a question or
+suggestion, a vote, approval or stage change, review feedback, or new work
+after `find_work` returned no work — keep the current turn alive. Do not send a
+final response while that dependency is outstanding: a final response ends the
+turn and leaves no process polling the queue. Poll with:
 
 ```sh
 uclusion wait --timeout 55
@@ -45,15 +48,19 @@ uclusion wait --timeout 55
 
 Use the same environment flag as every other Uclusion CLI command; for example,
 stage is `uclusion -e stage wait --timeout 55`. A silent return means the
-timeout expired, not that waiting is finished: repeat the command while the
-Uclusion response or work is still outstanding. If it prints a prompt such as
-`Start J-...` or `Responded.`, treat that line as the user's next instruction,
-call `get_job`, and resume this workflow.
+timeout expired, not that waiting is finished or that you may finalize: repeat
+the command while the Uclusion response or work is still outstanding. If it
+prints a prompt such as `Start J-...` or `Responded.`, treat that line as the
+user's next instruction, call `get_job`, and immediately perform every workflow
+action the response unblocked. Do not merely report the response or stage
+change; if the job still depends on human activity after those actions, resume
+polling.
 
 Queue consumption is atomic and intentionally follows "first poller wins": if
 multiple AI clients are running, only the first one to poll receives a prompt.
 Do not read, edit, or delete the inbox database directly. Stop polling if the
-user sends a newer chat instruction.
+user sends a newer chat instruction; that instruction preempts the wait, so
+handle it before starting another poll.
 
 ## Workflow
 
@@ -298,6 +305,14 @@ If the job is not yet in stage "Doable" and you are ready to begin —
 having had all your questions answered and made any suggestions — then
 offer to change the job's stage to "Doable" for the user or ask the user to 
 change it himself.
+
+If the user instructs you to move a job to "Doable", that instruction means
+both change the stage and immediately begin or continue execution, unless the
+user explicitly says the change is stage-only or says not to start. A stage
+change is an intermediate workflow transition, not completed work. In the same
+turn, change the stage, call `get_job`, perform the sweep below, and execute the
+active tasks. Do not send a final response merely reporting the stage change
+while actionable tasks remain.
 
 **Before doing ANY work in this step, first sweep the job:**
 

@@ -25,7 +25,15 @@ jobs:
         with:
           node-version: '24.x'
 
-      - name: Install Python
+      - name: Setup Python for Uclusion integration script tests
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Test Uclusion integration scripts
+        run: python3 -m unittest __tests__/test_uclusion_poke_scripts.py
+
+      - name: Install deployment Python
         uses: actions/setup-python@v6
         with:
           python-version: '3.9'
@@ -77,4 +85,3 @@ jobs:
           git-sha: ${{ github.sha }}
           git-repository: ${{ github.repository }}
           label: "Deployed to ${{ inputs.environment }}"
-

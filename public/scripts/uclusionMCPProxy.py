@@ -260,20 +260,37 @@ def listen_for_pokes(websocket_url, token, environment, workspace_id, stop_event
     while not stop_event.is_set():
         websocket = WebSocketConnection(websocket_url)
         try:
+            # A CLI market token lasts fourteen days. Resolve it for every
+            # connection so a long-running proxy can recover after a network
+            # break instead of resubscribing forever with an expired token.
+            connection_token = token() if callable(token) else token
             websocket.connect()
             websocket.send_text(json.dumps({
                 'action': 'subscribe',
-                'identity': token,
+                'identity': connection_token,
                 'is_ai': True
             }, separators=(',', ':')))
             retry_delay = 1
+            awaiting_pong = False
             while not stop_event.is_set():
                 try:
                     raw_message = websocket.receive_text()
                 except socket.timeout:
-                    websocket.send_frame(0x9)
+                    if awaiting_pong:
+                        raise ConnectionError(
+                            'Poke AI websocket did not answer its application heartbeat'
+                        )
+                    # Match the browser's application-level heartbeat. The
+                    # server sends this through its tracked-subscriber path,
+                    # so pong proves both that the socket is alive and that
+                    # the AI subscription still exists. An RFC control ping
+                    # alone cannot prove the latter.
+                    websocket.send_text('ping')
+                    awaiting_pong = True
                     continue
                 payload = json.loads(raw_message)
+                # Any application message proves the receive path is alive.
+                awaiting_pong = False
                 if payload.get('event_type') == 'poke_ai':
                     enqueue_prompt(environment, workspace_id, payload)
         except Exception as error:
@@ -328,6 +345,23 @@ def post_to_mcp(url, headers, body, timeout=30):
         headers=headers, method='POST'
     )
     return urllib.request.urlopen(req, timeout=timeout)
+
+
+def post_to_mcp_refreshing_token(url, headers, body, token_provider, timeout=30):
+    """Retry one MCP request with a fresh capability after token expiry."""
+    try:
+        return post_to_mcp(url, headers, body, timeout), None
+    except urllib.request.HTTPError as error:
+        if error.code != 401:
+            raise
+        error.close()
+        refreshed_token = token_provider()
+        refreshed_headers = dict(headers)
+        refreshed_headers['Authorization'] = refreshed_token
+        return (
+            post_to_mcp(url, refreshed_headers, body, timeout),
+            refreshed_token
+        )
 
 
 def write_message(obj):
@@ -388,11 +422,14 @@ def main():
             sys.exit(1)
         credentials['workspace_id'] = market_id
 
-        token = login(api_url, credentials)['uclusion_token']
+        def websocket_token():
+            return login(api_url, credentials)['uclusion_token']
+
+        token = websocket_token()
         prune_inbox(environment, market_id)
         listener = threading.Thread(
             target=listen_for_pokes,
-            args=(websocket_url, token, environment, market_id, stop_event),
+            args=(websocket_url, websocket_token, environment, market_id, stop_event),
             name='uclusion-poke-ai',
             daemon=True
         )
@@ -427,7 +464,14 @@ def main():
             request_id = msg.get('id')
 
             try:
-                resp = post_to_mcp(post_url, headers, line)
+                resp, refreshed_token = post_to_mcp_refreshing_token(
+                    post_url,
+                    headers,
+                    line,
+                    websocket_token
+                )
+                if refreshed_token is not None:
+                    token = refreshed_token
 
                 sid = resp.headers.get('Mcp-Session-Id')
                 if sid:

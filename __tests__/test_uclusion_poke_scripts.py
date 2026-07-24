@@ -58,18 +58,24 @@ class PokeInboxTest(unittest.TestCase):
             self.assertTrue(self.proxy.enqueue_prompt('stage', 'workspace-1', {
                 'event_type': 'poke_ai',
                 'message_id': message_id,
-                'message': 'Responded.'
+                'message': 'Responded J-all-364'
             }))
 
-        self.assertEqual(self.cli.claim_prompt('stage', 'workspace-1'), 'Responded.')
-        self.assertEqual(self.cli.claim_prompt('stage', 'workspace-1'), 'Responded.')
+        self.assertEqual(
+            self.cli.claim_prompt('stage', 'workspace-1'),
+            'Responded J-all-364'
+        )
+        self.assertEqual(
+            self.cli.claim_prompt('stage', 'workspace-1'),
+            'Responded J-all-364'
+        )
         self.assertIsNone(self.cli.claim_prompt('stage', 'workspace-1'))
 
     def test_second_proxy_start_preserves_pending_and_recent_retry_ids(self):
         consumed = {
             'event_type': 'poke_ai',
             'message_id': 'consumed-message',
-            'message': 'Responded.'
+            'message': 'Responded B-all-403'
         }
         pending = {
             'event_type': 'poke_ai',
@@ -77,7 +83,10 @@ class PokeInboxTest(unittest.TestCase):
             'message': 'Start J-all-364'
         }
         self.proxy.enqueue_prompt('stage', 'workspace-1', consumed)
-        self.assertEqual(self.cli.claim_prompt('stage', 'workspace-1'), 'Responded.')
+        self.assertEqual(
+            self.cli.claim_prompt('stage', 'workspace-1'),
+            'Responded B-all-403'
+        )
         self.proxy.enqueue_prompt('stage', 'workspace-1', pending)
 
         # Starting another MCP proxy only prunes old retry tombstones. It must
@@ -99,7 +108,7 @@ class PokeInboxTest(unittest.TestCase):
         consumed = {
             'event_type': 'poke_ai',
             'message_id': 'expired-consumed-message',
-            'message': 'Responded.'
+            'message': 'Responded J-all-364'
         }
         pending = {
             'event_type': 'poke_ai',
@@ -107,7 +116,10 @@ class PokeInboxTest(unittest.TestCase):
             'message': 'Start J-all-364'
         }
         self.proxy.enqueue_prompt('stage', 'workspace-1', consumed)
-        self.assertEqual(self.cli.claim_prompt('stage', 'workspace-1'), 'Responded.')
+        self.assertEqual(
+            self.cli.claim_prompt('stage', 'workspace-1'),
+            'Responded J-all-364'
+        )
         self.proxy.enqueue_prompt('stage', 'workspace-1', pending)
 
         future = (
@@ -165,7 +177,7 @@ class PokeInboxTest(unittest.TestCase):
                 return json.dumps({
                     'event_type': 'poke_ai',
                     'message_id': 'message-1',
-                    'message': 'Responded.'
+                    'message': 'Responded B-all-403'
                 })
 
             def close(self):
@@ -185,7 +197,164 @@ class PokeInboxTest(unittest.TestCase):
             'identity': 'account-token',
             'is_ai': True
         }])
-        self.assertEqual(self.cli.claim_prompt('stage', 'workspace-1'), 'Responded.')
+        self.assertEqual(
+            self.cli.claim_prompt('stage', 'workspace-1'),
+            'Responded B-all-403'
+        )
+
+    def test_legacy_bare_responded_is_preserved_for_compatibility(self):
+        self.assertTrue(self.proxy.enqueue_prompt('stage', 'workspace-1', {
+            'event_type': 'poke_ai',
+            'message_id': 'legacy-message',
+            'message': 'Responded.'
+        }))
+        self.assertEqual(
+            self.cli.claim_prompt('stage', 'workspace-1'),
+            'Responded.'
+        )
+
+    def test_listener_uses_application_ping_and_accepts_pong(self):
+        stop_event = threading.Event()
+        sent_messages = []
+
+        class FakeWebSocket:
+            def __init__(self, _url):
+                self.receive_count = 0
+
+            def connect(self):
+                return None
+
+            def send_text(self, text):
+                sent_messages.append(text)
+
+            def receive_text(self):
+                self.receive_count += 1
+                if self.receive_count == 1:
+                    raise self_module.socket.timeout()
+                stop_event.set()
+                return json.dumps({'event_type': 'pong'})
+
+            def close(self):
+                return None
+
+        self_module = self.proxy
+        with mock.patch.object(self.proxy, 'WebSocketConnection', FakeWebSocket):
+            self.proxy.listen_for_pokes(
+                'wss://stage.ws.uclusion.com/v1',
+                'account-token',
+                'stage',
+                'workspace-1',
+                stop_event
+            )
+
+        self.assertEqual(
+            json.loads(sent_messages[0]),
+            {'action': 'subscribe', 'identity': 'account-token', 'is_ai': True}
+        )
+        self.assertEqual(sent_messages[1:], ['ping'])
+
+    def test_missing_application_pong_reconnects_with_fresh_token(self):
+        sent_payloads = []
+        sockets_created = []
+
+        class FakeStopEvent:
+            stopped = False
+
+            def is_set(self):
+                return self.stopped
+
+            def wait(self, _delay):
+                return self.stopped
+
+        stop_event = FakeStopEvent()
+
+        class FakeWebSocket:
+            def __init__(self, _url):
+                self.connection_number = len(sockets_created) + 1
+                self.receive_count = 0
+                sockets_created.append(self)
+
+            def connect(self):
+                return None
+
+            def send_text(self, text):
+                sent_payloads.append((self.connection_number, text))
+
+            def receive_text(self):
+                self.receive_count += 1
+                if self.connection_number == 1:
+                    raise self_module.socket.timeout()
+                stop_event.stopped = True
+                return json.dumps({'event_type': 'pong'})
+
+            def close(self):
+                return None
+
+        self_module = self.proxy
+        token_provider = mock.Mock(side_effect=['token-1', 'token-2'])
+        with mock.patch.object(self.proxy, 'WebSocketConnection', FakeWebSocket), \
+                mock.patch('sys.stderr', io.StringIO()):
+            self.proxy.listen_for_pokes(
+                'wss://stage.ws.uclusion.com/v1',
+                token_provider,
+                'stage',
+                'workspace-1',
+                stop_event
+            )
+
+        self.assertEqual(token_provider.call_count, 2)
+        subscriptions = [
+            json.loads(text)
+            for _connection_number, text in sent_payloads
+            if text != 'ping'
+        ]
+        self.assertEqual(
+            [payload['identity'] for payload in subscriptions],
+            ['token-1', 'token-2']
+        )
+        self.assertIn((1, 'ping'), sent_payloads)
+
+    def test_expired_mcp_token_is_refreshed_and_request_retried_once(self):
+        unauthorized = self.proxy.urllib.request.HTTPError(
+            'https://investibles.stage.api.uclusion.com/v1/mcp',
+            401,
+            'Unauthorized',
+            {},
+            io.BytesIO(b'expired')
+        )
+        response = mock.sentinel.response
+        token_provider = mock.Mock(return_value='fresh-token')
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': 'expired-token'
+        }
+
+        with mock.patch.object(
+            self.proxy,
+            'post_to_mcp',
+            side_effect=[unauthorized, response]
+        ) as post:
+            actual_response, refreshed_token = (
+                self.proxy.post_to_mcp_refreshing_token(
+                    'https://investibles.stage.api.uclusion.com/v1/mcp',
+                    headers,
+                    '{"jsonrpc":"2.0"}',
+                    token_provider
+                )
+            )
+
+        self.assertIs(actual_response, response)
+        self.assertEqual(refreshed_token, 'fresh-token')
+        token_provider.assert_called_once_with()
+        self.assertEqual(
+            post.call_args_list[0].args[1]['Authorization'],
+            'expired-token'
+        )
+        self.assertEqual(
+            post.call_args_list[1].args[1]['Authorization'],
+            'fresh-token'
+        )
+        self.assertEqual(headers['Authorization'], 'expired-token')
 
     def test_wait_claims_poke_received_before_first_model_turn_without_login(self):
         self.proxy.enqueue_prompt('stage', 'workspace-1', {
@@ -205,6 +374,67 @@ class PokeInboxTest(unittest.TestCase):
 
         self.assertEqual(result, 0)
         self.assertEqual(output.getvalue(), 'Start B-all-12\n')
+
+
+class InstallerConfigTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.installer = load_script('uclusionInstall')
+
+    def test_codex_mcp_block_approves_every_uclusion_tool(self):
+        block = self.installer.build_codex_mcp_block('workspace-1', 'stage')
+
+        self.assertIn('[mcp_servers.Uclusion]', block)
+        self.assertIn('default_tools_approval_mode = "approve"', block)
+        self.assertLess(
+            block.index('[mcp_servers.Uclusion]'),
+            block.index('default_tools_approval_mode = "approve"')
+        )
+        self.assertLess(
+            block.index('default_tools_approval_mode = "approve"'),
+            block.index(self.installer.CODEX_CONFIG_END_MARKER)
+        )
+
+    def test_codex_config_refresh_uses_server_wide_approval(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            codex_home = Path(temp_dir) / '.codex'
+            codex_home.mkdir()
+            config_path = codex_home / 'config.toml'
+            config_path.write_text(
+                'model_reasoning_effort = "high"\n\n'
+                f'{self.installer.CODEX_CONFIG_MARKER}\n'
+                '[mcp_servers.Uclusion]\n'
+                'command = "python3"\n'
+                'args = ["old-proxy", "old-workspace"]\n\n'
+                '[mcp_servers.Uclusion.tools.get_job]\n'
+                'approval_mode = "approve"\n'
+                f'{self.installer.CODEX_CONFIG_END_MARKER}\n',
+                encoding='utf-8'
+            )
+
+            with mock.patch.object(
+                    self.installer, 'CODEX_HOME', str(codex_home)), \
+                    mock.patch.object(
+                        self.installer,
+                        'CODEX_CONFIG_PATH',
+                        str(config_path)
+                    ), mock.patch('sys.stdout', io.StringIO()) as stdout:
+                self.installer.update_codex_config('workspace-1', 'stage')
+
+            refreshed = config_path.read_text(encoding='utf-8')
+            self.assertIn('model_reasoning_effort = "high"', refreshed)
+            self.assertEqual(
+                refreshed.count('default_tools_approval_mode = "approve"'),
+                1
+            )
+            self.assertNotIn(
+                '[mcp_servers.Uclusion.tools.get_job]',
+                refreshed
+            )
+            self.assertIn(
+                'Restart Codex (or reload its IDE extension)',
+                stdout.getvalue()
+            )
 
 
 class WorkflowContractTest(unittest.TestCase):
@@ -240,6 +470,27 @@ class WorkflowContractTest(unittest.TestCase):
         )
         self.assertIn(
             'Do not merely report the response or stage change',
+            self.workflow_words
+        )
+
+    def test_responded_poke_identifies_its_exact_job_or_bug(self):
+        self.assertIn('`Responded J-...`, or `Responded B-...`', self.workflow_words)
+        self.assertIn(
+            'For a correlated `Responded <short-code>` prompt, call `get_job` '
+            'for exactly that short code',
+            self.workflow_words
+        )
+
+    def test_legacy_responded_reloads_every_outstanding_object(self):
+        self.assertIn(
+            'A legacy bare `Responded.` prompt has no target; call `get_job` '
+            'for every currently outstanding Uclusion dependency and current '
+            'object',
+            self.workflow_words
+        )
+        self.assertIn(
+            'so no concurrent job, bug, question, suggestion, or review '
+            'response is missed',
             self.workflow_words
         )
 

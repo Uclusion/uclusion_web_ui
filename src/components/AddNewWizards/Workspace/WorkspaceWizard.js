@@ -27,6 +27,7 @@ import _ from 'lodash';
 import WorkspaceViewStep from './WorkspaceViewStep';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { quickRemoveMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
+import { createMarketFromSignup } from '../../../utils/signupMarketUtils';
 
 function WorkspaceWizard() {
   const history = useHistory();
@@ -64,7 +65,7 @@ function WorkspaceWizard() {
     } else {
       marketInfo.group_name = formData.group_name;
     }
-    return createPlanning(marketInfo)
+    return createMarketFromSignup(createPlanning, marketInfo)
       .then((marketDetails) => {
         const {
           market,
@@ -124,4 +125,3 @@ function WorkspaceWizard() {
 }
 
 export default WorkspaceWizard
-

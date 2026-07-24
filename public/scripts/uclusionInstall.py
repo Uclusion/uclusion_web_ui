@@ -293,6 +293,10 @@ def build_codex_mcp_block(workspace_id, env):
     nothing but ``python3``. The table is fixed-shape, so we render the text from a
     template rather than parse-and-reserialize — which also preserves any comments
     and formatting the user has elsewhere in the file.
+
+    ``default_tools_approval_mode`` is Codex's server-wide equivalent of Claude's
+    ``mcp__Uclusion__*`` allow rule. It covers all current and future tools exposed
+    by the Uclusion server instead of requiring a per-tool approval entry.
     """
     lines = [
         CODEX_CONFIG_MARKER,
@@ -305,6 +309,7 @@ def build_codex_mcp_block(workspace_id, env):
     if env is not None:
         lines.append(f'    "{env}",')
     lines.append(']')
+    lines.append('default_tools_approval_mode = "approve"')
     lines.append(CODEX_CONFIG_END_MARKER)
     return '\n'.join(lines) + '\n'
 
@@ -371,6 +376,7 @@ def update_codex_config(workspace_id, env, force=False):
         with open(CODEX_CONFIG_PATH, 'w', encoding='utf-8') as out:
             out.write(updated)
         print(f"  ✅ {verb} {CODEX_CONFIG_PATH}")
+        print("  🔄 Restart Codex (or reload its IDE extension) to apply this configuration.")
     except OSError as err:
         print(f"  ❌ Could not write {CODEX_CONFIG_PATH}: {err}")
 

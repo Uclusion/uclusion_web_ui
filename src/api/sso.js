@@ -1,6 +1,8 @@
 import { toastErrorAndThrow } from '../utils/userMessage'
 import { getLogin } from './homeAccount';
 import { SSO_CLIENT } from './singletons';
+import { getSignupMarketSubType } from '../utils/redirectUtils';
+import { resolveSignupTestObject } from '../utils/signupMarketUtils';
 
 
 export async function getMessages() {
@@ -20,8 +22,12 @@ export function getMarketInfoForToken(marketToken) {
   return SSO_CLIENT.getMarketInfoForToken(marketToken);
 }
 
-export function resendVerification(email, redirect) {
-  return SSO_CLIENT.resendVerification(email, redirect)
+export function resendVerification(email, redirect, testObject) {
+  const signupTestObject = resolveSignupTestObject(
+    testObject,
+    getSignupMarketSubType()
+  );
+  return SSO_CLIENT.resendVerification(email, redirect, signupTestObject)
     .catch((error) => toastErrorAndThrow(error, 'errorResendFailed'));
 }
 

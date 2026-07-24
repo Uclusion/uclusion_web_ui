@@ -6,13 +6,14 @@ import _ from 'lodash'
 import { getInvestible } from '../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from './userFunctions';
 import { getMarket } from '../contexts/MarketsContext/marketsContextHelper';
-import { PLANNING_TYPE, SUPPORT_SUB_TYPE } from '../constants/markets';
+import { PLANNING_TYPE, SUPPORT_SUB_TYPE, TEST_SUB_TYPE } from '../constants/markets';
 import { getComment } from '../contexts/CommentsContext/commentsContextHelper';
 
 const REDIRECT_LOCAL_STORAGE_KEY = 'redirection';
 const WORKSPACE_LOCAL_STORAGE_KEY = 'current_workspace';
 const GROUP_LOCAL_STORAGE_KEY = 'current_group';
 const UTM_LOCAL_STORAGE_KEY = 'utm';
+const SIGNUP_MARKET_SUB_TYPE_LOCAL_STORAGE_KEY = 'signup_market_sub_type';
 const EMAIL_LOCAL_STORAGE_KEY = 'email_storage';
 
 export function redirectFromHistory(history) {
@@ -95,6 +96,25 @@ export function clearUtm() {
   setUclusionLocalStorageItem(UTM_LOCAL_STORAGE_KEY, undefined);
 }
 
+export function setSignupMarketSubType(marketSubType) {
+  setUclusionLocalStorageItem(
+    SIGNUP_MARKET_SUB_TYPE_LOCAL_STORAGE_KEY,
+    marketSubType === TEST_SUB_TYPE ? marketSubType : undefined
+  );
+}
+
+export function syncSignupMarketSubType(authState, marketSubType) {
+  if (authState === 'signUp') {
+    // An active ordinary signup supersedes a stale automated-test signup.
+    // Hidden auth components must leave the marker intact through verification.
+    setSignupMarketSubType(marketSubType);
+  }
+}
+
+export function clearSignupMarketSubType() {
+  setUclusionLocalStorageItem(SIGNUP_MARKET_SUB_TYPE_LOCAL_STORAGE_KEY, undefined);
+}
+
 export function setEmail(email) {
   setLoginPersistentItem(EMAIL_LOCAL_STORAGE_KEY, email);
 }
@@ -113,6 +133,21 @@ export function getCurrentGroup() {
 
 export function getUtm() {
   return getUclusionLocalStorageItem(UTM_LOCAL_STORAGE_KEY);
+}
+
+export function getSignupMarketSubType() {
+  return getUclusionLocalStorageItem(SIGNUP_MARKET_SUB_TYPE_LOCAL_STORAGE_KEY);
+}
+
+export function withSignupMarketSubType(marketInfo) {
+  const marketSubType = getSignupMarketSubType();
+  if (marketSubType !== TEST_SUB_TYPE) {
+    return marketInfo;
+  }
+  return {
+    ...marketInfo,
+    market_sub_type: marketSubType
+  };
 }
 
 export function getEmail() {

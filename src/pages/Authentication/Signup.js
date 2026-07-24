@@ -17,7 +17,13 @@ import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton'
 import config from '../../config'
 import SpinningButton from '../../components/SpinBlocking/SpinningButton'
 import { Auth } from 'aws-amplify'
-import { redirectFromHistory, setEmail, setRedirect, setUtm } from '../../utils/redirectUtils'
+import {
+  redirectFromHistory,
+  setEmail,
+  setRedirect,
+  syncSignupMarketSubType,
+  setUtm
+} from '../../utils/redirectUtils'
 import { GithubLoginButton } from 'react-social-login-buttons'
 import { toastError } from '../../utils/userMessage'
 import queryString from 'query-string'
@@ -26,6 +32,7 @@ import CardContent from '@material-ui/core/CardContent'
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import { Visibility, VisibilityOff } from '@material-ui/icons';
+import { withSignupTestObject } from '../../utils/signupMarketUtils';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -160,7 +167,7 @@ function Signup(props) {
   const { location } = history;
   const { search } = location;
   const values = queryString.parse(search || '');
-  const { signUpWith, email: qryEmail, utm_campaign: utm,
+  const { signUpWith, email: qryEmail, utm_campaign: utm, market_sub_type: marketSubType,
     error_description: errorDescription } = values || {};
   const empty = {
     name: '',
@@ -195,6 +202,12 @@ function Signup(props) {
       });
     }
   }, [marketToken]);
+
+  useEffect(() => {
+    // Keep TEST through verification/sign-in, but an active ordinary signup
+    // supersedes any stale test marker.
+    syncSignupMarketSubType(authState, marketSubType);
+  }, [authState, marketSubType]);
 
   useEffect(() => {
     if (utm) {
@@ -252,7 +265,7 @@ function Signup(props) {
     setCallActive(true);
     // the backend will fail unless only the keys it's need are passed, so extract them
     const { name, email, password } = userState;
-    const signupData = { name, email, password, code };
+    const signupData = withSignupTestObject({ name, email, password, code }, marketSubType);
     let redirect = getRedirect();
     if (redirect !== '/') {
       setRedirect(redirect);

@@ -50,11 +50,15 @@ Use the same environment flag as every other Uclusion CLI command; for example,
 stage is `uclusion -e stage wait --timeout 55`. A silent return means the
 timeout expired, not that waiting is finished or that you may finalize: repeat
 the command while the Uclusion response or work is still outstanding. If it
-prints a prompt such as `Start J-...` or `Responded.`, treat that line as the
-user's next instruction, call `get_job`, and immediately perform every workflow
-action the response unblocked. Do not merely report the response or stage
-change; if the job still depends on human activity after those actions, resume
-polling.
+prints a prompt such as `Start J-...`, `Responded J-...`, or `Responded B-...`,
+treat that line as the user's next instruction. For a correlated `Responded
+<short-code>` prompt, call `get_job` for exactly that short code, then
+immediately perform every workflow action the response unblocked. A legacy bare
+`Responded.` prompt has no target; call `get_job` for every currently
+outstanding Uclusion dependency and current object so no concurrent job, bug,
+question, suggestion, or review response is missed. Do not merely report the
+response or stage change; if the job still depends on human activity after
+those actions, resume polling.
 
 Queue consumption is atomic and intentionally follows "first poller wins": if
 multiple AI clients are running, only the first one to poll receives a prompt.

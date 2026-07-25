@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { CardContent, Typography, useMediaQuery, useTheme } from '@material-ui/core';
+import { Button, CardActions, CardContent, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor';
 import { makeStyles } from '@material-ui/styles';
 import CardType from '../../../components/CardType';
@@ -16,11 +16,16 @@ import clsx from 'clsx';
 import GravatarAndName from '../../../components/Avatars/GravatarAndName';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import { formInboxItemLink, formWizardLink, navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
-import { APPROVAL_WIZARD_TYPE } from '../../../constants/markets';
+import { APPROVAL_WIZARD_TYPE, REPLY_WIZARD_TYPE } from '../../../constants/markets';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { removeInvestment, removeOthersInvestment } from '../../../api/marketInvestibles';
 import { commonQuick } from '../../../components/AddNewWizards/Approval/ApprovalWizard';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import Reply from '../../../components/Comments/Reply';
+import { LocalCommentsContext } from '../../../components/Comments/Comment';
+import { hasReply } from '../../../components/AddNewWizards/Reply/ReplyStep';
+import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { editorEmpty } from '../../../components/TextEditors/Utilities/CoreUtils';
 import { isLargeDisplay, stripHTML } from '../../../utils/stringFunctions';
@@ -89,6 +94,30 @@ const useVoteStyles = makeStyles(
         whiteSpace: 'nowrap',
         paddingRight: '0.5rem'
       },
+      action: {
+        padding: "0 4px",
+        minWidth: "20px",
+        height: "20px",
+        color: "#A7A7A7",
+        fontWeight: "bold",
+        fontSize: 12,
+        lineHeight: "18px",
+        textTransform: "capitalize",
+        background: "transparent",
+        borderRight: "none !important",
+        "&:hover": {
+          color: "#ca2828",
+          background: "white",
+          boxShadow: "none"
+        },
+        display: "inline-block"
+      },
+      cardActions: {
+        marginLeft: theme.spacing(1),
+        marginTop: theme.spacing(2),
+        padding: 0,
+        paddingBottom: '18px'
+      },
     };
   },
   { name: "Vote" }
@@ -116,6 +145,7 @@ function Voting(props) {
   const classes = useVoteStyles();
   const voters = useInvestibleVoters(marketPresences, investibleId, market.id, showDeleted);
   const sortedVoters = _.sortBy(voters, 'quantity', 'updatedAt');
+  const marketComments = getMarketComments(commentsState, market.id);
 
   function remove(event, userId) {
     preventDefaultAndProp(event);
@@ -170,6 +200,8 @@ function Voting(props) {
             navigate(history, formInboxItemLink(myMessage));
           } : undefined;
           const reason = investmentReasons.find((comment) => comment.id === commentId);
+          const voteReplies = reason ? _.sortBy(marketComments.filter((comment) => comment.reply_id === reason.id),
+            'created_at') : [];
           const voteId = `cv${userId}`;
 
           function setBeingEdited(event) {
@@ -268,7 +300,37 @@ function Voting(props) {
                     />
                   </CardContent>
                 )}
+                {hasContent && !myUseCompression && !isInbox && (
+                  <CardActions className={classes.cardActions}>
+                    <Button
+                      className={classes.action}
+                      id={`voteReplyButton${reason.id}`}
+                      onClick={(event) => {
+                        preventDefaultAndProp(event);
+                        navigate(history, formWizardLink(REPLY_WIZARD_TYPE, market.id, undefined, undefined,
+                          reason.id));
+                      }}
+                      variant="text"
+                    >
+                      {intl.formatMessage({ id: 'issueReplyLabel' })} {hasReply(reason) &&
+                        <Edit htmlColor={ACTION_BUTTON_COLOR} style={{fontSize: '1rem'}} fontSize='small' />}
+                    </Button>
+                  </CardActions>
+                )}
               </div>
+              {!myUseCompression && !_.isEmpty(voteReplies) && (
+                <LocalCommentsContext.Provider value={{ comments: marketComments, marketId: market.id,
+                  idPrepend: '' }}>
+                  {/* The first Reply card carries its own 1.5rem top margin - cancel it so the thread sits
+                      just below the vote's Reply button, and separate the thread from the next vote */}
+                  <div style={{marginLeft: '0.5rem', marginTop: '-1.5rem', marginBottom: '1.5rem'}}>
+                    {voteReplies.map((child) => (
+                      <Reply key={`c${child.id}`} comment={child} enableEditing={!isInbox} enableActions={!isInbox}
+                             isDeletable={!isInbox} isInbox={isInbox}/>
+                    ))}
+                  </div>
+                </LocalCommentsContext.Provider>
+              )}
             </div>
           );
         })}

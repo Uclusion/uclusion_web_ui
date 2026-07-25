@@ -38,18 +38,26 @@ The Uclusion MCP proxy writes inbound Poke AI prompts to one local queue shared
 by Codex, Claude Code, and Cursor. Whenever the next workflow step depends on
 human activity in Uclusion — including an answer or reply on a question or
 suggestion, a vote, approval or stage change, review feedback, or new work
-after `find_work` returned no work — keep the current turn alive. Do not send a
-final response while that dependency is outstanding: a final response ends the
-turn and leaves no process polling the queue. Poll with:
+after `find_work` returned no work — a process must be polling the queue. Poll
+with:
 
 ```sh
 uclusion wait --timeout 55
 ```
 
+This command MUST run as a background (detached) task — in Claude Code pass
+`run_in_background: true` on the Bash call. Never run it in the foreground: a
+blocking wait freezes the conversation for up to 55 seconds and the user
+cannot get a command in. If your client has no background mechanism, do not
+run the wait at all — end your turn and let the user's next chat message or
+session pick up the queued prompt instead. With a background wait running you
+may end your turn; the task-completion notification re-invokes you.
+
 Use the same environment flag as every other Uclusion CLI command; for example,
 stage is `uclusion -e stage wait --timeout 55`. A silent return means the
-timeout expired, not that waiting is finished or that you may finalize: repeat
-the command while the Uclusion response or work is still outstanding. If it
+timeout expired, not that waiting is finished or that you may finalize:
+relaunch the background wait while the Uclusion response or work is still
+outstanding. If it
 prints a prompt such as `Start J-...`, `Responded J-...`, or `Responded B-...`,
 treat that line as the user's next instruction. For a correlated `Responded
 <short-code>` prompt, call `get_job` for exactly that short code, then

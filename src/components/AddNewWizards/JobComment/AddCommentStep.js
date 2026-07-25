@@ -33,6 +33,7 @@ import { removeMessagesForCommentId } from '../../../utils/messageUtils';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import GravatarGroup from '../../Avatars/GravatarGroup';
+import { getHumanPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
@@ -74,7 +75,9 @@ function AddCommentStep (props) {
   const myPresence = presences?.find((presence) => presence.current_user);
   const userId = myPresence?.id;
   const userIsAssigned = assigned?.includes(userId);
-  const subscribedNotMe = subscribed?.filter((presence) => presence.id !== userId);
+  // The AI user gets its notifications through the poke queue, so showing it in a "notifies" list
+  // just confuses (B-all-500)
+  const subscribedNotMe = getHumanPresences(subscribed).filter((presence) => presence.id !== userId);
   const noSubscribedToSendTo = _.isEmpty(subscribedNotMe) || inFurtherWorkStage;
 
   function onSave(comment) {
@@ -131,6 +134,12 @@ function AddCommentStep (props) {
     [REPORT_TYPE]: 'New Progress Report'
   };
   const wizardTitle = isNote ? 'New Note' : (titleByType[useType] || 'New comment');
+  // Inline so the "notifies ... unless use @ mentions" sentence stays on one line - AvatarGroup's
+  // root is otherwise a block flex div that splits the sentence over three lines (B-all-500)
+  const subscribedGravatars =
+    <span style={{display: 'inline-flex', verticalAlign: 'middle', marginLeft: '0.3rem', marginRight: '0.3rem'}}>
+      <GravatarGroup users={subscribedNotMe}/>
+    </span>;
   return (
     <WizardStepContainer
       {...props}
@@ -145,7 +154,7 @@ function AddCommentStep (props) {
         <Typography className={classes.introSubText} variant="subtitle1">
           Opening this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} moves the job to
           Next / Assistance.
-          <GravatarGroup users={subscribedNotMe}/>
+          {subscribedGravatars}
           notified unless use @ mentions.
         </Typography>
       )}
@@ -172,14 +181,14 @@ function AddCommentStep (props) {
       )}
       {useType === ISSUE_TYPE && !inFurtherWorkStage && !noSubscribedToSendTo && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          <GravatarGroup users={subscribedNotMe}/>
+          {subscribedGravatars}
           notified unless use @ mentions.
         </Typography>
       )}
       {useType === ISSUE_TYPE && inFurtherWorkStage && !noSubscribedToSendTo && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Jobs with blocking issues are always not ready.
-          <GravatarGroup users={subscribedNotMe}/>
+          {subscribedGravatars}
           notified unless use @ mentions.
         </Typography>
       )}
@@ -195,7 +204,7 @@ function AddCommentStep (props) {
       )}
       {useType === REPORT_TYPE && !isResolve && !noSubscribedToSendTo && !isNote && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          <GravatarGroup users={subscribedNotMe}/>
+          {subscribedGravatars}
           notified unless use @ mentions to require and only notify specific reviewers.
         </Typography>
       )}
@@ -213,14 +222,14 @@ function AddCommentStep (props) {
       {useType === QUESTION_TYPE && !movingJob && !noSubscribedToSendTo && (
         <Typography className={classes.introSubText} variant="subtitle1">
           This question notifies
-          <GravatarGroup users={subscribedNotMe}/>
+          {subscribedGravatars}
           unless use @ mentions. Add options to start voting on possible answers to this question.
         </Typography>
       )}
       {useType === SUGGEST_CHANGE_TYPE && !movingJob && !noSubscribedToSendTo && (
         <Typography className={classes.introSubText} variant="subtitle1">
           This suggestion notifies
-          <GravatarGroup users={subscribedNotMe}/>
+          {subscribedGravatars}
           unless use @ mentions.
         </Typography>
       )}

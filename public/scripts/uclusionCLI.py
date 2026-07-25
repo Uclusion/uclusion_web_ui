@@ -5,7 +5,9 @@ import math
 import os
 import re
 import sqlite3
+import subprocess
 import sys
+import tempfile
 import time
 import urllib.request
 import urllib.parse
@@ -27,6 +29,16 @@ STAGE_API_URL = "stage.api.uclusion.com/v1"
 PRODUCTION_API_URL = "production.api.uclusion.com/v1"
 DEFAULT_EXPORT_FOLDER = os.path.join(os.path.expanduser('~'), '.uclusion', 'export')
 INBOX_FILE = 'poke_inbox.sqlite3'
+
+# Update machinery (J-all-367). Scripts live in a version-named install dir
+# (~/.local/uclusion-cli/<script_reinstall_version>/bin) so the installed
+# release is derivable from this file's realpath; the workflow-doc marker and
+# Codex table header identify which AI client surfaces are installed so
+# `uclusion update` refreshes exactly those.
+SCRIPT_INSTALL_PREFIX = os.path.join(os.path.expanduser('~'), '.local', 'uclusion-cli')
+UNVERSIONED_DIR_NAMES = ('v1', 'current', 'unversioned', 'bin')
+WORKFLOW_MD_MARKER = '<!-- uclusion-workflow:v1 -->'
+CODEX_UCLUSION_TABLE = '[mcp_servers.Uclusion]'
 
 
 def get_inbox_path():
@@ -1039,6 +1051,263 @@ def cmd_wait(args):
         time.sleep(min(0.25, remaining))
 
 
+def get_scripts_base_url(env):
+    """Return the base URL the helper scripts are served from for ``env``."""
+    if env == 'dev':
+        return 'https://localhost:3000/scripts/'
+    if env in ('stage', 'production'):
+        return f'https://{env}.uclusion.com/scripts/'
+    return 'https://production.uclusion.com/scripts/'
+
+
+def get_installed_script_version():
+    """Return this CLI's release from its install path, or None if unknown.
+
+    The installer names the install dir after the script_reinstall_version in
+    effect when it ran (~/.local/uclusion-cli/<version>/bin), so realpath of
+    this file identifies the installed release. Dev checkouts, the legacy
+    v1/current/bin layout, and installs stamped without credentials all
+    return None.
+    """
+    real_path = os.path.realpath(os.path.abspath(__file__))
+    bin_dir = os.path.dirname(real_path)
+    version = os.path.basename(os.path.dirname(bin_dir))
+    if os.path.basename(bin_dir) != 'bin' or not version:
+        return None
+    if version in UNVERSIONED_DIR_NAMES:
+        return None
+    if os.path.dirname(os.path.dirname(bin_dir)) != SCRIPT_INSTALL_PREFIX:
+        return None
+    return version
+
+
+def file_contains(path, needle):
+    try:
+        with open(path, 'r', encoding='utf-8') as src:
+            return needle in src.read()
+    except OSError:
+        return False
+
+
+def json_has_uclusion_server(path):
+    try:
+        with open(path, 'r', encoding='utf-8') as src:
+            config = json.load(src)
+    except (OSError, json.JSONDecodeError):
+        return False
+    servers = config.get('mcpServers') if isinstance(config, dict) else None
+    return isinstance(servers, dict) and 'Uclusion' in servers
+
+
+def detect_global_clients():
+    """Return the AI clients with a global Uclusion install on this machine."""
+    home = os.path.expanduser('~')
+    clients = set()
+    if (json_has_uclusion_server(os.path.join(home, '.claude.json'))
+            or file_contains(os.path.join(home, '.claude', 'CLAUDE.md'), WORKFLOW_MD_MARKER)):
+        clients.add('claude')
+    if (json_has_uclusion_server(os.path.join(home, '.cursor', 'mcp.json'))
+            or os.path.exists(os.path.join(home, '.cursor', 'rules', 'uclusion.mdc'))):
+        clients.add('cursor')
+    if (file_contains(os.path.join(home, '.codex', 'config.toml'), CODEX_UCLUSION_TABLE)
+            or file_contains(os.path.join(home, '.codex', 'AGENTS.md'), WORKFLOW_MD_MARKER)):
+        clients.add('codex')
+    return clients
+
+
+def detect_project_clients(project_dir):
+    """Return the AI clients with a project-level Uclusion install in ``project_dir``."""
+    clients = set()
+    if (json_has_uclusion_server(os.path.join(project_dir, '.mcp.json'))
+            or file_contains(os.path.join(project_dir, 'CLAUDE.md'), WORKFLOW_MD_MARKER)):
+        clients.add('claude')
+    if (json_has_uclusion_server(os.path.join(project_dir, '.cursor', 'mcp.json'))
+            or os.path.exists(os.path.join(project_dir, '.cursor', 'rules', 'uclusion.mdc'))):
+        clients.add('cursor')
+    if file_contains(os.path.join(project_dir, 'AGENTS.md'), WORKFLOW_MD_MARKER):
+        clients.add('codex')
+    return clients
+
+
+def get_project_config_path(env):
+    """Return the project workspace config path in cwd, or None.
+
+    Installs write plain uclusion.json, but a hand-configured project may use
+    the env-specific name the CLI reads, so accept either.
+    """
+    json_names = {'dev': DEV_SOURCES_CONFIG_FILE, 'stage': STAGE_SOURCES_CONFIG_FILE}
+    candidates = [json_names.get(env, SOURCES_CONFIG_FILE), SOURCES_CONFIG_FILE]
+    for name in dict.fromkeys(candidates):
+        path = os.path.join(os.getcwd(), name)
+        if os.path.exists(path):
+            return path
+    return None
+
+
+def load_config_at(config_path):
+    """Load a specific workspace config file; None when absent or invalid."""
+    if config_path is None:
+        return None
+    try:
+        with open(config_path, 'r', encoding='utf-8') as src:
+            config = json.load(src)
+        return config if isinstance(config, dict) else None
+    except FileNotFoundError:
+        return None
+    except (OSError, json.JSONDecodeError) as error:
+        print(f"⚠️ Warning: could not parse '{config_path}': {error}")
+        return None
+
+
+def fetch_latest_script_version(env):
+    """Login and return the current script_reinstall_version, or None.
+
+    This is the J-all-314 signal behind the web UI's reinstall banner, served
+    by GET sso/app for the logged-in account's deployment group.
+    """
+    api_url, json_path, credentials_path = get_env_paths(env)
+    credentials = get_credentials(credentials_path)
+    if credentials is None:
+        return None
+    config = load_config(json_path)
+    if config is None or config.get('workspaceId') is None:
+        return None
+    credentials['workspace_id'] = config['workspaceId']
+    credentials['api_url'] = api_url
+    response = login(credentials)
+    if response is None or 'uclusion_token' not in response:
+        print("   -> ❌ Error: login failed.")
+        return None
+    app_url = 'https://sso.' + api_url + '/app?' + urllib.parse.urlencode(
+        {'idToken': response['uclusion_token']}
+    )
+    try:
+        with urllib.request.urlopen(app_url, timeout=15) as app_response:
+            return json.loads(app_response.read().decode('utf-8')).get(
+                'script_reinstall_version'
+            )
+    except Exception as error:
+        print(f"   -> ❌ Error fetching the current script version: {error}")
+        return None
+
+
+def run_installer(installer_path, env, config, fallback_config, clients, project,
+                  skip_scripts=False):
+    """Run the downloaded installer non-interactively for one install scope.
+
+    Returns True when the installer ran successfully. ``fallback_config``
+    supplies the workspace identity when the scope's own config lacks it
+    (e.g. a project whose uclusion.json predates workspaceId stamping).
+    ``skip_scripts`` keeps a project pass from reinstalling the scripts the
+    global pass just refreshed.
+    """
+    source = config or fallback_config
+    workspace_id = source.get('workspaceId') if source else None
+    if workspace_id is None:
+        scope = 'project' if project else 'global'
+        print(f"⚠️ Skipping {scope} update: no workspaceId found in its config.")
+        return False
+    view_id = source.get('todoViewId') or workspace_id
+    command = [sys.executable, installer_path, env, workspace_id, view_id]
+    if clients:
+        command += ['--clients', ','.join(sorted(clients))]
+    else:
+        command.append('--scripts-only')
+    if project:
+        command.append('--project')
+    if skip_scripts:
+        command.append('--skip-scripts')
+    print(f"🚀 Running installer: {' '.join(command[2:])}")
+    result = subprocess.run(command)
+    if result.returncode != 0:
+        print(f"❌ Installer exited with status {result.returncode}.")
+        return False
+    return True
+
+
+def cmd_update(args):
+    """Update the scripts and every installed Uclusion surface (T-all-2409).
+
+    Downloads the CURRENT installer and runs it non-interactively, so the
+    update logic always comes from the new release rather than this possibly
+    years-old CLI (Q-all-299). Scope is the global surfaces plus a project
+    install in the current directory when one exists (Q-all-298).
+    """
+    env = args.env or 'production'
+
+    project_dir = os.getcwd()
+    project_config_path = get_project_config_path(env)
+    project_clients = detect_project_clients(project_dir)
+    has_project_install = project_config_path is not None or bool(project_clients)
+
+    _api_url, json_path, _credentials_path = get_env_paths(env)
+    global_config_path = os.path.join(os.path.expanduser('~'), '.uclusion', json_path)
+    global_config = load_config_at(global_config_path)
+    project_config = load_config_at(project_config_path)
+
+    if args.check:
+        latest = fetch_latest_script_version(env)
+        if latest is None:
+            print("❌ Could not determine the current release version.")
+            return 1
+        installed = get_installed_script_version()
+        stale = False
+        if installed == latest:
+            print(f"✅ Scripts are current ({installed}).")
+        elif installed is None:
+            print(f"⚠️ Installed script version is unknown (current release {latest}); "
+                  f"run `uclusion update` to move to a versioned install.")
+            stale = True
+        else:
+            print(f"⬆️  Update available: installed {installed}, current release {latest}.")
+            stale = True
+        if has_project_install:
+            project_version = (project_config or {}).get('scriptReinstallVersion')
+            if project_version == latest:
+                print(f"✅ Project install in {project_dir} is current.")
+            else:
+                print(f"⬆️  Project install in {project_dir} is out of date "
+                      f"(stamped {project_version or 'nothing'}, current release {latest}).")
+                stale = True
+        return 2 if stale else 0
+
+    if global_config is None and not has_project_install:
+        print("❌ No Uclusion install found to update (no workspace config in "
+              "~/.uclusion or the current directory).")
+        return 1
+
+    installer_url = get_scripts_base_url(env) + 'uclusionInstall.py'
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        installer_path = os.path.join(tmp_dir, 'uclusionInstall.py')
+        print(f"⬇️  Downloading {installer_url}")
+        try:
+            with urllib.request.urlopen(installer_url, timeout=15) as response:
+                with open(installer_path, 'wb') as out:
+                    out.write(response.read())
+        except Exception as error:
+            print(f"❌ Could not download the installer: {error}")
+            return 1
+
+        # The global run refreshes the scripts under ~/.local plus detected
+        # global surfaces; skip it only when this machine has no global config
+        # at all (project-only setups still get scripts via the project run).
+        ran_global = False
+        if global_config is not None:
+            if not run_installer(installer_path, env, global_config, None,
+                                 detect_global_clients(), project=False):
+                return 1
+            ran_global = True
+        if has_project_install:
+            if not run_installer(installer_path, env, project_config, global_config,
+                                 project_clients, project=True,
+                                 skip_scripts=ran_global):
+                return 1
+
+    print("🎉 Update complete. Restart your AI client sessions (or reconnect the "
+          "Uclusion MCP server) so the updated connection loads.")
+    return 0
+
+
 def cmd_report(args):
     result = initialize(args.env)
     if result is None:
@@ -1187,6 +1456,20 @@ def build_parser():
         help='Seconds to wait before returning with no output (default: 55).',
     )
     wait_parser.set_defaults(func=cmd_wait)
+
+    update_parser = subparsers.add_parser(
+        'update',
+        help='Update the Uclusion scripts and every installed AI client surface '
+             'to the current release (global surfaces plus a project install in '
+             'the current directory).',
+    )
+    update_parser.add_argument(
+        '--check',
+        action='store_true',
+        help='Only report whether an update is available; exits 0 when current '
+             'and 2 when an update is available.',
+    )
+    update_parser.set_defaults(func=cmd_update)
 
     report_parser = subparsers.add_parser(
         'report',

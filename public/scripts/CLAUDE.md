@@ -74,6 +74,18 @@ Do not read, edit, or delete the inbox database directly. Stop polling if the
 user sends a newer chat instruction; that instruction preempts the wait, so
 handle it before starting another poll.
 
+## Updating the AI connection
+
+When a tool result contains a "[Uclusion update notice ...]" block, the local
+Uclusion install (CLI, MCP proxy, and workflow docs) is older than the current
+release. Tell the user and ask their permission to run `uclusion update` (with
+the same `-e` environment flag as every other Uclusion CLI command). If they
+grant it, run the command from the directory the session is in, then remind
+the user to restart the AI client session — or reconnect the Uclusion MCP
+server — so the updated connection loads. If they decline, continue without
+updating and do not ask again that session. `uclusion update --check` reports
+status without changing anything.
+
 ## Workflow
 
 Run the steps in order. Don't skip ahead: questions and suggestions come

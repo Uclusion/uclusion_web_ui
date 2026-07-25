@@ -35,20 +35,25 @@ Without ``--clients`` the installer asks whether to configure Uclusion globally
 import argparse
 import json
 import os
+import re
 import shutil
 import stat
 import subprocess
 import sys
 import tempfile
+import urllib.parse
 import urllib.request
 
 
 LOCAL_PREFIX = os.path.join(os.path.expanduser('~'), '.local')
 SCRIPT_INSTALL_PREFIX = os.path.join(LOCAL_PREFIX, 'uclusion-cli')
-SCRIPT_INSTALL_VERSION = 'v1'
-SCRIPT_INSTALL_DIR = os.path.join(
-    SCRIPT_INSTALL_PREFIX, SCRIPT_INSTALL_VERSION, 'current', 'bin'
-)
+# Scripts install into ~/.local/uclusion-cli/<script_reinstall_version>/bin —
+# the same versions-in-the-path layout Claude uses (versions/2.1.220) — so the
+# installed release is readable from the symlink target and the proxy/CLI can
+# derive their own version from realpath (J-all-367). When the version cannot
+# be fetched (no credentials yet, offline) this placeholder keeps the install
+# working; version checks treat it as unknown and stay silent.
+UNVERSIONED_INSTALL_DIR = 'unversioned'
 # Symlinks land in ~/.local/bin (where Claude and Codex install too), so the
 # install is always user-writable and never needs root or sudo.
 SYMLINK_DIR = os.path.join(LOCAL_PREFIX, 'bin')
@@ -67,7 +72,14 @@ SCRIPT_FILES = (
 )
 
 UCLUSION_HOME = os.path.join(os.path.expanduser('~'), '.uclusion')
-UCLUSION_CONFIG_PATH = os.path.join(UCLUSION_HOME, 'uclusion.json')
+# Workspace config filenames are environment-specific — the same names the CLI
+# reads (S-all-163): production stays uclusion.json, stage/dev get prefixed so
+# `uclusion -e stage ...` finds the config the installer wrote.
+CONFIG_FILES = {
+    'dev': 'dev_uclusion.json',
+    'stage': 'stage_uclusion.json',
+    'production': 'uclusion.json',
+}
 CURSOR_MCP_PATH = os.path.join(os.path.expanduser('~'), '.cursor', 'mcp.json')
 CLAUDE_JSON_PATH = os.path.join(os.path.expanduser('~'), '.claude.json')
 CLAUDE_MD_PATH = os.path.join(os.path.expanduser('~'), '.claude', 'CLAUDE.md')
@@ -102,6 +114,85 @@ def get_scripts_base_url(env):
     if env in ('stage', 'production'):
         return f'https://{env}.uclusion.com/scripts/'
     return 'https://production.uclusion.com/scripts/'
+
+
+def get_api_base_url(env):
+    """Return the API host the SSO endpoints live under for ``env``."""
+    if env in ('dev', 'stage'):
+        return f'{env}.api.uclusion.com/v1'
+    return 'production.api.uclusion.com/v1'
+
+
+# Same env-specific credential files the CLI and MCP proxy read; written by the
+# user in setup step 1, before the installer runs in step 3.
+CREDENTIALS_FILES = {
+    'dev': 'dev_credentials',
+    'stage': 'stage_credentials',
+    'production': 'credentials',
+}
+
+
+def read_credentials(env):
+    """Parse the key=value credentials file for ``env``; None when absent."""
+    cred_path = os.path.join(
+        os.path.expanduser('~'), '.uclusion', CREDENTIALS_FILES[env]
+    )
+    if not os.path.exists(cred_path):
+        return None
+    credentials = {}
+    with open(cred_path, 'r', encoding='utf-8') as src:
+        for line in src:
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            if '=' in line:
+                key, value = line.split('=', 1)
+                credentials[key.strip()] = value.strip()
+    return credentials
+
+
+def fetch_script_reinstall_version(env, workspace_id):
+    """Return the current script_reinstall_version for this account, or None.
+
+    This is the J-all-314 signal behind the web UI's reinstall banner: the
+    backend persists the release that last changed the scripts and serves it
+    from GET sso/app. Stamping it at install time (in the install path and the
+    workspace config) is what later lets the MCP proxy and ``uclusion update
+    --check`` compare installed-vs-current with a plain equality test. Any
+    failure — missing credentials, offline, bad response — returns None so the
+    install still succeeds; the version checks just stay silent until a
+    versioned install exists.
+    """
+    try:
+        credentials = read_credentials(env)
+        if credentials is None:
+            print("  ⚠️  No credentials file yet; installing without a version stamp.")
+            return None
+        api_url = get_api_base_url(env)
+        login_body = json.dumps({
+            'market_id': workspace_id,
+            'client_secret': credentials['secret_key'],
+            'client_id': credentials['secret_key_id'],
+        }).encode('utf-8')
+        login_request = urllib.request.Request(
+            'https://sso.' + api_url + '/cli', data=login_body,
+            headers={'Content-Type': 'application/json'}, method='POST'
+        )
+        with urllib.request.urlopen(login_request, timeout=HTTP_TIMEOUT) as response:
+            token = json.loads(response.read().decode('utf-8'))['uclusion_token']
+        app_url = 'https://sso.' + api_url + '/app?' + urllib.parse.urlencode(
+            {'idToken': token}
+        )
+        with urllib.request.urlopen(app_url, timeout=HTTP_TIMEOUT) as response:
+            app_info = json.loads(response.read().decode('utf-8'))
+        version = app_info.get('script_reinstall_version')
+        if not version or not re.fullmatch(r'[A-Za-z0-9._-]+', version):
+            return None
+        return version
+    except Exception as err:
+        print(f"  ⚠️  Could not fetch the current script version ({err}); "
+              f"installing without a version stamp.")
+        return None
 
 
 def download_to(url, dest_path):
@@ -146,13 +237,35 @@ def warn_if_not_on_path(directory):
     print(f"      Add it, e.g.:  export PATH=\"{directory}:$PATH\"")
 
 
-def install_scripts(env):
+def prune_old_install_dirs(keep_dir_name):
+    """Remove version directories other than ``keep_dir_name`` under the prefix.
+
+    Runs only after the symlinks point at the new install, so nothing on PATH
+    ever dangles. Removing a running proxy's old script file is safe on the
+    platforms we support — the interpreter already loaded it. This also clears
+    the legacy ``v1/current/bin`` tree from pre-versioned installs.
+    """
+    if not os.path.isdir(SCRIPT_INSTALL_PREFIX):
+        return
+    for entry in os.listdir(SCRIPT_INSTALL_PREFIX):
+        if entry == keep_dir_name:
+            continue
+        entry_path = os.path.join(SCRIPT_INSTALL_PREFIX, entry)
+        if os.path.isdir(entry_path):
+            shutil.rmtree(entry_path, ignore_errors=True)
+            print(f"  🧹 Removed old install {entry_path}")
+
+
+def install_scripts(env, script_version):
+    """Download the scripts into a version-named dir and swing the symlinks."""
     base_url = get_scripts_base_url(env)
+    version_dir_name = script_version or UNVERSIONED_INSTALL_DIR
+    install_dir = os.path.join(SCRIPT_INSTALL_PREFIX, version_dir_name, 'bin')
     print(f"📦 Installing scripts from {base_url}")
-    print(f"    install dir : {SCRIPT_INSTALL_DIR}")
+    print(f"    install dir : {install_dir}")
     print(f"    symlink dir : {SYMLINK_DIR}")
 
-    ensure_dir(SCRIPT_INSTALL_DIR)
+    ensure_dir(install_dir)
     ensure_dir(SYMLINK_DIR)
 
     with tempfile.TemporaryDirectory() as tmp_dir:
@@ -162,7 +275,7 @@ def install_scripts(env):
             download_to(url, tmp_path)
             make_executable(tmp_path)
 
-            install_path = os.path.join(SCRIPT_INSTALL_DIR, installed_name)
+            install_path = os.path.join(install_dir, installed_name)
             install_file(tmp_path, install_path)
             print(f"  ✅ Installed {install_path}")
 
@@ -170,21 +283,55 @@ def install_scripts(env):
             create_symlink(install_path, symlink_path)
             print(f"  🔗 Linked {symlink_path} -> {install_path}")
 
+    prune_old_install_dirs(version_dir_name)
     warn_if_not_on_path(SYMLINK_DIR)
 
 
-def write_uclusion_config(workspace_id, view_id, config_path):
+def write_uclusion_config(workspace_id, view_id, config_path, script_version=None):
+    """Write or refresh the workspace config, preserving user customizations.
+
+    Merging (rather than rewriting) matters because ``uclusion update`` reruns
+    the installer over existing installs: keys the user tuned (sourcesList,
+    extensionsList, ...) must survive. Only the identity keys (workspaceId,
+    todoViewId) are authoritative from the arguments, defaults fill in only
+    when missing, and ``scriptReinstallVersion`` stamps which release wrote
+    this config so stale project installs are detectable (T-all-2410).
+    """
     print(f"🗂  Writing workspace config to {config_path}")
     os.makedirs(os.path.dirname(config_path), exist_ok=True)
-    config = {
-        'workspaceId': workspace_id,
+    # Older installs wrote plain uclusion.json regardless of environment
+    # (S-all-163); when the env-specific target does not exist yet, seed the
+    # merge from that legacy file so user customizations migrate.
+    merge_path = config_path
+    if not os.path.exists(config_path):
+        legacy_path = os.path.join(os.path.dirname(config_path), 'uclusion.json')
+        if legacy_path != config_path and os.path.exists(legacy_path):
+            merge_path = legacy_path
+            print(f"  📎 Migrating settings from legacy {legacy_path}")
+    config = {}
+    if os.path.exists(merge_path):
+        try:
+            with open(merge_path, 'r', encoding='utf-8') as src:
+                existing = json.load(src)
+            if isinstance(existing, dict):
+                config = existing
+        except json.JSONDecodeError as err:
+            print(f"  ⚠️  {merge_path} is not valid JSON ({err}); rewriting it.")
+    defaults = {
         'extensionsList': ['js', 'py'],
         'sourcesList': ['./src'],
         'uclusionMDFileType': 'export',
         'uclusionMDFolderPath': '~/.uclusion/export',
     }
+    for key, value in defaults.items():
+        config.setdefault(key, value)
+    config['workspaceId'] = workspace_id
     if view_id is not None and view_id != workspace_id:
         config['todoViewId'] = view_id
+    else:
+        config.pop('todoViewId', None)
+    if script_version:
+        config['scriptReinstallVersion'] = script_version
     with open(config_path, 'w', encoding='utf-8') as out:
         json.dump(config, out, indent=2)
         out.write('\n')
@@ -687,6 +834,20 @@ def build_parser():
         help='With --clients, configure the current working directory instead '
              'of the home directory (run from your project root).',
     )
+    parser.add_argument(
+        '--scripts-only',
+        action='store_true',
+        help='Refresh the scripts and workspace config without touching any '
+             'AI client configuration (used by `uclusion update` when no '
+             'client surfaces are detected).',
+    )
+    parser.add_argument(
+        '--skip-scripts',
+        action='store_true',
+        help='Configure surfaces without reinstalling the scripts (used by '
+             '`uclusion update` for the project pass after its global pass '
+             'already refreshed the scripts).',
+    )
     return parser
 
 
@@ -704,16 +865,19 @@ def parse_clients(clients_arg):
     return clients
 
 
-def install_global(workspace_id, view_id, mcp_env, fetch_md, clients=None):
+def install_global(workspace_id, view_id, mcp_env, fetch_md, clients=None,
+                   script_version=None):
     """Configure Uclusion in the user's home directory (the default).
 
     Without ``clients`` every detected client is offered interactively. With
     ``clients`` (an explicit ``--clients`` selection) only those clients are
     configured, without prompts, and their config files are created even when
-    the client is not detected on the machine.
+    the client is not detected on the machine. An empty ``clients`` set (the
+    ``--scripts-only`` update path) writes just the workspace config.
     """
     interactive = clients is None
-    write_uclusion_config(workspace_id, view_id, UCLUSION_CONFIG_PATH)
+    config_path = os.path.join(UCLUSION_HOME, CONFIG_FILES[mcp_env or 'production'])
+    write_uclusion_config(workspace_id, view_id, config_path, script_version)
     if interactive or 'cursor' in clients:
         register_mcp_json(CURSOR_MCP_PATH, 'Cursor', workspace_id, mcp_env, require_existing=interactive)
     if interactive or 'claude' in clients:
@@ -732,7 +896,8 @@ def install_global(workspace_id, view_id, mcp_env, fetch_md, clients=None):
                             assume_yes=not interactive)
 
 
-def install_project_level(workspace_id, view_id, mcp_env, fetch_md, project_dir, clients=None):
+def install_project_level(workspace_id, view_id, mcp_env, fetch_md, project_dir, clients=None,
+                          script_version=None):
     """Configure Uclusion inside ``project_dir`` instead of the home directory.
 
     Writes the workspace config and the project-scoped MCP registrations and
@@ -747,7 +912,9 @@ def install_project_level(workspace_id, view_id, mcp_env, fetch_md, project_dir,
     print(f"📁 Project-level install into {project_dir}")
     os.makedirs(project_dir, exist_ok=True)
 
-    write_uclusion_config(workspace_id, view_id, os.path.join(project_dir, 'uclusion.json'))
+    write_uclusion_config(workspace_id, view_id,
+                          os.path.join(project_dir, CONFIG_FILES[mcp_env or 'production']),
+                          script_version)
     if interactive or 'claude' in clients:
         register_mcp_json(os.path.join(project_dir, '.mcp.json'),
                           'Claude Code (project)', workspace_id, mcp_env, require_existing=False)
@@ -773,10 +940,15 @@ def main():
     view_id = args.view_id
     mcp_env = None if env == 'production' else env
 
-    clients = parse_clients(args.clients) if args.clients else None
+    if args.scripts_only:
+        clients = set()
+    else:
+        clients = parse_clients(args.clients) if args.clients else None
 
     try:
-        install_scripts(env)
+        script_version = fetch_script_reinstall_version(env, workspace_id)
+        if not args.skip_scripts:
+            install_scripts(env, script_version)
         if clients is not None:
             # Non-interactive: the web setup page's selector chose everything already
             project_dir = os.getcwd() if args.project else None
@@ -784,9 +956,11 @@ def main():
             project_dir = prompt_install_scope()
         fetch_md = make_workflow_md_fetcher(env)
         if project_dir is None:
-            install_global(workspace_id, view_id, mcp_env, fetch_md, clients)
+            install_global(workspace_id, view_id, mcp_env, fetch_md, clients,
+                           script_version)
         else:
-            install_project_level(workspace_id, view_id, mcp_env, fetch_md, project_dir, clients)
+            install_project_level(workspace_id, view_id, mcp_env, fetch_md, project_dir,
+                                  clients, script_version)
     except subprocess.CalledProcessError as err:
         print(f"❌ Command failed: {err}")
         return 1

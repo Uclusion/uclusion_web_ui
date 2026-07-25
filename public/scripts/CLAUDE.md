@@ -53,6 +53,15 @@ run the wait at all — end your turn and let the user's next chat message or
 session pick up the queued prompt instead. With a background wait running you
 may end your turn; the task-completion notification re-invokes you.
 
+Number the repeated waits so they stay readable. When relaunching after an
+empty timeout, include a consecutive-empty-wait counter in the background
+task's label or description — for example "Wait for Poke AI prompt from
+Uclusion (7)" — where the number counts waits that have come back empty since
+the last human prompt or chat message. Reset the counter whenever a prompt or
+a new chat message arrives. This turns a wall of identical completion
+notifications into one numbered series, and keep the accompanying chat status
+line to a single short sentence.
+
 Use the same environment flag as every other Uclusion CLI command; for example,
 stage is `uclusion -e stage wait --timeout 55`. A silent return means the
 timeout expired, not that waiting is finished or that you may finalize:

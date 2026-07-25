@@ -6,7 +6,7 @@ import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import { editorEmpty, getQuillStoredState, resetEditor } from '../../TextEditors/Utilities/CoreUtils';
 import { useEditor } from '../../TextEditors/quillHooks';
-import { convertDescription, stripHTML } from '../../../utils/stringFunctions';
+import { convertDescription } from '../../../utils/stringFunctions';
 import { addPlanningInvestible } from '../../../api/investibles';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { getMarketInvestibles, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
@@ -14,12 +14,13 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { sendComment } from '../../../api/comments';
-import { addCommentToMarket, getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { addCommentToMarket, getComment, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-import OptionListItem from '../../Comments/OptionListItem';
+import OptionVoting from '../../../pages/Dialog/Decision/OptionVoting';
+import { usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { DECISION_TYPE } from '../../../constants/markets';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import NamePreviewBar, { useNamePreview } from '../../TextFields/NamePreviewBar';
@@ -31,13 +32,16 @@ function AddOptionStep(props) {
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
   const [useCompression, setUseCompression] = useState(true);
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [selectedOptionId, setSelectedOptionId] = useState(undefined);
   const history = useHistory();
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
   const classes = useContext(WizardStylesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const inlinePresences = usePresences(inlineMarketId);
   const allOptions = getMarketInvestibles(investibleState, inlineMarketId) || [];
+  const allOptionsComments = getMarketComments(commentState, inlineMarketId) || [];
   const marketStages = getStages(marketStagesState, inlineMarketId) || [];
   const investmentAllowedStage = marketStages.find((stage) => stage.allows_investment) || {};
   const parentComment = getComment(commentState, marketId, commentId);
@@ -80,14 +84,6 @@ function AddOptionStep(props) {
       })
   }
 
-  function getOptionListItem(inv) {
-    const investibleId = inv.investible.id;
-    const description = stripHTML(inv.investible.description);
-    return (
-      <OptionListItem id={investibleId} description={description} title={inv.investible.name} removeActions />
-    )
-  }
-
   function myOnFinish(){
     return sendComment(marketId, commentId, DECISION_TYPE).then((response) => {
       addCommentToMarket(response, commentState, commentDispatch);
@@ -117,7 +113,10 @@ function AddOptionStep(props) {
         useCompression={useCompression}
       />
       <div style={{marginBottom: '2rem'}}>
-        {allOptions.map((fullInvestible) => getOptionListItem(fullInvestible))}
+        {/* T-all-2194: options created so far open read-only on click, like any other option list */}
+        <OptionVoting marketPresences={inlinePresences} investibles={allOptions} marketId={inlineMarketId}
+                      comments={allOptionsComments} inArchives={false} isSent={false} isInbox removeActions
+                      selectedInvestibleId={selectedOptionId} setSelectedInvestibleId={setSelectedOptionId} />
       </div>
       <NamePreviewBar name={namePreview} />
       {Editor}

@@ -5,7 +5,7 @@ import WizardStepContainer from '../WizardStepContainer';
 import WizardStepButtons from '../WizardStepButtons';
 import { editorEmpty, getQuillStoredState, resetEditor } from '../../TextEditors/Utilities/CoreUtils';
 import { useEditor } from '../../TextEditors/quillHooks';
-import { convertDescription, stripHTML } from '../../../utils/stringFunctions';
+import { convertDescription } from '../../../utils/stringFunctions';
 import { addDecisionInvestible } from '../../../api/investibles';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { getInvestible, getMarketInvestibles, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
@@ -18,9 +18,9 @@ import { useHistory } from 'react-router';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { WizardStylesContext } from '../WizardStylesContext';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
-import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getComment, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import OptionListItem from '../../Comments/OptionListItem';
+import OptionVoting from '../../../pages/Dialog/Decision/OptionVoting';
 import _ from 'lodash';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import NamePreviewBar, { useNamePreview } from '../../TextFields/NamePreviewBar';
@@ -31,6 +31,7 @@ function OptionDescriptionStep (props) {
   const editorName = `addOptionWizard${marketId}`;
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [selectedOptionId, setSelectedOptionId] = useState(undefined);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState] = useContext(CommentsContext);
@@ -51,6 +52,7 @@ function OptionDescriptionStep (props) {
   const isQuestionAdmin = isQuestionCreator || isInvestibleAssigned;
   const parentComment = getComment(commentsState, parentMarketId, parentCommentId);
   const allOptions = getMarketInvestibles(investibleState, marketId) || [];
+  const allOptionsComments = getMarketComments(commentsState, marketId) || [];
   const { useCompression } = formData;
   const { name: namePreview, updateName, refreshName } = useNamePreview(editorName);
 
@@ -94,14 +96,6 @@ function OptionDescriptionStep (props) {
       });
   }
 
-  function getOptionListItem(inv) {
-    const investibleId = inv.investible.id;
-    const description = stripHTML(inv.investible.description);
-    return (
-      <OptionListItem id={investibleId} description={description} title={inv.investible.name} removeActions />
-    )
-  }
-
   return (
     <WizardStepContainer
       {...props}
@@ -125,7 +119,10 @@ function OptionDescriptionStep (props) {
       {!_.isEmpty(allOptions) && (
         <div style={{ marginBottom: '2rem', marginTop: '1rem' }}>
           Existing options
-          {allOptions.map((fullInvestible) => getOptionListItem(fullInvestible))}
+          {/* T-all-2194: existing options open read-only on click, like any other option list */}
+          <OptionVoting marketPresences={presences} investibles={allOptions} marketId={marketId}
+                        comments={allOptionsComments} inArchives={false} isSent isInbox removeActions
+                        selectedInvestibleId={selectedOptionId} setSelectedInvestibleId={setSelectedOptionId} />
         </div>
       )}
       {_.isEmpty(allOptions) && (

@@ -9,7 +9,7 @@ import { useHistory } from 'react-router';
 import AddInitialVote from '../../../pages/Investible/Voting/AddInitialVote';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { updateInvestment } from '../../../api/marketInvestibles';
-import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getComment, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import _ from 'lodash';
@@ -21,6 +21,8 @@ import JobDescription from '../../InboxWizards/JobDescription';
 import { DECISION_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 import { ISSUE_TYPE } from '../../../constants/comments';
 import { hasDecisionComment } from '../DecisionComment/AddCommentStep';
+import { findMessagesForCommentIds } from '../../../utils/messageUtils';
+import { dismissWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 
 function DecisionApproveStep(props) {
   const { market, updateFormData = () => {}, formData = {}, investibleId, hasOtherVote, currentReasonId } = props;
@@ -42,6 +44,14 @@ function DecisionApproveStep(props) {
   function doQuick(result) {
     commonQuick(result, commentsDispatch, marketId, commentsState, marketPresencesDispatch, messagesState,
       messagesDispatch, setOperationRunning);
+    // B-all-501: voting for an option answers the question, so all notifications on the
+    // question clear, including thread reply notifications keyed on the reply ids. The
+    // backend removes them on the investment event - mirror that removal locally.
+    const parentMarketComments = getMarketComments(commentsState, parentMarketId) || [];
+    const threadIds = [parentCommentId, ...parentMarketComments
+      .filter((comment) => comment.root_comment_id === parentCommentId).map((comment) => comment.id)];
+    const threadMessages = findMessagesForCommentIds(threadIds, messagesState) || [];
+    threadMessages.forEach((message) => dismissWorkListItem(message, messagesDispatch));
   }
 
   function onNext() {

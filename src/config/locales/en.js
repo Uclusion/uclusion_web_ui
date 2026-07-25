@@ -1219,6 +1219,7 @@ const messages = defineMessages({
   reportSimple: 'progress report',
   inProgress: 'In progress',
   inReview: 'In review',
+  openAssistance: 'Open question or suggestion',
   markInProgress: 'Mark in progress',
   removeInProgress: 'Remove in progress',
   todoSimple: 'task',

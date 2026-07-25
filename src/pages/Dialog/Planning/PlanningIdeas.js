@@ -727,8 +727,12 @@ function StageInvestible(props) {
     }
   };
   const countChip = mobileLayout ? undefined :
-    getCountChip(isVoting ? numQuestionsSuggestions : numOpenTasks, isVoting ? 'inputRequiredCountExplanation': 
+    getCountChip(isVoting ? numQuestionsSuggestions : numOpenTasks, isVoting ? 'inputRequiredCountExplanation':
       'openTasksCountExplanation');
+  // B-all-497: a non-assignee question or suggestion does not move a Reviewable job to Debatable,
+  // so without its own chip and preview bars it was invisible in the swimlanes
+  const assistanceChip = mobileLayout || !isReview ? undefined :
+    getCountChip(numQuestionsSuggestions, 'inputRequiredCountExplanation');
   const messagesChip = mobileLayout ? undefined : getMessagesChip();
   const isSameGroup = groupId === viewGroupId;
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId);
@@ -739,6 +743,8 @@ function StageInvestible(props) {
     (!comment.root_comment_id || comments.find((c) => c.id === comment.root_comment_id)?.resolved !== true));
   const reviewComments = comments.filter((comment) => comment.investible_id === investible.id && !comment.deleted
     && !comment.resolved && (comment.comment_type === REPORT_TYPE && comment.notification_type !== BLUE_LEVEL));
+  const assistanceComments = comments.filter((comment) => comment.investible_id === investible.id && !comment.deleted
+    && !comment.resolved && [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type));
   const isDark = theme.palette.type === 'dark';
   return (
     <>
@@ -811,6 +817,7 @@ function StageInvestible(props) {
             </Tooltip>
           )}
           {countChip}
+          {assistanceChip}
           {hasDaysEstimate && (
             <div style={{ whiteSpace: 'nowrap', color: unreadEstimate ? countColor: undefined,
               cursor: unreadEstimate ? 'pointer' : undefined, marginRight: '0.5rem' }}
@@ -881,6 +888,14 @@ function StageInvestible(props) {
             const { body, id: commentId, comment_type: commentType } = comment;
             return <BugListItem key={commentId} id={commentId} title={stripHTML(body)} useMinWidth={false} useMobileLayout smallFont
                                 useSelect={false} toolTipId='inReview' commentType={commentType}
+                                link={formCommentLink(marketId, marketInfo.group_id, id, commentId)} />;
+          })
+        )}
+        {isReview && !_.isEmpty(assistanceComments) && (
+          assistanceComments.map((comment) => {
+            const { body, id: commentId, comment_type: commentType } = comment;
+            return <BugListItem key={commentId} id={commentId} title={stripHTML(body)} useMinWidth={false} useMobileLayout smallFont
+                                useSelect={false} toolTipId='openAssistance' commentType={commentType}
                                 link={formCommentLink(marketId, marketInfo.group_id, id, commentId)} />;
           })
         )}

@@ -35,18 +35,41 @@ separate chat message.
 ## Wait for Poke AI
 
 The Uclusion MCP proxy writes inbound Poke AI prompts to a local queue on
-this machine. Launch the background wait at the first
-reasonable opportunity in every session — before `find_work` or any job work —
-and keep exactly one running for the rest of the session: just listen all
-the time. Do not hold the
-launch until you are out of work or blocked on human activity in Uclusion (an
-answer or reply on a question or suggestion, a vote, approval or stage change,
-review feedback, new work after `find_work` returned no work): an
-already-running wait covers all of those, claims a prompt that arrives
-mid-turn the moment it lands, and runs the update watcher's staleness check
-right at session start — the wait is the dependable update-notice channel,
-because some AI clients never display the notice the MCP proxy injects into
-tool results. Poll with:
+this machine. Start listening at the first reasonable opportunity in every
+session — before `find_work` or any job work — and keep exactly one
+listener running for the rest of the session: just listen all the time. Do
+not hold the launch until you are out of work or blocked on human activity
+in Uclusion (an answer or reply on a question or suggestion, a vote,
+approval or stage change, review feedback, new work after `find_work`
+returned no work): an already-running listener covers all of those, claims
+a prompt that arrives mid-turn the moment it lands, and runs the update
+watcher's staleness check right at session start — the listener is the
+dependable update-notice channel, because some AI clients never display
+the notice the MCP proxy injects into tool results.
+
+How you listen depends on what your harness can consume; use the first
+path below that it supports.
+
+**Clients with a persistent line-event monitor (Claude Code's Monitor
+tool):** launch the streaming form once per session and leave it running:
+
+```sh
+uclusion listen
+```
+
+In Claude Code arm it with the Monitor tool — command `uclusion listen`,
+`persistent: true`, and a description naming the Poke stream. `listen`
+never exits: each claimed prompt prints as one line that the harness
+raises as an event, so there is no timeout, no completion notice, and no
+relaunch choreography — a quiet hour is completely silent. Several
+stacked prompts arrive as consecutive lines, possibly batched into one
+notification: handle every line, in arrival order, and when several name
+the same short code one `get_job` covers them. If the stream ever ends
+(the monitor is stopped or dies), arm it again.
+
+**Clients that can background a command but only receive its output when
+it exits:** run the bounded wait as a background (detached) task and
+relaunch it after every completion:
 
 ```sh
 uclusion wait --timeout 3600
@@ -56,65 +79,69 @@ The hour-long timeout is deliberate. The wait polls the local inbox every
 quarter second, so a prompt is claimed just as fast as with a short timeout —
 but a quiet hour produces ONE completion notification instead of a stream of
 them. Always pass `--timeout 3600` explicitly: the CLI's default is a short
-55-second wait for contexts that cannot background the call.
+55-second wait for contexts that cannot background the call. Never run the
+hour-long form in the foreground: a blocking wait freezes the conversation
+for the full timeout and the user cannot get a command in. A silent return
+means the timeout expired, not that waiting is finished or that you may
+finalize: relaunch the background wait — a session keeps one running at
+all times. When prompts have arrived, one wait prints the WHOLE pending
+backlog, one prompt per line, before exiting, so a stack of pokes costs a
+single exit/relaunch cycle: handle every printed line, in arrival order,
+then relaunch. When relaunching after an empty timeout, keep the
+accompanying chat status line to a single short sentence — though when the
+turn also owes the user content, that content belongs in the same final
+message, after the relaunch.
 
-This command MUST run as a background (detached) task — in Claude Code pass
-`run_in_background: true` on the Bash call. Never run it in the foreground: a
-blocking wait freezes the conversation for the full timeout and the user
-cannot get a command in. If your client has no background mechanism, do not
-run the wait at all — end your turn and let the user's next chat message or
-session pick up the queued prompt instead. With a background wait running you
-may end your turn; the task-completion notification re-invokes you.
+**Clients with neither mechanism:** do not run the wait at all — end your
+turn and let the user's next chat message or session pick up the queued
+prompts instead.
 
-Launch order within a turn matters: start the background wait BEFORE writing
-the turn's final chat message. In some clients (Claude Code included) text
-written before a tool call may not display, so the order content → wait launch
-→ short status line hides the content and the user sees only the status line.
-Put everything the user needs to read — find_work lists, questions, review
-reports — in the final message AFTER the wait launch.
+Launch order within a turn matters: arm the listener (or relaunch the
+wait) BEFORE writing the turn's final chat message. In some clients
+(Claude Code included) text written before a tool call may not display, so
+the order content → launch → short status line hides the content and the
+user sees only the status line. Put everything the user needs to read —
+find_work lists, questions, review reports — in the final message AFTER
+the launch.
 
-When relaunching after an empty timeout, keep the accompanying chat status
-line to a single short sentence — though when the turn also owes the user
-content, that content belongs in the same final message, after the relaunch.
-
-Use the same environment flag as every other Uclusion CLI command; for example,
-stage is `uclusion -e stage wait --timeout 3600`. A silent return means the
-timeout expired, not that waiting is finished or that you may finalize:
-relaunch the background wait — a session keeps one wait running at all
-times. If it
-prints a prompt such as `Start J-...`, `Responded J-...`, or `Responded B-...`,
-treat that line as the user's next instruction. The wait also doubles as the
-update watcher: at launch and every 15 minutes or so after, it compares the
-installed Uclusion release against the current one, and the first time it sees a newer release
-it prints a "[Uclusion update notice ...]" line instead of a prompt and
-exits. Handle that exactly as described in "Updating the AI connection", then
-relaunch the wait — whether the user granted or declined, the notice never
-repeats for the same release, so relaunched waits stay quiet about it. For a correlated `Responded
-<short-code>` prompt, call `get_job` for exactly that short code, then
-immediately perform every workflow action the response unblocked. A legacy bare
-`Responded.` prompt has no target; call `get_job` for every currently
-outstanding Uclusion dependency and current object so no concurrent job, bug,
-question, suggestion, or review response is missed. Do not merely report the
-response or stage change; if the job still depends on human activity after
-those actions, resume polling.
+Use the same environment flag as every other Uclusion CLI command; for
+example, stage is `uclusion -e stage listen` or `uclusion -e stage wait
+--timeout 3600`. However you listen, a delivered line is handled the same
+way. If it is a prompt such as `Start J-...`, `Responded J-...`, or
+`Responded B-...`, treat that line as the user's next instruction. The
+listener also doubles as the update watcher: at launch and every 15
+minutes or so after, it compares the installed Uclusion release against
+the current one, and the first time it sees a newer release it prints a
+"[Uclusion update notice ...]" line instead of a prompt — `wait` exits
+after printing it, while `listen` keeps running. Handle the notice exactly
+as described in "Updating the AI connection"; whether the user granted or
+declined, the notice never repeats for the same release. For a correlated
+`Responded <short-code>` prompt, call `get_job` for exactly that short
+code, then immediately perform every workflow action the response
+unblocked. A legacy bare `Responded.` prompt has no target; call `get_job`
+for every currently outstanding Uclusion dependency and current object so
+no concurrent job, bug, question, suggestion, or review response is
+missed. Do not merely report the response or stage change; if the job
+still depends on human activity after those actions, resume polling.
 
 Prompts are delivered in arrival order and stay in the queue until they age
-out, so nothing is lost while you work; the wait never shows you the same
+out, so nothing is lost while you work; you are never shown the same
 prompt twice. Do not worry about other agents or sessions that may share the
 queue, and do not try to coordinate with them — just keep listening and
-handle every prompt your wait prints. The only exception is when the user's
+handle every prompt you receive. The only exception is when the user's
 prompt explicitly hands you a multi-agent scheme, such as a consumer name to
-pass as `uclusion wait --consumer <name>`; without such an instruction,
-never pass `--consumer`. A newer chat instruction does not require stopping
-the wait: handle the instruction while the wait keeps listening, and treat
-anything it prints meanwhile as your next instruction after that. Do not
-read, edit, or delete the inbox database directly.
+pass as `--consumer <name>` on `listen` or `wait`; without such an
+instruction, never pass `--consumer`. A newer chat instruction does not
+require stopping the listener: handle the instruction while it keeps
+listening, and treat anything it delivers meanwhile as your next
+instruction after that. Do not read, edit, or delete the inbox database
+directly.
 
 ## Updating the AI connection
 
-When a tool result or `uclusion wait` output contains a "[Uclusion update
-notice ...]" block, the local Uclusion install (CLI, MCP proxy, and workflow
-docs) is older than the current release. Tell the user and ask their permission to run `uclusion update` (with
+When a tool result, `uclusion listen` event, or `uclusion wait` output
+contains a "[Uclusion update notice ...]" block, the local Uclusion install
+(CLI, MCP proxy, and workflow docs) is older than the current release. Tell the user and ask their permission to run `uclusion update` (with
 the same `-e` environment flag as every other Uclusion CLI command). If they
 grant it, run the command from the directory the session is in, then remind
 the user to restart the AI client session — or reconnect the Uclusion MCP

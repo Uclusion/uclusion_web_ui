@@ -1096,7 +1096,7 @@ def cmd_export(args):
 
 
 def cmd_wait(args):
-    """Wait for an inbound Poke AI prompt, watching for updates while idle.
+    """Wait for inbound Poke AI prompts, watching for updates while idle.
 
     Prompt delivery stays local and quarter-second fast; the update watch
     (Q-all-301 O-1) piggybacks on the loop, network-checking at most once
@@ -1105,7 +1105,9 @@ def cmd_wait(args):
     can offer `uclusion update` right away. ``--consumer`` names the cursor
     this wait advances (S-all-168): the default name keeps single-agent
     behavior, and a multi-agent scheme gives each agent its own name so
-    every one of them sees every prompt.
+    every one of them sees every prompt. Since a wait costs its client a
+    full exit/relaunch cycle, delivery drains the whole pending backlog —
+    one prompt per line — so a stack of pokes costs one cycle (B-all-507).
     """
     _api_url, json_path, _credentials_path = get_env_paths(args.env)
     config = load_config(json_path)
@@ -1122,7 +1124,9 @@ def cmd_wait(args):
     while True:
         prompt = next_prompt(environment, workspace_id, args.consumer)
         if prompt is not None:
-            print(prompt)
+            while prompt is not None:
+                print(prompt, flush=True)
+                prompt = next_prompt(environment, workspace_id, args.consumer)
             return 0
         if time.monotonic() >= next_update_check:
             next_update_check = time.monotonic() + UPDATE_CHECK_INTERVAL
@@ -1134,6 +1138,41 @@ def cmd_wait(args):
         if remaining <= 0:
             return 0
         time.sleep(min(0.25, remaining))
+
+
+def cmd_listen(args):
+    """Stream Poke AI prompts indefinitely, one flushed line per prompt.
+
+    B-all-507: for harnesses that raise stdout lines from a still-running
+    process as events (Claude Code's Monitor), delivery needs no exit at
+    all — each claimed prompt prints as one line and the loop keeps
+    listening, so there is no timeout, no completion notice, and no
+    relaunch choreography. The update watch piggybacks exactly as in
+    ``wait`` but emits the notice as a stream line and keeps running; the
+    shared state file already guarantees each release is announced once.
+    """
+    _api_url, json_path, _credentials_path = get_env_paths(args.env)
+    config = load_config(json_path)
+    if config is None:
+        return 1
+    workspace_id = config.get('workspaceId')
+    if workspace_id is None:
+        print("⚠️ Warning: No workspaceId in config.")
+        return 1
+
+    environment = args.env or 'production'
+    next_update_check = time.monotonic()
+    while True:
+        prompt = next_prompt(environment, workspace_id, args.consumer)
+        if prompt is not None:
+            print(prompt, flush=True)
+            continue
+        if time.monotonic() >= next_update_check:
+            next_update_check = time.monotonic() + UPDATE_CHECK_INTERVAL
+            notice = check_wait_update_notice(environment)
+            if notice is not None:
+                print(notice, flush=True)
+        time.sleep(0.25)
 
 
 def get_scripts_base_url(env):
@@ -1632,6 +1671,22 @@ def build_parser():
              f'{DEFAULT_CONSUMER}).',
     )
     wait_parser.set_defaults(func=cmd_wait)
+
+    listen_parser = subparsers.add_parser(
+        'listen',
+        help='Stream Poke AI prompts indefinitely, one line per prompt, for AI '
+             'clients that consume stdout lines as events without the process '
+             'exiting (e.g. under Claude Code\'s persistent Monitor).',
+    )
+    listen_parser.add_argument(
+        '--consumer',
+        default=DEFAULT_CONSUMER,
+        help='Cursor name this listener advances. Prompts are kept until they '
+             'age out, so each named consumer sees every prompt exactly once; '
+             'a multi-agent scheme gives each agent its own name (default: '
+             f'{DEFAULT_CONSUMER}).',
+    )
+    listen_parser.set_defaults(func=cmd_listen)
 
     update_parser = subparsers.add_parser(
         'update',

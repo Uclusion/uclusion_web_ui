@@ -76,7 +76,13 @@ timeout expired, not that waiting is finished or that you may finalize:
 relaunch the background wait while the Uclusion response or work is still
 outstanding. If it
 prints a prompt such as `Start J-...`, `Responded J-...`, or `Responded B-...`,
-treat that line as the user's next instruction. For a correlated `Responded
+treat that line as the user's next instruction. The wait also doubles as the
+update watcher: every 15 minutes or so it compares the installed Uclusion
+release against the current one, and the first time it sees a newer release
+it prints a "[Uclusion update notice ...]" line instead of a prompt and
+exits. Handle that exactly as described in "Updating the AI connection", then
+relaunch the wait — whether the user granted or declined, the notice never
+repeats for the same release, so relaunched waits stay quiet about it. For a correlated `Responded
 <short-code>` prompt, call `get_job` for exactly that short code, then
 immediately perform every workflow action the response unblocked. A legacy bare
 `Responded.` prompt has no target; call `get_job` for every currently
@@ -96,9 +102,9 @@ wins means it can consume a prompt meant for a newer session.
 
 ## Updating the AI connection
 
-When a tool result contains a "[Uclusion update notice ...]" block, the local
-Uclusion install (CLI, MCP proxy, and workflow docs) is older than the current
-release. Tell the user and ask their permission to run `uclusion update` (with
+When a tool result or `uclusion wait` output contains a "[Uclusion update
+notice ...]" block, the local Uclusion install (CLI, MCP proxy, and workflow
+docs) is older than the current release. Tell the user and ask their permission to run `uclusion update` (with
 the same `-e` environment flag as every other Uclusion CLI command). If they
 grant it, run the command from the directory the session is in, then remind
 the user to restart the AI client session — or reconnect the Uclusion MCP

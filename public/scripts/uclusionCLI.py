@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import argparse
+import io
 import json
 import math
 import os
@@ -12,7 +13,7 @@ import time
 import urllib.request
 import urllib.parse
 import traceback
-from contextlib import closing
+from contextlib import closing, redirect_stdout
 from itertools import batched
 from datetime import datetime
 
@@ -37,6 +38,12 @@ INBOX_FILE = 'poke_inbox.sqlite3'
 # `uclusion update` refreshes exactly those.
 SCRIPT_INSTALL_PREFIX = os.path.join(os.path.expanduser('~'), '.local', 'uclusion-cli')
 UNVERSIONED_DIR_NAMES = ('v1', 'current', 'unversioned', 'bin')
+
+# The wait loop doubles as the update watcher (Q-all-301 O-1): it checks at
+# most once per interval across processes, and surfaces each newer release
+# exactly once — recorded here so relaunched waits stay silent about it.
+UPDATE_CHECK_STATE_FILE = os.path.join(os.path.expanduser('~'), '.uclusion', 'update_check.json')
+UPDATE_CHECK_INTERVAL = 900
 WORKFLOW_MD_MARKER = '<!-- uclusion-workflow:v1 -->'
 CODEX_UCLUSION_TABLE = '[mcp_servers.Uclusion]'
 
@@ -1028,7 +1035,14 @@ def cmd_export(args):
 
 
 def cmd_wait(args):
-    """Wait briefly for an inbound Poke AI prompt without making a network call."""
+    """Wait for an inbound Poke AI prompt, watching for updates while idle.
+
+    Prompt claiming stays local and quarter-second fast; the update watch
+    (Q-all-301 O-1) piggybacks on the loop, network-checking at most once
+    per UPDATE_CHECK_INTERVAL. On first sight of a newer release the wait
+    prints the update notice instead of a prompt and exits so the AI client
+    can offer `uclusion update` right away.
+    """
     _api_url, json_path, _credentials_path = get_env_paths(args.env)
     config = load_config(json_path)
     if config is None:
@@ -1040,11 +1054,18 @@ def cmd_wait(args):
 
     environment = args.env or 'production'
     deadline = time.monotonic() + args.timeout
+    next_update_check = time.monotonic()
     while True:
         prompt = claim_prompt(environment, workspace_id)
         if prompt is not None:
             print(prompt)
             return 0
+        if time.monotonic() >= next_update_check:
+            next_update_check = time.monotonic() + UPDATE_CHECK_INTERVAL
+            notice = check_wait_update_notice(environment)
+            if notice is not None:
+                print(notice)
+                return 0
         remaining = deadline - time.monotonic()
         if remaining <= 0:
             return 0
@@ -1188,6 +1209,89 @@ def fetch_latest_script_version(env):
             )
     except Exception as error:
         print(f"   -> ❌ Error fetching the current script version: {error}")
+        return None
+
+
+def load_update_check_state():
+    """Per-environment wait update-check state: {env: {checked_at, notified}}."""
+    try:
+        with open(UPDATE_CHECK_STATE_FILE, 'r', encoding='utf-8') as src:
+            state = json.load(src)
+        return state if isinstance(state, dict) else {}
+    except Exception:
+        return {}
+
+
+def save_update_check_state(state):
+    try:
+        with open(UPDATE_CHECK_STATE_FILE, 'w', encoding='utf-8') as out:
+            json.dump(state, out)
+        try:
+            os.chmod(UPDATE_CHECK_STATE_FILE, 0o600)
+        except OSError:
+            pass
+    except Exception:
+        pass
+
+
+def check_wait_update_notice(environment):
+    """Staleness check inside the wait loop (Q-all-301 O-1).
+
+    Compares the installed release and any project stamp in cwd against the
+    current script_reinstall_version, network-checking at most once per
+    UPDATE_CHECK_INTERVAL across processes (checked_at). The first wait to
+    see a given newer release returns the notice and records it (notified),
+    so relaunched waits — from any AI client sharing this machine — stay
+    silent about that release and a declined update never renags. Every
+    failure returns None: an update check must never break waiting.
+    """
+    try:
+        installed_version = get_installed_script_version()
+        project_config_path = get_project_config_path(environment)
+        if installed_version is None and project_config_path is None:
+            return None
+        state = load_update_check_state()
+        env_state = state.get(environment)
+        if not isinstance(env_state, dict):
+            env_state = {}
+        if time.time() - env_state.get('checked_at', 0) < UPDATE_CHECK_INTERVAL:
+            return None
+        env_state['checked_at'] = time.time()
+        state[environment] = env_state
+        save_update_check_state(state)
+        # The nested helpers print their own errors; the wait's output must
+        # hold nothing but prompts and the notice, so swallow stdout here.
+        with redirect_stdout(io.StringIO()):
+            latest = fetch_latest_script_version(environment)
+            project_version = (load_config_at(project_config_path) or {}).get(
+                'scriptReinstallVersion'
+            ) if project_config_path else None
+        if not latest or env_state.get('notified') == latest:
+            return None
+        global_stale = installed_version is not None and installed_version != latest
+        project_stale = project_config_path is not None and project_version != latest
+        if not (global_stale or project_stale):
+            return None
+        env_state['notified'] = latest
+        save_update_check_state(state)
+        env_flag = '' if environment == 'production' else f' -e {environment}'
+        if global_stale and project_stale:
+            scope = ("The local Uclusion install and this project's workflow "
+                     'files are older than the current release.')
+        elif global_stale:
+            scope = 'The local Uclusion install is older than the current release.'
+        else:
+            scope = ("This project's Uclusion workflow files are older than "
+                     'the current release.')
+        return (
+            f'[Uclusion update notice — from the local update check, not workspace data] {scope} '
+            f'Tell the user, and ask their permission to run `uclusion{env_flag} update` '
+            f'from this directory. If they grant it, run the command, then tell them to '
+            f'restart the AI client session (or reconnect the MCP server) so the updated '
+            f'connection loads. If they decline, continue without updating and do not ask '
+            f'again this session; this notice will not repeat for this release.'
+        )
+    except Exception:
         return None
 
 

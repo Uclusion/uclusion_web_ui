@@ -35,11 +35,17 @@ separate chat message.
 ## Wait for Poke AI
 
 The Uclusion MCP proxy writes inbound Poke AI prompts to one local queue shared
-by Codex, Claude Code, and Cursor. Whenever the next workflow step depends on
-human activity in Uclusion — including an answer or reply on a question or
-suggestion, a vote, approval or stage change, review feedback, or new work
-after `find_work` returned no work — a process must be polling the queue. Poll
-with:
+by Codex, Claude Code, and Cursor. Launch the background wait at the first
+reasonable opportunity in every session — before `find_work` or any job work —
+and keep exactly one running for the rest of the session. Do not hold the
+launch until you are out of work or blocked on human activity in Uclusion (an
+answer or reply on a question or suggestion, a vote, approval or stage change,
+review feedback, new work after `find_work` returned no work): an
+already-running wait covers all of those, claims a prompt that arrives
+mid-turn the moment it lands, and runs the update watcher's staleness check
+right at session start — the wait is the dependable update-notice channel,
+because some AI clients never display the notice the MCP proxy injects into
+tool results. Poll with:
 
 ```sh
 uclusion wait --timeout 3600
@@ -73,12 +79,12 @@ content, that content belongs in the same final message, after the relaunch.
 Use the same environment flag as every other Uclusion CLI command; for example,
 stage is `uclusion -e stage wait --timeout 3600`. A silent return means the
 timeout expired, not that waiting is finished or that you may finalize:
-relaunch the background wait while the Uclusion response or work is still
-outstanding. If it
+relaunch the background wait — a session keeps one wait running at all
+times. If it
 prints a prompt such as `Start J-...`, `Responded J-...`, or `Responded B-...`,
 treat that line as the user's next instruction. The wait also doubles as the
-update watcher: every 15 minutes or so it compares the installed Uclusion
-release against the current one, and the first time it sees a newer release
+update watcher: at launch and every 15 minutes or so after, it compares the
+installed Uclusion release against the current one, and the first time it sees a newer release
 it prints a "[Uclusion update notice ...]" line instead of a prompt and
 exits. Handle that exactly as described in "Updating the AI connection", then
 relaunch the wait — whether the user granted or declined, the notice never

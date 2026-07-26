@@ -27,16 +27,6 @@ INBOX_FILE = 'poke_inbox.sqlite3'
 WEBSOCKET_ACCEPT_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
 CONSUMED_RETENTION_SECONDS = 7 * 24 * 60 * 60
 
-# Scripts install into ~/.local/uclusion-cli/<script_reinstall_version>/bin
-# (J-all-367); the version dir name is how this proxy knows which release it
-# is. Names from other layouts mean the version is unknown — a dev checkout,
-# the legacy v1/current/bin tree, or an install made without credentials.
-SCRIPT_INSTALL_PREFIX = os.path.join(os.path.expanduser('~'), '.local', 'uclusion-cli')
-UNVERSIONED_DIR_NAMES = ('v1', 'current', 'unversioned', 'bin')
-# One update notice per proxy lifetime, injected into the first tool result
-# after the startup version check finds the install stale (Q-all-296 S-1).
-update_state = {'notice': None, 'injected': False}
-
 
 def get_inbox_path():
     return os.path.join(os.path.expanduser('~'), '.uclusion', INBOX_FILE)
@@ -314,115 +304,6 @@ def listen_for_pokes(websocket_url, token, environment, workspace_id, stop_event
         retry_delay = min(retry_delay * 2, 30)
 
 
-def get_installed_script_version():
-    """Return this proxy's release from its install path, or None if unknown."""
-    real_path = os.path.realpath(os.path.abspath(__file__))
-    bin_dir = os.path.dirname(real_path)
-    version = os.path.basename(os.path.dirname(bin_dir))
-    if os.path.basename(bin_dir) != 'bin' or not version:
-        return None
-    if version in UNVERSIONED_DIR_NAMES:
-        return None
-    if os.path.dirname(os.path.dirname(bin_dir)) != SCRIPT_INSTALL_PREFIX:
-        return None
-    return version
-
-
-def get_project_script_version(environment):
-    """Return (config_path, stamped version) for a project install in cwd.
-
-    AI clients launch this proxy with the project directory as cwd, so a
-    workspace config here means a project-level install whose workflow docs
-    can be stale independently of the global scripts (T-all-2410). A config
-    with no stamp predates version stamping and reads as stale on purpose —
-    ``uclusion update`` run in the project writes the stamp. Returns
-    (None, None) when cwd has no project install.
-    """
-    names = {'dev': 'dev_uclusion.json', 'stage': 'stage_uclusion.json'}
-    candidates = [names.get(environment, 'uclusion.json'), 'uclusion.json']
-    for name in dict.fromkeys(candidates):
-        config_path = os.path.join(os.getcwd(), name)
-        if not os.path.exists(config_path):
-            continue
-        try:
-            with open(config_path, 'r', encoding='utf-8') as src:
-                config = json.load(src)
-            if isinstance(config, dict):
-                return config_path, config.get('scriptReinstallVersion')
-        except (OSError, json.JSONDecodeError):
-            pass
-        return config_path, None
-    return None, None
-
-
-def build_update_notice(environment, global_stale, project_stale):
-    env_flag = '' if environment == 'production' else f' -e {environment}'
-    if global_stale and project_stale:
-        scope = ('The locally installed Uclusion AI connection (CLI, MCP proxy, and '
-                 'workflow docs) is older than the current release, and this '
-                 "project's Uclusion files are out of date as well.")
-    elif global_stale:
-        scope = ('The locally installed Uclusion AI connection (CLI, MCP proxy, and '
-                 'workflow docs) is older than the current release.')
-    else:
-        scope = ("This project's Uclusion workflow files are older than the "
-                 'current release.')
-    return (
-        f'[Uclusion update notice — from the local MCP proxy, not workspace data] {scope} '
-        f'Tell the user, and ask their permission to run `uclusion{env_flag} update` '
-        f'from this directory. If they grant it, run the command, then tell them to '
-        f'restart the AI client session (or reconnect the MCP server) so the updated '
-        f'connection loads. If they decline, continue without updating and do not '
-        f'ask again this session.'
-    )
-
-
-def check_for_update(api_url, token, environment):
-    """Startup check (Q-all-296 S-1): compare installed stamps with the current
-    script_reinstall_version — the same J-all-314 signal behind the web UI's
-    reinstall banner — and stage a notice for the first tool result. Runs in a
-    daemon thread; any failure stays silent because an update notice must never
-    break the session.
-    """
-    try:
-        installed_version = get_installed_script_version()
-        project_config_path, project_version = get_project_script_version(environment)
-        if installed_version is None and project_config_path is None:
-            return
-        app_url = 'https://sso.' + api_url + '/app?' + urllib.parse.urlencode(
-            {'idToken': token}
-        )
-        with urllib.request.urlopen(app_url, timeout=15) as response:
-            app_info = json.loads(response.read().decode('utf-8'))
-        latest = app_info.get('script_reinstall_version')
-        if not latest:
-            return
-        global_stale = installed_version is not None and installed_version != latest
-        project_stale = project_config_path is not None and project_version != latest
-        if global_stale or project_stale:
-            update_state['notice'] = build_update_notice(
-                environment, global_stale, project_stale
-            )
-    except Exception:
-        pass
-
-
-def maybe_inject_update_notice(message):
-    """Append the staged update notice to the first successful tool result."""
-    if update_state['injected'] or not update_state['notice']:
-        return
-    if not isinstance(message, dict):
-        return
-    result = message.get('result')
-    if not isinstance(result, dict) or result.get('isError'):
-        return
-    content = result.get('content')
-    if not isinstance(content, list):
-        return
-    content.append({'type': 'text', 'text': update_state['notice']})
-    update_state['injected'] = True
-
-
 def get_credentials(credentials_path):
     credentials = {}
     cred_path = os.path.join(os.path.expanduser('~'), '.uclusion', credentials_path)
@@ -485,7 +366,6 @@ def post_to_mcp_refreshing_token(url, headers, body, token_provider, timeout=30)
 
 def write_message(obj):
     """Write a JSON-RPC message as a single compact line to stdout (stdio transport)."""
-    maybe_inject_update_notice(obj)
     line = json.dumps(obj, separators=(',', ':'))
     sys.stdout.write(line + '\n')
     sys.stdout.flush()
@@ -554,13 +434,6 @@ def main():
             daemon=True
         )
         listener.start()
-        update_checker = threading.Thread(
-            target=check_for_update,
-            args=(api_url, token, environment),
-            name='uclusion-update-check',
-            daemon=True
-        )
-        update_checker.start()
 
         post_url = 'https://investibles.' + api_url + '/mcp'
         session_id = None

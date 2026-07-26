@@ -41,7 +41,7 @@ export function getInReviewStage(state, marketId) {
 }
 
 export function isBlockedStage(stage) {
-  return stage.allows_issues && stage.move_on_comment;
+  return stage?.allows_issues && stage.move_on_comment;
 }
 
 export function getBlockedStage(state, marketId) {

@@ -25,7 +25,7 @@ STAGE_WEBSOCKET_URL = "wss://stage.ws.uclusion.com/v1"
 PRODUCTION_WEBSOCKET_URL = "wss://production.ws.uclusion.com/v1"
 INBOX_FILE = 'poke_inbox.sqlite3'
 WEBSOCKET_ACCEPT_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
-CONSUMED_RETENTION_SECONDS = 7 * 24 * 60 * 60
+MESSAGE_RETENTION_SECONDS = 7 * 24 * 60 * 60
 
 
 def get_inbox_path():
@@ -38,26 +38,7 @@ def open_inbox():
     os.makedirs(os.path.dirname(inbox_path), mode=0o700, exist_ok=True)
     connection = sqlite3.connect(inbox_path, timeout=5)
     connection.execute('PRAGMA busy_timeout = 5000')
-    connection.execute(
-        '''
-        CREATE TABLE IF NOT EXISTS poke_messages (
-            message_id TEXT NOT NULL,
-            environment TEXT NOT NULL,
-            workspace_id TEXT NOT NULL,
-            message TEXT NOT NULL,
-            received_at REAL NOT NULL,
-            consumed_at REAL,
-            PRIMARY KEY (environment, workspace_id, message_id)
-        )
-        '''
-    )
-    connection.execute(
-        '''
-        CREATE INDEX IF NOT EXISTS poke_messages_pending
-        ON poke_messages(environment, workspace_id, consumed_at, received_at)
-        '''
-    )
-    connection.commit()
+    ensure_inbox_schema(connection)
     try:
         os.chmod(inbox_path, 0o600)
     except OSError:
@@ -67,17 +48,81 @@ def open_inbox():
     return connection
 
 
-def prune_inbox(environment, workspace_id):
-    """Remove expired retry tombstones without discarding pending prompts."""
-    cutoff = time.time() - CONSUMED_RETENTION_SECONDS
-    with closing(open_inbox()) as connection, connection:
+def ensure_inbox_schema(connection):
+    """Create or migrate the shared inbox schema (S-all-168 age-out model).
+
+    Prompts are never deleted when read; they persist until the retention
+    window expires so every consumer can see every message. ``sequence`` is
+    AUTOINCREMENT so per-consumer delivery cursors in ``poke_consumers`` stay
+    valid after expired rows are removed. ``consumed_at`` survives only so
+    pre-migration tombstones and mixed-version clients keep de-duplicating
+    and are not re-delivered; current code never sets it.
+    """
+    connection.execute('BEGIN IMMEDIATE')
+    try:
+        columns = [row[1] for row in connection.execute('PRAGMA table_info(poke_messages)')]
+        needs_migration = bool(columns) and 'sequence' not in columns
+        if needs_migration:
+            connection.execute('ALTER TABLE poke_messages RENAME TO poke_messages_v1')
         connection.execute(
             '''
-            DELETE FROM poke_messages
-            WHERE environment = ? AND workspace_id = ?
-                AND consumed_at IS NOT NULL AND consumed_at < ?
-            ''',
-            (environment, workspace_id, cutoff)
+            CREATE TABLE IF NOT EXISTS poke_messages (
+                sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+                message_id TEXT NOT NULL,
+                environment TEXT NOT NULL,
+                workspace_id TEXT NOT NULL,
+                message TEXT NOT NULL,
+                received_at REAL NOT NULL,
+                consumed_at REAL,
+                UNIQUE (environment, workspace_id, message_id)
+            )
+            '''
+        )
+        if needs_migration:
+            connection.execute(
+                '''
+                INSERT INTO poke_messages
+                    (message_id, environment, workspace_id, message, received_at, consumed_at)
+                SELECT message_id, environment, workspace_id, message, received_at, consumed_at
+                FROM poke_messages_v1 ORDER BY received_at, rowid
+                '''
+            )
+            connection.execute('DROP TABLE poke_messages_v1')
+        connection.execute(
+            '''
+            CREATE INDEX IF NOT EXISTS poke_messages_pending
+            ON poke_messages(environment, workspace_id, consumed_at, received_at)
+            '''
+        )
+        connection.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS poke_consumers (
+                environment TEXT NOT NULL,
+                workspace_id TEXT NOT NULL,
+                consumer TEXT NOT NULL,
+                last_sequence INTEGER NOT NULL,
+                updated_at REAL NOT NULL,
+                PRIMARY KEY (environment, workspace_id, consumer)
+            )
+            '''
+        )
+        connection.commit()
+    except Exception:
+        connection.rollback()
+        raise
+
+
+def prune_inbox():
+    """Age out prompts past the retention window (S-all-168).
+
+    Delivery never deletes rows, so expiry is the only cleanup; pending
+    prompts younger than the window always survive a proxy restart.
+    """
+    cutoff = time.time() - MESSAGE_RETENTION_SECONDS
+    with closing(open_inbox()) as connection, connection:
+        connection.execute(
+            'DELETE FROM poke_messages WHERE received_at < ?',
+            (cutoff,)
         )
 
 
@@ -98,14 +143,14 @@ def enqueue_prompt(environment, workspace_id, payload):
     now = time.time()
     with closing(open_inbox()) as connection, connection:
         connection.execute(
-            'DELETE FROM poke_messages WHERE consumed_at IS NOT NULL AND consumed_at < ?',
-            (now - CONSUMED_RETENTION_SECONDS,)
+            'DELETE FROM poke_messages WHERE received_at < ?',
+            (now - MESSAGE_RETENTION_SECONDS,)
         )
         cursor = connection.execute(
             '''
             INSERT OR IGNORE INTO poke_messages
-                (message_id, environment, workspace_id, message, received_at, consumed_at)
-            VALUES (?, ?, ?, ?, ?, NULL)
+                (message_id, environment, workspace_id, message, received_at)
+            VALUES (?, ?, ?, ?, ?)
             ''',
             (message_id, environment, workspace_id, message, now)
         )
@@ -426,7 +471,7 @@ def main():
             return login(api_url, credentials)['uclusion_token']
 
         token = websocket_token()
-        prune_inbox(environment, market_id)
+        prune_inbox()
         listener = threading.Thread(
             target=listen_for_pokes,
             args=(websocket_url, websocket_token, environment, market_id, stop_event),

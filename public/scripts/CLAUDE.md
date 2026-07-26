@@ -34,10 +34,11 @@ separate chat message.
 
 ## Wait for Poke AI
 
-The Uclusion MCP proxy writes inbound Poke AI prompts to one local queue shared
-by Codex, Claude Code, and Cursor. Launch the background wait at the first
+The Uclusion MCP proxy writes inbound Poke AI prompts to a local queue on
+this machine. Launch the background wait at the first
 reasonable opportunity in every session — before `find_work` or any job work —
-and keep exactly one running for the rest of the session. Do not hold the
+and keep exactly one running for the rest of the session: just listen all
+the time. Do not hold the
 launch until you are out of work or blocked on human activity in Uclusion (an
 answer or reply on a question or suggestion, a vote, approval or stage change,
 review feedback, new work after `find_work` returned no work): an
@@ -97,14 +98,17 @@ question, suggestion, or review response is missed. Do not merely report the
 response or stage change; if the job still depends on human activity after
 those actions, resume polling.
 
-Queue consumption is atomic and intentionally follows "first poller wins": if
-multiple AI clients are running, only the first one to poll receives a prompt.
-Do not read, edit, or delete the inbox database directly. A newer chat
-instruction from the user preempts the wait: first STOP the outstanding
-background wait task (in Claude Code, TaskStop with its task id), then handle
-the instruction before starting another poll. Stopping matters with an
-hour-long wait — a forgotten background wait keeps claiming, and first poller
-wins means it can consume a prompt meant for a newer session.
+Prompts are delivered in arrival order and stay in the queue until they age
+out, so nothing is lost while you work; the wait never shows you the same
+prompt twice. Do not worry about other agents or sessions that may share the
+queue, and do not try to coordinate with them — just keep listening and
+handle every prompt your wait prints. The only exception is when the user's
+prompt explicitly hands you a multi-agent scheme, such as a consumer name to
+pass as `uclusion wait --consumer <name>`; without such an instruction,
+never pass `--consumer`. A newer chat instruction does not require stopping
+the wait: handle the instruction while the wait keeps listening, and treat
+anything it prints meanwhile as your next instruction after that. Do not
+read, edit, or delete the inbox database directly.
 
 ## Updating the AI connection
 

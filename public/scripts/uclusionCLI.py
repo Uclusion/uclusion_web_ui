@@ -30,6 +30,8 @@ STAGE_API_URL = "stage.api.uclusion.com/v1"
 PRODUCTION_API_URL = "production.api.uclusion.com/v1"
 DEFAULT_EXPORT_FOLDER = os.path.join(os.path.expanduser('~'), '.uclusion', 'export')
 INBOX_FILE = 'poke_inbox.sqlite3'
+MESSAGE_RETENTION_SECONDS = 7 * 24 * 60 * 60
+DEFAULT_CONSUMER = 'default'
 
 # Update machinery (J-all-367). Scripts live in a version-named install dir
 # (~/.local/uclusion-cli/<script_reinstall_version>/bin) so the installed
@@ -58,26 +60,7 @@ def open_inbox():
     os.makedirs(os.path.dirname(inbox_path), mode=0o700, exist_ok=True)
     connection = sqlite3.connect(inbox_path, timeout=5)
     connection.execute('PRAGMA busy_timeout = 5000')
-    connection.execute(
-        '''
-        CREATE TABLE IF NOT EXISTS poke_messages (
-            message_id TEXT NOT NULL,
-            environment TEXT NOT NULL,
-            workspace_id TEXT NOT NULL,
-            message TEXT NOT NULL,
-            received_at REAL NOT NULL,
-            consumed_at REAL,
-            PRIMARY KEY (environment, workspace_id, message_id)
-        )
-        '''
-    )
-    connection.execute(
-        '''
-        CREATE INDEX IF NOT EXISTS poke_messages_pending
-        ON poke_messages(environment, workspace_id, consumed_at, received_at)
-        '''
-    )
-    connection.commit()
+    ensure_inbox_schema(connection)
     try:
         os.chmod(inbox_path, 0o600)
     except OSError:
@@ -85,38 +68,116 @@ def open_inbox():
     return connection
 
 
-def claim_prompt(environment, workspace_id):
-    """Atomically claim the oldest prompt so the first polling agent wins."""
+def ensure_inbox_schema(connection):
+    """Create or migrate the shared inbox schema (S-all-168 age-out model).
+
+    Prompts are never deleted when read; they persist until the retention
+    window expires so every consumer can see every message. ``sequence`` is
+    AUTOINCREMENT so per-consumer delivery cursors in ``poke_consumers`` stay
+    valid after expired rows are removed. ``consumed_at`` survives only so
+    pre-migration tombstones and mixed-version clients keep de-duplicating
+    and are not re-delivered; current code never sets it.
+    """
+    connection.execute('BEGIN IMMEDIATE')
+    try:
+        columns = [row[1] for row in connection.execute('PRAGMA table_info(poke_messages)')]
+        needs_migration = bool(columns) and 'sequence' not in columns
+        if needs_migration:
+            connection.execute('ALTER TABLE poke_messages RENAME TO poke_messages_v1')
+        connection.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS poke_messages (
+                sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+                message_id TEXT NOT NULL,
+                environment TEXT NOT NULL,
+                workspace_id TEXT NOT NULL,
+                message TEXT NOT NULL,
+                received_at REAL NOT NULL,
+                consumed_at REAL,
+                UNIQUE (environment, workspace_id, message_id)
+            )
+            '''
+        )
+        if needs_migration:
+            connection.execute(
+                '''
+                INSERT INTO poke_messages
+                    (message_id, environment, workspace_id, message, received_at, consumed_at)
+                SELECT message_id, environment, workspace_id, message, received_at, consumed_at
+                FROM poke_messages_v1 ORDER BY received_at, rowid
+                '''
+            )
+            connection.execute('DROP TABLE poke_messages_v1')
+        connection.execute(
+            '''
+            CREATE INDEX IF NOT EXISTS poke_messages_pending
+            ON poke_messages(environment, workspace_id, consumed_at, received_at)
+            '''
+        )
+        connection.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS poke_consumers (
+                environment TEXT NOT NULL,
+                workspace_id TEXT NOT NULL,
+                consumer TEXT NOT NULL,
+                last_sequence INTEGER NOT NULL,
+                updated_at REAL NOT NULL,
+                PRIMARY KEY (environment, workspace_id, consumer)
+            )
+            '''
+        )
+        connection.commit()
+    except Exception:
+        connection.rollback()
+        raise
+
+
+def next_prompt(environment, workspace_id, consumer):
+    """Deliver the oldest prompt past this consumer's cursor (S-all-168).
+
+    Prompts are not removed on delivery — they age out after
+    MESSAGE_RETENTION_SECONDS — so every named consumer sees every prompt
+    exactly once, in arrival order. Waits sharing one consumer name share
+    one cursor, and the atomic advance means each prompt goes to exactly
+    one of them. ``consumed_at IS NULL`` skips rows claimed by
+    pre-migration clients so mixed versions do not double-deliver.
+    """
     now = time.time()
     with closing(open_inbox()) as connection, connection:
         connection.execute('BEGIN IMMEDIATE')
         connection.execute(
-            'DELETE FROM poke_messages WHERE consumed_at IS NOT NULL AND consumed_at < ?',
-            (now - 604800,)
+            'DELETE FROM poke_messages WHERE received_at < ?',
+            (now - MESSAGE_RETENTION_SECONDS,)
         )
         row = connection.execute(
             '''
-            SELECT message_id, message
+            SELECT sequence, message
             FROM poke_messages
             WHERE environment = ? AND workspace_id = ? AND consumed_at IS NULL
-            ORDER BY received_at, rowid
+                AND sequence > COALESCE(
+                    (SELECT last_sequence FROM poke_consumers
+                     WHERE environment = ? AND workspace_id = ? AND consumer = ?), 0)
+            ORDER BY sequence
             LIMIT 1
             ''',
-            (environment, workspace_id)
+            (environment, workspace_id, environment, workspace_id, consumer)
         ).fetchone()
         if row is None:
             connection.commit()
             return None
-        cursor = connection.execute(
+        connection.execute(
             '''
-            UPDATE poke_messages SET consumed_at = ?
-            WHERE environment = ? AND workspace_id = ?
-                AND message_id = ? AND consumed_at IS NULL
+            INSERT INTO poke_consumers
+                (environment, workspace_id, consumer, last_sequence, updated_at)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT (environment, workspace_id, consumer)
+            DO UPDATE SET last_sequence = excluded.last_sequence,
+                updated_at = excluded.updated_at
             ''',
-            (now, environment, workspace_id, row[0])
+            (environment, workspace_id, consumer, row[0], now)
         )
         connection.commit()
-        return row[1] if cursor.rowcount == 1 else None
+        return row[1]
 
 
 def send(data, method, my_api_url, auth=None):
@@ -1037,11 +1098,14 @@ def cmd_export(args):
 def cmd_wait(args):
     """Wait for an inbound Poke AI prompt, watching for updates while idle.
 
-    Prompt claiming stays local and quarter-second fast; the update watch
+    Prompt delivery stays local and quarter-second fast; the update watch
     (Q-all-301 O-1) piggybacks on the loop, network-checking at most once
     per UPDATE_CHECK_INTERVAL. On first sight of a newer release the wait
     prints the update notice instead of a prompt and exits so the AI client
-    can offer `uclusion update` right away.
+    can offer `uclusion update` right away. ``--consumer`` names the cursor
+    this wait advances (S-all-168): the default name keeps single-agent
+    behavior, and a multi-agent scheme gives each agent its own name so
+    every one of them sees every prompt.
     """
     _api_url, json_path, _credentials_path = get_env_paths(args.env)
     config = load_config(json_path)
@@ -1056,7 +1120,7 @@ def cmd_wait(args):
     deadline = time.monotonic() + args.timeout
     next_update_check = time.monotonic()
     while True:
-        prompt = claim_prompt(environment, workspace_id)
+        prompt = next_prompt(environment, workspace_id, args.consumer)
         if prompt is not None:
             print(prompt)
             return 0
@@ -1551,13 +1615,21 @@ def build_parser():
 
     wait_parser = subparsers.add_parser(
         'wait',
-        help='Wait for and atomically consume a Poke AI prompt from the local proxy inbox.',
+        help='Wait for the next Poke AI prompt this consumer has not yet seen from the local proxy inbox.',
     )
     wait_parser.add_argument(
         '--timeout',
         type=timeout_value,
         default=55,
         help='Seconds to wait before returning with no output (default: 55).',
+    )
+    wait_parser.add_argument(
+        '--consumer',
+        default=DEFAULT_CONSUMER,
+        help='Cursor name this wait advances. Prompts are kept until they age '
+             'out, so each named consumer sees every prompt exactly once; a '
+             'multi-agent scheme gives each agent its own name (default: '
+             f'{DEFAULT_CONSUMER}).',
     )
     wait_parser.set_defaults(func=cmd_wait)
 

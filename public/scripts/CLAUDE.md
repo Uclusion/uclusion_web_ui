@@ -42,12 +42,18 @@ after `find_work` returned no work — a process must be polling the queue. Poll
 with:
 
 ```sh
-uclusion wait --timeout 55
+uclusion wait --timeout 3600
 ```
+
+The hour-long timeout is deliberate. The wait polls the local inbox every
+quarter second, so a prompt is claimed just as fast as with a short timeout —
+but a quiet hour produces ONE completion notification instead of a stream of
+them. Always pass `--timeout 3600` explicitly: the CLI's default is a short
+55-second wait for contexts that cannot background the call.
 
 This command MUST run as a background (detached) task — in Claude Code pass
 `run_in_background: true` on the Bash call. Never run it in the foreground: a
-blocking wait freezes the conversation for up to 55 seconds and the user
+blocking wait freezes the conversation for the full timeout and the user
 cannot get a command in. If your client has no background mechanism, do not
 run the wait at all — end your turn and let the user's next chat message or
 session pick up the queued prompt instead. With a background wait running you
@@ -60,18 +66,12 @@ written before a tool call may not display, so the order content → wait launch
 Put everything the user needs to read — find_work lists, questions, review
 reports — in the final message AFTER the wait launch.
 
-Number the repeated waits so they stay readable. When relaunching after an
-empty timeout, include a consecutive-empty-wait counter in the background
-task's label or description — for example "Wait for Poke AI prompt from
-Uclusion (7)" — where the number counts waits that have come back empty since
-the last human prompt or chat message. Reset the counter whenever a prompt or
-a new chat message arrives. This turns a wall of identical completion
-notifications into one numbered series, and keep the accompanying chat status
+When relaunching after an empty timeout, keep the accompanying chat status
 line to a single short sentence — though when the turn also owes the user
 content, that content belongs in the same final message, after the relaunch.
 
 Use the same environment flag as every other Uclusion CLI command; for example,
-stage is `uclusion -e stage wait --timeout 55`. A silent return means the
+stage is `uclusion -e stage wait --timeout 3600`. A silent return means the
 timeout expired, not that waiting is finished or that you may finalize:
 relaunch the background wait while the Uclusion response or work is still
 outstanding. If it
@@ -87,9 +87,12 @@ those actions, resume polling.
 
 Queue consumption is atomic and intentionally follows "first poller wins": if
 multiple AI clients are running, only the first one to poll receives a prompt.
-Do not read, edit, or delete the inbox database directly. Stop polling if the
-user sends a newer chat instruction; that instruction preempts the wait, so
-handle it before starting another poll.
+Do not read, edit, or delete the inbox database directly. A newer chat
+instruction from the user preempts the wait: first STOP the outstanding
+background wait task (in Claude Code, TaskStop with its task id), then handle
+the instruction before starting another poll. Stopping matters with an
+hour-long wait — a forgotten background wait keeps claiming, and first poller
+wins means it can consume a prompt meant for a newer session.
 
 ## Updating the AI connection
 

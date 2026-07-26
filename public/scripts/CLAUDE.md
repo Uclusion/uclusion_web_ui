@@ -161,6 +161,13 @@ permits right now — it does NOT tell you which step you are on or let you
 skip earlier steps. Finding a job already in "Doable" does NOT mean your 
 step-2 questions and step-3 suggestions are done.
 
+"Requires Input" means an open question or suggestion on the job is
+waiting on a human, and it locks execution exactly like a job that never
+reached "Doable": respond to the open assistance, and implement only
+after the job is back in "Doable". Because assistance can open at any
+moment, recheck the stage right before you start editing files — not
+just when you first read the job.
+
 Always read the job, raise every question you have, and make your
 suggestions first; reaching "Doable" only unlocks execution once those
 questions are answered.
@@ -348,6 +355,18 @@ remark. First create the suggestion in Uclusion with `make_suggestion`
 the view level), and only then tell the human about it in chat, including
 the link returned on creation. A suggestion that exists only in chat is
 invisible to other sessions and cannot be voted on.
+
+Suggestions also flow the other way: a suggestion a human authors on a
+job is addressed to YOU. Reply with a definitive accept or reject and
+what you will do about it — never a noncommittal acknowledgment, and
+never deferring the decision back to its author. You cannot vote on a
+suggestion through the tools, so your reply is your whole signal either
+way; the markdown states whether voting is enabled, which tells you
+whether human votes may also arrive to settle it. An open human
+suggestion holds the job in "Requires Input", so answer it before any
+implementation. When your accept changes the plan, record the change
+(update or add tasks, or `add_info`), and `resolve` the suggestion once
+it is settled and acted on.
 
 **Precondition — do NOT offer to do work on a task or approve the job while any question on it is still open and unanswered.** 
 

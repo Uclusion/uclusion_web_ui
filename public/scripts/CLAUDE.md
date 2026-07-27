@@ -96,6 +96,18 @@ message, after the relaunch.
 turn and let the user's next chat message or session pick up the queued
 prompts instead.
 
+Ending the session while the listener or wait is running is safe. If the
+client warns about background work at exit (Claude Code lists the monitor
+and offers choices), pick the plain exit — "Exit anyway": the next session
+arms its own listener, and prompts arriving in between persist in the
+local inbox until claimed. Never keep a poller alive past its session
+("Move to background and exit" or similar) — a poller that outlives its
+harness claims prompts no agent will handle, and a prompt is never
+delivered twice. On POSIX systems the CLI enforces this itself: an
+orphaned `wait` or `listen` notices its parent died and exits before
+claiming anything. Native Windows cannot detect parent death, so there
+the exit choice genuinely matters.
+
 Launch order within a turn matters: arm the listener (or relaunch the
 wait) BEFORE writing the turn's final chat message. In some clients
 (Claude Code included) text written before a tool call may not display, so

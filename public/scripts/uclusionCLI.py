@@ -1095,6 +1095,21 @@ def cmd_export(args):
     return 0
 
 
+def is_orphaned(initial_ppid):
+    """True when the launching parent died and this poller was reparented.
+
+    S-all-173 (Q-all-309 O-2): an orphaned wait/listen must exit BEFORE its
+    next claim — the consumer cursor only advances inside ``next_prompt``, so
+    exiting first guarantees an orphan never swallows a prompt no agent will
+    handle (a harness that leaks the process past session end otherwise eats
+    every poke it claims, and a prompt is never delivered twice). Compares
+    against the parent pid recorded at loop start. POSIX-only by decision:
+    Windows keeps a dead parent's pid, so this never fires there and native
+    Windows retains prior behavior.
+    """
+    return os.getppid() != initial_ppid
+
+
 def cmd_wait(args):
     """Wait for inbound Poke AI prompts, watching for updates while idle.
 
@@ -1121,11 +1136,16 @@ def cmd_wait(args):
     environment = args.env or 'production'
     deadline = time.monotonic() + args.timeout
     next_update_check = time.monotonic()
+    initial_ppid = os.getppid()
     while True:
+        if is_orphaned(initial_ppid):
+            return 0
         prompt = next_prompt(environment, workspace_id, args.consumer)
         if prompt is not None:
             while prompt is not None:
                 print(prompt, flush=True)
+                if is_orphaned(initial_ppid):
+                    return 0
                 prompt = next_prompt(environment, workspace_id, args.consumer)
             return 0
         if time.monotonic() >= next_update_check:
@@ -1162,7 +1182,10 @@ def cmd_listen(args):
 
     environment = args.env or 'production'
     next_update_check = time.monotonic()
+    initial_ppid = os.getppid()
     while True:
+        if is_orphaned(initial_ppid):
+            return 0
         prompt = next_prompt(environment, workspace_id, args.consumer)
         if prompt is not None:
             print(prompt, flush=True)

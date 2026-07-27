@@ -736,6 +736,7 @@ const messages = defineMessages({
   planningMarketActivate: 'Activate view',
   tabGroupAppend: '(View)',
   immediateLower: 'critical',
+  openLower: 'open',
   immediate: 'Critical',
   immediateToolTip: 'Critical bugs remain in the inbox notification until moved or resolved.',
   normalToolTip: 'Normal bugs send a dismissable notification.',

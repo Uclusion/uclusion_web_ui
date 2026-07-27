@@ -499,6 +499,8 @@ function PlanningDialog(props) {
   // Set inside getTabCount(2) so getTagLabel can tell whether the autonomous Bugs badge is the
   // "immediate" (red open bug) count or an unread-notification count (T-all-2237 / Q-all-175).
   let bugTabCountIsImmediate = false;
+  // Same pattern for the autonomous Discussion badge: open question/suggestion count vs unread (B-all-508).
+  let discussionTabCountIsOpen = false;
   function getTabCount(tabIndex) {
     if (!_.isEmpty(search)) {
       return undefined;
@@ -552,7 +554,12 @@ function PlanningDialog(props) {
       const numNewMessagesRaw = findMessagesForCommentIds(commentIds, messagesState, true);
       const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
       if (!_.isEmpty(numNewMessages)) {
+        discussionTabCountIsOpen = false;
         return `${_.size(numNewMessages)}`;
+      }
+      if (isAutonomous && !_.isEmpty(questionSuggestionGroupComments)) {
+        discussionTabCountIsOpen = true;
+        return `${_.size(questionSuggestionGroupComments)}`;
       }
     }
     return undefined;
@@ -564,6 +571,9 @@ function PlanningDialog(props) {
       }
       if (isAutonomous && tabIndex === 2) {
         return intl.formatMessage({ id: bugTabCountIsImmediate ? 'immediateLower' : 'new' });
+      }
+      if (isAutonomous && tabIndex === 3) {
+        return intl.formatMessage({ id: discussionTabCountIsOpen ? 'openLower' : 'new' });
       }
       return intl.formatMessage({ id: 'new' });
     }
@@ -647,7 +657,7 @@ const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOr
                         toolTipId='bugsToolTip' tagLabel={getTagLabel(_.isEmpty(search) ? tabCount2 : _.size(todoGroupComments), 2)} tagColor='#E85757'
                         tag={_.isEmpty(search) || _.isEmpty(todoGroupComments) ? tabCount2 : `${_.size(todoGroupComments)}` } />
           <GmailTabItem icon={iconOnlyTabs ? <LightbulbOutlined /> : undefined} toolTipId='discussionToolTip'
-                        tagLabel={getTagLabel(_.isEmpty(search) ? tabCount3 : _.size(questionSuggestionGroupComments))}
+                        tagLabel={getTagLabel(_.isEmpty(search) ? tabCount3 : _.size(questionSuggestionGroupComments), 3)}
                         label={intl.formatMessage({id: 'planningDialogDiscussionLabel'})} tagColor='#E85757'
                         tag={_.isEmpty(search) || _.isEmpty(questionSuggestionGroupComments) ? tabCount3 :
                           `${_.size(questionSuggestionGroupComments)}`} />

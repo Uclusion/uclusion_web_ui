@@ -492,22 +492,26 @@ asks what needs their attention, to review the inbox for them on
 request, and automatically at every completion moment as described
 below.
 
-Finishing work on something — you resolve a bug or job, or open its
-review — triggers an automatic inbox check, exactly like a completed job
-triggers the dependency sweep: call `get_notifications` at that moment
-and look for notifications about the short code(s) just worked. Never
-reuse an earlier check — the finished work itself generates
-notifications, so an inbox that was empty before the work says nothing
-about it now. If notifications about that work exist, list them and ask
-in chat whether to clear them, exactly like you ask before committing:
-"Want me to clear these notifications for B-x-12?" If none exist, do not
-ask — never offer to clear notifications you have not seen. Call
-`clear_notifications` with that short code only after the human
-explicitly agrees; never clear unprompted, and never clear anything
-broader than the object the permission named. Asking is the only way to
-guarantee nothing in the inbox is lost. Clearing follows the UI's own
-safety rule — unread notifications are removed, persistent ones just
-lose their highlight.
+Finishing work on something — you resolve a bug or job, open its
+review, or the human signs off and the work is committed — triggers an
+automatic inbox check, exactly like a completed job triggers the
+dependency sweep: call `get_notifications` at that moment and look for
+notifications about the short code(s) just worked. Never reuse an
+earlier check — the finished work itself generates notifications, so an
+inbox that was empty before the work says nothing about it now. If
+notifications about that work exist, list them and ask in chat whether
+to clear them, exactly like you ask before committing: "Want me to clear
+these notifications for B-x-12?" No notification about the finished work
+is exempt from that ask — including the review report's own
+notification: it may look load-bearing while the review is pending, but
+once the human has signed off it is clutter like the rest. If none
+exist, do not ask — never offer to clear notifications you have not
+seen. Call `clear_notifications` with that short code only after the
+human explicitly agrees; never clear unprompted, and never clear
+anything broader than the object the permission named. Asking is the
+only way to guarantee nothing in the inbox is lost. Clearing follows the
+UI's own safety rule — unread notifications are removed, persistent ones
+just lose their highlight.
 
 ## Searching the workspace
 

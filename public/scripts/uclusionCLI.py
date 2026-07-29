@@ -213,6 +213,45 @@ def next_prompt(environment, workspace_id, consumer):
         return row[1]
 
 
+def ignore_existing_prompts(environment, workspace_id, consumer):
+    """Advance ``consumer`` past every prompt already in the inbox (B-all-515).
+
+    The wait/listen counterpart of the Codex bridge launch cutoff (Q-all-328
+    O-1): one BEGIN IMMEDIATE transaction reads this environment/workspace's
+    high-water sequence and moves only the named consumer's cursor up to it.
+    Prompt rows are never deleted, other consumers keep their own cursors,
+    and update notices are unaffected because they do not flow through the
+    inbox cursor. An enqueue serialized after the transaction gets a larger
+    AUTOINCREMENT sequence, so it remains deliverable. The cursor never
+    moves backward.
+    """
+    now = time.time()
+    with closing(open_inbox()) as connection, connection:
+        connection.execute('BEGIN IMMEDIATE')
+        row = connection.execute(
+            '''
+            SELECT MAX(sequence) FROM poke_messages
+            WHERE environment = ? AND workspace_id = ?
+            ''',
+            (environment, workspace_id)
+        ).fetchone()
+        high_water = row[0] if row is not None and row[0] is not None else 0
+        if high_water:
+            connection.execute(
+                '''
+                INSERT INTO poke_consumers
+                    (environment, workspace_id, consumer, last_sequence, updated_at)
+                VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT (environment, workspace_id, consumer)
+                DO UPDATE SET
+                    last_sequence = MAX(last_sequence, excluded.last_sequence),
+                    updated_at = excluded.updated_at
+                ''',
+                (environment, workspace_id, consumer, high_water, now)
+            )
+        connection.commit()
+
+
 def send(data, method, my_api_url, auth=None):
     json_data_as_bytes = None
     if data is not None:
@@ -1802,6 +1841,8 @@ def cmd_wait(args):
     every one of them sees every prompt. Since a wait costs its client a
     full exit/relaunch cycle, delivery drains the whole pending backlog —
     one prompt per line — so a stack of pokes costs one cycle (B-all-507).
+    ``--ignore-existing-pokes`` (B-all-515) advances this consumer past the
+    backlog already queued at launch before the first delivery.
     """
     _api_url, json_path, _credentials_path = get_env_paths(args.env)
     config = load_config(json_path)
@@ -1813,6 +1854,8 @@ def cmd_wait(args):
         return 1
 
     environment = args.env or 'production'
+    if getattr(args, 'ignore_existing_pokes', False):
+        ignore_existing_prompts(environment, workspace_id, args.consumer)
     deadline = time.monotonic() + args.timeout
     next_update_check = time.monotonic()
     initial_ppid = os.getppid()
@@ -1849,6 +1892,8 @@ def cmd_listen(args):
     relaunch choreography. The update watch piggybacks exactly as in
     ``wait`` but emits the notice as a stream line and keeps running; the
     shared state file already guarantees each release is announced once.
+    ``--ignore-existing-pokes`` (B-all-515) advances this consumer past the
+    backlog already queued at launch before the first delivery.
     """
     _api_url, json_path, _credentials_path = get_env_paths(args.env)
     config = load_config(json_path)
@@ -1860,6 +1905,8 @@ def cmd_listen(args):
         return 1
 
     environment = args.env or 'production'
+    if getattr(args, 'ignore_existing_pokes', False):
+        ignore_existing_prompts(environment, workspace_id, args.consumer)
     next_update_check = time.monotonic()
     initial_ppid = os.getppid()
     while True:
@@ -2467,6 +2514,14 @@ def build_parser():
              'multi-agent scheme gives each agent its own name (default: '
              f'{DEFAULT_CONSUMER}).',
     )
+    wait_parser.add_argument(
+        '--ignore-existing-pokes',
+        action='store_true',
+        help='Skip prompts already queued for this consumer when the wait '
+             'starts; prompts arriving after that cutoff are still delivered. '
+             'No inbox rows are deleted and other consumers and update '
+             'notices are unaffected.',
+    )
     wait_parser.set_defaults(func=cmd_wait)
 
     listen_parser = subparsers.add_parser(
@@ -2482,6 +2537,14 @@ def build_parser():
              'age out, so each named consumer sees every prompt exactly once; '
              'a multi-agent scheme gives each agent its own name (default: '
              f'{DEFAULT_CONSUMER}).',
+    )
+    listen_parser.add_argument(
+        '--ignore-existing-pokes',
+        action='store_true',
+        help='Skip prompts already queued for this consumer when the listener '
+             'starts; prompts arriving after that cutoff are still delivered. '
+             'No inbox rows are deleted and other consumers and update '
+             'notices are unaffected.',
     )
     listen_parser.set_defaults(func=cmd_listen)
 

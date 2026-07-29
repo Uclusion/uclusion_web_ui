@@ -127,6 +127,22 @@ lookup code is its only short code; a compound option prompt's lookup code
 is the parent question after `of`. If the stream ever ends (the monitor is
 stopped or dies), arm it again.
 
+When the user explicitly asks to discard the backlog — skip Pokes that
+were already queued before this session — arm the listener with
+`uclusion listen --ignore-existing-pokes` (`wait` accepts the same flag).
+The cutoff advances only this consumer past the Pokes already in the
+inbox at launch: later arrivals are delivered normally, no inbox rows are
+deleted, other consumers keep their own cursors, and update notices still
+appear. Never add the flag on your own initiative — Pokes queued between
+sessions are normally work waiting for you, and skipping them without an
+explicit instruction silently drops that work. The ask is only honorable
+when it arrives before the listener is first armed — in practice as the
+session's opening message. Once armed, a listener claims the entire
+waiting backlog within a fraction of a second, so re-arming with the flag
+afterward skips nothing: if the request comes too late, say the backlog
+was already delivered and handle or drop those delivered lines as the
+user directs.
+
 **Clients whose harness turns a background command's completion into a new
 agent event:** run the bounded wait as a background (detached) task and
 relaunch it after every completion. Merely being able to poll a dormant

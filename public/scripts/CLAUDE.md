@@ -55,6 +55,12 @@ Poke delivery. Global `-c`/`--config`, `--enable`, `--disable`, and
 `--strict-config` passthrough flags are applied to both the TUI and its private
 app-server; other passthrough arguments remain TUI-only.
 
+When the user deliberately wants to discard only the backlog for this Codex
+consumer, launch with `uclusion codex --ignore-existing-pokes`. The companion
+atomically skips Pokes already present when it acquires exclusive bridge
+ownership; Pokes arriving afterward are delivered normally. This does not
+delete inbox rows, skip update notices, or advance any other consumer.
+
 The relay, not lifecycle hooks or app-server broadcasts, owns the primary
 thread identity. The first successfully initialized `clientInfo.name=codex-tui`
 connection is authoritative. A successful `thread/start`, `thread/resume`, or
@@ -63,9 +69,20 @@ input-owning root as primary. Auxiliary picker connections may coexist, but
 they never change authority. `/side` and `/agent` may transiently display
 another transcript without retargeting Pokes; side agents, detached reviews,
 and other transient threads never become primary. One serialization barrier
-orders authoritative primary switches against each Poke's `turn/start` through
-the app-server response, so the Poke targets the primary that is current when
-Codex accepts it. The barrier does not prevent a later intentional switch.
+orders authoritative primary switches against each Poke admission through the
+app-server response, so the Poke targets the primary that is current when
+Codex accepts it. When that primary has a regular active turn, the companion
+uses `turn/steer` with the Poke's durable message id—the same behavior as
+typing the prompt and pressing Enter. When the primary is idle, it uses
+`turn/start`. Review and manual-compaction turns cannot be steered, so their
+Pokes remain queued until the turn changes or ends. Update notices remain
+idle-only. An admission RPC response means only that Codex queued the input:
+the companion advances its cursor only after the exact durable message id is
+committed as a completed user-message item (or recovered from full thread
+history). A response-to-lifecycle gap for a human turn, inline review, or
+manual compaction remains provisionally busy, so a Poke cannot start a
+competing turn in that interval. The barrier does not prevent a later
+intentional switch.
 
 Until the TUI is connected and has an authoritative live primary, the companion
 does not peek, reserve, reconcile, or advance its queue cursor. No Uclusion

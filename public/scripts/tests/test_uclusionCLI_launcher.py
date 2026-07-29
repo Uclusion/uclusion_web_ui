@@ -61,10 +61,16 @@ class FakeTemporaryDirectory:
 
 
 class CodexLauncherTests(unittest.TestCase):
-    def launcher_args(self, env='stage', codex_args=None):
+    def launcher_args(
+        self,
+        env='stage',
+        codex_args=None,
+        ignore_existing_pokes=False,
+    ):
         return SimpleNamespace(
             env=env,
             codex_args=[] if codex_args is None else codex_args,
+            ignore_existing_pokes=ignore_existing_pokes,
         )
 
     def launcher_prerequisites(self, stack, config=None):
@@ -154,16 +160,19 @@ class CodexLauncherTests(unittest.TestCase):
 
     def test_parser_accepts_environment_and_codex_passthrough(self):
         args = cli.build_parser().parse_args([
-            '-e', 'stage', 'codex', '--',
+            '-e', 'stage', 'codex', '--ignore-existing-pokes', '--',
             '--no-alt-screen', 'resume', '--last',
         ])
 
         self.assertEqual(args.env, 'stage')
+        self.assertTrue(args.ignore_existing_pokes)
         self.assertEqual(
             args.codex_args,
             ['--', '--no-alt-screen', 'resume', '--last'],
         )
         self.assertIs(args.func, cli.cmd_codex)
+        default_args = cli.build_parser().parse_args(['codex'])
+        self.assertFalse(default_args.ignore_existing_pokes)
 
     def test_rejects_passthrough_remote_override_before_process_start(self):
         for codex_args in (
@@ -296,6 +305,7 @@ class CodexLauncherTests(unittest.TestCase):
                     '--', '--disable', 'apps',
                     '--no-alt-screen', 'resume', '--last',
                 ],
+                ignore_existing_pokes=True,
             ))
 
         self.assertEqual(result, 7)
@@ -340,6 +350,7 @@ class CodexLauncherTests(unittest.TestCase):
                 '--frontend-socket', '/private/runtime/tui-relay.sock',
                 '--ready-file', '/private/runtime/bridge.ready',
                 '--receiver-pid-file', '/private/runtime/receiver.pid',
+                '--ignore-existing-pokes',
             ],
         )
         self.assertEqual(

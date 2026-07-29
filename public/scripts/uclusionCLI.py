@@ -1657,6 +1657,8 @@ def cmd_codex(args):
                 '--ready-file', bridge_ready_path,
                 '--receiver-pid-file', receiver_pid_path,
             ]
+            if getattr(args, 'ignore_existing_pokes', False):
+                bridge_command.append('--ignore-existing-pokes')
             tui_command = [
                 codex_path,
                 '--remote',
@@ -2432,6 +2434,13 @@ def build_parser():
     codex_parser = subparsers.add_parser(
         'codex',
         help='Launch Codex through the private Uclusion Poke relay.',
+    )
+    codex_parser.add_argument(
+        '--ignore-existing-pokes',
+        action='store_true',
+        help='Skip Pokes already queued when the bridge starts; Pokes arriving '
+             'after that cutoff are still delivered. Place this option before '
+             '`--` and any arguments passed through to Codex.',
     )
     codex_parser.add_argument(
         'codex_args',

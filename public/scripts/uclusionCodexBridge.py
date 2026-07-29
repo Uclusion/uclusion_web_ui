@@ -10,8 +10,10 @@ serialized authority.
 Inbox delivery is reserve/ack rather than destructive:
 
 * the bridge peeks past its dedicated consumer cursor;
-* it records a ``sending`` row before asking Codex to start a turn;
-* it advances the cursor only after ``turn/start`` returns ``turn.id``; and
+* it records a ``sending`` row before asking Codex to start or steer a turn;
+* start and steer responses record only provisional admission targets;
+* either path advances the cursor only after Codex commits the exact user
+  message; and
 * after an ambiguous transport failure it searches persisted thread turns for
   the exact ``clientUserMessageId`` before deciding whether to retry.
 
@@ -23,6 +25,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import collections
 import dataclasses
 import hashlib
 import importlib
@@ -62,6 +65,8 @@ UPDATE_CHECK_INTERVAL_SECONDS = 15 * 60
 WEBSOCKET_GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 MAX_WEBSOCKET_MESSAGE_BYTES = 16 * 1024 * 1024
 MAX_WEBSOCKET_HEADERS_BYTES = 64 * 1024
+RECENT_USER_MESSAGE_IDS = 1024
+TURN_HISTORY_PAGE_SIZE = 100
 HTTP_TOKEN_CHARACTERS = frozenset(
     "!#$%&'*+-.^_`|~"
     "0123456789"
@@ -171,6 +176,8 @@ class Delivery:
     thread_id: str
     state: str
     turn_id: Optional[str]
+    admission_method: Optional[str]
+    attempt_instance: Optional[str]
     attempt_count: int
 
 
@@ -181,6 +188,7 @@ class UpdateNotice:
     thread_id: str
     state: str
     turn_id: Optional[str]
+    attempt_instance: Optional[str]
     attempt_count: int
 
 
@@ -200,6 +208,8 @@ class RootSnapshot:
     thread_id: str
     generation: int
     connection_id: int
+    active_turn_id: Optional[str] = None
+    admission_pending: bool = False
 
 
 @dataclasses.dataclass(frozen=True)
@@ -210,6 +220,8 @@ class RelayGate:
     kind: str
     previous_thread_id: Optional[str]
     previous_generation: int
+    target_thread_id: Optional[str] = None
+    previous_turn_event_serial: int = 0
 
 
 @dataclasses.dataclass
@@ -479,6 +491,8 @@ class InboxStore:
                     thread_id TEXT NOT NULL,
                     state TEXT NOT NULL,
                     turn_id TEXT,
+                    admission_method TEXT,
+                    attempt_instance TEXT,
                     attempt_count INTEGER NOT NULL,
                     last_error TEXT,
                     created_at REAL NOT NULL,
@@ -489,6 +503,26 @@ class InboxStore:
                 )
                 """
             )
+            delivery_columns = {
+                row[1]
+                for row in connection.execute(
+                    "PRAGMA table_info(codex_bridge_deliveries)"
+                )
+            }
+            if "admission_method" not in delivery_columns:
+                connection.execute(
+                    """
+                    ALTER TABLE codex_bridge_deliveries
+                    ADD COLUMN admission_method TEXT
+                    """
+                )
+            if "attempt_instance" not in delivery_columns:
+                connection.execute(
+                    """
+                    ALTER TABLE codex_bridge_deliveries
+                    ADD COLUMN attempt_instance TEXT
+                    """
+                )
             connection.execute(
                 """
                 CREATE INDEX IF NOT EXISTS codex_bridge_delivery_state
@@ -507,6 +541,7 @@ class InboxStore:
                     thread_id TEXT NOT NULL,
                     state TEXT NOT NULL,
                     turn_id TEXT,
+                    attempt_instance TEXT,
                     attempt_count INTEGER NOT NULL,
                     last_error TEXT,
                     created_at REAL NOT NULL,
@@ -515,6 +550,19 @@ class InboxStore:
                 )
                 """
             )
+            notice_columns = {
+                row[1]
+                for row in connection.execute(
+                    "PRAGMA table_info(codex_bridge_update_notices)"
+                )
+            }
+            if "attempt_instance" not in notice_columns:
+                connection.execute(
+                    """
+                    ALTER TABLE codex_bridge_update_notices
+                    ADD COLUMN attempt_instance TEXT
+                    """
+                )
             connection.execute(
                 """
                 CREATE INDEX IF NOT EXISTS codex_bridge_notice_state
@@ -747,6 +795,104 @@ class InboxStore:
             connection.commit()
         return int(row["last_sequence"])
 
+    def ignore_existing_pokes(
+        self,
+        config: BridgeConfig,
+        consumer: str = BRIDGE_CONSUMER,
+    ) -> int:
+        """Atomically place one consumer after every currently durable Poke.
+
+        The immediate transaction is the launch cutoff: inbox writers that
+        commit before it are included, while writers serialized after it get
+        a larger sequence and remain deliverable.  Delivery rows participate
+        in the high-water mark because an ambiguous send can outlive its
+        retained inbox row.  Such pre-cutoff work is terminalized so it
+        cannot block later Pokes through ``get_sending``.
+        """
+        now = self.clock()
+        with closing(self.connect()) as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            row = connection.execute(
+                """
+                SELECT COALESCE(MAX(sequence), 0) AS last_sequence
+                FROM (
+                    SELECT sequence
+                    FROM poke_messages
+                    WHERE environment = ? AND workspace_id = ?
+                    UNION ALL
+                    SELECT sequence
+                    FROM codex_bridge_deliveries
+                    WHERE environment = ? AND workspace_id = ?
+                      AND consumer = ?
+                )
+                """,
+                (
+                    config.environment,
+                    config.workspace_id,
+                    config.environment,
+                    config.workspace_id,
+                    consumer,
+                ),
+            ).fetchone()
+            cursor_row = connection.execute(
+                """
+                SELECT last_sequence
+                FROM poke_consumers
+                WHERE environment = ? AND workspace_id = ? AND consumer = ?
+                """,
+                (config.environment, config.workspace_id, consumer),
+            ).fetchone()
+            high_water = max(
+                int(row["last_sequence"]),
+                0 if cursor_row is None else int(cursor_row["last_sequence"]),
+            )
+            connection.execute(
+                """
+                UPDATE codex_bridge_deliveries
+                SET state = 'skipped',
+                    last_error =
+                        'skipped by --ignore-existing-pokes at bridge launch',
+                    updated_at = ?
+                WHERE environment = ? AND workspace_id = ? AND consumer = ?
+                  AND sequence <= ?
+                  AND state IN ('pending', 'sending')
+                """,
+                (
+                    now,
+                    config.environment,
+                    config.workspace_id,
+                    consumer,
+                    high_water,
+                ),
+            )
+            connection.execute(
+                """
+                INSERT INTO poke_consumers
+                    (environment, workspace_id, consumer, last_sequence,
+                     updated_at)
+                VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT (environment, workspace_id, consumer)
+                DO UPDATE SET
+                    last_sequence =
+                        CASE
+                            WHEN excluded.last_sequence >
+                                 poke_consumers.last_sequence
+                            THEN excluded.last_sequence
+                            ELSE poke_consumers.last_sequence
+                        END,
+                    updated_at = excluded.updated_at
+                """,
+                (
+                    config.environment,
+                    config.workspace_id,
+                    consumer,
+                    high_water,
+                    now,
+                ),
+            )
+            connection.commit()
+        return high_water
+
     def consumer_cursor(
         self,
         config: BridgeConfig,
@@ -813,7 +959,8 @@ class InboxStore:
             connection.execute("BEGIN IMMEDIATE")
             row = connection.execute(
                 """
-                SELECT state, turn_id, attempt_count
+                SELECT state, turn_id, admission_method, attempt_instance,
+                       attempt_count
                 FROM codex_bridge_deliveries
                 WHERE environment = ? AND workspace_id = ? AND consumer = ?
                   AND sequence = ?
@@ -832,8 +979,12 @@ class InboxStore:
                     INSERT INTO codex_bridge_deliveries
                         (environment, workspace_id, consumer, sequence,
                          message_id, message, thread_id, state, turn_id,
-                         attempt_count, last_error, created_at, updated_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, 'sending', NULL, ?, NULL, ?, ?)
+                         admission_method, attempt_instance, attempt_count,
+                         last_error, created_at, updated_at)
+                    VALUES (
+                        ?, ?, ?, ?, ?, ?, ?, 'sending', NULL, NULL, NULL,
+                        ?, NULL, ?, ?
+                    )
                     """,
                     (
                         config.environment,
@@ -850,13 +1001,17 @@ class InboxStore:
                 )
                 state = "sending"
                 turn_id = None
+                admission_method = None
+                attempt_instance = None
             elif row["state"] == "pending":
                 attempt_count = int(row["attempt_count"]) + 1
                 connection.execute(
                     """
                     UPDATE codex_bridge_deliveries
                     SET state = 'sending', thread_id = ?, attempt_count = ?,
-                        last_error = NULL, updated_at = ?
+                        turn_id = NULL, admission_method = NULL,
+                        attempt_instance = NULL, last_error = NULL,
+                        updated_at = ?
                     WHERE environment = ? AND workspace_id = ?
                       AND consumer = ? AND sequence = ?
                     """,
@@ -871,11 +1026,15 @@ class InboxStore:
                     ),
                 )
                 state = "sending"
-                turn_id = row["turn_id"]
+                turn_id = None
+                admission_method = None
+                attempt_instance = None
             else:
                 attempt_count = int(row["attempt_count"])
                 state = row["state"]
                 turn_id = row["turn_id"]
+                admission_method = row["admission_method"]
+                attempt_instance = row["attempt_instance"]
             connection.commit()
         return Delivery(
             sequence=poke.sequence,
@@ -884,6 +1043,8 @@ class InboxStore:
             thread_id=thread_id,
             state=state,
             turn_id=turn_id,
+            admission_method=admission_method,
+            attempt_instance=attempt_instance,
             attempt_count=attempt_count,
         )
 
@@ -896,7 +1057,8 @@ class InboxStore:
             row = connection.execute(
                 """
                 SELECT sequence, message_id, message, thread_id, state,
-                       turn_id, attempt_count
+                       turn_id, admission_method, attempt_instance,
+                       attempt_count
                 FROM codex_bridge_deliveries
                 WHERE environment = ? AND workspace_id = ? AND consumer = ?
                   AND state = 'sending'
@@ -914,7 +1076,82 @@ class InboxStore:
             thread_id=row["thread_id"],
             state=row["state"],
             turn_id=row["turn_id"],
+            admission_method=row["admission_method"],
+            attempt_instance=row["attempt_instance"],
             attempt_count=int(row["attempt_count"]),
+        )
+
+    def record_sending_attempt(
+        self,
+        config: BridgeConfig,
+        sequence: int,
+        thread_id: str,
+        message_id: str,
+        admission_method: str,
+        turn_id: Optional[str],
+        consumer: str = BRIDGE_CONSUMER,
+    ) -> None:
+        """Persist how and where the current process attempted admission.
+
+        This is recovery evidence, not an acknowledgement. The cursor remains
+        unchanged until the exact client message is observed as committed.
+        """
+        if admission_method not in ("turn/start", "turn/steer"):
+            raise BridgeError("invalid Codex admission method")
+        if turn_id is not None and (
+            not isinstance(turn_id, str) or not turn_id
+        ):
+            raise BridgeError("invalid Codex admission turn id")
+        now = self.clock()
+        with closing(self.connect()) as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            cursor = connection.execute(
+                """
+                UPDATE codex_bridge_deliveries
+                SET turn_id = ?, admission_method = ?,
+                    attempt_instance = ?, updated_at = ?
+                WHERE environment = ? AND workspace_id = ? AND consumer = ?
+                  AND sequence = ? AND thread_id = ? AND message_id = ?
+                  AND state = 'sending'
+                """,
+                (
+                    turn_id,
+                    admission_method,
+                    config.instance,
+                    now,
+                    config.environment,
+                    config.workspace_id,
+                    consumer,
+                    sequence,
+                    thread_id,
+                    message_id,
+                ),
+            )
+            if cursor.rowcount != 1:
+                connection.rollback()
+                raise BridgeError(
+                    "cannot record a turn for a non-sending delivery"
+                )
+            connection.commit()
+
+    def record_sending_turn(
+        self,
+        config: BridgeConfig,
+        sequence: int,
+        thread_id: str,
+        message_id: str,
+        turn_id: str,
+        consumer: str = BRIDGE_CONSUMER,
+    ) -> None:
+        """Compatibility helper for tests and persisted steer targets."""
+        self.record_sending_attempt(
+            config,
+            sequence,
+            thread_id,
+            message_id,
+            "turn/steer",
+            turn_id,
+            consumer,
         )
 
     def mark_pending(
@@ -1053,9 +1290,11 @@ class InboxStore:
                 """
                 INSERT OR IGNORE INTO codex_bridge_update_notices
                     (environment, workspace_id, notice_id, message, thread_id,
-                     state, turn_id, attempt_count, last_error, created_at,
-                     updated_at)
-                VALUES (?, ?, ?, ?, '', 'pending', NULL, 0, NULL, ?, ?)
+                     state, turn_id, attempt_instance, attempt_count,
+                     last_error, created_at, updated_at)
+                VALUES (
+                    ?, ?, ?, ?, '', 'pending', NULL, NULL, 0, NULL, ?, ?
+                )
                 """,
                 (
                     config.environment,
@@ -1076,7 +1315,7 @@ class InboxStore:
             row = connection.execute(
                 """
                 SELECT notice_id, message, thread_id, state, turn_id,
-                       attempt_count
+                       attempt_instance, attempt_count
                 FROM codex_bridge_update_notices
                 WHERE environment = ? AND workspace_id = ? AND state = ?
                 ORDER BY created_at, notice_id
@@ -1092,6 +1331,7 @@ class InboxStore:
             thread_id=row["thread_id"],
             state=row["state"],
             turn_id=row["turn_id"],
+            attempt_instance=row["attempt_instance"],
             attempt_count=int(row["attempt_count"]),
         )
 
@@ -1119,6 +1359,7 @@ class InboxStore:
                 UPDATE codex_bridge_update_notices
                 SET state = 'sending', thread_id = ?,
                     attempt_count = attempt_count + 1,
+                    turn_id = NULL, attempt_instance = NULL,
                     last_error = NULL, updated_at = ?
                 WHERE environment = ? AND workspace_id = ?
                   AND notice_id = ? AND state = 'pending'
@@ -1134,7 +1375,7 @@ class InboxStore:
             row = connection.execute(
                 """
                 SELECT notice_id, message, thread_id, state, turn_id,
-                       attempt_count
+                       attempt_instance, attempt_count
                 FROM codex_bridge_update_notices
                 WHERE environment = ? AND workspace_id = ? AND notice_id = ?
                 """,
@@ -1153,8 +1394,46 @@ class InboxStore:
             thread_id=row["thread_id"],
             state=row["state"],
             turn_id=row["turn_id"],
+            attempt_instance=row["attempt_instance"],
             attempt_count=int(row["attempt_count"]),
         )
+
+    def record_update_notice_attempt(
+        self,
+        config: BridgeConfig,
+        notice_id: str,
+        turn_id: Optional[str],
+    ) -> None:
+        """Persist a provisional turn/start target without accepting it."""
+        if turn_id is not None and (
+            not isinstance(turn_id, str) or not turn_id
+        ):
+            raise BridgeError("invalid update notice turn id")
+        now = self.clock()
+        with closing(self.connect()) as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            cursor = connection.execute(
+                """
+                UPDATE codex_bridge_update_notices
+                SET turn_id = ?, attempt_instance = ?, updated_at = ?
+                WHERE environment = ? AND workspace_id = ?
+                  AND notice_id = ? AND state = 'sending'
+                """,
+                (
+                    turn_id,
+                    config.instance,
+                    now,
+                    config.environment,
+                    config.workspace_id,
+                    notice_id,
+                ),
+            )
+            if cursor.rowcount != 1:
+                connection.rollback()
+                raise BridgeError(
+                    "cannot record a non-sending update notice attempt"
+                )
+            connection.commit()
 
     def mark_update_notice_pending(
         self, config: BridgeConfig, notice_id: str, error: str
@@ -1324,6 +1603,39 @@ def thread_status_type(thread: Dict[str, Any]) -> Optional[str]:
     return status if isinstance(status, str) else None
 
 
+def in_progress_turn_id(thread: Dict[str, Any]) -> Optional[str]:
+    """Return the sole in-progress turn id from a populated thread history."""
+    turns = thread.get("turns")
+    if turns is None:
+        return None
+    if not isinstance(turns, list):
+        raise RelayProtocolError("thread turns is not a list")
+    active_turn_id: Optional[str] = None
+    for index, turn in enumerate(turns):
+        if not isinstance(turn, dict):
+            raise RelayProtocolError(
+                "thread turn {} is not an object".format(index)
+            )
+        turn_id = turn.get("id")
+        status = turn.get("status")
+        if not isinstance(turn_id, str) or not turn_id:
+            raise RelayProtocolError(
+                "thread turn {} has no valid id".format(index)
+            )
+        if not isinstance(status, str) or not status:
+            raise RelayProtocolError(
+                "thread turn {} has no valid status".format(index)
+            )
+        if status != "inProgress":
+            continue
+        if active_turn_id is not None:
+            raise RelayProtocolError(
+                "thread history has multiple in-progress turns"
+            )
+        active_turn_id = turn_id
+    return active_turn_id
+
+
 def correlated_turn_id(thread: Dict[str, Any], message_id: str) -> Optional[str]:
     """Find an exact client id, or fail if absence cannot be proven safely."""
     turns = thread.get("turns")
@@ -1331,6 +1643,7 @@ def correlated_turn_id(thread: Dict[str, Any], message_id: str) -> Optional[str]
         raise RelayProtocolError(
             "thread/read reconciliation response has no turns list"
         )
+    matched_turn_id: Optional[str] = None
     for turn_index, turn in enumerate(turns):
         if not isinstance(turn, dict):
             raise RelayProtocolError(
@@ -1378,8 +1691,66 @@ def correlated_turn_id(thread: Dict[str, Any], message_id: str) -> Optional[str]
                 item_type == "userMessage"
                 and client_id == message_id
             ):
-                return turn_id
-    return None
+                if matched_turn_id is not None:
+                    raise RelayProtocolError(
+                        "thread history contains duplicate user messages "
+                        "for one client id"
+                    )
+                matched_turn_id = turn_id
+    return matched_turn_id
+
+
+def terminal_turn_in_history(
+    thread: Dict[str, Any], expected_turn_id: str
+) -> bool:
+    """Return whether one exact persisted turn is terminal, validating IDs."""
+    turns = thread.get("turns")
+    if not isinstance(turns, list):
+        raise RelayProtocolError(
+            "thread/read reconciliation response has no turns list"
+        )
+    matched_status: Optional[str] = None
+    for index, turn in enumerate(turns):
+        if not isinstance(turn, dict):
+            raise RelayProtocolError(
+                "thread/read reconciliation turn {} is not an object".format(
+                    index
+                )
+            )
+        turn_id = turn.get("id")
+        status = turn.get("status")
+        if not isinstance(turn_id, str) or not turn_id:
+            raise RelayProtocolError(
+                "thread/read reconciliation turn {} has no valid id".format(
+                    index
+                )
+            )
+        if not isinstance(status, str) or not status:
+            raise RelayProtocolError(
+                "thread/read reconciliation turn {} has no valid status"
+                .format(index)
+            )
+        if status not in (
+            "inProgress",
+            "completed",
+            "interrupted",
+            "failed",
+        ):
+            raise RelayProtocolError(
+                "thread/read reconciliation turn {} has an unknown status"
+                .format(index)
+            )
+        if turn_id != expected_turn_id:
+            continue
+        if matched_status is not None:
+            raise RelayProtocolError(
+                "thread history contains a duplicate turn id"
+            )
+        matched_status = status
+    return (
+        matched_status is not None
+        and matched_status != "inProgress"
+    )
 
 
 def rpc_id_key(value: Any) -> Tuple[str, Any]:
@@ -1555,10 +1926,17 @@ class RootAuthority:
         self.primary_connection_id: Optional[int] = None
         self.primary_live = False
         self.thread_id: Optional[str] = None
+        self.active_turn_id: Optional[str] = None
+        self.admission_pending = False
+        self.turn_event_serial = 0
         self.generation = 0
         self.driver_active = False
         self.tui_gate: Optional[RelayGate] = None
         self.tui_gate_external_invalidation = False
+        self.tui_gate_previous_active_turn_id: Optional[str] = None
+        self.tui_gate_previous_admission_pending = False
+        self.tui_gate_turn_events = []
+        self.recent_user_messages = collections.OrderedDict()
         self.tui_waiters = 0
         self.next_token = 1
         self.fatal_error: Optional[str] = None
@@ -1587,6 +1965,8 @@ class RootAuthority:
                 self.fatal_error = message
             self.primary_live = False
             self.thread_id = None
+            self.active_turn_id = None
+            self.admission_pending = False
             self.generation += 1
             self.condition.notify_all()
 
@@ -1611,6 +1991,8 @@ class RootAuthority:
                 self.thread_id,
                 self.generation,
                 self.primary_connection_id,
+                self.active_turn_id,
+                self.admission_pending,
             )
 
     def snapshot_is_current(self, snapshot: RootSnapshot) -> bool:
@@ -1623,6 +2005,15 @@ class RootAuthority:
                 and self.primary_connection_id
                 == snapshot.connection_id
             )
+
+    def observed_user_message_turn(
+        self, thread_id: str, message_id: str
+    ) -> Optional[str]:
+        with self.condition:
+            turn_id = self.recent_user_messages.get(
+                (thread_id, message_id)
+            )
+            return turn_id if isinstance(turn_id, str) else None
 
     def commit_if_current(
         self,
@@ -1749,15 +2140,24 @@ class RootAuthority:
                     kind=kind,
                     previous_thread_id=self.thread_id,
                     previous_generation=self.generation,
+                    target_thread_id=_thread_id_param(params),
+                    previous_turn_event_serial=self.turn_event_serial,
                 )
                 self.next_token += 1
                 self.tui_gate = token
                 self.tui_gate_external_invalidation = False
+                self.tui_gate_previous_active_turn_id = self.active_turn_id
+                self.tui_gate_previous_admission_pending = (
+                    self.admission_pending
+                )
+                self.tui_gate_turn_events = []
                 if kind == "invalidation":
                     # Unsubscribe tears down the TUI listener even when its
                     # RPC fails. Archive/delete are also deliberately
                     # fail-closed once requested.
                     self.thread_id = None
+                    self.active_turn_id = None
+                    self.admission_pending = False
                     self.generation += 1
                 return token
             finally:
@@ -1868,6 +2268,38 @@ class RootAuthority:
                                 self.generation = gate.previous_generation
                         else:
                             self.thread_id = new_root
+                            self.admission_pending = False
+                            result = response.get("result")
+                            assert isinstance(result, dict)
+                            result_thread = result.get("thread")
+                            assert isinstance(result_thread, dict)
+                            active_turn_id = in_progress_turn_id(
+                                result_thread
+                            )
+                            for (
+                                event_method,
+                                event_thread_id,
+                                event_turn_id,
+                            ) in self.tui_gate_turn_events:
+                                if event_thread_id != new_root:
+                                    continue
+                                if event_method == "turn/started":
+                                    if active_turn_id in (
+                                        None,
+                                        event_turn_id,
+                                    ):
+                                        active_turn_id = event_turn_id
+                                    else:
+                                        # The response and a racing live
+                                        # event name different active turns.
+                                        # Their cross-connection order is
+                                        # unknowable, so expose no steer
+                                        # target until later state resolves
+                                        # the conflict.
+                                        active_turn_id = None
+                                elif active_turn_id == event_turn_id:
+                                    active_turn_id = None
+                            self.active_turn_id = active_turn_id
                             self.generation = (
                                 max(
                                     self.generation,
@@ -1887,7 +2319,104 @@ class RootAuthority:
                     # its local listener after awaiting the RPC, even on Err,
                     # so restoring that root would be unsafe.
                     self.thread_id = gate.previous_thread_id
+                    self.active_turn_id = (
+                        self.tui_gate_previous_active_turn_id
+                    )
+                    self.admission_pending = (
+                        self.tui_gate_previous_admission_pending
+                    )
                     self.generation = gate.previous_generation
+                elif (
+                    gate.kind == "admission"
+                    and has_result
+                ):
+                    result = response.get("result")
+                    assert isinstance(result, dict)
+                    result_thread_id = gate.target_thread_id
+                    if gate.method == "review/start":
+                        result_thread_id = result.get("reviewThreadId")
+                        if (
+                            not isinstance(result_thread_id, str)
+                            or not result_thread_id
+                        ):
+                            raise RelayProtocolError(
+                                "review/start response has no valid "
+                                "reviewThreadId"
+                            )
+                    if result_thread_id == self.thread_id:
+                        if gate.method == "thread/shellCommand":
+                            # While active, this is an auxiliary command with
+                            # no new lifecycle. While idle, it creates a
+                            # regular turn, so a queued turn/start can safely
+                            # join it just like ordinary typed input.
+                            continue_admission = False
+                        else:
+                            continue_admission = True
+                        turn_id: Optional[str] = None
+                        if (
+                            continue_admission
+                            and gate.method
+                            in ("turn/start", "review/start")
+                        ):
+                            turn = result.get("turn")
+                            if not isinstance(turn, dict):
+                                raise RelayProtocolError(
+                                    "{} response has no turn object".format(
+                                        gate.method
+                                    )
+                                )
+                            turn_id = turn.get("id")
+                            if (
+                                not isinstance(turn_id, str)
+                                or not turn_id
+                            ):
+                                raise RelayProtocolError(
+                                    "{} response has no valid turn.id".format(
+                                        gate.method
+                                    )
+                                )
+                        target_events = [
+                            (event_method, event_turn_id)
+                            for (
+                                event_method,
+                                event_thread_id,
+                                event_turn_id,
+                            ) in self.tui_gate_turn_events
+                            if event_thread_id == result_thread_id
+                        ]
+                        if not continue_admission:
+                            started = False
+                            completed = False
+                        elif turn_id is None:
+                            started = any(
+                                event_method == "turn/started"
+                                for event_method, _event_turn_id
+                                in target_events
+                            )
+                            self.admission_pending = not started
+                        else:
+                            started = (
+                                ("turn/started", turn_id)
+                                in target_events
+                            )
+                            completed = (
+                                ("turn/completed", turn_id)
+                                in target_events
+                            )
+                            self.admission_pending = not (
+                                started or completed
+                            )
+                        if (
+                            turn_id is not None
+                            and not started
+                            and not completed
+                        ):
+                            # Admission RPCs return after enqueueing a core
+                            # submission, before turn/started is guaranteed.
+                            # Preserve that gap so the delivery worker cannot
+                            # enqueue its own turn/start behind a review or
+                            # compact submission while thread/read says idle.
+                            self.active_turn_id = turn_id
                 # Successful invalidation and ambiguous transport remain
                 # NoRoot. Admission changes no root state.
             except RelayProtocolError as exc:
@@ -1896,19 +2425,30 @@ class RootAuthority:
             finally:
                 self.tui_gate = None
                 self.tui_gate_external_invalidation = False
+                self.tui_gate_previous_active_turn_id = None
+                self.tui_gate_previous_admission_pending = False
+                self.tui_gate_turn_events = []
                 self.condition.notify_all()
 
     def abort_tui_request(self, gate: RelayGate, reason: str) -> None:
         with self.condition:
             if self.tui_gate == gate:
                 self.tui_gate = None
+                self.tui_gate_previous_active_turn_id = None
+                self.tui_gate_previous_admission_pending = False
+                self.tui_gate_turn_events = []
             self.fail(reason)
 
     def observe_notification(
         self, connection_id: int, message: Dict[str, Any]
     ) -> None:
         method = message.get("method")
-        if method not in ROOT_INVALIDATION_NOTIFICATIONS:
+        is_root_invalidation = method in ROOT_INVALIDATION_NOTIFICATIONS
+        is_turn_event = method in ("turn/started", "turn/completed")
+        is_item_completed = method == "item/completed"
+        if not (
+            is_root_invalidation or is_turn_event or is_item_completed
+        ):
             return
         with self.condition:
             if self.primary_connection_id != connection_id:
@@ -1921,18 +2461,94 @@ class RootAuthority:
         if thread_id is None:
             self.fail("{} notification has no threadId".format(method))
             return
+        if is_item_completed:
+            turn_id = params.get("turnId")
+            item = params.get("item")
+            if not isinstance(turn_id, str) or not turn_id:
+                self.fail(
+                    "item/completed notification has no valid turnId"
+                )
+                return
+            if not isinstance(item, dict):
+                self.fail("item/completed notification has no item object")
+                return
+            if item.get("type") != "userMessage":
+                return
+            client_id = item.get("clientId")
+            if client_id is None:
+                return
+            if not isinstance(client_id, str) or not client_id:
+                self.fail(
+                    "item/completed userMessage has an invalid clientId"
+                )
+                return
+            with self.condition:
+                key = (thread_id, client_id)
+                self.recent_user_messages[key] = turn_id
+                self.recent_user_messages.move_to_end(key)
+                while (
+                    len(self.recent_user_messages)
+                    > RECENT_USER_MESSAGE_IDS
+                ):
+                    self.recent_user_messages.popitem(last=False)
+                self.condition.notify_all()
+            return
+        if is_turn_event:
+            turn = params.get("turn")
+            if not isinstance(turn, dict):
+                self.fail(
+                    "{} notification has no turn object".format(method)
+                )
+                return
+            turn_id = turn.get("id")
+            if not isinstance(turn_id, str) or not turn_id:
+                self.fail(
+                    "{} notification has no valid turn.id".format(method)
+                )
+                return
+            with self.condition:
+                if self.tui_gate is not None:
+                    self.tui_gate_turn_events.append(
+                        (method, thread_id, turn_id)
+                    )
+                if thread_id == self.thread_id:
+                    if method == "turn/started":
+                        self.admission_pending = False
+                        self.active_turn_id = turn_id
+                    elif self.active_turn_id == turn_id:
+                        self.active_turn_id = None
+                    self.turn_event_serial += 1
+                    self.condition.notify_all()
+                elif (
+                    self.tui_gate is not None
+                    and self.tui_gate.kind == "invalidation"
+                    and thread_id == self.tui_gate.previous_thread_id
+                ):
+                    if method == "turn/started":
+                        self.tui_gate_previous_active_turn_id = turn_id
+                    elif (
+                        self.tui_gate_previous_active_turn_id == turn_id
+                    ):
+                        self.tui_gate_previous_active_turn_id = None
+                    self.condition.notify_all()
+            return
         with self.condition:
             if (
                 self.tui_gate is not None
                 and thread_id == self.tui_gate.previous_thread_id
             ):
                 self.tui_gate_external_invalidation = True
+                self.tui_gate_previous_active_turn_id = None
                 if self.thread_id is not None:
                     self.thread_id = None
+                    self.active_turn_id = None
+                    self.admission_pending = False
                     self.generation += 1
                 self.condition.notify_all()
             elif thread_id == self.thread_id:
                 self.thread_id = None
+                self.active_turn_id = None
+                self.admission_pending = False
                 self.generation += 1
                 self.condition.notify_all()
 
@@ -1957,6 +2573,8 @@ class RootAuthority:
                     self.thread_id,
                     self.generation,
                     self.primary_connection_id,
+                    self.active_turn_id,
+                    self.admission_pending,
                 )
         try:
             yield snapshot
@@ -1980,6 +2598,10 @@ class BridgeEngine:
         commit_if_deliverable: Optional[
             Callable[[Callable[[], None]], bool]
         ] = None,
+        deferred_steer_turn_id: Optional[str] = None,
+        observed_turn_id: Callable[
+            [str, str], Optional[str]
+        ] = lambda _thread_id, _message_id: None,
     ):
         self.store = store
         self.app_server = app_server
@@ -1987,6 +2609,8 @@ class BridgeEngine:
         self.consumer = consumer
         self.may_deliver = may_deliver
         self.commit_if_deliverable = commit_if_deliverable
+        self.deferred_steer_turn_id = deferred_steer_turn_id
+        self.observed_turn_id = observed_turn_id
 
     def _commit_durable(self, commit: Callable[[], None]) -> bool:
         if self.commit_if_deliverable is not None:
@@ -1997,7 +2621,10 @@ class BridgeEngine:
         return True
 
     def _read_thread(
-        self, thread_id: str, include_turns: bool
+        self,
+        thread_id: str,
+        include_turns: bool,
+        expected_turn_id: Optional[str] = None,
     ) -> Tuple[Optional[Dict[str, Any]], Optional[StepResult]]:
         try:
             thread = self.app_server.thread_read(thread_id, include_turns)
@@ -2006,6 +2633,10 @@ class BridgeEngine:
                 "transport_error", reconnect=True, error=str(exc)
             )
         except AppServerRequestError as exc:
+            if include_turns:
+                return self._read_paginated_thread(
+                    thread_id, expected_turn_id, exc
+                )
             return None, StepResult("unhealthy", error=str(exc))
         if not isinstance(thread, dict) or thread.get("id") != thread_id:
             return None, StepResult(
@@ -2046,6 +2677,113 @@ class BridgeEngine:
             )
         return thread, None
 
+    def _read_paginated_thread(
+        self,
+        thread_id: str,
+        _expected_turn_id: Optional[str],
+        read_error: AppServerRequestError,
+    ) -> Tuple[Optional[Dict[str, Any]], Optional[StepResult]]:
+        """Recover full history when ``thread/read`` cannot populate turns.
+
+        Paginated Codex threads reject ``thread/read(includeTurns=true)``.
+        The auxiliary client opts into the experimental API, so page newest
+        first with full items through EOF. Reconciliation deliberately scans
+        the complete root so a duplicated client id from an earlier retry is
+        detected rather than silently accepting one of its copies.
+        """
+        thread, failure = self._read_thread(thread_id, include_turns=False)
+        if failure is not None:
+            return None, failure
+        assert thread is not None
+
+        turns = []
+        cursor: Optional[str] = None
+        seen_cursors = set()
+        while True:
+            try:
+                page = self.app_server.thread_turns_list(
+                    thread_id,
+                    cursor=cursor,
+                    limit=TURN_HISTORY_PAGE_SIZE,
+                    sort_direction="desc",
+                    items_view="full",
+                )
+            except AppServerTransportError as exc:
+                return None, StepResult(
+                    "transport_error", reconnect=True, error=str(exc)
+                )
+            except AppServerRequestError as exc:
+                return None, StepResult(
+                    "unhealthy",
+                    error=(
+                        "thread history is unavailable via thread/read "
+                        "({}) and thread/turns/list ({})"
+                    ).format(read_error, exc),
+                )
+            if not isinstance(page, dict):
+                return None, StepResult(
+                    "unhealthy",
+                    error="thread/turns/list response is not an object",
+                )
+            data = page.get("data")
+            if not isinstance(data, list):
+                return None, StepResult(
+                    "unhealthy",
+                    error="thread/turns/list response has no data list",
+                )
+            for index, turn in enumerate(data):
+                if not isinstance(turn, dict):
+                    return None, StepResult(
+                        "unhealthy",
+                        error=(
+                            "thread/turns/list turn {} is not an object"
+                        ).format(index),
+                    )
+                if turn.get("itemsView") != "full":
+                    return None, StepResult(
+                        "unhealthy",
+                        error=(
+                            "thread/turns/list turn {} is not a full item "
+                            "view"
+                        ).format(index),
+                    )
+                if not isinstance(turn.get("items"), list):
+                    return None, StepResult(
+                        "unhealthy",
+                        error=(
+                            "thread/turns/list turn {} has no items list"
+                        ).format(index),
+                    )
+                turns.append(turn)
+            if "nextCursor" not in page:
+                return None, StepResult(
+                    "unhealthy",
+                    error=(
+                        "thread/turns/list response has no nextCursor"
+                    ),
+                )
+            next_cursor = page["nextCursor"]
+            if next_cursor is None:
+                break
+            if not isinstance(next_cursor, str) or not next_cursor:
+                return None, StepResult(
+                    "unhealthy",
+                    error=(
+                        "thread/turns/list returned an invalid nextCursor"
+                    ),
+                )
+            if next_cursor in seen_cursors:
+                return None, StepResult(
+                    "unhealthy",
+                    error="thread/turns/list repeated a pagination cursor",
+                )
+            seen_cursors.add(next_cursor)
+            cursor = next_cursor
+
+        populated = dict(thread)
+        populated["turns"] = turns
+        return populated, None
+
     def _binding_is_current(self, expected: Binding) -> bool:
         return self.store.get_binding(self.config) == expected
 
@@ -2058,6 +2796,201 @@ class BridgeEngine:
             return None
         candidate = turn.get("id")
         return candidate if isinstance(candidate, str) and candidate else None
+
+    @staticmethod
+    def _steer_turn_id(result: Any) -> Optional[str]:
+        if not isinstance(result, dict):
+            return None
+        candidate = result.get("turnId")
+        return candidate if isinstance(candidate, str) and candidate else None
+
+    @staticmethod
+    def _active_turn_not_steerable(
+        error: AppServerRequestError,
+    ) -> bool:
+        data = error.data
+        if not isinstance(data, dict):
+            return False
+        info = data.get("codexErrorInfo")
+        if not isinstance(info, dict):
+            return False
+        detail = info.get("activeTurnNotSteerable")
+        if not isinstance(detail, dict):
+            return False
+        return detail.get("turnKind") in ("review", "compact")
+
+    @staticmethod
+    def _mismatched_active_turn_id(
+        error: AppServerRequestError, expected_turn_id: str
+    ) -> Optional[str]:
+        """Parse Codex 0.145's narrowly specified mismatch error."""
+        if error.code != -32600 or error.data is not None:
+            return None
+        prefix = "expected active turn id `{}` but found `".format(
+            expected_turn_id
+        )
+        message = str(error)
+        if not message.startswith(prefix) or not message.endswith("`"):
+            return None
+        actual = message[len(prefix):-1]
+        if (
+            not actual
+            or len(actual) > 256
+            or "`" in actual
+            or actual == expected_turn_id
+        ):
+            return None
+        return actual
+
+    def _delivery_commit_candidate(
+        self,
+        delivery: Delivery,
+        thread: Optional[Dict[str, Any]] = None,
+    ) -> Tuple[Optional[str], Optional[StepResult]]:
+        """Find and validate exact live or persisted commit evidence."""
+        candidate = self.observed_turn_id(
+            delivery.thread_id, delivery.message_id
+        )
+        if candidate is not None and (
+            not isinstance(candidate, str) or not candidate
+        ):
+            return None, StepResult(
+                "unhealthy",
+                sequence=delivery.sequence,
+                error="observed user message has no valid turn id",
+            )
+        if candidate is None and thread is not None:
+            try:
+                candidate = correlated_turn_id(
+                    thread, delivery.message_id
+                )
+            except RelayProtocolError as exc:
+                return None, StepResult(
+                    "unhealthy",
+                    sequence=delivery.sequence,
+                    error=str(exc),
+                )
+        if (
+            candidate is not None
+            and delivery.admission_method == "turn/steer"
+            and delivery.turn_id is not None
+            and candidate != delivery.turn_id
+        ):
+            return None, StepResult(
+                "unhealthy",
+                sequence=delivery.sequence,
+                error=(
+                    "committed user message turn does not match the "
+                    "persisted turn/steer response"
+                ),
+            )
+        return candidate, None
+
+    def _delivery_absence_is_final(
+        self,
+        delivery: Delivery,
+        thread: Dict[str, Any],
+    ) -> Tuple[bool, Optional[StepResult]]:
+        """Prove a queued admission can no longer commit later.
+
+        An idle status alone is insufficient: turn/start can sit in Codex's
+        submission channel before the session loop marks the thread active.
+        A terminal persisted target turn is causal proof within one process.
+        A different launcher instance proves the old private app-server (and
+        its in-memory submission queue) no longer exists.
+        """
+        if delivery.attempt_instance != self.config.instance:
+            return True, None
+        if delivery.turn_id is None:
+            return False, None
+        try:
+            return terminal_turn_in_history(thread, delivery.turn_id), None
+        except RelayProtocolError as exc:
+            return False, StepResult(
+                "unhealthy",
+                sequence=delivery.sequence,
+                error=str(exc),
+            )
+
+    def _acknowledge_reconciled_delivery(
+        self,
+        delivery: Delivery,
+        turn_id: str,
+        binding: Optional[Binding],
+    ) -> StepResult:
+        if binding is not None and not self._binding_is_current(binding):
+            return StepResult(
+                "binding_changed", sequence=delivery.sequence
+            )
+        if not self._commit_durable(
+            lambda: self.store.acknowledge(
+                self.config,
+                delivery.sequence,
+                turn_id,
+                self.consumer,
+            )
+        ):
+            return StepResult("orphaned", sequence=delivery.sequence)
+        return StepResult(
+            "reconciled",
+            sequence=delivery.sequence,
+            turn_id=turn_id,
+        )
+
+    def _notice_commit_candidate(
+        self,
+        notice: UpdateNotice,
+        thread: Optional[Dict[str, Any]] = None,
+    ) -> Tuple[Optional[str], Optional[StepResult]]:
+        candidate = self.observed_turn_id(
+            notice.thread_id, notice.notice_id
+        )
+        if candidate is not None and (
+            not isinstance(candidate, str) or not candidate
+        ):
+            return None, StepResult(
+                "unhealthy",
+                error="observed update notice has no valid turn id",
+            )
+        if candidate is None and thread is not None:
+            try:
+                candidate = correlated_turn_id(thread, notice.notice_id)
+            except RelayProtocolError as exc:
+                return None, StepResult("unhealthy", error=str(exc))
+        return candidate, None
+
+    def _notice_absence_is_final(
+        self,
+        notice: UpdateNotice,
+        thread: Dict[str, Any],
+    ) -> Tuple[bool, Optional[StepResult]]:
+        """Prove that one queued update notice can no longer commit."""
+        if notice.attempt_instance != self.config.instance:
+            return True, None
+        if notice.turn_id is None:
+            return False, None
+        try:
+            return terminal_turn_in_history(thread, notice.turn_id), None
+        except RelayProtocolError as exc:
+            return False, StepResult("unhealthy", error=str(exc))
+
+    def _acknowledge_reconciled_notice(
+        self,
+        notice: UpdateNotice,
+        turn_id: str,
+        binding: Optional[Binding],
+    ) -> StepResult:
+        if binding is not None and not self._binding_is_current(binding):
+            return StepResult("binding_changed")
+        if not self._commit_durable(
+            lambda: self.store.acknowledge_update_notice(
+                self.config, notice.notice_id, turn_id
+            )
+        ):
+            return StepResult("orphaned")
+        return StepResult(
+            "reconciled_update_notice", turn_id=turn_id
+        )
 
     def _deliver_update_notice(
         self,
@@ -2097,6 +3030,9 @@ class BridgeEngine:
                 "root binding changed before turn/start",
             )
             return StepResult("binding_changed")
+        self.store.record_update_notice_attempt(
+            self.config, sending.notice_id, None
+        )
         try:
             result = self.app_server.turn_start(
                 thread_id, sending.message, sending.notice_id
@@ -2118,18 +3054,38 @@ class BridgeEngine:
                 "ambiguous_update_notice",
                 error="turn/start response did not contain turn.id",
             )
+        self.store.record_update_notice_attempt(
+            self.config, sending.notice_id, turn_id
+        )
+        observed_turn_id = self.observed_turn_id(
+            thread_id, sending.notice_id
+        )
+        if observed_turn_id is None:
+            return StepResult(
+                "update_notice_queued", turn_id=turn_id
+            )
+        if (
+            not isinstance(observed_turn_id, str)
+            or not observed_turn_id
+        ):
+            return StepResult(
+                "ambiguous_update_notice",
+                error="observed update notice has no valid turn id",
+            )
         if not self._commit_durable(
             lambda: self.store.acknowledge_update_notice(
-                self.config, sending.notice_id, turn_id
+                self.config, sending.notice_id, observed_turn_id
             )
         ):
-            # The server accepted, but authority or its visible receiver was
+            # The item committed, but authority or its visible receiver was
             # revoked before the durable acceptance linearization point.
             return StepResult(
                 "orphaned_after_accept_update_notice",
-                turn_id=turn_id,
+                turn_id=observed_turn_id,
             )
-        return StepResult("accepted_update_notice", turn_id=turn_id)
+        return StepResult(
+            "accepted_update_notice", turn_id=observed_turn_id
+        )
 
     def step(
         self, snapshot: Optional[RootSnapshot] = None
@@ -2155,54 +3111,86 @@ class BridgeEngine:
 
         sending = self.store.get_sending(self.config, self.consumer)
         if sending is not None:
-            previous_thread, failure = self._read_thread(
-                sending.thread_id, include_turns=True
+            accepted_turn_id, failure = self._delivery_commit_candidate(
+                sending
             )
             if failure is not None:
                 return failure
-            assert previous_thread is not None
-            try:
-                accepted_turn_id = correlated_turn_id(
-                    previous_thread, sending.message_id
-                )
-            except RelayProtocolError as exc:
+            if (
+                accepted_turn_id is None
+                and sending.turn_id is not None
+                and snapshot is not None
+                and sending.thread_id == snapshot.thread_id
+                and snapshot.active_turn_id == sending.turn_id
+            ):
+                # A successful admission response only queued the input.
+                # While its exact target remains active, rely on the primary's
+                # item/completed event instead of rebuilding full history on
+                # every 250 ms poll. History is the fallback once the target
+                # changes or ends.
                 return StepResult(
-                    "unhealthy",
+                    "busy",
                     sequence=sending.sequence,
-                    error=str(exc),
+                    turn_id=sending.turn_id,
                 )
+            previous_thread: Optional[Dict[str, Any]] = None
+            if accepted_turn_id is None:
+                previous_thread, failure = self._read_thread(
+                    sending.thread_id,
+                    include_turns=True,
+                    expected_turn_id=sending.turn_id,
+                )
+                if failure is not None:
+                    return failure
+                assert previous_thread is not None
+                # The primary notification can race the history request, so
+                # consult it again before treating that history as absent.
+                accepted_turn_id, failure = (
+                    self._delivery_commit_candidate(
+                        sending, previous_thread
+                    )
+                )
+                if failure is not None:
+                    return failure
             if accepted_turn_id:
-                if (
-                    binding is not None
-                    and not self._binding_is_current(binding)
-                ):
-                    return StepResult(
-                        "binding_changed", sequence=sending.sequence
-                    )
-                if not self._commit_durable(
-                    lambda: self.store.acknowledge(
-                        self.config,
-                        sending.sequence,
-                        accepted_turn_id,
-                        self.consumer,
-                    )
-                ):
-                    return StepResult(
-                        "orphaned", sequence=sending.sequence
-                    )
-                return StepResult(
-                    "reconciled",
-                    sequence=sending.sequence,
-                    turn_id=accepted_turn_id,
+                return self._acknowledge_reconciled_delivery(
+                    sending, accepted_turn_id, binding
                 )
+            assert previous_thread is not None
             previous_status = thread_status_type(previous_thread)
-            if previous_status == "active":
-                return StepResult("busy", sequence=sending.sequence)
-            if previous_status not in ("idle", "notLoaded"):
+            if previous_status not in ("active", "idle", "notLoaded"):
                 return StepResult(
                     "unhealthy",
                     sequence=sending.sequence,
                     error="ambiguous delivery thread is not safely retryable",
+                )
+            absence_is_final, failure = self._delivery_absence_is_final(
+                sending, previous_thread
+            )
+            if failure is not None:
+                return failure
+            if not absence_is_final:
+                return StepResult(
+                    (
+                        "busy"
+                        if previous_status == "active"
+                        else "awaiting_commit"
+                    ),
+                    sequence=sending.sequence,
+                    turn_id=sending.turn_id,
+                )
+
+            # Recheck the live primary cache immediately before transitioning
+            # to pending. The terminal target/new-process proof above means
+            # the old admission cannot newly commit after this point.
+            accepted_turn_id, failure = self._delivery_commit_candidate(
+                sending
+            )
+            if failure is not None:
+                return failure
+            if accepted_turn_id:
+                return self._acknowledge_reconciled_delivery(
+                    sending, accepted_turn_id, binding
                 )
             if (
                 binding is not None
@@ -2217,45 +3205,78 @@ class BridgeEngine:
                 "no correlated user message in persisted thread",
                 self.consumer,
             )
+            return StepResult(
+                "retry_pending", sequence=sending.sequence
+            )
 
         sending_notice = self.store.get_sending_update_notice(self.config)
         if sending_notice is not None:
-            previous_thread, failure = self._read_thread(
-                sending_notice.thread_id, include_turns=True
+            accepted_turn_id, failure = self._notice_commit_candidate(
+                sending_notice
             )
             if failure is not None:
                 return failure
-            assert previous_thread is not None
-            try:
-                accepted_turn_id = correlated_turn_id(
-                    previous_thread, sending_notice.notice_id
-                )
-            except RelayProtocolError as exc:
-                return StepResult("unhealthy", error=str(exc))
-            if accepted_turn_id:
-                if (
-                    binding is not None
-                    and not self._binding_is_current(binding)
-                ):
-                    return StepResult("binding_changed")
-                if not self._commit_durable(
-                    lambda: self.store.acknowledge_update_notice(
-                        self.config,
-                        sending_notice.notice_id,
-                        accepted_turn_id,
-                    )
-                ):
-                    return StepResult("orphaned")
+            if (
+                accepted_turn_id is None
+                and sending_notice.turn_id is not None
+                and snapshot is not None
+                and sending_notice.thread_id == snapshot.thread_id
+                and snapshot.active_turn_id == sending_notice.turn_id
+            ):
                 return StepResult(
-                    "reconciled_update_notice", turn_id=accepted_turn_id
+                    "busy", turn_id=sending_notice.turn_id
                 )
+            previous_thread: Optional[Dict[str, Any]] = None
+            if accepted_turn_id is None:
+                previous_thread, failure = self._read_thread(
+                    sending_notice.thread_id,
+                    include_turns=True,
+                    expected_turn_id=sending_notice.turn_id,
+                )
+                if failure is not None:
+                    return failure
+                assert previous_thread is not None
+                accepted_turn_id, failure = (
+                    self._notice_commit_candidate(
+                        sending_notice, previous_thread
+                    )
+                )
+                if failure is not None:
+                    return failure
+            if accepted_turn_id:
+                return self._acknowledge_reconciled_notice(
+                    sending_notice, accepted_turn_id, binding
+                )
+            assert previous_thread is not None
             previous_status = thread_status_type(previous_thread)
-            if previous_status == "active":
-                return StepResult("busy")
-            if previous_status not in ("idle", "notLoaded"):
+            if previous_status not in ("active", "idle", "notLoaded"):
                 return StepResult(
                     "unhealthy",
                     error="ambiguous update notice is not safely retryable",
+                )
+            absence_is_final, failure = self._notice_absence_is_final(
+                sending_notice, previous_thread
+            )
+            if failure is not None:
+                return failure
+            if not absence_is_final:
+                return StepResult(
+                    (
+                        "busy"
+                        if previous_status == "active"
+                        else "awaiting_update_notice_commit"
+                    ),
+                    turn_id=sending_notice.turn_id,
+                )
+
+            accepted_turn_id, failure = self._notice_commit_candidate(
+                sending_notice
+            )
+            if failure is not None:
+                return failure
+            if accepted_turn_id:
+                return self._acknowledge_reconciled_notice(
+                    sending_notice, accepted_turn_id, binding
                 )
             if (
                 binding is not None
@@ -2267,6 +3288,7 @@ class BridgeEngine:
                 sending_notice.notice_id,
                 "no correlated user message in persisted thread",
             )
+            return StepResult("retry_pending_update_notice")
 
         thread, failure = self._read_thread(
             target_thread_id, include_turns=False
@@ -2275,11 +3297,26 @@ class BridgeEngine:
             return failure
         assert thread is not None
         status = thread_status_type(thread)
-        if status == "active":
-            return StepResult("busy")
-        if status != "idle":
+        if status not in ("active", "idle"):
             return StepResult(
-                "unhealthy", error="bound thread status is not idle"
+                "unhealthy",
+                error="bound thread status is neither active nor idle",
+            )
+        if (
+            status == "idle"
+            and snapshot is not None
+            and (
+                snapshot.active_turn_id is not None
+                or snapshot.admission_pending
+            )
+        ):
+            # A primary turn/review/compact admission response can precede
+            # both thread/started and the thread status transition. Typed
+            # input is already queued in that gap, so do not enqueue a
+            # competing turn/start from an apparently idle read.
+            return StepResult(
+                "busy_provisional",
+                turn_id=snapshot.active_turn_id,
             )
         if (
             binding is not None
@@ -2295,12 +3332,62 @@ class BridgeEngine:
             return StepResult("orphaned")
         poke = self.store.peek_next(self.config, self.consumer)
         if poke is None:
+            # Update notices are operational messages, not user Pokes. Keep
+            # them out of an active turn and deliver them once it is idle.
+            if status == "active":
+                return StepResult("busy")
             notice = self.store.get_pending_update_notice(self.config)
             if notice is None:
                 return StepResult("empty")
             return self._deliver_update_notice(
                 notice, target_thread_id, binding
             )
+        expected_turn_id: Optional[str] = None
+        if status == "active":
+            if snapshot is not None:
+                expected_turn_id = snapshot.active_turn_id
+            if expected_turn_id is None:
+                # A response/event ordering conflict can deliberately leave
+                # relay state untracked. Resolve the actual in-progress turn
+                # from full history only after proving a Poke is waiting;
+                # expectedTurnId still makes a later race fail definitively.
+                active_thread, failure = self._read_thread(
+                    target_thread_id, include_turns=True
+                )
+                if failure is not None:
+                    return failure
+                assert active_thread is not None
+                status = thread_status_type(active_thread)
+                if status == "active":
+                    try:
+                        expected_turn_id = in_progress_turn_id(active_thread)
+                    except RelayProtocolError as exc:
+                        return StepResult(
+                            "unhealthy",
+                            sequence=poke.sequence,
+                            error=str(exc),
+                        )
+                    if expected_turn_id is None:
+                        return StepResult(
+                            "busy_untracked", sequence=poke.sequence
+                        )
+                elif status != "idle":
+                    return StepResult(
+                        "unhealthy",
+                        sequence=poke.sequence,
+                        error=(
+                            "bound thread changed to neither active nor idle"
+                        ),
+                    )
+            if (
+                expected_turn_id is not None
+                and expected_turn_id == self.deferred_steer_turn_id
+            ):
+                return StepResult(
+                    "busy_nonsteerable",
+                    sequence=poke.sequence,
+                    turn_id=expected_turn_id,
+                )
         if not self.may_deliver():
             return StepResult("orphaned", sequence=poke.sequence)
         if (
@@ -2341,18 +3428,47 @@ class BridgeEngine:
             self.store.mark_pending(
                 self.config,
                 delivery.sequence,
-                "root binding changed before turn/start",
+                "root binding changed before Poke admission",
                 self.consumer,
             )
             return StepResult(
                 "binding_changed", sequence=delivery.sequence
             )
+        admission_method = (
+            "turn/start"
+            if expected_turn_id is None
+            else "turn/steer"
+        )
+        # Persist the process and attempted target before the request. A
+        # turn/start without a response has no target id, so it cannot be
+        # retried during this app-server lifetime merely because the thread
+        # still looks idle.
+        self.store.record_sending_attempt(
+            self.config,
+            delivery.sequence,
+            target_thread_id,
+            delivery.message_id,
+            admission_method,
+            expected_turn_id,
+            self.consumer,
+        )
+
+        result: Optional[Dict[str, Any]] = None
+        request_error: Optional[AppServerRequestError] = None
         try:
-            result = self.app_server.turn_start(
-                target_thread_id,
-                delivery.message,
-                delivery.message_id,
-            )
+            if expected_turn_id is None:
+                result = self.app_server.turn_start(
+                    target_thread_id,
+                    delivery.message,
+                    delivery.message_id,
+                )
+            else:
+                result = self.app_server.turn_steer(
+                    target_thread_id,
+                    expected_turn_id,
+                    delivery.message,
+                    delivery.message_id,
+                )
         except AppServerTransportError as exc:
             # Keep ``sending``: the server may have accepted before transport
             # failure, so the next connection must reconcile thread history.
@@ -2363,17 +3479,77 @@ class BridgeEngine:
                 error=str(exc),
             )
         except AppServerRequestError as exc:
+            request_error = exc
+
+        if request_error is not None and expected_turn_id is not None:
+            actual_turn_id = self._mismatched_active_turn_id(
+                request_error, expected_turn_id
+            )
+            if actual_turn_id is not None:
+                # Codex's own TUI retries this exact race once. Mirror it so a
+                # Poke typed during a turn swap has the same Enter semantics.
+                expected_turn_id = actual_turn_id
+                self.store.record_sending_attempt(
+                    self.config,
+                    delivery.sequence,
+                    target_thread_id,
+                    delivery.message_id,
+                    "turn/steer",
+                    expected_turn_id,
+                    self.consumer,
+                )
+                try:
+                    result = self.app_server.turn_steer(
+                        target_thread_id,
+                        expected_turn_id,
+                        delivery.message,
+                        delivery.message_id,
+                    )
+                    request_error = None
+                except AppServerTransportError as exc:
+                    return StepResult(
+                        "ambiguous",
+                        sequence=delivery.sequence,
+                        reconnect=True,
+                        error=str(exc),
+                    )
+                except AppServerRequestError as exc:
+                    request_error = exc
+
+        if request_error is not None:
             self.store.mark_pending(
                 self.config,
                 delivery.sequence,
-                str(exc),
+                str(request_error),
                 self.consumer,
             )
+            if (
+                expected_turn_id is not None
+                and self._active_turn_not_steerable(request_error)
+            ):
+                # Codex's TUI queues typed Enter input for review/compact
+                # turns. Keep the durable Poke pending until that turn ends.
+                return StepResult(
+                    "nonsteerable",
+                    sequence=delivery.sequence,
+                    turn_id=expected_turn_id,
+                )
             return StepResult(
-                "rejected", sequence=delivery.sequence, error=str(exc)
+                (
+                    "steer_rejected"
+                    if expected_turn_id is not None
+                    else "rejected"
+                ),
+                sequence=delivery.sequence,
+                error=str(request_error),
             )
 
-        turn_id = self._turn_id(result)
+        assert result is not None
+        turn_id = (
+            self._turn_id(result)
+            if expected_turn_id is None
+            else self._steer_turn_id(result)
+        )
         if turn_id is None:
             # A response without turn.id is not enough to acknowledge, but it
             # is also not safe to retry until history reconciliation proves
@@ -2381,27 +3557,96 @@ class BridgeEngine:
             return StepResult(
                 "ambiguous",
                 sequence=delivery.sequence,
-                error="turn/start response did not contain turn.id",
+                error=(
+                    "turn/start response did not contain turn.id"
+                    if expected_turn_id is None
+                    else "turn/steer response did not contain turnId"
+                ),
+            )
+        if expected_turn_id is not None and turn_id != expected_turn_id:
+            return StepResult(
+                "ambiguous",
+                sequence=delivery.sequence,
+                error=(
+                    "turn/steer response turnId did not match "
+                    "expectedTurnId"
+                ),
+            )
+
+        # Both RPCs enqueue a submission before their response is returned.
+        # Persist the provisional target, but do not retire the Poke until the
+        # corresponding userMessage item has completed. For turn/start Codex
+        # may internally steer the queued submission into a turn that became
+        # active first, so the exact client id (rather than the response turn)
+        # is the authoritative committed target.
+        self.store.record_sending_attempt(
+            self.config,
+            delivery.sequence,
+            target_thread_id,
+            delivery.message_id,
+            admission_method,
+            turn_id,
+            self.consumer,
+        )
+        observed_turn_id = self.observed_turn_id(
+            target_thread_id, delivery.message_id
+        )
+        if observed_turn_id is None:
+            return StepResult(
+                (
+                    "start_queued"
+                    if expected_turn_id is None
+                    else "steer_queued"
+                ),
+                sequence=delivery.sequence,
+                turn_id=turn_id,
+            )
+        if (
+            not isinstance(observed_turn_id, str)
+            or not observed_turn_id
+        ):
+            return StepResult(
+                "ambiguous",
+                sequence=delivery.sequence,
+                error="observed committed user message has no valid turn id",
+            )
+        if (
+            expected_turn_id is not None
+            and observed_turn_id != turn_id
+        ):
+            return StepResult(
+                "ambiguous",
+                sequence=delivery.sequence,
+                error=(
+                    "observed steered user message did not match "
+                    "turn/steer response"
+                ),
             )
 
         if not self._commit_durable(
             lambda: self.store.acknowledge(
                 self.config,
                 delivery.sequence,
-                turn_id,
+                observed_turn_id,
                 self.consumer,
             )
         ):
-            # A definitive server acceptance is not enough to consume the
-            # Poke after authority was revoked. Leave the row in ``sending``
-            # for exact old-thread reconciliation.
+            # A committed server item is not enough to consume the Poke after
+            # authority was revoked. Leave the row in ``sending`` for exact
+            # old-thread reconciliation.
             return StepResult(
-                "orphaned_after_accept",
+                (
+                    "orphaned_after_accept"
+                    if expected_turn_id is None
+                    else "orphaned_after_steer"
+                ),
                 sequence=delivery.sequence,
-                turn_id=turn_id,
+                turn_id=observed_turn_id,
             )
         return StepResult(
-            "accepted", sequence=delivery.sequence, turn_id=turn_id
+            "accepted" if expected_turn_id is None else "steered",
+            sequence=delivery.sequence,
+            turn_id=observed_turn_id,
         )
 
 
@@ -2488,7 +3733,8 @@ class AppServerClient:
                         "name": "uclusion_codex_bridge",
                         "title": "Uclusion Codex Bridge",
                         "version": "1",
-                    }
+                    },
+                    "capabilities": {"experimentalApi": True},
                 },
             )
             self.notify("initialized", {})
@@ -2944,6 +4190,24 @@ class AppServerClient:
             )
         return thread
 
+    def thread_turns_list(
+        self,
+        thread_id: str,
+        cursor: Optional[str],
+        limit: int,
+        sort_direction: str,
+        items_view: str,
+    ) -> Dict[str, Any]:
+        params: Dict[str, Any] = {
+            "threadId": thread_id,
+            "limit": limit,
+            "sortDirection": sort_direction,
+            "itemsView": items_view,
+        }
+        if cursor is not None:
+            params["cursor"] = cursor
+        return self.request("thread/turns/list", params)
+
     def turn_start(
         self, thread_id: str, text: str, message_id: str
     ) -> Dict[str, Any]:
@@ -2953,6 +4217,23 @@ class AppServerClient:
                 "threadId": thread_id,
                 "input": [{"type": "text", "text": text}],
                 "clientUserMessageId": message_id,
+            },
+        )
+
+    def turn_steer(
+        self,
+        thread_id: str,
+        expected_turn_id: str,
+        text: str,
+        message_id: str,
+    ) -> Dict[str, Any]:
+        return self.request(
+            "turn/steer",
+            {
+                "threadId": thread_id,
+                "input": [{"type": "text", "text": text}],
+                "clientUserMessageId": message_id,
+                "expectedTurnId": expected_turn_id,
             },
         )
 
@@ -3632,6 +4913,15 @@ class _RelayConnection:
                 )
         finally:
             was_primary = self._is_authoritative()
+            if was_primary:
+                # Revoke delivery authority before closing sockets or
+                # unregistering this connection. Otherwise the driver can
+                # acquire a short-lived lease after the visible TUI is gone
+                # and inject input that no live frontend can display.
+                self.relay.authority.primary_disconnected(
+                    self.connection_id,
+                    "primary TUI WebSocket disconnected",
+                )
             self.close()
             self.relay.connection_closed(self.connection_id)
             if (
@@ -4018,6 +5308,7 @@ def run_bridge(
         default_update_notice_source
     ),
     update_check_interval: float = UPDATE_CHECK_INTERVAL_SECONDS,
+    ignore_existing_pokes: bool = False,
     **_legacy_options: Any,
 ) -> int:
     """Run the relay-owned bridge.
@@ -4055,6 +5346,7 @@ def run_bridge(
     update_worker: Optional[UpdateNoticeWorker] = None
     ready_published = False
     last_error: Optional[str] = None
+    deferred_steer_turn_id: Optional[str] = None
 
     def receiver_live() -> bool:
         return (
@@ -4065,6 +5357,8 @@ def run_bridge(
         )
 
     try:
+        if ignore_existing_pokes:
+            store.ignore_existing_pokes(config)
         while not stopping.is_set():
             if os.getppid() != parent_pid:
                 return EXIT_OK
@@ -4167,6 +5461,10 @@ def run_bridge(
                             snapshot, receiver_live, commit
                         )
                     ),
+                    deferred_steer_turn_id=deferred_steer_turn_id,
+                    observed_turn_id=(
+                        authority.observed_user_message_turn
+                    ),
                 )
                 try:
                     result = engine.step(snapshot)
@@ -4174,7 +5472,8 @@ def run_bridge(
                     result = StepResult(
                         "retry", error=str(exc)
                     )
-
+            if result.action == "nonsteerable":
+                deferred_steer_turn_id = result.turn_id
             if result.reconnect:
                 client.close()
                 client = None
@@ -4207,7 +5506,9 @@ def run_bridge(
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Bridge Uclusion Pokes into an idle Codex app-server thread."
+        description=(
+            "Bridge Uclusion Pokes into the input-owning Codex thread."
+        )
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -4224,6 +5525,11 @@ def build_parser() -> argparse.ArgumentParser:
     add_identity_options(run_parser)
     run_parser.add_argument("--ready-file")
     run_parser.add_argument("--receiver-pid-file")
+    run_parser.add_argument(
+        "--ignore-existing-pokes",
+        action="store_true",
+        help=argparse.SUPPRESS,
+    )
     run_parser.add_argument(
         "--poll-interval",
         type=float,
@@ -4248,7 +5554,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         config = config_from_args(args, require_socket=True)
         if args.poll_interval <= 0:
             raise ConfigurationError("--poll-interval must be positive")
-        return run_bridge(config, poll_interval=args.poll_interval)
+        return run_bridge(
+            config,
+            poll_interval=args.poll_interval,
+            ignore_existing_pokes=args.ignore_existing_pokes,
+        )
     except (ConfigurationError, sqlite3.Error) as exc:
         print(
             "Uclusion Codex bridge: {}".format(exc),

@@ -109,6 +109,597 @@ class RootAuthorityTests(unittest.TestCase):
         with self.authority.delivery_lease(lambda: True) as snapshot:
             self.assertEqual("root-a", snapshot.thread_id)
 
+    def test_primary_turn_notifications_track_active_turn(self):
+        self.establish()
+
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "turn/started",
+                "params": {
+                    "threadId": "root-a",
+                    "turn": {"id": "turn-a", "status": "inProgress"},
+                },
+            },
+        )
+
+        self.assertEqual(
+            "turn-a", self.authority.current_snapshot().active_turn_id
+        )
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "turn/completed",
+                "params": {
+                    "threadId": "root-a",
+                    "turn": {"id": "turn-other", "status": "completed"},
+                },
+            },
+        )
+        self.assertEqual(
+            "turn-a", self.authority.current_snapshot().active_turn_id
+        )
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "turn/completed",
+                "params": {
+                    "threadId": "root-a",
+                    "turn": {"id": "turn-a", "status": "completed"},
+                },
+            },
+        )
+        self.assertIsNone(
+            self.authority.current_snapshot().active_turn_id
+        )
+
+    def test_auxiliary_thread_notifications_do_not_retarget_active_turn(self):
+        self.establish()
+
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "turn/started",
+                "params": {
+                    "threadId": "side-agent",
+                    "turn": {
+                        "id": "turn-side",
+                        "status": "inProgress",
+                    },
+                },
+            },
+        )
+
+        snapshot = self.authority.current_snapshot()
+        self.assertEqual("root-a", snapshot.thread_id)
+        self.assertIsNone(snapshot.active_turn_id)
+
+    def test_completed_user_message_records_durable_correlation(self):
+        self.establish()
+
+        # Starting the item is not the TUI's commit/retirement boundary.
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "item/started",
+                "params": {
+                    "threadId": "root-a",
+                    "turnId": "turn-a",
+                    "startedAtMs": 1,
+                    "item": {
+                        "type": "userMessage",
+                        "id": "item-a",
+                        "clientId": "poke-message-1",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": "Start T-all-2420",
+                            }
+                        ],
+                    },
+                },
+            },
+        )
+        self.assertIsNone(
+            self.authority.observed_user_message_turn(
+                "root-a", "poke-message-1"
+            )
+        )
+
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "item/completed",
+                "params": {
+                    "threadId": "root-a",
+                    "turnId": "turn-a",
+                    "item": {
+                        "type": "userMessage",
+                        "id": "item-a",
+                        "clientId": "poke-message-1",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": "Start T-all-2420",
+                            }
+                        ],
+                    },
+                },
+            },
+        )
+        self.assertEqual(
+            "turn-a",
+            self.authority.observed_user_message_turn(
+                "root-a", "poke-message-1"
+            ),
+        )
+        self.assertIsNone(
+            self.authority.observed_user_message_turn(
+                "root-other", "poke-message-1"
+            )
+        )
+
+    def test_resume_and_human_admission_seed_active_turn_before_release(self):
+        self.establish()
+        resume = self.authority.begin_tui_request(
+            1, "thread/resume", {"threadId": "root-b"}
+        )
+        resumed = root_result("root-b")
+        resumed["thread"]["turns"] = [
+            {
+                "id": "turn-resumed",
+                "status": "inProgress",
+                "items": [],
+            }
+        ]
+        self.authority.finish_tui_request(
+            resume, {"id": 2, "result": resumed}
+        )
+        self.assertEqual(
+            "turn-resumed",
+            self.authority.current_snapshot().active_turn_id,
+        )
+
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "turn/completed",
+                "params": {
+                    "threadId": "root-b",
+                    "turn": {
+                        "id": "turn-resumed",
+                        "status": "completed",
+                    },
+                },
+            },
+        )
+        admission = self.authority.begin_tui_request(
+            1, "turn/start", {"threadId": "root-b", "input": []}
+        )
+        self.authority.finish_tui_request(
+            admission,
+            {
+                "id": 3,
+                "result": {
+                    "turn": {
+                        "id": "turn-human",
+                        "status": "inProgress",
+                        "items": [],
+                    }
+                },
+            },
+        )
+        self.assertEqual(
+            "turn-human",
+            self.authority.current_snapshot().active_turn_id,
+        )
+        self.assertTrue(
+            self.authority.current_snapshot().admission_pending
+        )
+
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "turn/started",
+                "params": {
+                    "threadId": "root-b",
+                    "turn": {
+                        "id": "turn-human",
+                        "status": "inProgress",
+                    },
+                },
+            },
+        )
+        self.assertFalse(
+            self.authority.current_snapshot().admission_pending
+        )
+
+    def test_review_and_compact_response_preserve_admission_gap(self):
+        self.establish()
+        review = self.authority.begin_tui_request(
+            1, "review/start", {"threadId": "root-a"}
+        )
+        self.authority.finish_tui_request(
+            review,
+            {
+                "id": 2,
+                "result": {
+                    "reviewThreadId": "root-a",
+                    "turn": {
+                        "id": "turn-review",
+                        "status": "inProgress",
+                        "items": [],
+                    },
+                },
+            },
+        )
+        snapshot = self.authority.current_snapshot()
+        self.assertEqual("turn-review", snapshot.active_turn_id)
+        self.assertTrue(snapshot.admission_pending)
+
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "turn/started",
+                "params": {
+                    "threadId": "root-a",
+                    "turn": {
+                        "id": "turn-review",
+                        "status": "inProgress",
+                    },
+                },
+            },
+        )
+        self.assertFalse(
+            self.authority.current_snapshot().admission_pending
+        )
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "turn/completed",
+                "params": {
+                    "threadId": "root-a",
+                    "turn": {
+                        "id": "turn-review",
+                        "status": "completed",
+                    },
+                },
+            },
+        )
+
+        compact = self.authority.begin_tui_request(
+            1, "thread/compact/start", {"threadId": "root-a"}
+        )
+        self.authority.finish_tui_request(
+            compact, {"id": 3, "result": {}}
+        )
+        snapshot = self.authority.current_snapshot()
+        self.assertIsNone(snapshot.active_turn_id)
+        self.assertTrue(snapshot.admission_pending)
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertTrue(leased.admission_pending)
+
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "turn/started",
+                "params": {
+                    "threadId": "root-a",
+                    "turn": {
+                        "id": "turn-compact",
+                        "status": "inProgress",
+                    },
+                },
+            },
+        )
+        snapshot = self.authority.current_snapshot()
+        self.assertEqual("turn-compact", snapshot.active_turn_id)
+        self.assertFalse(snapshot.admission_pending)
+
+    def test_active_shell_command_does_not_leave_provisional_barrier(self):
+        self.establish()
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "turn/started",
+                "params": {
+                    "threadId": "root-a",
+                    "turn": {
+                        "id": "turn-regular",
+                        "status": "inProgress",
+                    },
+                },
+            },
+        )
+        shell = self.authority.begin_tui_request(
+            1,
+            "thread/shellCommand",
+            {"threadId": "root-a", "command": "pwd"},
+        )
+        self.authority.finish_tui_request(
+            shell, {"id": 4, "result": {}}
+        )
+        snapshot = self.authority.current_snapshot()
+        self.assertEqual("turn-regular", snapshot.active_turn_id)
+        self.assertFalse(snapshot.admission_pending)
+
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "turn/completed",
+                "params": {
+                    "threadId": "root-a",
+                    "turn": {
+                        "id": "turn-regular",
+                        "status": "completed",
+                    },
+                },
+            },
+        )
+        snapshot = self.authority.current_snapshot()
+        self.assertIsNone(snapshot.active_turn_id)
+        self.assertFalse(snapshot.admission_pending)
+
+    def test_shell_response_does_not_restore_stale_compact_barrier(self):
+        self.establish()
+        compact = self.authority.begin_tui_request(
+            1, "thread/compact/start", {"threadId": "root-a"}
+        )
+        self.authority.finish_tui_request(
+            compact, {"id": 3, "result": {}}
+        )
+        self.assertTrue(
+            self.authority.current_snapshot().admission_pending
+        )
+
+        shell = self.authority.begin_tui_request(
+            1,
+            "thread/shellCommand",
+            {"threadId": "root-a", "command": "pwd"},
+        )
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "turn/started",
+                "params": {
+                    "threadId": "root-a",
+                    "turn": {
+                        "id": "turn-compact",
+                        "status": "inProgress",
+                    },
+                },
+            },
+        )
+        self.authority.finish_tui_request(
+            shell, {"id": 4, "result": {}}
+        )
+
+        snapshot = self.authority.current_snapshot()
+        self.assertEqual("turn-compact", snapshot.active_turn_id)
+        self.assertFalse(snapshot.admission_pending)
+
+    def test_admission_response_cannot_resurrect_completed_turn(self):
+        self.establish()
+        admission = self.authority.begin_tui_request(
+            1, "turn/start", {"threadId": "root-a", "input": []}
+        )
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "turn/started",
+                "params": {
+                    "threadId": "root-a",
+                    "turn": {"id": "turn-fast", "status": "inProgress"},
+                },
+            },
+        )
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "turn/completed",
+                "params": {
+                    "threadId": "root-a",
+                    "turn": {"id": "turn-fast", "status": "completed"},
+                },
+            },
+        )
+
+        self.authority.finish_tui_request(
+            admission,
+            {
+                "id": 2,
+                "result": {
+                    "turn": {
+                        "id": "turn-fast",
+                        "status": "inProgress",
+                        "items": [],
+                    }
+                },
+            },
+        )
+
+        self.assertIsNone(
+            self.authority.current_snapshot().active_turn_id
+        )
+        self.assertFalse(
+            self.authority.current_snapshot().admission_pending
+        )
+
+    def test_detached_review_does_not_replace_primary_active_turn(self):
+        self.establish()
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "turn/started",
+                "params": {
+                    "threadId": "root-a",
+                    "turn": {
+                        "id": "turn-primary",
+                        "status": "inProgress",
+                    },
+                },
+            },
+        )
+        review = self.authority.begin_tui_request(
+            1,
+            "review/start",
+            {
+                "threadId": "root-a",
+                "delivery": "detached",
+                "target": {"type": "uncommittedChanges"},
+            },
+        )
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "turn/started",
+                "params": {
+                    "threadId": "review-thread",
+                    "turn": {
+                        "id": "turn-review",
+                        "status": "inProgress",
+                    },
+                },
+            },
+        )
+        self.authority.finish_tui_request(
+            review,
+            {
+                "id": 3,
+                "result": {
+                    "reviewThreadId": "review-thread",
+                    "turn": {
+                        "id": "turn-review",
+                        "status": "inProgress",
+                        "items": [],
+                    },
+                },
+            },
+        )
+
+        snapshot = self.authority.current_snapshot()
+        self.assertEqual("root-a", snapshot.thread_id)
+        self.assertEqual("turn-primary", snapshot.active_turn_id)
+
+    def test_root_response_replays_target_turn_events_seen_in_flight(self):
+        self.establish()
+        resume = self.authority.begin_tui_request(
+            1, "thread/resume", {"threadId": "root-b"}
+        )
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "turn/started",
+                "params": {
+                    "threadId": "root-b",
+                    "turn": {"id": "turn-b", "status": "inProgress"},
+                },
+            },
+        )
+        self.authority.finish_tui_request(
+            resume, {"id": 2, "result": root_result("root-b")}
+        )
+        self.assertEqual(
+            "turn-b", self.authority.current_snapshot().active_turn_id
+        )
+
+        same_root_resume = self.authority.begin_tui_request(
+            1, "thread/resume", {"threadId": "root-b"}
+        )
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "turn/completed",
+                "params": {
+                    "threadId": "root-b",
+                    "turn": {"id": "turn-b", "status": "completed"},
+                },
+            },
+        )
+        stale_result = root_result("root-b")
+        stale_result["thread"]["turns"] = [
+            {
+                "id": "turn-b",
+                "status": "inProgress",
+                "items": [],
+            }
+        ]
+        self.authority.finish_tui_request(
+            same_root_resume, {"id": 3, "result": stale_result}
+        )
+        self.assertIsNone(
+            self.authority.current_snapshot().active_turn_id
+        )
+
+    def test_conflicting_root_response_and_started_event_is_untracked(self):
+        self.establish()
+        resume = self.authority.begin_tui_request(
+            1, "thread/resume", {"threadId": "root-b"}
+        )
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "turn/started",
+                "params": {
+                    "threadId": "root-b",
+                    "turn": {
+                        "id": "turn-live",
+                        "status": "inProgress",
+                    },
+                },
+            },
+        )
+        stale_result = root_result("root-b")
+        stale_result["thread"]["turns"] = [
+            {
+                "id": "turn-from-response",
+                "status": "inProgress",
+                "items": [],
+            }
+        ]
+
+        self.authority.finish_tui_request(
+            resume, {"id": 2, "result": stale_result}
+        )
+
+        snapshot = self.authority.current_snapshot()
+        self.assertEqual("root-b", snapshot.thread_id)
+        self.assertIsNone(snapshot.active_turn_id)
+
+    def test_rejected_invalidation_restores_notification_updated_turn(self):
+        self.establish()
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "turn/started",
+                "params": {
+                    "threadId": "root-a",
+                    "turn": {"id": "turn-a", "status": "inProgress"},
+                },
+            },
+        )
+        archive = self.authority.begin_tui_request(
+            1, "thread/archive", {"threadId": "root-a"}
+        )
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "turn/completed",
+                "params": {
+                    "threadId": "root-a",
+                    "turn": {"id": "turn-a", "status": "completed"},
+                },
+            },
+        )
+        self.authority.finish_tui_request(
+            archive,
+            {"id": 4, "error": {"code": -1, "message": "busy"}},
+        )
+
+        restored = self.authority.current_snapshot()
+        self.assertEqual("root-a", restored.thread_id)
+        self.assertIsNone(restored.active_turn_id)
+
     def test_non_root_resume_and_side_fork_do_not_replace_primary(self):
         original = self.establish()
         side_gate = self.authority.begin_tui_request(
@@ -443,6 +1034,45 @@ class RelayIntegrationTests(unittest.TestCase):
         self.assertEqual(request_id, read_server_json(client)["id"])
         return client, upstream
 
+    def test_primary_disconnect_revokes_authority_before_socket_cleanup(self):
+        primary, upstream = self.initialized_connection()
+        send_client_json(
+            primary,
+            {
+                "id": 1,
+                "method": "thread/start",
+                "params": {"cwd": "/workspace/project"},
+            },
+        )
+        self.assertEqual(
+            "thread/start", upstream.sent.get(timeout=1)["method"]
+        )
+        upstream.respond(
+            {"id": 1, "result": root_result("root-primary")}
+        )
+        self.assertEqual(1, read_server_json(primary)["id"])
+
+        with self.relay.connections_lock:
+            connection = next(iter(self.relay.connections.values()))
+        original_close = connection.close
+        checked = threading.Event()
+        leased = []
+
+        def checking_close():
+            with self.authority.delivery_lease(lambda: True) as snapshot:
+                leased.append(snapshot)
+            checked.set()
+            original_close()
+
+        connection.close = checking_close
+        primary.shutdown(socket.SHUT_RDWR)
+        primary.close()
+
+        self.assertTrue(checked.wait(1))
+        self.assertTrue(leased)
+        self.assertTrue(all(snapshot is None for snapshot in leased))
+        self.assertIsNone(self.authority.current_snapshot())
+
     def test_frontend_upgrade_requires_host_header(self):
         stream = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.clients.append(stream)
@@ -611,6 +1241,7 @@ class RelayIntegrationTests(unittest.TestCase):
                     "method": "turn/steer",
                     "params": {
                         "threadId": "root-a",
+                        "expectedTurnId": "turn-primary",
                         "input": [{"type": "text", "text": "wrong root"}],
                     },
                 },
@@ -808,7 +1439,7 @@ class RelayIntegrationTests(unittest.TestCase):
                 "method": "turn/steer",
                 "params": {
                     "threadId": "root-a",
-                    "turnId": "turn-x",
+                    "expectedTurnId": "turn-x",
                     "input": [],
                 },
             },

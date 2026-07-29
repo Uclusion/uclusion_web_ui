@@ -252,7 +252,15 @@ def ignore_existing_prompts(environment, workspace_id, consumer):
         connection.commit()
 
 
+# Why the request that just returned None failed, e.g. 'HTTP 504 Gateway
+# Timeout' (S-all-174). Callers append it to their failure lines so a piped
+# or truncated console still records the cause.
+last_send_error = None
+
+
 def send(data, method, my_api_url, auth=None):
+    global last_send_error
+    last_send_error = None
     json_data_as_bytes = None
     if data is not None:
         # Encode the data into JSON format
@@ -288,12 +296,15 @@ def send(data, method, my_api_url, auth=None):
                 response_json = json.loads(response_body)
                 return response_json
             else:
+                last_send_error = f'HTTP {response.status}'
                 print(f"Failed to post data. Status code: {response.status}")
                 print(f"Response: {response.read().decode('utf-8')}")
 
     except urllib.request.HTTPError as e:
+        last_send_error = f'HTTP {e.code} {e.reason}'
         print(f"Error making request: {e.reason}")
     except Exception as e:
+        last_send_error = str(e)
         print(f"An unexpected error occurred: {e}")
 
 
@@ -747,7 +758,16 @@ def build_incremental_export(credentials, list_response, existing_sections, fail
 
 def fetch_workspace_export(credentials, file_path=None):
     export_list_api_url = 'https://summaries.' + credentials['api_url'] + '/export_list'
-    response = send(None, 'GET', export_list_api_url, credentials['api_token'])
+    # Unlike the per-id section fetches this opening call has no fallback, so
+    # a transient failure here would abort the whole export (S-all-174).
+    response = None
+    for attempt in range(3):
+        if attempt > 0:
+            print(f"  ⚠️ export_list failed ({last_send_error}); retrying...")
+            time.sleep(attempt)
+        response = send(None, 'GET', export_list_api_url, credentials['api_token'])
+        if response is not None:
+            break
     if response is None:
         return None
     failed_ids = []
@@ -807,7 +827,7 @@ def write_uclusion_md(config, credentials, short_code_id, job_report_path='job_r
             report_api_url = 'https://summaries.' + credentials['api_url'] + '/report'
             new_file_content = send(None, 'GET', report_api_url, credentials['api_token'])
     if new_file_content is None:
-        print(f"     -> ❌ Fetch failed; not writing '{file_path}'")
+        print(f"     -> ❌ Fetch failed ({last_send_error or 'unknown error'}); not writing '{file_path}'")
         return
     try:
         if short_code_id is None and create_export_folder:
@@ -1153,7 +1173,7 @@ def cmd_export(args):
         file_path, create_export_folder = get_workspace_export_destination(config, credentials)
     new_file_content = fetch_workspace_export(credentials, file_path)
     if new_file_content is None:
-        print(f"     -> ❌ Fetch failed; not writing '{file_path}'")
+        print(f"     -> ❌ Fetch failed ({last_send_error or 'unknown error'}); not writing '{file_path}'")
         return 1
     try:
         if create_export_folder:

@@ -1,0 +1,394 @@
+<!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->
+# Uclusion Codex Poke companion architecture
+
+This document is the contract for autonomous Poke delivery in a Codex TUI
+started by `uclusion codex`. It describes the relay-authoritative design chosen
+for J-all-369. The implementation may be organized into classes or threads
+differently, but it must preserve the authority and delivery invariants below.
+
+## Scope and vocabulary
+
+- The **primary** is the root Codex thread which owns the user's main input on
+  the authoritative TUI connection. It is not necessarily the transcript
+  momentarily displayed: `/side` and `/agent` may show another transcript
+  without changing where new main-input turns, including Pokes, belong.
+- **NoRoot** is the fail-closed authority state in which no thread may receive
+  a Poke. It does not discard or advance queued delivery.
+- An **auxiliary thread** is any subagent, detached review, helper, or other
+  thread which is not that input-owning primary.
+- The **companion** is one launcher-owned process. It contains both the
+  protocol-aware TUI relay and the durable Poke delivery worker.
+- The **frontend** is the private Unix WebSocket accepted by the companion.
+  The authoritative TUI connection and any short-lived picker/pass-through
+  connections connect only to this socket.
+- The **backend** is the private Unix WebSocket accepted by Codex app-server.
+  The companion opens one matching relayed backend connection for every
+  frontend client plus a logically separate auxiliary delivery/control
+  connection.
+
+The companion is necessary because two unrelated WebSocket protocols meet on
+the host. Uclusion's cloud WSS carries Poke notifications. Codex app-server
+carries bidirectional JSON-RPC in WebSocket frames over a local Unix socket.
+Neither protocol can be forwarded directly into the other.
+
+## Components and trust boundaries
+
+```mermaid
+flowchart LR
+    subgraph Cloud["Uclusion cloud"]
+        UWSS["Uclusion Poke WSS"]
+        UHTTP["Uclusion HTTPS APIs"]
+    end
+
+    subgraph Host["User host"]
+        Proxy["Uclusion MCP proxy process(es)"]
+        Inbox[("~/.uclusion/poke_inbox.sqlite3")]
+
+        subgraph Runtime["0700 launcher runtime directory"]
+            TUI["Codex TUI<br/>authoritative input connection"]
+            Picker["Codex picker / pass-through<br/>connection(s)"]
+            Companion["Uclusion companion<br/>relay + delivery worker"]
+            AppServer["private Codex app-server"]
+
+            TUI <-->|"Codex JSON-RPC<br/>frontend Unix WebSocket"| Companion
+            Picker <-->|"zero or more frontend<br/>connections"| Companion
+            Companion <-->|"one relayed backend per<br/>frontend connection"| AppServer
+            Companion <-->|"auxiliary delivery connection<br/>backend Unix WebSocket"| AppServer
+        end
+    end
+
+    UWSS -->|"poke_ai notification"| Proxy
+    Proxy -->|"deduplicating insert"| Inbox
+    Companion <-->|"reserve / reconcile / acknowledge"| Inbox
+    AppServer <-->|"MCP over stdio"| Proxy
+    Proxy <-->|"job tools"| UHTTP
+```
+
+There can be more than one Uclusion MCP proxy process. They can receive the
+same cloud broadcast; the inbox's environment/workspace/message-id uniqueness
+constraint performs local deduplication. The companion has its own
+`codex-bridge` consumer cursor. Other consumers intentionally receive their own
+copy of a Poke.
+
+Exactly one live companion may own a given `(environment, workspace)` pair.
+It acquires a durable SQLite ownership row before enabling its frontend or
+delivery worker and refreshes that row while alive. A second launcher for the
+same pair is rejected while the recorded owner PID is live. Heartbeat age is
+diagnostic rather than permission to steal: a stalled old owner could otherwise
+wake and race the replacement. A dead PID can be replaced, and a normal exit
+releases its own row. Launchers for different environments or workspaces may
+coexist.
+
+This launcher lock is separate from frontend-connection authority: one live
+companion can accept its authoritative TUI connection plus auxiliary picker
+connections. The process-level lock is needed because all companions for the
+same pair would share the `codex-bridge` cursor. Allowing two live companions
+to map that stream to different input-owning roots could produce competing
+`turn/start` attempts, duplicate a Poke before either owner acknowledges it, or
+make ambiguous-send reconciliation race the wrong primary.
+
+The runtime directory and its sockets are private against ordinary accidental
+access. They are not an authentication boundary against a malicious process
+already running as the same operating-system user.
+
+## Why Codex's own serialization is insufficient
+
+Codex 0.145 serializes `turn/start` by target thread. It serializes
+`thread/resume` and `thread/fork` by their source thread, while `thread/start`
+has no serialization scope. App-server has no concept of the authoritative
+TUI connection's input-owning root and therefore no cross-thread primary lock.
+
+A delivery client can consequently pass its last root check, the TUI can
+switch to a different root, and app-server can still accept `turn/start` on the
+old loaded root. Repeating root checks narrows that race but cannot close the
+interval after the last check. The inline relay closes it because all TUI root
+switches and all Poke starts pass through one companion-owned barrier.
+
+## Primary authority
+
+Primary authority belongs only to the first frontend connection which
+successfully initializes with `clientInfo.name = "codex-tui"`, never to a
+broadcast notification or a persisted guess. It is memory-only and starts as
+unknown when that authoritative connection is established. Later frontend
+connections are auxiliary pass-through connections, including pickers opened
+by commands such as `/resume`; they may coexist but cannot mutate authority.
+
+| Observation | Authority transition |
+| --- | --- |
+| First successful frontend `initialize` with `clientInfo.name = "codex-tui"` | Designate that connection authoritative but keep primary unknown. Initialization alone does not identify its input-owning root. |
+| Later frontend initialization, including a picker/pass-through connection | Allow it as auxiliary. Its requests and responses never establish, replace, or clear primary authority. |
+| Successful, correlated, authoritative-connection `thread/start`, `thread/resume`, or `thread/fork` response | Validate `result.thread`, then atomically replace the primary with its id. |
+| Definitive error response to one of those authoritative requests | Keep the prior primary; Codex rejected the switch. |
+| Authoritative connection loss or an ambiguous/malformed response to one of its primary-changing requests | Clear authority. Do not infer which root owns main input. |
+| Authoritative `thread/archive` or `thread/delete` for the current primary is in flight | Temporarily enter NoRoot under the barrier so no Poke can target a root being invalidated. |
+| Successful authoritative `thread/archive` or `thread/delete` for the current primary | Remain NoRoot until a later correlated start/resume/fork succeeds. |
+| Definitive error from that `thread/archive` or `thread/delete` | Restore the prior primary; app-server proved it did not perform the invalidation. An ambiguous transport outcome remains NoRoot. |
+| Authoritative `thread/unsubscribe` for the current primary | Enter NoRoot while it is in flight and remain NoRoot on success, definitive RPC error, malformed response, or ambiguous transport. Codex 0.145's TUI aborts its local listener after awaiting unsubscribe even when the RPC returns an error. |
+| `thread/archived`, `thread/deleted`, or `thread/closed` for the current primary | Clear authority. |
+| `thread/started`, `thread/status/changed`, or `thread/loaded/list` | Never establish or replace the primary. These are not display evidence. |
+| A companion-originated resume/read, detached `review/start`, subagent event, or auxiliary lifecycle notification | Never establish or replace the primary. |
+
+A valid primary response contains a root thread for the launcher's exact
+canonical workspace: non-empty `id`, `sessionId == id`, no `parentThreadId`,
+and a matching canonical `cwd`. Durable recovery is supported for
+non-ephemeral primaries. An ephemeral thread has no persisted rollout, so an
+app-server process crash cannot be reconciled from history; it must not be
+described as crash-recoverable.
+
+Auxiliary frontend connections can relay picker, read, and other pass-through
+traffic with their own matching backend connections. Even if one observes or
+loads a thread, its response cannot alter the authoritative binding. Any
+attempt by a second connection to admit a turn on the primary, invalidate the
+primary, interrupt or steer the primary's turn, claim authority, or perform
+another authoritative primary mutation is rejected or fails closed. Auxiliary
+`thread/start`, `thread/resume`, and `thread/fork` picker traffic may load or
+create a different thread, but it must never create two input owners.
+
+## Switch-versus-Poke serialization
+
+The companion uses one barrier for primary-changing TUI requests and Poke
+delivery. The barrier covers app-server acceptance, not the whole generated
+turn.
+
+```mermaid
+sequenceDiagram
+    participant T as Authoritative Codex TUI connection
+    participant C as Companion relay
+    participant G as Primary barrier
+    participant A as Codex app-server
+    participant D as Delivery worker
+
+    T->>C: thread/start, thread/resume, or thread/fork
+    C->>G: acquire
+    C->>A: forward TUI request
+    A-->>C: successful response with result.thread = R2
+    C->>C: validate and set primary = R2
+    C-->>T: forward response
+    C->>G: release
+
+    D->>G: acquire
+    D->>D: read authoritative primary R2
+    D->>A: turn/start(threadId=R2)
+    A-->>D: response with turn.id
+    D->>G: release
+```
+
+The matching authoritative response is parsed and authority is updated before
+that response is forwarded to the TUI. If the switch acquires the barrier
+first, the Poke targets the new primary. If delivery acquires it first,
+app-server accepts the Poke on the old primary before the switch request is
+forwarded. After the `turn/start` response, the barrier is released: an
+intentional later main-input switch is allowed and can hide a still-running
+Poke turn. Merely viewing `/side` or `/agent` does not enter this race because
+it does not change the input-owning primary.
+
+The primary frontend uses one outbound FIFO. Its admission ticket is recorded
+synchronously before a message is handed to the worker, so a Poke cannot slip
+between frontend receipt and worker scheduling. Root changes, current-root
+invalidation, and human turn-admission methods hold the barrier through their
+correlated response. Ordinary requests and notifications retain arrival
+order. Only `turn/interrupt`, `turn/steer`, and a correlated response to a
+backend-initiated request bypass the FIFO; those paths must stay live to
+control or answer an already-running turn.
+
+The relay is protocol-aware, not byte-transparent. It preserves JSON-RPC
+requests, responses, notifications, server-initiated requests, WebSocket
+control frames, and message ordering while tracking correlated request ids.
+Notifications such as `thread/started` may arrive before the matching response;
+they do not commit authority. IDs are limited to strings and signed 64-bit
+integers, responses require exactly one of `result` or an object-valued
+`error`, JSON numbers must be finite, and malformed WebSocket control frames
+fail closed.
+
+## Durable delivery
+
+Delivery is reserve/acknowledge rather than destructive consumption.
+
+```mermaid
+sequenceDiagram
+    participant P as MCP proxy
+    participant Q as Durable inbox
+    participant C as Companion
+    participant A as Codex app-server
+    participant T as Visible TUI
+
+    P->>Q: INSERT OR IGNORE Poke by message id
+    C->>C: require live TUI, authoritative primary, idle thread
+    C->>Q: peek next codex-bridge sequence
+    C->>Q: record delivery state = sending
+    C->>A: turn/start(primary, clientUserMessageId=message_id)
+    A-->>C: result.turn.id
+    A-->>T: turn/item notifications
+    C->>Q: acknowledge delivery and advance codex-bridge cursor
+```
+
+The companion does not peek, reserve, reconcile, or advance the cursor while
+there is no live authoritative primary. A busy primary defers delivery. The
+cursor advances only after `turn/start` returns a non-empty `turn.id`, or after
+history reconciliation proves that the same `clientUserMessageId` was already
+accepted.
+
+If the auxiliary transport fails after a send, the outcome is ambiguous. The
+`sending` record retains both the message id and the thread id used for that
+attempt. After reconnecting, the companion reads that stored thread's history,
+even if the TUI has since selected another primary:
+
+- If a persisted user item has the same client id, acknowledge the old attempt.
+  Requiring the old thread to remain current here would risk duplicating the
+  Poke on the new primary.
+- If no matching item exists and the old thread is safely idle or unloaded,
+  return the Poke to pending so it can target the then-current primary.
+- If turns are missing, root/status/turn/item shape is malformed, the old
+  thread is active, or its state cannot be proved, keep the row `sending` and
+  do not retry.
+
+The final cursor acknowledgement is a conditional commit under the same
+authority lock used by disconnect and lifecycle invalidation. Either the
+snapshot and visible receiver are still current and SQLite commits first, or
+revocation wins and the `sending` row remains for reconciliation. There is no
+check-then-commit window in which a stale root can advance the cursor.
+
+This is duplicate suppression for the `codex-bridge` consumer, not a claim of
+global exactly-once delivery. Other named consumers have independent cursors,
+and the same Poke may intentionally be delivered to Claude, Cursor, or another
+Codex consumer. Inbox rows age out after seven days.
+
+Update notices use the same primary authority, serialization barrier, and
+ambiguous-send recovery as ordinary Pokes.
+
+## Interactive requests and auxiliary connections
+
+The authoritative relayed TUI connection remains the interactive input owner
+and thread subscriber. It renders streamed events and answers app-server
+requests for command approval, file approval, user input, permissions, and
+other elicitation. Picker/pass-through and companion delivery connections
+never auto-approve, deny, or fabricate an answer. Receiving a server request
+on an auxiliary connection is not permission to resolve it.
+
+Each backend WebSocket performs its own `initialize` request followed by the
+`initialized` notification. Their JSON-RPC request-id spaces are independent.
+Activity initiated by a picker/pass-through or delivery connection does not
+change primary authority. Backend-initiated requests on a relayed TUI
+connection use a separate pending-id map; only the matching TUI response is
+returned, even while a root or admission request is gated. An unexpected
+server request on the companion's noninteractive delivery connection is a
+transport failure, never something the companion silently drops or answers.
+Uncorrelated broadcasts on that nonauthoritative connection are discarded at
+ingress; they are not primary-authority evidence, and retaining streamed
+turn/item events would create a memory backlog.
+
+## Failure and recovery
+
+| Failure or state | Required behavior |
+| --- | --- |
+| No authoritative TUI connection or no authoritative primary | Leave inbox and delivery rows untouched. |
+| Primary is active | Defer without reserving a new Poke. |
+| Authoritative TUI/frontend connection disconnects | Clear primary immediately and stop all new delivery. The launcher normally tears down the private runtime. |
+| Auxiliary picker/pass-through connection opens or closes | Allow and isolate it; do not change authority or delivery readiness. |
+| A second connection attempts primary turn admission, control, or current-primary invalidation | Reject that request on the auxiliary connection; never let it bypass a Poke lease. |
+| A primary message is queued before its FIFO worker runs | Its synchronous reservation blocks new Poke leases; interrupt, steer, and correlated server responses remain immediate. |
+| Root-switch request returns an error | Keep the previous primary. |
+| Root-switch outcome is ambiguous | Clear primary and wait for a fresh correlated TUI start/resume/fork. |
+| Current-primary archive/delete returns a definitive error | Restore the prior primary. Success or an ambiguous outcome leaves NoRoot. |
+| Current-primary unsubscribe succeeds, errors, or has an ambiguous outcome | Leave NoRoot because the TUI abandons its listener after awaiting the call regardless of the RPC result. |
+| A second launcher targets the same environment and workspace while its owner PID is live | Reject the second companion; do not let two processes consume the shared `codex-bridge` cursor. |
+| The recorded bridge owner PID is dead | Permit takeover, then recover or reconcile durable pending/sending state before new delivery. A stale heartbeat alone never permits takeover. |
+| Auxiliary backend connection fails | Preserve any `sending` row, reconnect to the still-running backend, then reconcile by the stored message and thread ids. |
+| Relayed backend connection fails | Clear authority and close or fail the frontend; never reconstruct visibility from broadcasts or loaded-thread lists. |
+| Companion exits | Launcher stops the TUI and app-server. Unacknowledged inbox state remains for a later launch. |
+| App-server exits | Launcher stops the companion and TUI. A later launch may reconcile persisted non-ephemeral history; it cannot prove an ephemeral turn survived. |
+| Launcher parent exits or the authoritative TUI dies | Stop delivery before the next peek/send and reap launcher-owned children. |
+| Duplicate cloud notification | Inbox uniqueness suppresses the duplicate for the same environment, workspace, and message id. |
+| SQLite, app-server history, response correlation, or authority at commit cannot be proved | Fail closed and keep the delivery unacknowledged; do not advance the cursor. |
+
+Authority is never restored from a persisted binding after a transport or
+process boundary. A new authoritative TUI connection must demonstrate its
+primary with a successful correlated lifecycle response.
+
+## Install, launch, and shutdown
+
+An install or update publishes the CLI, MCP proxy, and companion as one
+immutable release. Older releases installed a marker-owned lifecycle-hook
+block in `~/.codex/config.toml`; current installers remove only that exact
+`# uclusion-codex-bridge-hooks:v1` block and preserve unrelated hooks and
+configuration. A symlink-managed config remains a symlink and its regular-file
+target is updated atomically. The installer serializes its own writers and
+checks target identity plus contents both before and after preparing the
+replacement, so detected retargets or concurrent edits abort. Python has no
+portable conditional-rename primitive for the final check-to-publication
+instant; arbitrary noncooperating editors in that instant remain the standard
+very narrow limitation of atomic temp-file replacement. Poke delivery has no
+`/hooks` trust prerequisite.
+
+`uclusion codex` performs these steps:
+
+1. Validate workspace configuration and the Codex version.
+2. Stage one immutable Uclusion release in a new private runtime directory.
+3. Start Codex app-server on the private backend Unix socket.
+4. Start the companion, initialize its auxiliary connection, and bind the
+   private frontend Unix socket.
+5. Start the TUI with `--remote` pointing to the frontend, never the backend.
+6. Select the first successfully initialized `codex-tui` connection as
+   authoritative and wait for its successful root lifecycle response before
+   enabling delivery. Auxiliary picker connections may come and go meanwhile.
+
+Global config and feature passthrough flags (`-c`/`--config`, `--enable`,
+`--disable`, and `--strict-config`) are copied to the backend as well as the
+TUI, while the launcher's complete Uclusion MCP table is appended afterward
+so a passthrough override cannot disconnect this workspace's proxy.
+
+Process readiness and delivery readiness are different. A readiness marker can
+prove that the companion initialized and bound its frontend; it cannot prove a
+TUI is connected or that a primary exists.
+
+The launcher owns the app-server, companion, and TUI as one lifetime. If any
+required child exits unexpectedly, it stops and reaps the others. Runtime
+sockets and staged files disappear with that lifetime.
+
+## Codex protocol compatibility
+
+The integration uses Codex's local Unix-socket WebSocket control plane. Codex's
+TCP WebSocket listener is documented as experimental/unsupported and is not
+part of this design.
+
+The launcher currently requires Codex 0.145.0 or newer. Its request/response
+validation and sequencing rules target the 0.145.0 schemas and observed TUI
+behavior. App-server schemas are version-specific and the app-server is
+documented as a development interface that may change. A minimum-version check
+is therefore not a promise that every future Codex version remains
+wire-compatible. Unknown or malformed lifecycle and turn responses must fail
+closed, and compatibility tests should be rerun when Codex changes.
+
+## Verification matrix
+
+At minimum, tests must cover:
+
+- `thread/start`, `thread/resume`, and `thread/fork` winning and losing the
+  barrier race against a Poke;
+- authority update before the TUI receives a successful switch response;
+- disconnect and ambiguous-switch authority revocation;
+- archive/delete success and ambiguity clearing authority, with definitive
+  errors restoring the prior primary;
+- unsubscribe success, definitive error, malformed response, and ambiguous
+  transport all leaving NoRoot, plus close of the current primary;
+- detached reviews, subagents, lifecycle broadcasts, and auxiliary resumes
+  never stealing primary authority;
+- auxiliary picker/pass-through coexistence without authority mutation;
+- rejection or fail-closed handling of a second connection's attempted
+  turn admission or current-primary invalidation;
+- enqueue-to-worker FIFO races, ordinary-message ordering, and explicit
+  interrupt/steer/server-response bypass;
+- one live companion per environment/workspace, including live-owner
+  rejection, dead-owner takeover, and no heartbeat-only ownership theft;
+- busy-primary deferral without cursor movement;
+- ambiguous `turn/start` recovery against the stored old thread after a later
+  primary switch;
+- WebSocket fragmentation, ping/pong, strict close validation, finite and
+  duplicate-free JSON, exact response envelopes, signed-int64/string request
+  ids, and bidirectional correlation without protocol reordering;
+- malformed reconciliation history remaining `sending`, plus cursor
+  acknowledgement serialized against lifecycle and disconnect revocation;
+- duplicate cloud notifications and independent consumer cursors;
+- launcher cleanup for TUI, companion, and app-server failure; and
+- a real end-to-end Poke plus `/new` interleaving against a supported
+  Codex release.

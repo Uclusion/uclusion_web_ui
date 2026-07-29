@@ -3,9 +3,10 @@
 
 Downloads ``uclusionCLI.py`` and ``uclusionMCPProxy.py`` from the Uclusion site
 (environment-specific) into a versioned install directory under ``~/.local`` and
-exposes them on ``PATH`` via symlinks in ``~/.local/bin`` (the same user-local
-bin Claude and Codex install into). The install is always user-local, so it
-never needs root or sudo.
+atomically activates that immutable release through ``uclusion-cli/current``.
+Stable symlinks in ``~/.local/bin`` resolve through ``current/bin`` (the same
+user-local bin Claude and Codex install into). The install is always user-local,
+so it never needs root or sudo.
 
 The CLI file is named ``uclusion.py`` in the install directory and is exposed
 on ``PATH`` via a ``uclusion`` symlink, so users invoke it simply as
@@ -30,9 +31,13 @@ Without ``--clients`` the installer asks whether to configure Uclusion globally
   workspace config (``uclusion.json``), project-scoped MCP registrations
   (``.mcp.json`` for Claude Code, ``.cursor/mcp.json`` for Cursor), and the
   workflow docs (``CLAUDE.md``, ``.cursor/rules/uclusion.mdc``, ``AGENTS.md``).
-  The CLI binaries themselves always stay user-global under ``~/.local``.
+  Codex receives its project-specific MCP table from ``uclusion codex`` at
+  launch. The CLI binaries themselves always stay user-global under
+  ``~/.local``.
 """
 import argparse
+import errno
+import filecmp
 import json
 import os
 import re
@@ -41,8 +46,26 @@ import stat
 import subprocess
 import sys
 import tempfile
+import time
 import urllib.parse
 import urllib.request
+import uuid
+from contextlib import contextmanager
+
+try:
+    import fcntl
+except ImportError:  # Native Windows does not provide POSIX flock.
+    fcntl = None
+
+try:
+    import msvcrt
+except ImportError:  # POSIX platforms do not provide Windows file locking.
+    msvcrt = None
+
+try:
+    import tomllib
+except ImportError:  # Python < 3.11 keeps standalone installer compatibility.
+    tomllib = None
 
 
 LOCAL_PREFIX = os.path.join(os.path.expanduser('~'), '.local')
@@ -51,9 +74,18 @@ SCRIPT_INSTALL_PREFIX = os.path.join(LOCAL_PREFIX, 'uclusion-cli')
 # the same versions-in-the-path layout Claude uses (versions/2.1.220) — so the
 # installed release is readable from the symlink target and the proxy/CLI can
 # derive their own version from realpath (J-all-367). When the version cannot
-# be fetched (no credentials yet, offline) this placeholder keeps the install
-# working; version checks treat it as unknown and stay silent.
+# be fetched (no credentials yet, offline), every install gets a unique
+# ``unversioned-*`` release. Version checks treat those releases as unknown,
+# while their unique names preserve the immutable-release invariant.
 UNVERSIONED_INSTALL_DIR = 'unversioned'
+CURRENT_RELEASE_LINK = 'current'
+INSTALL_LOCK_FILE = '.install.lock'
+RESERVED_RELEASE_NAMES = frozenset({
+    CURRENT_RELEASE_LINK,
+    'v1',
+    'bin',
+    UNVERSIONED_INSTALL_DIR,
+})
 # Symlinks land in ~/.local/bin (where Claude and Codex install too), so the
 # install is always user-writable and never needs root or sudo.
 SYMLINK_DIR = os.path.join(LOCAL_PREFIX, 'bin')
@@ -69,6 +101,7 @@ HTTP_TIMEOUT = 15
 SCRIPT_FILES = (
     ('uclusionCLI.py', 'uclusion.py', 'uclusion'),
     ('uclusionMCPProxy.py', 'uclusionMCPProxy.py', 'uclusionMCPProxy.py'),
+    ('uclusionCodexBridge.py', 'uclusionCodexBridge.py', 'uclusionCodexBridge.py'),
 )
 
 UCLUSION_HOME = os.path.join(os.path.expanduser('~'), '.uclusion')
@@ -98,6 +131,7 @@ CURSOR_MDC_FRONTMATTER = (
     '---\n'
 )
 MCP_PROXY_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionMCPProxy.py')
+CODEX_BRIDGE_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionCodexBridge.py')
 CODEX_HOME = os.path.join(os.path.expanduser('~'), '.codex')
 CODEX_CONFIG_PATH = os.path.join(CODEX_HOME, 'config.toml')
 CODEX_AGENTS_MD_PATH = os.path.join(CODEX_HOME, 'AGENTS.md')
@@ -105,6 +139,12 @@ CODEX_AGENTS_MD_PATH = os.path.join(CODEX_HOME, 'AGENTS.md')
 # reruns can replace it in place without disturbing the user's other settings.
 CODEX_CONFIG_MARKER = '# uclusion-mcp:v1'
 CODEX_CONFIG_END_MARKER = '# /uclusion-mcp:v1'
+# Releases before J-all-369 installed lifecycle hooks for root-thread
+# discovery. The inline relay now owns that authority directly, but these
+# marker names remain part of the installer so an update can remove only the
+# obsolete Uclusion-owned block without disturbing anybody else's hooks.
+LEGACY_CODEX_HOOKS_MARKER = '# uclusion-codex-bridge-hooks:v1'
+LEGACY_CODEX_HOOKS_END_MARKER = '# /uclusion-codex-bridge-hooks:v1'
 
 
 def get_scripts_base_url(env):
@@ -220,11 +260,46 @@ def install_file(src_path, dest_path):
     make_executable(dest_path)
 
 
+def _fsync_file(path):
+    """Flush one completed release file before its directory is published."""
+    descriptor = os.open(path, os.O_RDONLY)
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
+def _fsync_directory(path):
+    """Best-effort directory flush for filesystems that support it."""
+    try:
+        descriptor = os.open(path, os.O_RDONLY)
+        try:
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+    except OSError:
+        # Windows and a few virtual filesystems do not allow directory fsync.
+        pass
+
+
 def create_symlink(target, link_path):
     """Create or replace a symlink at ``link_path`` pointing to ``target``."""
-    if os.path.lexists(link_path):
-        os.remove(link_path)
-    os.symlink(target, link_path)
+    temp_link = f'{link_path}.uclusion-{os.getpid()}-{uuid.uuid4().hex}'
+    if os.path.lexists(temp_link):
+        os.remove(temp_link)
+    try:
+        os.symlink(target, temp_link)
+        os.replace(temp_link, link_path)
+        _fsync_directory(os.path.dirname(link_path))
+    finally:
+        if os.path.lexists(temp_link):
+            os.remove(temp_link)
+
+
+def validate_python_script(path):
+    """Compile a downloaded script before it can become part of an install."""
+    with open(path, 'rb') as source:
+        compile(source.read(), path, 'exec')
 
 
 def warn_if_not_on_path(directory):
@@ -237,54 +312,361 @@ def warn_if_not_on_path(directory):
     print(f"      Add it, e.g.:  export PATH=\"{directory}:$PATH\"")
 
 
-def prune_old_install_dirs(keep_dir_name):
-    """Remove version directories other than ``keep_dir_name`` under the prefix.
+@contextmanager
+def _exclusive_file_lock(lock_file):
+    """Hold an exclusive advisory lock on an already-open binary file.
 
-    Runs only after the symlinks point at the new install, so nothing on PATH
-    ever dangles. Removing a running proxy's old script file is safe on the
-    platforms we support — the interpreter already loaded it. This also clears
-    the legacy ``v1/current/bin`` tree from pre-versioned installs.
+    Linux and macOS retain the existing ``flock`` behavior. Native Windows
+    uses ``msvcrt.locking`` over the first byte instead; a lock byte is created
+    once because Windows cannot lock a zero-length range.
+    """
+    if fcntl is not None:
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+        return
+
+    if msvcrt is None:
+        raise RuntimeError(
+            'This Python platform provides neither fcntl nor msvcrt file locking.'
+        )
+
+    lock_file.seek(0, os.SEEK_END)
+    if lock_file.tell() == 0:
+        lock_file.write(b'\0')
+        lock_file.flush()
+
+    while True:
+        lock_file.seek(0)
+        try:
+            msvcrt.locking(lock_file.fileno(), msvcrt.LK_NBLCK, 1)
+            break
+        except OSError as error:
+            if (
+                error.errno not in (errno.EACCES, errno.EAGAIN, errno.EDEADLK)
+                and getattr(error, 'winerror', None) not in (33, 36)
+            ):
+                raise
+            time.sleep(0.05)
+    try:
+        yield
+    finally:
+        lock_file.seek(0)
+        msvcrt.locking(lock_file.fileno(), msvcrt.LK_UNLCK, 1)
+
+
+@contextmanager
+def install_lock():
+    """Serialize release publication and activation across installer processes."""
+    ensure_dir(SCRIPT_INSTALL_PREFIX)
+    lock_path = os.path.join(SCRIPT_INSTALL_PREFIX, INSTALL_LOCK_FILE)
+    with open(lock_path, 'a+b') as lock_file, _exclusive_file_lock(lock_file):
+        yield
+
+
+def validate_release_name(script_version):
+    """Return a safe immutable release name or raise for reserved names."""
+    if not isinstance(script_version, str) or not script_version:
+        raise RuntimeError('Script version must be a non-empty string.')
+    if not re.fullmatch(r'[A-Za-z0-9._-]+', script_version):
+        raise RuntimeError(f'Unsafe script version: {script_version!r}')
+    normalized = script_version.casefold()
+    if (script_version in ('.', '..')
+            or script_version.startswith('.')
+            or normalized in RESERVED_RELEASE_NAMES
+            or normalized.startswith(f'{UNVERSIONED_INSTALL_DIR}-')):
+        raise RuntimeError(
+            f'Script version {script_version!r} uses a reserved release name.'
+        )
+    return script_version
+
+
+def _new_unversioned_release_name():
+    """Return an unused name in the installer's reserved unversioned namespace."""
+    while True:
+        name = f'{UNVERSIONED_INSTALL_DIR}-{uuid.uuid4().hex}'
+        if not os.path.lexists(os.path.join(SCRIPT_INSTALL_PREFIX, name)):
+            return name
+
+
+def _release_name_from_path(path):
+    """Return the direct child release containing ``path``, when it is one."""
+    prefix = os.path.realpath(SCRIPT_INSTALL_PREFIX)
+    resolved = os.path.realpath(path)
+    try:
+        relative = os.path.relpath(resolved, prefix)
+    except ValueError:
+        return None
+    if relative == os.pardir or relative.startswith(os.pardir + os.sep):
+        return None
+    name = relative.split(os.sep, 1)[0]
+    if (not name or name in ('.', CURRENT_RELEASE_LINK)
+            or name.startswith('.')):
+        return None
+    release_path = os.path.join(SCRIPT_INSTALL_PREFIX, name)
+    if not os.path.isdir(release_path) or os.path.islink(release_path):
+        return None
+    return name
+
+
+def _symlink_destination(link_path):
+    """Return an absolute path represented by ``link_path``, or None."""
+    if not os.path.islink(link_path):
+        return None
+    target = os.readlink(link_path)
+    if not os.path.isabs(target):
+        target = os.path.join(os.path.dirname(link_path), target)
+    return os.path.normpath(target)
+
+
+def _current_link_path():
+    return os.path.join(SCRIPT_INSTALL_PREFIX, CURRENT_RELEASE_LINK)
+
+
+def _public_link_path(symlink_name):
+    return os.path.join(SYMLINK_DIR, symlink_name)
+
+
+def _public_link_target(installed_name):
+    return os.path.join(
+        SCRIPT_INSTALL_PREFIX, CURRENT_RELEASE_LINK, 'bin', installed_name
+    )
+
+
+def _current_release_name():
+    current_path = _current_link_path()
+    destination = _symlink_destination(current_path)
+    if destination is None:
+        return None
+    return _release_name_from_path(destination)
+
+
+def _referenced_release_names():
+    """Return every release reached by the current or a managed public link."""
+    referenced = set()
+    paths = [_current_link_path()]
+    paths.extend(
+        _public_link_path(symlink_name)
+        for _source_name, _installed_name, symlink_name in SCRIPT_FILES
+    )
+    for path in paths:
+        destination = _symlink_destination(path)
+        if destination is None:
+            continue
+        release_name = _release_name_from_path(destination)
+        if release_name is not None:
+            referenced.add(release_name)
+    return referenced
+
+
+def _legacy_release_name():
+    """Find the one release targeted by pre-``current`` public symlinks."""
+    legacy_releases = set()
+    current_prefix = os.path.normpath(_current_link_path()) + os.sep
+    for _source_name, installed_name, symlink_name in SCRIPT_FILES:
+        link_path = _public_link_path(symlink_name)
+        destination = _symlink_destination(link_path)
+        if destination is None:
+            continue
+        normalized = os.path.normpath(destination)
+        if normalized.startswith(current_prefix):
+            continue
+        release_name = _release_name_from_path(destination)
+        if release_name is None:
+            continue
+        expected_path = os.path.join(
+            SCRIPT_INSTALL_PREFIX, release_name, 'bin', installed_name
+        )
+        if os.path.realpath(destination) == os.path.realpath(expected_path):
+            legacy_releases.add(release_name)
+    if len(legacy_releases) > 1:
+        names = ', '.join(sorted(legacy_releases))
+        raise RuntimeError(
+            'Cannot safely migrate public links that reference multiple '
+            f'Uclusion releases: {names}'
+        )
+    return next(iter(legacy_releases), None)
+
+
+def _preflight_activation_paths():
+    """Refuse user-owned paths before downloading or changing a release."""
+    current_path = _current_link_path()
+    if os.path.lexists(current_path) and not os.path.islink(current_path):
+        raise RuntimeError(
+            f'Refusing to replace non-symlink release pointer {current_path}'
+        )
+    for _source_name, _installed_name, symlink_name in SCRIPT_FILES:
+        link_path = _public_link_path(symlink_name)
+        if os.path.lexists(link_path) and not os.path.islink(link_path):
+            raise RuntimeError(f'Refusing to replace non-symlink {link_path}')
+
+
+def _prepare_public_links_for_atomic_switch():
+    """Route existing commands through the old ``current`` release.
+
+    Legacy installs linked each command directly to a release. Creating
+    ``current`` for that release first, then converting those links one at a
+    time, cannot change what any command executes. A termination anywhere in
+    this migration therefore leaves the old release consistently usable.
+    """
+    current_release = _current_release_name()
+    if current_release is None:
+        current_release = _legacy_release_name()
+        if current_release is None:
+            return
+        create_symlink(current_release, _current_link_path())
+
+    for _source_name, installed_name, symlink_name in SCRIPT_FILES:
+        link_path = _public_link_path(symlink_name)
+        if not os.path.islink(link_path):
+            continue
+        old_release_file = os.path.join(
+            SCRIPT_INSTALL_PREFIX, current_release, 'bin', installed_name
+        )
+        # A legacy release can predate a newly added script. Leave that absent
+        # command alone until the complete new release becomes current.
+        if os.path.isfile(old_release_file):
+            target = _public_link_target(installed_name)
+            if _symlink_destination(link_path) != os.path.normpath(target):
+                create_symlink(target, link_path)
+
+
+def _repair_all_public_links():
+    """Expose every script through the stable current/bin path."""
+    for _source_name, installed_name, symlink_name in SCRIPT_FILES:
+        link_path = _public_link_path(symlink_name)
+        target = _public_link_target(installed_name)
+        if (_symlink_destination(link_path) == os.path.normpath(target)):
+            continue
+        create_symlink(target, link_path)
+        print(f"  🔗 Linked {link_path} -> {target}")
+
+
+def prune_old_install_dirs(keep_dir_name, retain_previous=1):
+    """Keep the active release plus the newest ``retain_previous`` releases.
+
+    Every release referenced by ``current`` or any managed public symlink is
+    protected, even when it is older than the retained rollback release. This
+    also protects a legacy direct link after a partially completed migration.
     """
     if not os.path.isdir(SCRIPT_INSTALL_PREFIX):
         return
+    protected = _referenced_release_names()
+    protected.add(keep_dir_name)
+    previous = []
     for entry in os.listdir(SCRIPT_INSTALL_PREFIX):
-        if entry == keep_dir_name:
-            continue
         entry_path = os.path.join(SCRIPT_INSTALL_PREFIX, entry)
-        if os.path.isdir(entry_path):
-            shutil.rmtree(entry_path, ignore_errors=True)
-            print(f"  🧹 Removed old install {entry_path}")
+        if (entry in protected or entry == CURRENT_RELEASE_LINK
+                or entry.startswith('.') or not os.path.isdir(entry_path)
+                or os.path.islink(entry_path)):
+            continue
+        previous.append((os.path.getmtime(entry_path), entry_path))
+    previous.sort(reverse=True)
+    for _mtime, entry_path in previous[retain_previous:]:
+        shutil.rmtree(entry_path, ignore_errors=True)
+        print(f"  🧹 Removed old install {entry_path}")
 
 
 def install_scripts(env, script_version):
-    """Download the scripts into a version-named dir and swing the symlinks."""
+    """Publish a complete immutable release and atomically make it current."""
     base_url = get_scripts_base_url(env)
-    version_dir_name = script_version or UNVERSIONED_INSTALL_DIR
-    install_dir = os.path.join(SCRIPT_INSTALL_PREFIX, version_dir_name, 'bin')
-    print(f"📦 Installing scripts from {base_url}")
-    print(f"    install dir : {install_dir}")
-    print(f"    symlink dir : {SYMLINK_DIR}")
+    with install_lock():
+        version_dir_name = (
+            _new_unversioned_release_name()
+            if not script_version
+            else validate_release_name(script_version)
+        )
+        version_dir = os.path.join(SCRIPT_INSTALL_PREFIX, version_dir_name)
+        install_dir = os.path.join(version_dir, 'bin')
+        print(f"📦 Installing scripts from {base_url}")
+        print(f"    install dir : {install_dir}")
+        print(f"    symlink dir : {SYMLINK_DIR}")
 
-    ensure_dir(install_dir)
-    ensure_dir(SYMLINK_DIR)
+        ensure_dir(SYMLINK_DIR)
+        _preflight_activation_paths()
+        staging_dir = tempfile.mkdtemp(
+            prefix='.staging-', dir=SCRIPT_INSTALL_PREFIX
+        )
+        staging_bin = os.path.join(staging_dir, 'bin')
+        ensure_dir(staging_bin)
+        try:
+            # Nothing outside staging changes until every script validates.
+            for source_name, installed_name, _symlink_name in SCRIPT_FILES:
+                staging_path = os.path.join(staging_bin, installed_name)
+                download_to(base_url + source_name, staging_path)
+                validate_python_script(staging_path)
+                make_executable(staging_path)
+                _fsync_file(staging_path)
+            _fsync_directory(staging_bin)
+            _fsync_directory(staging_dir)
 
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        for source_name, installed_name, symlink_name in SCRIPT_FILES:
-            url = base_url + source_name
-            tmp_path = os.path.join(tmp_dir, installed_name)
-            download_to(url, tmp_path)
-            make_executable(tmp_path)
+            if os.path.lexists(version_dir):
+                if not os.path.isdir(version_dir) or os.path.islink(version_dir):
+                    raise RuntimeError(
+                        f'Existing release path is not a directory: {version_dir}'
+                    )
+                if not os.path.isdir(install_dir) or os.path.islink(install_dir):
+                    raise RuntimeError(
+                        f'Release {version_dir_name} has an invalid bin '
+                        'directory; publish a new script version.'
+                    )
+                missing = [
+                    installed_name
+                    for _source_name, installed_name, _symlink_name in SCRIPT_FILES
+                    if (not os.path.isfile(
+                            os.path.join(install_dir, installed_name))
+                        or os.path.islink(
+                            os.path.join(install_dir, installed_name)))
+                ]
+                if missing:
+                    raise RuntimeError(
+                        f'Release {version_dir_name} is incomplete for this '
+                        f'installer (missing {", ".join(missing)}); publish a '
+                        'new script version.'
+                    )
+                existing_paths = []
+                for _source_name, installed_name, _symlink_name in SCRIPT_FILES:
+                    existing_path = os.path.join(install_dir, installed_name)
+                    staged_path = os.path.join(staging_bin, installed_name)
+                    if not filecmp.cmp(
+                            existing_path, staged_path, shallow=False):
+                        raise RuntimeError(
+                            f'Release {version_dir_name} is already installed '
+                            'with different contents; publish a new script '
+                            'version.'
+                        )
+                    existing_paths.append(existing_path)
+                # Byte-identical same-version installs repair executable modes
+                # without replacing any release file or directory.
+                for existing_path in existing_paths:
+                    make_executable(existing_path)
+                    _fsync_file(existing_path)
+                shutil.rmtree(staging_dir)
+                staging_dir = None
+            else:
+                # Publication is one rename. ``current`` cannot observe a
+                # partial release because it is not changed until afterwards.
+                os.replace(staging_dir, version_dir)
+                staging_dir = None
+                _fsync_directory(SCRIPT_INSTALL_PREFIX)
 
-            install_path = os.path.join(install_dir, installed_name)
-            install_file(tmp_path, install_path)
-            print(f"  ✅ Installed {install_path}")
+            for _source_name, installed_name, _symlink_name in SCRIPT_FILES:
+                print(f"  ✅ Installed {os.path.join(install_dir, installed_name)}")
 
-            symlink_path = os.path.join(SYMLINK_DIR, symlink_name)
-            create_symlink(install_path, symlink_path)
-            print(f"  🔗 Linked {symlink_path} -> {install_path}")
+            # Existing public commands are first routed through the old
+            # pointer without changing their resolved files. The sole commit
+            # point is the atomic replacement of ``current`` below.
+            _prepare_public_links_for_atomic_switch()
+            create_symlink(version_dir_name, _current_link_path())
+            _repair_all_public_links()
+        finally:
+            if staging_dir is not None:
+                shutil.rmtree(staging_dir, ignore_errors=True)
 
-    prune_old_install_dirs(version_dir_name)
-    warn_if_not_on_path(SYMLINK_DIR)
+        prune_old_install_dirs(version_dir_name, retain_previous=1)
+        warn_if_not_on_path(SYMLINK_DIR)
 
 
 def write_uclusion_config(workspace_id, view_id, config_path, script_version=None):
@@ -332,6 +714,8 @@ def write_uclusion_config(workspace_id, view_id, config_path, script_version=Non
         config.pop('todoViewId', None)
     if script_version:
         config['scriptReinstallVersion'] = script_version
+    else:
+        config.pop('scriptReinstallVersion', None)
     with open(config_path, 'w', encoding='utf-8') as out:
         json.dump(config, out, indent=2)
         out.write('\n')
@@ -461,71 +845,342 @@ def build_codex_mcp_block(workspace_id, env):
     return '\n'.join(lines) + '\n'
 
 
-def update_codex_config(workspace_id, env, force=False):
-    """Register the Uclusion MCP server in ``~/.codex/config.toml``.
+@contextmanager
+def codex_config_lock():
+    """Serialize Uclusion's read/modify/replace cycle across installers."""
+    lock_path = f'{CODEX_CONFIG_PATH}.uclusion.lock'
+    ensure_dir(os.path.dirname(lock_path))
+    with open(lock_path, 'a+b') as lock_file, _exclusive_file_lock(lock_file):
+        yield
 
-    Gated on the ``~/.codex`` directory rather than the file: Codex creates the
-    directory on login but leaves ``config.toml`` optional, so requiring the file
-    (as the Cursor/Claude paths do for their JSON) would skip most real users.
-    ``force`` (an explicit ``--clients`` selection) creates the directory instead
-    of skipping. Our table is appended at the end of the file behind comment
-    markers and, on reruns, stripped and re-appended at the end so it never
-    captures trailing keys the user added after it.
-    """
+
+def replace_owned_block(existing, start_marker, end_marker, block, label):
+    """Append or replace exactly one ordered marker-owned config block."""
+    def marker_matches(marker):
+        return list(re.finditer(
+            rf'(?m)^{re.escape(marker)}\r?$',
+            existing,
+        ))
+
+    starts = marker_matches(start_marker)
+    ends = marker_matches(end_marker)
+    if not starts and not ends:
+        if existing.strip():
+            separator = '' if existing.endswith('\n') else '\n'
+            return existing + separator + '\n' + block, False
+        return block, False
+    if len(starts) != 1 or len(ends) != 1 or starts[0].start() >= ends[0].start():
+        raise RuntimeError(
+            f'{CODEX_CONFIG_PATH} has duplicate, orphaned, or reversed '
+            f'Uclusion {label} markers; refusing to modify it'
+        )
+    end_index = ends[0].end()
+    if end_index < len(existing) and existing[end_index] == '\n':
+        end_index += 1
+    remainder = (
+        existing[:starts[0].start()] + existing[end_index:]
+    ).rstrip()
+    return (remainder + '\n\n' + block) if remainder else block, True
+
+
+def remove_owned_block(existing, start_marker, end_marker, label):
+    """Remove exactly one marker-owned block, preserving all other config."""
+    def marker_matches(marker):
+        return list(re.finditer(
+            rf'(?m)^{re.escape(marker)}\r?$',
+            existing,
+        ))
+
+    starts = marker_matches(start_marker)
+    ends = marker_matches(end_marker)
+    if not starts and not ends:
+        return existing, False
+    if len(starts) != 1 or len(ends) != 1 or starts[0].start() >= ends[0].start():
+        raise RuntimeError(
+            f'{CODEX_CONFIG_PATH} has duplicate, orphaned, or reversed '
+            f'Uclusion {label} markers; refusing to modify it'
+        )
+    end_index = ends[0].end()
+    if end_index < len(existing) and existing[end_index] == '\r':
+        end_index += 1
+    if end_index < len(existing) and existing[end_index] == '\n':
+        end_index += 1
+    before = existing[:starts[0].start()].rstrip()
+    after = existing[end_index:].lstrip('\r\n')
+    if before and after:
+        return before + '\n\n' + after, True
+    if before:
+        return before + '\n', True
+    return after, True
+
+
+def validate_codex_config(text):
+    """Parse when stdlib TOML support exists; Codex must never see a partial block."""
+    if tomllib is not None:
+        try:
+            tomllib.loads(text)
+        except tomllib.TOMLDecodeError as error:
+            raise RuntimeError(
+                f'refusing to write invalid Codex TOML: {error}'
+            ) from error
+
+
+def _stat_signature(file_stat):
+    """Return the identity and mutation fields relevant to an atomic rewrite."""
+    return (
+        file_stat.st_dev,
+        file_stat.st_ino,
+        file_stat.st_size,
+        getattr(
+            file_stat,
+            'st_mtime_ns',
+            int(file_stat.st_mtime * 1_000_000_000),
+        ),
+        getattr(
+            file_stat,
+            'st_ctime_ns',
+            int(file_stat.st_ctime * 1_000_000_000),
+        ),
+        stat.S_IMODE(file_stat.st_mode),
+    )
+
+
+def _codex_config_write_target(path):
+    """Resolve a live config symlink without replacing the symlink itself."""
+    logical_path = os.path.abspath(os.path.expanduser(path))
+    try:
+        logical_stat = os.lstat(logical_path)
+    except FileNotFoundError:
+        logical_stat = None
+    target_path = os.path.realpath(logical_path)
+    if logical_stat is not None and stat.S_ISLNK(logical_stat.st_mode):
+        if not os.path.exists(target_path):
+            raise RuntimeError(
+                f'{logical_path} is a dangling symlink; refusing to replace it'
+            )
+    if os.path.exists(target_path) and not os.path.isfile(target_path):
+        raise RuntimeError(
+            f'{logical_path} does not resolve to a regular file; '
+            'refusing to modify it'
+        )
+    return target_path
+
+
+def _read_text_snapshot(path):
+    """Read one regular file and return content plus a stable stat signature."""
+    flags = os.O_RDONLY
+    if hasattr(os, 'O_NOFOLLOW'):
+        flags |= os.O_NOFOLLOW
+    try:
+        descriptor = os.open(path, flags)
+    except FileNotFoundError:
+        return '', None
+    try:
+        before = os.fstat(descriptor)
+        if not stat.S_ISREG(before.st_mode):
+            raise RuntimeError(
+                f'{path} is not a regular file; refusing to modify it'
+            )
+        with os.fdopen(descriptor, 'r', encoding='utf-8') as source:
+            descriptor = None
+            content = source.read()
+            after = os.fstat(source.fileno())
+    finally:
+        if descriptor is not None:
+            os.close(descriptor)
+    before_signature = _stat_signature(before)
+    after_signature = _stat_signature(after)
+    if before_signature != after_signature:
+        raise RuntimeError(
+            f'{path} changed while Uclusion was reading it; retry install'
+        )
+    return content, after_signature
+
+
+def _assert_expected_text_snapshot(
+    logical_path,
+    target_path,
+    expected_existing,
+    expected_signature,
+):
+    """Reject retargeting, replacement, or mutation since the caller's read."""
+    current_target = _codex_config_write_target(logical_path)
+    if current_target != target_path:
+        raise RuntimeError(
+            f'{logical_path} changed targets while Uclusion was updating it; '
+            'retry install'
+        )
+    current, current_signature = _read_text_snapshot(target_path)
+    if (
+        current != expected_existing
+        or current_signature != expected_signature
+    ):
+        raise RuntimeError(
+            f'{logical_path} changed while Uclusion was updating it; '
+            'retry install'
+        )
+
+
+def atomic_write_text(
+    path,
+    text,
+    expected_existing,
+    expected_target,
+    expected_signature,
+):
+    """Durably update a stable config target without replacing its symlink."""
+    logical_path = os.path.abspath(os.path.expanduser(path))
+    target_path = _codex_config_write_target(logical_path)
+    if target_path != expected_target:
+        raise RuntimeError(
+            f'{logical_path} changed targets while Uclusion was updating it; '
+            'retry install'
+        )
+    _assert_expected_text_snapshot(
+        logical_path,
+        target_path,
+        expected_existing,
+        expected_signature,
+    )
+    directory = os.path.dirname(target_path)
+    ensure_dir(directory)
+    mode = (
+        expected_signature[-1]
+        if expected_signature is not None
+        else 0o600
+    )
+    descriptor, temporary_path = tempfile.mkstemp(
+        prefix=f'.{os.path.basename(target_path)}.uclusion-',
+        dir=directory,
+    )
+    try:
+        with os.fdopen(descriptor, 'w', encoding='utf-8') as output:
+            output.write(text)
+            output.flush()
+            os.fsync(output.fileno())
+        os.chmod(temporary_path, mode)
+        _assert_expected_text_snapshot(
+            logical_path,
+            target_path,
+            expected_existing,
+            expected_signature,
+        )
+        # Python exposes no portable rename-if-this-inode-is-still-current
+        # primitive. The install lock coordinates every Uclusion writer and
+        # the two full snapshots detect normal editor replacement windows;
+        # os.replace keeps the published file itself atomic for readers.
+        os.replace(temporary_path, target_path)
+        temporary_path = None
+        try:
+            directory_fd = os.open(directory, os.O_RDONLY)
+            try:
+                os.fsync(directory_fd)
+            finally:
+                os.close(directory_fd)
+        except OSError:
+            # Some filesystems do not support directory fsync.
+            pass
+    finally:
+        if temporary_path is not None and os.path.lexists(temporary_path):
+            os.remove(temporary_path)
+
+
+def mutate_codex_config(
+    workspace_id=None,
+    env=None,
+    include_mcp=False,
+    force=False,
+):
+    """Apply Codex config changes and remove obsolete Uclusion bridge hooks."""
     if not os.path.isdir(CODEX_HOME):
-        if not force:
-            print(f"ℹ️  No {CODEX_HOME} found; skipping Codex MCP server registration.")
-            return
+        if not force or not include_mcp:
+            print(f"ℹ️  No {CODEX_HOME} found; skipping Codex configuration.")
+            return False
         ensure_dir(CODEX_HOME)
 
-    print(f"🧩 Registering Uclusion MCP server in {CODEX_CONFIG_PATH}")
-    existing = ''
-    if os.path.exists(CODEX_CONFIG_PATH):
-        try:
-            with open(CODEX_CONFIG_PATH, 'r', encoding='utf-8') as src:
-                existing = src.read()
-        except OSError as err:
-            print(f"  ❌ Could not read {CODEX_CONFIG_PATH}: {err}")
-            return
+    with codex_config_lock():
+        config_target = _codex_config_write_target(CODEX_CONFIG_PATH)
+        existing, config_signature = _read_text_snapshot(config_target)
+        updated = existing
+        mcp_refreshed = False
+        legacy_hooks_removed = False
+        mcp_skipped = False
+        if include_mcp:
+            has_any_owned_mcp_marker = (
+                CODEX_CONFIG_MARKER in updated
+                or CODEX_CONFIG_END_MARKER in updated
+            )
+            if (
+                not has_any_owned_mcp_marker
+                and '[mcp_servers.Uclusion]' in updated
+            ):
+                mcp_skipped = True
+            else:
+                updated, mcp_refreshed = replace_owned_block(
+                    updated,
+                    CODEX_CONFIG_MARKER,
+                    CODEX_CONFIG_END_MARKER,
+                    build_codex_mcp_block(workspace_id, env),
+                    'MCP',
+                )
+        updated, legacy_hooks_removed = remove_owned_block(
+            updated,
+            LEGACY_CODEX_HOOKS_MARKER,
+            LEGACY_CODEX_HOOKS_END_MARKER,
+            'legacy bridge-hook',
+        )
+        validate_codex_config(updated)
+        if updated != existing:
+            atomic_write_text(
+                CODEX_CONFIG_PATH,
+                updated,
+                existing,
+                config_target,
+                config_signature,
+            )
 
-    has_start = CODEX_CONFIG_MARKER in existing
-    has_end = CODEX_CONFIG_END_MARKER in existing
-    if has_start != has_end:
-        which = 'start' if has_start else 'end'
-        print(f"  ❌ {CODEX_CONFIG_PATH} has the Uclusion {which} marker but not its")
-        print(f"      counterpart; refusing to modify. Remove the orphan marker and re-run.")
-        return
-
-    if not has_start and '[mcp_servers.Uclusion]' in existing:
-        print(f"  ⏭  {CODEX_CONFIG_PATH} already defines [mcp_servers.Uclusion] outside the")
-        print(f"      Uclusion markers; leaving it untouched to avoid a duplicate table.")
-        return
-
-    block = build_codex_mcp_block(workspace_id, env)
-
-    if has_start:
-        start_idx = existing.find(CODEX_CONFIG_MARKER)
-        end_idx = existing.find(CODEX_CONFIG_END_MARKER, start_idx) + len(CODEX_CONFIG_END_MARKER)
-        if end_idx < len(existing) and existing[end_idx] == '\n':
-            end_idx += 1
-        remainder = (existing[:start_idx] + existing[end_idx:]).rstrip()
-        updated = (remainder + '\n\n' + block) if remainder else block
-        verb = 'Refreshed Uclusion MCP server in'
-    elif existing.strip():
-        sep = '' if existing.endswith('\n') else '\n'
-        updated = existing + sep + '\n' + block
-        verb = 'Added Uclusion MCP server to'
-    else:
-        updated = block
-        verb = 'Added Uclusion MCP server to'
-
-    try:
-        with open(CODEX_CONFIG_PATH, 'w', encoding='utf-8') as out:
-            out.write(updated)
-        print(f"  ✅ {verb} {CODEX_CONFIG_PATH}")
+    if mcp_skipped:
+        print(
+            f"  ⏭  {CODEX_CONFIG_PATH} already defines "
+            "[mcp_servers.Uclusion] outside Uclusion's markers; "
+            "leaving that table untouched."
+        )
+    elif include_mcp:
+        verb = 'Refreshed' if mcp_refreshed else 'Added'
+        print(f"  ✅ {verb} Uclusion MCP server in {CODEX_CONFIG_PATH}")
+    if legacy_hooks_removed:
+        print(
+            "  ✅ Removed obsolete Uclusion Codex bridge hooks from "
+            f"{CODEX_CONFIG_PATH}"
+        )
+    if include_mcp:
         print("  🔄 Restart Codex (or reload its IDE extension) to apply this configuration.")
-    except OSError as err:
-        print(f"  ❌ Could not write {CODEX_CONFIG_PATH}: {err}")
+    return True
+
+
+def remove_legacy_codex_hooks_config(force=False):
+    """Remove only Uclusion's obsolete marker-owned lifecycle-hook block."""
+    return mutate_codex_config(force=force)
+
+
+def update_codex_config(workspace_id, env, force=False):
+    """Register the Uclusion MCP server in ``~/.codex/config.toml``."""
+    return mutate_codex_config(
+        workspace_id=workspace_id,
+        env=env,
+        include_mcp=True,
+        force=force,
+    )
+
+
+def update_codex_integration_config(workspace_id, env, force=False):
+    """Install the MCP table and remove obsolete bridge hooks atomically."""
+    return mutate_codex_config(
+        workspace_id=workspace_id,
+        env=env,
+        include_mcp=True,
+        force=force,
+    )
 
 
 def prompt_yes_no(question, default=False):
@@ -848,6 +1503,10 @@ def build_parser():
              '`uclusion update` for the project pass after its global pass '
              'already refreshed the scripts).',
     )
+    parser.add_argument(
+        '--script-version',
+        help=argparse.SUPPRESS,
+    )
     return parser
 
 
@@ -885,7 +1544,9 @@ def install_global(workspace_id, view_id, mcp_env, fetch_md, clients=None,
         if not interactive or os.path.exists(CLAUDE_JSON_PATH):
             add_claude_permissions(CLAUDE_SETTINGS_PATH)
     if interactive or 'codex' in clients:
-        update_codex_config(workspace_id, mcp_env, force=not interactive)
+        update_codex_integration_config(
+            workspace_id, mcp_env, force=not interactive
+        )
     if interactive or 'claude' in clients:
         install_workflow_md(fetch_md, CLAUDE_MD_PATH, 'Claude Code', assume_yes=not interactive)
     if interactive or 'cursor' in clients:
@@ -902,11 +1563,15 @@ def install_project_level(workspace_id, view_id, mcp_env, fetch_md, project_dir,
 
     Writes the workspace config and the project-scoped MCP registrations and
     workflow docs into the project. The CLI binaries stay user-global under
-    ~/.local; only configuration becomes project-local. Codex has no per-project
-    MCP config mechanism (its config.toml is global), so project mode registers
-    only Codex's AGENTS.md workflow doc and leaves ~/.codex untouched. With
-    ``clients`` (an explicit ``--clients`` selection) only those clients are
-    configured and nothing prompts.
+    ~/.local; only configuration becomes project-local. Codex has no persisted
+    per-project MCP table (its config.toml is global), so project mode installs
+    the project's AGENTS.md while ``uclusion codex`` supplies the selected
+    project's workspace and environment as private app-server config overrides
+    at launch. This keeps its MCP proxy and Poke companion on the same workspace.
+    The installer also removes the obsolete marker-owned Uclusion lifecycle-hook
+    block from global Codex config when one is present. With ``clients`` (an
+    explicit ``--clients`` selection) only those clients are configured and
+    nothing prompts.
     """
     interactive = clients is None
     print(f"📁 Project-level install into {project_dir}")
@@ -929,6 +1594,10 @@ def install_project_level(workspace_id, view_id, mcp_env, fetch_md, project_dir,
         install_cursor_mdc(fetch_md, os.path.join(project_dir, '.cursor', 'rules', 'uclusion.mdc'),
                            assume_yes=not interactive)
     if interactive or 'codex' in clients:
+        # The relay-authoritative companion needs no Codex lifecycle hooks.
+        # Clean up only the obsolete Uclusion-owned block left by older
+        # installs; unrelated user/project hooks remain untouched.
+        remove_legacy_codex_hooks_config(force=not interactive)
         install_workflow_md(fetch_md, os.path.join(project_dir, 'AGENTS.md'), 'Codex (project)',
                             assume_yes=not interactive)
 
@@ -946,7 +1615,11 @@ def main():
         clients = parse_clients(args.clients) if args.clients else None
 
     try:
-        script_version = fetch_script_reinstall_version(env, workspace_id)
+        script_version = (
+            validate_release_name(args.script_version)
+            if args.script_version is not None
+            else fetch_script_reinstall_version(env, workspace_id)
+        )
         if not args.skip_scripts:
             install_scripts(env, script_version)
         if clients is not None:

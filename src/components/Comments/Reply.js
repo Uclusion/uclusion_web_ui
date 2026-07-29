@@ -66,7 +66,7 @@ import { dehighlightMessage } from '../../contexts/NotificationsContext/notifica
 import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 import InvesibleCommentLinker from '../../pages/Dialog/InvesibleCommentLinker';
 import { BLUE_LEVEL } from '../../constants/notifications';
-import PokeAIButton from '../Buttons/PokeAIButton';
+import PokeAIButton, { isPokeAIReplyVisible } from '../Buttons/PokeAIButton';
 
 const useReplyStyles = makeStyles(
   theme => {
@@ -210,9 +210,13 @@ function Reply(props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { warningColor } = useButtonColors();
-  const marketId = useMarketId();
+  const {
+    marketId,
+    idPrepend,
+    pokeAIMarketId,
+    pokeAIParentTicketCode
+  } = React.useContext(LocalCommentsContext);
   const { openInlineWizard } = useInlineWizardLaunch();
-  const idPrepend = usePrependId();
   const presences = usePresences(marketId);
   const commenter = useCommenter(comment, presences) || { name: "unknown", email: "" };
   const [hashFragment, noHighlightId, setNoHighlightId] = useContext(ScrollContext);
@@ -250,14 +254,6 @@ function Reply(props) {
   const thisIsMyNote = comment.created_by === userId && rootComment?.notification_type === BLUE_LEVEL
    && rootComment?.comment_type === REPORT_TYPE && (parentComment?.created_by ===  userId
     || comment.notification_type === BLUE_LEVEL);
-
-  function useMarketId() {
-    return React.useContext(LocalCommentsContext).marketId;
-  }
-
-  function usePrependId() {
-    return React.useContext(LocalCommentsContext).idPrepend;
-  }
 
   function handleEditClick(event) {
     preventDefaultAndProp(event);
@@ -452,10 +448,16 @@ function Reply(props) {
             doFloatRight
           />
         )}
-        {isTopLevelSubTask && enableEditing && !comment.resolved && !!comment.ticket_code && (
+        {isPokeAIReplyVisible(
+          isTopLevelSubTask,
+          pokeAIMarketId,
+          pokeAIParentTicketCode
+        ) &&
+          enableEditing && !comment.resolved && !!comment.ticket_code && (
           <PokeAIButton
-            marketId={marketId}
+            marketId={pokeAIMarketId || marketId}
             ticketCode={comment.ticket_code}
+            parentTicketCode={pokeAIParentTicketCode}
             id={`pokeAI${comment.id}`}
             iconOnly
             lightSurface

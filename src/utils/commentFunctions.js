@@ -6,8 +6,19 @@ import {
   getFullStage, getInCurrentVotingStage,
   getRequiredInputStage, isFurtherWorkStage, isInReviewStage
 } from '../contexts/MarketStagesContext/marketStagesContextHelper';
-import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../constants/comments';
-import { addCommentToMarket, addMarketComments } from '../contexts/CommentsContext/commentsContextHelper';
+import {
+  ISSUE_TYPE,
+  JUSTIFY_TYPE,
+  QUESTION_TYPE,
+  REPORT_TYPE,
+  SUGGEST_CHANGE_TYPE,
+  TODO_TYPE
+} from '../constants/comments';
+import {
+  addCommentToMarket,
+  addMarketComments,
+  getMarketComments
+} from '../contexts/CommentsContext/commentsContextHelper';
 import { pushMessage } from './MessageBusUtils'
 import { LOAD_EVENT } from '../contexts/InvestibesContext/investiblesContextMessages'
 import { INITIATIVE_TYPE } from '../constants/markets'
@@ -184,37 +195,51 @@ export function onCommentsMove(fromCommentIds, messagesState, marketComments, in
   addMarketComments(commentsDispatch, marketId, [...movedComments, ...threads]);
 }
 
-// T-all-2298: an AI-authored assistance comment is "Responded" once a human reply or a human vote
-// in its thread is more recent than the AI's latest reply or vote there. Human-authored assistance
-// is never Responded - it waits on the AI or gets resolved. The AI user is the only presence
-// without an email.
+// T-all-2298 / B-all-510: an AI-authored assistance comment is "Responded" once a human reply,
+// inline-option comment, or human vote is more recent than the AI's latest activity there.
+// Human-authored assistance is never Responded - it waits on the AI or gets resolved. The AI user
+// is the only presence without an email.
 export function isAssistanceRespondedByHuman(rootComment, investibleComments, marketPresences,
-  marketPresencesState) {
-  const isAIPresenceId = (presenceId) => (marketPresences || []).find((presence) =>
-    presence.id === presenceId && _.isEmpty(presence.email)) !== undefined;
+  marketPresencesState, commentsState) {
+  const inlineMarketId = rootComment.inline_market_id;
+  const inlinePresences = inlineMarketId ?
+    (getMarketPresences(marketPresencesState, inlineMarketId) || []) : [];
+  const aiPresenceIds = new Set((marketPresences || []).concat(inlinePresences)
+    .filter((presence) => _.isEmpty(presence.email))
+    .map((presence) => presence.id));
+  const isAIPresenceId = (presenceId) => aiPresenceIds.has(presenceId);
   if (!isAIPresenceId(rootComment.created_by)) {
     return false;
   }
   let aiLatest = new Date(rootComment.updated_at).getTime();
   let humanLatest = undefined;
-  const thread = (investibleComments || []).filter((comment) => comment.root_comment_id === rootComment.id &&
-    comment.id !== rootComment.id);
-  thread.forEach((comment) => {
+  function foldCommentActivity(comment) {
     const commentTime = new Date(comment.updated_at).getTime();
-    if (isAIPresenceId(comment.created_by)) {
+    // Resolving a root is a new turn by the resolver even though its creator
+    // remains unchanged. Other edits keep the creator's chronology role.
+    const isDirectResolution = comment.resolved && comment.updated_by &&
+      !comment.auto_closed && !comment.last_update_auto_generated;
+    const activityOwner = isDirectResolution ? comment.updated_by : comment.created_by;
+    if (isAIPresenceId(activityOwner)) {
       aiLatest = Math.max(aiLatest, commentTime);
     } else {
       humanLatest = Math.max(humanLatest || 0, commentTime);
     }
-  });
-  if (rootComment.inline_market_id) {
-    const inlinePresences = getMarketPresences(marketPresencesState, rootComment.inline_market_id) || [];
+  }
+  const thread = (investibleComments || []).filter((comment) => comment.root_comment_id === rootComment.id &&
+    comment.id !== rootComment.id);
+  thread.forEach(foldCommentActivity);
+  if (inlineMarketId) {
+    // Local short codes inside options only make sense with their parent question. Fold every
+    // visible comment/reply attached to an option into that parent question's chronology.
+    const inlineComments = getMarketComments(commentsState || {}, inlineMarketId)
+      .filter((comment) => !!comment.investible_id && comment.comment_type !== JUSTIFY_TYPE);
+    inlineComments.forEach(foldCommentActivity);
     inlinePresences.forEach((presence) => {
       const isAI = _.isEmpty(presence.email);
-      (presence.investments || []).forEach((investment) => {
-        if (investment.deleted) {
-          return;
-        }
+      (presence.investments || []).filter((investment) =>
+        investment.quantity !== undefined && investment.quantity !== null && !investment.deleted
+      ).forEach((investment) => {
         const investmentTime = new Date(investment.updated_at).getTime();
         if (isAI) {
           aiLatest = Math.max(aiLatest, investmentTime);

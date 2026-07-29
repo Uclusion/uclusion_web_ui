@@ -1,0 +1,1573 @@
+import base64
+import copy
+import hashlib
+import io
+import json
+import os
+import socket
+import struct
+import sys
+import tempfile
+import threading
+import time
+import types
+import unittest
+from pathlib import Path
+from unittest import mock
+
+
+SCRIPTS_DIR = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(SCRIPTS_DIR))
+
+import uclusionCodexBridge as bridge
+
+
+class FakeClock:
+    def __init__(self, value=1000.0):
+        self.value = value
+
+    def __call__(self):
+        return self.value
+
+    def advance(self, seconds):
+        self.value += seconds
+
+
+class FakeAppServer:
+    def __init__(self, thread_id="thread-root", status="idle"):
+        self.thread_id = thread_id
+        self.thread = {
+            "id": thread_id,
+            "sessionId": thread_id,
+            "parentThreadId": None,
+            "cwd": "/workspace/project",
+            "status": {"type": status},
+            "turns": [],
+        }
+        self.read_calls = []
+        self.start_calls = []
+        self.outcomes = []
+
+    def thread_read(self, thread_id, include_turns):
+        self.read_calls.append((thread_id, include_turns))
+        result = copy.deepcopy(self.thread)
+        result["id"] = thread_id
+        if not include_turns:
+            result.pop("turns", None)
+        return result
+
+    def turn_start(self, thread_id, text, message_id):
+        self.start_calls.append((thread_id, text, message_id))
+        if self.outcomes:
+            outcome = self.outcomes.pop(0)
+            if isinstance(outcome, Exception):
+                raise outcome
+            return copy.deepcopy(outcome)
+        return {
+            "turn": {
+                "id": "turn-{}".format(len(self.start_calls)),
+                "status": "inProgress",
+                "items": [],
+            }
+        }
+
+
+class BridgeTestCase(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.inbox_path = os.path.join(
+            self.temporary.name, "poke_inbox.sqlite3"
+        )
+        self.clock = FakeClock()
+        self.store = bridge.InboxStore(self.inbox_path, clock=self.clock)
+        self.config = bridge.BridgeConfig(
+            environment="stage",
+            workspace_id="workspace-1",
+            instance="instance-1",
+            cwd="/workspace/project",
+            app_server_socket="/tmp/codex.sock",
+            inbox_path=self.inbox_path,
+            ready_file=os.path.join(self.temporary.name, "bridge.ready"),
+            receiver_pid_file=os.path.join(
+                self.temporary.name, "receiver.pid"
+            ),
+        )
+        Path(self.config.receiver_pid_file).write_text(
+            "{} {}\n".format(self.config.instance, os.getpid()),
+            encoding="utf-8",
+        )
+
+    def tearDown(self):
+        self.temporary.cleanup()
+
+    def add_poke(self, message_id, message):
+        with self.store.connect() as connection:
+            cursor = connection.execute(
+                """
+                INSERT INTO poke_messages
+                    (message_id, environment, workspace_id, message,
+                     received_at, consumed_at)
+                VALUES (?, ?, ?, ?, ?, NULL)
+                """,
+                (
+                    message_id,
+                    self.config.environment,
+                    self.config.workspace_id,
+                    message,
+                    self.clock(),
+                ),
+            )
+            return int(cursor.lastrowid)
+
+    def bind(self, thread_id="thread-root"):
+        return self.store.bind(
+            self.config,
+            thread_id,
+            self.config.cwd,
+            promoted=False,
+        )
+
+    def delivery_attempts(self, sequence):
+        with self.store.connect() as connection:
+            row = connection.execute(
+                """
+                SELECT attempt_count
+                FROM codex_bridge_deliveries
+                WHERE environment = ? AND workspace_id = ?
+                  AND consumer = ? AND sequence = ?
+                """,
+                (
+                    self.config.environment,
+                    self.config.workspace_id,
+                    bridge.BRIDGE_CONSUMER,
+                    sequence,
+                ),
+            ).fetchone()
+        return None if row is None else int(row["attempt_count"])
+
+
+class CompatibilityTests(unittest.TestCase):
+    def test_cli_exposes_only_run_but_stale_hook_commands_noop(self):
+        parser = bridge.build_parser()
+        subparser_action = next(
+            action
+            for action in parser._actions
+            if isinstance(action, bridge.argparse._SubParsersAction)
+        )
+        self.assertEqual({"run"}, set(subparser_action.choices))
+        for command in ("register", "promote", "unregister"):
+            self.assertEqual(
+                bridge.EXIT_OK,
+                bridge.main([command, "--ignored", "legacy"]),
+            )
+
+
+class DeliveryTests(BridgeTestCase):
+    @unittest.skipUnless(
+        sys.platform.startswith("linux")
+        and hasattr(os, "fork")
+        and hasattr(os, "waitid")
+        and hasattr(os, "WNOWAIT"),
+        "requires Linux waitid zombie semantics",
+    )
+    def test_unreaped_receiver_zombie_is_not_alive(self):
+        child_pid = os.fork()
+        if child_pid == 0:
+            os._exit(0)
+        try:
+            os.waitid(
+                os.P_PID,
+                child_pid,
+                os.WEXITED | os.WNOWAIT,
+            )
+            Path(self.config.receiver_pid_file).write_text(
+                "{} {}\n".format(self.config.instance, child_pid),
+                encoding="utf-8",
+            )
+            self.assertFalse(
+                bridge.receiver_is_alive(
+                    self.config.receiver_pid_file,
+                    self.config.instance,
+                )
+            )
+        finally:
+            os.waitpid(child_pid, 0)
+
+    def test_no_binding_does_not_create_or_advance_consumer(self):
+        self.add_poke("message-1", "Start J-all-369")
+        app_server = FakeAppServer()
+        result = bridge.BridgeEngine(
+            self.store, app_server, self.config
+        ).step()
+        self.assertEqual("no_binding", result.action)
+        self.assertIsNone(self.store.consumer_cursor(self.config))
+        self.assertEqual([], app_server.read_calls)
+        self.assertEqual([], app_server.start_calls)
+
+    def test_unloaded_binding_does_not_peek_or_claim(self):
+        self.bind()
+        self.add_poke("message-1", "Start J-all-369")
+        app_server = FakeAppServer(status="notLoaded")
+        result = bridge.BridgeEngine(
+            self.store, app_server, self.config
+        ).step()
+        self.assertEqual("unhealthy", result.action)
+        self.assertIsNone(self.store.consumer_cursor(self.config))
+        self.assertEqual([], app_server.start_calls)
+
+    def test_busy_thread_defers_without_peek_or_claim(self):
+        self.bind()
+        self.add_poke("message-1", "Start J-all-369")
+        app_server = FakeAppServer(status="active")
+        result = bridge.BridgeEngine(
+            self.store, app_server, self.config
+        ).step()
+        self.assertEqual("busy", result.action)
+        self.assertIsNone(self.store.consumer_cursor(self.config))
+        self.assertEqual([], app_server.start_calls)
+
+    def test_session_start_switch_during_idle_read_defers_before_peek(self):
+        self.bind("root-b")
+        self.add_poke("message-1", "Start J-all-369")
+        test_case = self
+
+        class SwitchingAppServer(FakeAppServer):
+            def __init__(self):
+                super().__init__(thread_id="root-b")
+
+            def thread_read(self, thread_id, include_turns):
+                result = super().thread_read(thread_id, include_turns)
+                test_case.store.bind(
+                    test_case.config,
+                    "root-c",
+                    test_case.config.cwd,
+                    promoted=False,
+                    allow_replace=True,
+                )
+                return result
+
+        app_server = SwitchingAppServer()
+        result = bridge.BridgeEngine(
+            self.store, app_server, self.config
+        ).step()
+
+        self.assertEqual("binding_changed", result.action)
+        self.assertEqual(
+            "root-c", self.store.get_binding(self.config).thread_id
+        )
+        self.assertIsNone(self.store.consumer_cursor(self.config))
+        self.assertEqual([], app_server.start_calls)
+
+    def test_switch_after_reservation_returns_delivery_to_pending(self):
+        self.bind("root-b")
+        sequence = self.add_poke("message-1", "Start J-all-369")
+        app_server = FakeAppServer(thread_id="root-b")
+        original_begin = self.store.begin_delivery
+
+        def begin_then_switch(*args, **kwargs):
+            delivery = original_begin(*args, **kwargs)
+            self.store.bind(
+                self.config,
+                "root-c",
+                self.config.cwd,
+                promoted=False,
+                allow_replace=True,
+            )
+            return delivery
+
+        with mock.patch.object(
+            self.store,
+            "begin_delivery",
+            side_effect=begin_then_switch,
+        ):
+            result = bridge.BridgeEngine(
+                self.store, app_server, self.config
+            ).step()
+
+        self.assertEqual("binding_changed", result.action)
+        self.assertEqual(0, self.store.consumer_cursor(self.config))
+        self.assertEqual(
+            "pending", self.store.delivery_state(self.config, sequence)
+        )
+        self.assertEqual([], app_server.start_calls)
+
+    def test_switch_after_update_reservation_returns_notice_to_pending(self):
+        self.bind("root-b")
+        notice_id = self.store.enqueue_update_notice(
+            self.config, "Update available"
+        )
+        app_server = FakeAppServer(thread_id="root-b")
+        original_begin = self.store.begin_update_notice
+
+        def begin_then_switch(*args, **kwargs):
+            notice = original_begin(*args, **kwargs)
+            self.store.bind(
+                self.config,
+                "root-c",
+                self.config.cwd,
+                promoted=False,
+                allow_replace=True,
+            )
+            return notice
+
+        with mock.patch.object(
+            self.store,
+            "begin_update_notice",
+            side_effect=begin_then_switch,
+        ):
+            result = bridge.BridgeEngine(
+                self.store, app_server, self.config
+            ).step()
+
+        self.assertEqual("binding_changed", result.action)
+        self.assertEqual(
+            "pending",
+            self.store.update_notice_state(self.config, notice_id),
+        )
+        self.assertEqual([], app_server.start_calls)
+
+    def test_success_acknowledges_once_and_preserves_exact_prompt(self):
+        self.bind()
+        sequence = self.add_poke(
+            "message-1", "Responded J-all-369"
+        )
+        app_server = FakeAppServer()
+        engine = bridge.BridgeEngine(self.store, app_server, self.config)
+
+        result = engine.step()
+
+        self.assertEqual("accepted", result.action)
+        self.assertEqual("turn-1", result.turn_id)
+        self.assertEqual(sequence, self.store.consumer_cursor(self.config))
+        self.assertEqual(
+            [(app_server.thread_id, "Responded J-all-369", "message-1")],
+            app_server.start_calls,
+        )
+        self.assertEqual(
+            "accepted", self.store.delivery_state(self.config, sequence)
+        )
+
+        # A repeated acknowledgement is idempotent and cannot move backwards.
+        self.store.acknowledge(self.config, sequence, "turn-1")
+        self.assertEqual(sequence, self.store.consumer_cursor(self.config))
+        self.assertEqual("empty", engine.step().action)
+        self.assertEqual(1, len(app_server.start_calls))
+
+    def test_rejected_turn_is_pending_and_cursor_does_not_advance(self):
+        self.bind()
+        sequence = self.add_poke("message-1", "Start J-all-369")
+        app_server = FakeAppServer()
+        app_server.outcomes.append(
+            bridge.AppServerRequestError("thread became busy", -32001)
+        )
+
+        result = bridge.BridgeEngine(
+            self.store, app_server, self.config
+        ).step()
+
+        self.assertEqual("rejected", result.action)
+        self.assertEqual(0, self.store.consumer_cursor(self.config))
+        self.assertEqual(
+            "pending", self.store.delivery_state(self.config, sequence)
+        )
+        self.assertEqual(
+            sequence, self.store.peek_next(self.config).sequence
+        )
+
+    def test_ambiguous_send_reconciles_client_id_without_resending(self):
+        self.bind()
+        sequence = self.add_poke("message-1", "Start J-all-369")
+        app_server = FakeAppServer()
+        app_server.outcomes.append(
+            bridge.AppServerTransportError("connection reset after write")
+        )
+        engine = bridge.BridgeEngine(self.store, app_server, self.config)
+
+        first = engine.step()
+        self.assertEqual("ambiguous", first.action)
+        self.assertTrue(first.reconnect)
+        self.assertEqual(0, self.store.consumer_cursor(self.config))
+        self.assertEqual(
+            "sending", self.store.delivery_state(self.config, sequence)
+        )
+
+        app_server.thread["turns"] = [
+            {
+                "id": "accepted-before-reset",
+                "status": "inProgress",
+                "items": [
+                    {
+                        "type": "userMessage",
+                        "id": "item-1",
+                        "clientId": "message-1",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": "Start J-all-369",
+                            }
+                        ],
+                    }
+                ],
+            }
+        ]
+        second = engine.step()
+
+        self.assertEqual("reconciled", second.action)
+        self.assertEqual("accepted-before-reset", second.turn_id)
+        self.assertEqual(sequence, self.store.consumer_cursor(self.config))
+        self.assertEqual(1, len(app_server.start_calls))
+
+    def test_malformed_ambiguous_history_never_proves_absence(self):
+        self.bind()
+        sequence = self.add_poke("message-1", "Start J-all-369")
+        poke = self.store.peek_next(self.config)
+        self.store.begin_delivery(
+            self.config, poke, "thread-root", bridge.BRIDGE_CONSUMER
+        )
+
+        malformed_histories = (
+            None,
+            [{"id": "turn-1"}],
+            [{"id": "turn-1", "items": [None]}],
+            [{"id": None, "items": []}],
+            [{"id": "turn-1", "items": [{}]}],
+            [
+                {
+                    "id": "turn-1",
+                    "items": [
+                        {
+                            "type": "userMessage",
+                            "clientId": True,
+                        }
+                    ],
+                }
+            ],
+            [
+                {
+                    "id": None,
+                    "items": [
+                        {
+                            "type": "userMessage",
+                            "clientId": "message-1",
+                        }
+                    ],
+                }
+            ],
+        )
+        for history in malformed_histories:
+            with self.subTest(history=history):
+                app_server = FakeAppServer()
+                if history is None:
+                    app_server.thread.pop("turns")
+                else:
+                    app_server.thread["turns"] = history
+                result = bridge.BridgeEngine(
+                    self.store, app_server, self.config
+                ).step()
+                self.assertEqual("unhealthy", result.action)
+                self.assertEqual(
+                    "sending",
+                    self.store.delivery_state(self.config, sequence),
+                )
+                self.assertEqual(0, self.store.consumer_cursor(self.config))
+                self.assertEqual([], app_server.start_calls)
+
+    def test_reconciliation_requires_exact_root_identity_cwd_and_status(self):
+        self.bind()
+        sequence = self.add_poke("message-1", "Start J-all-369")
+        poke = self.store.peek_next(self.config)
+        self.store.begin_delivery(
+            self.config, poke, "thread-root", bridge.BRIDGE_CONSUMER
+        )
+
+        mutations = (
+            lambda thread: thread.__setitem__("sessionId", "other"),
+            lambda thread: thread.__setitem__("parentThreadId", "parent"),
+            lambda thread: thread.__setitem__("cwd", "/other"),
+            lambda thread: thread.__setitem__("status", "idle"),
+        )
+        for mutate in mutations:
+            with self.subTest(mutate=mutate):
+                app_server = FakeAppServer()
+                mutate(app_server.thread)
+                result = bridge.BridgeEngine(
+                    self.store, app_server, self.config
+                ).step()
+                self.assertEqual("unhealthy", result.action)
+                self.assertEqual(
+                    "sending",
+                    self.store.delivery_state(self.config, sequence),
+                )
+                self.assertEqual(0, self.store.consumer_cursor(self.config))
+                self.assertEqual([], app_server.start_calls)
+
+    def test_relay_snapshot_reconciles_recorded_old_root_after_switch(self):
+        sequence = self.add_poke("message-1", "Start J-all-369")
+        poke = self.store.peek_next(self.config)
+        self.store.begin_delivery(
+            self.config, poke, "root-old", bridge.BRIDGE_CONSUMER
+        )
+        app_server = FakeAppServer(thread_id="root-old")
+        app_server.thread["turns"] = [
+            {
+                "id": "accepted-on-old-root",
+                "items": [
+                    {
+                        "type": "userMessage",
+                        "clientId": "message-1",
+                    }
+                ],
+            }
+        ]
+
+        result = bridge.BridgeEngine(
+            self.store, app_server, self.config
+        ).step(bridge.RootSnapshot("root-new", 4, 1))
+
+        self.assertEqual("reconciled", result.action)
+        self.assertEqual("accepted-on-old-root", result.turn_id)
+        self.assertEqual(sequence, self.store.consumer_cursor(self.config))
+        self.assertEqual([("root-old", True)], app_server.read_calls)
+        self.assertEqual([], app_server.start_calls)
+
+    def test_relay_snapshot_delivers_without_persisted_binding(self):
+        sequence = self.add_poke("message-1", "Start J-all-369")
+        app_server = FakeAppServer(thread_id="root-live")
+
+        result = bridge.BridgeEngine(
+            self.store, app_server, self.config
+        ).step(bridge.RootSnapshot("root-live", 2, 1))
+
+        self.assertEqual("accepted", result.action)
+        self.assertEqual(sequence, self.store.consumer_cursor(self.config))
+        self.assertEqual(
+            [("root-live", "Start J-all-369", "message-1")],
+            app_server.start_calls,
+        )
+
+    def test_binding_switch_during_ambiguous_read_defers_cursor_ack(self):
+        self.bind("root-b")
+        sequence = self.add_poke("message-1", "Start J-all-369")
+        poke = self.store.peek_next(self.config)
+        self.store.begin_delivery(
+            self.config, poke, "root-b", bridge.BRIDGE_CONSUMER
+        )
+        test_case = self
+
+        class SwitchingAppServer(FakeAppServer):
+            def __init__(self):
+                super().__init__(thread_id="root-b")
+                self.thread["turns"] = [
+                    {
+                        "id": "accepted-before-switch",
+                        "items": [
+                            {
+                                "type": "userMessage",
+                                "clientId": "message-1",
+                            }
+                        ],
+                    }
+                ]
+
+            def thread_read(self, thread_id, include_turns):
+                result = super().thread_read(thread_id, include_turns)
+                test_case.store.bind(
+                    test_case.config,
+                    "root-c",
+                    test_case.config.cwd,
+                    promoted=False,
+                    allow_replace=True,
+                )
+                return result
+
+        result = bridge.BridgeEngine(
+            self.store, SwitchingAppServer(), self.config
+        ).step()
+
+        self.assertEqual("binding_changed", result.action)
+        self.assertEqual(0, self.store.consumer_cursor(self.config))
+        self.assertEqual(
+            "sending", self.store.delivery_state(self.config, sequence)
+        )
+
+    def test_inflight_busy_defers_then_retries_when_absent_and_idle(self):
+        self.bind()
+        sequence = self.add_poke("message-1", "Start J-all-369")
+        poke = self.store.peek_next(self.config)
+        self.store.begin_delivery(
+            self.config, poke, "thread-root"
+        )
+        app_server = FakeAppServer(status="active")
+        engine = bridge.BridgeEngine(self.store, app_server, self.config)
+
+        self.assertEqual("busy", engine.step().action)
+        self.assertEqual(0, self.store.consumer_cursor(self.config))
+        self.assertEqual([], app_server.start_calls)
+
+        app_server.thread["status"] = {"type": "idle"}
+        result = engine.step()
+        self.assertEqual("accepted", result.action)
+        self.assertEqual(sequence, self.store.consumer_cursor(self.config))
+        self.assertEqual(2, self.delivery_attempts(sequence))
+        self.assertEqual(1, len(app_server.start_calls))
+
+    def test_ordered_backlog_is_delivered_once(self):
+        self.bind()
+        sequences = [
+            self.add_poke("message-{}".format(index), prompt)
+            for index, prompt in enumerate(
+                (
+                    "Start J-all-1",
+                    "Responded Q-all-2",
+                    "Start B-all-3",
+                ),
+                start=1,
+            )
+        ]
+        app_server = FakeAppServer()
+        engine = bridge.BridgeEngine(self.store, app_server, self.config)
+
+        results = [engine.step(), engine.step(), engine.step()]
+
+        self.assertEqual(["accepted"] * 3, [item.action for item in results])
+        self.assertEqual(
+            ["message-1", "message-2", "message-3"],
+            [call[2] for call in app_server.start_calls],
+        )
+        self.assertEqual(
+            ["Start J-all-1", "Responded Q-all-2", "Start B-all-3"],
+            [call[1] for call in app_server.start_calls],
+        )
+        self.assertEqual(sequences[-1], self.store.consumer_cursor(self.config))
+        self.assertEqual("empty", engine.step().action)
+        self.assertEqual(3, len(app_server.start_calls))
+
+    def test_first_bridge_cursor_ignores_independent_default_cursor(self):
+        first = self.add_poke("old-1", "Start J-old-1")
+        second = self.add_poke("old-2", "Start J-old-2")
+        third = self.add_poke("new-3", "Start J-new-3")
+        with self.store.connect() as connection:
+            connection.execute(
+                """
+                INSERT INTO poke_consumers
+                    (environment, workspace_id, consumer, last_sequence,
+                     updated_at)
+                VALUES (?, ?, 'default', ?, ?)
+                """,
+                (
+                    self.config.environment,
+                    self.config.workspace_id,
+                    second,
+                    self.clock(),
+                ),
+            )
+
+        poke = self.store.peek_next(self.config)
+
+        self.assertEqual(first, poke.sequence)
+        self.assertEqual(0, self.store.consumer_cursor(self.config))
+        self.assertNotEqual(third, poke.sequence)
+
+    def test_first_bridge_cursor_is_zero_without_default_consumer(self):
+        first = self.add_poke("pending-1", "Start J-pending-1")
+        poke = self.store.peek_next(self.config)
+        self.assertEqual(first, poke.sequence)
+        self.assertEqual(0, self.store.consumer_cursor(self.config))
+
+    def test_bridge_ack_does_not_advance_independent_default_cursor(self):
+        self.bind()
+        first = self.add_poke("default-seen", "Start J-old")
+        second = self.add_poke("bridge-next", "Start J-bridge")
+        with self.store.connect() as connection:
+            connection.execute(
+                """
+                INSERT INTO poke_consumers
+                    (environment, workspace_id, consumer, last_sequence,
+                     updated_at)
+                VALUES (?, ?, 'default', ?, ?)
+                """,
+                (
+                    self.config.environment,
+                    self.config.workspace_id,
+                    first,
+                    self.clock(),
+                ),
+            )
+        app_server = FakeAppServer()
+        engine = bridge.BridgeEngine(
+            self.store, app_server, self.config
+        )
+        results = (engine.step(), engine.step())
+        with self.store.connect() as connection:
+            default_cursor = connection.execute(
+                """
+                SELECT last_sequence
+                FROM poke_consumers
+                WHERE environment = ? AND workspace_id = ?
+                  AND consumer = 'default'
+                """,
+                (
+                    self.config.environment,
+                    self.config.workspace_id,
+                ),
+            ).fetchone()["last_sequence"]
+        self.assertEqual(["accepted", "accepted"], [
+            result.action for result in results
+        ])
+        self.assertEqual(second, self.store.consumer_cursor(self.config))
+        self.assertEqual(first, default_cursor)
+        self.assertEqual(2, len(app_server.start_calls))
+
+    def test_receiver_absence_and_death_do_not_claim_or_send(self):
+        self.bind()
+        sequence = self.add_poke("message-1", "Start J-all-369")
+        app_server = FakeAppServer()
+
+        before_peek = bridge.BridgeEngine(
+            self.store,
+            app_server,
+            self.config,
+            may_deliver=lambda: False,
+        ).step()
+        self.assertEqual("orphaned", before_peek.action)
+        self.assertIsNone(self.store.consumer_cursor(self.config))
+        self.assertEqual([], app_server.start_calls)
+
+        checks = iter((True, False))
+        before_send = bridge.BridgeEngine(
+            self.store,
+            app_server,
+            self.config,
+            may_deliver=lambda: next(checks),
+        ).step()
+        self.assertEqual("orphaned", before_send.action)
+        self.assertIsNone(self.store.consumer_cursor(self.config))
+        self.assertIsNone(
+            self.store.delivery_state(self.config, sequence)
+        )
+        self.assertEqual([], app_server.start_calls)
+
+        # If the receiver dies after the peek but just before turn/start, the
+        # reservation is released to pending and the cursor still does not
+        # advance.
+        checks = iter((True, True, True, False))
+        at_send = bridge.BridgeEngine(
+            self.store,
+            app_server,
+            self.config,
+            may_deliver=lambda: next(checks),
+        ).step()
+        self.assertEqual("orphaned", at_send.action)
+        self.assertEqual(0, self.store.consumer_cursor(self.config))
+        self.assertEqual(
+            "pending", self.store.delivery_state(self.config, sequence)
+        )
+        self.assertEqual([], app_server.start_calls)
+
+    def test_receiver_death_after_accept_keeps_sending_for_reconciliation(self):
+        sequence = self.add_poke("message-1", "Start J-all-369")
+        receiver_live = [True]
+
+        class DiesAfterAccept(FakeAppServer):
+            def turn_start(self, thread_id, text, message_id):
+                result = super().turn_start(thread_id, text, message_id)
+                receiver_live[0] = False
+                return result
+
+        app_server = DiesAfterAccept(thread_id="root-live")
+        engine = bridge.BridgeEngine(
+            self.store,
+            app_server,
+            self.config,
+            may_deliver=lambda: receiver_live[0],
+        )
+        first = engine.step(bridge.RootSnapshot("root-live", 1, 1))
+
+        self.assertEqual("orphaned_after_accept", first.action)
+        self.assertEqual("turn-1", first.turn_id)
+        self.assertEqual(0, self.store.consumer_cursor(self.config))
+        self.assertEqual(
+            "sending", self.store.delivery_state(self.config, sequence)
+        )
+
+        receiver_live[0] = True
+        app_server.thread["turns"] = [
+            {
+                "id": "turn-1",
+                "items": [
+                    {
+                        "type": "userMessage",
+                        "clientId": "message-1",
+                    }
+                ],
+            }
+        ]
+        reconciled = engine.step(
+            bridge.RootSnapshot("root-next", 2, 1)
+        )
+        self.assertEqual("reconciled", reconciled.action)
+        self.assertEqual(sequence, self.store.consumer_cursor(self.config))
+        self.assertEqual(1, len(app_server.start_calls))
+
+    def test_authority_commit_serializes_ack_with_root_invalidation(self):
+        authority = bridge.RootAuthority(self.config.cwd)
+        self.assertTrue(authority.claim_primary(1))
+        gate = authority.begin_tui_request(
+            1, "thread/start", {"cwd": self.config.cwd}
+        )
+        authority.finish_tui_request(
+            gate,
+            {
+                "id": "root",
+                "result": {
+                    "thread": {
+                        "id": "root-live",
+                        "sessionId": "root-live",
+                        "parentThreadId": None,
+                        "cwd": self.config.cwd,
+                    },
+                    "cwd": self.config.cwd,
+                },
+            },
+        )
+
+        commit_entered = threading.Event()
+        release_commit = threading.Event()
+        invalidated = threading.Event()
+        committed = []
+
+        def commit():
+            commit_entered.set()
+            release_commit.wait(1)
+            committed.append(True)
+
+        with authority.delivery_lease(lambda: True) as snapshot:
+            self.assertIsNotNone(snapshot)
+            result = {}
+
+            def run_commit():
+                result["value"] = authority.commit_if_current(
+                    snapshot, lambda: True, commit
+                )
+
+            commit_thread = threading.Thread(target=run_commit)
+            commit_thread.start()
+            self.assertTrue(commit_entered.wait(1))
+
+            def invalidate():
+                authority.observe_notification(
+                    1,
+                    {
+                        "method": "thread/closed",
+                        "params": {"threadId": "root-live"},
+                    },
+                )
+                invalidated.set()
+
+            invalidator = threading.Thread(target=invalidate)
+            invalidator.start()
+            self.assertFalse(invalidated.wait(0.05))
+            release_commit.set()
+            commit_thread.join(1)
+            invalidator.join(1)
+
+        self.assertTrue(result["value"])
+        self.assertEqual([True], committed)
+        self.assertTrue(invalidated.is_set())
+        self.assertIsNone(authority.current_snapshot())
+
+    def test_authority_revocation_before_commit_leaves_callback_unrun(self):
+        authority = bridge.RootAuthority(self.config.cwd)
+        self.assertTrue(authority.claim_primary(1))
+        gate = authority.begin_tui_request(
+            1, "thread/start", {"cwd": self.config.cwd}
+        )
+        authority.finish_tui_request(
+            gate,
+            {
+                "id": "root",
+                "result": {
+                    "thread": {
+                        "id": "root-live",
+                        "sessionId": "root-live",
+                        "parentThreadId": None,
+                        "cwd": self.config.cwd,
+                    },
+                    "cwd": self.config.cwd,
+                },
+            },
+        )
+        committed = []
+        with authority.delivery_lease(lambda: True) as snapshot:
+            authority.observe_notification(
+                1,
+                {
+                    "method": "thread/closed",
+                    "params": {"threadId": "root-live"},
+                },
+            )
+            self.assertFalse(
+                authority.commit_if_current(
+                    snapshot, lambda: True, lambda: committed.append(True)
+                )
+            )
+        self.assertEqual([], committed)
+
+    def test_update_notice_is_distinct_and_does_not_advance_poke_cursor(self):
+        self.bind()
+        with self.store.connect() as connection:
+            connection.execute(
+                """
+                INSERT INTO poke_consumers
+                    (environment, workspace_id, consumer, last_sequence,
+                     updated_at)
+                VALUES (?, ?, 'default', 42, ?)
+                """,
+                (
+                    self.config.environment,
+                    self.config.workspace_id,
+                    self.clock(),
+                ),
+            )
+        self.store.initialize_consumer(self.config)
+        before = self.store.consumer_cursor(self.config)
+        notice_text = (
+            "[Uclusion update notice — from the local update check, not "
+            "workspace data] A newer release is available."
+        )
+        notice_id = self.store.enqueue_update_notice(
+            self.config, notice_text
+        )
+        app_server = FakeAppServer()
+
+        result = bridge.BridgeEngine(
+            self.store, app_server, self.config
+        ).step()
+
+        self.assertEqual("accepted_update_notice", result.action)
+        self.assertEqual(before, self.store.consumer_cursor(self.config))
+        self.assertEqual(
+            "accepted",
+            self.store.update_notice_state(self.config, notice_id),
+        )
+        self.assertEqual(
+            [("thread-root", notice_text, notice_id)],
+            app_server.start_calls,
+        )
+        self.assertTrue(notice_id.startswith("uclusion-update-notice:"))
+
+    def test_ambiguous_update_notice_reconciles_without_poke_ack(self):
+        self.bind()
+        self.store.initialize_consumer(self.config)
+        notice_text = "[Uclusion update notice] restart required"
+        notice_id = self.store.enqueue_update_notice(
+            self.config, notice_text
+        )
+        app_server = FakeAppServer()
+        app_server.outcomes.append(
+            bridge.AppServerTransportError("reset after notice write")
+        )
+        engine = bridge.BridgeEngine(self.store, app_server, self.config)
+
+        first = engine.step()
+        self.assertEqual("ambiguous_update_notice", first.action)
+        self.assertEqual(
+            "sending",
+            self.store.update_notice_state(self.config, notice_id),
+        )
+        self.assertEqual(0, self.store.consumer_cursor(self.config))
+
+        app_server.thread["turns"] = [
+            {
+                "id": "notice-turn",
+                "items": [
+                    {
+                        "type": "userMessage",
+                        "clientId": notice_id,
+                        "content": [
+                            {"type": "text", "text": notice_text}
+                        ],
+                    }
+                ],
+            }
+        ]
+        second = engine.step()
+        self.assertEqual("reconciled_update_notice", second.action)
+        self.assertEqual("notice-turn", second.turn_id)
+        self.assertEqual(
+            "accepted",
+            self.store.update_notice_state(self.config, notice_id),
+        )
+        self.assertEqual(0, self.store.consumer_cursor(self.config))
+        self.assertEqual(1, len(app_server.start_calls))
+
+
+class PrimaryLockTests(BridgeTestCase):
+    def test_one_fresh_primary_per_environment_and_workspace(self):
+        first = dataclass_replace(self.config, instance="first")
+        second = dataclass_replace(self.config, instance="second")
+        self.store.pid_is_alive = lambda _pid: True
+
+        self.assertTrue(self.store.acquire_primary(first, pid=101))
+        self.assertFalse(self.store.acquire_primary(second, pid=202))
+        self.store.release_primary(first, pid=101)
+        self.assertTrue(self.store.acquire_primary(second, pid=202))
+
+    def test_stale_live_primary_is_not_stolen_but_dead_pid_recovers(self):
+        first = dataclass_replace(self.config, instance="first")
+        second = dataclass_replace(self.config, instance="second")
+        self.store.pid_is_alive = lambda _pid: True
+        self.assertTrue(self.store.acquire_primary(first, pid=101))
+        self.clock.advance(bridge.PRIMARY_STALE_SECONDS + 1)
+        self.assertFalse(self.store.acquire_primary(second, pid=202))
+        self.store.pid_is_alive = lambda _pid: False
+        self.assertTrue(self.store.acquire_primary(second, pid=202))
+
+
+class UpdateNoticeWorkerGateTests(unittest.TestCase):
+    def test_revocation_stops_new_checks_and_sinks_inflight_result(self):
+        source_started = threading.Event()
+        release_source = threading.Event()
+        sink_called = threading.Event()
+        calls = []
+        notices = []
+
+        def source(environment):
+            calls.append(environment)
+            source_started.set()
+            release_source.wait(1)
+            return "update-notice"
+
+        def sink(notice):
+            notices.append(notice)
+            sink_called.set()
+
+        worker = bridge.UpdateNoticeWorker(
+            "stage", source, interval=0.01, result_sink=sink
+        )
+        worker.set_enabled(True)
+        worker.start()
+        try:
+            self.assertTrue(source_started.wait(1))
+            worker.set_enabled(False)
+            release_source.set()
+            self.assertTrue(sink_called.wait(1))
+            time.sleep(0.05)
+        finally:
+            release_source.set()
+            worker.close()
+
+        self.assertEqual(["stage"], calls)
+        self.assertEqual(["update-notice"], notices)
+
+
+def dataclass_replace(config, **changes):
+    values = {
+        field.name: getattr(config, field.name)
+        for field in bridge.dataclasses.fields(config)
+    }
+    values.update(changes)
+    return bridge.BridgeConfig(**values)
+
+
+def read_exact(sock, size):
+    data = bytearray()
+    while len(data) < size:
+        chunk = sock.recv(size - len(data))
+        if not chunk:
+            raise EOFError("socket closed")
+        data.extend(chunk)
+    return bytes(data)
+
+
+def read_client_frame(sock):
+    first, second = read_exact(sock, 2)
+    opcode = first & 0x0F
+    length = second & 0x7F
+    if length == 126:
+        length = struct.unpack("!H", read_exact(sock, 2))[0]
+    elif length == 127:
+        length = struct.unpack("!Q", read_exact(sock, 8))[0]
+    if not second & 0x80:
+        raise AssertionError("client WebSocket frames must be masked")
+    mask = read_exact(sock, 4)
+    payload = read_exact(sock, length)
+    payload = bytes(
+        byte ^ mask[index % 4] for index, byte in enumerate(payload)
+    )
+    return opcode, payload
+
+
+def server_text_frame(message):
+    payload = json.dumps(message, separators=(",", ":")).encode("utf-8")
+    if len(payload) < 126:
+        return bytes((0x81, len(payload))) + payload
+    if len(payload) <= 0xFFFF:
+        return bytes((0x81, 126)) + struct.pack("!H", len(payload)) + payload
+    return bytes((0x81, 127)) + struct.pack("!Q", len(payload)) + payload
+
+
+class FakeProxyProcess:
+    def __init__(self, command, calls, extra_response_headers=""):
+        self.command = command
+        self.calls = calls
+        self.extra_response_headers = extra_response_headers
+        self.client_socket, self.server_socket = socket.socketpair()
+        self.stdin = self.client_socket.makefile("wb", buffering=0)
+        self.stdout = self.client_socket.makefile("rb", buffering=0)
+        self.returncode = None
+        self.messages = []
+        self.thread = threading.Thread(target=self._serve, daemon=True)
+        self.thread.start()
+
+    def _serve(self):
+        try:
+            request = bytearray()
+            while b"\r\n\r\n" not in request:
+                request.extend(self.server_socket.recv(4096))
+            headers = request.decode("ascii").split("\r\n")
+            key = None
+            for line in headers:
+                if line.lower().startswith("sec-websocket-key:"):
+                    key = line.split(":", 1)[1].strip()
+            if key is None:
+                raise AssertionError("missing WebSocket key")
+            accept = base64.b64encode(
+                hashlib.sha1(
+                    (key + bridge.WEBSOCKET_GUID).encode("ascii")
+                ).digest()
+            ).decode("ascii")
+            self.server_socket.sendall(
+                (
+                    "HTTP/1.1 101 Switching Protocols\r\n"
+                    "Upgrade: websocket\r\n"
+                    "Connection: Upgrade\r\n"
+                    "Sec-WebSocket-Accept: {}\r\n"
+                    "{}"
+                    "\r\n"
+                ).format(
+                    accept, self.extra_response_headers
+                ).encode("ascii")
+            )
+            while True:
+                opcode, payload = read_client_frame(self.server_socket)
+                if opcode == 0x8:
+                    return
+                if opcode == 0xA:
+                    continue
+                message = json.loads(payload.decode("utf-8"))
+                self.messages.append(message)
+                method = message.get("method")
+                if method == "initialize":
+                    self.server_socket.sendall(
+                        server_text_frame(
+                            {
+                                "method": "thread/started",
+                                "params": {
+                                    "thread": {
+                                        "id": "broadcast-root",
+                                        "sessionId": "broadcast-root",
+                                        "cwd": "/workspace/project",
+                                    }
+                                },
+                            }
+                        )
+                    )
+                    response = {
+                        "id": message["id"],
+                        "result": {
+                            "userAgent": "fake",
+                            "platformFamily": "unix",
+                            "platformOs": "linux",
+                        },
+                    }
+                elif method == "thread/read":
+                    response = {
+                        "id": message["id"],
+                        "result": {
+                            "thread": {
+                                "id": message["params"]["threadId"],
+                                "sessionId": message["params"]["threadId"],
+                                "parentThreadId": None,
+                                "cwd": "/workspace/project",
+                                "status": {"type": "idle"},
+                                "turns": [],
+                            }
+                        },
+                    }
+                elif method == "turn/start":
+                    response = {
+                        "id": message["id"],
+                        "result": {
+                            "turn": {
+                                "id": "turn-live",
+                                "status": "inProgress",
+                                "items": [],
+                            }
+                        },
+                    }
+                else:
+                    continue
+                self.server_socket.sendall(server_text_frame(response))
+        except (EOFError, OSError):
+            return
+
+    def terminate(self):
+        self.returncode = 0
+        try:
+            self.client_socket.shutdown(socket.SHUT_RDWR)
+        except OSError:
+            pass
+
+    def kill(self):
+        self.terminate()
+
+    def wait(self, timeout=None):
+        self.thread.join(timeout)
+        try:
+            self.server_socket.close()
+        except OSError:
+            pass
+        try:
+            self.client_socket.close()
+        except OSError:
+            pass
+        return 0
+
+
+class AppServerTransportTests(unittest.TestCase):
+    def test_driver_rejects_server_request_instead_of_silently_dropping_it(self):
+        client = bridge.AppServerClient("/tmp/not-used")
+        sent = []
+        client._send_json = sent.append
+        client.incoming.put(
+            {
+                "id": 1,
+                "method": "item/commandExecution/requestApproval",
+                "params": {"threadId": "root"},
+            }
+        )
+
+        with self.assertRaisesRegex(
+            bridge.AppServerTransportError,
+            "server request on the driver connection",
+        ):
+            client.request("thread/read", {}, timeout=1)
+
+        self.assertEqual(1, sent[0]["id"])
+
+    def test_driver_rejects_unsolicited_matching_id_before_request(self):
+        client = bridge.AppServerClient("/tmp/not-used")
+        client.process = types.SimpleNamespace(
+            stdout=io.BytesIO(
+                server_text_frame({"id": 1, "result": {"preplayed": True}})
+            )
+        )
+        client._reader_loop()
+        sent = []
+        client._send_json = sent.append
+
+        with self.assertRaisesRegex(
+            bridge.AppServerTransportError, "unsolicited JSON-RPC response"
+        ):
+            client.request("thread/read", {}, timeout=1)
+        self.assertEqual([], sent)
+
+    def test_driver_rejects_future_response_without_caching_for_preplay(self):
+        client = bridge.AppServerClient("/tmp/not-used")
+        client.process = types.SimpleNamespace(
+            stdout=io.BytesIO(
+                server_text_frame({"id": 2, "result": {"future": True}})
+            )
+        )
+        sent = []
+        reader = threading.Thread(target=client._reader_loop)
+
+        def send_and_read(message):
+            sent.append(message)
+            reader.start()
+
+        client._send_json = send_and_read
+
+        with self.assertRaisesRegex(
+            bridge.AppServerTransportError,
+            "unexpected JSON-RPC response id",
+        ):
+            client.request("thread/read", {}, timeout=1)
+        reader.join(1)
+
+        with self.assertRaisesRegex(
+            bridge.AppServerTransportError,
+            "unexpected JSON-RPC response id",
+        ):
+            client.request("thread/read", {}, timeout=1)
+        self.assertEqual([1], [message["id"] for message in sent])
+
+    def test_json_rpc_ids_are_only_strings_or_signed_int64(self):
+        for value in ("", "request", -(1 << 63), (1 << 63) - 1):
+            with self.subTest(valid=value):
+                bridge.rpc_id_key(value)
+
+        invalid = (True, False, None, 1.0, -(1 << 63) - 1, 1 << 63)
+        for value in invalid:
+            with self.subTest(invalid=value):
+                with self.assertRaises(bridge.RelayProtocolError):
+                    bridge.rpc_id_key(value)
+
+        client = bridge.AppServerClient("/tmp/not-used")
+        client._send_json = lambda _message: None
+        client.incoming.put({"id": True, "result": {}})
+        with self.assertRaisesRegex(
+            bridge.AppServerTransportError,
+            "string or signed 64-bit integer",
+        ):
+            client.request("thread/read", {}, timeout=1)
+
+    def test_driver_response_requires_exactly_one_result_or_object_error(self):
+        invalid_responses = (
+            {"id": 1},
+            {"id": 1, "result": {}, "error": {}},
+            {"id": 1, "error": None},
+        )
+        for response in invalid_responses:
+            with self.subTest(response=response):
+                client = bridge.AppServerClient("/tmp/not-used")
+                client._send_json = lambda _message: None
+                client.incoming.put(response)
+                with self.assertRaises(bridge.AppServerTransportError):
+                    client.request("thread/read", {}, timeout=1)
+
+        client = bridge.AppServerClient("/tmp/not-used")
+        client._send_json = lambda _message: None
+        client.incoming.put(
+            {"id": 1, "error": {"code": -1, "message": "rejected"}}
+        )
+        with self.assertRaisesRegex(
+            bridge.AppServerRequestError, "rejected"
+        ):
+            client.request("thread/read", {}, timeout=1)
+
+    def test_non_finite_json_is_rejected_on_ingress_and_serialization(self):
+        invalid_payloads = (
+            b'{"value":1e999}',
+            b'{"value":NaN}',
+            b'{"nested":[-1e999]}',
+        )
+        for payload in invalid_payloads:
+            with self.subTest(payload=payload):
+                with self.assertRaisesRegex(
+                    bridge.RelayProtocolError, "invalid JSON"
+                ):
+                    bridge._strict_json_object(payload, "peer")
+
+        client = bridge.AppServerClient("/tmp/not-used")
+        with self.assertRaisesRegex(
+            bridge.AppServerTransportError, "invalid JSON"
+        ):
+            client._send_json({"value": float("nan")})
+
+        left, right = socket.socketpair()
+        frontend = bridge.FrontendWebSocket(left)
+        try:
+            with self.assertRaisesRegex(
+                bridge.RelayProtocolError, "invalid JSON"
+            ):
+                frontend.send_json_message({"value": float("inf")})
+            right.settimeout(0.05)
+            with self.assertRaises(socket.timeout):
+                right.recv(1)
+        finally:
+            frontend.close()
+            right.close()
+
+    def test_close_frames_require_valid_length_code_and_utf8_reason(self):
+        invalid_payloads = (
+            (b"\x03", "one-byte"),
+            (struct.pack("!H", 1005), "code 1005"),
+            (struct.pack("!H", 1000) + b"\xff", "non-UTF-8"),
+        )
+        for payload, expected in invalid_payloads:
+            with self.subTest(upstream=expected):
+                client = bridge.AppServerClient("/tmp/not-used")
+                frame = bridge.FrontendWebSocket._unmasked_frame(
+                    0x8, payload
+                )
+                client.process = types.SimpleNamespace(
+                    stdout=io.BytesIO(frame)
+                )
+                with self.assertRaisesRegex(
+                    bridge.AppServerTransportError, expected
+                ):
+                    client.read_json_message()
+
+            with self.subTest(frontend=expected):
+                left, right = socket.socketpair()
+                frontend = bridge.FrontendWebSocket(left)
+                try:
+                    right.sendall(
+                        bridge.AppServerClient._masked_frame(0x8, payload)
+                    )
+                    with self.assertRaisesRegex(
+                        bridge.RelayProtocolError, expected
+                    ):
+                        frontend.read_json_message()
+                finally:
+                    frontend.close()
+                    right.close()
+
+        valid_payload = struct.pack("!H", 1000) + b"normal"
+        client = bridge.AppServerClient("/tmp/not-used")
+        client.process = types.SimpleNamespace(
+            stdout=io.BytesIO(
+                bridge.FrontendWebSocket._unmasked_frame(
+                    0x8, valid_payload
+                )
+            )
+        )
+        self.assertIsNone(client.read_json_message())
+
+    def test_app_server_close_does_not_wait_for_pipe_write_lock(self):
+        process = mock.Mock()
+        process.wait.return_value = 0
+        client = bridge.AppServerClient("/tmp/not-used")
+        client.process = process
+        client.write_lock.acquire()
+        worker = threading.Thread(target=client.close, daemon=True)
+        try:
+            worker.start()
+            worker.join(0.5)
+            self.assertFalse(worker.is_alive())
+            self.assertTrue(client.closed)
+            process.terminate.assert_called_once_with()
+        finally:
+            client.write_lock.release()
+            worker.join(1)
+
+    def test_frontend_close_does_not_wait_for_socket_write_lock(self):
+        left, right = socket.socketpair()
+        frontend = bridge.FrontendWebSocket(left)
+        frontend.write_lock.acquire()
+        worker = threading.Thread(target=frontend.close, daemon=True)
+        try:
+            worker.start()
+            worker.join(0.5)
+            self.assertFalse(worker.is_alive())
+            self.assertTrue(frontend.closed)
+        finally:
+            frontend.write_lock.release()
+            worker.join(1)
+            right.close()
+
+    def test_proxy_websocket_handshake_initialize_and_requests(self):
+        calls = []
+        holder = {}
+
+        def factory(command, **kwargs):
+            calls.append((command, kwargs))
+            process = FakeProxyProcess(command, calls)
+            holder["process"] = process
+            return process
+
+        client = bridge.AppServerClient(
+            "/tmp/private-app-server.sock",
+            process_factory=factory,
+            request_timeout=1,
+        )
+        try:
+            client.start()
+            thread = client.thread_read("root-thread", include_turns=True)
+            result = client.turn_start(
+                "root-thread", "Responded J-all-369", "message-99"
+            )
+        finally:
+            client.close()
+
+        self.assertEqual(
+            [
+                "codex",
+                "app-server",
+                "proxy",
+                "--sock",
+                "/tmp/private-app-server.sock",
+            ],
+            calls[0][0],
+        )
+        messages = holder["process"].messages
+        self.assertEqual("initialize", messages[0]["method"])
+        self.assertEqual("initialized", messages[1]["method"])
+        # FakeProxyProcess emits a thread/started broadcast here. The
+        # noninteractive driver must discard it without confusing response
+        # correlation or retaining an unbounded notification backlog.
+        self.assertEqual("thread/read", messages[2]["method"])
+        self.assertTrue(messages[2]["params"]["includeTurns"])
+        self.assertEqual("idle", thread["status"]["type"])
+        self.assertEqual("turn/start", messages[3]["method"])
+        self.assertEqual(
+            "Responded J-all-369",
+            messages[3]["params"]["input"][0]["text"],
+        )
+        self.assertEqual(
+            "message-99",
+            messages[3]["params"]["clientUserMessageId"],
+        )
+        self.assertEqual("turn-live", result["turn"]["id"])
+
+    def test_upstream_extension_negotiation_fails_closed(self):
+        holder = {}
+
+        def factory(command, **_kwargs):
+            process = FakeProxyProcess(
+                command,
+                [],
+                extra_response_headers=(
+                    "Sec-WebSocket-Extensions: permessage-deflate\r\n"
+                ),
+            )
+            holder["process"] = process
+            return process
+
+        client = bridge.AppServerClient(
+            "/tmp/private-app-server.sock",
+            process_factory=factory,
+            request_timeout=1,
+        )
+        with self.assertRaisesRegex(
+            bridge.AppServerTransportError,
+            "unsupported WebSocket extensions",
+        ):
+            client.start()
+        client.close()
+
+    def test_client_frames_are_masked_for_short_and_large_payloads(self):
+        for size in (0, 125, 126, 65536):
+            payload = b"x" * size
+            frame = bridge.AppServerClient._masked_frame(0x1, payload)
+            left, right = socket.socketpair()
+            try:
+                right.sendall(frame)
+                opcode, decoded = read_client_frame(left)
+            finally:
+                left.close()
+                right.close()
+            self.assertEqual(0x1, opcode)
+            self.assertEqual(payload, decoded)
+
+    def test_update_watcher_prefers_installed_uclusion_module_name(self):
+        installed = types.ModuleType("uclusion")
+        calls = []
+
+        def check(environment):
+            calls.append(environment)
+            return "[Uclusion update notice] installed path"
+
+        installed.check_wait_update_notice = check
+        with mock.patch.dict(sys.modules, {"uclusion": installed}):
+            notice = bridge.default_update_notice_source("stage")
+        self.assertEqual(
+            "[Uclusion update notice] installed path", notice
+        )
+        self.assertEqual(["stage"], calls)
+
+
+if __name__ == "__main__":
+    unittest.main()

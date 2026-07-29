@@ -130,7 +130,8 @@ const useVoteStyles = makeStyles(
  */
 function Voting(props) {
   const { marketPresences = [], investibleId, investmentReasons = [], showExpiration, expirationMinutes, yourPresence, market, showDeleted,
-    isInbox, groupId, useCompression, showEmptyText, toggleCompression=() => {}} = props;
+    isInbox, groupId, useCompression, showEmptyText, toggleCompression=() => {},
+    pokeAIMarketId, pokeAIParentTicketCode } = props;
   const history = useHistory();
   const [themeMode] = React.useContext(ThemeModeContext);
   const isDark = themeMode === 'dark';
@@ -320,7 +321,7 @@ function Voting(props) {
               </div>
               {!myUseCompression && !_.isEmpty(voteReplies) && (
                 <LocalCommentsContext.Provider value={{ comments: marketComments, marketId: market.id,
-                  idPrepend: '' }}>
+                  idPrepend: '', pokeAIMarketId, pokeAIParentTicketCode }}>
                   {/* The first Reply card carries its own 1.5rem top margin - cancel it so the thread sits
                       just below the vote's Reply button, and separate the thread from the next vote */}
                   <div style={{marginLeft: '0.5rem', marginTop: '-1.5rem', marginBottom: '1.5rem'}}>
@@ -343,7 +344,9 @@ Voting.propTypes = {
   investmentReasons: PropTypes.arrayOf(PropTypes.object),
   // eslint-disable-next-line react/forbid-prop-types
   marketPresences: PropTypes.arrayOf(PropTypes.object),
-  investibleId: PropTypes.string
+  investibleId: PropTypes.string,
+  pokeAIMarketId: PropTypes.string,
+  pokeAIParentTicketCode: PropTypes.string
 };
 
 export default Voting;

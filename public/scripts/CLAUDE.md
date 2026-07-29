@@ -35,20 +35,61 @@ separate chat message.
 ## Wait for Poke AI
 
 The Uclusion MCP proxy writes inbound Poke AI prompts to a local queue on
-this machine. Start listening at the first reasonable opportunity in every
-session — before `find_work` or any job work — and keep exactly one
-listener running for the rest of the session: just listen all the time. Do
-not hold the launch until you are out of work or blocked on human activity
-in Uclusion (an answer or reply on a question or suggestion, a vote,
-approval or stage change, review feedback, new work after `find_work`
-returned no work): an already-running listener covers all of those, claims
-a prompt that arrives mid-turn the moment it lands, and runs the update
-watcher's staleness check right at session start — the listener is the
-dependable update-notice channel, because some AI clients never display
-the notice the MCP proxy injects into tool results.
+this machine. Establish the supported delivery path at the first reasonable
+opportunity in every session — before `find_work` or any job work. A client
+with the Codex bridge must leave queue ownership to that bridge; every other
+client with a real event monitor keeps exactly one listener running for the
+rest of the session. Do not wait until you are blocked on human activity:
+answers, votes, approvals, stage changes, review feedback, and new work can
+arrive at any time.
 
 How you listen depends on what your harness can consume; use the first
 path below that it supports.
+
+**Codex launched with `uclusion codex`:** do not run `uclusion wait` or
+`uclusion listen`. The launcher creates one private Codex app-server backend
+and a Uclusion companion with a separate frontend Unix WebSocket. Codex TUI
+connections use only that frontend; the companion relays each connection's
+Codex JSON-RPC traffic and uses a separate auxiliary backend connection for
+Poke delivery. Global `-c`/`--config`, `--enable`, `--disable`, and
+`--strict-config` passthrough flags are applied to both the TUI and its private
+app-server; other passthrough arguments remain TUI-only.
+
+The relay, not lifecycle hooks or app-server broadcasts, owns the primary
+thread identity. The first successfully initialized `clientInfo.name=codex-tui`
+connection is authoritative. A successful `thread/start`, `thread/resume`, or
+`thread/fork` response correlated to that connection establishes its
+input-owning root as primary. Auxiliary picker connections may coexist, but
+they never change authority. `/side` and `/agent` may transiently display
+another transcript without retargeting Pokes; side agents, detached reviews,
+and other transient threads never become primary. One serialization barrier
+orders authoritative primary switches against each Poke's `turn/start` through
+the app-server response, so the Poke targets the primary that is current when
+Codex accepts it. The barrier does not prevent a later intentional switch.
+
+Until the TUI is connected and has an authoritative live primary, the companion
+does not peek, reserve, reconcile, or advance its queue cursor. No Uclusion
+hooks need to be enabled or trusted. Perform the normal beginning-of-session
+work, including `find_work` when no concrete work was named. If the companion
+cannot establish its private frontend/backend path, run `uclusion update` and
+restart through `uclusion codex`. The generated project install does not carry
+the maintainer architecture document; in the Uclusion source tree its path is
+`public/scripts/UCLUSION_CODEX_BRIDGE.md`.
+
+**Bare Codex CLI/TUI:** a background unified-exec process cannot wake an idle
+Codex turn. Never leave `wait` or `listen` running in that surface: it can
+advance the queue cursor and buffer the Poke where no model turn will see it.
+At the beginning of each real user-triggered turn, synchronously drain only
+the already-pending backlog:
+
+```sh
+uclusion wait --timeout 0
+```
+
+Handle every returned line before the user's new request, then continue to
+`find_work` when appropriate. Be explicit that autonomous Pokes require
+restarting the session through `uclusion codex`; bare Codex still needs a
+human chat turn.
 
 **Clients with a persistent line-event monitor (Claude Code's Monitor
 tool):** launch the streaming form once per session and leave it running:
@@ -64,12 +105,15 @@ raises as an event, so there is no timeout, no completion notice, and no
 relaunch choreography — a quiet hour is completely silent. Several
 stacked prompts arrive as consecutive lines, possibly batched into one
 notification: handle every line, in arrival order, and when several name
-the same short code one `get_job` covers them. If the stream ever ends
-(the monitor is stopped or dies), arm it again.
+the same lookup short code one `get_job` covers them. A direct prompt's
+lookup code is its only short code; a compound option prompt's lookup code
+is the parent question after `of`. If the stream ever ends (the monitor is
+stopped or dies), arm it again.
 
-**Clients that can background a command but only receive its output when
-it exits:** run the bounded wait as a background (detached) task and
-relaunch it after every completion:
+**Clients whose harness turns a background command's completion into a new
+agent event:** run the bounded wait as a background (detached) task and
+relaunch it after every completion. Merely being able to poll a dormant
+process later does not qualify; bare Codex is explicitly handled above.
 
 ```sh
 uclusion wait --timeout 3600
@@ -120,29 +164,41 @@ Use the same environment flag as every other Uclusion CLI command; for
 example, stage is `uclusion -e stage listen` or `uclusion -e stage wait
 --timeout 3600`. However you listen, a delivered line is handled the same
 way. If it is a prompt such as `Start J-...`, `Responded J-...`, or
-`Responded B-...`, treat that line as the user's next instruction. The
-listener also doubles as the update watcher: at launch and every 15
+`Responded B-...`, treat that line as the user's next instruction. A comment
+or reply inside an option uses the compound grammar
+`Start <local-code> of <parent-question-code>` or
+`Responded <local-code> of <parent-question-code>` — for example,
+`Start C-1 of Q-all-556`. The first code is local to the option market,
+while the question code after `of` is globally resolvable. For a compound
+prompt, call `get_job` with the parent `Q-...` code, then locate and act on
+the named local item within that question's options. Never call `get_job`
+with the local code alone. The listener also doubles as the update watcher:
+at launch and every 15
 minutes or so after, it compares the installed Uclusion release against
 the current one, and the first time it sees a newer release it prints a
 "[Uclusion update notice ...]" line instead of a prompt — `wait` exits
 after printing it, while `listen` keeps running. Handle the notice exactly
 as described in "Updating the AI connection"; whether the user granted or
-declined, the notice never repeats for the same release. For a correlated
-`Responded <short-code>` prompt, call `get_job` for exactly that short
-code, then immediately perform every workflow action the response
-unblocked. A legacy bare `Responded.` prompt has no target; call `get_job`
-for every currently outstanding Uclusion dependency and current object so
-no concurrent job, bug, question, suggestion, or review response is
-missed. Do not merely report the response or stage change; if the job
-still depends on human activity after those actions, resume polling.
+declined, the notice never repeats for the same release. For a direct
+correlated `Responded <short-code>` prompt, call `get_job` for exactly that
+short code. For a compound correlated prompt, use the parent question lookup
+described above. Then immediately perform every workflow action the response
+unblocked. A legacy bare `Responded.` prompt has no target; call `get_job` for
+every currently outstanding Uclusion dependency and current object so no
+concurrent job, bug, question, suggestion, or review response is missed. Do
+not merely report the response or stage change; if the job still depends on
+human activity after those actions, resume polling.
 
 Prompts are delivered in arrival order and stay in the queue until they age
-out, so nothing is lost while you work; you are never shown the same
-prompt twice. Do not worry about other agents or sessions that may share the
-queue, and do not try to coordinate with them — just keep listening and
-handle every prompt you receive. The only exception is when the user's
-prompt explicitly hands you a multi-agent scheme, such as a consumer name to
-pass as `--consumer <name>` on `listen` or `wait`; without such an
+out, so nothing is lost while you work; one delivery path does not show the
+same prompt twice. The Codex bridge deliberately has an independent cursor
+from the ordinary `default` listener, because the queue does not identify
+which surface owns each job. Codex and Claude/Cursor may therefore each
+receive a copy without either surface consuming the other's delivery.
+Do not try to coordinate consumers through the inbox — just handle the
+prompts for the work this session owns. The only exception is when the
+user's prompt explicitly hands you a multi-agent scheme, such as a consumer
+name to pass as `--consumer <name>` on `listen` or `wait`; without such an
 instruction, never pass `--consumer`. A newer chat instruction does not
 require stopping the listener: handle the instruction while it keeps
 listening, and treat anything it delivers meanwhile as your next

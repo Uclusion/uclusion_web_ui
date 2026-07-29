@@ -573,7 +573,7 @@ function Comment(props) {
     resolvedStageId, stagePreventsActions, isInbox, replyEditId, currentStageId, marketInfo, investible, removeActions,
     inboxMessageId, toggleCompression: toggleCompressionRaw, useCompression, showVoting, selectedInvestibleIdParent,
     isMove, idPrepend='c', usePadding=true, compressAll=false, focusMove=false, showNotes=false,
-    inNotesTab=false } = props;
+    inNotesTab=false, pokeAIMarketId, pokeAIParentTicketCode } = props;
   const history = useHistory();
   const location = useLocation();
   const { openInlineWizard } = useInlineWizardLaunch();
@@ -956,7 +956,7 @@ function Comment(props) {
     !myInlinePresence.abstain && !yourVote && myMessage?.type === NOT_FULLY_VOTED_TYPE;
   const showUnmute = myInlinePresence.abstain && !resolved && enableActions && ([QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType));
   const showPokeAI = enableEditing && isSent !== false && !beingEdited && !!comment.ticket_code &&
-    isPokeAICommentType(commentType);
+    isPokeAICommentType(commentType) && (!pokeAIMarketId || !!pokeAIParentTicketCode);
   const showSubTask = isTask && myPresence === createdBy;
   // On a task authored by someone else the single button stays a plain "Reply"; offer a separate
   // "Grouped" button beside it so a non-author can still open a grouped subtask or note.
@@ -1168,8 +1168,9 @@ function Comment(props) {
         )}
         {showPokeAI && (
           <PokeAIButton
-            marketId={marketId}
+            marketId={pokeAIMarketId || marketId}
             ticketCode={comment.ticket_code}
+            parentTicketCode={pokeAIParentTicketCode}
             id={`pokeAI${id}`}
             iconOnly
             lightSurface
@@ -1551,7 +1552,9 @@ function Comment(props) {
     <>
       {inboxMessageId !== id ? compressedCommentCard :
         (isLargeDisplay(body, 7) ? compressedCommentCard  : commentCard)}
-      <LocalCommentsContext.Provider value={{ comments, marketId, idPrepend }}>
+      <LocalCommentsContext.Provider value={{
+        comments, marketId, idPrepend, pokeAIMarketId, pokeAIParentTicketCode
+      }}>
         {inboxMessageId === id && numInThread > 0 &&
           getCompressionButton(numInThread, id, toggleCompression, intl)
         }
@@ -1620,7 +1623,9 @@ function Comment(props) {
       )}
       {!useCompression && (
         <Box marginTop={1} paddingX={1} className={classes.childWrapper}>
-          <LocalCommentsContext.Provider value={{ comments, marketId, idPrepend }}>
+          <LocalCommentsContext.Provider value={{
+            comments, marketId, idPrepend, pokeAIMarketId, pokeAIParentTicketCode
+          }}>
             {sortedReplies.map(child => {
               const { id: childId } = child;
               return (
@@ -1651,7 +1656,9 @@ Comment.propTypes = {
   comment: PropTypes.object.isRequired,
   noAuthor: PropTypes.bool,
   comments: PropTypes.arrayOf(PropTypes.object).isRequired,
-  marketId: PropTypes.string.isRequired
+  marketId: PropTypes.string.isRequired,
+  pokeAIMarketId: PropTypes.string,
+  pokeAIParentTicketCode: PropTypes.string
 };
 
 const unknownPresence = {

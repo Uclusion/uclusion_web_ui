@@ -58,6 +58,7 @@ import {
   preventDefaultAndProp
 } from '../../../utils/marketIdPathFunctions';
 import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { isAssistanceRespondedByHuman } from '../../../utils/commentFunctions';
 import { getStagesInfo } from '../../../utils/stageUtils';
@@ -387,6 +388,7 @@ function PlanningInvestible(props) {
   const [searchResults] = useContext(SearchResultsContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [messagesState] = useContext(NotificationsContext);
+  const [commentsState] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -491,7 +493,7 @@ function PlanningInvestible(props) {
         return 2;
       }
       return isAssistanceRespondedByHuman(rootComment, investibleComments, marketPresences,
-        marketPresencesState) ? 1 : 0;
+        marketPresencesState, commentsState) ? 1 : 0;
     }
     function openAssistance(rootComment, extraState) {
       const tabForComment = assistanceTabFor(rootComment);
@@ -576,7 +578,7 @@ function PlanningInvestible(props) {
       }
     }
   }, [investibleComments, hash, sectionOpen, updatePageState, hidden, history, compressionHash, reportsOpenRaw,
-    assistanceTab, investiblesState, marketPresences, marketPresencesState]);
+    assistanceTab, investiblesState, marketPresences, marketPresencesState, commentsState]);
 
   let lockedByName
   if (lockedBy) {
@@ -648,7 +650,7 @@ function PlanningInvestible(props) {
   const resolvedAssistanceComments = assistanceCommentsSearched.filter((comment) => comment.resolved);
   const unresolvedAssistanceComments = assistanceCommentsSearched.filter((comment) => !comment.resolved);
   const respondedAssistanceComments = unresolvedAssistanceComments.filter((comment) =>
-    isAssistanceRespondedByHuman(comment, investibleComments, marketPresences, marketPresencesState));
+    isAssistanceRespondedByHuman(comment, investibleComments, marketPresences, marketPresencesState, commentsState));
   const unrespondedAssistanceComments = unresolvedAssistanceComments.filter((comment) =>
     !respondedAssistanceComments.includes(comment));
   const assistanceTabComments = [unrespondedAssistanceComments, respondedAssistanceComments,

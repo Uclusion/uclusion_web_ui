@@ -5,7 +5,11 @@ import json
 import math
 import os
 import re
+import select
+import shutil
+import signal
 import sqlite3
+import stat
 import subprocess
 import sys
 import tempfile
@@ -13,7 +17,8 @@ import time
 import urllib.request
 import urllib.parse
 import traceback
-from contextlib import closing, redirect_stdout
+import uuid
+from contextlib import closing, contextmanager, redirect_stdout
 from itertools import batched
 from datetime import datetime
 
@@ -32,6 +37,34 @@ DEFAULT_EXPORT_FOLDER = os.path.join(os.path.expanduser('~'), '.uclusion', 'expo
 INBOX_FILE = 'poke_inbox.sqlite3'
 MESSAGE_RETENTION_SECONDS = 7 * 24 * 60 * 60
 DEFAULT_CONSUMER = 'default'
+CODEX_BRIDGE_SYMLINK = os.path.join(
+    os.path.expanduser('~'), '.local', 'bin', 'uclusionCodexBridge.py'
+)
+UCLUSION_MCP_PROXY_SYMLINK = os.path.join(
+    os.path.expanduser('~'), '.local', 'bin', 'uclusionMCPProxy.py'
+)
+CODEX_CHILD_SHUTDOWN_TIMEOUT = 5
+CODEX_CHILD_POLL_INTERVAL = 0.1
+CODEX_APP_SERVER_START_TIMEOUT = 10
+CODEX_BRIDGE_READY_TIMEOUT = 10
+# Keep synchronized with uclusionCodexBridge.EXIT_RELAY_FAILED.
+CODEX_BRIDGE_RELAY_FAILED_EXIT = 5
+MINIMUM_CODEX_VERSION = (0, 145, 0)
+MINIMUM_CODEX_VERSION_TEXT = '.'.join(str(part) for part in MINIMUM_CODEX_VERSION)
+CODEX_LEGACY_BRIDGE_ENV = (
+    'UCLUSION_CODEX_BRIDGE_INSTANCE',
+    'UCLUSION_CODEX_BRIDGE_ENV',
+    'UCLUSION_CODEX_BRIDGE_WORKSPACE',
+    'UCLUSION_CODEX_BRIDGE_CWD',
+    'UCLUSION_CODEX_BRIDGE_SCRIPT',
+    'UCLUSION_CODEX_APP_SERVER_SOCKET',
+    'UCLUSION_CODEX_BRIDGE_READY_FILE',
+    'UCLUSION_CODEX_RECEIVER_PID_FILE',
+)
+CODEX_LAUNCH_MANAGED_ENV = CODEX_LEGACY_BRIDGE_ENV + (
+    'UCLUSION_CODEX_ACTIVE_RELEASE',
+    'UCLUSION_CODEX_STAGED_CLI',
+)
 
 # Update machinery (J-all-367). Scripts live in a version-named install dir
 # (~/.local/uclusion-cli/<script_reinstall_version>/bin) so the installed
@@ -1095,6 +1128,650 @@ def cmd_export(args):
     return 0
 
 
+def stop_codex_child(process):
+    """Terminate a managed launcher child, then reap it."""
+    if process is None:
+        return
+    if process.poll() is None:
+        process.terminate()
+        try:
+            process.wait(timeout=CODEX_CHILD_SHUTDOWN_TIMEOUT)
+            return
+        except subprocess.TimeoutExpired:
+            process.kill()
+    process.wait()
+
+
+def stop_codex_children(*processes):
+    """Best-effort cleanup that never lets one broken child skip the others."""
+    for process in processes:
+        try:
+            stop_codex_child(process)
+        except Exception as error:
+            print(
+                f"⚠️  Could not fully stop a Codex launcher child: {error}",
+                file=sys.stderr,
+            )
+
+
+@contextmanager
+def codex_shutdown_signals():
+    """Turn launcher termination signals into orderly child cleanup."""
+    state = {"signum": None}
+    previous = {}
+
+    def request_shutdown(signum, _frame):
+        state["signum"] = signum
+
+    for signum in filter(
+        None, (getattr(signal, "SIGTERM", None), getattr(signal, "SIGHUP", None))
+    ):
+        try:
+            previous[signum] = signal.getsignal(signum)
+            signal.signal(signum, request_shutdown)
+        except ValueError:
+            # Signal handlers can only be installed from the main thread.
+            continue
+    try:
+        yield state
+    finally:
+        for signum, handler in previous.items():
+            signal.signal(signum, handler)
+
+
+def codex_signal_exit_code(shutdown_state):
+    signum = shutdown_state.get("signum")
+    return None if signum is None else 128 + int(signum)
+
+
+def print_bridge_exit_error(returncode):
+    if returncode == 3:
+        print(
+            "❌ The Uclusion Codex bridge exited before the Codex TUI because "
+            "another launcher already owns this environment and workspace.",
+            file=sys.stderr,
+        )
+    elif returncode == CODEX_BRIDGE_RELAY_FAILED_EXIT:
+        print(
+            "❌ The Uclusion Codex relay could not establish a safe private "
+            "Codex connection. Run `uclusion update`, then retry "
+            "`uclusion codex`.",
+            file=sys.stderr,
+        )
+    else:
+        print(
+            "❌ The Uclusion Codex bridge exited unexpectedly with status "
+            f"{returncode} before the Codex TUI exited. The Codex TUI was stopped.",
+            file=sys.stderr,
+        )
+
+
+def print_app_server_exit_error(returncode):
+    print(
+        "❌ The private Codex app-server exited unexpectedly with status "
+        f"{returncode} before the Codex TUI exited. The Codex TUI was stopped.",
+        file=sys.stderr,
+    )
+
+
+def is_unix_socket(path):
+    """Return whether ``path`` currently names a Unix-domain socket."""
+    try:
+        return stat.S_ISSOCK(os.stat(path).st_mode)
+    except OSError:
+        return False
+
+
+def wait_for_app_server_socket(
+    app_server, socket_path, should_stop=lambda: False
+):
+    """Wait until the private app-server binds its Unix socket.
+
+    Returns ``(True, None)`` when ready, ``(False, status)`` if the child
+    exits, and ``(False, None)`` on timeout.
+    """
+    deadline = time.monotonic() + CODEX_APP_SERVER_START_TIMEOUT
+    while True:
+        if should_stop():
+            return False, None
+        returncode = app_server.poll()
+        if returncode is not None:
+            return False, returncode
+        if is_unix_socket(socket_path):
+            return True, None
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return False, None
+        time.sleep(min(CODEX_CHILD_POLL_INTERVAL, remaining))
+
+
+def wait_for_bridge_ready(
+    bridge,
+    app_server,
+    ready_file,
+    expected_instance,
+    frontend_socket_path,
+    should_stop=lambda: False,
+):
+    """Wait for the initialized backend driver and bound frontend relay.
+
+    Returns ``(True, None, None)`` when ready. Otherwise the second value is
+    ``bridge`` or ``app-server`` with its exit status, ``invalid`` for a bad
+    private marker, or ``None`` on timeout/shutdown.
+    """
+    deadline = time.monotonic() + CODEX_BRIDGE_READY_TIMEOUT
+    while True:
+        if should_stop():
+            return False, None, None
+        bridge_returncode = bridge.poll()
+        if bridge_returncode is not None:
+            return False, 'bridge', bridge_returncode
+        app_server_returncode = app_server.poll()
+        if app_server_returncode is not None:
+            return False, 'app-server', app_server_returncode
+        try:
+            with open(ready_file, 'r', encoding='utf-8') as marker:
+                value = marker.read(256)
+        except FileNotFoundError:
+            value = None
+        except (OSError, UnicodeError):
+            return False, 'invalid', None
+        if value is not None:
+            if value.strip() == expected_instance:
+                if is_unix_socket(frontend_socket_path):
+                    return True, None, None
+                return False, 'invalid', None
+            return False, 'invalid', None
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return False, None, None
+        time.sleep(min(CODEX_CHILD_POLL_INTERVAL, remaining))
+
+
+def write_codex_receiver_file(path, instance, pid):
+    """Register the one visible TUI in the launcher's private runtime dir."""
+    if not isinstance(pid, int) or pid <= 1:
+        raise OSError(f'invalid Codex TUI pid: {pid!r}')
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    if hasattr(os, 'O_NOFOLLOW'):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(path, flags, 0o600)
+    payload = f'{instance} {pid}\n'.encode('utf-8')
+    try:
+        offset = 0
+        while offset < len(payload):
+            written = os.write(descriptor, payload[offset:])
+            if written <= 0:
+                raise OSError('receiver marker write made no progress')
+            offset += written
+        os.fsync(descriptor)
+    except Exception:
+        try:
+            os.unlink(path)
+        except OSError:
+            pass
+        raise
+    finally:
+        os.close(descriptor)
+
+
+def codex_receiver_liveness_supported():
+    """Whether the bridge can distinguish a live TUI from a zombie PID."""
+    if sys.platform.startswith('linux'):
+        return hasattr(os, 'pidfd_open') or os.path.isdir('/proc')
+    return (
+        sys.platform == 'darwin'
+        and hasattr(select, 'kqueue')
+        and hasattr(select, 'KQ_FILTER_PROC')
+        and hasattr(select, 'KQ_NOTE_EXIT')
+    )
+
+
+def build_codex_mcp_overrides(
+    workspace_id, environment, proxy_path=UCLUSION_MCP_PROXY_SYMLINK
+):
+    """Build a complete per-launch Uclusion MCP table as Codex ``-c`` args."""
+    proxy_args = [
+        proxy_path,
+        str(workspace_id),
+        environment,
+    ]
+    inline_table = (
+        '{ enabled = true, command = '
+        + json.dumps("python3")
+        + ', args = '
+        + json.dumps(proxy_args)
+        + ', default_tools_approval_mode = '
+        + json.dumps("approve")
+        + ' }'
+    )
+    return [
+        '-c',
+        'mcp_servers.Uclusion=' + inline_table,
+    ]
+
+
+def resolve_codex_companion_paths():
+    """Pin the bridge and proxy to one immutable release beside this CLI."""
+    cli_bin_dir = os.path.dirname(
+        os.path.realpath(os.path.abspath(__file__))
+    )
+    sibling_bridge = os.path.join(cli_bin_dir, "uclusionCodexBridge.py")
+    sibling_proxy = os.path.join(cli_bin_dir, "uclusionMCPProxy.py")
+    if os.path.isfile(sibling_bridge) and os.path.isfile(sibling_proxy):
+        return sibling_bridge, sibling_proxy
+
+    public_paths = (CODEX_BRIDGE_SYMLINK, UCLUSION_MCP_PROXY_SYMLINK)
+    for path in public_paths:
+        if not os.path.islink(path) or not os.path.exists(path):
+            raise RuntimeError(
+                "the Uclusion bridge/proxy release is incomplete; "
+                "run `uclusion update`"
+            )
+    resolved = tuple(os.path.realpath(path) for path in public_paths)
+    if len({os.path.dirname(path) for path in resolved}) != 1:
+        raise RuntimeError(
+            "the Uclusion bridge and MCP proxy come from different releases; "
+            "run `uclusion update`"
+        )
+    return resolved
+
+
+def stage_codex_companions(
+    runtime_dir, cli_source, bridge_source, proxy_source
+):
+    """Copy one validated release into this launch's private lifetime."""
+    staging_dir = os.path.join(runtime_dir, 'bin')
+    staged_cli = os.path.join(staging_dir, 'uclusion.py')
+    staged_bridge = os.path.join(staging_dir, 'uclusionCodexBridge.py')
+    staged_proxy = os.path.join(staging_dir, 'uclusionMCPProxy.py')
+    try:
+        os.makedirs(staging_dir, mode=0o700, exist_ok=False)
+        shutil.copy2(cli_source, staged_cli)
+        shutil.copy2(bridge_source, staged_bridge)
+        shutil.copy2(proxy_source, staged_proxy)
+    except OSError as error:
+        raise RuntimeError(
+            f'could not stage the Uclusion Codex release: {error}'
+        ) from error
+    if not all(
+        os.path.isfile(path)
+        for path in (staged_cli, staged_bridge, staged_proxy)
+    ):
+        raise RuntimeError(
+            'the staged Uclusion Codex release is incomplete'
+        )
+    return staged_cli, staged_bridge, staged_proxy
+
+
+def parse_codex_version(output):
+    """Return the numeric Codex CLI version, accepting build/prerelease suffixes."""
+    match = re.search(
+        r'(?:^|\s)codex-cli\s+(\d+)\.(\d+)\.(\d+)'
+        r'(?:-[0-9A-Za-z][0-9A-Za-z._-]*)?'
+        r'(?:\+[0-9A-Za-z][0-9A-Za-z._-]*)?(?=\s|$)',
+        output,
+    )
+    if match is None:
+        return None
+    return tuple(int(part) for part in match.groups())
+
+
+def check_codex_version(codex_path):
+    """Reject known-too-old Codex; the relay checks protocol shape at runtime."""
+    try:
+        result = subprocess.run(
+            [codex_path, '--version'],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (OSError, subprocess.TimeoutExpired) as error:
+        print(f"❌ Could not check the Codex version: {error}", file=sys.stderr)
+        print("Run `codex update`, then try `uclusion codex` again.", file=sys.stderr)
+        return False
+    if result.returncode != 0:
+        print(
+            "❌ Could not check the Codex version "
+            f"(`codex --version` exited with status {result.returncode}).",
+            file=sys.stderr,
+        )
+        print("Run `codex update`, then try `uclusion codex` again.", file=sys.stderr)
+        return False
+    version_output = '\n'.join(
+        part for part in (result.stdout, result.stderr) if part
+    )
+    version = parse_codex_version(version_output)
+    if version is None:
+        print(
+            "❌ Could not parse `codex --version`; Uclusion requires Codex "
+            f"{MINIMUM_CODEX_VERSION_TEXT} or newer.",
+            file=sys.stderr,
+        )
+        print("Run `codex update`, then try `uclusion codex` again.", file=sys.stderr)
+        return False
+    if version < MINIMUM_CODEX_VERSION:
+        installed = '.'.join(str(part) for part in version)
+        print(
+            f"❌ Codex {installed} is too old; Uclusion requires Codex "
+            f"{MINIMUM_CODEX_VERSION_TEXT} or newer.",
+            file=sys.stderr,
+        )
+        print("Run `codex update`, then try `uclusion codex` again.", file=sys.stderr)
+        return False
+    return True
+
+
+def validate_codex_passthrough_args(codex_args):
+    """Reject caller attempts to bypass the launcher's private relay."""
+    for argument in codex_args:
+        if argument == '--':
+            break
+        if argument == '--remote' or argument.startswith('--remote='):
+            print(
+                "❌ `uclusion codex` owns the Codex `--remote` connection; "
+                "do not pass another `--remote` argument.",
+                file=sys.stderr,
+            )
+            return False
+    return True
+
+
+def codex_app_server_passthrough_args(codex_args):
+    """Copy backend-owned global configuration flags to app-server.
+
+    The visible TUI remains the recipient of every passthrough argument, but
+    feature and config switches must also reach the private app-server which
+    actually starts MCP/apps and owns the Codex runtime configuration.
+    """
+    result = []
+    value_options = frozenset(
+        ("-c", "--config", "--enable", "--disable")
+    )
+    attached_options = (
+        "--config=",
+        "--enable=",
+        "--disable=",
+    )
+    index = 0
+    while index < len(codex_args):
+        argument = codex_args[index]
+        if argument == "--":
+            break
+        if argument in value_options:
+            if index + 1 >= len(codex_args) or codex_args[index + 1] == "--":
+                raise ValueError(
+                    "{} requires a value".format(argument)
+                )
+            result.extend((argument, codex_args[index + 1]))
+            index += 2
+            continue
+        if argument.startswith("-c") and len(argument) > 2:
+            value = argument[3:] if argument.startswith("-c=") else argument[2:]
+            if not value:
+                raise ValueError("-c requires a value")
+            result.append(argument)
+            index += 1
+            continue
+        if argument.startswith(attached_options):
+            _name, _separator, value = argument.partition("=")
+            if not value:
+                raise ValueError(
+                    "{} requires a value".format(_name)
+                )
+            result.append(argument)
+        elif argument == "--strict-config":
+            result.append(argument)
+        index += 1
+    return result
+
+
+def cmd_codex(args):
+    """Launch Codex through a private Uclusion Poke relay.
+
+    This path needs only the workspace config; it intentionally does not load
+    credentials or log in. The TUI connects only to the relay's private
+    frontend socket; the relay owns the separate backend app-server
+    connection. Every child and the private runtime directory are cleaned up
+    with the TUI.
+    """
+    environment = args.env or 'production'
+    _api_url, json_path, _credentials_path = get_env_paths(environment)
+    config = load_config(json_path)
+    if config is None:
+        return 1
+    workspace_id = config.get('workspaceId') if isinstance(config, dict) else None
+    if not workspace_id:
+        print(
+            f"❌ Cannot launch Codex: no workspaceId in '{json_path}'.",
+            file=sys.stderr,
+        )
+        return 1
+    if not codex_receiver_liveness_supported():
+        print(
+            "❌ Cannot launch Codex safely on this platform: Uclusion cannot "
+            "distinguish an exited Codex TUI from a live receiver.",
+            file=sys.stderr,
+        )
+        return 1
+
+    codex_path = shutil.which('codex')
+    if codex_path is None:
+        print(
+            "❌ Cannot launch Codex: the 'codex' executable was not found on PATH.",
+            file=sys.stderr,
+        )
+        return 1
+    if not check_codex_version(codex_path):
+        return 1
+
+    try:
+        bridge_path, proxy_path = resolve_codex_companion_paths()
+    except RuntimeError as error:
+        print(
+            f"❌ Cannot launch Codex: {error}.",
+            file=sys.stderr,
+        )
+        return 1
+    cli_path = os.path.realpath(os.path.abspath(__file__))
+    active_release = get_installed_script_version()
+
+    instance_id = str(uuid.uuid4())
+    cwd = os.getcwd()
+    codex_args = list(args.codex_args)
+    if codex_args and codex_args[0] == '--':
+        codex_args.pop(0)
+    if not validate_codex_passthrough_args(codex_args):
+        return 1
+    try:
+        app_server_passthrough = codex_app_server_passthrough_args(
+            codex_args
+        )
+    except ValueError as error:
+        print(
+            "❌ Invalid Codex passthrough arguments: {}.".format(error),
+            file=sys.stderr,
+        )
+        return 1
+
+    app_server = None
+    bridge = None
+    tui = None
+    with codex_shutdown_signals() as shutdown_state, \
+            tempfile.TemporaryDirectory(
+                prefix=f'uclusion-codex-{instance_id[:8]}-'
+            ) as runtime_dir:
+        try:
+            try:
+                (
+                    staged_cli_path,
+                    staged_bridge_path,
+                    staged_proxy_path,
+                ) = (
+                    stage_codex_companions(
+                        runtime_dir, cli_path, bridge_path, proxy_path
+                    )
+                )
+            except RuntimeError as error:
+                print(
+                    f"❌ Cannot launch Codex: {error}.",
+                    file=sys.stderr,
+                )
+                return 1
+            child_env = os.environ.copy()
+            for managed_name in CODEX_LAUNCH_MANAGED_ENV:
+                child_env.pop(managed_name, None)
+            if active_release is not None:
+                child_env['UCLUSION_CODEX_ACTIVE_RELEASE'] = active_release
+                child_env['UCLUSION_CODEX_STAGED_CLI'] = staged_cli_path
+            backend_socket_path = os.path.join(
+                runtime_dir, 'app-server.sock'
+            )
+            frontend_socket_path = os.path.join(
+                runtime_dir, 'tui-relay.sock'
+            )
+            bridge_ready_path = os.path.join(runtime_dir, 'bridge.ready')
+            receiver_pid_path = os.path.join(runtime_dir, 'receiver.pid')
+            backend_listen_url = f'unix://{backend_socket_path}'
+            frontend_listen_url = f'unix://{frontend_socket_path}'
+            app_server_command = [
+                codex_path,
+                'app-server',
+                *app_server_passthrough,
+                *build_codex_mcp_overrides(
+                    workspace_id, environment, staged_proxy_path
+                ),
+                '--listen',
+                backend_listen_url,
+            ]
+            bridge_command = [
+                sys.executable,
+                staged_bridge_path,
+                'run',
+                '--environment', environment,
+                '--workspace-id', str(workspace_id),
+                '--instance', instance_id,
+                '--cwd', cwd,
+                '--app-server-socket', backend_socket_path,
+                '--frontend-socket', frontend_socket_path,
+                '--ready-file', bridge_ready_path,
+                '--receiver-pid-file', receiver_pid_path,
+            ]
+            tui_command = [
+                codex_path,
+                '--remote',
+                frontend_listen_url,
+                *codex_args,
+            ]
+
+            try:
+                app_server = subprocess.Popen(app_server_command, env=child_env)
+            except OSError as error:
+                print(
+                    f"❌ Could not start the private Codex app-server: {error}",
+                    file=sys.stderr,
+                )
+                return 1
+            ready, app_server_returncode = wait_for_app_server_socket(
+                app_server,
+                backend_socket_path,
+                should_stop=lambda: shutdown_state["signum"] is not None,
+            )
+            signal_exit = codex_signal_exit_code(shutdown_state)
+            if signal_exit is not None:
+                return signal_exit
+            if not ready:
+                if app_server_returncode is None:
+                    print(
+                        "❌ Timed out waiting for the private Codex app-server "
+                        f"socket at '{backend_socket_path}'.",
+                        file=sys.stderr,
+                    )
+                else:
+                    print_app_server_exit_error(app_server_returncode)
+                return 1
+
+            try:
+                bridge = subprocess.Popen(bridge_command, env=child_env)
+            except OSError as error:
+                print(
+                    f"❌ Could not start the Uclusion Codex bridge: {error}",
+                    file=sys.stderr,
+                )
+                return 1
+
+            bridge_ready, failed_child, child_returncode = (
+                wait_for_bridge_ready(
+                    bridge,
+                    app_server,
+                    bridge_ready_path,
+                    instance_id,
+                    frontend_socket_path,
+                    should_stop=lambda: (
+                        shutdown_state["signum"] is not None
+                    ),
+                )
+            )
+            signal_exit = codex_signal_exit_code(shutdown_state)
+            if signal_exit is not None:
+                return signal_exit
+            if not bridge_ready:
+                if failed_child == 'bridge':
+                    print_bridge_exit_error(child_returncode)
+                elif failed_child == 'app-server':
+                    print_app_server_exit_error(child_returncode)
+                elif failed_child == 'invalid':
+                    print(
+                        "❌ The Uclusion Codex bridge wrote an invalid private "
+                        "readiness marker or did not bind its frontend socket.",
+                        file=sys.stderr,
+                    )
+                else:
+                    print(
+                        "❌ Timed out waiting for the Uclusion Codex bridge "
+                        "to initialize its backend driver and bind its "
+                        "frontend relay.",
+                        file=sys.stderr,
+                    )
+                return 1
+
+            try:
+                tui = subprocess.Popen(tui_command, env=child_env)
+            except OSError as error:
+                print(f"❌ Could not start the Codex TUI: {error}", file=sys.stderr)
+                return 1
+            try:
+                write_codex_receiver_file(
+                    receiver_pid_path, instance_id, tui.pid
+                )
+            except OSError as error:
+                print(
+                    "❌ Could not register the Codex TUI with the Uclusion "
+                    f"bridge: {error}",
+                    file=sys.stderr,
+                )
+                return 1
+
+            while True:
+                signal_exit = codex_signal_exit_code(shutdown_state)
+                if signal_exit is not None:
+                    return signal_exit
+                tui_returncode = tui.poll()
+                if tui_returncode is not None:
+                    return tui_returncode
+                app_server_returncode = app_server.poll()
+                if app_server_returncode is not None:
+                    print_app_server_exit_error(app_server_returncode)
+                    return 1
+                bridge_returncode = bridge.poll()
+                if bridge_returncode is not None:
+                    print_bridge_exit_error(bridge_returncode)
+                    return 1
+                time.sleep(CODEX_CHILD_POLL_INTERVAL)
+        finally:
+            stop_codex_children(tui, bridge, app_server)
+
+
 def is_orphaned(initial_ppid):
     """True when the launching parent died and this poller was reparented.
 
@@ -1216,12 +1893,25 @@ def get_installed_script_version():
     v1/current/bin layout, and installs stamped without credentials all
     return None.
     """
+    active_release = os.environ.get('UCLUSION_CODEX_ACTIVE_RELEASE')
+    staged_cli = os.environ.get('UCLUSION_CODEX_STAGED_CLI')
+    if (
+        active_release
+        and staged_cli
+        and os.path.realpath(os.path.abspath(__file__))
+        == os.path.realpath(os.path.abspath(staged_cli))
+        and re.fullmatch(r'[A-Za-z0-9._-]+', active_release)
+        and active_release.casefold() not in UNVERSIONED_DIR_NAMES
+        and not active_release.casefold().startswith('unversioned-')
+        and not active_release.startswith('.')
+    ):
+        return active_release
     real_path = os.path.realpath(os.path.abspath(__file__))
     bin_dir = os.path.dirname(real_path)
     version = os.path.basename(os.path.dirname(bin_dir))
     if os.path.basename(bin_dir) != 'bin' or not version:
         return None
-    if version in UNVERSIONED_DIR_NAMES:
+    if version in UNVERSIONED_DIR_NAMES or version.startswith('unversioned-'):
         return None
     if os.path.dirname(os.path.dirname(bin_dir)) != SCRIPT_INSTALL_PREFIX:
         return None
@@ -1306,20 +1996,15 @@ def load_config_at(config_path):
         return None
 
 
-def fetch_latest_script_version(env):
-    """Login and return the current script_reinstall_version, or None.
-
-    This is the J-all-314 signal behind the web UI's reinstall banner, served
-    by GET sso/app for the logged-in account's deployment group.
-    """
-    api_url, json_path, credentials_path = get_env_paths(env)
+def fetch_script_version_for_workspace(env, workspace_id):
+    """Return one workspace's current script release, failing closed."""
+    api_url, _json_path, credentials_path = get_env_paths(env)
     credentials = get_credentials(credentials_path)
     if credentials is None:
         return None
-    config = load_config(json_path)
-    if config is None or config.get('workspaceId') is None:
+    if not workspace_id:
         return None
-    credentials['workspace_id'] = config['workspaceId']
+    credentials['workspace_id'] = workspace_id
     credentials['api_url'] = api_url
     response = login(credentials)
     if response is None or 'uclusion_token' not in response:
@@ -1330,12 +2015,34 @@ def fetch_latest_script_version(env):
     )
     try:
         with urllib.request.urlopen(app_url, timeout=15) as app_response:
-            return json.loads(app_response.read().decode('utf-8')).get(
+            version = json.loads(app_response.read().decode('utf-8')).get(
                 'script_reinstall_version'
             )
+        if (
+            not isinstance(version, str)
+            or not re.fullmatch(r'[A-Za-z0-9._-]+', version)
+            or version.casefold() in UNVERSIONED_DIR_NAMES
+            or version.casefold().startswith('unversioned-')
+            or version.startswith('.')
+        ):
+            print(
+                "   -> ❌ The server returned an invalid script release.",
+                file=sys.stderr,
+            )
+            return None
+        return version
     except Exception as error:
         print(f"   -> ❌ Error fetching the current script version: {error}")
         return None
+
+
+def fetch_latest_script_version(env):
+    """Login and return the current workspace's script release, or None."""
+    _api_url, json_path, _credentials_path = get_env_paths(env)
+    config = load_config(json_path)
+    if config is None:
+        return None
+    return fetch_script_version_for_workspace(env, config.get('workspaceId'))
 
 
 def load_update_check_state():
@@ -1421,8 +2128,16 @@ def check_wait_update_notice(environment):
         return None
 
 
-def run_installer(installer_path, env, config, fallback_config, clients, project,
-                  skip_scripts=False):
+def run_installer(
+    installer_path,
+    env,
+    config,
+    fallback_config,
+    clients,
+    project,
+    script_version,
+    skip_scripts=False,
+):
     """Run the downloaded installer non-interactively for one install scope.
 
     Returns True when the installer ran successfully. ``fallback_config``
@@ -1439,6 +2154,7 @@ def run_installer(installer_path, env, config, fallback_config, clients, project
         return False
     view_id = source.get('todoViewId') or workspace_id
     command = [sys.executable, installer_path, env, workspace_id, view_id]
+    command += ['--script-version', script_version]
     if clients:
         command += ['--clients', ','.join(sorted(clients))]
     else:
@@ -1506,6 +2222,42 @@ def cmd_update(args):
               "~/.uclusion or the current directory).")
         return 1
 
+    workspace_ids = set()
+    if global_config is not None and global_config.get('workspaceId'):
+        workspace_ids.add(global_config['workspaceId'])
+    project_source = project_config or global_config
+    if (
+        has_project_install
+        and project_source is not None
+        and project_source.get('workspaceId')
+    ):
+        workspace_ids.add(project_source['workspaceId'])
+    if not workspace_ids:
+        print("❌ No workspaceId is available to resolve the update release.")
+        return 1
+    release_by_workspace = {}
+    for workspace_id in sorted(workspace_ids):
+        release = fetch_script_version_for_workspace(env, workspace_id)
+        if release is None:
+            print(
+                "❌ Could not determine a script release for workspace "
+                f"{workspace_id}; no update was applied."
+            )
+            return 1
+        release_by_workspace[workspace_id] = release
+    releases = set(release_by_workspace.values())
+    if len(releases) != 1:
+        detail = ', '.join(
+            f'{workspace_id}={release}'
+            for workspace_id, release in sorted(release_by_workspace.items())
+        )
+        print(
+            "❌ Global and project workspaces resolve to different script "
+            f"releases ({detail}); no update was applied."
+        )
+        return 1
+    script_version = releases.pop()
+
     installer_url = get_scripts_base_url(env) + 'uclusionInstall.py'
     with tempfile.TemporaryDirectory() as tmp_dir:
         installer_path = os.path.join(tmp_dir, 'uclusionInstall.py')
@@ -1524,12 +2276,14 @@ def cmd_update(args):
         ran_global = False
         if global_config is not None:
             if not run_installer(installer_path, env, global_config, None,
-                                 detect_global_clients(), project=False):
+                                 detect_global_clients(), project=False,
+                                 script_version=script_version):
                 return 1
             ran_global = True
         if has_project_install:
             if not run_installer(installer_path, env, project_config, global_config,
                                  project_clients, project=True,
+                                 script_version=script_version,
                                  skip_scripts=ran_global):
                 return 1
 
@@ -1674,6 +2428,17 @@ def build_parser():
              "configured uclusionMDFolderPath (default: ~/.uclusion/export).",
     )
     export_parser.set_defaults(func=cmd_export)
+
+    codex_parser = subparsers.add_parser(
+        'codex',
+        help='Launch Codex through the private Uclusion Poke relay.',
+    )
+    codex_parser.add_argument(
+        'codex_args',
+        nargs=argparse.REMAINDER,
+        help='Arguments passed through to Codex (place them after --).',
+    )
+    codex_parser.set_defaults(func=cmd_codex)
 
     wait_parser = subparsers.add_parser(
         'wait',

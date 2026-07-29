@@ -20,23 +20,37 @@ export function isPokeAICommentType(commentType) {
   return [ISSUE_TYPE, TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType);
 }
 
-export function getPokeAIMessage(ticketCode) {
-  if (!ticketCode) {
-    return undefined;
-  }
+export function isPokeAIReplyVisible(isTopLevelSubTask, pokeAIMarketId,
+                                     pokeAIParentTicketCode) {
+  const hasParentTicketCode = !!pokeAIParentTicketCode;
+  return (isTopLevelSubTask || hasParentTicketCode) &&
+    (!pokeAIMarketId || hasParentTicketCode);
+}
+
+function decodeTicketCode(ticketCode) {
   let decodedTicketCode = ticketCode;
   try {
     decodedTicketCode = decodeURI(ticketCode);
   } catch {
     // Preserve a malformed code rather than making the action disappear.
   }
-  return `Start ${decodedTicketCode}`;
+  return decodedTicketCode;
+}
+
+export function getPokeAIMessage(ticketCode, parentTicketCode) {
+  if (!ticketCode) {
+    return undefined;
+  }
+  const decodedTicketCode = decodeTicketCode(ticketCode);
+  const parentSuffix = parentTicketCode ? ` of ${decodeTicketCode(parentTicketCode)}` : '';
+  return `Start ${decodedTicketCode}${parentSuffix}`;
 }
 
 function PokeAIButton(props) {
   const {
     marketId,
     ticketCode,
+    parentTicketCode,
     id,
     iconOnly = false,
     lightSurface = false,
@@ -46,7 +60,7 @@ function PokeAIButton(props) {
   const intl = useIntl();
   const { pokeAI } = useContext(WebSocketContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-  const message = getPokeAIMessage(ticketCode);
+  const message = getPokeAIMessage(ticketCode, parentTicketCode);
   if (!marketId || !message) {
     return null;
   }
@@ -96,6 +110,7 @@ function PokeAIButton(props) {
 PokeAIButton.propTypes = {
   marketId: PropTypes.string.isRequired,
   ticketCode: PropTypes.string,
+  parentTicketCode: PropTypes.string,
   id: PropTypes.string,
   iconOnly: PropTypes.bool,
   lightSurface: PropTypes.bool,

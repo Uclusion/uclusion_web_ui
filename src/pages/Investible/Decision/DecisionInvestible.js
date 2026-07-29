@@ -343,7 +343,9 @@ function DecisionInvestible(props) {
   const afterDescription = <>{showAfterDescriptionVoting && (
     <div style={{marginTop: '1rem'}}>
       <CommentBox comments={info} marketId={marketId} allowedTypes={allowedCommentTypes}
-                  isInbox={removeActions} removeActions={removeActions} usePadding={false} />
+                  isInbox={removeActions} removeActions={removeActions} usePadding={false}
+                  pokeAIMarketId={parentMarketId}
+                  pokeAIParentTicketCode={parentComment.ticket_code} />
       <h2 id="approvals" style={{marginTop: '1rem'}}>
         <FormattedMessage id="decisionInvestibleOthersVoting"/>
       </h2>
@@ -364,6 +366,8 @@ function DecisionInvestible(props) {
         market={market}
         groupId={marketId}
         yourPresence={yourPresence}
+        pokeAIMarketId={parentMarketId}
+        pokeAIParentTicketCode={parentComment.ticket_code}
         toggleCompression={() => updateVotingPageState({ useCompression: !useCompression })}
         useCompression={useCompression}
       />
@@ -398,7 +402,9 @@ function DecisionInvestible(props) {
           </div>
         )}
         <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes}
-                    isInbox={removeActions} removeActions={removeActions} usePadding={false}/>
+                    isInbox={removeActions} removeActions={removeActions} usePadding={false}
+                    pokeAIMarketId={parentMarketId}
+                    pokeAIParentTicketCode={parentComment.ticket_code}/>
       </div>
     )
     }</>;

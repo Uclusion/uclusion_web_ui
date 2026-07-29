@@ -11,7 +11,11 @@ import {
   SUGGEST_CHANGE_TYPE,
   TODO_TYPE,
 } from '../../constants/comments';
-import PokeAIButton, { getPokeAIMessage, isPokeAICommentType } from './PokeAIButton';
+import PokeAIButton, {
+  getPokeAIMessage,
+  isPokeAICommentType,
+  isPokeAIReplyVisible,
+} from './PokeAIButton';
 
 const previousActEnvironment = window.IS_REACT_ACT_ENVIRONMENT;
 beforeAll(() => {
@@ -32,8 +36,8 @@ jest.mock('./SpinningIconLabelButton', () => {
 jest.mock('./TooltipIconButton', () => {
   const React = require('react');
   return function MockTooltipIconButton(props) {
-    const { id, translationId } = props;
-    return <button id={id} title={translationId} />;
+    const { id, onClick, translationId } = props;
+    return <button id={id} title={translationId} onClick={onClick} />;
   };
 });
 
@@ -73,6 +77,12 @@ describe('getPokeAIMessage', () => {
 
   it('decodes URI-encoded ticket codes before building the command', () => {
     expect(getPokeAIMessage('T-all-2395%20copy')).toBe('Start T-all-2395 copy');
+  });
+
+  it('scopes an option-local code to its globally resolvable parent question', () => {
+    expect(getPokeAIMessage('C-2', 'Q-all-500')).toBe('Start C-2 of Q-all-500');
+    expect(getPokeAIMessage('C-2%20copy', 'Q-all-500%20copy'))
+      .toBe('Start C-2 copy of Q-all-500 copy');
   });
 
   it('does not build a command without a ticket code', () => {
@@ -122,5 +132,52 @@ describe('getPokeAIMessage', () => {
     expect(setOperationRunning).toHaveBeenNthCalledWith(1, 'pokeAIComment');
     expect(setOperationRunning).toHaveBeenLastCalledWith(false);
     await act(async () => root.unmount());
+  });
+
+  it('routes an option-local compact poke through the parent planning market', async () => {
+    const pokeAI = jest.fn().mockResolvedValue();
+    const setOperationRunning = jest.fn();
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(pokeAIButtonTree({
+        marketId: 'parent-planning-market',
+        ticketCode: 'C-2',
+        parentTicketCode: 'Q-all-500',
+        id: 'pokeAIOptionReply',
+        iconOnly: true,
+      }, pokeAI, setOperationRunning));
+    });
+
+    await act(async () => {
+      container.querySelector('button').click();
+    });
+
+    expect(pokeAI).toHaveBeenCalledWith(
+      'parent-planning-market',
+      'Start C-2 of Q-all-500'
+    );
+    expect(setOperationRunning).toHaveBeenNthCalledWith(1, 'pokeAIOptionReply');
+    expect(setOperationRunning).toHaveBeenLastCalledWith(false);
+    await act(async () => root.unmount());
+  });
+});
+
+describe('isPokeAIReplyVisible', () => {
+  it('hides an inline reply while its parent ticket code is unavailable', () => {
+    expect(isPokeAIReplyVisible(
+      true,
+      'parent-planning-market',
+      undefined
+    )).toBe(false);
+  });
+
+  it('keeps globally qualified inline and planning subtasks visible', () => {
+    expect(isPokeAIReplyVisible(
+      false,
+      'parent-planning-market',
+      'Q-all-500'
+    )).toBe(true);
+    expect(isPokeAIReplyVisible(true, undefined, undefined)).toBe(true);
   });
 });

@@ -136,7 +136,7 @@ function CommentBox(props) {
     fullStage = {}, stage, replyEditId, usePadding, issueWarningId, marketInfo, investible, removeActions, inboxMessageId,
     showVoting, selectedInvestibleIdParent, preserveOrder, isMove, toggleCompression, useCompression: rawUseCompression,
     useInProgressSorting, displayRepliesAsTop=false, compressAll=false, showNotes=false,
-    inNotesTab=false, investibleComments, simpleOrdering } = props;
+    inNotesTab=false, investibleComments, simpleOrdering, pokeAIMarketId, pokeAIParentTicketCode } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [commentsState] = useContext(CommentsContext);
@@ -203,6 +203,8 @@ function CommentBox(props) {
               depth={0}
               compressAll={compressAll}
               marketId={marketId}
+              pokeAIMarketId={pokeAIMarketId}
+              pokeAIParentTicketCode={pokeAIParentTicketCode}
               comment={comment}
               comments={comments}
               isInbox={isInbox}
@@ -240,7 +242,9 @@ function CommentBox(props) {
 CommentBox.propTypes = {
   comments: PropTypes.arrayOf(PropTypes.object).isRequired,
   marketId: PropTypes.string.isRequired,
-  fullStage: PropTypes.object
+  fullStage: PropTypes.object,
+  pokeAIMarketId: PropTypes.string,
+  pokeAIParentTicketCode: PropTypes.string
 };
 
 export default CommentBox;

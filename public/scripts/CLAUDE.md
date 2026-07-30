@@ -422,6 +422,10 @@ in your judgment.
 
 A question counts as answered when there is a "For" vote on one of its options that is not 
 marked "From AI user" or when a not AI user has replied in the question with a clear direction.
+A question also counts as answered when a human resolves it without a vote or reply. That
+resolution means the human accepts the risk described by the question and wants to preserve
+the current behavior; it does not silently select one of the question's options. Do not reopen
+or re-ask the question merely because no reply was recorded.
 
 Even once answered, if the not AI users' votes are all marked less than or equal to 50 out of 100
 and you are able to come up with an option that you are more certain of than your 
@@ -502,6 +506,11 @@ suggestion holds the job in "Requires Input", so answer it before any
 implementation. When your accept changes the plan, record the change
 (update or add tasks, or `add_info`), and `resolve` the suggestion once
 it is settled and acted on.
+
+When a human resolves an AI-authored suggestion without a reply or vote,
+treat that as accepting the risk the suggestion described and declining
+the proposed mitigation. Do not reopen or recreate the suggestion merely
+because no explicit accept/reject reply was recorded.
 
 **Precondition — do NOT offer to do work on a task or approve the job while any question on it is still open and unanswered.** 
 

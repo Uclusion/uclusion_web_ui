@@ -76,6 +76,11 @@ HTTP_TOKEN_CHARACTERS = frozenset(
 MIN_JSON_RPC_INTEGER_ID = -(1 << 63)
 MAX_JSON_RPC_INTEGER_ID = (1 << 63) - 1
 TUI_CLIENT_NAME = "codex-tui"
+POKE_REQUIRED_MCP_SERVER = "Uclusion"
+# Relay frontend connections use positive ids. The long-lived companion
+# driver uses non-positive ids so its app-server subscription can serve as a
+# continuous loaded-runtime witness across picker unsubscribe/close.
+INITIAL_DRIVER_CONNECTION_ID = 0
 ROOT_SWITCH_METHODS = frozenset(
     ("thread/start", "thread/resume", "thread/fork")
 )
@@ -222,6 +227,19 @@ class RelayGate:
     previous_generation: int
     target_thread_id: Optional[str] = None
     previous_turn_event_serial: int = 0
+
+
+@dataclasses.dataclass(frozen=True)
+class _McpStartupObservation:
+    status: str
+    emitted_at_ms: Optional[int]
+    connection_sequence: int
+
+
+@dataclasses.dataclass
+class _McpLifecycleTombstone:
+    emitted_at_ms: Optional[int]
+    connection_sequences: Dict[int, int]
 
 
 @dataclasses.dataclass
@@ -1866,13 +1884,13 @@ def _validate_websocket_close_payload(
     payload: bytes,
     peer: str,
     error_type: Callable[[str], Exception],
-) -> None:
+) -> Optional[int]:
     if len(payload) == 1:
         raise error_type(
             "{} sent a one-byte WebSocket Close payload".format(peer)
         )
     if not payload:
-        return
+        return None
     code = struct.unpack("!H", payload[:2])[0]
     if (
         code not in _VALID_WEBSOCKET_CLOSE_CODES
@@ -1887,6 +1905,7 @@ def _validate_websocket_close_payload(
         raise error_type(
             "{} sent a non-UTF-8 WebSocket Close reason".format(peer)
         ) from exc
+    return code
 
 
 def _thread_id_param(params: Dict[str, Any]) -> Optional[str]:
@@ -1920,19 +1939,37 @@ class RootAuthority:
     invalidate the current root, but they can never establish or replace it.
     """
 
-    def __init__(self, cwd: str):
+    def __init__(self, cwd: str, gate_mcp_startup: bool = False):
         self.cwd = os.path.realpath(cwd)
+        self.gate_mcp_startup = gate_mcp_startup
         self.condition = threading.Condition()
         self.primary_connection_id: Optional[int] = None
         self.primary_live = False
         self.thread_id: Optional[str] = None
         self.active_turn_id: Optional[str] = None
         self.admission_pending = False
+        self.mcp_startup_by_connection: Dict[
+            int, Dict[str, Dict[str, _McpStartupObservation]]
+        ] = {}
+        self.mcp_detached_startup_by_thread: Dict[
+            str, Dict[str, _McpStartupObservation]
+        ] = {}
+        self.mcp_notification_sequence_by_connection: Dict[int, int] = {}
+        self.mcp_retired_connection_ids = set()
+        self.mcp_lifecycle_tombstones: Dict[
+            str, _McpLifecycleTombstone
+        ] = {}
+        self.mcp_lifecycle_epoch_by_thread: Dict[str, int] = {}
+        self.mcp_driver_connection_id: Optional[int] = None
+        self.mcp_driver_pinned_threads = set()
         self.turn_event_serial = 0
         self.generation = 0
         self.driver_active = False
         self.tui_gate: Optional[RelayGate] = None
         self.tui_gate_external_invalidation = False
+        self.tui_gate_root_thread_id: Optional[str] = None
+        self.tui_gate_root_lifecycle_epoch: Optional[int] = None
+        self.tui_gate_root_handoff_complete = False
         self.tui_gate_previous_active_turn_id: Optional[str] = None
         self.tui_gate_previous_admission_pending = False
         self.tui_gate_turn_events = []
@@ -1959,6 +1996,15 @@ class RootAuthority:
                 and self.primary_connection_id == connection_id
             )
 
+    def handoffs_abandoned_after_primary_close(self) -> bool:
+        """Return whether normal primary exit made every handoff irrelevant."""
+        with self.condition:
+            return (
+                self.fatal_error is None
+                and self.primary_connection_id is not None
+                and not self.primary_live
+            )
+
     def fail(self, message: str) -> None:
         with self.condition:
             if self.fatal_error is None:
@@ -1967,6 +2013,17 @@ class RootAuthority:
             self.thread_id = None
             self.active_turn_id = None
             self.admission_pending = False
+            self.mcp_startup_by_connection = {}
+            self.mcp_detached_startup_by_thread = {}
+            self.mcp_notification_sequence_by_connection = {}
+            self.mcp_retired_connection_ids = set()
+            self.mcp_lifecycle_tombstones = {}
+            self.mcp_lifecycle_epoch_by_thread = {}
+            self.mcp_driver_connection_id = None
+            self.mcp_driver_pinned_threads = set()
+            self.tui_gate_root_thread_id = None
+            self.tui_gate_root_lifecycle_epoch = None
+            self.tui_gate_root_handoff_complete = False
             self.generation += 1
             self.condition.notify_all()
 
@@ -1975,9 +2032,570 @@ class RootAuthority:
             if self.primary_connection_id == connection_id:
                 self.fail(reason)
 
+    def primary_closed_cleanly(self, connection_id: int) -> None:
+        """Revoke a quitting TUI without making normal exit a failure."""
+        with self.condition:
+            if self.primary_connection_id != connection_id:
+                return
+            self.primary_live = False
+            self.thread_id = None
+            self.active_turn_id = None
+            self.admission_pending = False
+            self.mcp_startup_by_connection = {}
+            self.mcp_detached_startup_by_thread = {}
+            self.mcp_notification_sequence_by_connection = {}
+            self.mcp_retired_connection_ids = set()
+            self.mcp_lifecycle_tombstones = {}
+            self.mcp_lifecycle_epoch_by_thread = {}
+            self.mcp_driver_pinned_threads = set()
+            self.tui_gate_root_thread_id = None
+            self.tui_gate_root_lifecycle_epoch = None
+            self.tui_gate_root_handoff_complete = False
+            self.generation += 1
+            self.condition.notify_all()
+
+    def driver_connected(self, connection_id: int) -> None:
+        """Install the long-lived app-server connection used for root pins."""
+        with self.condition:
+            self._raise_if_fatal()
+            self.mcp_driver_connection_id = connection_id
+            self.mcp_retired_connection_ids.discard(connection_id)
+            self.condition.notify_all()
+
+    def driver_thread_is_pinned(self, thread_id: str) -> bool:
+        with self.condition:
+            return (
+                self.mcp_driver_connection_id is not None
+                and thread_id in self.mcp_driver_pinned_threads
+            )
+
+    def driver_thread_pin_epoch(self, thread_id: str) -> int:
+        with self.condition:
+            self._raise_if_fatal()
+            if self.mcp_driver_connection_id is None:
+                raise RelayProtocolError(
+                    "companion driver is not connected"
+                )
+            return self.mcp_lifecycle_epoch_by_thread.get(thread_id, 0)
+
+    def driver_thread_pinned(
+        self,
+        thread_id: str,
+        expected_lifecycle_epoch: Optional[int] = None,
+    ) -> None:
+        with self.condition:
+            self._raise_if_fatal()
+            if (
+                self.primary_connection_id is not None
+                and not self.primary_live
+            ):
+                # A late subscribe response after a normal TUI Close runs on
+                # the driver's reader thread. Treat it as abandoned here so
+                # its callback cannot poison that continuous connection before
+                # the relay-side handoff unwinds.
+                return
+            if self.mcp_driver_connection_id is None:
+                raise RelayProtocolError(
+                    "companion driver is not connected"
+                )
+            if (
+                expected_lifecycle_epoch is not None
+                and self.mcp_lifecycle_epoch_by_thread.get(thread_id, 0)
+                != expected_lifecycle_epoch
+            ):
+                raise RelayProtocolError(
+                    "{} was invalidated while the companion driver "
+                    "subscribed".format(thread_id)
+                )
+            driver_connection_id = self.mcp_driver_connection_id
+            tombstone = self.mcp_lifecycle_tombstones.get(thread_id)
+            if tombstone is not None:
+                # The ordered resume acknowledgment is a fresh subscription
+                # cut. Events later on this same driver stream are post-
+                # lifecycle even if no lifecycle copy was ever routed here.
+                tombstone.connection_sequences[driver_connection_id] = (
+                    self.mcp_notification_sequence_by_connection.get(
+                        driver_connection_id, 0
+                    )
+                )
+            self.mcp_driver_pinned_threads.add(thread_id)
+            self.condition.notify_all()
+
+    def driver_handoff_cut(self, thread_id: str) -> int:
+        """Snapshot driver order immediately before an origin fence."""
+        with self.condition:
+            self._raise_if_fatal()
+            driver_connection_id = self.mcp_driver_connection_id
+            if (
+                driver_connection_id is None
+                or thread_id not in self.mcp_driver_pinned_threads
+            ):
+                raise RelayProtocolError(
+                    "cannot fence origin without a driver pin for {}".format(
+                        thread_id
+                    )
+                )
+            return self.mcp_notification_sequence_by_connection.get(
+                driver_connection_id, 0
+            )
+
+    def connection_root_subscribed(
+        self, connection_id: int, thread_id: str
+    ) -> int:
+        """Record a root-response cut and return its lifecycle epoch."""
+        with self.condition:
+            self._raise_if_fatal()
+            if connection_id in self.mcp_retired_connection_ids:
+                raise RelayProtocolError(
+                    "retired connection completed a root subscription"
+                )
+            tombstone = self.mcp_lifecycle_tombstones.get(thread_id)
+            if tombstone is not None:
+                tombstone.connection_sequences[connection_id] = (
+                    self.mcp_notification_sequence_by_connection.get(
+                        connection_id, 0
+                    )
+                )
+            lifecycle_epoch = self.mcp_lifecycle_epoch_by_thread.get(
+                thread_id, 0
+            )
+            if (
+                self.tui_gate is not None
+                and self.tui_gate.kind == "root"
+                and self.tui_gate.connection_id == connection_id
+            ):
+                if self.tui_gate_root_thread_id is not None:
+                    raise RelayProtocolError(
+                        "primary root gate received more than one root "
+                        "subscription response"
+                    )
+                self.tui_gate_root_thread_id = thread_id
+                self.tui_gate_root_lifecycle_epoch = lifecycle_epoch
+                self.tui_gate_root_handoff_complete = False
+            self.condition.notify_all()
+            return lifecycle_epoch
+
+    def driver_disconnected(self, connection_id: int) -> None:
+        """Fail the session closed when its continuous witness is lost.
+
+        A replacement initialized connection is not retroactively subscribed
+        to already-loaded threads, so reconnecting cannot safely inherit
+        picker-derived startup proof.
+        """
+        with self.condition:
+            if self.mcp_driver_connection_id != connection_id:
+                return
+            self.fail(
+                "companion app-server driver lost its continuous "
+                "MCP-startup witness"
+            )
+
     def _raise_if_fatal(self) -> None:
         if self.fatal_error is not None:
             raise RelayProtocolError(self.fatal_error)
+
+    def _mcp_startup_settled(self) -> bool:
+        if not self.gate_mcp_startup:
+            return True
+        if (
+            self.thread_id is None
+            or self.mcp_driver_connection_id is None
+            or self.thread_id not in self.mcp_driver_pinned_threads
+        ):
+            return False
+        return self._mcp_startup_status(
+            self.thread_id, POKE_REQUIRED_MCP_SERVER
+        ) in ("ready", "failed", "cancelled")
+
+    def _mcp_startup_observations(
+        self, thread_id: str, name: str
+    ) -> list:
+        """Return only continuously authoritative startup provenance.
+
+        Auxiliary picker streams are handoff inputs, not delivery evidence.
+        A successful root response pins the driver, fences its origin, and
+        copies that ordered cut onto the driver before it can affect Pokes.
+        """
+        observations = []
+        authoritative_connections = (
+            self.primary_connection_id,
+            self.mcp_driver_connection_id,
+        )
+        for connection_id in authoritative_connections:
+            if connection_id is None:
+                continue
+            by_thread = self.mcp_startup_by_connection.get(
+                connection_id, {}
+            )
+            observation = by_thread.get(thread_id, {}).get(name)
+            if observation is not None:
+                observations.append(observation)
+        return observations
+
+    def _mcp_startup_status(
+        self, thread_id: str, name: str
+    ) -> Optional[str]:
+        """Return the newest provable status across subscribed connections.
+
+        Each backend WebSocket preserves notification order, but fan-out
+        copies can reach their relay reader threads in a different order.
+        Prefer the greatest app-server emission timestamp across sockets.
+        Equal or legacy timestamp conflicts fail closed on ``starting``.
+        """
+        observations = self._mcp_startup_observations(thread_id, name)
+        if not observations:
+            return None
+        primary_by_thread = self.mcp_startup_by_connection.get(
+            self.primary_connection_id, {}
+        )
+        primary_observation = primary_by_thread.get(
+            thread_id, {}
+        ).get(name)
+        driver_by_thread = self.mcp_startup_by_connection.get(
+            self.mcp_driver_connection_id, {}
+        )
+        driver_observation = driver_by_thread.get(
+            thread_id, {}
+        ).get(name)
+        if (
+            (
+                primary_observation is not None
+                and primary_observation.status == "starting"
+            )
+            or (
+                driver_observation is not None
+                and driver_observation.status == "starting"
+            )
+        ):
+            # Both sockets are ordered and continuously subscribed to the
+            # loaded root. A transition back to starting is definitive even
+            # if the app-server wall clock regressed.
+            return "starting"
+        timestamped = [
+            observation
+            for observation in observations
+            if observation.emitted_at_ms is not None
+        ]
+        missing_timestamp = [
+            observation
+            for observation in observations
+            if observation.emitted_at_ms is None
+        ]
+        if any(
+            observation.status == "starting"
+            for observation in missing_timestamp
+        ):
+            return "starting"
+        candidates = missing_timestamp
+        if timestamped:
+            newest = max(
+                observation.emitted_at_ms
+                for observation in timestamped
+                if observation.emitted_at_ms is not None
+            )
+            candidates = [
+                observation
+                for observation in timestamped
+                if observation.emitted_at_ms == newest
+            ]
+        if any(
+            observation.status == "starting"
+            for observation in candidates
+        ):
+            return "starting"
+        return candidates[0].status
+
+    def _next_mcp_notification_sequence(self, connection_id: int) -> int:
+        sequence = (
+            self.mcp_notification_sequence_by_connection.get(
+                connection_id, 0
+            )
+            + 1
+        )
+        self.mcp_notification_sequence_by_connection[
+            connection_id
+        ] = sequence
+        return sequence
+
+    def _discard_mcp_thread_observations(
+        self, thread_id: str, connection_id: Optional[int] = None
+    ) -> None:
+        if connection_id is not None:
+            by_thread = self.mcp_startup_by_connection.get(connection_id)
+            if by_thread is not None:
+                by_thread.pop(thread_id, None)
+                if not by_thread:
+                    self.mcp_startup_by_connection.pop(
+                        connection_id, None
+                    )
+            return
+        self.mcp_driver_pinned_threads.discard(thread_id)
+        self.mcp_detached_startup_by_thread.pop(thread_id, None)
+        for observed_connection_id, by_thread in list(
+            self.mcp_startup_by_connection.items()
+        ):
+            by_thread.pop(thread_id, None)
+            if not by_thread:
+                self.mcp_startup_by_connection.pop(
+                    observed_connection_id, None
+                )
+
+    def _merge_detached_mcp_observations(
+        self,
+        thread_id: str,
+        by_name: Dict[str, _McpStartupObservation],
+    ) -> None:
+        if thread_id not in self.mcp_driver_pinned_threads:
+            # Codex attaches other initialized clients only best-effort after
+            # thread creation. Without an explicit driver subscription, a
+            # closed picker's proof has no continuous loaded-runtime witness
+            # and is unsafe to retain.
+            return
+        detached_by_name = (
+            self.mcp_detached_startup_by_thread.setdefault(
+                thread_id, {}
+            )
+        )
+        for name, observation in by_name.items():
+            previous = detached_by_name.get(name)
+            if previous is None:
+                detached_by_name[name] = observation
+                continue
+            if (
+                previous.emitted_at_ms is None
+                or observation.emitted_at_ms is None
+            ):
+                # Across sockets a missing timestamp cannot be ordered. Keep
+                # any observed starting marker so retiring that stream cannot
+                # reopen the gate on older detached terminal proof.
+                if (
+                    observation.status == "starting"
+                    and previous.status != "starting"
+                ):
+                    detached_by_name[name] = observation
+                continue
+            if (
+                observation.emitted_at_ms > previous.emitted_at_ms
+                or (
+                    observation.emitted_at_ms
+                    == previous.emitted_at_ms
+                    and observation.status == "starting"
+                    and previous.status != "starting"
+                )
+            ):
+                detached_by_name[name] = observation
+
+    def _detach_mcp_thread_observations(
+        self, connection_id: int, thread_id: str
+    ) -> None:
+        by_thread = self.mcp_startup_by_connection.get(connection_id)
+        if by_thread is None:
+            return
+        by_name = by_thread.pop(thread_id, {})
+        if not by_thread:
+            self.mcp_startup_by_connection.pop(connection_id, None)
+        self._merge_detached_mcp_observations(
+            thread_id, by_name
+        )
+
+    def _detach_mcp_observations(
+        self, connection_id: int
+    ) -> None:
+        """Compact one retired stream into bounded per-thread proof."""
+        by_thread = self.mcp_startup_by_connection.pop(
+            connection_id, {}
+        )
+        for thread_id, by_name in by_thread.items():
+            self._merge_detached_mcp_observations(
+                thread_id, by_name
+            )
+
+    def connection_closed(self, connection_id: int) -> None:
+        """Retire a relay stream without discarding its runtime proof.
+
+        The companion driver is initialized before the relay, and a root's
+        latest startup observation is retained only after that exact thread
+        has a confirmed driver pin and origin fence. While that witness is
+        live, picker unsubscribe/close cannot make the runtime
+        zero-subscriber or trigger a same-id cold resume. The retained state
+        therefore remains valid until a lifecycle event or newer startup
+        epoch invalidates it.
+        """
+        with self.condition:
+            self.mcp_retired_connection_ids.add(connection_id)
+            self._detach_mcp_observations(connection_id)
+            self.mcp_notification_sequence_by_connection.pop(
+                connection_id, None
+            )
+            for tombstone in self.mcp_lifecycle_tombstones.values():
+                tombstone.connection_sequences.pop(connection_id, None)
+            self.condition.notify_all()
+
+    def connection_invalidation_succeeded(
+        self, connection_id: int, method: str, thread_id: str
+    ) -> None:
+        """Retire readiness provenance after lifecycle RPC success."""
+        with self.condition:
+            if method == "thread/unsubscribe":
+                self._detach_mcp_thread_observations(
+                    connection_id, thread_id
+                )
+            else:
+                self._discard_mcp_thread_observations(thread_id)
+                self.mcp_lifecycle_epoch_by_thread[thread_id] = (
+                    self.mcp_lifecycle_epoch_by_thread.get(thread_id, 0)
+                    + 1
+                )
+                self.mcp_lifecycle_tombstones[
+                    thread_id
+                ] = _McpLifecycleTombstone(
+                    emitted_at_ms=None,
+                    connection_sequences={
+                        connection_id: (
+                            self.mcp_notification_sequence_by_connection.get(
+                                connection_id, 0
+                            )
+                        ),
+                    },
+                )
+            # Unsubscribe removes only this frontend subscription. Explicit
+            # driver pinning and origin fencing performed before its root
+            # response make the compacted startup observation safe to retain.
+            self.condition.notify_all()
+
+    def _handoff_mcp_startup_proof(
+        self, thread_id: str, connection_id: int
+    ) -> None:
+        """Transfer a live loaded-instance proof to a resumed subscriber."""
+        status = self._mcp_startup_status(
+            thread_id, POKE_REQUIRED_MCP_SERVER
+        )
+        if status not in ("ready", "failed", "cancelled"):
+            return
+        observations = self._mcp_startup_observations(
+            thread_id, POKE_REQUIRED_MCP_SERVER
+        )
+        emitted_values = [
+            observation.emitted_at_ms
+            for observation in observations
+            if observation.emitted_at_ms is not None
+        ]
+        emitted_at_ms = (
+            max(emitted_values) if emitted_values else None
+        )
+        sequence = self._next_mcp_notification_sequence(connection_id)
+        self.mcp_startup_by_connection.setdefault(
+            connection_id, {}
+        ).setdefault(thread_id, {})[
+            POKE_REQUIRED_MCP_SERVER
+        ] = _McpStartupObservation(
+            status=status,
+            emitted_at_ms=emitted_at_ms,
+            connection_sequence=sequence,
+        )
+
+    def handoff_origin_startup_to_driver(
+        self,
+        source_connection_id: int,
+        thread_id: str,
+        driver_sequence_cut: int,
+        expected_lifecycle_epoch: int,
+    ) -> None:
+        """Carry the origin's cutover state onto the newly pinned driver.
+
+        The origin fence is followed by a driver listener fence, so the
+        driver's reader has consumed every fan-out copy through the origin
+        cut. The origin's latest status is newer than driver evidence at or
+        before the pre-origin driver cut, even if the wall clock regressed. A
+        target-thread driver status after that cut is then authoritative.
+        """
+        with self.condition:
+            self._raise_if_fatal()
+            if (
+                source_connection_id == self.primary_connection_id
+                and not self.primary_live
+            ):
+                # A clean frontend Close abandons the held root response.
+                # Do not turn normal `/quit` into a fatal handoff failure.
+                return
+            if (
+                self.mcp_lifecycle_epoch_by_thread.get(thread_id, 0)
+                != expected_lifecycle_epoch
+            ):
+                raise RelayProtocolError(
+                    "{} was invalidated during origin handoff".format(
+                        thread_id
+                    )
+                )
+            driver_connection_id = self.mcp_driver_connection_id
+            if (
+                driver_connection_id is None
+                or thread_id not in self.mcp_driver_pinned_threads
+            ):
+                # A lifecycle event or clean primary Close can revoke the pin
+                # while the origin fence is held. The auxiliary post-check or
+                # primary gate commit handles that ordered revocation.
+                return
+            source_by_name = self.mcp_startup_by_connection.get(
+                source_connection_id, {}
+            ).get(thread_id, {})
+            driver_by_name = self.mcp_startup_by_connection.setdefault(
+                driver_connection_id, {}
+            ).setdefault(thread_id, {})
+            for name, observation in source_by_name.items():
+                driver_observation = driver_by_name.get(name)
+                if (
+                    driver_observation is not None
+                    and driver_observation.connection_sequence
+                    > driver_sequence_cut
+                ):
+                    continue
+                sequence = self._next_mcp_notification_sequence(
+                    driver_connection_id
+                )
+                driver_by_name[name] = _McpStartupObservation(
+                    status=observation.status,
+                    emitted_at_ms=observation.emitted_at_ms,
+                    connection_sequence=sequence,
+                )
+            self.condition.notify_all()
+
+    def record_root_handoff_complete(
+        self,
+        gate: RelayGate,
+        thread_id: str,
+        expected_lifecycle_epoch: int,
+    ) -> None:
+        """Bind a completed driver handoff to its held primary root gate."""
+        with self.condition:
+            self._raise_if_fatal()
+            if not self.primary_live:
+                # A clean frontend Close abandons the held result; finish
+                # handles it without restoring authority.
+                return
+            if self.tui_gate != gate or gate.kind != "root":
+                raise RelayProtocolError(
+                    "driver handoff lost its primary root gate"
+                )
+            if (
+                self.tui_gate_root_thread_id != thread_id
+                or self.tui_gate_root_lifecycle_epoch
+                != expected_lifecycle_epoch
+            ):
+                raise RelayProtocolError(
+                    "driver handoff did not match the primary root response"
+                )
+            if (
+                self.mcp_lifecycle_epoch_by_thread.get(thread_id, 0)
+                != expected_lifecycle_epoch
+            ):
+                raise RelayProtocolError(
+                    "{} was invalidated during origin handoff".format(
+                        thread_id
+                    )
+                )
+            self.tui_gate_root_handoff_complete = True
+            self.condition.notify_all()
 
     def current_snapshot(self) -> Optional[RootSnapshot]:
         with self.condition:
@@ -2000,6 +2618,7 @@ class RootAuthority:
             return (
                 self.fatal_error is None
                 and self.primary_live
+                and self._mcp_startup_settled()
                 and self.thread_id == snapshot.thread_id
                 and self.generation == snapshot.generation
                 and self.primary_connection_id
@@ -2028,6 +2647,7 @@ class RootAuthority:
                 or not self.primary_live
                 or not self.driver_active
                 or self.tui_gate is not None
+                or not self._mcp_startup_settled()
                 or self.thread_id != snapshot.thread_id
                 or self.generation != snapshot.generation
                 or self.primary_connection_id != snapshot.connection_id
@@ -2146,6 +2766,9 @@ class RootAuthority:
                 self.next_token += 1
                 self.tui_gate = token
                 self.tui_gate_external_invalidation = False
+                self.tui_gate_root_thread_id = None
+                self.tui_gate_root_lifecycle_epoch = None
+                self.tui_gate_root_handoff_complete = False
                 self.tui_gate_previous_active_turn_id = self.active_turn_id
                 self.tui_gate_previous_admission_pending = (
                     self.admission_pending
@@ -2251,7 +2874,16 @@ class RootAuthority:
                         )
                     )
                 if gate.kind == "root":
-                    if has_error:
+                    if not self.primary_live:
+                        # A normal frontend Close can arrive while the root
+                        # response is held behind its driver/origin handoff.
+                        # The Close already revoked authority; abandon this
+                        # late result without turning `/quit` into a fatal
+                        # protocol failure or restoring the old root.
+                        self.thread_id = None
+                        self.active_turn_id = None
+                        self.admission_pending = False
+                    elif has_error:
                         if not self.tui_gate_external_invalidation:
                             self.thread_id = gate.previous_thread_id
                             self.generation = gate.previous_generation
@@ -2267,8 +2899,63 @@ class RootAuthority:
                                 self.thread_id = gate.previous_thread_id
                                 self.generation = gate.previous_generation
                         else:
+                            if (
+                                self.gate_mcp_startup
+                                and (
+                                    self.tui_gate_root_thread_id != new_root
+                                    or self.tui_gate_root_lifecycle_epoch
+                                    is None
+                                    or not self.tui_gate_root_handoff_complete
+                                )
+                            ):
+                                raise RelayProtocolError(
+                                    "driver handoff proof for {} was missing "
+                                    "before primary commit".format(new_root)
+                                )
+                            if (
+                                self.gate_mcp_startup
+                                and self.mcp_lifecycle_epoch_by_thread.get(
+                                    new_root, 0
+                                )
+                                != self.tui_gate_root_lifecycle_epoch
+                            ):
+                                raise RelayProtocolError(
+                                    "{} was invalidated before primary "
+                                    "commit".format(new_root)
+                                )
+                            if (
+                                self.gate_mcp_startup
+                                and new_root
+                                not in self.mcp_driver_pinned_threads
+                            ):
+                                raise RelayProtocolError(
+                                    "driver pin for {} was invalidated "
+                                    "before primary commit".format(
+                                        new_root
+                                    )
+                                )
                             self.thread_id = new_root
                             self.admission_pending = False
+                            tombstone = (
+                                self.mcp_lifecycle_tombstones.get(
+                                    new_root
+                                )
+                            )
+                            if tombstone is not None:
+                                # The successful response establishes a new
+                                # subscription point on this ordered socket.
+                                # Legacy notifications without emittedAtMs
+                                # received after it are therefore fresh.
+                                tombstone.connection_sequences[
+                                    gate.connection_id
+                                ] = (
+                                    self.mcp_notification_sequence_by_connection.get(
+                                        gate.connection_id, 0
+                                    )
+                                )
+                            self._handoff_mcp_startup_proof(
+                                new_root, gate.connection_id
+                            )
                             result = response.get("result")
                             assert isinstance(result, dict)
                             result_thread = result.get("thread")
@@ -2425,6 +3112,9 @@ class RootAuthority:
             finally:
                 self.tui_gate = None
                 self.tui_gate_external_invalidation = False
+                self.tui_gate_root_thread_id = None
+                self.tui_gate_root_lifecycle_epoch = None
+                self.tui_gate_root_handoff_complete = False
                 self.tui_gate_previous_active_turn_id = None
                 self.tui_gate_previous_admission_pending = False
                 self.tui_gate_turn_events = []
@@ -2434,6 +3124,9 @@ class RootAuthority:
         with self.condition:
             if self.tui_gate == gate:
                 self.tui_gate = None
+                self.tui_gate_root_thread_id = None
+                self.tui_gate_root_lifecycle_epoch = None
+                self.tui_gate_root_handoff_complete = False
                 self.tui_gate_previous_active_turn_id = None
                 self.tui_gate_previous_admission_pending = False
                 self.tui_gate_turn_events = []
@@ -2442,20 +3135,299 @@ class RootAuthority:
     def observe_notification(
         self, connection_id: int, message: Dict[str, Any]
     ) -> None:
+        with self.condition:
+            if connection_id in self.mcp_retired_connection_ids:
+                return
         method = message.get("method")
         is_root_invalidation = method in ROOT_INVALIDATION_NOTIFICATIONS
         is_turn_event = method in ("turn/started", "turn/completed")
         is_item_completed = method == "item/completed"
+        is_mcp_startup = (
+            method == "mcpServer/startupStatus/updated"
+        )
         if not (
-            is_root_invalidation or is_turn_event or is_item_completed
+            is_root_invalidation
+            or is_turn_event
+            or is_item_completed
+            or is_mcp_startup
         ):
             return
-        with self.condition:
-            if self.primary_connection_id != connection_id:
-                return
         params = message.get("params")
         if not isinstance(params, dict):
-            self.fail("{} notification has invalid params".format(method))
+            with self.condition:
+                is_primary = (
+                    self.primary_connection_id == connection_id
+                )
+                is_driver_witness = (
+                    self.mcp_driver_connection_id == connection_id
+                )
+            if is_primary or is_driver_witness:
+                self.fail(
+                    "{} notification has invalid params".format(method)
+                )
+            return
+        with self.condition:
+            is_primary = self.primary_connection_id == connection_id
+            is_driver_witness = (
+                self.mcp_driver_connection_id == connection_id
+            )
+        fail_invalid_witness_event = is_primary or is_driver_witness
+        emitted_at_ms = message.get("emittedAtMs")
+        if (
+            (is_mcp_startup or is_root_invalidation)
+            and emitted_at_ms is not None
+            and (
+                isinstance(emitted_at_ms, bool)
+                or not isinstance(emitted_at_ms, int)
+                or not 0 <= emitted_at_ms <= MAX_JSON_RPC_INTEGER_ID
+            )
+        ):
+            if fail_invalid_witness_event:
+                self.fail(
+                    "{} notification has an invalid emittedAtMs".format(
+                        method
+                    )
+                )
+            return
+        if is_mcp_startup:
+            thread_id = params.get("threadId")
+            if thread_id is None:
+                # App-scoped startup updates cannot be correlated safely to
+                # the input-owning root.
+                return
+            if not isinstance(thread_id, str) or not thread_id:
+                if fail_invalid_witness_event:
+                    self.fail(
+                        "{} notification has an invalid threadId".format(
+                            method
+                        )
+                    )
+                return
+            name = params.get("name")
+            status = params.get("status")
+            if not isinstance(name, str) or not name:
+                if fail_invalid_witness_event:
+                    self.fail(
+                        "{} notification has an invalid name".format(
+                            method
+                        )
+                    )
+                return
+            if status not in ("starting", "ready", "failed", "cancelled"):
+                if fail_invalid_witness_event:
+                    self.fail(
+                        "{} notification has an invalid status".format(
+                            method
+                        )
+                    )
+                return
+            with self.condition:
+                if connection_id in self.mcp_retired_connection_ids:
+                    return
+                # App-server can resume an already-loaded thread without
+                # replaying its MCP startup events. Keep the latest status
+                # from each continuously connected subscriber, rather than
+                # one last-arrival-wins value across independent relay reader
+                # threads. The envelope timestamp orders fan-out copies.
+                sequence = self._next_mcp_notification_sequence(
+                    connection_id
+                )
+                tombstone = self.mcp_lifecycle_tombstones.get(thread_id)
+                if tombstone is not None:
+                    stream_cutoff = (
+                        tombstone.connection_sequences.get(connection_id)
+                    )
+                    if is_driver_witness and stream_cutoff is None:
+                        # Another stream observed the lifecycle first. Until
+                        # its ordered copy reaches the driver, every driver
+                        # status could be a delayed pre-lifecycle fan-out
+                        # copy, regardless of wall-clock timestamp.
+                        return
+                    follows_same_stream_invalidation = (
+                        stream_cutoff is not None
+                        and sequence > stream_cutoff
+                    )
+                    if (
+                        not follows_same_stream_invalidation
+                        and (
+                            emitted_at_ms is None
+                            or tombstone.emitted_at_ms is None
+                            or emitted_at_ms
+                            <= tombstone.emitted_at_ms
+                        )
+                    ):
+                        return
+                if is_driver_witness:
+                    # A thread-scoped status on the live driver proves that
+                    # connection is subscribed to this runtime. Record the
+                    # fast-path pin only after rejecting a stale
+                    # pre-lifecycle copy; otherwise a delayed status could
+                    # resurrect a pin cleared by thread/closed.
+                    self.mcp_driver_pinned_threads.add(thread_id)
+                self.mcp_startup_by_connection.setdefault(
+                    connection_id, {}
+                ).setdefault(thread_id, {})[
+                    name
+                ] = _McpStartupObservation(
+                    status=status,
+                    emitted_at_ms=emitted_at_ms,
+                    connection_sequence=sequence,
+                )
+                self.condition.notify_all()
+            return
+        if is_root_invalidation:
+            thread_id = _thread_id_param(params)
+            if thread_id is None:
+                if fail_invalid_witness_event:
+                    self.fail(
+                        "{} notification has no threadId".format(method)
+                    )
+                return
+            with self.condition:
+                if connection_id in self.mcp_retired_connection_ids:
+                    return
+                # A definitive lifecycle notification invalidates readiness
+                # for this loaded-thread instance. Ignore a lifecycle copy
+                # older than the newest tombstone, and retain the tombstone
+                # so a delayed pre-close terminal status cannot repopulate
+                # readiness on another backend socket.
+                sequence = self._next_mcp_notification_sequence(
+                    connection_id
+                )
+                tombstone = self.mcp_lifecycle_tombstones.get(thread_id)
+                stream_cutoff = (
+                    tombstone.connection_sequences.get(connection_id)
+                    if tombstone is not None
+                    else None
+                )
+                follows_same_stream_epoch = (
+                    stream_cutoff is not None
+                    and sequence > stream_cutoff
+                )
+                new_lifecycle_epoch = True
+                if (
+                    tombstone is not None
+                    and tombstone.emitted_at_ms is not None
+                    and emitted_at_ms is not None
+                    and emitted_at_ms < tombstone.emitted_at_ms
+                    and not follows_same_stream_epoch
+                ):
+                    return
+                self.mcp_lifecycle_epoch_by_thread[thread_id] = (
+                    self.mcp_lifecycle_epoch_by_thread.get(thread_id, 0)
+                    + 1
+                )
+                if (
+                    tombstone is not None
+                    and tombstone.emitted_at_ms == emitted_at_ms
+                    and not follows_same_stream_epoch
+                ):
+                    new_lifecycle_epoch = False
+                    tombstone.connection_sequences[
+                        connection_id
+                    ] = sequence
+                else:
+                    retained_emitted_at_ms = emitted_at_ms
+                    if (
+                        follows_same_stream_epoch
+                        and tombstone is not None
+                        and tombstone.emitted_at_ms is not None
+                        and (
+                            retained_emitted_at_ms is None
+                            or retained_emitted_at_ms
+                            < tombstone.emitted_at_ms
+                        )
+                    ):
+                        # Same-socket order proves this lifecycle is newer
+                        # even if the wall clock moved backwards. Retain the
+                        # greater timestamp as a conservative cross-socket
+                        # stale-event barrier.
+                        retained_emitted_at_ms = (
+                            tombstone.emitted_at_ms
+                        )
+                    tombstone = _McpLifecycleTombstone(
+                        emitted_at_ms=retained_emitted_at_ms,
+                        connection_sequences={
+                            connection_id: sequence,
+                        },
+                    )
+                    self.mcp_lifecycle_tombstones[
+                        thread_id
+                    ] = tombstone
+                self.mcp_detached_startup_by_thread.pop(
+                    thread_id, None
+                )
+                if new_lifecycle_epoch or is_driver_witness:
+                    # A lifecycle event ordered after the subscription ACK
+                    # on the driver stream definitively retires that pin,
+                    # even when another socket already installed the same
+                    # emittedAtMs tombstone.
+                    self.mcp_driver_pinned_threads.discard(thread_id)
+                for (
+                    observed_connection_id,
+                    by_thread,
+                ) in list(self.mcp_startup_by_connection.items()):
+                    by_name = by_thread.get(thread_id)
+                    if by_name is None:
+                        continue
+                    for observed_name, observation in list(
+                        by_name.items()
+                    ):
+                        observation_cutoff = (
+                            tombstone.connection_sequences.get(
+                                observed_connection_id
+                            )
+                        )
+                        if observation_cutoff is not None:
+                            remove_observation = (
+                                observation.connection_sequence
+                                <= observation_cutoff
+                            )
+                        else:
+                            remove_observation = (
+                                tombstone.emitted_at_ms is None
+                                or observation.emitted_at_ms is None
+                                or observation.emitted_at_ms
+                                <= tombstone.emitted_at_ms
+                            )
+                        if remove_observation:
+                            by_name.pop(observed_name, None)
+                    if not by_name:
+                        by_thread.pop(thread_id, None)
+                    if not by_thread:
+                        self.mcp_startup_by_connection.pop(
+                            observed_connection_id, None
+                        )
+                # The driver is the continuously authoritative lifecycle
+                # witness. Its fan-out copy can arrive after an auxiliary
+                # already installed the same tombstone, so even a deduplicated
+                # accepted driver lifecycle must revoke a matching root.
+                lifecycle_revokes_authority = (
+                    is_primary or is_driver_witness
+                )
+                if not lifecycle_revokes_authority:
+                    self.condition.notify_all()
+                    return
+                if (
+                    self.tui_gate is not None
+                    and thread_id == self.tui_gate.previous_thread_id
+                ):
+                    self.tui_gate_external_invalidation = True
+                    self.tui_gate_previous_active_turn_id = None
+                    if self.thread_id is not None:
+                        self.thread_id = None
+                        self.active_turn_id = None
+                        self.admission_pending = False
+                        self.generation += 1
+                    self.condition.notify_all()
+                elif thread_id == self.thread_id:
+                    self.thread_id = None
+                    self.active_turn_id = None
+                    self.admission_pending = False
+                    self.generation += 1
+                    self.condition.notify_all()
+            return
+        if not is_primary:
             return
         thread_id = _thread_id_param(params)
         if thread_id is None:
@@ -2532,25 +3504,37 @@ class RootAuthority:
                         self.tui_gate_previous_active_turn_id = None
                     self.condition.notify_all()
             return
+
+    @contextmanager
+    def driver_subscription_lease(
+        self, held_gate: Optional[RelayGate] = None
+    ) -> Iterator[None]:
+        """Serialize an internal driver subscribe with root/Poke traffic."""
+        owns_driver_slot = False
         with self.condition:
-            if (
-                self.tui_gate is not None
-                and thread_id == self.tui_gate.previous_thread_id
-            ):
-                self.tui_gate_external_invalidation = True
-                self.tui_gate_previous_active_turn_id = None
-                if self.thread_id is not None:
-                    self.thread_id = None
-                    self.active_turn_id = None
-                    self.admission_pending = False
-                    self.generation += 1
-                self.condition.notify_all()
-            elif thread_id == self.thread_id:
-                self.thread_id = None
-                self.active_turn_id = None
-                self.admission_pending = False
-                self.generation += 1
-                self.condition.notify_all()
+            self._raise_if_fatal()
+            if held_gate is not None:
+                if self.tui_gate != held_gate:
+                    raise RelayProtocolError(
+                        "driver subscription lost its TUI authority gate"
+                    )
+            else:
+                while (
+                    self.driver_active
+                    or self.tui_gate is not None
+                    or self.tui_waiters > 0
+                ):
+                    self.condition.wait()
+                    self._raise_if_fatal()
+                self.driver_active = True
+                owns_driver_slot = True
+        try:
+            yield
+        finally:
+            if owns_driver_slot:
+                with self.condition:
+                    self.driver_active = False
+                    self.condition.notify_all()
 
     @contextmanager
     def delivery_lease(
@@ -2563,6 +3547,7 @@ class RootAuthority:
                 self.fatal_error is None
                 and self.primary_live
                 and self.thread_id is not None
+                and self._mcp_startup_settled()
                 and not self.driver_active
                 and self.tui_gate is None
                 and self.tui_waiters == 0
@@ -3678,10 +4663,17 @@ class AppServerClient:
         self.request_lock = threading.Lock()
         self.response_lock = threading.Lock()
         self.expected_response_key: Optional[Tuple[str, Any]] = None
+        self.expected_response_observer: Optional[
+            Callable[[Dict[str, Any]], None]
+        ] = None
         self.reader_failure: Optional[AppServerTransportError] = None
         self.next_id = 1
         self.receive_buffer = bytearray()
         self.closed = False
+        self.notification_handler: Optional[
+            Callable[[Dict[str, Any]], None]
+        ] = None
+        self.disconnect_handler: Optional[Callable[[], None]] = None
 
     def start_raw(self) -> None:
         """Start a masked client WebSocket without app-server initialize."""
@@ -3991,9 +4983,13 @@ class AppServerClient:
     def _record_reader_failure(
         self, error: AppServerTransportError
     ) -> None:
+        first_failure = False
         with self.response_lock:
             if self.reader_failure is None:
                 self.reader_failure = error
+                first_failure = True
+        if first_failure and self.disconnect_handler is not None:
+            self.disconnect_handler()
         self.incoming.put(_StreamFailure(error))
 
     def _reader_loop(self) -> None:
@@ -4007,19 +5003,19 @@ class AppServerClient:
                     self._record_reader_failure(error)
                     return
                 if "method" in message and "id" not in message:
-                    # The driver is noninteractive and primary lifecycle
-                    # authority comes only from the relayed TUI connection.
-                    # Turn/item broadcasts can be high-volume, so retaining
-                    # them here would create an unbounded queue with no
-                    # semantic consumer.
+                    # The driver is noninteractive, but its continuously
+                    # subscribed stream is the stable witness for
+                    # thread-scoped MCP startup/lifecycle state. The handler
+                    # filters high-volume turn/item broadcasts in place.
+                    if self.notification_handler is not None:
+                        self.notification_handler(message)
                     continue
                 if "method" in message and "id" in message:
-                    error = AppServerTransportError(
-                        "app-server sent a server request on the "
-                        "driver connection"
-                    )
-                    self._record_reader_failure(error)
-                    return
+                    # Thread-scoped interactive requests are duplicated to
+                    # every subscriber. The relayed TUI owns the response;
+                    # answering from this noninteractive witness could reject
+                    # the request before the human sees it.
+                    continue
                 try:
                     response_key = _validate_response_envelope(
                         message, "app-server"
@@ -4028,6 +5024,9 @@ class AppServerClient:
                     raise AppServerTransportError(str(exc)) from exc
                 with self.response_lock:
                     expected_key = self.expected_response_key
+                    response_observer = (
+                        self.expected_response_observer
+                    )
                 if expected_key is None:
                     error = AppServerTransportError(
                         "app-server sent an unsolicited JSON-RPC response"
@@ -4041,6 +5040,8 @@ class AppServerClient:
                     )
                     self._record_reader_failure(error)
                     return
+                if response_observer is not None:
+                    response_observer(message)
                 self.incoming.put(message)
         except Exception as exc:
             if not self.closed:
@@ -4076,6 +5077,9 @@ class AppServerClient:
         method: str,
         params: Dict[str, Any],
         timeout: Optional[float] = None,
+        response_observer: Optional[
+            Callable[[Dict[str, Any]], None]
+        ] = None,
     ) -> Dict[str, Any]:
         effective_timeout = self.request_timeout if timeout is None else timeout
         with self.request_lock:
@@ -4093,6 +5097,7 @@ class AppServerClient:
                         "another app-server response is already pending"
                     )
                 self.expected_response_key = request_key
+                self.expected_response_observer = response_observer
             try:
                 self._send_json(
                     {"method": method, "id": request_id, "params": params}
@@ -4175,6 +5180,7 @@ class AppServerClient:
                 with self.response_lock:
                     if self.expected_response_key == request_key:
                         self.expected_response_key = None
+                        self.expected_response_observer = None
 
     def thread_read(
         self, thread_id: str, include_turns: bool
@@ -4189,6 +5195,54 @@ class AppServerClient:
                 "thread/read response has no thread"
             )
         return thread
+
+    def fence_thread(self, thread_id: str) -> None:
+        """Drain fan-out through a post-origin listener command."""
+        self.subscribe_thread(thread_id, lambda: None)
+
+    def subscribe_thread(
+        self,
+        thread_id: str,
+        on_subscribed: Callable[[], None],
+    ) -> None:
+        """Synchronously subscribe this connection to a loaded thread."""
+
+        def observe_response(message: Dict[str, Any]) -> None:
+            result = message.get("result")
+            if result is None and "error" in message:
+                return
+            thread = (
+                result.get("thread")
+                if isinstance(result, dict)
+                else None
+            )
+            if (
+                not isinstance(thread, dict)
+                or thread.get("id") != thread_id
+            ):
+                raise AppServerTransportError(
+                    "driver thread/resume response did not confirm {}"
+                    .format(thread_id)
+                )
+            # This callback runs on the ordered driver reader before it can
+            # process a later lifecycle notification for the same thread.
+            on_subscribed()
+
+        result = self.request(
+            "thread/resume",
+            {"threadId": thread_id, "excludeTurns": True},
+            response_observer=observe_response,
+        )
+        thread = result.get("thread")
+        if (
+            not isinstance(thread, dict)
+            or thread.get("id") != thread_id
+        ):
+            raise AppServerTransportError(
+                "driver thread/resume response did not confirm {}".format(
+                    thread_id
+                )
+            )
 
     def thread_turns_list(
         self,
@@ -4284,7 +5338,11 @@ class FrontendWebSocket:
         self.connection = connection
         self.receive_buffer = bytearray()
         self.write_lock = threading.Lock()
+        self.state_lock = threading.Lock()
         self.closed = False
+        self.closing = False
+        self.received_close = False
+        self.received_close_code: Optional[int] = None
 
     @classmethod
     def accept(
@@ -4485,10 +5543,18 @@ class FrontendWebSocket:
         )
 
     def _write_frame(self, opcode: int, payload: bytes = b"") -> None:
-        if self.closed:
-            raise AppServerTransportError("TUI WebSocket is closed")
         frame = self._unmasked_frame(opcode, payload)
         with self.write_lock:
+            with self.state_lock:
+                if self.closed:
+                    raise AppServerTransportError(
+                        "TUI WebSocket is closed"
+                    )
+                if self.closing:
+                    # The Close response is emitted only by
+                    # _begin_close_handshake. Suppress racing JSON/control
+                    # output once that method has linearized closing.
+                    return
             try:
                 self.connection.sendall(frame)
             except OSError as exc:
@@ -4496,14 +5562,56 @@ class FrontendWebSocket:
                     "TUI WebSocket closed while writing"
                 ) from exc
 
-    def read_json_message(self) -> Optional[Dict[str, Any]]:
+    def _begin_close_handshake(
+        self,
+        payload: bytes,
+        close_code: Optional[int],
+        on_closing: Optional[Callable[[Optional[int]], None]] = None,
+    ) -> None:
+        frame = self._unmasked_frame(0x8, payload)
+        with self.state_lock:
+            if self.closed:
+                raise AppServerTransportError(
+                    "TUI WebSocket is closed"
+                )
+            if self.closing:
+                return
+            self.closing = True
+            self.received_close = True
+            self.received_close_code = close_code
+            if on_closing is not None:
+                # Revoke admission while Close receipt is linearized, before
+                # either a prior data write or this Close echo can block.
+                on_closing(close_code)
+        with self.write_lock:
+            with self.state_lock:
+                if self.closed:
+                    raise AppServerTransportError(
+                        "TUI WebSocket is closed"
+                    )
+            try:
+                self.connection.sendall(frame)
+            except OSError as exc:
+                raise AppServerTransportError(
+                    "TUI WebSocket closed while writing Close response"
+                ) from exc
+
+    def read_json_message(
+        self,
+        on_closing: Optional[Callable[[Optional[int]], None]] = None,
+    ) -> Optional[Dict[str, Any]]:
         fragments = bytearray()
         fragment_opcode: Optional[int] = None
         while not self.closed:
             fin, opcode, payload = self._read_frame()
             if opcode == 0x8:
-                _validate_websocket_close_payload(
+                close_code = _validate_websocket_close_payload(
                     payload, "TUI", RelayProtocolError
+                )
+                # Complete the server half of the WebSocket closing
+                # handshake before the relay tears down its transport.
+                self._begin_close_handshake(
+                    payload, close_code, on_closing
                 )
                 return None
             if opcode == 0x9:
@@ -4567,10 +5675,12 @@ class FrontendWebSocket:
         self._write_frame(0x1, payload)
 
     def close(self) -> None:
-        if self.closed:
-            return
-        # Socket shutdown must not wait behind a writer blocked in sendall.
-        self.closed = True
+        with self.state_lock:
+            if self.closed:
+                return
+            # Socket shutdown must not wait behind a writer blocked in
+            # sendall.
+            self.closed = True
         try:
             self.connection.shutdown(socket.SHUT_RDWR)
         except OSError:
@@ -4600,6 +5710,10 @@ class _RelayConnection:
         self.backend_pending: Dict[Tuple[str, Any], bool] = {}
         self.backend_pending_lock = threading.Lock()
         self.closed = threading.Event()
+        self.upstream_handoff_lock = threading.RLock()
+        self.upstream_stream_retired = False
+        self.upstream_replay_queue = collections.deque()
+        self.replaying_upstream = False
         self.upstream_reader: Optional[threading.Thread] = None
         self.gated_queue: "queue.Queue[Any]" = queue.Queue()
         self.gated_worker: Optional[threading.Thread] = None
@@ -4613,7 +5727,155 @@ class _RelayConnection:
         if self._is_authoritative():
             self.relay.fail(reason)
         else:
+            self._retire_upstream_stream()
             self.close()
+
+    def _retire_upstream_stream(self) -> None:
+        """Order stream retirement after any root-pin origin fence."""
+        with self.upstream_handoff_lock:
+            if self.upstream_stream_retired:
+                return
+            self.upstream_stream_retired = True
+            self.relay.authority.connection_closed(self.connection_id)
+
+    def _driver_pin_origin_fence(
+        self, thread_id: str
+    ) -> list:
+        """Drain pre-driver startup events from the originating stream.
+
+        A startup event processed before the driver subscription is routed to
+        this connection before the driver resume response. This post-ACK
+        thread/read response is therefore a FIFO fence: every such event must
+        be read before the fence response, while later events include the
+        newly subscribed driver.
+        """
+        assert self.upstream is not None
+        while True:
+            marker_id = "uclusion-codex-pin-fence:{}".format(
+                os.urandom(16).hex()
+            )
+            marker_key = rpc_id_key(marker_id)
+            with self.pending_lock:
+                collides_with_tui = marker_key in self.pending
+            with self.backend_pending_lock:
+                collides_with_backend = marker_key in self.backend_pending
+            if not collides_with_tui and not collides_with_backend:
+                break
+
+        buffered = []
+        timeout_fired = threading.Event()
+
+        def expire_fence() -> None:
+            timeout_fired.set()
+            self.relay.fail(
+                "origin stream fence timed out after driver subscribed "
+                "to {}".format(thread_id)
+            )
+
+        timer = threading.Timer(
+            self.relay.request_timeout, expire_fence
+        )
+        timer.daemon = True
+        try:
+            # Include a blocked proxy write in the fence deadline. relay.fail
+            # closes the upstream transport, which breaks a wedged send.
+            timer.start()
+            self.upstream.send_json_message(
+                {
+                    "id": marker_id,
+                    "method": "thread/read",
+                    "params": {
+                        "threadId": thread_id,
+                        "includeTurns": False,
+                    },
+                }
+            )
+            while True:
+                message = self.upstream.read_json_message()
+                if message is None:
+                    raise AppServerTransportError(
+                        "app-server closed during origin stream fence"
+                    )
+                if not isinstance(message.get("method"), str):
+                    response_key = _validate_response_envelope(
+                        message, "app-server"
+                    )
+                    if response_key == marker_key:
+                        if "error" in message:
+                            error = message.get("error")
+                            assert isinstance(error, dict)
+                            raise RelayProtocolError(
+                                "origin stream fence failed: {}".format(
+                                    error.get(
+                                        "message",
+                                        "thread/read was rejected",
+                                    )
+                                )
+                            )
+                        result = message.get("result")
+                        thread = (
+                            result.get("thread")
+                            if isinstance(result, dict)
+                            else None
+                        )
+                        if (
+                            not isinstance(thread, dict)
+                            or thread.get("id") != thread_id
+                        ):
+                            raise RelayProtocolError(
+                                "origin stream fence did not confirm {}"
+                                .format(thread_id)
+                            )
+                        return buffered
+                buffered.append(message)
+        except Exception as exc:
+            if not timeout_fired.is_set():
+                self.relay.fail(
+                    "origin stream fence failed for {}: {}".format(
+                        thread_id, exc
+                    )
+                )
+            raise
+        finally:
+            timer.cancel()
+
+    def _observe_upstream_notification(
+        self, message: Dict[str, Any]
+    ) -> None:
+        self.relay.authority.observe_notification(
+            self.connection_id, message
+        )
+        if self.relay.authority.fatal_error is not None:
+            raise RelayProtocolError(
+                self.relay.authority.fatal_error
+            )
+
+    def _queue_buffered_upstream(
+        self,
+        buffered_messages: list,
+        preobserved_notifications: set,
+    ) -> None:
+        for index, buffered_message in enumerate(buffered_messages):
+            self.upstream_replay_queue.append(
+                (
+                    buffered_message,
+                    index in preobserved_notifications,
+                )
+            )
+        if self.replaying_upstream:
+            return
+        self.replaying_upstream = True
+        try:
+            while self.upstream_replay_queue:
+                buffered_message, notification_observed = (
+                    self.upstream_replay_queue.popleft()
+                )
+                self._handle_upstream_message(
+                    buffered_message,
+                    notification_observed=notification_observed,
+                )
+        finally:
+            self.replaying_upstream = False
 
     def _reserve_request(
         self,
@@ -4817,7 +6079,11 @@ class _RelayConnection:
         else:
             self.role = "auxiliary"
 
-    def _handle_upstream_message(self, message: Dict[str, Any]) -> None:
+    def _handle_upstream_message(
+        self,
+        message: Dict[str, Any],
+        notification_observed: bool = False,
+    ) -> None:
         method = message.get("method")
         if isinstance(method, str):
             if "result" in message or "error" in message:
@@ -4834,15 +6100,11 @@ class _RelayConnection:
                         )
                     self.backend_pending[key] = True
             if "id" not in message:
-                self.relay.authority.observe_notification(
-                    self.connection_id, message
-                )
-                if self.relay.authority.fatal_error is not None:
-                    raise RelayProtocolError(
-                        self.relay.authority.fatal_error
-                    )
+                if not notification_observed:
+                    self._observe_upstream_notification(message)
             assert self.frontend is not None
-            self.frontend.send_json_message(message)
+            if not self.frontend.received_close:
+                self.frontend.send_json_message(message)
             return
         key = _validate_response_envelope(message, "app-server")
         with self.pending_lock:
@@ -4853,12 +6115,95 @@ class _RelayConnection:
             )
         if pending.method == "initialize":
             self._claim_initialize_role(pending, message)
+        buffered_after_root = []
+        preobserved_notifications = set()
+        if (
+            pending.method in ROOT_SWITCH_METHODS
+            and "result" in message
+        ):
+            result = message.get("result")
+            result_thread = (
+                result.get("thread")
+                if isinstance(result, dict)
+                else None
+            )
+            result_thread_id = (
+                result_thread.get("id")
+                if isinstance(result_thread, dict)
+                else None
+            )
+            if (
+                isinstance(result_thread_id, str)
+                and result_thread_id
+                and result_thread.get("sessionId") == result_thread_id
+                and result_thread.get("parentThreadId") is None
+            ):
+                # The successful response is ordered before the internal
+                # origin fence. Mark that new subscription cut now so fresh,
+                # regressed-clock startup events buffered behind the response
+                # are not mistaken for pre-lifecycle copies.
+                root_lifecycle_epoch = (
+                    self.relay.authority.connection_root_subscribed(
+                        self.connection_id, result_thread_id
+                    )
+                )
+                # Keep the originating subscription alive while the
+                # companion synchronously subscribes its driver. This makes
+                # cached startup proof safe across a later picker close even
+                # when Codex's best-effort auto-attach missed fast events.
+                def complete_origin_handoff():
+                    # Fence every root response, including the fast path
+                    # where a non-Uclusion startup event already proved the
+                    # driver was attached. Uclusion could have reached only
+                    # the origin just before that attachment.
+                    buffered = self._driver_pin_origin_fence(
+                        result_thread_id
+                    )
+                    observed = set()
+                    for index, buffered_message in enumerate(buffered):
+                        if (
+                            isinstance(
+                                buffered_message.get("method"), str
+                            )
+                            and "id" not in buffered_message
+                        ):
+                            self._observe_upstream_notification(
+                                buffered_message
+                            )
+                            observed.add(index)
+                    return buffered, observed
+
+                (
+                    buffered_after_root,
+                    preobserved_notifications,
+                ) = self.relay.pin_driver_thread(
+                    result_thread_id,
+                    self.connection_id,
+                    root_lifecycle_epoch,
+                    held_gate=pending.gate,
+                    complete_origin_handoff=complete_origin_handoff,
+                )
         if pending.gate is not None:
             self.relay.authority.finish_tui_request(
                 pending.gate, message
             )
+        if (
+            pending.method in ROOT_INVALIDATION_METHODS
+            and "result" in message
+        ):
+            invalidated_thread_id = _thread_id_param(pending.params)
+            if invalidated_thread_id is not None:
+                self.relay.authority.connection_invalidation_succeeded(
+                    self.connection_id,
+                    pending.method,
+                    invalidated_thread_id,
+                )
         assert self.frontend is not None
-        self.frontend.send_json_message(message)
+        if not self.frontend.received_close:
+            self.frontend.send_json_message(message)
+        self._queue_buffered_upstream(
+            buffered_after_root, preobserved_notifications
+        )
 
     def _read_upstream(self) -> None:
         try:
@@ -4869,7 +6214,10 @@ class _RelayConnection:
                     raise AppServerTransportError(
                         "app-server closed the relayed WebSocket"
                     )
-                self._handle_upstream_message(message)
+                with self.upstream_handoff_lock:
+                    if self.upstream_stream_retired:
+                        return
+                    self._handle_upstream_message(message)
         except Exception as exc:
             if not self.closed.is_set():
                 self._fatal_or_close(
@@ -4877,6 +6225,25 @@ class _RelayConnection:
                 )
 
     def run(self) -> None:
+        frontend_closed_cleanly = False
+        frontend_close_revoked_authority = False
+
+        def frontend_closing(close_code: Optional[int]) -> None:
+            nonlocal frontend_close_revoked_authority
+            if not self._is_authoritative():
+                return
+            if close_code in (None, 1000, 1001):
+                self.relay.authority.primary_closed_cleanly(
+                    self.connection_id
+                )
+            else:
+                self.relay.authority.primary_disconnected(
+                    self.connection_id,
+                    "primary TUI WebSocket closed with non-normal code {}"
+                    .format(close_code),
+                )
+            frontend_close_revoked_authority = True
+
         try:
             self.frontend = FrontendWebSocket.accept(
                 self.raw_socket, self.relay.request_timeout
@@ -4902,8 +6269,18 @@ class _RelayConnection:
             )
             self.upstream_reader.start()
             while not self.closed.is_set():
-                message = self.frontend.read_json_message()
+                message = self.frontend.read_json_message(frontend_closing)
                 if message is None:
+                    if (
+                        not self.frontend.received_close
+                        or self.frontend.received_close_code
+                        not in (None, 1000, 1001)
+                    ):
+                        raise RelayProtocolError(
+                            "TUI WebSocket closed with non-normal code {}"
+                            .format(self.frontend.received_close_code)
+                        )
+                    frontend_closed_cleanly = True
                     break
                 self._handle_frontend_message(message)
         except Exception as exc:
@@ -4918,14 +6295,25 @@ class _RelayConnection:
                 # unregistering this connection. Otherwise the driver can
                 # acquire a short-lived lease after the visible TUI is gone
                 # and inject input that no live frontend can display.
-                self.relay.authority.primary_disconnected(
-                    self.connection_id,
-                    "primary TUI WebSocket disconnected",
-                )
+                if frontend_closed_cleanly:
+                    if not frontend_close_revoked_authority:
+                        self.relay.authority.primary_closed_cleanly(
+                            self.connection_id
+                        )
+                else:
+                    self.relay.authority.primary_disconnected(
+                        self.connection_id,
+                        "primary TUI WebSocket disconnected",
+                    )
+            # Retire this notification stream. The companion driver's
+            # independent app-server subscription pins any cached startup
+            # epoch across an auxiliary picker unsubscribe/close.
+            self._retire_upstream_stream()
             self.close()
             self.relay.connection_closed(self.connection_id)
             if (
                 was_primary
+                and not frontend_closed_cleanly
                 and not self.relay.stop_event.is_set()
                 and self.relay.fatal_error is None
             ):
@@ -4976,6 +6364,99 @@ class UnixWebSocketRelay:
         self.connections: Dict[int, _RelayConnection] = {}
         self.connections_lock = threading.Lock()
         self.next_connection_id = 1
+        self.driver_thread_pinner: Optional[
+            Callable[[str, int], None]
+        ] = None
+        self.driver_thread_fencer: Optional[Callable[[str], None]] = None
+
+    def pin_driver_thread(
+        self,
+        thread_id: str,
+        source_connection_id: int,
+        root_lifecycle_epoch: int,
+        held_gate: Optional[RelayGate] = None,
+        complete_origin_handoff: Optional[Callable[[], Any]] = None,
+    ) -> Any:
+        def abandoned_result() -> Any:
+            if complete_origin_handoff is not None:
+                return ([], set())
+            return None
+
+        def handoff_abandoned() -> bool:
+            return self.authority.handoffs_abandoned_after_primary_close()
+
+        with self.authority.driver_subscription_lease(held_gate):
+            result = None
+            try:
+                if handoff_abandoned():
+                    return abandoned_result()
+                if not self.authority.driver_thread_is_pinned(
+                    thread_id
+                ):
+                    if self.driver_thread_pinner is None:
+                        raise RelayProtocolError(
+                            "companion driver thread pinner is unavailable"
+                        )
+                    self.driver_thread_pinner(
+                        thread_id, root_lifecycle_epoch
+                    )
+                    if not self.authority.driver_thread_is_pinned(
+                        thread_id
+                    ):
+                        raise RelayProtocolError(
+                            "driver subscription was invalidated before "
+                            "confirmation"
+                        )
+                if handoff_abandoned():
+                    return abandoned_result()
+                driver_sequence_cut = (
+                    self.authority.driver_handoff_cut(thread_id)
+                )
+                result = (
+                    complete_origin_handoff()
+                    if complete_origin_handoff is not None
+                    else None
+                )
+                if handoff_abandoned():
+                    return abandoned_result()
+                if self.driver_thread_fencer is None:
+                    raise RelayProtocolError(
+                        "companion driver thread fencer is unavailable"
+                    )
+                self.driver_thread_fencer(thread_id)
+                if handoff_abandoned():
+                    return abandoned_result()
+                self.authority.handoff_origin_startup_to_driver(
+                    source_connection_id,
+                    thread_id,
+                    driver_sequence_cut,
+                    root_lifecycle_epoch,
+                )
+                if held_gate is not None:
+                    self.authority.record_root_handoff_complete(
+                        held_gate,
+                        thread_id,
+                        root_lifecycle_epoch,
+                    )
+                if (
+                    held_gate is None
+                    and not self.authority.driver_thread_is_pinned(
+                        thread_id
+                    )
+                ):
+                    raise RelayProtocolError(
+                        "driver subscription was invalidated during "
+                        "origin handoff"
+                    )
+                return result
+            except Exception as exc:
+                if handoff_abandoned():
+                    return abandoned_result()
+                self.fail(
+                    "companion driver handoff failed for {}: {}"
+                    .format(thread_id, exc)
+                )
+                raise
 
     def start(self) -> None:
         if self.listener is not None:
@@ -5336,7 +6817,7 @@ def run_bridge(
 
     stopping = stop_event or threading.Event()
     previous_handlers = _install_signal_handlers(stopping)
-    authority = RootAuthority(config.cwd)
+    authority = RootAuthority(config.cwd, gate_mcp_startup=True)
     relay = relay_factory(
         config.frontend_socket,
         config.app_server_socket,
@@ -5347,6 +6828,8 @@ def run_bridge(
     ready_published = False
     last_error: Optional[str] = None
     deferred_steer_turn_id: Optional[str] = None
+    next_driver_connection_id = INITIAL_DRIVER_CONNECTION_ID
+    active_driver_connection_id: Optional[int] = None
 
     def receiver_live() -> bool:
         return (
@@ -5389,8 +6872,43 @@ def run_bridge(
 
             if client is None:
                 try:
+                    driver_connection_id = next_driver_connection_id
+                    next_driver_connection_id -= 1
                     client = client_factory(config.app_server_socket)
+                    client.notification_handler = (
+                        lambda message, connection_id=driver_connection_id: (
+                            authority.observe_notification(
+                                connection_id, message
+                            )
+                        )
+                    )
+                    client.disconnect_handler = (
+                        lambda connection_id=driver_connection_id: (
+                            authority.driver_disconnected(connection_id)
+                        )
+                    )
                     client.start()
+                    # Register the witness atomically with the reader-failure
+                    # check. An EOF before this point is a retryable
+                    # pre-frontend initialization failure; an EOF after
+                    # registration invokes driver_disconnected and fails the
+                    # live bridge closed.
+                    with client.response_lock:
+                        if client.reader_failure is not None:
+                            raise client.reader_failure
+                        authority.driver_connected(driver_connection_id)
+                        active_driver_connection_id = (
+                            driver_connection_id
+                        )
+                    relay.driver_thread_pinner = (
+                        lambda thread_id, lifecycle_epoch: client.subscribe_thread(
+                            thread_id,
+                            lambda: authority.driver_thread_pinned(
+                                thread_id, lifecycle_epoch
+                            ),
+                        )
+                    )
+                    relay.driver_thread_fencer = client.fence_thread
                     if relay.listener is None:
                         relay.start()
                     if not ready_published:
@@ -5418,6 +6936,9 @@ def run_bridge(
                     if client is not None:
                         client.close()
                         client = None
+                    relay.driver_thread_pinner = None
+                    relay.driver_thread_fencer = None
+                    active_driver_connection_id = None
                     # Failure before the frontend is bound is retryable.
                     if relay.listener is not None:
                         relay.fail(
@@ -5475,6 +6996,13 @@ def run_bridge(
             if result.action == "nonsteerable":
                 deferred_steer_turn_id = result.turn_id
             if result.reconnect:
+                if active_driver_connection_id is not None:
+                    authority.driver_disconnected(
+                        active_driver_connection_id
+                    )
+                    active_driver_connection_id = None
+                relay.driver_thread_pinner = None
+                relay.driver_thread_fencer = None
                 client.close()
                 client = None
             if result.error:

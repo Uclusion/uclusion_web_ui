@@ -31,6 +31,28 @@ def root_result(thread_id, cwd="/workspace/project"):
     }
 
 
+def mcp_status_notification(
+    thread_id, name, status, emitted_at_ms=None
+):
+    notification = {
+        "method": "mcpServer/startupStatus/updated",
+        "params": {
+            "threadId": thread_id,
+            "name": name,
+            "status": status,
+            "error": (
+                "MCP client for `{}` failed to start".format(name)
+                if status == "failed"
+                else None
+            ),
+            "failureReason": None,
+        },
+    }
+    if emitted_at_ms is not None:
+        notification["emittedAtMs"] = emitted_at_ms
+    return notification
+
+
 def wait_for(predicate, message, timeout=2.0):
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
@@ -46,14 +68,1063 @@ class RootAuthorityTests(unittest.TestCase):
         self.authority = bridge.RootAuthority("/workspace/project")
         self.assertTrue(self.authority.claim_primary(1))
 
+    def use_mcp_startup_gate(self):
+        self.authority = bridge.RootAuthority(
+            "/workspace/project", gate_mcp_startup=True
+        )
+        self.authority.driver_connected(
+            bridge.INITIAL_DRIVER_CONNECTION_ID
+        )
+        self.assertTrue(self.authority.claim_primary(1))
+
     def establish(self, thread_id="root-a"):
         gate = self.authority.begin_tui_request(
             1, "thread/start", {"cwd": "/workspace/project"}
         )
+        if self.authority.gate_mcp_startup:
+            self.complete_root_handoff(gate, 1, thread_id)
         self.authority.finish_tui_request(
             gate, {"id": 1, "result": root_result(thread_id)}
         )
         return self.authority.current_snapshot()
+
+    def complete_root_handoff(self, gate, connection_id, thread_id):
+        lifecycle_epoch = self.authority.connection_root_subscribed(
+            connection_id, thread_id
+        )
+        if not self.authority.driver_thread_is_pinned(thread_id):
+            self.authority.driver_thread_pinned(
+                thread_id, lifecycle_epoch
+            )
+        driver_sequence_cut = self.authority.driver_handoff_cut(thread_id)
+        self.authority.handoff_origin_startup_to_driver(
+            connection_id,
+            thread_id,
+            driver_sequence_cut,
+            lifecycle_epoch,
+        )
+        self.authority.record_root_handoff_complete(
+            gate, thread_id, lifecycle_epoch
+        )
+        return lifecycle_epoch
+
+    def handoff_origin(
+        self, connection_id, thread_id, lifecycle_epoch=None
+    ):
+        if lifecycle_epoch is None:
+            lifecycle_epoch = self.authority.driver_thread_pin_epoch(
+                thread_id
+            )
+        driver_sequence_cut = self.authority.driver_handoff_cut(thread_id)
+        self.authority.handoff_origin_startup_to_driver(
+            connection_id,
+            thread_id,
+            driver_sequence_cut,
+            lifecycle_epoch,
+        )
+
+    def test_uclusion_status_before_root_response_is_cached(self):
+        self.use_mcp_startup_gate()
+        gate = self.authority.begin_tui_request(
+            1, "thread/start", {"cwd": "/workspace/project"}
+        )
+        self.authority.observe_notification(
+            1,
+            mcp_status_notification("root-a", "Uclusion", "starting"),
+        )
+        self.authority.observe_notification(
+            1,
+            mcp_status_notification("root-a", "Uclusion", "ready"),
+        )
+        self.complete_root_handoff(gate, 1, "root-a")
+        self.authority.finish_tui_request(
+            gate, {"id": 1, "result": root_result("root-a")}
+        )
+
+        snapshot = self.authority.current_snapshot()
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertEqual(snapshot, leased)
+
+    def test_only_primary_uclusion_status_releases_delivery(self):
+        self.use_mcp_startup_gate()
+        snapshot = self.establish()
+
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNone(leased)
+
+        self.authority.observe_notification(
+            1,
+            mcp_status_notification("root-a", "codex_apps", "ready"),
+        )
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNone(leased)
+
+        self.authority.observe_notification(
+            1,
+            mcp_status_notification("root-a", "Uclusion", "starting"),
+        )
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNone(leased)
+
+        self.authority.observe_notification(
+            1,
+            mcp_status_notification("root-a", "Uclusion", "ready"),
+        )
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertEqual(snapshot, leased)
+
+    def test_each_uclusion_terminal_status_releases_delivery(self):
+        for status in ("ready", "failed", "cancelled"):
+            with self.subTest(status=status):
+                self.use_mcp_startup_gate()
+                snapshot = self.establish()
+                self.authority.observe_notification(
+                    1,
+                    mcp_status_notification(
+                        "root-a", "Uclusion", status
+                    ),
+                )
+                with self.authority.delivery_lease(
+                    lambda: True
+                ) as leased:
+                    self.assertEqual(snapshot, leased)
+
+    def test_other_thread_and_app_scoped_mcp_updates_do_not_settle(self):
+        self.use_mcp_startup_gate()
+        snapshot = self.establish()
+        self.authority.observe_notification(
+            1,
+            mcp_status_notification("root-a", "Uclusion", "starting"),
+        )
+
+        self.authority.observe_notification(
+            1,
+            mcp_status_notification(
+                "root-other", "Uclusion", "ready"
+            ),
+        )
+        self.authority.observe_notification(
+            1, mcp_status_notification(None, "Uclusion", "ready")
+        )
+        self.assertIsNone(self.authority.fatal_error)
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNone(leased)
+
+        self.authority.observe_notification(
+            1,
+            mcp_status_notification("root-a", "Uclusion", "ready"),
+        )
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertEqual(snapshot, leased)
+
+    def test_same_loaded_root_resume_keeps_uclusion_readiness(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        self.authority.observe_notification(
+            1,
+            mcp_status_notification("root-a", "Uclusion", "ready"),
+        )
+
+        resume = self.authority.begin_tui_request(
+            1, "thread/resume", {"threadId": "root-a"}
+        )
+        self.complete_root_handoff(resume, 1, "root-a")
+        self.authority.finish_tui_request(
+            resume, {"id": 2, "result": root_result("root-a")}
+        )
+
+        resumed = self.authority.current_snapshot()
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertEqual(resumed, leased)
+
+    def test_picker_loaded_root_readiness_applies_after_primary_resume(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        self.authority.observe_notification(
+            2,
+            mcp_status_notification("root-b", "Uclusion", "ready"),
+        )
+        self.authority.driver_thread_pinned("root-b")
+        self.handoff_origin(2, "root-b")
+
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNone(leased)
+
+        resume = self.authority.begin_tui_request(
+            1, "thread/resume", {"threadId": "root-b"}
+        )
+        self.complete_root_handoff(resume, 1, "root-b")
+        self.authority.finish_tui_request(
+            resume, {"id": 2, "result": root_result("root-b")}
+        )
+
+        resumed = self.authority.current_snapshot()
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertEqual(resumed, leased)
+
+    def test_resume_hands_picker_readiness_to_primary_subscription(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        self.authority.observe_notification(
+            2,
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 200
+            ),
+        )
+        self.authority.driver_thread_pinned("root-b")
+        self.handoff_origin(2, "root-b")
+
+        resume = self.authority.begin_tui_request(
+            1, "thread/resume", {"threadId": "root-b"}
+        )
+        self.complete_root_handoff(resume, 1, "root-b")
+        self.authority.finish_tui_request(
+            resume, {"id": 2, "result": root_result("root-b")}
+        )
+        self.authority.connection_closed(2)
+
+        resumed = self.authority.current_snapshot()
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertEqual(resumed, leased)
+
+    def test_picker_close_before_driver_pin_discards_terminal_proof(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        self.authority.observe_notification(
+            2,
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 200
+            ),
+        )
+        resume = self.authority.begin_tui_request(
+            1, "thread/resume", {"threadId": "root-b"}
+        )
+        self.authority.connection_closed(2)
+
+        self.complete_root_handoff(resume, 1, "root-b")
+        self.authority.finish_tui_request(
+            resume, {"id": 2, "result": root_result("root-b")}
+        )
+
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNone(leased)
+        self.authority.observe_notification(
+            1,
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 201
+            ),
+        )
+        resumed = self.authority.current_snapshot()
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertEqual(resumed, leased)
+
+    def test_driver_disconnect_fails_closed_instead_of_reusing_proof(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        self.authority.observe_notification(
+            2,
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 200
+            ),
+        )
+        self.authority.driver_thread_pinned("root-b")
+        self.handoff_origin(2, "root-b")
+        self.authority.connection_closed(2)
+        self.authority.driver_disconnected(
+            bridge.INITIAL_DRIVER_CONNECTION_ID
+        )
+        self.assertIn(
+            "lost its continuous MCP-startup witness",
+            self.authority.fatal_error,
+        )
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNone(leased)
+
+    def test_driver_starting_invalidates_closed_picker_terminal_proof(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        self.authority.observe_notification(
+            2,
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 200
+            ),
+        )
+        self.authority.driver_thread_pinned("root-b")
+        self.handoff_origin(2, "root-b")
+        self.authority.connection_closed(2)
+
+        resume = self.authority.begin_tui_request(
+            1, "thread/resume", {"threadId": "root-b"}
+        )
+        self.complete_root_handoff(resume, 1, "root-b")
+        self.authority.finish_tui_request(
+            resume, {"id": 2, "result": root_result("root-b")}
+        )
+
+        snapshot = self.authority.current_snapshot()
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertEqual(snapshot, leased)
+
+        self.authority.observe_notification(
+            bridge.INITIAL_DRIVER_CONNECTION_ID,
+            mcp_status_notification(
+                "root-b", "Uclusion", "starting", 50
+            ),
+        )
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNone(leased)
+        self.authority.observe_notification(
+            bridge.INITIAL_DRIVER_CONNECTION_ID,
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 51
+            ),
+        )
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertEqual(snapshot, leased)
+
+    def test_retired_auxiliary_status_never_changes_delivery(self):
+        self.use_mcp_startup_gate()
+        snapshot = self.establish()
+        self.authority.observe_notification(
+            1,
+            mcp_status_notification(
+                "root-a", "Uclusion", "ready", 100
+            ),
+        )
+        self.authority.observe_notification(
+            2,
+            mcp_status_notification(
+                "root-a", "Uclusion", "ready", 100
+            ),
+        )
+        self.authority.connection_closed(2)
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertEqual(snapshot, leased)
+
+        self.authority.observe_notification(
+            3,
+            mcp_status_notification(
+                "root-a", "Uclusion", "starting", 200
+            ),
+        )
+        self.authority.connection_closed(3)
+
+        self.assertEqual(
+            "ready",
+            self.authority._mcp_startup_status(
+                "root-a", "Uclusion"
+            ),
+        )
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertEqual(snapshot, leased)
+
+    def test_retired_connection_cannot_repopulate_readiness(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        validation_entered = threading.Event()
+        continue_validation = threading.Event()
+
+        class PausingParams(dict):
+            def get(self, key, default=None):
+                if key == "threadId":
+                    validation_entered.set()
+                    continue_validation.wait(1)
+                return super().get(key, default)
+
+        notification = mcp_status_notification(
+            "root-b", "Uclusion", "ready", 200
+        )
+        notification["params"] = PausingParams(notification["params"])
+        observer = threading.Thread(
+            target=lambda: self.authority.observe_notification(
+                2, notification
+            )
+        )
+        observer.start()
+        self.assertTrue(validation_entered.wait(1))
+
+        self.authority.connection_closed(2)
+        continue_validation.set()
+        observer.join(1)
+
+        self.assertFalse(observer.is_alive())
+        self.assertEqual(
+            [],
+            self.authority._mcp_startup_observations(
+                "root-b", "Uclusion"
+            ),
+        )
+
+    def test_successful_unsubscribe_retains_driver_pinned_readiness(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        self.authority.observe_notification(
+            2,
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 200
+            ),
+        )
+        self.authority.driver_thread_pinned("root-b")
+        self.handoff_origin(2, "root-b")
+        self.authority.connection_invalidation_succeeded(
+            2, "thread/unsubscribe", "root-b"
+        )
+
+        resume = self.authority.begin_tui_request(
+            1, "thread/resume", {"threadId": "root-b"}
+        )
+        self.complete_root_handoff(resume, 1, "root-b")
+        self.authority.finish_tui_request(
+            resume, {"id": 2, "result": root_result("root-b")}
+        )
+
+        resumed = self.authority.current_snapshot()
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertEqual(resumed, leased)
+
+    def test_successful_archive_blocks_delayed_terminal_copy(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        self.authority.observe_notification(
+            2,
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 100
+            ),
+        )
+        self.authority.connection_invalidation_succeeded(
+            2, "thread/archive", "root-b"
+        )
+        self.authority.observe_notification(
+            3,
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 100
+            ),
+        )
+
+        resume = self.authority.begin_tui_request(
+            1, "thread/resume", {"threadId": "root-b"}
+        )
+        self.complete_root_handoff(resume, 1, "root-b")
+        self.authority.finish_tui_request(
+            resume, {"id": 2, "result": root_result("root-b")}
+        )
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNone(leased)
+
+        self.authority.observe_notification(
+            1,
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 50
+            ),
+        )
+        resumed = self.authority.current_snapshot()
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertEqual(resumed, leased)
+
+    def test_delayed_older_aux_starting_does_not_close_newer_ready(self):
+        self.use_mcp_startup_gate()
+        snapshot = self.establish()
+        self.authority.observe_notification(
+            1,
+            mcp_status_notification(
+                "root-a", "Uclusion", "starting", 100
+            ),
+        )
+        self.authority.observe_notification(
+            1,
+            mcp_status_notification(
+                "root-a", "Uclusion", "ready", 200
+            ),
+        )
+        self.authority.observe_notification(
+            2,
+            mcp_status_notification(
+                "root-a", "Uclusion", "starting", 100
+            ),
+        )
+
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertEqual(snapshot, leased)
+
+    def test_newer_starting_is_not_reopened_by_delayed_terminal(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        self.authority.observe_notification(
+            1,
+            mcp_status_notification(
+                "root-a", "Uclusion", "ready", 200
+            ),
+        )
+        self.authority.observe_notification(
+            1,
+            mcp_status_notification(
+                "root-a", "Uclusion", "starting", 300
+            ),
+        )
+        self.authority.observe_notification(
+            2,
+            mcp_status_notification(
+                "root-a", "Uclusion", "ready", 200
+            ),
+        )
+
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNone(leased)
+
+    def test_primary_starting_survives_wall_clock_regression(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        self.authority.observe_notification(
+            1,
+            mcp_status_notification(
+                "root-a", "Uclusion", "ready", 300
+            ),
+        )
+        self.authority.observe_notification(
+            2,
+            mcp_status_notification(
+                "root-a", "Uclusion", "ready", 400
+            ),
+        )
+        self.authority.observe_notification(
+            1,
+            mcp_status_notification(
+                "root-a", "Uclusion", "starting", 200
+            ),
+        )
+
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNone(leased)
+
+    def test_origin_fence_starting_overrides_pre_pin_driver_terminal(self):
+        self.use_mcp_startup_gate()
+        self.authority.observe_notification(
+            bridge.INITIAL_DRIVER_CONNECTION_ID,
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 100
+            ),
+        )
+        snapshot = self.establish("root-b")
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertEqual(snapshot, leased)
+
+        self.authority.observe_notification(
+            2,
+            mcp_status_notification(
+                "root-b", "Uclusion", "starting", 50
+            ),
+        )
+        self.handoff_origin(2, "root-b")
+
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNone(leased)
+        self.assertEqual(
+            "starting",
+            self.authority._mcp_startup_status(
+                "root-b", "Uclusion"
+            ),
+        )
+        self.authority.observe_notification(
+            bridge.INITIAL_DRIVER_CONNECTION_ID,
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 51
+            ),
+        )
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertEqual(snapshot, leased)
+
+    def test_equal_timestamp_conflict_fails_closed(self):
+        self.use_mcp_startup_gate()
+        snapshot = self.establish()
+        self.authority.observe_notification(
+            1,
+            mcp_status_notification(
+                "root-a", "Uclusion", "ready", 200
+            ),
+        )
+        self.authority.observe_notification(
+            bridge.INITIAL_DRIVER_CONNECTION_ID,
+            mcp_status_notification(
+                "root-a", "Uclusion", "starting", 200
+            ),
+        )
+
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNone(leased)
+
+        self.authority.observe_notification(
+            bridge.INITIAL_DRIVER_CONNECTION_ID,
+            mcp_status_notification(
+                "root-a", "Uclusion", "ready", 200
+            ),
+        )
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertEqual(snapshot, leased)
+
+    def test_lifecycle_notification_discards_cached_readiness(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        self.authority.observe_notification(
+            2,
+            mcp_status_notification("root-b", "Uclusion", "ready"),
+        )
+        self.authority.observe_notification(
+            2,
+            {
+                "method": "thread/closed",
+                "params": {"threadId": "root-b"},
+            },
+        )
+
+        resume = self.authority.begin_tui_request(
+            1, "thread/resume", {"threadId": "root-b"}
+        )
+        self.complete_root_handoff(resume, 1, "root-b")
+        self.authority.finish_tui_request(
+            resume, {"id": 2, "result": root_result("root-b")}
+        )
+
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNone(leased)
+        self.authority.observe_notification(
+            1,
+            mcp_status_notification("root-b", "Uclusion", "ready"),
+        )
+        resumed = self.authority.current_snapshot()
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertEqual(resumed, leased)
+
+    def test_lifecycle_tombstone_rejects_delayed_terminal_copy(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        self.authority.observe_notification(
+            2,
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 200
+            ),
+        )
+        self.authority.observe_notification(
+            2,
+            {
+                "method": "thread/closed",
+                "params": {"threadId": "root-b"},
+                "emittedAtMs": 300,
+            },
+        )
+        self.authority.observe_notification(
+            3,
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 200
+            ),
+        )
+
+        resume = self.authority.begin_tui_request(
+            1, "thread/resume", {"threadId": "root-b"}
+        )
+        self.complete_root_handoff(resume, 1, "root-b")
+        self.authority.finish_tui_request(
+            resume, {"id": 2, "result": root_result("root-b")}
+        )
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNone(leased)
+
+        self.authority.observe_notification(
+            1,
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 400
+            ),
+        )
+        resumed = self.authority.current_snapshot()
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertEqual(resumed, leased)
+
+    def test_root_response_cut_accepts_fresh_regressed_origin_status(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        self.authority.observe_notification(
+            2,
+            {
+                "method": "thread/closed",
+                "params": {"threadId": "root-b"},
+                "emittedAtMs": 100,
+            },
+        )
+
+        self.authority.connection_root_subscribed(2, "root-b")
+        self.authority.observe_notification(
+            2,
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 50
+            ),
+        )
+        self.authority.driver_thread_pinned(
+            "root-b",
+            self.authority.driver_thread_pin_epoch("root-b"),
+        )
+        self.handoff_origin(2, "root-b")
+
+        self.assertEqual(
+            "ready",
+            self.authority._mcp_startup_status(
+                "root-b", "Uclusion"
+            ),
+        )
+
+    def test_same_stream_lifecycle_survives_wall_clock_regression(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "thread/closed",
+                "params": {"threadId": "root-a"},
+                "emittedAtMs": 300,
+            },
+        )
+
+        resume = self.authority.begin_tui_request(
+            1, "thread/resume", {"threadId": "root-a"}
+        )
+        self.complete_root_handoff(resume, 1, "root-a")
+        self.authority.finish_tui_request(
+            resume, {"id": 2, "result": root_result("root-a")}
+        )
+        self.authority.observe_notification(
+            1,
+            mcp_status_notification(
+                "root-a", "Uclusion", "ready", 250
+            ),
+        )
+        self.authority.observe_notification(
+            2,
+            {
+                "method": "thread/closed",
+                "params": {"threadId": "root-a"},
+                "emittedAtMs": 300,
+            },
+        )
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNotNone(leased)
+
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "thread/closed",
+                "params": {"threadId": "root-a"},
+                "emittedAtMs": 200,
+            },
+        )
+
+        self.assertIsNone(self.authority.current_snapshot())
+
+    def test_stale_driver_status_after_lifecycle_does_not_repin(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "thread/closed",
+                "params": {"threadId": "root-a"},
+                "emittedAtMs": 300,
+            },
+        )
+        self.assertFalse(
+            self.authority.driver_thread_is_pinned("root-a")
+        )
+
+        self.authority.observe_notification(
+            bridge.INITIAL_DRIVER_CONNECTION_ID,
+            mcp_status_notification(
+                "root-a", "Uclusion", "ready", 200
+            ),
+        )
+
+        self.assertFalse(
+            self.authority.driver_thread_is_pinned("root-a")
+        )
+        self.assertEqual(
+            [],
+            self.authority._mcp_startup_observations(
+                "root-a", "Uclusion"
+            ),
+        )
+
+    def test_regressed_aux_lifecycle_blocks_delayed_driver_terminal(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        self.authority.observe_notification(
+            bridge.INITIAL_DRIVER_CONNECTION_ID,
+            mcp_status_notification(
+                "root-a", "Uclusion", "ready", 200
+            ),
+        )
+        self.authority.observe_notification(
+            2,
+            {
+                "method": "thread/closed",
+                "params": {"threadId": "root-a"},
+                "emittedAtMs": 100,
+            },
+        )
+        self.assertFalse(
+            self.authority.driver_thread_is_pinned("root-a")
+        )
+
+        self.authority.observe_notification(
+            bridge.INITIAL_DRIVER_CONNECTION_ID,
+            mcp_status_notification(
+                "root-a", "Uclusion", "ready", 200
+            ),
+        )
+
+        self.assertFalse(
+            self.authority.driver_thread_is_pinned("root-a")
+        )
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNone(leased)
+
+        lifecycle_epoch = (
+            self.authority.driver_thread_pin_epoch("root-a")
+        )
+        self.authority.driver_thread_pinned(
+            "root-a", lifecycle_epoch
+        )
+        self.authority.observe_notification(
+            bridge.INITIAL_DRIVER_CONNECTION_ID,
+            mcp_status_notification(
+                "root-a", "Uclusion", "ready", 50
+            ),
+        )
+        self.assertTrue(
+            self.authority.driver_thread_is_pinned("root-a")
+        )
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNotNone(leased)
+
+    def test_equal_driver_lifecycle_after_ack_clears_pin(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        closed = {
+            "method": "thread/closed",
+            "params": {"threadId": "root-a"},
+            "emittedAtMs": 10,
+        }
+        self.authority.observe_notification(1, closed)
+        self.authority.driver_thread_pinned("root-a")
+        self.assertTrue(
+            self.authority.driver_thread_is_pinned("root-a")
+        )
+
+        self.authority.observe_notification(
+            bridge.INITIAL_DRIVER_CONNECTION_ID, closed
+        )
+
+        self.assertFalse(
+            self.authority.driver_thread_is_pinned("root-a")
+        )
+
+    def test_lifecycle_during_driver_subscribe_rejects_ack(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        lifecycle_epoch = self.authority.driver_thread_pin_epoch(
+            "root-a"
+        )
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "thread/closed",
+                "params": {"threadId": "root-a"},
+                "emittedAtMs": 10,
+            },
+        )
+
+        with self.assertRaisesRegex(
+            bridge.RelayProtocolError,
+            "invalidated while the companion driver subscribed",
+        ):
+            self.authority.driver_thread_pinned(
+                "root-a", lifecycle_epoch
+            )
+
+        self.assertFalse(
+            self.authority.driver_thread_is_pinned("root-a")
+        )
+
+    def test_lifecycle_between_pin_check_and_root_commit_fails_closed(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        resume = self.authority.begin_tui_request(
+            1, "thread/resume", {"threadId": "root-b"}
+        )
+        self.complete_root_handoff(resume, 1, "root-b")
+        self.authority.observe_notification(
+            bridge.INITIAL_DRIVER_CONNECTION_ID,
+            {
+                "method": "thread/closed",
+                "params": {"threadId": "root-b"},
+                "emittedAtMs": 10,
+            },
+        )
+        self.authority.observe_notification(
+            bridge.INITIAL_DRIVER_CONNECTION_ID,
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 11
+            ),
+        )
+
+        with self.assertRaisesRegex(
+            bridge.RelayProtocolError,
+            "invalidated before primary commit",
+        ):
+            self.authority.finish_tui_request(
+                resume,
+                {"id": 2, "result": root_result("root-b")},
+            )
+
+        self.assertIsNone(self.authority.current_snapshot())
+        self.assertIn(
+            "invalidated before primary commit",
+            self.authority.fatal_error,
+        )
+
+    def test_aux_first_driver_lifecycle_revokes_established_root(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        self.authority.observe_notification(
+            bridge.INITIAL_DRIVER_CONNECTION_ID,
+            mcp_status_notification(
+                "root-a", "Uclusion", "ready", 9
+            ),
+        )
+        self.assertIsNotNone(self.authority.current_snapshot())
+
+        closed = {
+            "method": "thread/closed",
+            "params": {"threadId": "root-a"},
+            "emittedAtMs": 10,
+        }
+        self.authority.observe_notification(2, closed)
+        self.assertIsNotNone(self.authority.current_snapshot())
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNone(leased)
+
+        self.authority.observe_notification(
+            bridge.INITIAL_DRIVER_CONNECTION_ID, closed
+        )
+        self.assertIsNone(self.authority.current_snapshot())
+
+        self.authority.observe_notification(
+            bridge.INITIAL_DRIVER_CONNECTION_ID,
+            mcp_status_notification(
+                "root-a", "Uclusion", "ready", 11
+            ),
+        )
+        self.assertIsNone(self.authority.current_snapshot())
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNone(leased)
+
+    def test_driver_lifecycle_terminal_cannot_restore_established_root(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        self.authority.observe_notification(
+            bridge.INITIAL_DRIVER_CONNECTION_ID,
+            mcp_status_notification(
+                "root-a", "Uclusion", "ready", 9
+            ),
+        )
+        self.authority.observe_notification(
+            bridge.INITIAL_DRIVER_CONNECTION_ID,
+            {
+                "method": "thread/closed",
+                "params": {"threadId": "root-a"},
+                "emittedAtMs": 10,
+            },
+        )
+        self.assertIsNone(self.authority.current_snapshot())
+
+        self.authority.observe_notification(
+            bridge.INITIAL_DRIVER_CONNECTION_ID,
+            mcp_status_notification(
+                "root-a", "Uclusion", "ready", 11
+            ),
+        )
+        self.assertIsNone(self.authority.current_snapshot())
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNone(leased)
+
+    def test_same_stream_close_removes_newer_timestamp_old_status(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        self.authority.observe_notification(
+            1,
+            mcp_status_notification(
+                "root-a", "Uclusion", "ready", 400
+            ),
+        )
+        self.authority.observe_notification(
+            1,
+            {
+                "method": "thread/closed",
+                "params": {"threadId": "root-a"},
+                "emittedAtMs": 300,
+            },
+        )
+
+        resume = self.authority.begin_tui_request(
+            1, "thread/resume", {"threadId": "root-a"}
+        )
+        self.complete_root_handoff(resume, 1, "root-a")
+        self.authority.finish_tui_request(
+            resume, {"id": 2, "result": root_result("root-a")}
+        )
+
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNone(leased)
+
+    def test_invalid_mcp_emission_timestamp_fails_primary_only(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        malformed = mcp_status_notification(
+            "root-a", "Uclusion", "ready"
+        )
+        malformed["emittedAtMs"] = True
+
+        self.authority.observe_notification(2, malformed)
+        self.assertIsNone(self.authority.fatal_error)
+        self.authority.observe_notification(1, malformed)
+        self.assertIn("invalid emittedAtMs", self.authority.fatal_error)
+
+    def test_invalid_noncurrent_driver_startup_event_fails_closed(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+        malformed = mcp_status_notification(
+            "root-picker", "Uclusion", "ready"
+        )
+        malformed["params"]["status"] = "unknown"
+
+        self.authority.observe_notification(
+            bridge.INITIAL_DRIVER_CONNECTION_ID, malformed
+        )
+
+        self.assertIn(
+            "invalid status", self.authority.fatal_error
+        )
+
+    def test_invalid_driver_lifecycle_event_fails_closed(self):
+        self.use_mcp_startup_gate()
+        self.establish()
+
+        self.authority.observe_notification(
+            bridge.INITIAL_DRIVER_CONNECTION_ID,
+            {
+                "method": "thread/closed",
+                "params": {"threadId": 42},
+            },
+        )
+
+        self.assertIn(
+            "has no threadId", self.authority.fatal_error
+        )
 
     def test_driver_lease_linearizes_before_root_switch(self):
         original = self.establish()
@@ -855,6 +1926,11 @@ class RootAuthorityTests(unittest.TestCase):
 class FakeRawUpstream:
     def __init__(self):
         self.sent = queue.Queue()
+        self.internal_sent = queue.Queue()
+        self.before_internal_response = []
+        self.before_internal_response_batches = []
+        self.internal_send_release = None
+        self.internal_response_release = None
         self.incoming = queue.Queue()
         self.closed = threading.Event()
 
@@ -864,6 +1940,41 @@ class FakeRawUpstream:
     def send_json_message(self, message):
         if self.closed.is_set():
             raise bridge.AppServerTransportError("fake upstream closed")
+        if (
+            message.get("method") == "thread/read"
+            and isinstance(message.get("id"), str)
+            and message["id"].startswith(
+                "uclusion-codex-pin-fence:"
+            )
+        ):
+            self.internal_sent.put(message)
+            if self.internal_send_release is not None:
+                while not self.internal_send_release.wait(0.01):
+                    if self.closed.is_set():
+                        raise bridge.AppServerTransportError(
+                            "fake upstream closed during internal send"
+                        )
+            if self.internal_response_release is not None:
+                self.internal_response_release.wait(1)
+            queued_messages = self.before_internal_response
+            if self.before_internal_response_batches:
+                queued_messages = (
+                    self.before_internal_response_batches.pop(0)
+                )
+            for queued_message in queued_messages:
+                self.incoming.put(queued_message)
+            self.before_internal_response = []
+            self.incoming.put(
+                {
+                    "id": message["id"],
+                    "result": {
+                        "thread": {
+                            "id": message["params"]["threadId"]
+                        }
+                    },
+                }
+            )
+            return
         self.sent.put(message)
 
     def read_json_message(self):
@@ -929,7 +2040,7 @@ def read_exact(stream, size):
     return bytes(result)
 
 
-def read_server_json(stream):
+def read_server_frame(stream):
     first, second = read_exact(stream, 2)
     if second & 0x80:
         raise AssertionError("relay server frame must be unmasked")
@@ -940,6 +2051,11 @@ def read_server_json(stream):
     elif size == 127:
         size = struct.unpack("!Q", read_exact(stream, 8))[0]
     payload = read_exact(stream, size)
+    return opcode, payload
+
+
+def read_server_json(stream):
+    opcode, payload = read_server_frame(stream)
     if opcode == 8:
         raise EOFError("relay closed WebSocket")
     return json.loads(payload.decode("utf-8"))
@@ -983,6 +2099,88 @@ def connect_frontend(path):
     return stream
 
 
+class FrontendWebSocketTests(unittest.TestCase):
+    def test_close_receipt_revokes_authority_behind_blocked_data_write(self):
+        data_send_started = threading.Event()
+        release_data_send = threading.Event()
+        send_count = [0]
+
+        class BlockingCloseSocket:
+            def sendall(self, _payload):
+                send_count[0] += 1
+                if send_count[0] == 1:
+                    data_send_started.set()
+                    release_data_send.wait(1)
+
+        authority = bridge.RootAuthority("/workspace/project")
+        authority.claim_primary(1)
+        gate = authority.begin_tui_request(
+            1, "thread/start", {"cwd": "/workspace/project"}
+        )
+        authority.finish_tui_request(
+            gate, {"id": 1, "result": root_result("root-primary")}
+        )
+        frontend = bridge.FrontendWebSocket(BlockingCloseSocket())
+        payload = struct.pack("!H", 1000)
+        data_writer = threading.Thread(
+            target=lambda: frontend.send_json_message(
+                {"method": "thread/status/changed", "params": {}}
+            ),
+            daemon=True,
+        )
+        close_reader = threading.Thread(
+            target=lambda: frontend._begin_close_handshake(
+                payload,
+                1000,
+                lambda _code: authority.primary_closed_cleanly(1),
+            ),
+            daemon=True,
+        )
+        try:
+            data_writer.start()
+            self.assertTrue(data_send_started.wait(1))
+            close_reader.start()
+            wait_for(
+                lambda: frontend.received_close,
+                "Close receipt did not linearize behind blocked data write",
+            )
+            self.assertIsNone(authority.current_snapshot())
+            with authority.delivery_lease(lambda: True) as leased:
+                self.assertIsNone(leased)
+            self.assertTrue(close_reader.is_alive())
+        finally:
+            release_data_send.set()
+            data_writer.join(1)
+            close_reader.join(1)
+        self.assertFalse(data_writer.is_alive())
+        self.assertFalse(close_reader.is_alive())
+        self.assertEqual(2, send_count[0])
+
+    def test_close_response_suppresses_racing_json_frame(self):
+        server_stream, client_stream = socket.socketpair()
+        frontend = bridge.FrontendWebSocket(server_stream)
+        try:
+            close_payload = struct.pack("!H", 1000)
+            client_stream.sendall(
+                masked_frame(close_payload, opcode=8)
+            )
+
+            self.assertIsNone(frontend.read_json_message())
+            frontend.send_json_message(
+                {"method": "thread/status/changed", "params": {}}
+            )
+
+            self.assertEqual(
+                (8, close_payload), read_server_frame(client_stream)
+            )
+            client_stream.settimeout(0.05)
+            with self.assertRaises(socket.timeout):
+                client_stream.recv(1)
+        finally:
+            frontend.close()
+            client_stream.close()
+
+
 class RelayIntegrationTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
@@ -990,6 +2188,11 @@ class RelayIntegrationTests(unittest.TestCase):
             self.temporary.name, "tui.sock"
         )
         self.authority = bridge.RootAuthority("/workspace/project")
+        self.authority.driver_connected(
+            bridge.INITIAL_DRIVER_CONNECTION_ID
+        )
+        self.driver_pins = []
+        self.driver_fence_notifications = []
         self.factory = FakeUpstreamFactory()
         self.relay = bridge.UnixWebSocketRelay(
             self.frontend_path,
@@ -997,6 +2200,23 @@ class RelayIntegrationTests(unittest.TestCase):
             self.authority,
             upstream_factory=self.factory,
         )
+        def pin_driver_thread(thread_id, lifecycle_epoch):
+            self.driver_pins.append(thread_id)
+            self.authority.driver_thread_pinned(
+                thread_id, lifecycle_epoch
+            )
+
+        self.relay.driver_thread_pinner = pin_driver_thread
+        def fence_driver_thread(_thread_id):
+            notifications = self.driver_fence_notifications
+            self.driver_fence_notifications = []
+            for notification in notifications:
+                self.authority.observe_notification(
+                    bridge.INITIAL_DRIVER_CONNECTION_ID,
+                    notification,
+                )
+
+        self.relay.driver_thread_fencer = fence_driver_thread
         self.relay.start()
         self.clients = []
 
@@ -1072,6 +2292,366 @@ class RelayIntegrationTests(unittest.TestCase):
         self.assertTrue(leased)
         self.assertTrue(all(snapshot is None for snapshot in leased))
         self.assertIsNone(self.authority.current_snapshot())
+
+    def test_root_response_waits_for_explicit_driver_subscription(self):
+        primary, upstream = self.initialized_connection()
+        pin_started = threading.Event()
+        release_pin = threading.Event()
+
+        def blocking_pin(thread_id, lifecycle_epoch):
+            self.assertEqual("root-primary", thread_id)
+            pin_started.set()
+            release_pin.wait(1)
+            self.authority.driver_thread_pinned(
+                thread_id, lifecycle_epoch
+            )
+
+        self.relay.driver_thread_pinner = blocking_pin
+        send_client_json(
+            primary,
+            {
+                "id": 1,
+                "method": "thread/start",
+                "params": {"cwd": "/workspace/project"},
+            },
+        )
+        upstream.sent.get(timeout=1)
+        upstream.respond(
+            {"id": 1, "result": root_result("root-primary")}
+        )
+
+        try:
+            self.assertTrue(pin_started.wait(1))
+            self.assertIsNone(self.authority.current_snapshot())
+            primary.settimeout(0.05)
+            with self.assertRaises(socket.timeout):
+                primary.recv(1)
+        finally:
+            release_pin.set()
+        primary.settimeout(1)
+        self.assertEqual(1, read_server_json(primary)["id"])
+        self.assertEqual(
+            "root-primary",
+            self.authority.current_snapshot().thread_id,
+        )
+        self.assertTrue(
+            self.authority.driver_thread_is_pinned("root-primary")
+        )
+
+    def test_root_response_driver_subscription_failure_fails_closed(self):
+        primary, upstream = self.initialized_connection()
+
+        def failing_pin(_thread_id, _lifecycle_epoch):
+            raise bridge.AppServerTimeout(
+                "driver thread/resume request timed out"
+            )
+
+        self.relay.driver_thread_pinner = failing_pin
+        send_client_json(
+            primary,
+            {
+                "id": 1,
+                "method": "thread/start",
+                "params": {"cwd": "/workspace/project"},
+            },
+        )
+        upstream.sent.get(timeout=1)
+        upstream.respond(
+            {"id": 1, "result": root_result("root-primary")}
+        )
+
+        self.assertTrue(self.relay.fatal_event.wait(1))
+        self.assertIn(
+            "driver thread/resume request timed out",
+            self.relay.fatal_error,
+        )
+        self.assertIsNone(self.authority.current_snapshot())
+        self.assertFalse(
+            self.authority.driver_thread_is_pinned("root-primary")
+        )
+
+    def test_root_response_driver_fence_failure_fails_closed(self):
+        primary, upstream = self.initialized_connection()
+
+        def failing_fence(_thread_id):
+            raise bridge.AppServerTimeout(
+                "post-origin driver resume timed out"
+            )
+
+        self.relay.driver_thread_fencer = failing_fence
+        send_client_json(
+            primary,
+            {
+                "id": 1,
+                "method": "thread/start",
+                "params": {"cwd": "/workspace/project"},
+            },
+        )
+        upstream.sent.get(timeout=1)
+        upstream.respond(
+            {"id": 1, "result": root_result("root-primary")}
+        )
+
+        self.assertTrue(self.relay.fatal_event.wait(1))
+        self.assertIn(
+            "post-origin driver resume timed out",
+            self.relay.fatal_error,
+        )
+        self.assertIsNone(self.authority.current_snapshot())
+
+    def test_origin_fence_timeout_includes_blocked_marker_write(self):
+        primary, upstream = self.initialized_connection()
+        self.relay.request_timeout = 0.05
+        release_send = threading.Event()
+        upstream.internal_send_release = release_send
+        send_client_json(
+            primary,
+            {
+                "id": 1,
+                "method": "thread/start",
+                "params": {"cwd": "/workspace/project"},
+            },
+        )
+        upstream.sent.get(timeout=1)
+        upstream.respond(
+            {"id": 1, "result": root_result("root-primary")}
+        )
+        upstream.internal_sent.get(timeout=1)
+
+        try:
+            self.assertTrue(self.relay.fatal_event.wait(1))
+            self.assertIn(
+                "origin stream fence timed out",
+                self.relay.fatal_error,
+            )
+            self.assertTrue(upstream.closed.wait(1))
+            self.assertIsNone(self.authority.current_snapshot())
+        finally:
+            release_send.set()
+
+    def test_origin_fence_lifecycle_prevents_primary_commit(self):
+        self.authority.gate_mcp_startup = True
+        primary, upstream = self.initialized_connection()
+        upstream.before_internal_response.append(
+            {
+                "method": "thread/closed",
+                "params": {"threadId": "root-primary"},
+                "emittedAtMs": 10,
+            }
+        )
+        send_client_json(
+            primary,
+            {
+                "id": 1,
+                "method": "thread/start",
+                "params": {"cwd": "/workspace/project"},
+            },
+        )
+        upstream.sent.get(timeout=1)
+        upstream.respond(
+            {"id": 1, "result": root_result("root-primary")}
+        )
+
+        self.assertTrue(self.relay.fatal_event.wait(1))
+        self.assertIn(
+            "invalidated",
+            self.relay.fatal_error,
+        )
+        self.assertIsNone(self.authority.current_snapshot())
+
+    def test_driver_fence_lifecycle_prevents_primary_commit(self):
+        self.authority.gate_mcp_startup = True
+        primary, upstream = self.initialized_connection()
+        self.driver_fence_notifications = [
+            {
+                "method": "thread/closed",
+                "params": {"threadId": "root-primary"},
+                "emittedAtMs": 10,
+            },
+            mcp_status_notification(
+                "root-primary", "Uclusion", "ready", 11
+            ),
+        ]
+        send_client_json(
+            primary,
+            {
+                "id": 1,
+                "method": "thread/start",
+                "params": {"cwd": "/workspace/project"},
+            },
+        )
+        upstream.sent.get(timeout=1)
+        upstream.respond(
+            {"id": 1, "result": root_result("root-primary")}
+        )
+
+        self.assertTrue(self.relay.fatal_event.wait(1))
+        self.assertIn(
+            "invalidated",
+            self.relay.fatal_error,
+        )
+        self.assertIsNone(self.authority.current_snapshot())
+
+    def test_clean_primary_close_during_origin_fence_is_nonfatal(self):
+        self.authority.gate_mcp_startup = True
+        primary, upstream = self.initialized_connection()
+        release_fence = threading.Event()
+        upstream.internal_response_release = release_fence
+        send_client_json(
+            primary,
+            {
+                "id": 1,
+                "method": "thread/start",
+                "params": {"cwd": "/workspace/project"},
+            },
+        )
+        upstream.sent.get(timeout=1)
+        upstream.respond(
+            {"id": 1, "result": root_result("root-primary")}
+        )
+        upstream.internal_sent.get(timeout=1)
+
+        close_payload = struct.pack("!H", 1000)
+        primary.sendall(masked_frame(close_payload, opcode=8))
+        self.assertEqual(
+            (8, close_payload), read_server_frame(primary)
+        )
+        wait_for(
+            lambda: not self.authority.primary_live,
+            "clean Close did not revoke authority during origin fence",
+        )
+        release_fence.set()
+        wait_for(
+            lambda: upstream.closed.is_set(),
+            "primary stream did not retire after origin fence",
+        )
+
+        self.assertFalse(self.relay.fatal_event.is_set())
+        self.assertIsNone(self.relay.fatal_error)
+        self.assertIsNone(self.authority.current_snapshot())
+
+    def test_clean_primary_close_during_initial_pin_is_nonfatal(self):
+        self.authority.gate_mcp_startup = True
+        self.authority.observe_notification(
+            2,
+            {
+                "method": "thread/closed",
+                "params": {"threadId": "root-primary"},
+                "emittedAtMs": 10,
+            },
+        )
+        primary, upstream = self.initialized_connection()
+        pin_started = threading.Event()
+        release_pin = threading.Event()
+
+        def blocking_pin(thread_id, lifecycle_epoch):
+            self.assertEqual("root-primary", thread_id)
+            self.assertGreater(lifecycle_epoch, 0)
+            pin_started.set()
+            release_pin.wait(1)
+            self.authority.driver_thread_pinned(
+                thread_id, lifecycle_epoch
+            )
+
+        self.relay.driver_thread_pinner = blocking_pin
+        send_client_json(
+            primary,
+            {
+                "id": 1,
+                "method": "thread/start",
+                "params": {"cwd": "/workspace/project"},
+            },
+        )
+        upstream.sent.get(timeout=1)
+        upstream.respond(
+            {"id": 1, "result": root_result("root-primary")}
+        )
+        self.assertTrue(pin_started.wait(1))
+
+        try:
+            close_payload = struct.pack("!H", 1000)
+            primary.sendall(masked_frame(close_payload, opcode=8))
+            self.assertEqual(
+                (8, close_payload), read_server_frame(primary)
+            )
+            wait_for(
+                lambda: not self.authority.primary_live,
+                "clean Close did not revoke authority during driver pin",
+            )
+        finally:
+            release_pin.set()
+        wait_for(
+            lambda: upstream.closed.is_set(),
+            "primary stream did not retire after abandoned driver pin",
+        )
+
+        self.assertFalse(self.relay.fatal_event.is_set())
+        self.assertIsNone(self.relay.fatal_error)
+        self.assertIsNone(self.authority.fatal_error)
+        self.assertIsNone(self.authority.current_snapshot())
+
+    def test_valid_primary_close_revokes_authority_without_failing_relay(self):
+        primary, upstream = self.initialized_connection()
+        send_client_json(
+            primary,
+            {
+                "id": 1,
+                "method": "thread/start",
+                "params": {"cwd": "/workspace/project"},
+            },
+        )
+        self.assertEqual(
+            "thread/start", upstream.sent.get(timeout=1)["method"]
+        )
+        upstream.respond(
+            {"id": 1, "result": root_result("root-primary")}
+        )
+        self.assertEqual(1, read_server_json(primary)["id"])
+
+        close_payload = struct.pack("!H", 1000)
+        primary.sendall(masked_frame(close_payload, opcode=8))
+        self.assertEqual((8, close_payload), read_server_frame(primary))
+
+        def primary_connection_closed():
+            with self.relay.connections_lock:
+                return not self.relay.connections
+
+        wait_for(
+            primary_connection_closed,
+            "relay did not close the primary WebSocket",
+        )
+        self.assertTrue(upstream.closed.wait(1))
+        self.assertIsNone(self.authority.current_snapshot())
+        self.assertIsNone(self.authority.fatal_error)
+        self.assertFalse(self.relay.fatal_event.is_set())
+        self.assertIsNone(self.relay.fatal_error)
+
+    def test_error_primary_close_is_echoed_and_fails_relay(self):
+        primary, upstream = self.initialized_connection()
+        send_client_json(
+            primary,
+            {
+                "id": 1,
+                "method": "thread/start",
+                "params": {"cwd": "/workspace/project"},
+            },
+        )
+        self.assertEqual(
+            "thread/start", upstream.sent.get(timeout=1)["method"]
+        )
+        upstream.respond(
+            {"id": 1, "result": root_result("root-primary")}
+        )
+        self.assertEqual(1, read_server_json(primary)["id"])
+
+        close_payload = struct.pack("!H", 1011)
+        primary.sendall(masked_frame(close_payload, opcode=8))
+        self.assertEqual((8, close_payload), read_server_frame(primary))
+
+        self.assertTrue(self.relay.fatal_event.wait(1))
+        self.assertIsNotNone(self.authority.fatal_error)
+        self.assertIn("non-normal code 1011", self.relay.fatal_error)
+        self.assertTrue(upstream.closed.wait(1))
 
     def test_frontend_upgrade_requires_host_header(self):
         stream = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -1198,6 +2778,356 @@ class RelayIntegrationTests(unittest.TestCase):
             self.assertEqual(
                 "root-a", self.authority.current_snapshot().thread_id
             )
+        self.assertFalse(self.relay.fatal_event.is_set())
+
+    def test_nested_origin_fences_preserve_buffered_wire_order(self):
+        _primary, _primary_upstream = self.initialized_connection()
+        auxiliary, upstream = self.initialized_connection()
+        for request_id, thread_id in ((1, "root-a"), (2, "root-b")):
+            send_client_json(
+                auxiliary,
+                {
+                    "id": request_id,
+                    "method": "thread/resume",
+                    "params": {"threadId": thread_id},
+                },
+            )
+            upstream.sent.get(timeout=1)
+
+        first_notification = mcp_status_notification(
+            "root-b", "First", "ready", 10
+        )
+        second_notification = mcp_status_notification(
+            "root-b", "Second", "ready", 11
+        )
+        upstream.before_internal_response_batches = [
+            [
+                {"id": 2, "result": root_result("root-b")},
+                first_notification,
+            ],
+            [second_notification],
+        ]
+        upstream.respond(
+            {"id": 1, "result": root_result("root-a")}
+        )
+
+        observed = [read_server_json(auxiliary) for _ in range(4)]
+        self.assertEqual(
+            [1, 2, "First", "Second"],
+            [
+                message["id"]
+                if "id" in message
+                else message["params"]["name"]
+                for message in observed
+            ],
+        )
+        self.assertFalse(self.relay.fatal_event.is_set())
+
+    def test_unfenced_auxiliary_readiness_cannot_open_primary_resume(self):
+        self.authority.gate_mcp_startup = True
+        self.authority.driver_connected(
+            bridge.INITIAL_DRIVER_CONNECTION_ID
+        )
+        primary, primary_upstream = self.initialized_connection()
+        send_client_json(
+            primary,
+            {
+                "id": 1,
+                "method": "thread/start",
+                "params": {"cwd": "/workspace/project"},
+            },
+        )
+        primary_upstream.sent.get(timeout=1)
+        primary_upstream.respond(
+            {"id": 1, "result": root_result("root-a")}
+        )
+        read_server_json(primary)
+
+        auxiliary, auxiliary_upstream = self.initialized_connection()
+        auxiliary_upstream.respond(
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 200
+            )
+        )
+        self.assertEqual(
+            "mcpServer/startupStatus/updated",
+            read_server_json(auxiliary)["method"],
+        )
+
+        send_client_json(
+            primary,
+            {
+                "id": 2,
+                "method": "thread/resume",
+                "params": {"threadId": "root-b"},
+            },
+        )
+        primary_upstream.sent.get(timeout=1)
+        primary_upstream.respond(
+            {"id": 2, "result": root_result("root-b")}
+        )
+        read_server_json(primary)
+
+        snapshot = self.authority.current_snapshot()
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNone(leased)
+        self.assertIsNotNone(snapshot)
+
+        self.authority.observe_notification(
+            bridge.INITIAL_DRIVER_CONNECTION_ID,
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 201
+            ),
+        )
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertEqual(snapshot, leased)
+
+    def test_auxiliary_unsubscribe_retains_driver_pinned_readiness(self):
+        _primary, _primary_upstream = self.initialized_connection()
+        auxiliary, auxiliary_upstream = self.initialized_connection()
+        send_client_json(
+            auxiliary,
+            {
+                "id": 1,
+                "method": "thread/resume",
+                "params": {"threadId": "root-b"},
+            },
+        )
+        auxiliary_upstream.sent.get(timeout=1)
+        auxiliary_upstream.before_internal_response.append(
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 200
+            )
+        )
+        auxiliary_upstream.respond(
+            {"id": 1, "result": root_result("root-b")}
+        )
+        read_server_json(auxiliary)
+        self.assertEqual(
+            "mcpServer/startupStatus/updated",
+            read_server_json(auxiliary)["method"],
+        )
+        self.assertIn("root-b", self.driver_pins)
+        self.assertTrue(
+            self.authority._mcp_startup_observations(
+                "root-b", "Uclusion"
+            )
+        )
+
+        send_client_json(
+            auxiliary,
+            {
+                "id": 2,
+                "method": "thread/unsubscribe",
+                "params": {"threadId": "root-b"},
+            },
+        )
+        self.assertEqual(
+            "thread/unsubscribe",
+            auxiliary_upstream.sent.get(timeout=1)["method"],
+        )
+        auxiliary_upstream.respond({"id": 2, "result": {}})
+        read_server_json(auxiliary)
+
+        self.assertTrue(
+            self.authority._mcp_startup_observations(
+                "root-b", "Uclusion"
+            )
+        )
+
+    def test_origin_fence_drains_terminal_before_auxiliary_close(self):
+        self.authority.gate_mcp_startup = True
+        primary, primary_upstream = self.initialized_connection()
+        auxiliary, auxiliary_upstream = self.initialized_connection()
+        pin_started = threading.Event()
+        release_pin = threading.Event()
+
+        def blocking_pin(thread_id, lifecycle_epoch):
+            self.assertEqual("root-b", thread_id)
+            pin_started.set()
+            release_pin.wait(1)
+            self.authority.driver_thread_pinned(
+                thread_id, lifecycle_epoch
+            )
+
+        self.relay.driver_thread_pinner = blocking_pin
+        auxiliary_upstream.before_internal_response.append(
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 200
+            )
+        )
+        send_client_json(
+            auxiliary,
+            {
+                "id": 1,
+                "method": "thread/resume",
+                "params": {"threadId": "root-b"},
+            },
+        )
+        auxiliary_upstream.sent.get(timeout=1)
+        auxiliary_upstream.respond(
+            {"id": 1, "result": root_result("root-b")}
+        )
+        self.assertTrue(pin_started.wait(1))
+
+        close_payload = struct.pack("!H", 1000)
+        auxiliary.sendall(masked_frame(close_payload, opcode=8))
+        self.assertEqual(
+            (8, close_payload), read_server_frame(auxiliary)
+        )
+        release_pin.set()
+        marker = auxiliary_upstream.internal_sent.get(timeout=1)
+        self.assertEqual("thread/read", marker["method"])
+        self.assertFalse(marker["params"]["includeTurns"])
+        wait_for(
+            lambda: auxiliary_upstream.closed.is_set(),
+            "auxiliary stream did not retire after origin fence",
+        )
+
+        send_client_json(
+            primary,
+            {
+                "id": 2,
+                "method": "thread/resume",
+                "params": {"threadId": "root-b"},
+            },
+        )
+        primary_upstream.sent.get(timeout=1)
+        primary_upstream.respond(
+            {"id": 2, "result": root_result("root-b")}
+        )
+        self.assertEqual(2, read_server_json(primary)["id"])
+
+        snapshot = self.authority.current_snapshot()
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertEqual(snapshot, leased)
+
+    def test_auxiliary_handoff_lease_covers_origin_preobservation(self):
+        self.authority.gate_mcp_startup = True
+        primary, primary_upstream = self.initialized_connection()
+        auxiliary, auxiliary_upstream = self.initialized_connection()
+        self.authority.observe_notification(
+            bridge.INITIAL_DRIVER_CONNECTION_ID,
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 100
+            ),
+        )
+        auxiliary_upstream.respond(
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 100
+            )
+        )
+        read_server_json(auxiliary)
+
+        release_fence = threading.Event()
+        auxiliary_upstream.internal_response_release = release_fence
+        auxiliary_upstream.before_internal_response.append(
+            mcp_status_notification(
+                "root-b", "Uclusion", "starting", 50
+            )
+        )
+        # The driver reader lags the origin: it processes an older terminal
+        # and then the matching starting copy only when the post-origin driver
+        # fence drains its FIFO. Handoff must wait for both.
+        self.driver_fence_notifications = [
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 100
+            ),
+            mcp_status_notification(
+                "root-b", "Uclusion", "starting", 50
+            ),
+        ]
+        send_client_json(
+            auxiliary,
+            {
+                "id": 1,
+                "method": "thread/resume",
+                "params": {"threadId": "root-b"},
+            },
+        )
+        auxiliary_upstream.sent.get(timeout=1)
+        auxiliary_upstream.respond(
+            {"id": 1, "result": root_result("root-b")}
+        )
+        auxiliary_upstream.internal_sent.get(timeout=1)
+
+        send_client_json(
+            primary,
+            {
+                "id": 2,
+                "method": "thread/resume",
+                "params": {"threadId": "root-b"},
+            },
+        )
+        with self.assertRaises(queue.Empty):
+            primary_upstream.sent.get(timeout=0.05)
+
+        release_fence.set()
+        self.assertEqual(1, read_server_json(auxiliary)["id"])
+        self.assertEqual(
+            "starting",
+            read_server_json(auxiliary)["params"]["status"],
+        )
+        self.assertEqual(
+            "thread/resume",
+            primary_upstream.sent.get(timeout=1)["method"],
+        )
+        primary_upstream.respond(
+            {"id": 2, "result": root_result("root-b")}
+        )
+        self.assertEqual(2, read_server_json(primary)["id"])
+
+        with self.authority.delivery_lease(lambda: True) as leased:
+            self.assertIsNone(leased)
+        self.assertEqual(
+            "starting",
+            self.authority._mcp_startup_status(
+                "root-b", "Uclusion"
+            ),
+        )
+        self.assertEqual([], self.driver_fence_notifications)
+
+    def test_auxiliary_close_retains_driver_pinned_readiness(self):
+        _primary, _primary_upstream = self.initialized_connection()
+        auxiliary, auxiliary_upstream = self.initialized_connection()
+        send_client_json(
+            auxiliary,
+            {
+                "id": 1,
+                "method": "thread/resume",
+                "params": {"threadId": "root-b"},
+            },
+        )
+        auxiliary_upstream.sent.get(timeout=1)
+        auxiliary_upstream.before_internal_response.append(
+            mcp_status_notification(
+                "root-b", "Uclusion", "ready", 200
+            )
+        )
+        auxiliary_upstream.respond(
+            {"id": 1, "result": root_result("root-b")}
+        )
+        read_server_json(auxiliary)
+        self.assertEqual(
+            "mcpServer/startupStatus/updated",
+            read_server_json(auxiliary)["method"],
+        )
+        self.assertIn("root-b", self.driver_pins)
+
+        close_payload = struct.pack("!H", 1000)
+        auxiliary.sendall(masked_frame(close_payload, opcode=8))
+        self.assertEqual(
+            (8, close_payload), read_server_frame(auxiliary)
+        )
+        wait_for(
+            lambda: auxiliary_upstream.closed.is_set(),
+            "relay did not close auxiliary upstream",
+        )
+        self.assertTrue(
+            self.authority._mcp_startup_observations(
+                "root-b", "Uclusion"
+            ),
+        )
         self.assertFalse(self.relay.fatal_event.is_set())
 
     def test_auxiliary_cannot_admit_control_or_invalidate_primary_root(self):

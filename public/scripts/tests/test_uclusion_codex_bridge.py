@@ -270,6 +270,85 @@ class CompatibilityTests(unittest.TestCase):
         )
 
 
+class RunBridgeTests(BridgeTestCase):
+    def test_driver_eof_before_registration_retries_without_fatal_state(self):
+        stopping = threading.Event()
+        clients = []
+        relay_holder = {}
+
+        class StartupClient:
+            def __init__(self, fail_before_registration):
+                self.fail_before_registration = fail_before_registration
+                self.response_lock = threading.Lock()
+                self.reader_failure = None
+                self.notification_handler = None
+                self.disconnect_handler = None
+                self.closed = False
+
+            def start(self):
+                if self.fail_before_registration:
+                    self.reader_failure = bridge.AppServerTransportError(
+                        "driver EOF before registration"
+                    )
+                else:
+                    stopping.set()
+
+            def subscribe_thread(self, _thread_id, _on_subscribed):
+                raise AssertionError("no TUI root should be pinned")
+
+            def fence_thread(self, _thread_id):
+                raise AssertionError("no TUI root should be fenced")
+
+            def close(self):
+                self.closed = True
+
+        class StartupRelay:
+            def __init__(self, _frontend, _backend, authority):
+                self.authority = authority
+                self.fatal_event = threading.Event()
+                self.fatal_error = None
+                self.listener = None
+                self.driver_thread_pinner = None
+                self.closed = False
+
+            def start(self):
+                self.listener = object()
+
+            def close(self):
+                self.closed = True
+
+        def client_factory(_socket_path):
+            client = StartupClient(fail_before_registration=not clients)
+            clients.append(client)
+            return client
+
+        def relay_factory(frontend, backend, authority):
+            relay = StartupRelay(frontend, backend, authority)
+            relay_holder["relay"] = relay
+            return relay
+
+        config = dataclass_replace(
+            self.config,
+            frontend_socket=os.path.join(
+                self.temporary.name, "frontend.sock"
+            ),
+        )
+        result = bridge.run_bridge(
+            config,
+            poll_interval=0.001,
+            stop_event=stopping,
+            client_factory=client_factory,
+            relay_factory=relay_factory,
+            update_notice_source=lambda _environment: None,
+        )
+
+        self.assertEqual(bridge.EXIT_OK, result)
+        self.assertEqual(2, len(clients))
+        self.assertTrue(clients[0].closed)
+        self.assertIsNone(relay_holder["relay"].authority.fatal_error)
+        self.assertTrue(relay_holder["relay"].closed)
+
+
 class DeliveryTests(BridgeTestCase):
     @unittest.skipUnless(
         sys.platform.startswith("linux")
@@ -1960,6 +2039,108 @@ class DeliveryTests(BridgeTestCase):
         self.assertEqual(sequence, self.store.consumer_cursor(self.config))
         self.assertEqual(1, len(app_server.start_calls))
 
+    def test_poke_waits_for_primary_uclusion_startup_before_delivery(self):
+        sequence = self.add_poke("message-1", "Start J-all-373")
+        authority = bridge.RootAuthority(
+            self.config.cwd, gate_mcp_startup=True
+        )
+        authority.driver_connected(
+            bridge.INITIAL_DRIVER_CONNECTION_ID
+        )
+        self.assertTrue(authority.claim_primary(1))
+        gate = authority.begin_tui_request(
+            1, "thread/start", {"cwd": self.config.cwd}
+        )
+        lifecycle_epoch = authority.connection_root_subscribed(
+            1, "root-live"
+        )
+        authority.driver_thread_pinned(
+            "root-live", lifecycle_epoch
+        )
+        driver_sequence_cut = authority.driver_handoff_cut("root-live")
+        authority.handoff_origin_startup_to_driver(
+            1,
+            "root-live",
+            driver_sequence_cut,
+            lifecycle_epoch,
+        )
+        authority.record_root_handoff_complete(
+            gate, "root-live", lifecycle_epoch
+        )
+        authority.finish_tui_request(
+            gate,
+            {
+                "id": "root",
+                "result": {
+                    "thread": {
+                        "id": "root-live",
+                        "sessionId": "root-live",
+                        "parentThreadId": None,
+                        "cwd": self.config.cwd,
+                    },
+                    "cwd": self.config.cwd,
+                },
+            },
+        )
+        app_server = FakeAppServer(thread_id="root-live")
+        engine = self.committed_start_engine(app_server)
+
+        def assert_waiting_for_startup():
+            with authority.delivery_lease(lambda: True) as snapshot:
+                self.assertIsNone(snapshot)
+            self.assertIsNone(self.store.consumer_cursor(self.config))
+            self.assertIsNone(
+                self.store.delivery_state(self.config, sequence)
+            )
+            self.assertEqual([], app_server.start_calls)
+
+        assert_waiting_for_startup()
+
+        authority.observe_notification(
+            1,
+            {
+                "method": "mcpServer/startupStatus/updated",
+                "params": {
+                    "threadId": "root-live",
+                    "name": "codex_apps",
+                    "status": "ready",
+                    "error": None,
+                    "failureReason": None,
+                },
+            },
+        )
+        assert_waiting_for_startup()
+
+        authority.observe_notification(
+            1,
+            {
+                "method": "mcpServer/startupStatus/updated",
+                "params": {
+                    "threadId": "root-live",
+                    "name": "Uclusion",
+                    "status": "ready",
+                    "error": None,
+                    "failureReason": None,
+                },
+            },
+        )
+
+        with authority.delivery_lease(lambda: True) as snapshot:
+            self.assertIsNotNone(snapshot)
+            result = engine.step(snapshot)
+
+        self.assertEqual("accepted", result.action)
+        self.assertEqual(sequence, self.store.consumer_cursor(self.config))
+        self.assertEqual(
+            [("root-live", "Start J-all-373", "message-1")],
+            app_server.start_calls,
+        )
+        with authority.delivery_lease(lambda: True) as snapshot:
+            self.assertIsNotNone(snapshot)
+            duplicate = engine.step(snapshot)
+        self.assertEqual("empty", duplicate.action)
+        self.assertEqual(1, len(app_server.start_calls))
+
     def test_authority_commit_serializes_ack_with_root_invalidation(self):
         authority = bridge.RootAuthority(self.config.cwd)
         self.assertTrue(authority.claim_primary(1))
@@ -2393,6 +2574,20 @@ class FakeProxyProcess:
                             }
                         },
                     }
+                elif method == "thread/resume":
+                    response = {
+                        "id": message["id"],
+                        "result": {
+                            "thread": {
+                                "id": message["params"]["threadId"],
+                                "sessionId": message["params"]["threadId"],
+                                "parentThreadId": None,
+                                "cwd": "/workspace/project",
+                                "status": {"type": "idle"},
+                                "turns": [],
+                            }
+                        },
+                    }
                 elif method == "thread/turns/list":
                     response = {
                         "id": message["id"],
@@ -2450,24 +2645,230 @@ class FakeProxyProcess:
 
 
 class AppServerTransportTests(unittest.TestCase):
-    def test_driver_rejects_server_request_instead_of_silently_dropping_it(self):
+    def test_driver_forwards_notifications_and_reports_stream_loss(self):
+        notification = {
+            "method": "mcpServer/startupStatus/updated",
+            "params": {
+                "threadId": "root",
+                "name": "Uclusion",
+                "status": "ready",
+            },
+        }
         client = bridge.AppServerClient("/tmp/not-used")
-        sent = []
-        client._send_json = sent.append
-        client.incoming.put(
+        client.process = types.SimpleNamespace(
+            stdout=io.BytesIO(server_text_frame(notification))
+        )
+        observed = []
+        disconnected = []
+        client.notification_handler = observed.append
+        client.disconnect_handler = lambda: disconnected.append(True)
+
+        client._reader_loop()
+
+        self.assertEqual([notification], observed)
+        self.assertEqual([True], disconnected)
+        self.assertIsNotNone(client.reader_failure)
+
+    def test_driver_subscription_ack_precedes_later_lifecycle_event(self):
+        authority = bridge.RootAuthority("/workspace/project")
+        authority.driver_connected(
+            bridge.INITIAL_DRIVER_CONNECTION_ID
+        )
+        response = {
+            "id": 1,
+            "result": {
+                "thread": {
+                    "id": "root",
+                    "sessionId": "root",
+                    "parentThreadId": None,
+                    "cwd": "/workspace/project",
+                }
+            },
+        }
+        closed = {
+            "method": "thread/closed",
+            "params": {"threadId": "root"},
+            "emittedAtMs": 10,
+        }
+        client = bridge.AppServerClient("/tmp/not-used")
+        client.process = types.SimpleNamespace(
+            stdout=io.BytesIO(
+                server_text_frame(response)
+                + server_text_frame(closed)
+            )
+        )
+        client.notification_handler = lambda message: (
+            authority.observe_notification(
+                bridge.INITIAL_DRIVER_CONNECTION_ID, message
+            )
+        )
+        reader = threading.Thread(target=client._reader_loop)
+        client._send_json = lambda _message: reader.start()
+
+        client.subscribe_thread(
+            "root", lambda: authority.driver_thread_pinned("root")
+        )
+        reader.join(1)
+
+        self.assertFalse(authority.driver_thread_is_pinned("root"))
+
+    def test_clean_close_abandons_real_driver_subscription_callback(self):
+        authority = bridge.RootAuthority("/workspace/project")
+        authority.driver_connected(
+            bridge.INITIAL_DRIVER_CONNECTION_ID
+        )
+        self.assertTrue(authority.claim_primary(1))
+        authority.observe_notification(
+            2,
             {
-                "id": 1,
-                "method": "item/commandExecution/requestApproval",
+                "method": "thread/closed",
                 "params": {"threadId": "root"},
-            }
+                "emittedAtMs": 10,
+            },
+        )
+        gate = authority.begin_tui_request(
+            1, "thread/start", {"cwd": "/workspace/project"}
+        )
+        lifecycle_epoch = authority.connection_root_subscribed(
+            1, "root"
+        )
+        self.assertGreater(lifecycle_epoch, 0)
+        authority.primary_closed_cleanly(1)
+
+        response = {
+            "id": 1,
+            "result": {
+                "thread": {
+                    "id": "root",
+                    "sessionId": "root",
+                    "parentThreadId": None,
+                    "cwd": "/workspace/project",
+                }
+            },
+        }
+
+        class BlockingStream:
+            def __init__(self, payload):
+                self.payload = bytearray(payload)
+                self.release = threading.Event()
+
+            def read(self, size):
+                if self.payload:
+                    chunk = bytes(self.payload[:size])
+                    del self.payload[:size]
+                    return chunk
+                self.release.wait(2)
+                return b""
+
+        stream = BlockingStream(server_text_frame(response))
+        client = bridge.AppServerClient("/tmp/not-used")
+        client.process = types.SimpleNamespace(stdout=stream)
+        client.disconnect_handler = lambda: authority.driver_disconnected(
+            bridge.INITIAL_DRIVER_CONNECTION_ID
+        )
+        reader = threading.Thread(target=client._reader_loop)
+        client._send_json = lambda _message: reader.start()
+
+        try:
+            client.subscribe_thread(
+                "root",
+                lambda: authority.driver_thread_pinned(
+                    "root", lifecycle_epoch
+                ),
+            )
+            self.assertTrue(reader.is_alive())
+            self.assertIsNone(client.reader_failure)
+            self.assertIsNone(authority.fatal_error)
+            self.assertFalse(authority.driver_thread_is_pinned("root"))
+            authority.finish_tui_request(
+                gate, {"id": 2, "result": response["result"]}
+            )
+            self.assertIsNone(authority.current_snapshot())
+        finally:
+            client.disconnect_handler = None
+            client.closed = True
+            stream.release.set()
+            reader.join(1)
+
+    def test_driver_thread_fence_drains_prior_listener_notifications(self):
+        ready = {
+            "method": "mcpServer/startupStatus/updated",
+            "params": {
+                "threadId": "root",
+                "name": "Uclusion",
+                "status": "ready",
+            },
+        }
+        starting = {
+            "method": "mcpServer/startupStatus/updated",
+            "params": {
+                "threadId": "root",
+                "name": "Uclusion",
+                "status": "starting",
+            },
+        }
+        response = {
+            "id": 1,
+            "result": {"thread": {"id": "root"}},
+        }
+        client = bridge.AppServerClient("/tmp/not-used")
+        client.process = types.SimpleNamespace(
+            stdout=io.BytesIO(
+                server_text_frame(ready)
+                + server_text_frame(starting)
+                + server_text_frame(response)
+            )
+        )
+        observed = []
+        sent = []
+        client.notification_handler = observed.append
+        reader = threading.Thread(target=client._reader_loop)
+
+        def send_and_read(message):
+            sent.append(message)
+            reader.start()
+
+        client._send_json = send_and_read
+        client.fence_thread("root")
+        reader.join(1)
+
+        self.assertEqual([ready, starting], observed)
+        self.assertEqual("thread/resume", sent[0]["method"])
+        self.assertEqual(
+            {"threadId": "root", "excludeTurns": True},
+            sent[0]["params"],
         )
 
-        with self.assertRaisesRegex(
-            bridge.AppServerTransportError,
-            "server request on the driver connection",
-        ):
-            client.request("thread/read", {}, timeout=1)
+    def test_driver_leaves_duplicate_server_request_for_tui_to_answer(self):
+        client = bridge.AppServerClient("/tmp/not-used")
+        client.process = types.SimpleNamespace(
+            stdout=io.BytesIO(
+                server_text_frame(
+                    {
+                        "id": 99,
+                        "method": (
+                            "item/commandExecution/requestApproval"
+                        ),
+                        "params": {"threadId": "root"},
+                    }
+                )
+                + server_text_frame(
+                    {"id": 1, "result": {"thread": {"id": "root"}}}
+                )
+            )
+        )
+        sent = []
+        reader = threading.Thread(target=client._reader_loop)
 
+        def send_and_read(message):
+            sent.append(message)
+            reader.start()
+
+        client._send_json = send_and_read
+        result = client.request("thread/read", {}, timeout=1)
+        reader.join(1)
+
+        self.assertEqual({"thread": {"id": "root"}}, result)
         self.assertEqual(1, sent[0]["id"])
 
     def test_driver_rejects_unsolicited_matching_id_before_request(self):
@@ -2687,9 +3088,13 @@ class AppServerTransportTests(unittest.TestCase):
             process_factory=factory,
             request_timeout=1,
         )
+        subscribed = []
         try:
             client.start()
             thread = client.thread_read("root-thread", include_turns=True)
+            client.subscribe_thread(
+                "root-thread", lambda: subscribed.append("root-thread")
+            )
             turns_page = client.thread_turns_list(
                 "root-thread",
                 cursor=None,
@@ -2732,7 +3137,13 @@ class AppServerTransportTests(unittest.TestCase):
         self.assertEqual("thread/read", messages[2]["method"])
         self.assertTrue(messages[2]["params"]["includeTurns"])
         self.assertEqual("idle", thread["status"]["type"])
-        self.assertEqual("thread/turns/list", messages[3]["method"])
+        self.assertEqual("thread/resume", messages[3]["method"])
+        self.assertEqual(
+            {"threadId": "root-thread", "excludeTurns": True},
+            messages[3]["params"],
+        )
+        self.assertEqual(["root-thread"], subscribed)
+        self.assertEqual("thread/turns/list", messages[4]["method"])
         self.assertEqual(
             {
                 "threadId": "root-thread",
@@ -2740,20 +3151,20 @@ class AppServerTransportTests(unittest.TestCase):
                 "sortDirection": "desc",
                 "itemsView": "full",
             },
-            messages[3]["params"],
+            messages[4]["params"],
         )
         self.assertEqual([], turns_page["data"])
-        self.assertEqual("turn/start", messages[4]["method"])
+        self.assertEqual("turn/start", messages[5]["method"])
         self.assertEqual(
             "Responded J-all-369",
-            messages[4]["params"]["input"][0]["text"],
+            messages[5]["params"]["input"][0]["text"],
         )
         self.assertEqual(
             "message-99",
-            messages[4]["params"]["clientUserMessageId"],
+            messages[5]["params"]["clientUserMessageId"],
         )
         self.assertEqual("turn-live", result["turn"]["id"])
-        self.assertEqual("turn/steer", messages[5]["method"])
+        self.assertEqual("turn/steer", messages[6]["method"])
         self.assertEqual(
             {
                 "threadId": "root-thread",
@@ -2761,7 +3172,7 @@ class AppServerTransportTests(unittest.TestCase):
                 "clientUserMessageId": "message-100",
                 "expectedTurnId": "turn-live",
             },
-            messages[5]["params"],
+            messages[6]["params"],
         )
         self.assertEqual("turn-live", steer_result["turnId"])
 

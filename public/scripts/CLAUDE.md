@@ -195,32 +195,66 @@ the launch.
 
 Use the same environment flag as every other Uclusion CLI command; for
 example, stage is `uclusion -e stage listen` or `uclusion -e stage wait
---timeout 3600`. However you listen, a delivered line is handled the same
-way. If it is a prompt such as `Start J-...`, `Responded J-...`, or
-`Responded B-...`, treat that line as the user's next instruction. A comment
-or reply inside an option uses the compound grammar
-`Start <local-code> of <parent-question-code>` or
-`Responded <local-code> of <parent-question-code>` — for example,
-`Start C-1 of Q-all-556`. The first code is local to the option market,
-while the question code after `of` is globally resolvable. For a compound
-prompt, call `get_job` with the parent `Q-...` code, then locate and act on
-the named local item within that question's options. Never call `get_job`
-with the local code alone. The listener also doubles as the update watcher:
-at launch and every 15
+--timeout 3600`. However you listen, handle every delivered line in arrival
+order. Correlated Poke prompts use four verbs whose first word is a contract:
+
+- `Start <target>` is reserved exclusively for an explicit human click on
+  Poke AI in the UI. Treat it as the user's instruction to start or resume the
+  named work; automatic collaborator activity never uses `Start`.
+- `Added <target>` reports that a task, grouped task, question, suggestion, or
+  blocker was created.
+- `Updated <target>` reports a response-worthy edit, move, deletion, assignment
+  change, description change, or explicit stage change.
+- `Responded <target>` reports human activity that hands an outstanding turn
+  back to the AI.
+
+Each verb can use a direct target, such as `Updated J-all-123`, or the compound
+option grammar `<verb> <local-code> of <parent-question-code>`, such as
+`Added C-1 of Q-all-556`. For a direct prompt, call `get_job` with exactly its
+short code; `get_job` will load the enclosing job when the target is nested.
+For a compound prompt, call `get_job` with the parent `Q-...` code after `of`,
+then locate and act on the named local item within that question's options.
+The first code is local to the option market and is not globally resolvable;
+never call `get_job` with that local code alone.
+
+`Added` and `Updated` are additive event notices, not instructions to replace
+the work already underway. Reload the target as described above, incorporate
+the new state into the current work, and keep every active job in scope. Do
+not abandon or replace an active job merely because either event arrived.
+The reloaded job's current stage still governs what work is allowed: if it
+locks execution, pause edits on that job but retain it as pending work and
+continue any other in-scope work that remains executable. If no work is
+currently active, make the loaded target active subject to the same stage
+and workflow checks. When a direct job-item target was soft-deleted, `get_job`
+identifies that deletion and returns the current enclosing job with the deleted
+item absent; incorporate the removal into the active work.
+
+A direct lookup makes five short-code attempts total, with 100, 200, 400, and
+800 millisecond backoffs after an initial 404. This is bounded recovery for a
+lagging short-code index, not proof that a newly added code is absent. If a
+direct `Added` target still returns 404 after those attempts, retry `get_job`
+later instead of discarding the event.
+
+When adding an item causes a derived stage or readiness change, Uclusion
+deliberately withholds that item's `Added` event until the workflow write has
+committed. The one event keeps the item's exact short code, and its `get_job`
+reload is causally refreshed to include both the new item and the current
+stage. Do not expect or wait for a second stage Poke, and do not continue from
+a stage value cached before the reload.
+
+The listener also doubles as the update watcher: at launch and every 15
 minutes or so after, it compares the installed Uclusion release against
 the current one, and the first time it sees a newer release it prints a
 "[Uclusion update notice ...]" line instead of a prompt — `wait` exits
 after printing it, while `listen` keeps running. Handle the notice exactly
 as described in "Updating the AI connection"; whether the user granted or
-declined, the notice never repeats for the same release. For a direct
-correlated `Responded <short-code>` prompt, call `get_job` for exactly that
-short code. For a compound correlated prompt, use the parent question lookup
-described above. Then immediately perform every workflow action the response
-unblocked. A legacy bare `Responded.` prompt has no target; call `get_job` for
-every currently outstanding Uclusion dependency and current object so no
-concurrent job, bug, question, suggestion, or review response is missed. Do
-not merely report the response or stage change; if the job still depends on
-human activity after those actions, resume polling.
+declined, the notice never repeats for the same release. After loading a
+correlated `Responded` target, immediately perform every workflow action the
+response unblocked. A legacy bare `Responded.` prompt has no target; call
+`get_job` for every currently outstanding Uclusion dependency and current
+object so no concurrent job, bug, question, suggestion, or review response is
+missed. Do not merely report the response or stage change; if the job still
+depends on human activity after those actions, resume polling.
 
 Prompts are delivered in arrival order and stay in the queue until they age
 out, so nothing is lost while you work; one delivery path does not show the

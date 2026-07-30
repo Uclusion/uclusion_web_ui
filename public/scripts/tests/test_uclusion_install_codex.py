@@ -16,6 +16,79 @@ INSTALL = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(INSTALL)
 
 
+class WorkflowProtocolContractTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        workflow_path = os.path.join(SCRIPT_DIR, 'CLAUDE.md')
+        with open(workflow_path, encoding='utf-8') as workflow:
+            cls.workflow = ' '.join(workflow.read().split())
+
+    def test_protocol_reserves_start_for_explicit_ui_poke(self):
+        self.assertIn(
+            '`Start <target>` is reserved exclusively for an explicit human '
+            'click on',
+            self.workflow,
+        )
+        self.assertIn(
+            'automatic collaborator activity never uses `Start`',
+            self.workflow,
+        )
+
+    def test_added_and_updated_preserve_active_scope_and_stage_lock(self):
+        self.assertIn(
+            '`Added` and `Updated` are additive event notices',
+            self.workflow,
+        )
+        self.assertIn(
+            'not abandon or replace an active job',
+            self.workflow,
+        )
+        self.assertIn(
+            'locks execution, pause edits on that job',
+            self.workflow,
+        )
+        self.assertIn(
+            'make the loaded target active subject to the same stage',
+            self.workflow,
+        )
+        self.assertIn(
+            'returns the current enclosing job with the deleted item absent',
+            self.workflow,
+        )
+
+    def test_direct_and_compound_targets_have_explicit_lookup_rules(self):
+        self.assertIn(
+            'For a direct prompt, call `get_job` with exactly its',
+            self.workflow,
+        )
+        self.assertIn(
+            'For a compound prompt, call `get_job` with the parent `Q-...`',
+            self.workflow,
+        )
+        self.assertIn(
+            'A direct lookup makes five short-code attempts total',
+            self.workflow,
+        )
+        self.assertIn(
+            'retry `get_job` later instead of discarding the event',
+            self.workflow,
+        )
+
+    def test_stage_changing_addition_is_delivered_after_workflow_commit(self):
+        self.assertIn(
+            'withholds that item\'s `Added` event until the workflow write has',
+            self.workflow,
+        )
+        self.assertIn(
+            'include both the new item and the current',
+            self.workflow,
+        )
+        self.assertIn(
+            'Do not expect or wait for a second stage Poke',
+            self.workflow,
+        )
+
+
 class PortableFileLockTests(unittest.TestCase):
     def test_installer_imports_without_fcntl(self):
         real_import = __import__

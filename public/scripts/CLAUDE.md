@@ -595,6 +595,22 @@ When a set of tasks has a testable output, call `ask_for_review` with a
 concise progress report describing what is ready to look at. This is the
 signal that human or AI review can begin.
 
+When a job is in "Reviewable", do not infer who should review from the
+stage alone. Reload the job and inspect the author of the latest comment
+in its Reports section:
+
+- If the latest review comment is marked "From AI user", it is your review
+  request asking the humans to review work the AI completed. Do not review
+  that work again. Handle any explicit feedback or status change carried by
+  the Poke; otherwise wait for a human review.
+- If the latest review comment is from a human, the human is asking the AI
+  to review work the human completed. Perform that review and respond to the
+  human's review comment through Uclusion.
+
+A Poke on a Reviewable job is only a signal to reload its current state; it
+does not override the direction established by the latest review comment's
+author.
+
 Write the report as if the code will not get checked in: the review plus
 the job's other artifacts (questions, suggestions, notes) must together
 hold enough detail to reproduce the code without human help. Do not lean

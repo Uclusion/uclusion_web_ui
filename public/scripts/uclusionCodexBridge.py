@@ -1932,6 +1932,11 @@ def _non_root_thread(thread: Dict[str, Any]) -> bool:
     )
 
 
+def _needs_fresh_primary_witness(method: str) -> bool:
+    """Whether Codex can return before its new rollout file exists."""
+    return method == "thread/start"
+
+
 class RootAuthority:
     """Serialize TUI root/admission requests with Poke admission.
 
@@ -1962,6 +1967,11 @@ class RootAuthority:
         self.mcp_lifecycle_epoch_by_thread: Dict[str, int] = {}
         self.mcp_driver_connection_id: Optional[int] = None
         self.mcp_driver_pinned_threads = set()
+        # Codex does not create a rollout for a fresh thread until its first
+        # turn. The primary thread/start stream is therefore the continuous
+        # MCP-startup witness until that thread can be resumed normally.
+        self.mcp_primary_witness_thread_id: Optional[str] = None
+        self.mcp_primary_witness_lifecycle_epoch: Optional[int] = None
         self.turn_event_serial = 0
         self.generation = 0
         self.driver_active = False
@@ -1970,6 +1980,7 @@ class RootAuthority:
         self.tui_gate_root_thread_id: Optional[str] = None
         self.tui_gate_root_lifecycle_epoch: Optional[int] = None
         self.tui_gate_root_handoff_complete = False
+        self.tui_gate_root_primary_witness_only = False
         self.tui_gate_previous_active_turn_id: Optional[str] = None
         self.tui_gate_previous_admission_pending = False
         self.tui_gate_turn_events = []
@@ -2021,9 +2032,12 @@ class RootAuthority:
             self.mcp_lifecycle_epoch_by_thread = {}
             self.mcp_driver_connection_id = None
             self.mcp_driver_pinned_threads = set()
+            self.mcp_primary_witness_thread_id = None
+            self.mcp_primary_witness_lifecycle_epoch = None
             self.tui_gate_root_thread_id = None
             self.tui_gate_root_lifecycle_epoch = None
             self.tui_gate_root_handoff_complete = False
+            self.tui_gate_root_primary_witness_only = False
             self.generation += 1
             self.condition.notify_all()
 
@@ -2048,9 +2062,12 @@ class RootAuthority:
             self.mcp_lifecycle_tombstones = {}
             self.mcp_lifecycle_epoch_by_thread = {}
             self.mcp_driver_pinned_threads = set()
+            self.mcp_primary_witness_thread_id = None
+            self.mcp_primary_witness_lifecycle_epoch = None
             self.tui_gate_root_thread_id = None
             self.tui_gate_root_lifecycle_epoch = None
             self.tui_gate_root_handoff_complete = False
+            self.tui_gate_root_primary_witness_only = False
             self.generation += 1
             self.condition.notify_all()
 
@@ -2140,7 +2157,10 @@ class RootAuthority:
             )
 
     def connection_root_subscribed(
-        self, connection_id: int, thread_id: str
+        self,
+        connection_id: int,
+        thread_id: str,
+        primary_witness_only: bool = False,
     ) -> int:
         """Record a root-response cut and return its lifecycle epoch."""
         with self.condition:
@@ -2148,6 +2168,17 @@ class RootAuthority:
             if connection_id in self.mcp_retired_connection_ids:
                 raise RelayProtocolError(
                     "retired connection completed a root subscription"
+                )
+            if primary_witness_only and (
+                self.primary_connection_id != connection_id
+                or self.tui_gate is None
+                or self.tui_gate.kind != "root"
+                or self.tui_gate.method != "thread/start"
+                or self.tui_gate.connection_id != connection_id
+            ):
+                raise RelayProtocolError(
+                    "fresh primary witness did not match a held thread/start "
+                    "root gate"
                 )
             tombstone = self.mcp_lifecycle_tombstones.get(thread_id)
             if tombstone is not None:
@@ -2172,6 +2203,9 @@ class RootAuthority:
                 self.tui_gate_root_thread_id = thread_id
                 self.tui_gate_root_lifecycle_epoch = lifecycle_epoch
                 self.tui_gate_root_handoff_complete = False
+                self.tui_gate_root_primary_witness_only = (
+                    primary_witness_only
+                )
             self.condition.notify_all()
             return lifecycle_epoch
 
@@ -2197,6 +2231,25 @@ class RootAuthority:
     def _mcp_startup_settled(self) -> bool:
         if not self.gate_mcp_startup:
             return True
+        if self.thread_id == self.mcp_primary_witness_thread_id:
+            if (
+                self.thread_id is None
+                or not self.primary_live
+                or self.primary_connection_id is None
+                or self.mcp_primary_witness_lifecycle_epoch
+                != self.mcp_lifecycle_epoch_by_thread.get(self.thread_id, 0)
+            ):
+                return False
+            observation = self.mcp_startup_by_connection.get(
+                self.primary_connection_id, {}
+            ).get(self.thread_id, {}).get(POKE_REQUIRED_MCP_SERVER)
+            return (
+                observation is not None
+                and observation.status in ("ready", "failed", "cancelled")
+                and self._mcp_startup_status(
+                    self.thread_id, POKE_REQUIRED_MCP_SERVER
+                ) in ("ready", "failed", "cancelled")
+            )
         if (
             self.thread_id is None
             or self.mcp_driver_connection_id is None
@@ -2394,6 +2447,11 @@ class RootAuthority:
         by_name = by_thread.pop(thread_id, {})
         if not by_thread:
             self.mcp_startup_by_connection.pop(connection_id, None)
+        if (
+            connection_id == self.primary_connection_id
+            and thread_id == self.mcp_primary_witness_thread_id
+        ):
+            return
         self._merge_detached_mcp_observations(
             thread_id, by_name
         )
@@ -2406,6 +2464,13 @@ class RootAuthority:
             connection_id, {}
         )
         for thread_id, by_name in by_thread.items():
+            if (
+                connection_id == self.primary_connection_id
+                and thread_id == self.mcp_primary_witness_thread_id
+            ):
+                # This proof is authoritative only while the exact primary
+                # stream remains live.
+                continue
             self._merge_detached_mcp_observations(
                 thread_id, by_name
             )
@@ -2458,6 +2523,9 @@ class RootAuthority:
                         ),
                     },
                 )
+            if self.mcp_primary_witness_thread_id == thread_id:
+                self.mcp_primary_witness_thread_id = None
+                self.mcp_primary_witness_lifecycle_epoch = None
             # Unsubscribe removes only this frontend subscription. Explicit
             # driver pinning and origin fencing performed before its root
             # response make the compacted startup observation safe to retain.
@@ -2769,6 +2837,7 @@ class RootAuthority:
                 self.tui_gate_root_thread_id = None
                 self.tui_gate_root_lifecycle_epoch = None
                 self.tui_gate_root_handoff_complete = False
+                self.tui_gate_root_primary_witness_only = False
                 self.tui_gate_previous_active_turn_id = self.active_turn_id
                 self.tui_gate_previous_admission_pending = (
                     self.admission_pending
@@ -2899,13 +2968,21 @@ class RootAuthority:
                                 self.thread_id = gate.previous_thread_id
                                 self.generation = gate.previous_generation
                         else:
+                            fresh_primary_witness = (
+                                self.gate_mcp_startup
+                                and self.tui_gate_root_primary_witness_only
+                            )
+                            root_handoff_proven = (
+                                fresh_primary_witness
+                                or self.tui_gate_root_handoff_complete
+                            )
                             if (
                                 self.gate_mcp_startup
                                 and (
                                     self.tui_gate_root_thread_id != new_root
                                     or self.tui_gate_root_lifecycle_epoch
                                     is None
-                                    or not self.tui_gate_root_handoff_complete
+                                    or not root_handoff_proven
                                 )
                             ):
                                 raise RelayProtocolError(
@@ -2925,6 +3002,7 @@ class RootAuthority:
                                 )
                             if (
                                 self.gate_mcp_startup
+                                and not fresh_primary_witness
                                 and new_root
                                 not in self.mcp_driver_pinned_threads
                             ):
@@ -2935,6 +3013,16 @@ class RootAuthority:
                                     )
                                 )
                             self.thread_id = new_root
+                            self.mcp_primary_witness_thread_id = (
+                                new_root
+                                if fresh_primary_witness
+                                else None
+                            )
+                            self.mcp_primary_witness_lifecycle_epoch = (
+                                self.tui_gate_root_lifecycle_epoch
+                                if fresh_primary_witness
+                                else None
+                            )
                             self.admission_pending = False
                             tombstone = (
                                 self.mcp_lifecycle_tombstones.get(
@@ -2953,9 +3041,10 @@ class RootAuthority:
                                         gate.connection_id, 0
                                     )
                                 )
-                            self._handoff_mcp_startup_proof(
-                                new_root, gate.connection_id
-                            )
+                            if not fresh_primary_witness:
+                                self._handoff_mcp_startup_proof(
+                                    new_root, gate.connection_id
+                                )
                             result = response.get("result")
                             assert isinstance(result, dict)
                             result_thread = result.get("thread")
@@ -3104,6 +3193,14 @@ class RootAuthority:
                             # enqueue its own turn/start behind a review or
                             # compact submission while thread/read says idle.
                             self.active_turn_id = turn_id
+                if (
+                    gate.kind == "invalidation"
+                    and self.thread_id is None
+                    and self.mcp_primary_witness_thread_id
+                    == gate.previous_thread_id
+                ):
+                    self.mcp_primary_witness_thread_id = None
+                    self.mcp_primary_witness_lifecycle_epoch = None
                 # Successful invalidation and ambiguous transport remain
                 # NoRoot. Admission changes no root state.
             except RelayProtocolError as exc:
@@ -3115,6 +3212,7 @@ class RootAuthority:
                 self.tui_gate_root_thread_id = None
                 self.tui_gate_root_lifecycle_epoch = None
                 self.tui_gate_root_handoff_complete = False
+                self.tui_gate_root_primary_witness_only = False
                 self.tui_gate_previous_active_turn_id = None
                 self.tui_gate_previous_admission_pending = False
                 self.tui_gate_turn_events = []
@@ -3127,6 +3225,7 @@ class RootAuthority:
                 self.tui_gate_root_thread_id = None
                 self.tui_gate_root_lifecycle_epoch = None
                 self.tui_gate_root_handoff_complete = False
+                self.tui_gate_root_primary_witness_only = False
                 self.tui_gate_previous_active_turn_id = None
                 self.tui_gate_previous_admission_pending = False
                 self.tui_gate_turn_events = []
@@ -3317,6 +3416,9 @@ class RootAuthority:
                     self.mcp_lifecycle_epoch_by_thread.get(thread_id, 0)
                     + 1
                 )
+                if self.mcp_primary_witness_thread_id == thread_id:
+                    self.mcp_primary_witness_thread_id = None
+                    self.mcp_primary_witness_lifecycle_epoch = None
                 if (
                     tombstone is not None
                     and tombstone.emitted_at_ms == emitted_at_ms
@@ -6138,51 +6240,63 @@ class _RelayConnection:
                 and result_thread.get("sessionId") == result_thread_id
                 and result_thread.get("parentThreadId") is None
             ):
+                fresh_thread_start = _needs_fresh_primary_witness(
+                    pending.method
+                )
+                primary_witness_only = (
+                    fresh_thread_start and pending.gate is not None
+                )
                 # The successful response is ordered before the internal
                 # origin fence. Mark that new subscription cut now so fresh,
                 # regressed-clock startup events buffered behind the response
                 # are not mistaken for pre-lifecycle copies.
                 root_lifecycle_epoch = (
                     self.relay.authority.connection_root_subscribed(
-                        self.connection_id, result_thread_id
+                        self.connection_id,
+                        result_thread_id,
+                        primary_witness_only=primary_witness_only,
                     )
                 )
-                # Keep the originating subscription alive while the
-                # companion synchronously subscribes its driver. This makes
-                # cached startup proof safe across a later picker close even
-                # when Codex's best-effort auto-attach missed fast events.
-                def complete_origin_handoff():
-                    # Fence every root response, including the fast path
-                    # where a non-Uclusion startup event already proved the
-                    # driver was attached. Uclusion could have reached only
-                    # the origin just before that attachment.
-                    buffered = self._driver_pin_origin_fence(
-                        result_thread_id
-                    )
-                    observed = set()
-                    for index, buffered_message in enumerate(buffered):
-                        if (
-                            isinstance(
-                                buffered_message.get("method"), str
-                            )
-                            and "id" not in buffered_message
-                        ):
-                            self._observe_upstream_notification(
-                                buffered_message
-                            )
-                            observed.add(index)
-                    return buffered, observed
+                if not fresh_thread_start:
+                    # Keep the originating subscription alive while the
+                    # companion synchronously subscribes its driver. This
+                    # makes cached startup proof safe across a later picker
+                    # close even when Codex's best-effort auto-attach missed
+                    # fast events. A fresh thread has no resumable rollout
+                    # until its first turn, so thread/start keeps the live
+                    # primary stream as its witness instead.
+                    def complete_origin_handoff():
+                        # Fence every resumed root response, including the
+                        # fast path where a non-Uclusion startup event already
+                        # proved the driver was attached. Uclusion could have
+                        # reached only the origin just before that attachment.
+                        buffered = self._driver_pin_origin_fence(
+                            result_thread_id
+                        )
+                        observed = set()
+                        for index, buffered_message in enumerate(buffered):
+                            if (
+                                isinstance(
+                                    buffered_message.get("method"), str
+                                )
+                                and "id" not in buffered_message
+                            ):
+                                self._observe_upstream_notification(
+                                    buffered_message
+                                )
+                                observed.add(index)
+                        return buffered, observed
 
-                (
-                    buffered_after_root,
-                    preobserved_notifications,
-                ) = self.relay.pin_driver_thread(
-                    result_thread_id,
-                    self.connection_id,
-                    root_lifecycle_epoch,
-                    held_gate=pending.gate,
-                    complete_origin_handoff=complete_origin_handoff,
-                )
+                    (
+                        buffered_after_root,
+                        preobserved_notifications,
+                    ) = self.relay.pin_driver_thread(
+                        result_thread_id,
+                        self.connection_id,
+                        root_lifecycle_epoch,
+                        held_gate=pending.gate,
+                        complete_origin_handoff=complete_origin_handoff,
+                    )
         if pending.gate is not None:
             self.relay.authority.finish_tui_request(
                 pending.gate, message

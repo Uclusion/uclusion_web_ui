@@ -83,3 +83,38 @@ class LastSendErrorTestCase(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class ExportFormatVersionTestCase(unittest.TestCase):
+    """J-all-376: a renderer format change discards cached sections via the format marker."""
+
+    def _write(self, content):
+        import tempfile, os
+        handle, path = tempfile.mkstemp(suffix='.md')
+        with os.fdopen(handle, 'w', encoding='utf-8') as export_file:
+            export_file.write(content)
+        self.addCleanup(os.remove, path)
+        return path
+
+    def test_current_format_marker_parses_sections(self):
+        content = (cli.EXPORT_FORMAT_MARKER
+                   + cli.make_export_marker('comment', 'c1', 'stamp1')
+                   + 'section text\n')
+        sections = cli.parse_export_sections(self._write(content))
+        self.assertEqual({('comment', 'c1'): ('stamp1', 'section text\n')}, sections)
+
+    def test_missing_format_marker_forces_full_rebuild(self):
+        content = (cli.make_export_marker('comment', 'c1', 'stamp1')
+                   + 'section rendered the old way\n')
+        self.assertIsNone(cli.parse_export_sections(self._write(content)))
+
+    def test_older_format_version_forces_full_rebuild(self):
+        content = ('<!-- uclusion:format:1 -->\n'
+                   + cli.make_export_marker('comment', 'c1', 'stamp1')
+                   + 'section rendered the old way\n')
+        self.assertIsNone(cli.parse_export_sections(self._write(content)))
+
+    def test_incremental_build_output_carries_format_marker(self):
+        with mock.patch.object(cli, 'send', return_value=EMPTY_LIST_RESPONSE):
+            content = cli.fetch_workspace_export(CREDENTIALS)
+        self.assertTrue(content.startswith(cli.EXPORT_FORMAT_MARKER))

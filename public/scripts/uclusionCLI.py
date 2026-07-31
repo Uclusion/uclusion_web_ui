@@ -650,6 +650,11 @@ def add_suggestion(credentials, job_short_code, suggestion):
 EXPORT_SEPARATOR = '<br/><br/>\n***\n'
 EXPORT_MARKER_RE = re.compile(r'^<!-- uclusion:(marketInvestible|comment):([^:]+):([^ ]+) -->\n',
                               re.MULTILINE)
+# Bump when the server-side markdown rendering changes shape (J-all-376 added
+# dates); a mismatch discards cached sections so stamps alone cannot pin stale
+# renderings in the file forever.
+EXPORT_FORMAT_VERSION = '2'
+EXPORT_FORMAT_MARKER = f'<!-- uclusion:format:{EXPORT_FORMAT_VERSION} -->\n'
 
 
 def make_export_marker(id_type, an_id, stamp):
@@ -666,6 +671,10 @@ def parse_export_sections(file_path):
         with open(file_path, 'r', encoding='utf-8') as export_file:
             content = export_file.read()
     except OSError:
+        return None
+    if EXPORT_FORMAT_MARKER not in content[:1024]:
+        # Older format version (or none): rebuild everything rather than reuse
+        # sections rendered the old way.
         return None
     matches = list(EXPORT_MARKER_RE.finditer(content))
     if not matches:
@@ -786,7 +795,7 @@ def fetch_workspace_export(credentials, file_path=None):
         print(f"     {', '.join(stale_ids)}")
         warnings += (f"<!-- uclusion-export-warning: {len(stale_ids)} objects failed to export "
                      f"and their sections are out of date: {', '.join(stale_ids)} -->\n")
-    return warnings + new_file_content
+    return EXPORT_FORMAT_MARKER + warnings + new_file_content
 
 
 def get_workspace_export_destination(config, credentials):

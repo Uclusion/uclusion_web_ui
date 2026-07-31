@@ -28,7 +28,7 @@ import {
   removeMessagesForCommentId
 } from '../../../utils/messageUtils';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { getThreadIds } from '../../../utils/commentFunctions';
+import { getThreadIds, getThreads } from '../../../utils/commentFunctions';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 import DismissableText from '../../../components/Notifications/DismissableText';
 import { deleteOrDehilightMessages } from '../../../api/users';
@@ -229,9 +229,11 @@ function MarketTodos(props) {
           : (tabIndex === 2 ? blueComments : resolvedComments)));
   const isResolvedTab = !isSearchActive && tabIndex === 3;
   const commentsForCurrentTab = isResolvedTab ? resolvedTodoComments : comments;
-  const unreadRedCount = getUnreadCount(redComments, messagesState);
-  const unreadYellowCount = getUnreadCount(yellowComments, messagesState);
-  const unreadBlueCount = getUnreadCount(blueComments, messagesState);
+  // S-all-199: badge unread replies at any depth too - only the counts fold threads in,
+  // the row lists stay roots
+  const unreadRedCount = getUnreadCount(getThreads(redComments, comments), messagesState);
+  const unreadYellowCount = getUnreadCount(getThreads(yellowComments, comments), messagesState);
+  const unreadBlueCount = getUnreadCount(getThreads(blueComments, comments), messagesState);
   // resolvedTodoComments bundles resolved bug roots AND their replies, so this counts unread notifications
   // on either - including a reply that raced ahead of the bug being resolved (T-all-2237).
   const unreadResolvedCount = getUnreadCount(resolvedTodoComments, messagesState);

@@ -9,7 +9,7 @@ import {
   broadcastView,
   decomposeMarketPath,
   formMarketLink,
-  getUrlForTicketPath,
+  getTicketRedirectUrl,
   navigate,
 } from '../../utils/marketIdPathFunctions';
 import Investible from '../../pages/Investible/Investible';
@@ -253,7 +253,7 @@ function Root(props) {
       return false;
     }
     if (isTicketPath(pathname)) {
-      const url = getUrlForTicketPath(pathname, ticketState, marketsState, commentsState);
+      const url = getTicketRedirectUrl(pathname, hash, ticketState, marketsState, commentsState);
       if (url) {
         clearDataPoll();
         navigate(history, url, true);

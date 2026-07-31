@@ -159,6 +159,24 @@ export function getUrlForTicketPath(pathname, ticketState, marketsState, comment
   return undefined;
 }
 
+export function getTicketRedirectUrl(pathname, hash, ticketState, marketsState, commentsState) {
+  const url = getUrlForTicketPath(pathname, ticketState, marketsState, commentsState);
+  if (!url) {
+    return url;
+  }
+  // An option notification rides on its parent question's canonical URL (Q-all-341 O-1):
+  // land on the option itself rather than the question's own comment anchor.
+  if (hash?.startsWith('#option')) {
+    return `${url.split('#')[0]}${hash}`;
+  }
+  // A canonical vote notification resolves to the job's dialog URL; retain its approvals anchor.
+  // Comment and option redirects already contain their own target anchor and must not gain a second one.
+  if (!hash?.startsWith('#cv') || url.includes('#')) {
+    return url;
+  }
+  return `${url}${hash}`;
+}
+
 /**
  * Resolve a bare short code (e.g. "Q-all-156") - as typed into search, with no marketId - to its
  * canonical URL. The ticket index is keyed by `${marketId}/${ticketCode}`, so find the entry whose

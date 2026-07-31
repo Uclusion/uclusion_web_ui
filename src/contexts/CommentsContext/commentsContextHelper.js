@@ -9,6 +9,7 @@ import {
 import { TICKET_INDEX_CHANNEL } from '../TicketContext/ticketIndexContextMessages';
 import { alterComment } from '../../api/comments';
 import { formCommentLink, navigate } from '../../utils/marketIdPathFunctions';
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments';
 
 export function getComment(state, marketId, commentId) {
   const marketComments = state[marketId] || [];
@@ -101,9 +102,13 @@ export function reopenAutoclosedInvestibleComments(investibleId, marketId, state
 
 export function resolveInvestibleComments(investibleId, marketId, state, dispatch) {
   const unresolvedComments = getUnresolvedInvestibleComments(investibleId, marketId, state);
-  const resolvedComments = unresolvedComments.map((comment) => {
-    return { ...comment, resolved: true };
-  });
+  // Match the backend close_comments_on_entrance guard - progress reports and
+  // approval reasons stay open - and mark auto_closed so quick reopen works.
+  const resolvedComments = unresolvedComments.filter((comment) =>
+    [TODO_TYPE, ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type))
+    .map((comment) => {
+      return { ...comment, resolved: true, auto_closed: true };
+    });
   addMarketComments(dispatch, marketId, resolvedComments);
 }
 

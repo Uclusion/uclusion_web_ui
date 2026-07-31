@@ -509,6 +509,10 @@ function PlanningDialog(props) {
       let investibleIds = (blockedOrRequiresInputOrReadyInvestiblesFullAssist || []).map((investible) =>
         investible.investible.id);
       investibleIds = investibleIds.concat((swimlaneInvestibles||[]).map((investible)=>investible.investible.id));
+      // T-all-2422: Reviewable jobs display in this tab too, so count their notifications -
+      // uncapped like the search list since the swimlane cap runs before the notification exemption
+      investibleIds = investibleIds.concat((getInvestiblesInStage(investiblesFullAssist, inReviewStage.id,
+        marketId) || []).map((investible) => investible.investible.id));
       const numNewMessagesRaw = findMessagesForInvestibleIds(investibleIds, messagesState, true)||[];
       const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
       if (!_.isEmpty(numNewMessages)) {

@@ -13,8 +13,13 @@ import {
   addCommentToMarket,
   getComment,
   getCommentThreads,
-  getMarketComments
+  getMarketComments,
+  getOpenInvestibleComments
 } from '../../../contexts/CommentsContext/commentsContextHelper';
+import {
+  getBlockedStage,
+  getRequiredInputStage
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { ISSUE_TYPE, QUESTION_TYPE, REPLY_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import ResolveCommentsStep from './ResolveCommentsStep'
 import DecideWhereStep from './DecideWhereStep';
@@ -101,20 +106,34 @@ function JobWizard(props) {
         if (!isConvert) {
           setModifiedId(doResolveId || myDoTaskId);
         }
-        if (isAssistanceMove) {
-          if (fromInv) {
+        const movedRoot = movedComments.find((aComment) => (fromCommentIds || []).includes(aComment.id))
+          || movedComments[0];
+        if (isAssistanceMove && fromInv) {
+          // Leave the source job in assistance if it still has other open assistance comments
+          const sourceOpenComments = getOpenInvestibleComments(roots[0]?.investible_id, comments);
+          const otherAssistance = sourceOpenComments.find((comment) => comment.id !== roots[0]?.id &&
+            [SUGGEST_CHANGE_TYPE, QUESTION_TYPE, ISSUE_TYPE].includes(comment.comment_type));
+          if (_.isEmpty(otherAssistance)) {
             const marketInfo = getMarketInfo(fromInv, marketId);
             changeInvestibleStageOnCommentClose([marketInfo], fromInv.investible, investibleDispatch,
-              movedComments[0].updated_at, marketStagesState);
+              movedRoot.updated_at, marketStagesState);
           }
-          if (isExistingToInv) {
-            const investibleBlocks = roots[0]?.comment_type === ISSUE_TYPE;
-            changeInvestibleStageOnCommentOpen(investibleBlocks, !investibleBlocks, marketStagesState,
-              inv.market_infos, inv.investible, investibleDispatch, movedComments[0], myPresence);
-          }
-        } else if (isExistingToInv) {
-          changeInvestibleStageOnCommentOpen(false, false, marketStagesState, inv.market_infos, inv.investible, investibleDispatch, 
-            movedComments[0], myPresence);
+        }
+        if (isExistingToInv) {
+          // B-all-512: decide the destination stage from the post-move comment - the move may have
+          // converted a suggestion to a task or resolved it - with the same guards as onCommentOpen
+          const [destInfo] = (inv.market_infos || []);
+          const { assigned: destAssigned, stage: destStageId } = (destInfo || {});
+          const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
+          const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
+          const investibleBlocks = !movedRoot.resolved && movedRoot.comment_type === ISSUE_TYPE &&
+            destStageId !== blockingStage.id;
+          const investibleRequiresInput = !movedRoot.resolved &&
+            [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(movedRoot.comment_type) &&
+            (destAssigned || []).includes(movedRoot.created_by) &&
+            destStageId !== blockingStage.id && destStageId !== requiresInputStage.id;
+          changeInvestibleStageOnCommentOpen(investibleBlocks, investibleRequiresInput, marketStagesState,
+            inv.market_infos, inv.investible, investibleDispatch, movedRoot, myPresence);
         }
         onCommentsMove(fromCommentIds, messagesState, movingComments, investibleId, commentsDispatch, marketId,
           movedComments, messagesDispatch);
@@ -156,9 +175,12 @@ function JobWizard(props) {
 
   const requiresInputId = getOpenQuestionSuggestionId();
   // T-all-2297: only a suggestion gets the pre-move ask (convert to task or resolve) -
-  // a moved question just stays open, so don't ask about resolving it
+  // a moved question just stays open, so don't ask about resolving it.
+  // B-all-513: when the user already chose "move to suggestion in other job" the step's
+  // "Move to task" button contradicted that choice and was ignored anyway - keep it a suggestion
   const requiresInputComment = comments.find((comment) => comment.id === requiresInputId);
-  const showResolveStep = requiresInputComment?.comment_type === SUGGEST_CHANGE_TYPE;
+  const showResolveStep = requiresInputComment?.comment_type === SUGGEST_CHANGE_TYPE &&
+    useType !== 'Suggestion';
   if (!_.isEmpty(fromCommentIds) && _.size(roots) !== _.size(fromCommentIds)) {
     return React.Fragment;
   }

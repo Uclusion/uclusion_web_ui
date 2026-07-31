@@ -637,7 +637,8 @@ function Comment(props) {
   const {
     showDiff: storedShowDiff
   } = editState;
-  const showDiff = storedShowDiff || storedShowDiff === undefined;
+  // Diffs are opt in everywhere - see B-all-518
+  const showDiff = storedShowDiff === true;
   const myMessage = findMessageForCommentId(id, messagesState);
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const inReviewStageId = inReviewStage.id;
@@ -1229,6 +1230,13 @@ function Comment(props) {
           )}
           {!thisCommentBeingEdited && displayingDiff && (
             <DiffDisplay id={id} />
+          )}
+          {!thisCommentBeingEdited && !showActions && diff && (
+            <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon} iconOnly={mobileLayout}
+                                     onClick={(event) => toggleDiffShow(event)}
+                                     doSpin={false}>
+              {!mobileLayout && intl.formatMessage({ id: showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'})}
+            </SpinningIconLabelButton>
           )}
           {thisCommentBeingEdited && (
             <CommentEdit

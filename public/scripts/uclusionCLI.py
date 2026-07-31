@@ -655,6 +655,13 @@ EXPORT_MARKER_RE = re.compile(r'^<!-- uclusion:(marketInvestible|comment):([^:]+
 # renderings in the file forever.
 EXPORT_FORMAT_VERSION = '2'
 EXPORT_FORMAT_MARKER = f'<!-- uclusion:format:{EXPORT_FORMAT_VERSION} -->\n'
+# The legend ships with the format version because it describes what that
+# version's rendering means - the file must decode itself for an AI reading it
+# standalone (J-all-376).
+EXPORT_LEGEND = ('<!-- uclusion-export-legend: "(updated YYYY-MM-DD)" on a job, comment, reply, or vote '
+                 'line is the day (UTC) that item last changed; new items show their creation day. An item '
+                 'without the annotation has no recorded update time. Use these dates to answer questions '
+                 'about recent changes. -->\n')
 
 
 def make_export_marker(id_type, an_id, stamp):
@@ -795,7 +802,7 @@ def fetch_workspace_export(credentials, file_path=None):
         print(f"     {', '.join(stale_ids)}")
         warnings += (f"<!-- uclusion-export-warning: {len(stale_ids)} objects failed to export "
                      f"and their sections are out of date: {', '.join(stale_ids)} -->\n")
-    return EXPORT_FORMAT_MARKER + warnings + new_file_content
+    return EXPORT_FORMAT_MARKER + EXPORT_LEGEND + warnings + new_file_content
 
 
 def get_workspace_export_destination(config, credentials):

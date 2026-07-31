@@ -683,6 +683,13 @@ decision recall — for example: "do we have a backlog job that includes work
 X?", "did we resolve a bug on Y recently?", "who approved Z and how certain
 were they?", "what is still open on the mobile release?".
 
+Recency questions are answerable directly from the file: job, comment,
+reply, and vote lines carry an "(updated YYYY-MM-DD)" annotation — the UTC
+day that item last changed (a new item shows its creation day). The export's
+own legend header restates this. So "what changed this week?" is a date
+scan, not a guess; remember the days are UTC, which can run one day ahead of
+the user's local calendar.
+
 Present each found item with enough inline detail to judge relevance — you
 have the full contents locally, so never make the user open Uclusion just to
 see what a result says. Offer to drill into any found item right in the

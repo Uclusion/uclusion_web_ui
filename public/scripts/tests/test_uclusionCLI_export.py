@@ -114,7 +114,9 @@ class ExportFormatVersionTestCase(unittest.TestCase):
                    + 'section rendered the old way\n')
         self.assertIsNone(cli.parse_export_sections(self._write(content)))
 
-    def test_incremental_build_output_carries_format_marker(self):
+    def test_incremental_build_output_carries_format_marker_and_legend(self):
         with mock.patch.object(cli, 'send', return_value=EMPTY_LIST_RESPONSE):
             content = cli.fetch_workspace_export(CREDENTIALS)
-        self.assertTrue(content.startswith(cli.EXPORT_FORMAT_MARKER))
+        self.assertTrue(content.startswith(cli.EXPORT_FORMAT_MARKER + cli.EXPORT_LEGEND))
+        self.assertIn('(updated YYYY-MM-DD)', cli.EXPORT_LEGEND)
+        self.assertIn('UTC', cli.EXPORT_LEGEND)

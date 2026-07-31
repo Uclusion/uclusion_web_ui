@@ -106,9 +106,10 @@ uclusion wait --timeout 0
 ```
 
 Handle every returned line before the user's new request, then continue to
-`find_work` when appropriate. Be explicit that autonomous Pokes require
-restarting through `uclusion codex` (Codex bridge); bare Codex and Cursor chat
-still need a human chat turn (or a pasted poke) to continue.
+`find_work` when appropriate. Autonomous Pokes work in sessions launched
+through `uclusion codex` (Codex bridge) — that path is fine. Bare Codex
+without the bridge, and Cursor chat, still need a human chat turn (or a
+pasted poke) until Cursor has a real wake (open follow-up to S-all-191).
 
 **Clients with a persistent line-event monitor (Claude Code's Monitor
 tool):** launch the streaming form once per session and leave it running:

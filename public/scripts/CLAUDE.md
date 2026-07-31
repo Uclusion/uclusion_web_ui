@@ -93,11 +93,13 @@ restart through `uclusion codex`. The generated project install does not carry
 the maintainer architecture document; in the Uclusion source tree its path is
 `public/scripts/UCLUSION_CODEX_BRIDGE.md`.
 
-**Bare Codex CLI/TUI:** a background unified-exec process cannot wake an idle
-Codex turn. Never leave `wait` or `listen` running in that surface: it can
-advance the queue cursor and buffer the Poke where no model turn will see it.
-At the beginning of each real user-triggered turn, synchronously drain only
-the already-pending backlog:
+**Bare Codex CLI/TUI, and Cursor chat agents:** a background process cannot
+reliably wake an idle turn. In Cursor, hour-long `wait`, `listen`, and Shell
+`notify_on_output` have all failed to start a real agent turn on poke arrival
+(S-all-191): the harness may only surface a generic “task finished” notice, or
+a hung/`pkill`'d waiter can claim prompts that no model ever sees. Never leave
+`wait` or `listen` running in these surfaces. At the beginning of each real
+user-triggered turn, synchronously drain only the already-pending backlog:
 
 ```sh
 uclusion wait --timeout 0
@@ -105,8 +107,8 @@ uclusion wait --timeout 0
 
 Handle every returned line before the user's new request, then continue to
 `find_work` when appropriate. Be explicit that autonomous Pokes require
-restarting the session through `uclusion codex`; bare Codex still needs a
-human chat turn.
+restarting through `uclusion codex` (Codex bridge); bare Codex and Cursor chat
+still need a human chat turn (or a pasted poke) to continue.
 
 **Clients with a persistent line-event monitor (Claude Code's Monitor
 tool):** launch the streaming form once per session and leave it running:
@@ -146,7 +148,8 @@ user directs.
 **Clients whose harness turns a background command's completion into a new
 agent event:** run the bounded wait as a background (detached) task and
 relaunch it after every completion. Merely being able to poll a dormant
-process later does not qualify; bare Codex is explicitly handled above.
+process later does not qualify; bare Codex and Cursor chat are explicitly
+handled above (S-all-191) — a generic completion notice is not enough.
 
 ```sh
 uclusion wait --timeout 3600

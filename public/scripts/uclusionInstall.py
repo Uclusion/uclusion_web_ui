@@ -26,11 +26,14 @@ Without ``--clients`` the installer asks whether to configure Uclusion globally
   the Uclusion MCP server in ``~/.cursor/mcp.json`` and ``~/.claude.json`` if
   those files already exist, and in ``~/.codex/config.toml`` if the ``~/.codex``
   directory exists (Codex treats ``config.toml`` as optional, so directory
-  presence — not file presence — is the install signal).
+  presence — not file presence — is the install signal). Cursor also gets a
+  ``stop`` hook in ``~/.cursor/hooks.json`` that drains pending Pokes via
+  ``uclusionCursorPokeDrain.py`` (S-all-192).
 * Project level writes everything into a directory the user supplies: the
   workspace config (``uclusion.json``), project-scoped MCP registrations
-  (``.mcp.json`` for Claude Code, ``.cursor/mcp.json`` for Cursor), and the
-  workflow docs (``CLAUDE.md``, ``.cursor/rules/uclusion.mdc``, ``AGENTS.md``).
+  (``.mcp.json`` for Claude Code, ``.cursor/mcp.json`` for Cursor), the
+  Cursor ``.cursor/hooks.json`` stop-hook entry, and the workflow docs
+  (``CLAUDE.md``, ``.cursor/rules/uclusion.mdc``, ``AGENTS.md``).
   Codex receives its project-specific MCP table from ``uclusion codex`` at
   launch. The CLI binaries themselves always stay user-global under
   ``~/.local``.
@@ -89,6 +92,9 @@ RESERVED_RELEASE_NAMES = frozenset({
 # Symlinks land in ~/.local/bin (where Claude and Codex install too), so the
 # install is always user-writable and never needs root or sudo.
 SYMLINK_DIR = os.path.join(LOCAL_PREFIX, 'bin')
+# Cursor stop-hook drain binary name (S-all-192); also the hooks.json token.
+CURSOR_POKE_DRAIN_SYMLINK_NAME = 'uclusionCursorPokeDrain.py'
+CURSOR_POKE_DRAIN_HOOK_TOKEN = 'uclusionCursorPokeDrain'
 
 # Connect/read timeout (seconds) for every network fetch. Without it a stalled
 # TLS handshake or read blocks urlopen forever and the installer has to be
@@ -102,6 +108,9 @@ SCRIPT_FILES = (
     ('uclusionCLI.py', 'uclusion.py', 'uclusion'),
     ('uclusionMCPProxy.py', 'uclusionMCPProxy.py', 'uclusionMCPProxy.py'),
     ('uclusionCodexBridge.py', 'uclusionCodexBridge.py', 'uclusionCodexBridge.py'),
+    # Cursor stop-hook drain (S-all-192): claimed by hooks.json, not PATH UX.
+    ('uclusionCursorPokeDrain.py', 'uclusionCursorPokeDrain.py',
+     CURSOR_POKE_DRAIN_SYMLINK_NAME),
 )
 
 UCLUSION_HOME = os.path.join(os.path.expanduser('~'), '.uclusion')
@@ -123,6 +132,7 @@ CLAUDE_ALLOW_RULE = 'mcp__Uclusion__*'
 CLAUDE_MD_MARKER = '<!-- uclusion-workflow:v1 -->'
 CLAUDE_MD_END_MARKER = '<!-- /uclusion-workflow:v1 -->'
 CURSOR_MDC_PATH = os.path.join(os.path.expanduser('~'), '.cursor', 'rules', 'uclusion.mdc')
+CURSOR_HOOKS_PATH = os.path.join(os.path.expanduser('~'), '.cursor', 'hooks.json')
 CURSOR_MDC_FRONTMATTER = (
     '---\n'
     'description: Uclusion job workflow — invoke when working on a Uclusion '
@@ -769,6 +779,87 @@ def register_mcp_json(path, label, workspace_id, env, require_existing):
         json.dump(config, out, indent=2)
         out.write('\n')
     print(f"  ✅ Updated {path}")
+
+
+def cursor_poke_drain_hook_entry():
+    """Return the Cursor ``stop`` hook dict that drains pending Pokes."""
+    return {
+        # Absolute path through the installer symlink so project and global
+        # hooks.json both track `uclusion update` without copying the script.
+        # Computed from SYMLINK_DIR at call time so tests can patch the dir.
+        'command': os.path.join(SYMLINK_DIR, CURSOR_POKE_DRAIN_SYMLINK_NAME),
+        # Each follow-up is a real claimed Poke, not a retry of the same turn.
+        'loop_limit': None,
+    }
+
+
+def _is_cursor_poke_drain_hook(entry):
+    if not isinstance(entry, dict):
+        return False
+    command = entry.get('command')
+    return isinstance(command, str) and CURSOR_POKE_DRAIN_HOOK_TOKEN in command
+
+
+def install_cursor_poke_drain_hook(hooks_path=CURSOR_HOOKS_PATH):
+    """Merge the Uclusion Poke drain ``stop`` hook into a Cursor hooks.json.
+
+    ``hooks_path`` is ``~/.cursor/hooks.json`` for a global install and
+    ``<project>/.cursor/hooks.json`` for a project-level one. Existing non-Uclusion
+    hooks are preserved; a prior Uclusion stop entry is replaced in place.
+    """
+    print(f"🪝 Installing Cursor Poke drain stop hook in {hooks_path}")
+    config = {}
+    if os.path.exists(hooks_path):
+        try:
+            with open(hooks_path, 'r', encoding='utf-8') as src:
+                config = json.load(src)
+        except json.JSONDecodeError as err:
+            print(f"  ❌ {hooks_path} is not valid JSON: {err}")
+            return
+        if not isinstance(config, dict):
+            print(f"  ❌ {hooks_path} top-level value must be a JSON object.")
+            return
+
+    if 'version' not in config:
+        config['version'] = 1
+    elif config.get('version') != 1:
+        print(
+            f"  ❌ {hooks_path} has unsupported hooks version "
+            f"{config.get('version')!r}; expected 1."
+        )
+        return
+
+    hooks = config.setdefault('hooks', {})
+    if not isinstance(hooks, dict):
+        print(f"  ❌ 'hooks' in {hooks_path} must be a JSON object.")
+        return
+    stop_hooks = hooks.get('stop')
+    if stop_hooks is None:
+        stop_hooks = []
+        hooks['stop'] = stop_hooks
+    if not isinstance(stop_hooks, list):
+        print(f"  ❌ 'hooks.stop' in {hooks_path} must be a JSON array.")
+        return
+
+    entry = cursor_poke_drain_hook_entry()
+    replaced = False
+    for index, existing in enumerate(stop_hooks):
+        if _is_cursor_poke_drain_hook(existing):
+            stop_hooks[index] = entry
+            replaced = True
+            break
+    if not replaced:
+        stop_hooks.append(entry)
+
+    try:
+        os.makedirs(os.path.dirname(hooks_path), exist_ok=True)
+        with open(hooks_path, 'w', encoding='utf-8') as out:
+            json.dump(config, out, indent=2)
+            out.write('\n')
+        action = 'Refreshed' if replaced else 'Added'
+        print(f"  ✅ {action} Uclusion stop hook in {hooks_path}")
+    except OSError as err:
+        print(f"  ❌ Could not write {hooks_path}: {err}")
 
 
 def add_claude_permissions(settings_path):
@@ -1551,6 +1642,8 @@ def install_global(workspace_id, view_id, mcp_env, fetch_md, clients=None,
         install_workflow_md(fetch_md, CLAUDE_MD_PATH, 'Claude Code', assume_yes=not interactive)
     if interactive or 'cursor' in clients:
         install_cursor_mdc(fetch_md, assume_yes=not interactive)
+        # Merge/create hooks.json whenever Cursor is being configured (S-all-192).
+        install_cursor_poke_drain_hook(CURSOR_HOOKS_PATH)
     if interactive or 'codex' in clients:
         install_workflow_md(fetch_md, CODEX_AGENTS_MD_PATH, 'Codex',
                             require_dir=CODEX_HOME if interactive else None,
@@ -1587,6 +1680,9 @@ def install_project_level(workspace_id, view_id, mcp_env, fetch_md, project_dir,
     if interactive or 'cursor' in clients:
         register_mcp_json(os.path.join(project_dir, '.cursor', 'mcp.json'),
                           'Cursor (project)', workspace_id, mcp_env, require_existing=False)
+        install_cursor_poke_drain_hook(
+            os.path.join(project_dir, '.cursor', 'hooks.json')
+        )
     if interactive or 'claude' in clients:
         install_workflow_md(fetch_md, os.path.join(project_dir, 'CLAUDE.md'), 'Claude Code (project)',
                             assume_yes=not interactive)

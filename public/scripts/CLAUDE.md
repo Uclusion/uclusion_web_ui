@@ -107,9 +107,16 @@ uclusion wait --timeout 0
 
 Handle every returned line before the user's new request, then continue to
 `find_work` when appropriate. Autonomous Pokes work in sessions launched
-through `uclusion codex` (Codex bridge) — that path is fine. Bare Codex
-without the bridge, and Cursor chat, still need a human chat turn (or a
-pasted poke) until Cursor has a real wake (open follow-up to S-all-191).
+through `uclusion codex` (Codex bridge) — that path is fine.
+
+**Cursor stop-hook drain (S-all-192):** the Cursor install also registers a
+`stop` hook (`uclusionCursorPokeDrain.py` in `~/.cursor/hooks.json` or the
+project `.cursor/hooks.json`) that runs the same zero-timeout drain when an
+agent turn ends. If lines are claimed, the hook returns them as
+`followup_message` so Cursor auto-submits the next user message. That covers
+Pokes that arrived *during* a turn; it does **not** wake a fully idle chat.
+Keep the turn-start drain above for idle backlog. Bare Codex without the
+bridge still needs a human chat turn (or a pasted poke).
 
 **Clients with a persistent line-event monitor (Claude Code's Monitor
 tool):** launch the streaming form once per session and leave it running:

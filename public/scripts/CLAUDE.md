@@ -319,9 +319,10 @@ suggestions first; reaching "Doable" only unlocks execution once those
 questions are answered.
 
 When working on a Uclusion job, ALL workflow artifacts — questions,
-suggestions, approvals, info notes, resolutions, and review requests —
-go through the Uclusion MCP tools (`ask_question`, `make_suggestion`,
-`approve_job_or_option`, `add_info`, `resolve`, `ask_for_review`). Do
+suggestions, approvals, votes, info notes, resolutions, and review
+requests — go through the Uclusion MCP tools (`ask_question`,
+`make_suggestion`, `approve_job_or_option`, `vote_on_suggestion`,
+`add_info`, `resolve`, `ask_for_review`). Do
 NOT substitute a built-in or local equivalent (e.g. `AskUserQuestion`,
 inline multiple-choice prompts, chat-only "which would you prefer?"
 messages, plain-text approvals or progress reports in chat). The only
@@ -509,10 +510,14 @@ invisible to other sessions and cannot be voted on.
 Suggestions also flow the other way: a suggestion a human authors on a
 job is addressed to YOU. Reply with a definitive accept or reject and
 what you will do about it — never a noncommittal acknowledgment, and
-never deferring the decision back to its author. You cannot vote on a
-suggestion through the tools, so your reply is your whole signal either
-way; the markdown states whether voting is enabled, which tells you
-whether human votes may also arrive to settle it. An open human
+never deferring the decision back to its author. When the markdown
+states voting is enabled on the suggestion, also record your position
+with `vote_on_suggestion` (for or against, certainty 1–5, and your
+reason) so it is weighed alongside the human votes that may arrive to
+settle it; the reply still carries the decision and next steps. When
+voting is not enabled, your reply is your whole signal. Do not vote on
+suggestions you authored — creating one already states your position.
+An open human
 suggestion holds the job in "Requires Input", so answer it before any
 implementation. When your accept changes the plan, record the change
 (update or add tasks, or `add_info`), and `resolve` the suggestion once

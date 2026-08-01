@@ -194,7 +194,37 @@ def ensure_inbox_schema(connection):
         raise
 
 
-def next_prompt(environment, workspace_id, consumer):
+def get_replay_boundary(environment, workspace_id, consumer):
+    """Sequence at or below which rows are history for a BRAND-NEW consumer.
+
+    Q-all-349 O-3: a fresh session cursor replays the retained backlog, and
+    those lines must be distinguishable from live prompts — a days-old
+    `Start` click is not a current instruction. Rows existing when a new
+    consumer arms get a ``(replayed)`` suffix. An established consumer has
+    no replay — its pending rows were simply never delivered — so the
+    boundary is None and nothing is marked. The shared default cursor is
+    always exempt: for surfaces that drain it at turn start the pending
+    backlog IS the live work, even on first-ever use.
+    """
+    if consumer == DEFAULT_CONSUMER:
+        return None
+    with closing(open_inbox()) as connection:
+        row = connection.execute(
+            '''
+            SELECT last_sequence FROM poke_consumers
+            WHERE environment = ? AND workspace_id = ? AND consumer = ?
+            ''',
+            (environment, workspace_id, consumer)
+        ).fetchone()
+        if row is not None:
+            return None
+        high_water = connection.execute(
+            'SELECT MAX(sequence) FROM poke_messages'
+        ).fetchone()[0]
+        return high_water if high_water is not None else 0
+
+
+def next_prompt(environment, workspace_id, consumer, replay_boundary=None):
     """Deliver the oldest prompt past this consumer's cursor (S-all-168).
 
     Prompts are not removed on delivery — they age out after
@@ -202,7 +232,8 @@ def next_prompt(environment, workspace_id, consumer):
     exactly once, in arrival order. Waits sharing one consumer name share
     one cursor, and the atomic advance means each prompt goes to exactly
     one of them. ``consumed_at IS NULL`` skips rows claimed by
-    pre-migration clients so mixed versions do not double-deliver.
+    pre-migration clients so mixed versions do not double-deliver. Rows at
+    or below ``replay_boundary`` carry a ``(replayed)`` suffix (Q-all-349).
     """
     now = time.time()
     with closing(open_inbox()) as connection, connection:
@@ -246,6 +277,8 @@ def next_prompt(environment, workspace_id, consumer):
             (environment, workspace_id, consumer, row[0], now)
         )
         connection.commit()
+        if replay_boundary is not None and row[0] <= replay_boundary:
+            return row[1] + ' (replayed)'
         return row[1]
 
 
@@ -1927,6 +1960,8 @@ def cmd_wait(args):
 
     environment = args.env or 'production'
     consumer = resolve_consumer(args.consumer, is_listener=False)
+    # Before the cutoff below creates the cursor row, or a new consumer looks established
+    replay_boundary = get_replay_boundary(environment, workspace_id, consumer)
     if getattr(args, 'ignore_existing_pokes', False):
         ignore_existing_prompts(environment, workspace_id, consumer)
     deadline = time.monotonic() + args.timeout
@@ -1935,13 +1970,13 @@ def cmd_wait(args):
     while True:
         if is_orphaned(initial_ppid):
             return 0
-        prompt = next_prompt(environment, workspace_id, consumer)
+        prompt = next_prompt(environment, workspace_id, consumer, replay_boundary)
         if prompt is not None:
             while prompt is not None:
                 print(prompt, flush=True)
                 if is_orphaned(initial_ppid):
                     return 0
-                prompt = next_prompt(environment, workspace_id, consumer)
+                prompt = next_prompt(environment, workspace_id, consumer, replay_boundary)
             return 0
         if time.monotonic() >= next_update_check:
             next_update_check = time.monotonic() + UPDATE_CHECK_INTERVAL
@@ -1979,6 +2014,8 @@ def cmd_listen(args):
 
     environment = args.env or 'production'
     consumer = resolve_consumer(args.consumer, is_listener=True)
+    # Before the cutoff below creates the cursor row, or a new consumer looks established
+    replay_boundary = get_replay_boundary(environment, workspace_id, consumer)
     if getattr(args, 'ignore_existing_pokes', False):
         ignore_existing_prompts(environment, workspace_id, consumer)
     next_update_check = time.monotonic()
@@ -1986,7 +2023,7 @@ def cmd_listen(args):
     while True:
         if is_orphaned(initial_ppid):
             return 0
-        prompt = next_prompt(environment, workspace_id, consumer)
+        prompt = next_prompt(environment, workspace_id, consumer, replay_boundary)
         if prompt is not None:
             print(prompt, flush=True)
             continue

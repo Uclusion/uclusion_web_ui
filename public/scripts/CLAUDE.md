@@ -23,6 +23,18 @@ else. The only time you skip this is when the user has just named concrete
 work to do next; reaching the end of a task is itself a trigger, not an
 exemption.
 
+Annotate the find_work list with the Pokes you deferred while working
+(see "Wait for Poke AI": processing is single-threaded and out-of-lane
+Pokes are set aside, not acted on). Against each option that a deferred
+Poke named, note the verb — for example "a Start came in for this while I
+worked" or "Updated twice since I began". Then list any deferred Pokes
+whose targets are NOT on the find_work list, so nothing set aside is
+lost. A deferred Poke needs no reload to be mentioned; reload its target
+only when the human picks it. Deferred Pokes never count as the user
+having "named concrete work" and never skip this step — the annotated
+list is exactly where they surface, including a deferred `Start`, which
+waits for the human's pick rather than auto-starting.
+
 When `find_work` comes back with no work, ask "Your find work list is
 empty — would you like instructions for adding and working on a job?" If
 the user says yes, walk them through the instructions the tool returned
@@ -143,9 +155,9 @@ lookup code is its only short code; a compound option prompt's lookup code
 is the parent question after `of`. If the stream ever ends (the monitor is
 stopped or dies), arm it again — a re-armed listener is a NEW session with
 its own delivery cursor, so it replays the retained backlog including
-prompts this session already handled; recognize an already-handled prompt
-by its reload (the target's state already reflects your handling) and
-simply continue.
+prompts this session already handled; the ` (replayed)` suffix marks
+them, and a reload (the target's state already reflects your handling)
+confirms any you do not remember — simply continue.
 
 When the user explicitly asks to discard the backlog — skip Pokes that
 were already queued before this session — arm the listener with
@@ -214,12 +226,45 @@ the launch.
 
 Use the same environment flag as every other Uclusion CLI command; for
 example, stage is `uclusion -e stage listen` or `uclusion -e stage wait
---timeout 3600`. However you listen, handle every delivered line in arrival
-order. Correlated Poke prompts use four verbs whose first word is a contract:
+--timeout 3600`. However you listen, triage every delivered line in
+arrival order against the ONE job or bug you are currently working —
+processing is single-threaded by default (T-all-2428). Your lane runs
+from the moment you begin a job or bug's workflow (reading and questions
+included) until you post its review or it blocks on the human. A line
+about that work (the job or bug itself, or anything nested in it) is
+handled immediately as described below. A line about anything else is
+DEFERRED: do not reload its target or act on it — briefly tell the human
+you received it and are setting it aside for now, and keep working. One
+exception to defer-without-reload: a direct code you cannot place — not
+your current work and not visible in its markdown, as any freshly Added
+item is — gets ONE classification reload with `get_job`; if the enclosing
+work is your lane, handle it, otherwise mention what it belongs to and
+defer with no further action. The mid-work mention is best-effort (some
+clients hide text written between tool calls); the annotated find_work
+below is the durable record of everything deferred. The human can
+override at any moment ("take that up now"); otherwise every deferred
+line resurfaces in the annotated find_work you run when the current work
+finishes. When no job or bug is active, every line is handled
+immediately, making its loaded target the active work subject to the
+same stage and workflow checks whatever the verb. Correlated Poke
+prompts use four verbs whose first word is a contract:
 
 - `Start <target>` is reserved exclusively for an explicit human click on
-  Poke AI in the UI. Treat it as the user's instruction to start or resume the
-  named work; automatic collaborator activity never uses `Start`.
+  Poke AI in the UI. When you are idle, treat it as the user's instruction
+  to start or resume the named work. When you are mid-job/bug and the
+  target is outside that work, defer it like any out-of-lane prompt —
+  with broadcast delivery the click may be meant for another session, so
+  mention it and continue unless the human tells this session to switch.
+  A deferred `Start` does NOT convert into an auto-start when your
+  current work finishes: it appears as an annotation on the find_work
+  list for the human to pick, since by then another session may have
+  taken it or the click gone stale. A `Start ... (replayed)` line is
+  never an instruction either — it is history from before this session
+  existed, and another session may already have honored it: treat it
+  exactly like a deferred `Start`, an annotation on the session-opening
+  find_work for the human's pick. Only an unmarked, live `Start` while
+  idle starts work. Automatic collaborator activity
+  never uses `Start`.
 - `Added <target>` reports that a task, grouped task, question, suggestion, or
   blocker was created.
 - `Updated <target>` reports a response-worthy edit, move, deletion, assignment
@@ -237,14 +282,16 @@ The first code is local to the option market and is not globally resolvable;
 never call `get_job` with that local code alone.
 
 `Added` and `Updated` are additive event notices, not instructions to replace
-the work already underway. Reload the target as described above, incorporate
-the new state into the current work, and keep every active job in scope. Do
-not abandon or replace an active job merely because either event arrived.
-The reloaded job's current stage still governs what work is allowed: if it
-locks execution, pause edits on that job but retain it as pending work and
-continue any other in-scope work that remains executable. If no work is
-currently active, make the loaded target active subject to the same stage
-and workflow checks. When a direct job-item target was soft-deleted, `get_job`
+the work already underway. When the target is inside the job or bug you are
+working, reload it as described above and incorporate the new state — do not
+abandon the work merely because the event arrived. The reloaded job's current
+stage still governs what work is allowed: if it locks execution, respond to
+whatever assistance it awaits, and if the job then remains blocked on the
+human, treat the work as finished for now and run the annotated find_work.
+When the target is outside your current work, defer it unreloaded as
+described above. If no work is currently active, make the loaded target
+active subject to the same stage and workflow checks. When a direct job-item
+target was soft-deleted, `get_job`
 identifies that deletion and returns the current enclosing job with the deleted
 item absent; incorporate the removal into the active work.
 
@@ -268,11 +315,14 @@ the current one, and the first time it sees a newer release it prints a
 after printing it, while `listen` keeps running. Handle the notice exactly
 as described in "Updating the AI connection"; whether the user granted or
 declined, the notice never repeats for the same release. After loading a
-correlated `Responded` target, immediately perform every workflow action the
-response unblocked. A legacy bare `Responded.` prompt has no target; call
-`get_job` for every currently outstanding Uclusion dependency and current
-object so no concurrent job, bug, question, suggestion, or review response is
-missed. Do not merely report the response or stage change; if the job still
+correlated `Responded` target inside your current work, immediately perform
+every workflow action the response unblocked; a `Responded` outside it is
+deferred like any other out-of-lane prompt. A legacy bare `Responded.`
+prompt has no target: when idle, call `get_job` for every currently
+outstanding Uclusion dependency so no response is missed; when mid-work,
+reload only the current job or bug and note that other outstanding
+dependencies may have responses waiting for the annotated find_work.
+Do not merely report the response or stage change; if the job still
 depends on human activity after those actions, resume polling.
 
 Prompts are delivered in arrival order and stay in the queue until they age
@@ -284,12 +334,16 @@ cursor, and only a bare `wait` with no session identity falls back to the
 shared `default` cursor (the `UCLUSION_CONSUMER` environment variable gives
 such a surface its own lane when the human sets it). A brand-new session
 replays the retained backlog — those prompts are work waiting for you, in
-arrival order. Within one session a prompt is delivered once; across
-sessions everyone gets a copy, so when several agents run at once the
-human divides the labor: act on prompts in your lane, and when a reload
-shows a prompt's work already handled by another session, incorporate that
-state and move on — never race to claim it. Do not try to coordinate
-sessions through the inbox. `--consumer` remains the human's knob for
+arrival order, and each one carries a ` (replayed)` suffix so history is
+distinguishable from a live prompt (Q-all-349); rows arriving after the
+listener armed come through unmarked. Within one session a prompt is
+delivered once; across sessions everyone gets a copy. Single-threaded triage (T-all-2428) is what
+makes that broadcast safe whether one session runs or five: your lane is
+the one job or bug you are working, prompts outside it are deferred with a
+mention, and when several agents run at once the human divides the labor.
+When a reload shows a prompt's work already handled by another session,
+incorporate that state and move on — never race to claim it. Do not try
+to coordinate sessions through the inbox. `--consumer` remains the human's knob for
 explicit multi-agent schemes; without such an instruction, never pass
 `--consumer` or set `UCLUSION_CONSUMER` yourself. A newer chat instruction
 does not require stopping the listener: handle the instruction while it

@@ -193,7 +193,8 @@ class ListenCommandCutoffTests(unittest.TestCase):
         def fake_cutoff(environment, workspace_id, consumer):
             calls.append(('cutoff', environment, workspace_id, consumer))
 
-        def fake_next_prompt(environment, workspace_id, consumer):
+        def fake_next_prompt(environment, workspace_id, consumer,
+                             replay_boundary=None):
             calls.append(('claim', environment, workspace_id, consumer))
             raise StopListening()
 
@@ -276,6 +277,41 @@ class BroadcastDeliveryTests(InboxTestCase):
             [cli.next_prompt('stage', 'w1', second) for _ in range(2)],
         )
         self.assertIsNone(cli.next_prompt('stage', 'w1', first))
+
+    def test_fresh_session_consumer_backlog_is_marked_replayed(self):
+        self.enqueue('Start J-all-44', 'm1')
+        consumer = cli.generate_session_consumer()
+        boundary = cli.get_replay_boundary('stage', 'w1', consumer)
+        self.assertEqual(
+            'Start J-all-44 (replayed)',
+            cli.next_prompt('stage', 'w1', consumer, boundary),
+        )
+        self.enqueue('Responded J-all-10', 'm2')
+        self.assertEqual(
+            'Responded J-all-10',
+            cli.next_prompt('stage', 'w1', consumer, boundary),
+        )
+
+    def test_established_consumer_has_no_replay_boundary(self):
+        self.enqueue('Start J-all-44', 'm1')
+        consumer = cli.generate_session_consumer()
+        cli.next_prompt('stage', 'w1', consumer)
+        self.enqueue('Updated J-all-10', 'm2')
+        self.assertIsNone(cli.get_replay_boundary('stage', 'w1', consumer))
+
+    def test_default_consumer_never_marked_replayed(self):
+        self.enqueue('Start J-all-44', 'm1')
+        self.assertIsNone(
+            cli.get_replay_boundary('stage', 'w1', cli.DEFAULT_CONSUMER))
+
+    def test_empty_inbox_boundary_marks_nothing(self):
+        consumer = cli.generate_session_consumer()
+        boundary = cli.get_replay_boundary('stage', 'w1', consumer)
+        self.enqueue('Start J-all-44', 'm1')
+        self.assertEqual(
+            'Start J-all-44',
+            cli.next_prompt('stage', 'w1', consumer, boundary),
+        )
 
     def test_stale_session_cursors_are_garbage_collected(self):
         now = time.time()

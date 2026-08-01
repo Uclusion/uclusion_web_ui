@@ -29,22 +29,30 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             'click on',
             self.workflow,
         )
+        self.assertIn('never uses `Start`', self.workflow)
+        # T-all-2428 / Q-all-349: Start only auto-starts when live and idle
         self.assertIn(
-            'automatic collaborator activity never uses `Start`',
+            'A deferred `Start` does NOT convert into an auto-start',
             self.workflow,
         )
+        self.assertIn('never an instruction either', self.workflow)
 
     def test_added_and_updated_preserve_active_scope_and_stage_lock(self):
         self.assertIn(
             '`Added` and `Updated` are additive event notices',
             self.workflow,
         )
+        # T-all-2428: in-lane targets incorporate; out-of-lane defers unreloaded
         self.assertIn(
-            'not abandon or replace an active job',
+            'abandon the work merely because the event arrived',
             self.workflow,
         )
         self.assertIn(
-            'locks execution, pause edits on that job',
+            'whatever assistance it awaits',
+            self.workflow,
+        )
+        self.assertIn(
+            'defer it unreloaded',
             self.workflow,
         )
         self.assertIn(

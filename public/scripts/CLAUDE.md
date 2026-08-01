@@ -791,6 +791,18 @@ need to know if something was already decided ("what did we decide about
 X?"), search the export first. Cite what you find instead of re-litigating;
 reopen a found decision only when there is new evidence.
 
+## Creating jobs
+
+Creating a job with `add_job` starts with the same export. Before the
+create, run `uclusion export` and search the file for duplicates and
+related items — the same feature area, the same code or screens, or
+wording that overlaps the request. If an existing job or bug already
+covers the work, surface it with its short code instead of creating a
+duplicate and let the human decide. When related-but-distinct items
+exist, still create the job but cite their short codes in its
+description so the relationships are visible on the job itself, not
+just in chat.
+
 ## Job dependencies
 
 There is no first-class depends-on link between jobs; the convention is a

@@ -595,18 +595,17 @@ function PlanningInvestible(props) {
     isInReview,
     isInAccepted,
     isInBlocked,
-    isInVerified,
     isRequiresInput,
     isInNotDoing,
   } = stagesInfo;
 
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-  const inMarketArchives = isInNotDoing || isInVerified;
+  const inMarketArchives = isInNotDoing || isInReview;
   const blockingCommentsUnresolved = investibleComments.filter(
     comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
   );
   function canGetInput() {
-    return _.isEmpty(blockingCommentsUnresolved) && !isInVerified && !isInNotDoing;
+    return _.isEmpty(blockingCommentsUnresolved) && !isInReview && !isInNotDoing;
   }
   const suggestionComments = investibleComments.filter(
     comment => comment.comment_type === SUGGEST_CHANGE_TYPE
@@ -619,7 +618,7 @@ function PlanningInvestible(props) {
     comment => !comment.resolved && assigned.includes(comment.created_by)
   );
   function canOpenBlocking() {
-    return _.isEmpty(questionSuggestionsByAssignedComments) && !isInVerified && !isInNotDoing;
+    return _.isEmpty(questionSuggestionsByAssignedComments) && !isInReview && !isInNotDoing;
   }
   const unresolvedComments = investibleComments.filter(comment => !comment.resolved);
   const mustResolveComments = unresolvedComments.filter((comment) =>
@@ -768,7 +767,7 @@ function PlanningInvestible(props) {
     }
     return intl.formatMessage({ id: tagLabelId });
   }
-  const showCommentAdd = !inArchives && !isInNotDoing && !isInVerified && _.isEmpty(search) && marketId &&
+  const showCommentAdd = !inArchives && !isInNotDoing && _.isEmpty(search) && marketId &&
     !_.isEmpty(investible) && !hidden;
   const investibleNav = <PlanningInvestibleNav investibles={investibles} name={name}
                                                marketInvestible={marketInvestible} classes={classes}

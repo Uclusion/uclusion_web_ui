@@ -12,6 +12,12 @@ export function fetchComments(signatures, client) {
       .catch((error) => errorAndThrow(error, 'errorCommentFetchFailed'));
 }
 
+export function fetchInvestibleComments(investibleId, marketId) {
+  return getMarketClient(marketId)
+    .then((client) => client.investibles.getInvestibleComments(investibleId))
+    .catch((error) => errorAndThrow(error, 'errorCommentFetchFailed'));
+}
+
 export function saveComment(marketId, groupId, investibleId, replyId, body, commentType, uploadedFiles, mentions,
   notificationType, marketType, isRestricted, isSent, associatedCommentId, tz) {
   return getMarketClient(marketId)

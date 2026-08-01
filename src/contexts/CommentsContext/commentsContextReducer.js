@@ -86,6 +86,23 @@ function computeNewState(state, action) {
 
 let commentsStoragePromiseChain = Promise.resolve(true);
 
+// Comments lazily fetched for archived jobs are marked doNotPersist so they stay in memory
+// for the session but do not regrow disk storage the archive screening reclaimed (J-all-331)
+export function screenOutDoNotPersist(state) {
+  const hasMarked = Object.values(state).some((comments) =>
+    Array.isArray(comments) && comments.some((comment) => comment?.doNotPersist));
+  if (!hasMarked) {
+    return state;
+  }
+  const storedState = {...state};
+  Object.keys(storedState).forEach((marketId) => {
+    if (Array.isArray(storedState[marketId])) {
+      storedState[marketId] = storedState[marketId].filter((comment) => !comment?.doNotPersist);
+    }
+  });
+  return storedState;
+}
+
 function reducer(state, action) {
   const newState = computeNewState(state, action);
   if (action.type !== INITIALIZE_STATE) {
@@ -93,7 +110,7 @@ function reducer(state, action) {
     if (isLeader) {
       const lfh = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
       commentsStoragePromiseChain = commentsStoragePromiseChain.then(() => {
-        return lfh.setState(newState).then(() => {
+        return lfh.setState(screenOutDoNotPersist(newState)).then(() => {
           console.info('Updated comment context storage.')
         });
       });

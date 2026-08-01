@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types'
 import { useHistory, useLocation } from 'react-router';
 import _ from 'lodash'
@@ -11,14 +11,27 @@ import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesCo
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
-import { getComment, getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
+import {
+  addCommentsToMarket,
+  getComment,
+  getMarketComments
+} from '../../contexts/CommentsContext/commentsContextHelper';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
+import { getFullStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { getMarketInfo } from '../../utils/userFunctions'
+import { fetchInvestibleComments } from '../../api/comments'
+import { ARCHIVED_COMMENTS_SCREEN_MILLIS } from '../../constants/comments'
 import PlanningInvestible from './Planning/PlanningInvestible'
 
 function createCommentsHash(commentsArray) {
   return _.keyBy(commentsArray, 'id');
 }
+
+// Once per session - a fetch for an archived job's comments is not repeated on revisit, and a
+// failed fetch is not retried so the page degrades to today's empty sections instead of looping
+const archivedCommentsFetched = new Set();
 
 function Investible(props) {
   const { hidden = false } = props;
@@ -31,7 +44,7 @@ function Investible(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const [marketsState, ,tokensHash] = useContext(MarketsContext);
-  const [commentsState] = useContext(CommentsContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const realMarket = getMarket(marketsState, marketId);
   const market = realMarket || {};
   const { parent_comment_id: aParentCommentId, parent_comment_market_id: aParentMarketId } = market;
@@ -50,10 +63,35 @@ function Investible(props) {
   const { name } = investible || {};
   const myPresence = marketPresences.find((presence) => presence.current_user);
   const userId = myPresence?.id;
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const [archivedCommentsBusy, setArchivedCommentsBusy] = useState(false);
+  const marketInfo = getMarketInfo(inv, marketId) || {};
+  const fullStage = getFullStage(marketStagesState, marketId, marketInfo.stage) || {};
+  // The versions call screens out comments archived over 90 days (see ARCHIVED_COMMENTS_SCREEN_MILLIS),
+  // so a job in a close comments stage that long must go back to the server for them (J-all-331)
+  const needsArchivedCommentsFetch = !hidden && fullStage.close_comments_on_entrance &&
+    marketInfo.last_stage_change_date &&
+    Date.now() - new Date(marketInfo.last_stage_change_date).getTime() > ARCHIVED_COMMENTS_SCREEN_MILLIS &&
+    !archivedCommentsFetched.has(investibleId);
   const loading = !investibleId || _.isEmpty(inv) || _.isEmpty(investible) || _.isEmpty(myPresence) || !userId
-    || _.isEmpty(realMarket) || !marketTokenLoaded(marketId, tokensHash);
+    || _.isEmpty(realMarket) || !marketTokenLoaded(marketId, tokensHash)
+    || ((needsArchivedCommentsFetch || archivedCommentsBusy) && _.isEmpty(investibleComments));
   const isAdmin = myPresence && myPresence.is_admin;
 
+  useEffect(() => {
+    if (needsArchivedCommentsFetch && marketId) {
+      archivedCommentsFetched.add(investibleId);
+      setArchivedCommentsBusy(true);
+      fetchInvestibleComments(investibleId, marketId).then((archivedComments) => {
+        const marked = (archivedComments || []).map((comment) => ({ ...comment, doNotPersist: true }));
+        if (!_.isEmpty(marked)) {
+          addCommentsToMarket(marked, commentsState, commentsDispatch);
+        }
+        setArchivedCommentsBusy(false);
+      }).catch(() => setArchivedCommentsBusy(false));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [needsArchivedCommentsFetch, investibleId, marketId]);
 
   useEffect(() => {
     if (!hidden && !hash.includes('option')) {

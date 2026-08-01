@@ -455,6 +455,11 @@ included when `include_all_resolved` is true, except a note with a reply which
 is always included; the same flag also returns resolved comments in full
 instead of truncated.
 
+The job markdown may also carry a "View Notes" section. View level notes are
+standing guidance humans attach to a view — development policies, conventions,
+preferences — that applies to every job in that view, so treat them as
+instructions governing how you do the job's work.
+
 If calling get_job comes back with only a single comment, no Job J-... header,
 then use the single comment workflow below.
 

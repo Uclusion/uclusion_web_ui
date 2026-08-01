@@ -204,7 +204,7 @@ function CommentBox(props) {
               compressAll={compressAll}
               marketId={marketId}
               pokeAIMarketId={pokeAIMarketId}
-              pokeAIParentTicketCode={pokeAIParentTicketCode}
+              pokeAIParentTicketCode={pokeAIParentTicketCode || marketInfo?.ticket_code}
               comment={comment}
               comments={comments}
               isInbox={isInbox}

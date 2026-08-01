@@ -149,8 +149,8 @@ relaunch choreography — a quiet hour is completely silent. Several
 stacked prompts arrive as consecutive lines, possibly batched into one
 notification: handle every line, in arrival order, and when several name
 the same lookup short code one `get_job` covers them. A direct prompt's
-lookup code is its only short code; a compound option prompt's lookup code
-is the parent question after `of`. If the stream ever ends (the monitor is
+lookup code is its only short code; a compound prompt's lookup code
+is the parent code after `of`. If the stream ever ends (the monitor is
 stopped or dies), arm it again — a re-armed listener is a NEW session
 cursor that starts at arm time, so nothing older is redelivered; simply
 continue.
@@ -237,12 +237,15 @@ included) until you post its review or it blocks on the human. A line
 about that work (the job or bug itself, or anything nested in it) is
 handled immediately as described below. A line about anything else is
 DEFERRED: do not reload its target or act on it — briefly tell the human
-you received it and are setting it aside for now, and keep working. One
-exception to defer-without-reload: a direct code you cannot place — not
-your current work and not visible in its markdown, as any freshly Added
-item is — gets ONE classification reload with `get_job`; if the enclosing
-work is your lane, handle it, otherwise mention what it belongs to and
-defer with no further action. The mid-work mention is best-effort (some
+you received it and are setting it aside for now, and keep working. A
+compound line (`<verb> <code> of <parent-code>`) needs no research to
+classify: the parent code after `of` names the enclosing work, so when
+that parent is not your lane, defer with no reload at all. One
+exception to defer-without-reload remains for BARE direct codes you
+cannot place — not your current work and not visible in its markdown, as
+a freshly Added top-level item is — such a code gets ONE classification
+reload with `get_job`; if the enclosing work is your lane, handle it,
+otherwise mention what it belongs to and defer with no further action. The mid-work mention is best-effort (some
 clients hide text written between tool calls). The human can override
 at any moment ("take that up now"); otherwise a deferred line needs
 nothing more — the state it reported is already in Uclusion, and the
@@ -273,13 +276,20 @@ prompts use four verbs whose first word is a contract:
   back to the AI.
 
 Each verb can use a direct target, such as `Updated J-all-123`, or the compound
-option grammar `<verb> <local-code> of <parent-question-code>`, such as
-`Added C-1 of Q-all-556`. For a direct prompt, call `get_job` with exactly its
-short code; `get_job` will load the enclosing job when the target is nested.
-For a compound prompt, call `get_job` with the parent `Q-...` code after `of`,
-then locate and act on the named local item within that question's options.
-The first code is local to the option market and is not globally resolvable;
-never call `get_job` with that local code alone.
+grammar `<verb> <ticket-code> of <parent-ticket-code>`, such as
+`Added C-1 of Q-all-556` or `Updated T-all-180 of J-all-123`. The parent names
+the enclosing work: a poke about a comment nested under a job carries that
+job; a poke about a view-level reply carries its thread root; a poke about
+anything inside a question's inline market — an option, a vote, or a comment
+on an option — carries the enclosing question. Only pokes whose target is
+itself top level (a job, a bug, a standalone question or suggestion) stay
+direct. For a direct prompt, call `get_job` with exactly its short code;
+`get_job` will load the enclosing job when the target is nested. For any
+compound prompt, call `get_job` with the parent code after `of` — the parent
+is always globally resolvable and loads the enclosing work — then locate and
+act on the named item within it. An inline-market first code (like `C-1` or
+`O-2`) is local to the option market and is not globally resolvable; never
+call `get_job` with such a local code alone.
 
 `Added` and `Updated` are additive event notices, not instructions to replace
 the work already underway. When the target is inside the job or bug you are

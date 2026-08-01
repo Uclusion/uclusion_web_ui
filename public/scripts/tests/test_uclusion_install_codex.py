@@ -77,7 +77,15 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             self.workflow,
         )
         self.assertIn(
-            'For a compound prompt, call `get_job` with the parent `Q-...`',
+            'For any compound prompt, call `get_job` with the parent code after',
+            self.workflow,
+        )
+        self.assertIn(
+            'needs no research to',
+            self.workflow,
+        )
+        self.assertIn(
+            'the parent code after `of` names the enclosing work',
             self.workflow,
         )
         self.assertIn(

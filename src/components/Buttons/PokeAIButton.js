@@ -22,9 +22,14 @@ export function isPokeAICommentType(commentType) {
 
 export function isPokeAIReplyVisible(isTopLevelSubTask, pokeAIMarketId,
                                      pokeAIParentTicketCode) {
-  const hasParentTicketCode = !!pokeAIParentTicketCode;
-  return (isTopLevelSubTask || hasParentTicketCode) &&
-    (!pokeAIMarketId || hasParentTicketCode);
+  if (pokeAIMarketId) {
+    // Inline threads live in a foreign market; only a resolvable parent code
+    // makes the Start command actionable there.
+    return !!pokeAIParentTicketCode;
+  }
+  // Same-market replies keep their J-all-380 parent code in the message, but
+  // the button itself stays limited to grouped subtasks.
+  return isTopLevelSubTask;
 }
 
 function decodeTicketCode(ticketCode) {

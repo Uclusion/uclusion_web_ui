@@ -1561,7 +1561,9 @@ function Comment(props) {
       {inboxMessageId !== id ? compressedCommentCard :
         (isLargeDisplay(body, 7) ? compressedCommentCard  : commentCard)}
       <LocalCommentsContext.Provider value={{
-        comments, marketId, idPrepend, pokeAIMarketId, pokeAIParentTicketCode
+        comments, marketId, idPrepend, pokeAIMarketId,
+        pokeAIParentTicketCode: pokeAIParentTicketCode ||
+          (investibleId ? undefined : comment.ticket_code)
       }}>
         {inboxMessageId === id && numInThread > 0 &&
           getCompressionButton(numInThread, id, toggleCompression, intl)
@@ -1632,7 +1634,9 @@ function Comment(props) {
       {!useCompression && (
         <Box marginTop={1} paddingX={1} className={classes.childWrapper}>
           <LocalCommentsContext.Provider value={{
-            comments, marketId, idPrepend, pokeAIMarketId, pokeAIParentTicketCode
+            comments, marketId, idPrepend, pokeAIMarketId,
+            pokeAIParentTicketCode: pokeAIParentTicketCode ||
+              (investibleId ? undefined : comment.ticket_code)
           }}>
             {sortedReplies.map(child => {
               const { id: childId } = child;

@@ -180,4 +180,11 @@ describe('isPokeAIReplyVisible', () => {
     )).toBe(true);
     expect(isPokeAIReplyVisible(true, undefined, undefined)).toBe(true);
   });
+
+  it('keeps same-market visibility limited to subtasks when a parent code arrives', () => {
+    // J-all-380 threads the enclosing job/root into every reply's Start
+    // message; that must not widen which replies get the button.
+    expect(isPokeAIReplyVisible(false, undefined, 'J-all-1')).toBe(false);
+    expect(isPokeAIReplyVisible(true, undefined, 'J-all-1')).toBe(true);
+  });
 });

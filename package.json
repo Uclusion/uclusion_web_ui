@@ -2,6 +2,7 @@
   "name": "uclusion",
   "version": "0.1.0",
   "private": true,
+  "//": "uclusion_sdk is a file: dependency and yarn v1 caches it by name@version, so after changing ../uclusion_sdk a plain yarn install restores the STALE copy. Run: yarn cache clean uclusion_sdk && rm -rf node_modules/uclusion_sdk && yarn install --check-files (S-all-211)",
   "dependencies": {
     "@date-io/core": "^1.3.6",
     "@emotion/core": "^10.0.22",

@@ -126,6 +126,32 @@ class FollowupForPayloadTests(unittest.TestCase):
             ['/bin/uclusion', '-e', 'stage', 'wait', '--timeout', '0'],
         )
 
+    def test_drain_pokes_scopes_consumer_to_conversation(self):
+        completed = mock.Mock(returncode=0, stdout='Responded S-all-192\n')
+        with mock.patch.object(
+                DRAIN, 'resolve_uclusion_command', return_value='/bin/uclusion'
+        ), mock.patch.object(
+                DRAIN.subprocess, 'run', return_value=completed
+        ) as run:
+            DRAIN.drain_pokes('stage', 'conv-123')
+        self.assertEqual(
+            run.call_args.args[0],
+            ['/bin/uclusion', '-e', 'stage', 'wait', '--timeout', '0',
+             '--consumer', 'cursor-conv-123'],
+        )
+
+    def test_consumer_omitted_without_conversation_id(self):
+        self.assertIsNone(DRAIN.consumer_for_conversation(None))
+        self.assertIsNone(DRAIN.consumer_for_conversation('   '))
+        self.assertIsNone(DRAIN.consumer_for_conversation(42))
+        self.assertEqual('cursor-abc', DRAIN.consumer_for_conversation(' abc '))
+
+    def test_followup_threads_conversation_id_to_drain(self):
+        with mock.patch.object(DRAIN, 'drain_pokes', return_value=[]) as drain:
+            DRAIN.followup_for_payload(
+                {'status': 'completed', 'conversation_id': 'conv-9'})
+        self.assertEqual(drain.call_args.args[1], 'conv-9')
+
 
 if __name__ == '__main__':
     unittest.main()

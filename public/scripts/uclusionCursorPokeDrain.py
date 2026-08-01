@@ -86,7 +86,16 @@ def resolve_uclusion_command():
     return None
 
 
-def drain_pokes(environment):
+def consumer_for_conversation(conversation_id):
+    """Per-conversation delivery cursor so every Cursor chat session gets
+    every poke instead of stealing from other sessions' cursors (J-all-379).
+    Falls back to the CLI's default resolution when the payload has no id."""
+    if isinstance(conversation_id, str) and conversation_id.strip():
+        return 'cursor-' + conversation_id.strip()
+    return None
+
+
+def drain_pokes(environment, conversation_id=None):
     """Return claimed poke lines (possibly empty). Fail open on errors."""
     uclusion = resolve_uclusion_command()
     if uclusion is None:
@@ -95,6 +104,9 @@ def drain_pokes(environment):
     if environment and environment != 'production':
         cmd.extend(['-e', environment])
     cmd.extend(['wait', '--timeout', '0'])
+    consumer = consumer_for_conversation(conversation_id)
+    if consumer is not None:
+        cmd.extend(['--consumer', consumer])
     try:
         result = subprocess.run(
             cmd,
@@ -119,7 +131,8 @@ def followup_for_payload(payload):
     """Return a stop-hook output dict for the given Cursor payload."""
     if payload.get('status') != 'completed':
         return {}
-    lines = drain_pokes(infer_environment(payload.get('workspace_roots')))
+    lines = drain_pokes(infer_environment(payload.get('workspace_roots')),
+                        payload.get('conversation_id'))
     if not lines:
         return {}
     return {'followup_message': '\n'.join(lines)}

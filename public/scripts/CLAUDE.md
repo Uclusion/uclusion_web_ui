@@ -107,12 +107,18 @@ uclusion wait --timeout 0
 
 Handle every returned line before the user's new request, then continue to
 `find_work` when appropriate. Autonomous Pokes work in sessions launched
-through `uclusion codex` (Codex bridge) — that path is fine.
+through `uclusion codex` (Codex bridge) — that path is fine. This bare
+turn-start drain has no session identity, so it advances the shared
+`default` cursor (J-all-379): concurrent bare drains share that one lane,
+and the human can give a session its own lane by setting the
+`UCLUSION_CONSUMER` environment variable for it.
 
 **Cursor stop-hook drain (S-all-192):** the Cursor install also registers a
 `stop` hook (`uclusionCursorPokeDrain.py` in `~/.cursor/hooks.json` or the
 project `.cursor/hooks.json`) that runs the same zero-timeout drain when an
-agent turn ends. If lines are claimed, the hook returns them as
+agent turn ends, scoped to a per-conversation cursor (J-all-379) so one
+chat's drain never consumes another session's delivery. If lines are
+claimed, the hook returns them as
 `followup_message` so Cursor auto-submits the next user message. That covers
 Pokes that arrived *during* a turn; it does **not** wake a fully idle chat.
 Keep the turn-start drain above for idle backlog. Bare Codex without the
@@ -135,23 +141,25 @@ notification: handle every line, in arrival order, and when several name
 the same lookup short code one `get_job` covers them. A direct prompt's
 lookup code is its only short code; a compound option prompt's lookup code
 is the parent question after `of`. If the stream ever ends (the monitor is
-stopped or dies), arm it again.
+stopped or dies), arm it again — a re-armed listener is a NEW session with
+its own delivery cursor, so it replays the retained backlog including
+prompts this session already handled; recognize an already-handled prompt
+by its reload (the target's state already reflects your handling) and
+simply continue.
 
 When the user explicitly asks to discard the backlog — skip Pokes that
 were already queued before this session — arm the listener with
 `uclusion listen --ignore-existing-pokes` (`wait` accepts the same flag).
-The cutoff advances only this consumer past the Pokes already in the
-inbox at launch: later arrivals are delivered normally, no inbox rows are
-deleted, other consumers keep their own cursors, and update notices still
-appear. Never add the flag on your own initiative — Pokes queued between
-sessions are normally work waiting for you, and skipping them without an
-explicit instruction silently drops that work. The ask is only honorable
-when it arrives before the listener is first armed — in practice as the
-session's opening message. Once armed, a listener claims the entire
-waiting backlog within a fraction of a second, so re-arming with the flag
-afterward skips nothing: if the request comes too late, say the backlog
-was already delivered and handle or drop those delivered lines as the
-user directs.
+The cutoff advances only this session's cursor past the Pokes already in
+the inbox at launch: later arrivals are delivered normally, no inbox rows
+are deleted, other sessions keep their own cursors, and update notices
+still appear. Never add the flag on your own initiative — Pokes queued
+between sessions are normally work waiting for you, and skipping them
+without an explicit instruction silently drops that work. If the ask
+arrives after the listener was armed, the armed listener has already
+claimed the backlog for this session: handle or drop those delivered
+lines as the user directs, or re-arm with the flag — the fresh listener's
+new cursor starts past the backlog.
 
 **Clients whose harness turns a background command's completion into a new
 agent event:** run the bounded wait as a background (detached) task and
@@ -268,18 +276,24 @@ missed. Do not merely report the response or stage change; if the job still
 depends on human activity after those actions, resume polling.
 
 Prompts are delivered in arrival order and stay in the queue until they age
-out, so nothing is lost while you work; one delivery path does not show the
-same prompt twice. The Codex bridge deliberately has an independent cursor
-from the ordinary `default` listener, because the queue does not identify
-which surface owns each job. Codex and Claude/Cursor may therefore each
-receive a copy without either surface consuming the other's delivery.
-Do not try to coordinate consumers through the inbox — just handle the
-prompts for the work this session owns. The only exception is when the
-user's prompt explicitly hands you a multi-agent scheme, such as a consumer
-name to pass as `--consumer <name>` on `listen` or `wait`; without such an
-instruction, never pass `--consumer`. A newer chat instruction does not
-require stopping the listener: handle the instruction while it keeps
-listening, and treat anything it delivers meanwhile as your next
+out, so nothing is lost while you work. Delivery is broadcast per session:
+every agent session has its own delivery cursor and sees every prompt —
+a listener auto-generates a per-session identity, the Cursor stop hook
+scopes its drain to the conversation, the Codex bridge keeps its dedicated
+cursor, and only a bare `wait` with no session identity falls back to the
+shared `default` cursor (the `UCLUSION_CONSUMER` environment variable gives
+such a surface its own lane when the human sets it). A brand-new session
+replays the retained backlog — those prompts are work waiting for you, in
+arrival order. Within one session a prompt is delivered once; across
+sessions everyone gets a copy, so when several agents run at once the
+human divides the labor: act on prompts in your lane, and when a reload
+shows a prompt's work already handled by another session, incorporate that
+state and move on — never race to claim it. Do not try to coordinate
+sessions through the inbox. `--consumer` remains the human's knob for
+explicit multi-agent schemes; without such an instruction, never pass
+`--consumer` or set `UCLUSION_CONSUMER` yourself. A newer chat instruction
+does not require stopping the listener: handle the instruction while it
+keeps listening, and treat anything it delivers meanwhile as your next
 instruction after that. Do not read, edit, or delete the inbox database
 directly.
 

@@ -37,6 +37,35 @@ DEFAULT_EXPORT_FOLDER = os.path.join(os.path.expanduser('~'), '.uclusion', 'expo
 INBOX_FILE = 'poke_inbox.sqlite3'
 MESSAGE_RETENTION_SECONDS = 7 * 24 * 60 * 60
 DEFAULT_CONSUMER = 'default'
+SESSION_CONSUMER_PREFIX = 'session-'
+CONSUMER_ENV_VAR = 'UCLUSION_CONSUMER'
+
+
+def generate_session_consumer():
+    return SESSION_CONSUMER_PREFIX + uuid.uuid4().hex[:12]
+
+
+def resolve_consumer(explicit_consumer, is_listener):
+    """Pick the delivery cursor identity for a wait or listen (J-all-379).
+
+    Every agent session gets its own cursor so every session sees every poke
+    (Q-all-348 O-1: a brand-new cursor replays the retained backlog). Priority:
+    an explicit --consumer, then the UCLUSION_CONSUMER environment variable
+    (the human's knob for surfaces that spawn many processes per session),
+    then for a listener a fresh generated identity - the listener process IS
+    the session. A bare wait falls back to the shared default cursor because
+    a per-invocation identity would replay the whole backlog on every drain;
+    surfaces that can identify their session (the Cursor stop hook's
+    conversation id, or the human via UCLUSION_CONSUMER) get their own lane.
+    """
+    if explicit_consumer is not None:
+        return explicit_consumer
+    env_consumer = os.environ.get(CONSUMER_ENV_VAR)
+    if env_consumer:
+        return env_consumer
+    if is_listener:
+        return generate_session_consumer()
+    return DEFAULT_CONSUMER
 CODEX_BRIDGE_SYMLINK = os.path.join(
     os.path.expanduser('~'), '.local', 'bin', 'uclusionCodexBridge.py'
 )
@@ -180,6 +209,13 @@ def next_prompt(environment, workspace_id, consumer):
         connection.execute('BEGIN IMMEDIATE')
         connection.execute(
             'DELETE FROM poke_messages WHERE received_at < ?',
+            (now - MESSAGE_RETENTION_SECONDS,)
+        )
+        # J-all-379: session cursors idle past the retention window are garbage.
+        # Deleting one is semantically safe - every row it claimed has aged out,
+        # so a returning consumer replays exactly the rows it has not seen.
+        connection.execute(
+            'DELETE FROM poke_consumers WHERE updated_at < ?',
             (now - MESSAGE_RETENTION_SECONDS,)
         )
         row = connection.execute(
@@ -1872,9 +1908,9 @@ def cmd_wait(args):
     per UPDATE_CHECK_INTERVAL. On first sight of a newer release the wait
     prints the update notice instead of a prompt and exits so the AI client
     can offer `uclusion update` right away. ``--consumer`` names the cursor
-    this wait advances (S-all-168): the default name keeps single-agent
-    behavior, and a multi-agent scheme gives each agent its own name so
-    every one of them sees every prompt. Since a wait costs its client a
+    this wait advances (S-all-168); identity resolution is per-session by
+    design (J-all-379, see ``resolve_consumer``) so every session sees
+    every prompt. Since a wait costs its client a
     full exit/relaunch cycle, delivery drains the whole pending backlog —
     one prompt per line — so a stack of pokes costs one cycle (B-all-507).
     ``--ignore-existing-pokes`` (B-all-515) advances this consumer past the
@@ -1890,21 +1926,22 @@ def cmd_wait(args):
         return 1
 
     environment = args.env or 'production'
+    consumer = resolve_consumer(args.consumer, is_listener=False)
     if getattr(args, 'ignore_existing_pokes', False):
-        ignore_existing_prompts(environment, workspace_id, args.consumer)
+        ignore_existing_prompts(environment, workspace_id, consumer)
     deadline = time.monotonic() + args.timeout
     next_update_check = time.monotonic()
     initial_ppid = os.getppid()
     while True:
         if is_orphaned(initial_ppid):
             return 0
-        prompt = next_prompt(environment, workspace_id, args.consumer)
+        prompt = next_prompt(environment, workspace_id, consumer)
         if prompt is not None:
             while prompt is not None:
                 print(prompt, flush=True)
                 if is_orphaned(initial_ppid):
                     return 0
-                prompt = next_prompt(environment, workspace_id, args.consumer)
+                prompt = next_prompt(environment, workspace_id, consumer)
             return 0
         if time.monotonic() >= next_update_check:
             next_update_check = time.monotonic() + UPDATE_CHECK_INTERVAL
@@ -1941,14 +1978,15 @@ def cmd_listen(args):
         return 1
 
     environment = args.env or 'production'
+    consumer = resolve_consumer(args.consumer, is_listener=True)
     if getattr(args, 'ignore_existing_pokes', False):
-        ignore_existing_prompts(environment, workspace_id, args.consumer)
+        ignore_existing_prompts(environment, workspace_id, consumer)
     next_update_check = time.monotonic()
     initial_ppid = os.getppid()
     while True:
         if is_orphaned(initial_ppid):
             return 0
-        prompt = next_prompt(environment, workspace_id, args.consumer)
+        prompt = next_prompt(environment, workspace_id, consumer)
         if prompt is not None:
             print(prompt, flush=True)
             continue
@@ -2544,11 +2582,13 @@ def build_parser():
     )
     wait_parser.add_argument(
         '--consumer',
-        default=DEFAULT_CONSUMER,
+        default=None,
         help='Cursor name this wait advances. Prompts are kept until they age '
-             'out, so each named consumer sees every prompt exactly once; a '
-             'multi-agent scheme gives each agent its own name (default: '
-             f'{DEFAULT_CONSUMER}).',
+             'out, so each named consumer sees every prompt exactly once. '
+             f'Defaults to the {CONSUMER_ENV_VAR} environment variable when '
+             f'set, else the shared "{DEFAULT_CONSUMER}" cursor; give each '
+             'session its own name so every session sees every prompt '
+             '(J-all-379).',
     )
     wait_parser.add_argument(
         '--ignore-existing-pokes',
@@ -2568,11 +2608,13 @@ def build_parser():
     )
     listen_parser.add_argument(
         '--consumer',
-        default=DEFAULT_CONSUMER,
+        default=None,
         help='Cursor name this listener advances. Prompts are kept until they '
-             'age out, so each named consumer sees every prompt exactly once; '
-             'a multi-agent scheme gives each agent its own name (default: '
-             f'{DEFAULT_CONSUMER}).',
+             'age out, so each named consumer sees every prompt exactly once. '
+             f'Defaults to the {CONSUMER_ENV_VAR} environment variable when '
+             'set, else a fresh per-session identity so every session sees '
+             'every prompt, replaying the retained backlog on start '
+             '(J-all-379).',
     )
     listen_parser.add_argument(
         '--ignore-existing-pokes',

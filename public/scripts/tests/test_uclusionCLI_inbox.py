@@ -233,5 +233,68 @@ class ListenCommandCutoffTests(unittest.TestCase):
         self.assertEqual(calls, [('claim', 'stage', 'w1', 'default')])
 
 
+class ConsumerResolutionTests(unittest.TestCase):
+    def setUp(self):
+        patcher = mock.patch.dict(cli.os.environ)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        cli.os.environ.pop(cli.CONSUMER_ENV_VAR, None)
+
+    def test_explicit_consumer_beats_environment(self):
+        cli.os.environ[cli.CONSUMER_ENV_VAR] = 'env-name'
+        self.assertEqual('mine', cli.resolve_consumer('mine', is_listener=True))
+        self.assertEqual('mine', cli.resolve_consumer('mine', is_listener=False))
+
+    def test_environment_variable_names_the_session(self):
+        cli.os.environ[cli.CONSUMER_ENV_VAR] = 'env-name'
+        self.assertEqual('env-name', cli.resolve_consumer(None, is_listener=True))
+        self.assertEqual('env-name', cli.resolve_consumer(None, is_listener=False))
+
+    def test_listener_defaults_to_fresh_session_identity(self):
+        first = cli.resolve_consumer(None, is_listener=True)
+        second = cli.resolve_consumer(None, is_listener=True)
+        self.assertTrue(first.startswith(cli.SESSION_CONSUMER_PREFIX))
+        self.assertNotEqual(first, second)
+
+    def test_wait_falls_back_to_shared_default(self):
+        self.assertEqual(cli.DEFAULT_CONSUMER,
+                         cli.resolve_consumer(None, is_listener=False))
+
+
+class BroadcastDeliveryTests(InboxTestCase):
+    def test_every_session_consumer_sees_every_prompt(self):
+        self.enqueue('Poke one', 'm1')
+        self.enqueue('Poke two', 'm2')
+        first = cli.generate_session_consumer()
+        second = cli.generate_session_consumer()
+        self.assertEqual(
+            ['Poke one', 'Poke two'],
+            [cli.next_prompt('stage', 'w1', first) for _ in range(2)],
+        )
+        self.assertEqual(
+            ['Poke one', 'Poke two'],
+            [cli.next_prompt('stage', 'w1', second) for _ in range(2)],
+        )
+        self.assertIsNone(cli.next_prompt('stage', 'w1', first))
+
+    def test_stale_session_cursors_are_garbage_collected(self):
+        now = time.time()
+        stale_age = now - cli.MESSAGE_RETENTION_SECONDS - 60
+        with closing(cli.open_inbox()) as connection, connection:
+            connection.execute(
+                '''
+                INSERT INTO poke_consumers
+                    (environment, workspace_id, consumer, last_sequence,
+                     updated_at)
+                VALUES (?, ?, ?, ?, ?), (?, ?, ?, ?, ?)
+                ''',
+                ('stage', 'w1', 'stale-session', 5, stale_age,
+                 'stage', 'w1', 'live-session', 5, now),
+            )
+        cli.next_prompt('stage', 'w1', 'anyone')
+        self.assertIsNone(self.cursor_for('stale-session'))
+        self.assertEqual(5, self.cursor_for('live-session'))
+
+
 if __name__ == '__main__':
     unittest.main()

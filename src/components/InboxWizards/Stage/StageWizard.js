@@ -7,23 +7,28 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import RejectStep from '../RejectStep';
 import OtherOptionsStep from './OtherOptionsStep';
+import { getMessageId } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 function StageWizard(props) {
-  const { marketId, investibleId, rowId, typeObjectId } = props;
+  // message is present when opened from an inbox approval row (B-all-524); the wizard then
+  // dismisses that row instead of offering Poke
+  const { marketId, investibleId, rowId, typeObjectId, message } = props;
   const [investiblesState] = useContext(InvestiblesContext);
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage: currentStageId, group_id: groupId } = marketInfo || {};
+  const parentElementId = message ? getMessageId(message) : rowId;
+  const wizardTypeObjectId = message ? message.type_object_id : typeObjectId;
 
   return (
     <FormdataWizard name={`stage_wizard${investibleId}`} useLocalStorage={false}
-                    defaultFormData={{parentElementId: rowId, useCompression: true}}>
+                    defaultFormData={{parentElementId, useCompression: true}}>
       <DoneVotingStep marketId={marketId} investibleId={investibleId} groupId={groupId}
-                      typeObjectId={typeObjectId} />
+                      typeObjectId={wizardTypeObjectId} message={message} />
       <OtherOptionsStep marketId={marketId} investibleId={investibleId} groupId={groupId}
-                      typeObjectId={typeObjectId} />
+                      typeObjectId={wizardTypeObjectId} />
       <RejectStep marketId={marketId} investibleId={investibleId} groupId={groupId}
-                      currentStageId={currentStageId} typeObjectId={typeObjectId} />
+                      currentStageId={currentStageId} typeObjectId={wizardTypeObjectId} />
     </FormdataWizard>
   );
 }

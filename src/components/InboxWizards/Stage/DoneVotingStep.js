@@ -29,10 +29,16 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { getInvestiblePokeList } from '../../../utils/pokeUtils';
 import PokeReminder from '../PokeReminder';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 
 function DoneVotingStep(props) {
-  const { marketId, investibleId, groupId, formData = {}, updateFormData = () => {} } = props;
+  // message is present when reached from an inbox approval row (B-all-524): the terminate
+  // slot then dismisses that row; without a message it pokes for more approvals
+  const { marketId, investibleId, groupId, formData = {}, updateFormData = () => {}, message } = props;
   const intl = useIntl();
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -111,12 +117,13 @@ function DoneVotingStep(props) {
         otherSpinOnClick={false}
         otherNextLabel="notDoneApprovalLabel"
         isOtherFinal={false}
-        showTerminate
-        terminateLabel="poke"
-        terminateSpinOnClick
-        onFinish={() => pokeInvestible(marketId, investibleId).then(() => {
-          setOperationRunning(false);
-        })}
+        showTerminate={message ? getShowTerminate(message) : true}
+        terminateLabel={message ? getLabelForTerminate(message) : 'poke'}
+        terminateSpinOnClick={!message}
+        onFinish={message ? () => removeWorkListItem(message, messagesDispatch, history)
+          : () => pokeInvestible(marketId, investibleId).then(() => {
+            setOperationRunning(false);
+          })}
       />
     </WizardStepContainer>
   );

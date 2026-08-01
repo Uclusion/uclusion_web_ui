@@ -36,7 +36,6 @@ import AssignToOtherWizard from '../../../components/InboxWizards/AssignToOther/
 import EstimateChangeWizard from '../../../components/InboxWizards/Monitor/EstimateChangeWizard';
 import ReplyWizard from '../../../components/InboxWizards/Reply/ReplyWizard';
 import OptionSubmittedWizard from '../../../components/InboxWizards/Submission/OptionSubmittedWizard';
-import FeedbackWizard from '../../../components/InboxWizards/Feedback/FeedbackWizard';
 import UpgradeWizard from '../../../components/InboxWizards/Upgrade/UpgradeWizard';
 import ReplyResolveWizard from '../../../components/InboxWizards/ReplyResolve/ReplyResolveWizard';
 import NewGroupWizard from '../../../components/InboxWizards/NewGroup/NewGroupWizard';
@@ -138,7 +137,8 @@ export function calculateTitleExpansionPanel(props) {
                                                 message={message} />,
       messageType === 'REPLY_MENTION' ? 'unreadMention' : 'unreadReply', intl);
   }else if (messageType === 'UNREAD_VOTE' && linkType === 'INVESTIBLE_VOTE') {
-      setItem(item, openExpansion, <FeedbackWizard marketId={marketId} investibleId={investibleId} message={message} />,
+      // B-all-524: approval-arrived rows share StageWizard so the affirmative "Yes - Doable" is available
+      setItem(item, openExpansion, <StageWizard marketId={marketId} investibleId={investibleId} message={message} />,
         'startJobQ', intl);
   } else if (['UNREAD_RESOLVED', 'UNREAD_VOTE'].includes(messageType)) {
     setItem(item, openExpansion, <ResolveWizard commentId={commentId} marketId={commentMarketId || marketId}

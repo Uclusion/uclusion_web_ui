@@ -3,7 +3,7 @@ import sys
 import tempfile
 import time
 import unittest
-from contextlib import closing, redirect_stdout
+from contextlib import closing, redirect_stderr, redirect_stdout
 from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
@@ -143,14 +143,42 @@ class IgnoreExistingPokesParserTests(unittest.TestCase):
         )
         self.assertTrue(args.ignore_existing_pokes)
 
+    def test_deliver_flag_defaults_false_and_parses(self):
+        args = cli.build_parser().parse_args(['-e', 'stage', 'listen'])
+        self.assertFalse(args.deliver_existing_pokes)
+        args = cli.build_parser().parse_args(
+            ['-e', 'stage', 'listen', '--deliver-existing-pokes']
+        )
+        self.assertTrue(args.deliver_existing_pokes)
+        args = cli.build_parser().parse_args(
+            ['-e', 'stage', 'wait', '--timeout', '0',
+             '--deliver-existing-pokes']
+        )
+        self.assertTrue(args.deliver_existing_pokes)
+
+    def test_deliver_and_ignore_flags_are_mutually_exclusive(self):
+        with redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit):
+                cli.build_parser().parse_args(
+                    ['-e', 'stage', 'listen', '--ignore-existing-pokes',
+                     '--deliver-existing-pokes']
+                )
+            with self.assertRaises(SystemExit):
+                cli.build_parser().parse_args(
+                    ['-e', 'stage', 'wait', '--timeout', '0',
+                     '--ignore-existing-pokes', '--deliver-existing-pokes']
+                )
+
 
 class WaitCommandCutoffTests(InboxTestCase):
-    def run_wait(self, ignore_existing_pokes):
+    def run_wait(self, ignore_existing_pokes, consumer='default',
+                 deliver_existing_pokes=False):
         args = SimpleNamespace(
             env='stage',
             timeout=0,
-            consumer='default',
+            consumer=consumer,
             ignore_existing_pokes=ignore_existing_pokes,
+            deliver_existing_pokes=deliver_existing_pokes,
         )
         buffer = io.StringIO()
         with mock.patch.object(
@@ -185,6 +213,24 @@ class WaitCommandCutoffTests(InboxTestCase):
         self.assertEqual(result, 0)
         self.assertEqual(output, 'Start T-all-1\n')
 
+    def test_wait_fresh_session_consumer_skips_backlog(self):
+        self.enqueue('Start T-all-1', 'm1')
+        result, output = self.run_wait(
+            ignore_existing_pokes=False, consumer='session-fresh1'
+        )
+        self.assertEqual(result, 0)
+        self.assertEqual(output, '')
+
+    def test_wait_deliver_flag_gives_fresh_consumer_the_backlog(self):
+        self.enqueue('Start T-all-1', 'm1')
+        self.enqueue('Responded J-all-2', 'm2')
+        result, output = self.run_wait(
+            ignore_existing_pokes=False, consumer='session-fresh2',
+            deliver_existing_pokes=True,
+        )
+        self.assertEqual(result, 0)
+        self.assertEqual(output, 'Start T-all-1\nResponded J-all-2\n')
+
 
 class ListenCommandCutoffTests(unittest.TestCase):
     def run_listen(self, ignore_existing_pokes):
@@ -193,8 +239,7 @@ class ListenCommandCutoffTests(unittest.TestCase):
         def fake_cutoff(environment, workspace_id, consumer):
             calls.append(('cutoff', environment, workspace_id, consumer))
 
-        def fake_next_prompt(environment, workspace_id, consumer,
-                             replay_boundary=None):
+        def fake_next_prompt(environment, workspace_id, consumer):
             calls.append(('claim', environment, workspace_id, consumer))
             raise StopListening()
 
@@ -278,39 +323,43 @@ class BroadcastDeliveryTests(InboxTestCase):
         )
         self.assertIsNone(cli.next_prompt('stage', 'w1', first))
 
-    def test_fresh_session_consumer_backlog_is_marked_replayed(self):
+    def test_fresh_session_consumer_starts_past_backlog(self):
         self.enqueue('Start J-all-44', 'm1')
         consumer = cli.generate_session_consumer()
-        boundary = cli.get_replay_boundary('stage', 'w1', consumer)
-        self.assertEqual(
-            'Start J-all-44 (replayed)',
-            cli.next_prompt('stage', 'w1', consumer, boundary),
-        )
+        cli.start_new_consumer_at_arm_time('stage', 'w1', consumer)
+        self.assertIsNone(cli.next_prompt('stage', 'w1', consumer))
         self.enqueue('Responded J-all-10', 'm2')
         self.assertEqual(
             'Responded J-all-10',
-            cli.next_prompt('stage', 'w1', consumer, boundary),
+            cli.next_prompt('stage', 'w1', consumer),
         )
 
-    def test_established_consumer_has_no_replay_boundary(self):
+    def test_established_consumer_backlog_is_not_skipped(self):
         self.enqueue('Start J-all-44', 'm1')
         consumer = cli.generate_session_consumer()
         cli.next_prompt('stage', 'w1', consumer)
         self.enqueue('Updated J-all-10', 'm2')
-        self.assertIsNone(cli.get_replay_boundary('stage', 'w1', consumer))
+        cli.start_new_consumer_at_arm_time('stage', 'w1', consumer)
+        self.assertEqual(
+            'Updated J-all-10',
+            cli.next_prompt('stage', 'w1', consumer),
+        )
 
-    def test_default_consumer_never_marked_replayed(self):
+    def test_default_consumer_backlog_is_never_skipped(self):
         self.enqueue('Start J-all-44', 'm1')
-        self.assertIsNone(
-            cli.get_replay_boundary('stage', 'w1', cli.DEFAULT_CONSUMER))
+        cli.start_new_consumer_at_arm_time('stage', 'w1', cli.DEFAULT_CONSUMER)
+        self.assertEqual(
+            'Start J-all-44',
+            cli.next_prompt('stage', 'w1', cli.DEFAULT_CONSUMER),
+        )
 
-    def test_empty_inbox_boundary_marks_nothing(self):
+    def test_empty_inbox_arm_skips_nothing(self):
         consumer = cli.generate_session_consumer()
-        boundary = cli.get_replay_boundary('stage', 'w1', consumer)
+        cli.start_new_consumer_at_arm_time('stage', 'w1', consumer)
         self.enqueue('Start J-all-44', 'm1')
         self.assertEqual(
             'Start J-all-44',
-            cli.next_prompt('stage', 'w1', consumer, boundary),
+            cli.next_prompt('stage', 'w1', consumer),
         )
 
     def test_stale_session_cursors_are_garbage_collected(self):

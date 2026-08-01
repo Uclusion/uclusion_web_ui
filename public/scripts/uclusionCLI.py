@@ -49,14 +49,16 @@ def resolve_consumer(explicit_consumer, is_listener):
     """Pick the delivery cursor identity for a wait or listen (J-all-379).
 
     Every agent session gets its own cursor so every session sees every poke
-    (Q-all-348 O-1: a brand-new cursor replays the retained backlog). Priority:
+    arriving while it is armed (S-all-205: a brand-new cursor starts at the
+    arm-time high-water mark — the retained backlog is history). Priority:
     an explicit --consumer, then the UCLUSION_CONSUMER environment variable
     (the human's knob for surfaces that spawn many processes per session),
     then for a listener a fresh generated identity - the listener process IS
     the session. A bare wait falls back to the shared default cursor because
-    a per-invocation identity would replay the whole backlog on every drain;
-    surfaces that can identify their session (the Cursor stop hook's
-    conversation id, or the human via UCLUSION_CONSUMER) get their own lane.
+    a per-invocation identity would start past the pending backlog on every
+    drain and deliver nothing; surfaces that can identify their session (the
+    Cursor stop hook's conversation id, or the human via UCLUSION_CONSUMER)
+    get their own lane.
     """
     if explicit_consumer is not None:
         return explicit_consumer
@@ -194,20 +196,20 @@ def ensure_inbox_schema(connection):
         raise
 
 
-def get_replay_boundary(environment, workspace_id, consumer):
-    """Sequence at or below which rows are history for a BRAND-NEW consumer.
+def start_new_consumer_at_arm_time(environment, workspace_id, consumer):
+    """Initialize a BRAND-NEW consumer's cursor at the arm-time high-water mark.
 
-    Q-all-349 O-3: a fresh session cursor replays the retained backlog, and
-    those lines must be distinguishable from live prompts — a days-old
-    `Start` click is not a current instruction. Rows existing when a new
-    consumer arms get a ``(replayed)`` suffix. An established consumer has
-    no replay — its pending rows were simply never delivered — so the
-    boundary is None and nothing is marked. The shared default cursor is
-    always exempt: for surfaces that drain it at turn start the pending
-    backlog IS the live work, even on first-ever use.
+    S-all-205: the retained backlog is history a new session cannot act on —
+    anything still needing attention is on the agent's find work list — so a
+    fresh session cursor starts past it instead of redelivering it (the
+    ``--deliver-existing-pokes`` opt-in, Q-all-351 O-1, skips this call). An
+    established consumer is untouched: its pending rows were never
+    delivered and remain live. The shared default cursor is always exempt:
+    for surfaces that drain it at turn start the pending backlog IS the
+    live work, even on first-ever use.
     """
     if consumer == DEFAULT_CONSUMER:
-        return None
+        return
     with closing(open_inbox()) as connection:
         row = connection.execute(
             '''
@@ -216,15 +218,11 @@ def get_replay_boundary(environment, workspace_id, consumer):
             ''',
             (environment, workspace_id, consumer)
         ).fetchone()
-        if row is not None:
-            return None
-        high_water = connection.execute(
-            'SELECT MAX(sequence) FROM poke_messages'
-        ).fetchone()[0]
-        return high_water if high_water is not None else 0
+    if row is None:
+        ignore_existing_prompts(environment, workspace_id, consumer)
 
 
-def next_prompt(environment, workspace_id, consumer, replay_boundary=None):
+def next_prompt(environment, workspace_id, consumer):
     """Deliver the oldest prompt past this consumer's cursor (S-all-168).
 
     Prompts are not removed on delivery — they age out after
@@ -232,8 +230,7 @@ def next_prompt(environment, workspace_id, consumer, replay_boundary=None):
     exactly once, in arrival order. Waits sharing one consumer name share
     one cursor, and the atomic advance means each prompt goes to exactly
     one of them. ``consumed_at IS NULL`` skips rows claimed by
-    pre-migration clients so mixed versions do not double-deliver. Rows at
-    or below ``replay_boundary`` carry a ``(replayed)`` suffix (Q-all-349).
+    pre-migration clients so mixed versions do not double-deliver.
     """
     now = time.time()
     with closing(open_inbox()) as connection, connection:
@@ -244,7 +241,8 @@ def next_prompt(environment, workspace_id, consumer, replay_boundary=None):
         )
         # J-all-379: session cursors idle past the retention window are garbage.
         # Deleting one is semantically safe - every row it claimed has aged out,
-        # so a returning consumer replays exactly the rows it has not seen.
+        # and a returning consumer counts as brand-new, starting at the current
+        # high-water mark (S-all-205).
         connection.execute(
             'DELETE FROM poke_consumers WHERE updated_at < ?',
             (now - MESSAGE_RETENTION_SECONDS,)
@@ -277,8 +275,6 @@ def next_prompt(environment, workspace_id, consumer, replay_boundary=None):
             (environment, workspace_id, consumer, row[0], now)
         )
         connection.commit()
-        if replay_boundary is not None and row[0] <= replay_boundary:
-            return row[1] + ' (replayed)'
         return row[1]
 
 
@@ -1948,6 +1944,9 @@ def cmd_wait(args):
     one prompt per line — so a stack of pokes costs one cycle (B-all-507).
     ``--ignore-existing-pokes`` (B-all-515) advances this consumer past the
     backlog already queued at launch before the first delivery.
+    ``--deliver-existing-pokes`` (Q-all-351 O-1) keeps a brand-new session
+    consumer's cursor at zero so the retained backlog is delivered as its
+    private copy.
     """
     _api_url, json_path, _credentials_path = get_env_paths(args.env)
     config = load_config(json_path)
@@ -1960,8 +1959,8 @@ def cmd_wait(args):
 
     environment = args.env or 'production'
     consumer = resolve_consumer(args.consumer, is_listener=False)
-    # Before the cutoff below creates the cursor row, or a new consumer looks established
-    replay_boundary = get_replay_boundary(environment, workspace_id, consumer)
+    if not getattr(args, 'deliver_existing_pokes', False):
+        start_new_consumer_at_arm_time(environment, workspace_id, consumer)
     if getattr(args, 'ignore_existing_pokes', False):
         ignore_existing_prompts(environment, workspace_id, consumer)
     deadline = time.monotonic() + args.timeout
@@ -1970,13 +1969,13 @@ def cmd_wait(args):
     while True:
         if is_orphaned(initial_ppid):
             return 0
-        prompt = next_prompt(environment, workspace_id, consumer, replay_boundary)
+        prompt = next_prompt(environment, workspace_id, consumer)
         if prompt is not None:
             while prompt is not None:
                 print(prompt, flush=True)
                 if is_orphaned(initial_ppid):
                     return 0
-                prompt = next_prompt(environment, workspace_id, consumer, replay_boundary)
+                prompt = next_prompt(environment, workspace_id, consumer)
             return 0
         if time.monotonic() >= next_update_check:
             next_update_check = time.monotonic() + UPDATE_CHECK_INTERVAL
@@ -2002,6 +2001,9 @@ def cmd_listen(args):
     shared state file already guarantees each release is announced once.
     ``--ignore-existing-pokes`` (B-all-515) advances this consumer past the
     backlog already queued at launch before the first delivery.
+    ``--deliver-existing-pokes`` (Q-all-351 O-1) keeps a brand-new session
+    consumer's cursor at zero so the retained backlog is delivered as its
+    private copy.
     """
     _api_url, json_path, _credentials_path = get_env_paths(args.env)
     config = load_config(json_path)
@@ -2014,8 +2016,8 @@ def cmd_listen(args):
 
     environment = args.env or 'production'
     consumer = resolve_consumer(args.consumer, is_listener=True)
-    # Before the cutoff below creates the cursor row, or a new consumer looks established
-    replay_boundary = get_replay_boundary(environment, workspace_id, consumer)
+    if not getattr(args, 'deliver_existing_pokes', False):
+        start_new_consumer_at_arm_time(environment, workspace_id, consumer)
     if getattr(args, 'ignore_existing_pokes', False):
         ignore_existing_prompts(environment, workspace_id, consumer)
     next_update_check = time.monotonic()
@@ -2023,7 +2025,7 @@ def cmd_listen(args):
     while True:
         if is_orphaned(initial_ppid):
             return 0
-        prompt = next_prompt(environment, workspace_id, consumer, replay_boundary)
+        prompt = next_prompt(environment, workspace_id, consumer)
         if prompt is not None:
             print(prompt, flush=True)
             continue
@@ -2624,16 +2626,26 @@ def build_parser():
              'out, so each named consumer sees every prompt exactly once. '
              f'Defaults to the {CONSUMER_ENV_VAR} environment variable when '
              f'set, else the shared "{DEFAULT_CONSUMER}" cursor; give each '
-             'session its own name so every session sees every prompt '
-             '(J-all-379).',
+             'session its own name so every session sees every prompt.',
     )
-    wait_parser.add_argument(
+    wait_backlog_group = wait_parser.add_mutually_exclusive_group()
+    wait_backlog_group.add_argument(
         '--ignore-existing-pokes',
         action='store_true',
         help='Skip prompts already queued for this consumer when the wait '
              'starts; prompts arriving after that cutoff are still delivered. '
              'No inbox rows are deleted and other consumers and update '
              'notices are unaffected.',
+    )
+    wait_backlog_group.add_argument(
+        '--deliver-existing-pokes',
+        action='store_true',
+        help='Deliver the whole retained backlog to a brand-new session '
+             'consumer instead of starting its cursor at the current '
+             'high-water mark. The backlog is this consumer\'s private copy; '
+             'other consumers are unaffected. An established consumer or the '
+             'shared default cursor already receives its pending prompts, so '
+             'the flag changes nothing there.',
     )
     wait_parser.set_defaults(func=cmd_wait)
 
@@ -2649,17 +2661,28 @@ def build_parser():
         help='Cursor name this listener advances. Prompts are kept until they '
              'age out, so each named consumer sees every prompt exactly once. '
              f'Defaults to the {CONSUMER_ENV_VAR} environment variable when '
-             'set, else a fresh per-session identity so every session sees '
-             'every prompt, replaying the retained backlog on start '
-             '(J-all-379).',
+             'set, else a fresh per-session identity that starts at the '
+             'current high-water mark, so every session sees every prompt '
+             'arriving while it is armed.',
     )
-    listen_parser.add_argument(
+    listen_backlog_group = listen_parser.add_mutually_exclusive_group()
+    listen_backlog_group.add_argument(
         '--ignore-existing-pokes',
         action='store_true',
         help='Skip prompts already queued for this consumer when the listener '
              'starts; prompts arriving after that cutoff are still delivered. '
              'No inbox rows are deleted and other consumers and update '
              'notices are unaffected.',
+    )
+    listen_backlog_group.add_argument(
+        '--deliver-existing-pokes',
+        action='store_true',
+        help='Deliver the whole retained backlog to a brand-new session '
+             'consumer instead of starting its cursor at the current '
+             'high-water mark. The backlog is this consumer\'s private copy; '
+             'other consumers are unaffected. An established consumer or the '
+             'shared default cursor already receives its pending prompts, so '
+             'the flag changes nothing there.',
     )
     listen_parser.set_defaults(func=cmd_listen)
 

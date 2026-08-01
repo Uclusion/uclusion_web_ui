@@ -23,17 +23,15 @@ else. The only time you skip this is when the user has just named concrete
 work to do next; reaching the end of a task is itself a trigger, not an
 exemption.
 
-Annotate the find_work list with the Pokes you deferred while working
-(see "Wait for Poke AI": processing is single-threaded and out-of-lane
-Pokes are set aside, not acted on). Against each option that a deferred
-Poke named, note the verb — for example "a Start came in for this while I
-worked" or "Updated twice since I began". Then list any deferred Pokes
-whose targets are NOT on the find_work list, so nothing set aside is
-lost. A deferred Poke needs no reload to be mentioned; reload its target
-only when the human picks it. Deferred Pokes never count as the user
-having "named concrete work" and never skip this step — the annotated
-list is exactly where they surface, including a deferred `Start`, which
-waits for the human's pick rather than auto-starting.
+Present the list plainly. Pokes deferred while working (see "Wait for
+Poke AI": processing is single-threaded and out-of-lane Pokes are set
+aside, not acted on) need nothing more at this point: the state each
+one reported is already in Uclusion, so the find_work list is the
+current picture of what needs attention. A deferred `Start` never
+converts into an auto-start when your current work finishes — if the
+human still wants it worked, they pick it from the list. Deferred Pokes
+never count as the user having "named concrete work" and never skip
+this step.
 
 When `find_work` comes back with no work, ask "Your find work list is
 empty — would you like instructions for adding and working on a job?" If
@@ -108,7 +106,7 @@ the maintainer architecture document; in the Uclusion source tree its path is
 **Bare Codex CLI/TUI, and Cursor chat agents:** a background process cannot
 reliably wake an idle turn. In Cursor, hour-long `wait`, `listen`, and Shell
 `notify_on_output` have all failed to start a real agent turn on poke arrival
-(S-all-191): the harness may only surface a generic “task finished” notice, or
+: the harness may only surface a generic “task finished” notice, or
 a hung/`pkill`'d waiter can claim prompts that no model ever sees. Never leave
 `wait` or `listen` running in these surfaces. At the beginning of each real
 user-triggered turn, synchronously drain only the already-pending backlog:
@@ -121,14 +119,14 @@ Handle every returned line before the user's new request, then continue to
 `find_work` when appropriate. Autonomous Pokes work in sessions launched
 through `uclusion codex` (Codex bridge) — that path is fine. This bare
 turn-start drain has no session identity, so it advances the shared
-`default` cursor (J-all-379): concurrent bare drains share that one lane,
+`default` cursor: concurrent bare drains share that one lane,
 and the human can give a session its own lane by setting the
 `UCLUSION_CONSUMER` environment variable for it.
 
-**Cursor stop-hook drain (S-all-192):** the Cursor install also registers a
+**Cursor stop-hook drain:** the Cursor install also registers a
 `stop` hook (`uclusionCursorPokeDrain.py` in `~/.cursor/hooks.json` or the
 project `.cursor/hooks.json`) that runs the same zero-timeout drain when an
-agent turn ends, scoped to a per-conversation cursor (J-all-379) so one
+agent turn ends, scoped to a per-conversation cursor so one
 chat's drain never consumes another session's delivery. If lines are
 claimed, the hook returns them as
 `followup_message` so Cursor auto-submits the next user message. That covers
@@ -153,31 +151,36 @@ notification: handle every line, in arrival order, and when several name
 the same lookup short code one `get_job` covers them. A direct prompt's
 lookup code is its only short code; a compound option prompt's lookup code
 is the parent question after `of`. If the stream ever ends (the monitor is
-stopped or dies), arm it again — a re-armed listener is a NEW session with
-its own delivery cursor, so it replays the retained backlog including
-prompts this session already handled; the ` (replayed)` suffix marks
-them, and a reload (the target's state already reflects your handling)
-confirms any you do not remember — simply continue.
+stopped or dies), arm it again — a re-armed listener is a NEW session
+cursor that starts at arm time, so nothing older is redelivered; simply
+continue.
 
-When the user explicitly asks to discard the backlog — skip Pokes that
-were already queued before this session — arm the listener with
-`uclusion listen --ignore-existing-pokes` (`wait` accepts the same flag).
-The cutoff advances only this session's cursor past the Pokes already in
-the inbox at launch: later arrivals are delivered normally, no inbox rows
-are deleted, other sessions keep their own cursors, and update notices
-still appear. Never add the flag on your own initiative — Pokes queued
-between sessions are normally work waiting for you, and skipping them
-without an explicit instruction silently drops that work. If the ask
-arrives after the listener was armed, the armed listener has already
-claimed the backlog for this session: handle or drop those delivered
-lines as the user directs, or re-arm with the flag — the fresh listener's
-new cursor starts past the backlog.
+A fresh listener starts past the backlog automatically, so there is
+nothing to discard when arming one. The `--ignore-existing-pokes` flag
+(`listen` and `wait` both accept it) matters on the shared `default`
+cursor, whose pending backlog is otherwise live work for turn-start
+drains. The cutoff advances only that consumer's cursor past the Pokes
+already in the inbox: later arrivals are delivered normally, no inbox
+rows are deleted, other sessions keep their own cursors, and update
+notices still appear. Never add the flag on your own initiative —
+skipping the `default` cursor's backlog without an explicit instruction
+silently drops live work.
+
+The reverse ask is also supported: when the user explicitly asks to see
+the old backlog — to inspect what queued while they were away, or for a
+scheme of their own such as taking the first `Start` no other session
+has already taken — arm with `uclusion listen --deliver-existing-pokes`
+(`wait` accepts the same flag). The session's fresh cursor then starts
+at zero and the retained backlog is delivered to it as a private copy,
+unmarked and in arrival order, with no effect on any other consumer;
+handle those lines exactly as the user's ask directs. Never add this
+flag on your own initiative either.
 
 **Clients whose harness turns a background command's completion into a new
 agent event:** run the bounded wait as a background (detached) task and
 relaunch it after every completion. Merely being able to poll a dormant
 process later does not qualify; bare Codex and Cursor chat are explicitly
-handled above (S-all-191) — a generic completion notice is not enough.
+handled above — a generic completion notice is not enough.
 
 ```sh
 uclusion wait --timeout 3600
@@ -228,7 +231,7 @@ Use the same environment flag as every other Uclusion CLI command; for
 example, stage is `uclusion -e stage listen` or `uclusion -e stage wait
 --timeout 3600`. However you listen, triage every delivered line in
 arrival order against the ONE job or bug you are currently working —
-processing is single-threaded by default (T-all-2428). Your lane runs
+processing is single-threaded by default. Your lane runs
 from the moment you begin a job or bug's workflow (reading and questions
 included) until you post its review or it blocks on the human. A line
 about that work (the job or bug itself, or anything nested in it) is
@@ -240,11 +243,11 @@ your current work and not visible in its markdown, as any freshly Added
 item is — gets ONE classification reload with `get_job`; if the enclosing
 work is your lane, handle it, otherwise mention what it belongs to and
 defer with no further action. The mid-work mention is best-effort (some
-clients hide text written between tool calls); the annotated find_work
-below is the durable record of everything deferred. The human can
-override at any moment ("take that up now"); otherwise every deferred
-line resurfaces in the annotated find_work you run when the current work
-finishes. When no job or bug is active, every line is handled
+clients hide text written between tool calls). The human can override
+at any moment ("take that up now"); otherwise a deferred line needs
+nothing more — the state it reported is already in Uclusion, and the
+find_work you run when the current work finishes shows whatever still
+needs attention. When no job or bug is active, every line is handled
 immediately, making its loaded target the active work subject to the
 same stage and workflow checks whatever the verb. Correlated Poke
 prompts use four verbs whose first word is a contract:
@@ -256,15 +259,12 @@ prompts use four verbs whose first word is a contract:
   with broadcast delivery the click may be meant for another session, so
   mention it and continue unless the human tells this session to switch.
   A deferred `Start` does NOT convert into an auto-start when your
-  current work finishes: it appears as an annotation on the find_work
-  list for the human to pick, since by then another session may have
-  taken it or the click gone stale. A `Start ... (replayed)` line is
-  never an instruction either — it is history from before this session
-  existed, and another session may already have honored it: treat it
-  exactly like a deferred `Start`, an annotation on the session-opening
-  find_work for the human's pick. Only an unmarked, live `Start` while
-  idle starts work. Automatic collaborator activity
-  never uses `Start`.
+  current work finishes — by then another session may have taken it or
+  the click gone stale; if the human still wants it worked, they pick
+  it from the find_work list. A `Start ... (replayed)` line is history,
+  not an instruction — drop it like every replayed line. Only an
+  unmarked, live `Start` while idle starts work. Automatic collaborator
+  activity never uses `Start`.
 - `Added <target>` reports that a task, grouped task, question, suggestion, or
   blocker was created.
 - `Updated <target>` reports a response-worthy edit, move, deletion, assignment
@@ -287,7 +287,7 @@ working, reload it as described above and incorporate the new state — do not
 abandon the work merely because the event arrived. The reloaded job's current
 stage still governs what work is allowed: if it locks execution, respond to
 whatever assistance it awaits, and if the job then remains blocked on the
-human, treat the work as finished for now and run the annotated find_work.
+human, treat the work as finished for now and run find_work.
 When the target is outside your current work, defer it unreloaded as
 described above. If no work is currently active, make the loaded target
 active subject to the same stage and workflow checks. When a direct job-item
@@ -321,23 +321,25 @@ deferred like any other out-of-lane prompt. A legacy bare `Responded.`
 prompt has no target: when idle, call `get_job` for every currently
 outstanding Uclusion dependency so no response is missed; when mid-work,
 reload only the current job or bug and note that other outstanding
-dependencies may have responses waiting for the annotated find_work.
+dependencies may have responses waiting — the find_work you run when
+the current work finishes surfaces them.
 Do not merely report the response or stage change; if the job still
 depends on human activity after those actions, resume polling.
 
 Prompts are delivered in arrival order and stay in the queue until they age
 out, so nothing is lost while you work. Delivery is broadcast per session:
-every agent session has its own delivery cursor and sees every prompt —
+every agent session has its own delivery cursor and sees every prompt
+that arrives while it is armed —
 a listener auto-generates a per-session identity, the Cursor stop hook
 scopes its drain to the conversation, the Codex bridge keeps its dedicated
 cursor, and only a bare `wait` with no session identity falls back to the
 shared `default` cursor (the `UCLUSION_CONSUMER` environment variable gives
-such a surface its own lane when the human sets it). A brand-new session
-replays the retained backlog — those prompts are work waiting for you, in
-arrival order, and each one carries a ` (replayed)` suffix so history is
-distinguishable from a live prompt (Q-all-349); rows arriving after the
-listener armed come through unmarked. Within one session a prompt is
-delivered once; across sessions everyone gets a copy. Single-threaded triage (T-all-2428) is what
+such a surface its own lane when the human sets it). A brand-new
+session's cursor starts at arm time: the retained backlog is history it
+never receives, and anything still needing attention is on find_work.
+(An older CLI may still deliver backlog lines suffixed ` (replayed)` —
+drop them on the floor: no reload, no action.) Within one session a prompt is
+delivered once; across sessions everyone gets a copy. Single-threaded triage is what
 makes that broadcast safe whether one session runs or five: your lane is
 the one job or bug you are working, prompts outside it are deferred with a
 mention, and when several agents run at once the human divides the labor.

@@ -30,12 +30,19 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             self.workflow,
         )
         self.assertIn('never uses `Start`', self.workflow)
-        # T-all-2428 / Q-all-349: Start only auto-starts when live and idle
+        # T-all-2428 / Q-all-349 / T-all-2430: Start only auto-starts when
+        # live and idle; replayed lines are dropped on the floor
         self.assertIn(
             'A deferred `Start` does NOT convert into an auto-start',
             self.workflow,
         )
-        self.assertIn('never an instruction either', self.workflow)
+        self.assertIn('drop it like every replayed line', self.workflow)
+        # S-all-205: fresh session cursors start at arm time; the marked-line
+        # rule survives only as the older-CLI compatibility note
+        self.assertIn("cursor starts at arm time", self.workflow)
+        self.assertIn('drop them on the floor', self.workflow)
+        # Q-all-351 O-1: the backlog stays reachable on explicit request
+        self.assertIn('--deliver-existing-pokes', self.workflow)
 
     def test_added_and_updated_preserve_active_scope_and_stage_lock(self):
         self.assertIn(
@@ -97,7 +104,7 @@ class WorkflowProtocolContractTests(unittest.TestCase):
         )
 
     def test_cursor_stop_hook_drain_is_documented(self):
-        self.assertIn('Cursor stop-hook drain (S-all-192)', self.workflow)
+        self.assertIn('Cursor stop-hook drain', self.workflow)
         self.assertIn('uclusionCursorPokeDrain.py', self.workflow)
         self.assertIn('followup_message', self.workflow)
         self.assertIn(

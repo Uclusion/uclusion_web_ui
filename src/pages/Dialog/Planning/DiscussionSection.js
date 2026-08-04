@@ -182,8 +182,9 @@ function DiscussionSection(props) {
             <div>Ask a question or make a suggestion and Uclusion support will respond.</div>
             :
             <div>
-              <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Questions and suggestions</Link> can
-              be used at the view level and later moved to a job.
+              <Link href="https://documentation.uclusion.com/views/#view-level-notes" target="_blank">View level notes</Link> hold
+              standing guidance for all work in this view — policies, conventions, and preferences that apply to every
+              job, and that AI receives with each job here when a note is marked "Show AI".
             </div>
         } />
 

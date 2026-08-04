@@ -51,7 +51,9 @@ import {
 } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { OnboardingState, userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
-import { getComment } from '../../contexts/CommentsContext/commentsContextHelper';
+import { getComment, getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
+import { TODO_TYPE } from '../../constants/comments';
+import { RED_LEVEL } from '../../constants/notifications';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import jwt_decode from 'jwt-decode';
 import { fixName, getMarketInfo } from '../../utils/userFunctions';
@@ -274,8 +276,18 @@ export function getSidebarGroups(isDark, navListItemTextArray, groupsState, mark
       } else {
         numSuffix = 'new';
       }
-      if (!_.isEmpty(groupMessages)) {
-        num = groupMessages.length;
+      let count = groupMessages.length;
+      if (numSuffix === 'total' && groupPresences.find((presence) => presence.id === myPresence.id)) {
+        // B-all-529: a member otherwise gets no signal to enter the view when it holds open
+        // critical bugs - non-members opted out of the view's bugs by not joining
+        const criticalBugs = getMarketComments(commentsState, marketId, group.id).filter((comment) =>
+          comment.comment_type === TODO_TYPE && !comment.investible_id && !comment.resolved &&
+          comment.notification_type === RED_LEVEL &&
+          !groupMessages.find((message) => message.comment_id === comment.id));
+        count += criticalBugs.length;
+      }
+      if (count > 0) {
+        num = count;
       }
     }
     const groupName = market.object_type === DEMO_TYPE && group.name === 'Single' && isGravatarDisplay ? singlePresence.name : group.name;

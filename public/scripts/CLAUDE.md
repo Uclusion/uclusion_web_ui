@@ -250,9 +250,12 @@ clients hide text written between tool calls). The human can override
 at any moment ("take that up now"); otherwise a deferred line needs
 nothing more — the state it reported is already in Uclusion, and the
 find_work you run when the current work finishes shows whatever still
-needs attention. When no job or bug is active, every line is handled
-immediately, making its loaded target the active work subject to the
-same stage and workflow checks whatever the verb. Correlated Poke
+needs attention. When no job or bug is active, a `Start`, `Responded`,
+or `Added` line is handled immediately, making its loaded target the
+active work subject to the same stage and workflow checks. An `Updated`
+line received while idle never starts work on its own: briefly note it
+and remain idle — the state it reports is already in Uclusion, and
+find_work surfaces it whenever work does begin. Correlated Poke
 prompts use four verbs whose first word is a contract:
 
 - `Start <target>` is reserved exclusively for an explicit human click on
@@ -299,8 +302,10 @@ stage still governs what work is allowed: if it locks execution, respond to
 whatever assistance it awaits, and if the job then remains blocked on the
 human, treat the work as finished for now and run find_work.
 When the target is outside your current work, defer it unreloaded as
-described above. If no work is currently active, make the loaded target
-active subject to the same stage and workflow checks. When a direct job-item
+described above. If no work is currently active, an `Added` target becomes
+the active work subject to the same stage and workflow checks, while an
+`Updated` line never starts an idle agent working — note it and remain
+idle. When a direct job-item
 target was soft-deleted, `get_job`
 identifies that deletion and returns the current enclosing job with the deleted
 item absent; incorporate the removal into the active work.

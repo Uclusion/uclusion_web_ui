@@ -246,7 +246,30 @@ class CompatibilityTests(unittest.TestCase):
                 bridge.main([command, "--ignored", "legacy"]),
             )
 
-    def test_run_forwards_ignore_existing_pokes(self):
+    def test_run_forwards_deliver_existing_pokes(self):
+        config = object()
+        with mock.patch.object(
+            bridge, "config_from_args", return_value=config
+        ), mock.patch.object(
+            bridge, "run_bridge", return_value=17
+        ) as run_bridge:
+            result = bridge.main(
+                [
+                    "run",
+                    "--deliver-existing-pokes",
+                    "--poll-interval",
+                    "0.25",
+                ]
+            )
+
+        self.assertEqual(17, result)
+        run_bridge.assert_called_once_with(
+            config,
+            poll_interval=0.25,
+            deliver_existing_pokes=True,
+        )
+
+    def test_run_accepts_legacy_ignore_flag_as_default_cutoff(self):
         config = object()
         with mock.patch.object(
             bridge, "config_from_args", return_value=config
@@ -266,11 +289,93 @@ class CompatibilityTests(unittest.TestCase):
         run_bridge.assert_called_once_with(
             config,
             poll_interval=0.25,
-            ignore_existing_pokes=True,
+            deliver_existing_pokes=False,
         )
 
 
 class RunBridgeTests(BridgeTestCase):
+    def test_default_startup_applies_atomic_backlog_cutoff(self):
+        stopping = threading.Event()
+        stopping.set()
+        relay = mock.Mock()
+        config = dataclass_replace(
+            self.config,
+            frontend_socket=os.path.join(
+                self.temporary.name, "frontend.sock"
+            ),
+        )
+        with mock.patch.object(
+            bridge.InboxStore,
+            "ignore_existing_pokes",
+            autospec=True,
+        ) as cutoff:
+            result = bridge.run_bridge(
+                config,
+                stop_event=stopping,
+                relay_factory=lambda *_args: relay,
+                update_notice_source=lambda _environment: None,
+            )
+
+        self.assertEqual(bridge.EXIT_OK, result)
+        cutoff.assert_called_once()
+        self.assertEqual(config, cutoff.call_args.args[1])
+        self.assertEqual("codex-bridge", bridge.BRIDGE_CONSUMER)
+        relay.close.assert_called_once_with()
+
+    def test_deliver_existing_opt_in_disables_startup_cutoff(self):
+        stopping = threading.Event()
+        stopping.set()
+        relay = mock.Mock()
+        config = dataclass_replace(
+            self.config,
+            frontend_socket=os.path.join(
+                self.temporary.name, "frontend.sock"
+            ),
+        )
+        with mock.patch.object(
+            bridge.InboxStore,
+            "ignore_existing_pokes",
+            autospec=True,
+        ) as cutoff:
+            result = bridge.run_bridge(
+                config,
+                stop_event=stopping,
+                relay_factory=lambda *_args: relay,
+                update_notice_source=lambda _environment: None,
+                deliver_existing_pokes=True,
+            )
+
+        self.assertEqual(bridge.EXIT_OK, result)
+        cutoff.assert_not_called()
+        relay.close.assert_called_once_with()
+
+    def test_legacy_false_ignore_keyword_preserves_backlog_delivery(self):
+        stopping = threading.Event()
+        stopping.set()
+        relay = mock.Mock()
+        config = dataclass_replace(
+            self.config,
+            frontend_socket=os.path.join(
+                self.temporary.name, "frontend.sock"
+            ),
+        )
+        with mock.patch.object(
+            bridge.InboxStore,
+            "ignore_existing_pokes",
+            autospec=True,
+        ) as cutoff:
+            result = bridge.run_bridge(
+                config,
+                stop_event=stopping,
+                relay_factory=lambda *_args: relay,
+                update_notice_source=lambda _environment: None,
+                ignore_existing_pokes=False,
+            )
+
+        self.assertEqual(bridge.EXIT_OK, result)
+        cutoff.assert_not_called()
+        relay.close.assert_called_once_with()
+
     def test_driver_eof_before_registration_retries_without_fatal_state(self):
         stopping = threading.Event()
         clients = []
@@ -1739,7 +1844,7 @@ class DeliveryTests(BridgeTestCase):
         self.assertEqual(2, self.delivery_attempts(sequence))
         self.assertEqual(1, len(app_server.start_calls))
 
-    def test_ordered_backlog_is_delivered_once(self):
+    def test_retained_backlog_is_delivered_once_without_startup_cutoff(self):
         self.bind()
         sequences = [
             self.add_poke("message-{}".format(index), prompt)
@@ -1770,7 +1875,7 @@ class DeliveryTests(BridgeTestCase):
         self.assertEqual("empty", engine.step().action)
         self.assertEqual(3, len(app_server.start_calls))
 
-    def test_ignore_existing_pokes_skips_backlog_but_delivers_later_poke(self):
+    def test_startup_cutoff_skips_backlog_but_delivers_later_poke(self):
         self.bind()
         first = self.add_poke("old-1", "Start J-old-1")
         second = self.add_poke("old-2", "Start J-old-2")

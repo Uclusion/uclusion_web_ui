@@ -44,6 +44,21 @@ class WorkflowProtocolContractTests(unittest.TestCase):
         # Q-all-351 O-1: the backlog stays reachable on explicit request
         self.assertIn('--deliver-existing-pokes', self.workflow)
 
+    def test_codex_bridge_skips_startup_backlog_by_default(self):
+        self.assertIn(
+            'establishes a startup cutoff and atomically skips every Poke '
+            'already queued at that cutoff',
+            self.workflow,
+        )
+        self.assertIn(
+            'uclusion codex --deliver-existing-pokes',
+            self.workflow,
+        )
+        self.assertIn(
+            'Never add this flag on your own initiative',
+            self.workflow,
+        )
+
     def test_added_and_updated_preserve_active_scope_and_stage_lock(self):
         self.assertIn(
             '`Added` and `Updated` are additive event notices',

@@ -398,17 +398,21 @@ must commit in its expected/response turn. A queued `turn/start` can internally
 join a regular turn that became active first, so its exact client id—not its
 provisional response turn—is authoritative.
 
-The explicit launcher option `uclusion codex --ignore-existing-pokes` is the
-sole exception. After the companion acquires exclusive ownership and before it
-publishes readiness, it atomically advances only the `codex-bridge` cursor
-through the highest Poke already present and terminalizes any older
-pending/sending bridge delivery as skipped. An enqueue serialized after that
-transaction remains pending and is delivered normally. Stored Pokes, update
-notices, and all other consumer cursors are untouched. A Poke that Codex
-accepted before an ambiguous bridge failure may already exist in thread
-history and cannot be canceled; skipping prevents its reconciliation or retry.
-The cutoff is committed once, so a later frontend or TUI startup failure does
-not restore the skipped backlog.
+Every ordinary `uclusion codex` launch applies an atomic startup cutoff. After
+the companion acquires exclusive ownership and before it publishes readiness,
+it advances only the `codex-bridge` cursor through the highest Poke already
+present and terminalizes any older pending/sending bridge delivery as skipped.
+An enqueue serialized after that transaction remains pending and is delivered
+normally. Stored Pokes, update notices, and all other consumer cursors are
+untouched. A Poke that Codex accepted before an ambiguous bridge failure may
+already exist in thread history and cannot be canceled; skipping prevents its
+reconciliation or retry. The cutoff is committed once, so a later frontend or
+TUI startup failure does not restore the skipped backlog.
+
+The explicit launcher option `uclusion codex --deliver-existing-pokes` is the
+sole exception. It omits the startup cutoff, leaving the persistent bridge
+cursor and delivery records intact so the retained backlog is reconciled or
+delivered in arrival order before the bridge continues with later Pokes.
 
 If the auxiliary transport fails after a send, the outcome is ambiguous. The
 `sending` record retains the message id, thread id, admission method,
@@ -523,9 +527,8 @@ very narrow limitation of atomic temp-file replacement. Poke delivery has no
 1. Validate workspace configuration and the Codex version.
 2. Stage one immutable Uclusion release in a new private runtime directory.
 3. Start Codex app-server on the private backend Unix socket.
-4. Start the companion and acquire exclusive bridge ownership. If
-   `--ignore-existing-pokes` was requested, establish its atomic backlog
-   cutoff now.
+4. Start the companion and acquire exclusive bridge ownership. Establish its
+   atomic backlog cutoff now unless `--deliver-existing-pokes` was requested.
 5. Initialize the companion's driver/witness connection, then bind the private
    frontend Unix socket. The driver is therefore available for an explicit
    subscription before any TUI root response can be released.
@@ -641,8 +644,9 @@ At minimum, tests must cover:
 - malformed reconciliation history remaining `sending`, plus cursor
   acknowledgement serialized against lifecycle and disconnect revocation;
 - duplicate cloud notifications and independent consumer cursors;
-- atomic `--ignore-existing-pokes` cutoff, stale sending-delivery
-  terminalization, and isolation from later Pokes plus other consumers;
+- default atomic startup cutoff, `--deliver-existing-pokes` backlog opt-in,
+  stale sending-delivery terminalization, and isolation from later Pokes plus
+  other consumers;
 - launcher cleanup for TUI, companion, and app-server failure; and
 - a real end-to-end Poke plus `/new` interleaving against a supported
   Codex release.

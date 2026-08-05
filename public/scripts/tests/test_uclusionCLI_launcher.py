@@ -65,12 +65,12 @@ class CodexLauncherTests(unittest.TestCase):
         self,
         env='stage',
         codex_args=None,
-        ignore_existing_pokes=False,
+        deliver_existing_pokes=False,
     ):
         return SimpleNamespace(
             env=env,
             codex_args=[] if codex_args is None else codex_args,
-            ignore_existing_pokes=ignore_existing_pokes,
+            deliver_existing_pokes=deliver_existing_pokes,
         )
 
     def launcher_prerequisites(self, stack, config=None):
@@ -158,21 +158,26 @@ class CodexLauncherTests(unittest.TestCase):
             )
         )
 
-    def test_parser_accepts_environment_and_codex_passthrough(self):
+    def test_parser_accepts_environment_backlog_opt_in_and_codex_passthrough(self):
         args = cli.build_parser().parse_args([
-            '-e', 'stage', 'codex', '--ignore-existing-pokes', '--',
+            '-e', 'stage', 'codex', '--deliver-existing-pokes', '--',
             '--no-alt-screen', 'resume', '--last',
         ])
 
         self.assertEqual(args.env, 'stage')
-        self.assertTrue(args.ignore_existing_pokes)
+        self.assertTrue(args.deliver_existing_pokes)
         self.assertEqual(
             args.codex_args,
             ['--', '--no-alt-screen', 'resume', '--last'],
         )
         self.assertIs(args.func, cli.cmd_codex)
         default_args = cli.build_parser().parse_args(['codex'])
-        self.assertFalse(default_args.ignore_existing_pokes)
+        self.assertFalse(default_args.deliver_existing_pokes)
+        legacy_args = cli.build_parser().parse_args([
+            'codex', '--ignore-existing-pokes',
+        ])
+        self.assertTrue(legacy_args.ignore_existing_pokes)
+        self.assertFalse(legacy_args.deliver_existing_pokes)
 
     def test_rejects_passthrough_remote_override_before_process_start(self):
         for codex_args in (
@@ -305,7 +310,6 @@ class CodexLauncherTests(unittest.TestCase):
                     '--', '--disable', 'apps',
                     '--no-alt-screen', 'resume', '--last',
                 ],
-                ignore_existing_pokes=True,
             ))
 
         self.assertEqual(result, 7)
@@ -350,7 +354,6 @@ class CodexLauncherTests(unittest.TestCase):
                 '--frontend-socket', '/private/runtime/tui-relay.sock',
                 '--ready-file', '/private/runtime/bridge.ready',
                 '--receiver-pid-file', '/private/runtime/receiver.pid',
-                '--ignore-existing-pokes',
             ],
         )
         self.assertEqual(
@@ -397,6 +400,33 @@ class CodexLauncherTests(unittest.TestCase):
             '/release/bin/uclusionCodexBridge.py',
             '/release/bin/uclusionMCPProxy.py',
         )
+
+    def test_explicit_backlog_opt_in_is_forwarded_only_to_bridge(self):
+        app_server = FakeProcess([None])
+        bridge = FakeProcess([None])
+        tui = FakeProcess([7])
+        with ExitStack() as stack:
+            self.launcher_prerequisites(stack)
+            popen = stack.enter_context(
+                mock.patch.object(
+                    cli.subprocess,
+                    'Popen',
+                    side_effect=[app_server, bridge, tui],
+                )
+            )
+
+            result = cli.cmd_codex(self.launcher_args(
+                deliver_existing_pokes=True,
+            ))
+
+        self.assertEqual(7, result)
+        self.assertEqual(3, popen.call_count)
+        app_server_call, bridge_call, tui_call = popen.call_args_list
+        self.assertNotIn(
+            '--deliver-existing-pokes', app_server_call.args[0]
+        )
+        self.assertIn('--deliver-existing-pokes', bridge_call.args[0])
+        self.assertNotIn('--deliver-existing-pokes', tui_call.args[0])
 
     def test_bridge_ready_wait_accepts_only_the_expected_instance(self):
         bridge = FakeProcess([None])

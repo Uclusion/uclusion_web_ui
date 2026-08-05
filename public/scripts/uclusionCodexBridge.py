@@ -869,7 +869,7 @@ class InboxStore:
                 UPDATE codex_bridge_deliveries
                 SET state = 'skipped',
                     last_error =
-                        'skipped by --ignore-existing-pokes at bridge launch',
+                        'skipped by the Codex bridge launch cutoff',
                     updated_at = ?
                 WHERE environment = ? AND workspace_id = ? AND consumer = ?
                   AND sequence <= ?
@@ -6903,15 +6903,27 @@ def run_bridge(
         default_update_notice_source
     ),
     update_check_interval: float = UPDATE_CHECK_INTERVAL_SECONDS,
-    ignore_existing_pokes: bool = False,
+    deliver_existing_pokes: bool = False,
     **_legacy_options: Any,
 ) -> int:
     """Run the relay-owned bridge.
 
     Root authority comes only from the correlated primary TUI connection.
     Hooks, broadcasts, loaded-thread lists, and persisted bindings are never
-    consulted by this path.
+    consulted by this path. Each launch atomically skips Pokes that predate
+    its startup cutoff unless the human explicitly requested backlog delivery.
     """
+    # Compatibility for callers of the former internal boolean. The public
+    # launcher also accepts its old flag as a hidden no-op, while the new
+    # positive option is the only documented surface.
+    if "ignore_existing_pokes" in _legacy_options:
+        legacy_ignore = bool(_legacy_options["ignore_existing_pokes"])
+        if deliver_existing_pokes and legacy_ignore:
+            raise ConfigurationError(
+                "cannot both deliver and ignore existing Pokes"
+            )
+        deliver_existing_pokes = not legacy_ignore
+
     if not config.app_server_socket:
         raise ConfigurationError("run requires an app-server socket")
     if not config.frontend_socket:
@@ -6954,7 +6966,7 @@ def run_bridge(
         )
 
     try:
-        if ignore_existing_pokes:
+        if not deliver_existing_pokes:
             store.ignore_existing_pokes(config)
         while not stopping.is_set():
             if os.getppid() != parent_pid:
@@ -7167,7 +7179,13 @@ def build_parser() -> argparse.ArgumentParser:
     add_identity_options(run_parser)
     run_parser.add_argument("--ready-file")
     run_parser.add_argument("--receiver-pid-file")
-    run_parser.add_argument(
+    backlog_group = run_parser.add_mutually_exclusive_group()
+    backlog_group.add_argument(
+        "--deliver-existing-pokes",
+        action="store_true",
+        help=argparse.SUPPRESS,
+    )
+    backlog_group.add_argument(
         "--ignore-existing-pokes",
         action="store_true",
         help=argparse.SUPPRESS,
@@ -7199,7 +7217,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return run_bridge(
             config,
             poll_interval=args.poll_interval,
-            ignore_existing_pokes=args.ignore_existing_pokes,
+            deliver_existing_pokes=args.deliver_existing_pokes,
         )
     except (ConfigurationError, sqlite3.Error) as exc:
         print(

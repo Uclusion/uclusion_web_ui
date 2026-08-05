@@ -65,11 +65,17 @@ Poke delivery. Global `-c`/`--config`, `--enable`, `--disable`, and
 `--strict-config` passthrough flags are applied to both the TUI and its private
 app-server; other passthrough arguments remain TUI-only.
 
-When the user deliberately wants to discard only the backlog for this Codex
-consumer, launch with `uclusion codex --ignore-existing-pokes`. The companion
-atomically skips Pokes already present when it acquires exclusive bridge
-ownership; Pokes arriving afterward are delivered normally. This does not
-delete inbox rows, skip update notices, or advance any other consumer.
+By default, after acquiring exclusive bridge ownership, the companion
+establishes a startup cutoff and atomically skips every Poke already queued at
+that cutoff. Pokes arriving afterward are delivered normally. The cutoff
+advances only the Codex bridge cursor: it does not delete inbox rows, skip
+update notices, or advance any other consumer.
+
+When the user explicitly wants this Codex session to process the retained
+backlog, launch with `uclusion codex --deliver-existing-pokes`. Place the flag
+before `--` and any arguments passed through to Codex. The companion then keeps
+the existing bridge cursor and delivers its pending backlog in arrival order
+before continuing with later Pokes. Never add this flag on your own initiative.
 
 The relay, not lifecycle hooks or app-server broadcasts, owns the primary
 thread identity. The first successfully initialized `clientInfo.name=codex-tui`

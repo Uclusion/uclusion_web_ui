@@ -1673,7 +1673,8 @@ def cmd_codex(args):
     credentials or log in. The TUI connects only to the relay's private
     frontend socket; the relay owns the separate backend app-server
     connection. Every child and the private runtime directory are cleaned up
-    with the TUI.
+    with the TUI. The bridge starts past the queued backlog unless the human
+    explicitly opts into delivering it.
     """
     environment = args.env or 'production'
     _api_url, json_path, _credentials_path = get_env_paths(environment)
@@ -1797,8 +1798,8 @@ def cmd_codex(args):
                 '--ready-file', bridge_ready_path,
                 '--receiver-pid-file', receiver_pid_path,
             ]
-            if getattr(args, 'ignore_existing_pokes', False):
-                bridge_command.append('--ignore-existing-pokes')
+            if getattr(args, 'deliver_existing_pokes', False):
+                bridge_command.append('--deliver-existing-pokes')
             tui_command = [
                 codex_path,
                 '--remote',
@@ -2595,12 +2596,19 @@ def build_parser():
         'codex',
         help='Launch Codex through the private Uclusion Poke relay.',
     )
-    codex_parser.add_argument(
+    codex_backlog_group = codex_parser.add_mutually_exclusive_group()
+    codex_backlog_group.add_argument(
+        '--deliver-existing-pokes',
+        action='store_true',
+        help='Deliver Pokes already queued for the Codex bridge when it starts. '
+             'By default a new Codex session starts at the launch-time cutoff '
+             'and receives only later Pokes. Place this option before `--` and '
+             'any arguments passed through to Codex.',
+    )
+    codex_backlog_group.add_argument(
         '--ignore-existing-pokes',
         action='store_true',
-        help='Skip Pokes already queued when the bridge starts; Pokes arriving '
-             'after that cutoff are still delivered. Place this option before '
-             '`--` and any arguments passed through to Codex.',
+        help=argparse.SUPPRESS,
     )
     codex_parser.add_argument(
         'codex_args',

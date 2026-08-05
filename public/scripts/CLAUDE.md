@@ -415,21 +415,21 @@ BEFORE approval, approval comes BEFORE execution, and review comes AFTER a
 testable result exists.
 
 The job's **stage** is not the same as your **step**. The stage (for
-example "Approvable" or "Doable") tells you which actions Uclusion
-permits right now — it does NOT tell you which step you are on or let you
-skip earlier steps. Finding a job already in "Doable" does NOT mean your 
-step-2 questions and step-3 suggestions are done.
+example "Approvable", "Doable", or "Reviewable") tells you which actions
+Uclusion permits right now — it does NOT tell you which step you are on or let
+you skip earlier steps. Finding a job already in "Doable" or "Reviewable" does
+NOT mean your step-2 questions and step-3 suggestions are done.
 
 "Requires Input" means an open question or suggestion on the job is
-waiting on a human, and it locks execution exactly like a job that never
-reached "Doable": respond to the open assistance, and implement only
-after the job is back in "Doable". Because assistance can open at any
-moment, recheck the stage right before you start editing files — not
-just when you first read the job.
+waiting on a human, and it locks execution exactly like a job in neither
+"Doable" nor "Reviewable": respond to the open assistance, and implement
+only after the job returns to either "Doable" or "Reviewable". Because
+assistance can open at any moment, recheck the stage right before you start
+editing files — not just when you first read the job.
 
 Always read the job, raise every question you have, and make your
-suggestions first; reaching "Doable" only unlocks execution once those
-questions are answered.
+suggestions first; reaching "Doable" or "Reviewable" only unlocks execution
+once those questions are answered.
 
 When working on a Uclusion job, ALL workflow artifacts — questions,
 suggestions, approvals, votes, info notes, resolutions, and review
@@ -676,19 +676,24 @@ have to challenge you before you check whether the job is actually worth doing.
 If the job markdown says that the AI user is a required approver then approval
 is mandatory. Otherwise ask if you should approve the job.
 
-### 5. Execute and document - only applies if the job is in stage "Doable"
+### 5. Execute and document - only applies if the job is in stage "Doable" or "Reviewable"
 
-"Doable" means a human has accepted this job into the work queue, which
-unlocks implementation. It does NOT mean steps 2–3 are behind you: an
-already-Doable job STILL requires you to first read it, file every
-question you have, and make any suggestions. Begin implementation only
-once all of your questions are answered — never assume "Doable" implies
-there is nothing left to ask.
+"Doable" means a human has accepted this job into the work queue. "Reviewable"
+means the job has reached review, where review actions, requested revisions, or
+remaining execution may still be required. Both stages unlock execution. They do
+NOT mean steps 2–3 are behind you: an already-Doable or already-Reviewable job
+STILL requires you to first read it, file every question you have, and make any
+suggestions. Begin execution only once all of your questions are answered — never
+assume either executable stage implies there is nothing left to ask.
 
-If the job is not yet in stage "Doable" and you are ready to begin —
-having had all your questions answered and made any suggestions — then
-offer to change the job's stage to "Doable" for the user or ask the user to 
-change it himself.
+For a Reviewable job, the review-direction rules in step 6 still determine whether
+to work or wait; stage permission alone is not an instruction to re-review AI work
+or change it without feedback.
+
+If the job is in neither "Doable" nor "Reviewable" and you are ready to begin
+initial implementation — having had all your questions answered and made any
+suggestions — then offer to change the job's stage to "Doable" for the user or ask
+the user to change it himself.
 
 If the user instructs you to move a job to "Doable", that instruction means
 both change the stage and immediately begin or continue execution, unless the

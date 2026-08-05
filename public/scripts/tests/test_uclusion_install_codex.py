@@ -151,6 +151,44 @@ class WorkflowProtocolContractTests(unittest.TestCase):
         self.assertIn('must never be its only copy', self.workflow)
         self.assertIn('Transient conversation', self.workflow)
 
+    def test_execution_is_allowed_in_doable_or_reviewable(self):
+        # T-all-2441: Reviewable remains governed by review authorship, but it
+        # is an executable stage alongside Doable for review work and revisions.
+        self.assertIn(
+            'Execute and document - only applies if the job is in stage '
+            '"Doable" or "Reviewable"',
+            self.workflow,
+        )
+        self.assertIn(
+            'Finding a job already in "Doable" or "Reviewable" does NOT mean',
+            self.workflow,
+        )
+        self.assertIn('Both stages unlock execution', self.workflow)
+        self.assertIn(
+            'after the job returns to either "Doable" or "Reviewable"',
+            self.workflow,
+        )
+        self.assertIn(
+            'reaching "Doable" or "Reviewable" only unlocks execution',
+            self.workflow,
+        )
+        self.assertIn(
+            'review-direction rules in step 6 still determine whether to work or wait',
+            self.workflow,
+        )
+        self.assertIn(
+            'If the job is in neither "Doable" nor "Reviewable" and you are ready',
+            self.workflow,
+        )
+        self.assertNotIn(
+            'implement only after the job is back in "Doable"',
+            self.workflow,
+        )
+        self.assertNotIn(
+            'reaching "Doable" only unlocks execution',
+            self.workflow,
+        )
+
 
 class PortableFileLockTests(unittest.TestCase):
     def test_installer_imports_without_fcntl(self):

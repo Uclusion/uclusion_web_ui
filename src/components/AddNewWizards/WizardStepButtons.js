@@ -139,7 +139,7 @@ function WizardStepButtons (props) {
       <div className={classes.actionContainer}>
         {terminateShown && (
           <SpinningButton id="OnboardingWizardTerminate" className={classes.actionSkip} variant="text"
-                          doSpin={terminateDoSpin} onClick={terminateAction}>
+                          doSpin={terminateDoSpin} onClick={() => terminateAction()}>
             {intl.formatMessage({ id: terminateText })}
           </SpinningButton>
         )}

@@ -189,7 +189,8 @@ function WorkListItem(props) {
     expansionOpen,
     isDeletable = false,
     useSelect,
-    isNotSynced = false
+    isNotSynced = false,
+    jobSweepActions
   } = props;
   const history = useHistory();
   const classes = workListStyles();
@@ -272,6 +273,16 @@ function WorkListItem(props) {
               (<DateLabelBNotHovered style={{ color: theme.palette.type === 'dark' ? 'white' : 'black' }}>{date}</DateLabelBNotHovered>))}
             {!isNotSynced && !mobileLayout && (
               <DateLabelHovered>
+                {(jobSweepActions || []).map((action) => (
+                  <TooltipIconButton
+                    key={action.translationId}
+                    onClick={action.onClick}
+                    icon={action.icon}
+                    size="small"
+                    noPadding
+                    translationId={action.translationId}
+                  />
+                ))}
                 {isDeletable && (
                   <TooltipIconButton
                     onClick={remove}

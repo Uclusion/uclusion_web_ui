@@ -122,7 +122,8 @@ function WizardStepButtons(props) {
       <div className={classes.actionContainer}>
         {showTerminate && (
           <SpinningButton id="OnboardingWizardSkip" className={classes.actionSkip} variant="text"
-                          doSpin={terminateSpinOnClick} onClick={onTerminate} focus={focus !== false && !showNext}>
+                          doSpin={terminateSpinOnClick} onClick={() => onTerminate()}
+                          focus={focus !== false && !showNext}>
             {intl.formatMessage({ id: terminateLabel })}
           </SpinningButton>
         )}

@@ -23,6 +23,28 @@ else. The only time you skip this is when the user has just named concrete
 work to do next; reaching the end of a task is itself a trigger, not an
 exemption.
 
+**Auto-take views.** A work_list item marked `auto_take` comes from a view
+whose humans opted in (a view-level setting) to agents taking the next
+available work instead of asking. When the response carries
+`auto_take_directions` and you are idle, do not wait for the human to
+choose: in the same turn, present the full list as usual, call `get_job` for
+the FIRST `auto_take` item, and continue its normal workflow — questions and
+suggestions included; its stage still governs what execution is allowed.
+Merely announcing that you will start is not enough.
+Items without `auto_take` are never auto-started, an auto-take never
+interrupts work already active, and a human instruction always overrides
+the auto-take choice.
+
+Once an item is auto-taken, the handoff rule lasts for its entire active work
+lane. Before ending the initial auto-take turn or any later turn working that
+item, you MUST leave a material handoff in Uclusion recording every substantive
+result, decision, blocker, or next step. Use the specialized Uclusion MCP tool
+whenever one applies (`ask_question`, `make_suggestion`,
+`approve_job_or_option`, `resolve`, or `ask_for_review`); otherwise use
+`add_info` on the active item. Chat may mirror that handoff, but must never be
+its only copy. Transient conversation that is not a material handoff does not
+need to be persisted.
+
 Present the list plainly. Pokes deferred while working (see "Wait for
 Poke AI": processing is single-threaded and out-of-lane Pokes are set
 aside, not acted on) need nothing more at this point: the state each

@@ -1,10 +1,11 @@
-import { titleText } from '../../../utils/messageUtils';
+import { findMessagesForInvestibleId, titleText } from '../../../utils/messageUtils';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { getComment, getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { stripHTML } from '../../../utils/stringFunctions';
-import { formCommentLink } from '../../../utils/marketIdPathFunctions';
+import { formCommentLink, formWizardLink, navigate,
+  preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
 import { calculateTitleExpansionPanel } from './InboxExpansionPanel';
 import WorkListItem from './WorkListItem';
 import BlockedNotificationPanel from './BlockedNotificationPanel';
@@ -24,15 +25,23 @@ import {
 import Quiz from '../../../components/CustomChip/Quiz';
 import { useIntl } from 'react-intl';
 import { useMediaQuery, useTheme } from '@material-ui/core';
-import { getFullStage, } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getFullStage, getInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { getMessageId, messageIsSynced } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { getMessageId, isInInbox,
+  messageIsSynced } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { deleteOrDehilightMessages } from '../../../api/users';
+import { useHistory } from 'react-router';
+import DeleteSweepIcon from '@material-ui/icons/DeleteSweep';
+import DoneAllIcon from '@material-ui/icons/DoneAll';
+import DoneOutlineIcon from '@material-ui/icons/DoneOutline';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import QuestionIcon from '@material-ui/icons/ContactSupport';
 import RateReviewIcon from '@material-ui/icons/RateReview';
 import LightbulbOutlined from '../../../components/CustomChip/LightbulbOutlined';
-import { DECISION_TYPE, INITIATIVE_TYPE } from '../../../constants/markets';
+import { DECISION_TYPE, INITIATIVE_TYPE, JOB_STAGE_WIZARD_TYPE, PLANNING_TYPE } from '../../../constants/markets';
 import ReplyIcon from '@material-ui/icons/Reply';
 import ListAltIcon from '@material-ui/icons/ListAlt';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
@@ -124,6 +133,7 @@ function InboxRow(props) {
   const { message, checked, determinateDispatch, expansionOpen, isDeletable } = props;
   const intl = useIntl();
   const theme = useTheme();
+  const history = useHistory();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [commentState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
@@ -131,6 +141,8 @@ function InboxRow(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [groupState] = useContext(MarketGroupsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { investible_id: investibleId, investible_name: investibleName, updated_at: updatedAt,
     market_name: marketName, type_object_id: typeObjectId, market_id: marketId, comment_id: commentId,
     comment_market_id: commentMarketId, is_highlighted: isHighlighted, type: messageType } = message;
@@ -155,6 +167,44 @@ function InboxRow(props) {
   }
 
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
+  // C-all-1372: per job sweep controls on hover, following the existing trash can pattern (S-1
+  // of Q-all-368). Clearing is this user's inbox only (Q-all-366); the move actions reuse the
+  // All Done wizard so review reports and must-resolve comments are handled the same way
+  if (!_.isEmpty(inv) && market.market_type === PLANNING_TYPE && !_.isEmpty(assigned)) {
+    const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
+    const jobSweepActions = [{
+      translationId: 'inboxClearJob',
+      icon: <DeleteSweepIcon />,
+      onClick: (event) => {
+        preventDefaultAndProp(event);
+        setOperationRunning(true);
+        return deleteOrDehilightMessages(findMessagesForInvestibleId(investibleId, messagesState)
+          .filter((jobMessage) => isInInbox(jobMessage)), messagesDispatch)
+          .finally(() => setOperationRunning(false));
+      }
+    }];
+    if (stage !== inReviewStage.id) {
+      const wizardLink = `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId,
+        investibleId)}&stageId=${inReviewStage.id}`;
+      jobSweepActions.push({
+        translationId: 'inboxMoveJobReviewable',
+        icon: <DoneAllIcon />,
+        onClick: (event) => {
+          preventDefaultAndProp(event);
+          navigate(history, wizardLink);
+        }
+      });
+      jobSweepActions.push({
+        translationId: 'inboxMoveJobReviewableClear',
+        icon: <DoneOutlineIcon />,
+        onClick: (event) => {
+          preventDefaultAndProp(event);
+          navigate(history, `${wizardLink}&clearNotifications=true`);
+        }
+      });
+    }
+    item.jobSweepActions = jobSweepActions;
+  }
   let rootComment;
   let originalComment;
   let rootCommentLink;

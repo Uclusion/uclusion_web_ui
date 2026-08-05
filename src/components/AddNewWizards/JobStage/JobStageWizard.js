@@ -47,7 +47,7 @@ export function requiresAction(fullMoveStage, isSingleUser, isBlocked) {
 }
 
 function JobStageWizard(props) {
-  const { marketId, investibleId, stageId, isAssign, isBlocked, assignId } = props;
+  const { marketId, investibleId, stageId, isAssign, isBlocked, assignId, clearNotifications } = props;
   const history = useHistory();
   const [investibleState] = useContext(InvestiblesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -95,7 +95,8 @@ function JobStageWizard(props) {
                       defaultFormData={{approveQuantity: Math.abs(approveQuantity), originalQuantity: approveQuantity,
                         wasDeleted: yourVote?.deleted, userId: yourPresence?.id, approveReason: originalReason,
                         originalReason, stage: useStageId ? useStageId : undefined, stageWasSet: !!useStageId,
-                        useCompression: true, originalAssigned: assigned, approveReasonVersion: yourReason?.version}}>
+                        useCompression: true, originalAssigned: assigned, approveReasonVersion: yourReason?.version,
+                        clearNotifications: clearNotifications === 'true'}}>
         {isAssign === 'true' && (
           <JobAssignStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}
                          requiresAction={myRequiresAction} />

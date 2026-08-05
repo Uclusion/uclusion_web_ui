@@ -135,6 +135,22 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             self.workflow,
         )
 
+    def test_auto_take_starts_first_marked_item_and_persists_handoffs(self):
+        # T-all-2440 / Q-all-370 O-1: auto-take is an idle, same-turn action,
+        # and every material handoff survives outside transient chat.
+        self.assertIn('When the response carries `auto_take_directions`', self.workflow)
+        self.assertIn('you are idle', self.workflow)
+        self.assertIn('in the same turn', self.workflow)
+        self.assertIn('call `get_job` for the FIRST `auto_take` item', self.workflow)
+        self.assertIn('Merely announcing that you will start is not enough', self.workflow)
+        self.assertIn('handoff rule lasts for its entire active work lane', self.workflow)
+        self.assertIn('initial auto-take turn or any later turn', self.workflow)
+        self.assertIn('MUST leave a material handoff in Uclusion', self.workflow)
+        self.assertIn('specialized Uclusion MCP tool', self.workflow)
+        self.assertIn('otherwise use `add_info` on the active item', self.workflow)
+        self.assertIn('must never be its only copy', self.workflow)
+        self.assertIn('Transient conversation', self.workflow)
+
 
 class PortableFileLockTests(unittest.TestCase):
     def test_installer_imports_without_fcntl(self):

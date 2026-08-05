@@ -29,12 +29,12 @@ function SpinningButton(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const mySpinning = operationRunning === id || (!onClick && spinning);
   const spinningDisabled = (operationRunning !== false)||(!onClick && spinning);
-  function myOnClick() {
+  function myOnClick(event) {
     if (onClick) {
       if (doSpin) {
         setOperationRunning(id);
       }
-      onClick();
+      return onClick(event);
     }
   }
   const myDisabled = spinningDisabled || disabled;

@@ -20,6 +20,10 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import CondensedTodos from '../../../pages/Investible/Planning/CondensedTodos';
 import { getCommentThreads, getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { findMessagesForInvestibleId } from '../../../utils/messageUtils';
+import { deleteOrDehilightMessages } from '../../../api/users';
 
 function StartReviewStep(props) {
   const { marketId, investibleId, groupId, formData = {}, assignId } = props;
@@ -28,6 +32,7 @@ function StartReviewStep(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('commentAddStartReview');
   const [commentAddState, updateCommentAddState, commentAddStateReset] =
     getPageReducerPage(commentAddStateFull, commentAddDispatch, investibleId || marketId);
@@ -35,7 +40,7 @@ function StartReviewStep(props) {
   const history = useHistory();
   const inv = getInvestible(investibleState, investibleId) || {};
   const info = getMarketInfo(inv, marketId);
-  const { stage: movingToStage } = formData;
+  const { stage: movingToStage, clearNotifications } = formData;
   const fullMoveStage = getFullStage(marketStagesState, marketId, movingToStage);
   const investibleComments = getInvestibleComments(investibleId, marketId, commentsState);
   const roots = investibleComments.filter((comment) => comment.comment_type === TODO_TYPE);
@@ -62,14 +67,20 @@ function StartReviewStep(props) {
         onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, marketId, commentsState,
           commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
           fullCurrentStage, marketPresencesDispatch);
-        setOperationRunning(false);
-        if (comment) {
-          navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
-        } else {
-          // Nothing to see in the investible so go to swimlanes
-          navigate(history, formMarketLink(marketId, groupId));
-        }
-      });
+        // T-all-2439: the All Done flow can also clear this user's notifications for the job
+        const clearPromise = clearNotifications && isInReviewStage(fullMoveStage) ?
+          deleteOrDehilightMessages(findMessagesForInvestibleId(investibleId, messagesState)
+            .filter((message) => isInInbox(message)), messagesDispatch) : Promise.resolve(true);
+        return clearPromise.then(() => {
+          if (comment) {
+            navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
+          } else {
+            // Nothing to see in the investible so go to swimlanes
+            navigate(history, formMarketLink(marketId, groupId));
+          }
+        });
+      })
+      .finally(() => setOperationRunning(false));
   }
 
   return (

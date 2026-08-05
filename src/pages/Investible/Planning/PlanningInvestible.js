@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { IconButton, makeStyles, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core';
+import { IconButton, makeStyles, Menu, MenuItem, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import { useHistory, useLocation } from 'react-router';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -91,7 +91,9 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { findMessagesForCommentIds, findMessagesForInvestibleIds } from '../../../utils/messageUtils';
+import { findMessagesForCommentIds, findMessagesForInvestibleId,
+  findMessagesForInvestibleIds } from '../../../utils/messageUtils';
+import { deleteOrDehilightMessages } from '../../../api/users';
 import { dehighlightMessage, isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { DARK_ACTION_BUTTON_COLOR, DARK_TEXT_BACKGROUND_COLOR, useButtonColors } from '../../../components/Buttons/ButtonConstants';
 import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
@@ -387,8 +389,9 @@ function PlanningInvestible(props) {
   const wizardClasses = wizardStyles();
   const [searchResults] = useContext(SearchResultsContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [commentsState] = useContext(CommentsContext);
+  const [allDoneAnchorEl, setAllDoneAnchorEl] = useState(null);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -666,6 +669,47 @@ function PlanningInvestible(props) {
   const newAssistanceMessages = findMessagesForCommentIds(assistanceCommentsSearchedAll?.map((comment) => comment.id), 
     messagesState, true);
   const newInvestibleMessages = findMessagesForInvestibleIds([investibleId], messagesState, true);
+  // T-all-2439: everything in this user's inbox about the job - offered for clearing on All Done
+  const jobInboxMessages = findMessagesForInvestibleId(investibleId, messagesState)
+    .filter((message) => isInInbox(message));
+
+  function moveJobToReviewable(doClear) {
+    const inReviewStageId = getInReviewStage(marketStagesState, marketId).id;
+    // If not single user then need wizard anyway for starting a review
+    if (_.isEmpty(mustResolveComments)&&isSingleUser) {
+      // Menu choices do not use SpinningButton's automatic lock, while the no-notifications path does.
+      // Taking ownership here covers both without locking the wizard-only branches below.
+      setOperationRunning('allDone');
+      const moveInfo = {
+        marketId,
+        investibleId,
+        stageInfo: {
+          current_stage_id: stage,
+          stage_id: inReviewStageId
+        },
+      };
+      return stageChangeInvestible(moveInfo)
+        .then((newInv) => {
+          onInvestibleStageChange(inReviewStageId, newInv, investibleId, marketId,
+            undefined, undefined, investiblesDispatch,
+            () => {}, marketStagesState, undefined, fullStage);
+          const clearPromise = doClear ? deleteOrDehilightMessages(jobInboxMessages, messagesDispatch)
+            : Promise.resolve(true);
+          return clearPromise.then(() => {
+            navigate(history, formMarketLink(marketId, groupId));
+          });
+        })
+        .finally(() => setOperationRunning(false));
+    }
+    const clearSuffix = doClear ? '&clearNotifications=true' : '';
+    if (_.isEmpty(mustResolveComments)) {
+      navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId,
+        investibleId)}&stageId=${inReviewStageId}&isAssign=false${clearSuffix}`);
+    } else {
+      navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId,
+        investibleId)}&stageId=${inReviewStageId}${clearSuffix}`);
+    }
+  }
   newInvestibleMessages.forEach((message) => {
     if (message.market_id !== marketId) {
       // If message is part of a different market must be assistance
@@ -1101,41 +1145,38 @@ function PlanningInvestible(props) {
                   );
                 })}
                 {sectionOpen === 'tasksSection' && !_.isEmpty(assigned) && showCommentAdd && !isInReview && (
-                  <SpinningButton id='allDone' className={wizardClasses.actionNext} iconColor="black"
-                                  toolTipId='allDone' icon={DoneAll}
-                                  doSpin={_.isEmpty(mustResolveComments)&&isSingleUser}
-                                  onClick={() => {
-                                    const inReviewStageId = getInReviewStage(marketStagesState, marketId).id;
-                                    // If not single user then need wizard anyway for starting a review
-                                    if (_.isEmpty(mustResolveComments)&&isSingleUser) {
-                                      const moveInfo = {
-                                        marketId,
-                                        investibleId,
-                                        stageInfo: {
-                                          current_stage_id: stage,
-                                          stage_id: inReviewStageId
-                                        },
-                                      };
-                                      return stageChangeInvestible(moveInfo)
-                                        .then((newInv) => {
-                                          onInvestibleStageChange(inReviewStageId, newInv, investibleId, marketId,
-                                            undefined, undefined, investiblesDispatch,
-                                            () => {}, marketStagesState, undefined, fullStage);
-                                          setOperationRunning(false);
-                                          navigate(history, formMarketLink(marketId, groupId));
-                                        });
-                                    }
-                                    if (_.isEmpty(mustResolveComments)) {
-                                      navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId,
-                                        investibleId)}&stageId=${inReviewStageId}&isAssign=false`);
-                                    } else {
-                                      navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId,
-                                        investibleId)}&stageId=${inReviewStageId}`);
-                                    }
-                                  }}
-                                  style={{ display: 'flex', marginRight: mobileLayout ? undefined : '2rem' }}>
-                    {intl.formatMessage({ id: 'allDoneButton'})}
-                  </SpinningButton>
+                  <>
+                    <SpinningButton id='allDone' className={wizardClasses.actionNext} iconColor="black"
+                                    toolTipId='allDone' icon={DoneAll}
+                                    doSpin={_.isEmpty(mustResolveComments)&&isSingleUser&&_.isEmpty(jobInboxMessages)}
+                                    onClick={(event) => {
+                                      // T-all-2439: with notifications still on the job, hitting All Done
+                                      // offers to also clear them (this user's only - see Q-all-366)
+                                      if (!_.isEmpty(jobInboxMessages)) {
+                                        setAllDoneAnchorEl(event.currentTarget);
+                                        return;
+                                      }
+                                      return moveJobToReviewable(false);
+                                    }}
+                                    style={{ display: 'flex', marginRight: mobileLayout ? undefined : '2rem' }}>
+                      {intl.formatMessage({ id: 'allDoneButton'})}
+                    </SpinningButton>
+                    <Menu anchorEl={allDoneAnchorEl} open={Boolean(allDoneAnchorEl)}
+                          onClose={() => setAllDoneAnchorEl(null)}>
+                      <MenuItem id='allDoneClearNotifications' onClick={() => {
+                        setAllDoneAnchorEl(null);
+                        return moveJobToReviewable(true);
+                      }}>
+                        {intl.formatMessage({ id: 'allDoneClearNotifications' })}
+                      </MenuItem>
+                      <MenuItem id='allDoneMoveOnly' onClick={() => {
+                        setAllDoneAnchorEl(null);
+                        return moveJobToReviewable(false);
+                      }}>
+                        {intl.formatMessage({ id: 'allDoneMoveOnly' })}
+                      </MenuItem>
+                    </Menu>
+                  </>
                 )}
                 {sectionOpen === 'tasksSection' && (
                   <div style={{marginTop: '0.5rem', fontWeight: 'bold'}}><Link

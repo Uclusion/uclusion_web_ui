@@ -66,6 +66,7 @@ function GroupEdit() {
   const [isDirtyName, setIsDirtyName] = useState(false);
   const [groupType, setGroupType] = useState(group.group_type);
   const [isPublic, setIsPublic] = useState(group.is_public === undefined ? true : group.is_public);
+  const [aiAutoTake, setAiAutoTake] = useState(group.ai_auto_take === undefined ? false : group.ai_auto_take);
 
   function handleSave() {
     const groupInfo = {
@@ -74,7 +75,8 @@ function GroupEdit() {
       name,
       ticketSubCode: originalCode,
       groupType,
-      isPublic
+      isPublic,
+      aiAutoTake
     }
     if (!_.isEmpty(groupName)) {
       groupInfo.name = groupName;
@@ -142,6 +144,14 @@ function GroupEdit() {
             onClick={() => setIsPublic(!isPublic)}
           />
           Public when creating a report.
+        </div>
+        <div className={classes.fieldsetContainer} style={{paddingTop: '2rem'}}>
+          <Checkbox
+            id="aiAutoTake"
+            checked={aiAutoTake}
+            onClick={() => setAiAutoTake(!aiAutoTake)}
+          />
+          AI agents take the next available work from this view without asking.
         </div>
         <Typography style={{marginTop: '2rem'}}>
           {intl.formatMessage({ id: 'ticketSubCodeHelp' })}

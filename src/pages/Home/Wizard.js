@@ -67,7 +67,7 @@ function Wizard(props) {
   const values = queryString.parse(hash);
   const { type: createType, marketId, groupId, jobType, investibleId, decisionInvestibleId, decisionMarketId,
     commentId, commentType, voteFor, stageId, isAssign, isBlocked, typeObjectId, notificationType, resolveId, isInbox,
-    useType, assignId, isNewJob, isSubtask, isNote } = values;
+    useType, assignId, isNewJob, isSubtask, isNote, clearNotifications } = values;
   const intl = useIntl();
   const [messagesState] = useContext(NotificationsContext);
   const [marketsState] = useContext(MarketsContext);
@@ -155,7 +155,7 @@ function Wizard(props) {
       )}
       {createType === JOB_STAGE_WIZARD_TYPE.toLowerCase() && (
         <JobStageWizard investibleId={investibleId} marketId={marketId} stageId={stageId} isAssign={isAssign}
-                        isBlocked={isBlocked} assignId={assignId} />
+                        isBlocked={isBlocked} assignId={assignId} clearNotifications={clearNotifications} />
       )}
       {createType === JOB_EDIT_WIZARD_TYPE.toLowerCase() && (
         <JobEditWizard investibleId={investibleId} marketId={marketId} />

@@ -27,6 +27,10 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { useHistory } from 'react-router';
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { findMessagesForInvestibleId } from '../../../utils/messageUtils';
+import { deleteOrDehilightMessages } from '../../../api/users';
 
 function CloseCommentsStep(props) {
   const { marketId, investibleId, formData = {}, marketInfo, myFinish: finish, isAssign, requiresAction,
@@ -38,12 +42,13 @@ function CloseCommentsStep(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const history = useHistory();
   const { assigned: originalAssigned, group_id: groupId, stage: currentStageId } = marketInfo;
   const marketComments = getMarketComments(commentsState, marketId, groupId);
   const unresolvedComments = marketComments.filter(comment => comment.investible_id === investibleId &&
     !comment.resolved);
-  const { stage, assigned: newAssigned, useCompression } = formData;
+  const { stage, assigned: newAssigned, useCompression, clearNotifications } = formData;
   const assigned = newAssigned || originalAssigned;
   const fullMoveStage = getFullStage(marketStagesState, marketId, stage);
   const fullCurrentStage = getFullStage(marketStagesState, marketId, currentStageId);
@@ -89,14 +94,21 @@ function CloseCommentsStep(props) {
         onInvestibleStageChange(stage, newInv, investibleId, marketId, commentsState,
           commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
           getFullStage(marketStagesState, marketId, marketInfo.stage));
-        setOperationRunning(false);
-        if (isResolve) {
-          finish(fullMoveStage);
-        } else {
-          // This is a convert
-          navigate(history, formCommentLink(marketId, groupId, investibleId, comments[0].id));
-        }
-      });
+        // T-all-2439: the All Done flow can also clear this user's notifications for the job
+        const clearPromise = clearNotifications && isResolve && isInReviewStage(fullMoveStage) &&
+          !requiresAction(fullMoveStage) ?
+          deleteOrDehilightMessages(findMessagesForInvestibleId(investibleId, messagesState)
+            .filter((message) => isInInbox(message)), messagesDispatch) : Promise.resolve(true);
+        return clearPromise.then(() => {
+          if (isResolve) {
+            finish(fullMoveStage);
+          } else {
+            // This is a convert
+            navigate(history, formCommentLink(marketId, groupId, investibleId, comments[0].id));
+          }
+        });
+      })
+      .finally(() => setOperationRunning(false));
   }
 
   function convert() {

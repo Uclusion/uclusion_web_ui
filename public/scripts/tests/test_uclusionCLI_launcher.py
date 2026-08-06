@@ -1180,8 +1180,39 @@ class CodexLauncherTests(unittest.TestCase):
 
 
 class UpdateReleaseConsistencyTests(unittest.TestCase):
-    def update_args(self):
-        return SimpleNamespace(env='stage', check=False)
+    def update_args(self, token_audit=None):
+        return SimpleNamespace(
+            env='stage', check=False, token_audit=token_audit
+        )
+
+    def test_update_parser_exposes_mutually_exclusive_token_audit_flags(self):
+        parser = cli.build_parser()
+
+        default_args = parser.parse_args(['update'])
+        enabled_args = parser.parse_args(['update', '--token-audit'])
+        disabled_args = parser.parse_args(['update', '--no-token-audit'])
+        stage_enabled_args = parser.parse_args([
+            '-e', 'stage', 'update', '--token-audit'
+        ])
+
+        self.assertIsNone(default_args.token_audit)
+        self.assertTrue(enabled_args.token_audit)
+        self.assertFalse(disabled_args.token_audit)
+        self.assertEqual(stage_enabled_args.env, 'stage')
+        self.assertTrue(stage_enabled_args.token_audit)
+        help_output = io.StringIO()
+        with mock.patch('sys.stdout', help_output):
+            with self.assertRaises(SystemExit):
+                parser.parse_args(['update', '--help'])
+        self.assertIn('--token-audit', help_output.getvalue())
+        self.assertIn('--no-token-audit', help_output.getvalue())
+        with mock.patch('sys.stderr', io.StringIO()):
+            with self.assertRaises(SystemExit):
+                parser.parse_args([
+                    'update', '--token-audit', '--no-token-audit'
+                ])
+            with self.assertRaises(SystemExit):
+                parser.parse_args(['update', '--check', '--token-audit'])
 
     def patch_update_context(self, stack):
         stack.enter_context(
@@ -1276,6 +1307,117 @@ class UpdateReleaseConsistencyTests(unittest.TestCase):
         self.assertIn('--token-audit', run.call_args.args[0])
         self.assertNotIn('--no-token-audit', run.call_args.args[0])
 
+    def test_run_installer_explicit_token_audit_choice_overrides_config(self):
+        completed = SimpleNamespace(returncode=0)
+        cases = (
+            ({'enabled': False, 'port': 23456}, True, '--token-audit'),
+            ({'enabled': True, 'port': 23456}, False, '--no-token-audit'),
+        )
+        for token_audit, override, expected_flag in cases:
+            with self.subTest(override=override), mock.patch.object(
+                cli.subprocess, 'run', return_value=completed
+            ) as run:
+                result = cli.run_installer(
+                    '/tmp/installer.py',
+                    'stage',
+                    {
+                        'workspaceId': 'workspace-1',
+                        'tokenAudit': token_audit,
+                    },
+                    None,
+                    {'codex'},
+                    project=False,
+                    script_version='release-123',
+                    token_audit_enabled=override,
+                )
+
+            self.assertTrue(result)
+            command = run.call_args.args[0]
+            self.assertIn(expected_flag, command)
+            unexpected_flag = (
+                '--no-token-audit'
+                if expected_flag == '--token-audit'
+                else '--token-audit'
+            )
+            self.assertNotIn(unexpected_flag, command)
+
+    def test_project_only_update_forwards_environment_and_token_audit_choice(self):
+        response = mock.MagicMock()
+        response.__enter__.return_value.read.return_value = b'# installer\n'
+        response.__exit__.return_value = False
+        completed = SimpleNamespace(returncode=0)
+        with ExitStack() as stack:
+            stack.enter_context(
+                mock.patch.object(cli.os, 'getcwd', return_value='/work/project')
+            )
+            stack.enter_context(
+                mock.patch.object(
+                    cli,
+                    'get_project_config_path',
+                    return_value='/work/project/stage_uclusion.json',
+                )
+            )
+            stack.enter_context(
+                mock.patch.object(
+                    cli, 'detect_project_clients', return_value={'codex'}
+                )
+            )
+            stack.enter_context(
+                mock.patch.object(
+                    cli,
+                    'get_env_paths',
+                    return_value=(
+                        'stage.api.example',
+                        'stage_uclusion.json',
+                        'stage_credentials',
+                    ),
+                )
+            )
+            stack.enter_context(
+                mock.patch.object(
+                    cli,
+                    'load_config_at',
+                    side_effect=[
+                        None,
+                        {
+                            'workspaceId': 'project-workspace',
+                            'tokenAudit': {'enabled': False, 'port': 23456},
+                        },
+                    ],
+                )
+            )
+            stack.enter_context(
+                mock.patch.object(
+                    cli,
+                    'fetch_script_version_for_workspace',
+                    return_value='release-one',
+                )
+            )
+            stack.enter_context(
+                mock.patch.object(
+                    cli.urllib.request, 'urlopen', return_value=response
+                )
+            )
+            run = stack.enter_context(
+                mock.patch.object(
+                    cli.subprocess, 'run', return_value=completed
+                )
+            )
+
+            result = cli.cmd_update(
+                SimpleNamespace(env='stage', check=False, token_audit=True)
+            )
+
+        self.assertEqual(result, 0)
+        run.assert_called_once()
+        command = run.call_args.args[0]
+        self.assertEqual(command[2:5], [
+            'stage', 'project-workspace', 'project-workspace'
+        ])
+        self.assertIn('--token-audit', command)
+        self.assertIn('--project', command)
+        self.assertNotIn('--skip-scripts', command)
+
     def test_update_rejects_workspace_release_disagreement_before_download(self):
         with ExitStack() as stack:
             self.patch_update_context(stack)
@@ -1301,46 +1443,58 @@ class UpdateReleaseConsistencyTests(unittest.TestCase):
         self.assertIn('different script releases', stdout.getvalue())
         urlopen.assert_not_called()
 
-    def test_update_passes_one_release_to_global_and_project_installers(self):
-        response = mock.MagicMock()
-        response.__enter__.return_value.read.return_value = b'# installer\n'
-        response.__exit__.return_value = False
-        with ExitStack() as stack:
-            self.patch_update_context(stack)
-            stack.enter_context(
-                mock.patch.object(
-                    cli,
-                    'fetch_script_version_for_workspace',
-                    return_value='release-one',
-                )
-            )
-            stack.enter_context(
-                mock.patch.object(
-                    cli.urllib.request, 'urlopen', return_value=response
-                )
-            )
-            stack.enter_context(
-                mock.patch.object(
-                    cli, 'detect_global_clients', return_value={'claude'}
-                )
-            )
-            run_installer = stack.enter_context(
-                mock.patch.object(cli, 'run_installer', return_value=True)
-            )
+    def test_update_passes_one_release_and_audit_choice_to_both_installers(self):
+        for token_audit in (None, True, False):
+            with self.subTest(token_audit=token_audit):
+                response = mock.MagicMock()
+                response.__enter__.return_value.read.return_value = b'# installer\n'
+                response.__exit__.return_value = False
+                with ExitStack() as stack:
+                    self.patch_update_context(stack)
+                    stack.enter_context(
+                        mock.patch.object(
+                            cli,
+                            'fetch_script_version_for_workspace',
+                            return_value='release-one',
+                        )
+                    )
+                    stack.enter_context(
+                        mock.patch.object(
+                            cli.urllib.request, 'urlopen', return_value=response
+                        )
+                    )
+                    stack.enter_context(
+                        mock.patch.object(
+                            cli, 'detect_global_clients', return_value={'claude'}
+                        )
+                    )
+                    run_installer = stack.enter_context(
+                        mock.patch.object(
+                            cli, 'run_installer', return_value=True
+                        )
+                    )
 
-            result = cli.cmd_update(self.update_args())
+                    result = cli.cmd_update(
+                        self.update_args(token_audit=token_audit)
+                    )
 
-        self.assertEqual(result, 0)
-        self.assertEqual(run_installer.call_count, 2)
-        global_call, project_call = run_installer.call_args_list
-        self.assertEqual(
-            global_call.kwargs['script_version'], 'release-one'
-        )
-        self.assertEqual(
-            project_call.kwargs['script_version'], 'release-one'
-        )
-        self.assertNotIn('skip_scripts', global_call.kwargs)
-        self.assertTrue(project_call.kwargs['skip_scripts'])
+                self.assertEqual(result, 0)
+                self.assertEqual(run_installer.call_count, 2)
+                global_call, project_call = run_installer.call_args_list
+                self.assertEqual(
+                    global_call.kwargs['script_version'], 'release-one'
+                )
+                self.assertEqual(
+                    project_call.kwargs['script_version'], 'release-one'
+                )
+                self.assertIs(
+                    global_call.kwargs['token_audit_enabled'], token_audit
+                )
+                self.assertIs(
+                    project_call.kwargs['token_audit_enabled'], token_audit
+                )
+                self.assertNotIn('skip_scripts', global_call.kwargs)
+                self.assertTrue(project_call.kwargs['skip_scripts'])
 
 
 if __name__ == '__main__':

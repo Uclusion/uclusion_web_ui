@@ -2525,6 +2525,7 @@ def run_installer(
     project,
     script_version,
     skip_scripts=False,
+    token_audit_enabled=None,
 ):
     """Run the downloaded installer non-interactively for one install scope.
 
@@ -2543,11 +2544,12 @@ def run_installer(
     view_id = source.get('todoViewId') or workspace_id
     command = [sys.executable, installer_path, env, workspace_id, view_id]
     command += ['--script-version', script_version]
-    token_audit = source.get('tokenAudit')
-    if isinstance(token_audit, dict):
-        token_audit_enabled = token_audit.get('enabled') is True
-    else:
-        token_audit_enabled = bool(token_audit)
+    if token_audit_enabled is None:
+        token_audit = source.get('tokenAudit')
+        if isinstance(token_audit, dict):
+            token_audit_enabled = token_audit.get('enabled') is True
+        else:
+            token_audit_enabled = bool(token_audit)
     command.append('--token-audit' if token_audit_enabled else '--no-token-audit')
     if clients:
         command += ['--clients', ','.join(sorted(clients))]
@@ -2671,14 +2673,16 @@ def cmd_update(args):
         if global_config is not None:
             if not run_installer(installer_path, env, global_config, None,
                                  detect_global_clients(), project=False,
-                                 script_version=script_version):
+                                 script_version=script_version,
+                                 token_audit_enabled=args.token_audit):
                 return 1
             ran_global = True
         if has_project_install:
             if not run_installer(installer_path, env, project_config, global_config,
                                  project_clients, project=True,
                                  script_version=script_version,
-                                 skip_scripts=ran_global):
+                                 skip_scripts=ran_global,
+                                 token_audit_enabled=args.token_audit):
                 return 1
 
     print("🎉 Update complete. Restart your AI client sessions (or reconnect the "
@@ -2931,13 +2935,28 @@ def build_parser():
              'to the current release (global surfaces plus a project install in '
              'the current directory).',
     )
-    update_parser.add_argument(
+    update_action_group = update_parser.add_mutually_exclusive_group()
+    update_action_group.add_argument(
         '--check',
         action='store_true',
         help='Only report whether an update is available; exits 0 when current '
              'and 2 when an update is available.',
     )
-    update_parser.set_defaults(func=cmd_update)
+    update_action_group.add_argument(
+        '--token-audit',
+        dest='token_audit',
+        action='store_true',
+        help='Enable per-job token usage notes while updating global surfaces '
+             'and any project install in the current directory.',
+    )
+    update_action_group.add_argument(
+        '--no-token-audit',
+        dest='token_audit',
+        action='store_false',
+        help='Disable per-job token usage notes while updating global surfaces '
+             'and any project install in the current directory.',
+    )
+    update_parser.set_defaults(func=cmd_update, token_audit=None)
 
     report_parser = subparsers.add_parser(
         'report',

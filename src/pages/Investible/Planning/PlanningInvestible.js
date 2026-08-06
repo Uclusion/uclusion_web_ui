@@ -693,7 +693,8 @@ function PlanningInvestible(props) {
           onInvestibleStageChange(inReviewStageId, newInv, investibleId, marketId,
             undefined, undefined, investiblesDispatch,
             () => {}, marketStagesState, undefined, fullStage);
-          const clearPromise = doClear ? deleteOrDehilightMessages(jobInboxMessages, messagesDispatch)
+          const clearPromise = doClear ? deleteOrDehilightMessages(
+            jobInboxMessages, messagesDispatch, true, false, true)
             : Promise.resolve(true);
           return clearPromise.then(() => {
             navigate(history, formMarketLink(marketId, groupId));

@@ -70,7 +70,7 @@ function StartReviewStep(props) {
         // T-all-2439: the All Done flow can also clear this user's notifications for the job
         const clearPromise = clearNotifications && isInReviewStage(fullMoveStage) ?
           deleteOrDehilightMessages(findMessagesForInvestibleId(investibleId, messagesState)
-            .filter((message) => isInInbox(message)), messagesDispatch) : Promise.resolve(true);
+            .filter((message) => isInInbox(message)), messagesDispatch, true, false, true) : Promise.resolve(true);
         return clearPromise.then(() => {
           if (comment) {
             navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));

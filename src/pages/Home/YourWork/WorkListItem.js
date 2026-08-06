@@ -154,9 +154,9 @@ export function modifyNotifications (event, typeObjectId, messagesDispatch) {
   }
 }
 
-export function removeWorkListItem(message, messagesDispatch, history) {
+export function removeWorkListItem(message, messagesDispatch, history, forceDelete=false) {
   const { type_object_id: typeObjectId } = message;
-  const event = typeObjectId.startsWith('UNREAD') ? DELETE_EVENT : DEHIGHLIGHT_EVENT;
+  const event = forceDelete || typeObjectId.startsWith('UNREAD') ? DELETE_EVENT : DEHIGHLIGHT_EVENT;
   modifyNotifications(event, typeObjectId, messagesDispatch);
   if (history) {
     navigate(history, getInboxTarget());

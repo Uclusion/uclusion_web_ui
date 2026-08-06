@@ -98,7 +98,7 @@ function CloseCommentsStep(props) {
         const clearPromise = clearNotifications && isResolve && isInReviewStage(fullMoveStage) &&
           !requiresAction(fullMoveStage) ?
           deleteOrDehilightMessages(findMessagesForInvestibleId(investibleId, messagesState)
-            .filter((message) => isInInbox(message)), messagesDispatch) : Promise.resolve(true);
+            .filter((message) => isInInbox(message)), messagesDispatch, true, false, true) : Promise.resolve(true);
         return clearPromise.then(() => {
           if (isResolve) {
             finish(fullMoveStage);

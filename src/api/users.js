@@ -39,8 +39,13 @@ export function pokeInvestible(marketId, investibleId) {
     .catch((error) => toastErrorAndThrow(error, 'errorPokeFailed'));
 }
 
+export function shouldRemoveMessage(message, highlightOnly=false, dismissAIGenerated=false) {
+  return !highlightOnly && (message.type_object_id.startsWith('UNREAD') ||
+    (dismissAIGenerated && message.alert_type === 'AI_GENERATED'));
+}
+
 export function deleteOrDehilightMessages(messages, messagesDispatch, doRemove=true,
-  highlightOnly=false) {
+  highlightOnly=false, dismissAIGenerated=false) {
   const useMarketIds = {};
   messages.forEach((message) => {
     const { market_id: marketId, type_object_id: typeObjectId } = message;
@@ -52,8 +57,9 @@ export function deleteOrDehilightMessages(messages, messagesDispatch, doRemove=t
       useMarketIds[marketId] = typeObjectIds;
     }
     typeObjectIds.push(typeObjectId);
-    if (!highlightOnly && typeObjectId.startsWith('UNREAD')) {
-      removeWorkListItem(message, messagesDispatch);
+    if (shouldRemoveMessage(message, highlightOnly, dismissAIGenerated)) {
+      const forceDelete = dismissAIGenerated && message.alert_type === 'AI_GENERATED';
+      removeWorkListItem(message, messagesDispatch, undefined, forceDelete);
     } else {
       messagesDispatch(dehighlightMessages([typeObjectId]));
     }
@@ -66,7 +72,7 @@ export function deleteOrDehilightMessages(messages, messagesDispatch, doRemove=t
           if (highlightOnly) {
             return client.users.dehighlightNotifications(useMarketIds[key]);
           }
-          return client.users.removeNotifications(useMarketIds[key]);
+          return client.users.removeNotifications(useMarketIds[key], dismissAIGenerated);
         }));
     });
   }

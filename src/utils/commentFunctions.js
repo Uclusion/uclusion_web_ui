@@ -196,7 +196,8 @@ export function onCommentsMove(fromCommentIds, messagesState, marketComments, in
 }
 
 // T-all-2298 / B-all-510: an AI-authored assistance comment is "Responded" once a human reply,
-// inline-option comment, or human vote is more recent than the AI's latest activity there.
+// inline-option comment, or human vote is more recent than the AI's latest comment activity there.
+// An AI option vote changes its choice; it does not ask the human for another response (B-all-542).
 // Human-authored assistance is never Responded - it waits on the AI or gets resolved. The AI user
 // is the only presence without an email.
 export function isAssistanceRespondedByHuman(rootComment, investibleComments, marketPresences,
@@ -241,9 +242,7 @@ export function isAssistanceRespondedByHuman(rootComment, investibleComments, ma
         investment.quantity !== undefined && investment.quantity !== null && !investment.deleted
       ).forEach((investment) => {
         const investmentTime = new Date(investment.updated_at).getTime();
-        if (isAI) {
-          aiLatest = Math.max(aiLatest, investmentTime);
-        } else {
+        if (!isAI) {
           humanLatest = Math.max(humanLatest || 0, investmentTime);
         }
       });

@@ -179,7 +179,7 @@ function InboxRow(props) {
         preventDefaultAndProp(event);
         setOperationRunning(true);
         return deleteOrDehilightMessages(findMessagesForInvestibleId(investibleId, messagesState)
-          .filter((jobMessage) => isInInbox(jobMessage)), messagesDispatch)
+          .filter((jobMessage) => isInInbox(jobMessage)), messagesDispatch, true, false, true)
           .finally(() => setOperationRunning(false));
       }
     }];

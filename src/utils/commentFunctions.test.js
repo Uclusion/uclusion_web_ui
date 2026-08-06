@@ -151,7 +151,7 @@ describe('isAssistanceRespondedByHuman option chronology', () => {
     )).toBe(false);
   });
 
-  it('uses human and AI option votes as ordered turns on the parent question', () => {
+  it('keeps a question Responded when the AI changes its option vote', () => {
     const aiOptionQuestion = comment('option-question', aiUserId, '2026-07-28T10:01:00Z', {
       investible_id: 'option-id',
     });
@@ -186,6 +186,6 @@ describe('isAssistanceRespondedByHuman option chronology', () => {
       marketPresences,
       { ...marketPresencesState, [inlineMarketId]: afterAIFollowUpVote },
       { [inlineMarketId]: [aiOptionQuestion] }
-    )).toBe(false);
+    )).toBe(true);
   });
 });

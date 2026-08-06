@@ -23,8 +23,8 @@ differently, but it must preserve the authority and delivery invariants below.
   connections connect only to this socket.
 - The **backend** is the private Unix WebSocket accepted by Codex app-server.
   The companion opens one matching relayed backend connection for every
-  frontend client plus a logically separate auxiliary delivery/control
-  connection.
+  frontend client, one continuous driver/witness connection, and one
+  disposable delivery/control connection.
 
 The companion is necessary because two unrelated WebSocket protocols meet on
 the host. Uclusion's cloud WSS carries Poke notifications. Codex app-server
@@ -53,7 +53,7 @@ flowchart LR
             TUI <-->|"Codex JSON-RPC<br/>frontend Unix WebSocket"| Companion
             Picker <-->|"zero or more frontend<br/>connections"| Companion
             Companion <-->|"one relayed backend per<br/>frontend connection"| AppServer
-            Companion <-->|"auxiliary delivery connection<br/>backend Unix WebSocket"| AppServer
+            Companion <-->|"continuous witness + disposable control<br/>backend Unix WebSockets"| AppServer
         end
     end
 
@@ -119,7 +119,7 @@ by commands such as `/resume`; they may coexist but cannot mutate authority.
 | Later frontend initialization, including a picker/pass-through connection | Allow it as auxiliary. Its requests and responses never establish, replace, or clear primary authority. |
 | Successful, correlated, authoritative-connection `thread/start`, `thread/resume`, or `thread/fork` response | Validate `result.thread`, then atomically replace the primary with its id. |
 | Definitive error response to one of those authoritative requests | Keep the prior primary; Codex rejected the switch. |
-| Normal authoritative frontend WebSocket close during `/quit` | Echo the Close frame, clear authority immediately, and stop all new delivery, but treat the completed orderly handshake as nonfatal so the TUI can finish its clean exit and the launcher can perform normal child cleanup. |
+| Normal authoritative frontend WebSocket close during `/quit` | Clear authority immediately, stop all new delivery, and make a best-effort Close echo. Preserve the clean classification if the TUI exits before reading that echo. |
 | Abrupt authoritative connection loss or an ambiguous/malformed response to one of its primary-changing requests | Clear authority and fail closed. Do not infer which root owns main input. |
 | Authoritative `thread/archive` or `thread/delete` for the current primary is in flight | Temporarily enter NoRoot under the barrier so no Poke can target a root being invalidated. |
 | Successful authoritative `thread/archive` or `thread/delete` for the current primary | Remain NoRoot until a later correlated start/resume/fork succeeds. |
@@ -154,9 +154,13 @@ for that exact root, and authoritative thread-scoped `Uclusion` status
 companion driver participate in that delivery status. Raw picker observations
 are handoff input, never evidence that can open the gate by themselves.
 Before the relay accepts any TUI, the companion initializes its separate
-driver connection. Codex's automatic attachment of initialized connections to
-a newly created runtime is asynchronous and best-effort, so initialization
-alone is not a pin guarantee.
+driver connection. That connection is the continuous notification witness and
+is used only for subscription acknowledgements and listener fences. A second,
+disposable control connection owns delivery and history RPCs. A slow or failed
+control request can therefore be closed and retried without falsely declaring
+that the continuously subscribed witness disappeared. Codex's automatic
+attachment of initialized connections to a newly created runtime is
+asynchronous and best-effort, so initialization alone is not a pin guarantee.
 
 Every successful root-shaped `thread/start`, `thread/resume`, or
 `thread/fork` response on any relayed connection is held before it is
@@ -398,6 +402,11 @@ must commit in its expected/response turn. A queued `turn/start` can internally
 join a regular turn that became active first, so its exact client id—not its
 provisional response turn—is authoritative.
 
+When there is no pending Poke, update notice, or ambiguous send to reconcile,
+the companion does not poll `thread/read`. Authoritative relay state already
+identifies the current root and active turn, while a read-only inbox preflight
+determines whether a control RPC is needed.
+
 Every ordinary `uclusion codex` launch applies an atomic startup cutoff. After
 the companion acquires exclusive ownership and before it publishes readiness,
 it advances only the `codex-bridge` cursor through the highest Poke already
@@ -414,12 +423,12 @@ sole exception. It omits the startup cutoff, leaving the persistent bridge
 cursor and delivery records intact so the retained backlog is reconciled or
 delivered in arrival order before the bridge continues with later Pokes.
 
-If the auxiliary transport fails after a send, the outcome is ambiguous. The
-`sending` record retains the message id, thread id, admission method,
-provisional target when known, and launcher/app-server instance used for that
-attempt. After reconnecting, the companion reads that stored thread's complete
-history, using full-item pagination through EOF when required, even if the TUI
-has since selected another primary:
+If the disposable control transport fails after a send, the outcome is
+ambiguous. The `sending` record retains the message id, thread id, admission
+method, provisional target when known, and launcher/app-server instance used
+for that attempt. After reconnecting, the companion reads that stored thread's
+complete history, using full-item pagination through EOF when required, even
+if the TUI has since selected another primary:
 
 - If a persisted user item has the same client id, acknowledge the old attempt.
   Requiring the old thread to remain current here would risk duplicating the
@@ -480,8 +489,8 @@ authority.
 | Primary has an active review or manual compaction | Keep the Poke pending and deliver after the non-steerable turn changes or ends. |
 | Primary is active but its turn id is untracked after a response/event ordering conflict | Resolve the sole in-progress turn from complete history, then steer with `expectedTurnId`; defer or fail closed if it cannot be proved. |
 | A successful human admission response precedes `turn/started` and thread status still reads idle | Treat the primary as provisionally busy; do not reserve or send another `turn/start`. |
-| Authoritative TUI sends a normal frontend WebSocket close during `/quit` | Echo the Close frame, revoke delivery authority immediately and nonfatally, and let the TUI complete its clean exit so the launcher can perform normal cleanup. |
-| Authoritative TUI/frontend connection ends abruptly, sends an error Close code, or violates the WebSocket/JSON-RPC protocol | Revoke delivery authority immediately and fail closed. |
+| Authoritative TUI sends a normal frontend WebSocket close during `/quit` | Revoke delivery authority immediately and nonfatally, make a best-effort Close echo, and preserve the clean classification if the TUI exits before reading that echo. |
+| Authoritative TUI/frontend connection ends abruptly, sends an error Close code, or violates the WebSocket/JSON-RPC protocol | Revoke delivery authority immediately, send a bounded best-effort Close 1011, and fail closed. |
 | Auxiliary picker/pass-through connection opens, unsubscribes, or closes | Allow and isolate it; never change authority. Complete any in-flight origin fence before retirement. Raw picker observations never open delivery; a successful fence has already copied its ordered cut onto the live driver. |
 | A second connection attempts primary turn admission, control, or current-primary invalidation | Reject that request on the auxiliary connection; never let it bypass a Poke lease. |
 | A primary message is queued before its FIFO worker runs | Its synchronous reservation blocks new Poke leases; interrupt, steer, and correlated server responses remain immediate. |
@@ -491,7 +500,7 @@ authority.
 | Current-primary unsubscribe succeeds, errors, or has an ambiguous outcome | Leave NoRoot because the TUI abandons its listener after awaiting the call regardless of the RPC result. |
 | A second launcher targets the same environment and workspace while its owner PID is live | Reject the second companion; do not let two processes consume the shared `codex-bridge` cursor. |
 | The recorded bridge owner PID is dead | Permit takeover, then recover or reconcile durable pending/sending state before new delivery. A stale heartbeat alone never permits takeover. |
-| Auxiliary backend connection fails | Preserve any `sending` row, reconnect to the still-running backend, then reconcile by the stored message and thread ids. |
+| Disposable control connection fails or times out | Preserve any `sending` row, keep the continuous driver witness intact, reconnect control to the still-running backend, then reconcile by the stored message and thread ids. |
 | Relayed backend connection fails | Clear authority and close or fail the frontend; never reconstruct visibility from broadcasts or loaded-thread lists. |
 | Malformed recognized thread-scoped MCP-startup or thread-lifecycle witness notification on the primary or driver | Fail the bridge session closed; never use partial readiness evidence. App-scoped startup updates remain non-correlatable and are ignored. |
 | Companion driver/witness connection fails after initialization | Fail the bridge session closed. A replacement driver is not retroactively subscribed to already-loaded runtimes and cannot safely inherit cached readiness. |
@@ -529,9 +538,11 @@ very narrow limitation of atomic temp-file replacement. Poke delivery has no
 3. Start Codex app-server on the private backend Unix socket.
 4. Start the companion and acquire exclusive bridge ownership. Establish its
    atomic backlog cutoff now unless `--deliver-existing-pokes` was requested.
-5. Initialize the companion's driver/witness connection, then bind the private
-   frontend Unix socket. The driver is therefore available for an explicit
-   subscription before any TUI root response can be released.
+5. Initialize the companion's continuous driver/witness connection and its
+   disposable control connection, then bind the private frontend Unix socket.
+   The driver is therefore available for an explicit subscription before any
+   TUI root response can be released, while control recovery cannot revoke
+   that subscription proof.
 6. Start the TUI with `--remote` pointing to the frontend, never the backend.
 7. Select the first successfully initialized `codex-tui` connection as
    authoritative. Hold every successful root lifecycle response, including
@@ -634,13 +645,16 @@ At minimum, tests must cover:
 - ambiguous `turn/start` and `turn/steer` recovery against the stored old
   thread after a later primary switch, including complete paginated history
   and duplicate-client-id rejection;
+- idle delivery steps issuing no app-server metadata read, and a disposable
+  control timeout reconnecting without replacing or invalidating the
+  continuous driver witness;
 - WebSocket fragmentation, ping/pong, strict close validation, finite and
   duplicate-free JSON, exact response envelopes, signed-int64/string request
   ids, and bidirectional correlation without protocol reordering;
-- a normal frontend close from `/quit` completing the WebSocket closing
-  handshake and revoking authority nonfatally through a clean launcher exit,
-  while error Close codes, abrupt loss, and protocol-invalid disconnects
-  remain fatal;
+- a normal frontend close from `/quit` revoking authority nonfatally even when
+  the peer exits before reading its Close echo, while error Close codes,
+  abrupt loss, and protocol-invalid disconnects remain fatal and receive a
+  bounded best-effort Close 1011;
 - malformed reconciliation history remaining `sending`, plus cursor
   acknowledgement serialized against lifecycle and disconnect revocation;
 - duplicate cloud notifications and independent consumer cursors;

@@ -487,6 +487,160 @@ class RunBridgeTests(BridgeTestCase):
         self.assertIsNone(relay_holder["relay"].authority.fatal_error)
         self.assertTrue(relay_holder["relay"].closed)
 
+    def test_control_timeout_reconnects_without_losing_driver_witness(self):
+        stopping = threading.Event()
+        self.add_poke("message-1", "Start B-all-545")
+        driver_clients = []
+        control_clients = []
+        relay_holder = {}
+
+        class DriverClient:
+            def __init__(self):
+                self.response_lock = threading.Lock()
+                self.reader_failure = None
+                self.notification_handler = None
+                self.disconnect_handler = None
+                self.close_count = 0
+
+            def start(self):
+                pass
+
+            def subscribe_thread(self, _thread_id, on_subscribed):
+                on_subscribed()
+
+            def fence_thread(self, _thread_id):
+                pass
+
+            def close(self):
+                self.close_count += 1
+
+        class ControlClient:
+            def __init__(self, fail_read):
+                self.fail_read = fail_read
+                self.close_count = 0
+
+            def start(self):
+                pass
+
+            def thread_read(self, thread_id, include_turns):
+                self.assert_thread_read(thread_id, include_turns)
+                if self.fail_read:
+                    raise bridge.AppServerTimeout(
+                        "thread/read request timed out"
+                    )
+                return {
+                    "id": "root-live",
+                    "sessionId": "root-live",
+                    "parentThreadId": None,
+                    "cwd": "/workspace/project",
+                    "status": {"type": "idle"},
+                }
+
+            @staticmethod
+            def assert_thread_read(thread_id, include_turns):
+                if thread_id != "root-live" or include_turns:
+                    raise AssertionError("unexpected metadata read")
+
+            def turn_start(self, thread_id, text, message_id):
+                self.assertEqual_for_test("root-live", thread_id)
+                self.assertEqual_for_test("Start B-all-545", text)
+                self.assertEqual_for_test("message-1", message_id)
+                stopping.set()
+                return {"turn": {"id": "turn-control-recovered"}}
+
+            @staticmethod
+            def assertEqual_for_test(expected, actual):
+                if expected != actual:
+                    raise AssertionError(
+                        "{} != {}".format(expected, actual)
+                    )
+
+            def close(self):
+                self.close_count += 1
+
+        class Relay:
+            def __init__(self, _frontend, _backend, authority):
+                self.authority = authority
+                self.fatal_event = threading.Event()
+                self.fatal_error = None
+                self.listener = None
+                self.driver_thread_pinner = None
+                self.driver_thread_fencer = None
+
+            def start(self):
+                self.listener = object()
+                self.authority.gate_mcp_startup = False
+                self.authority.claim_primary(1)
+                gate = self.authority.begin_tui_request(
+                    1,
+                    "thread/start",
+                    {"cwd": "/workspace/project"},
+                )
+                self.authority.finish_tui_request(
+                    gate,
+                    {
+                        "id": 1,
+                        "result": {
+                            "thread": {
+                                "id": "root-live",
+                                "sessionId": "root-live",
+                                "parentThreadId": None,
+                                "cwd": "/workspace/project",
+                                "status": {"type": "idle"},
+                            }
+                        },
+                    },
+                )
+
+            def fail(self, reason):
+                self.fatal_error = reason
+                self.fatal_event.set()
+                self.authority.fail(reason)
+
+            def close(self):
+                pass
+
+        def driver_factory(_path):
+            client = DriverClient()
+            driver_clients.append(client)
+            return client
+
+        def control_factory(_path):
+            client = ControlClient(fail_read=not control_clients)
+            control_clients.append(client)
+            return client
+
+        def relay_factory(frontend, backend, authority):
+            relay = Relay(frontend, backend, authority)
+            relay_holder["relay"] = relay
+            return relay
+
+        config = dataclass_replace(
+            self.config,
+            frontend_socket=os.path.join(
+                self.temporary.name, "frontend.sock"
+            ),
+        )
+        result = bridge.run_bridge(
+            config,
+            poll_interval=0.001,
+            stop_event=stopping,
+            client_factory=driver_factory,
+            control_client_factory=control_factory,
+            relay_factory=relay_factory,
+            update_notice_source=lambda _environment: None,
+            deliver_existing_pokes=True,
+        )
+
+        self.assertEqual(bridge.EXIT_OK, result)
+        self.assertEqual(1, len(driver_clients))
+        self.assertEqual(2, len(control_clients))
+        self.assertEqual(1, driver_clients[0].close_count)
+        self.assertEqual(1, control_clients[0].close_count)
+        self.assertEqual(1, control_clients[1].close_count)
+        self.assertIsNone(relay_holder["relay"].fatal_error)
+        self.assertIsNone(relay_holder["relay"].authority.fatal_error)
+
     def test_token_audit_load_is_lazy_and_uses_expected_api(self):
         disabled = dataclass_replace(self.config, token_audit=False)
         with mock.patch.object(
@@ -634,6 +788,13 @@ class RunBridgeTests(BridgeTestCase):
             def close(self):
                 pass
 
+        class ControlClient:
+            def start(self):
+                pass
+
+            def close(self):
+                pass
+
         client = Client()
         config = dataclass_replace(
             self.config,
@@ -652,6 +813,7 @@ class RunBridgeTests(BridgeTestCase):
                 poll_interval=0.001,
                 stop_event=stopping,
                 client_factory=lambda _path: client,
+                control_client_factory=lambda _path: ControlClient(),
                 relay_factory=Relay,
                 update_notice_source=lambda _environment: None,
             )
@@ -759,6 +921,19 @@ class DeliveryTests(BridgeTestCase):
         self.assertIsNone(self.store.consumer_cursor(self.config))
         self.assertEqual([], app_server.read_calls)
         self.assertEqual([], app_server.start_calls)
+
+    def test_empty_relay_step_does_not_poll_thread_metadata(self):
+        app_server = FakeAppServer(thread_id="root-live")
+        engine = bridge.BridgeEngine(
+            self.store, app_server, self.config
+        )
+        snapshot = bridge.RootSnapshot("root-live", 2, 1)
+
+        for _index in range(4):
+            result = engine.step(snapshot)
+            self.assertEqual("empty", result.action)
+
+        self.assertEqual([], app_server.read_calls)
 
     def test_unloaded_binding_does_not_peek_or_claim(self):
         self.bind()

@@ -2180,6 +2180,86 @@ class FrontendWebSocketTests(unittest.TestCase):
             frontend.close()
             client_stream.close()
 
+    def test_normal_close_survives_peer_disappearing_before_echo(self):
+        callbacks = []
+
+        class PeerGoneSocket:
+            def sendall(self, _payload):
+                raise BrokenPipeError("peer already closed")
+
+        frontend = bridge.FrontendWebSocket(PeerGoneSocket())
+        close_payload = struct.pack("!H", 1000)
+
+        frontend._begin_close_handshake(
+            close_payload, 1000, callbacks.append
+        )
+
+        self.assertTrue(frontend.received_close)
+        self.assertEqual(1000, frontend.received_close_code)
+        self.assertEqual([1000], callbacks)
+
+    def test_normal_close_frame_then_peer_shutdown_remains_clean(self):
+        server_stream, client_stream = socket.socketpair()
+        frontend = bridge.FrontendWebSocket(server_stream)
+        callbacks = []
+        try:
+            close_payload = struct.pack("!H", 1000)
+            client_stream.sendall(
+                masked_frame(close_payload, opcode=8)
+            )
+            client_stream.shutdown(socket.SHUT_RDWR)
+
+            self.assertIsNone(
+                frontend.read_json_message(callbacks.append)
+            )
+            self.assertTrue(frontend.received_close)
+            self.assertEqual(1000, frontend.received_close_code)
+            self.assertEqual([1000], callbacks)
+        finally:
+            frontend.close()
+            client_stream.close()
+
+    def test_fatal_close_uses_nonblocking_best_effort_write(self):
+        calls = []
+
+        class WouldBlockSocket:
+            def send(self, payload, flags):
+                calls.append((payload, flags))
+                raise BlockingIOError("socket buffer is full")
+
+            def shutdown(self, _how):
+                pass
+
+            def close(self):
+                pass
+
+        frontend = bridge.FrontendWebSocket(WouldBlockSocket())
+
+        frontend.close_with_error()
+
+        self.assertTrue(frontend.closed)
+        self.assertEqual(1, len(calls))
+        self.assertEqual(socket.MSG_DONTWAIT, calls[0][1])
+        self.assertEqual(8, calls[0][0][0] & 0x0F)
+        self.assertEqual(1011, struct.unpack("!H", calls[0][0][2:])[0])
+
+    def test_fatal_close_does_not_wait_for_existing_writer(self):
+        server_stream, client_stream = socket.socketpair()
+        frontend = bridge.FrontendWebSocket(server_stream)
+        frontend.write_lock.acquire()
+        worker = threading.Thread(
+            target=frontend.close_with_error, daemon=True
+        )
+        try:
+            worker.start()
+            worker.join(0.5)
+            self.assertFalse(worker.is_alive())
+            self.assertTrue(frontend.closed)
+        finally:
+            frontend.write_lock.release()
+            worker.join(1)
+            client_stream.close()
+
 
 class RelayIntegrationTests(unittest.TestCase):
     def setUp(self):
@@ -2762,6 +2842,31 @@ class RelayIntegrationTests(unittest.TestCase):
         self.assertIsNotNone(self.authority.fatal_error)
         self.assertIn("non-normal code 1011", self.relay.fatal_error)
         self.assertTrue(upstream.closed.wait(1))
+
+    def test_fatal_relay_failure_sends_close_1011_before_teardown(self):
+        primary, upstream = self.initialized_connection()
+        send_client_json(
+            primary,
+            {
+                "id": 1,
+                "method": "thread/start",
+                "params": {"cwd": "/workspace/project"},
+            },
+        )
+        upstream.sent.get(timeout=1)
+        upstream.respond(
+            {"id": 1, "result": root_result("root-primary")}
+        )
+        self.assertEqual(1, read_server_json(primary)["id"])
+
+        self.relay.fail("forced relay failure")
+
+        opcode, payload = read_server_frame(primary)
+        self.assertEqual(8, opcode)
+        self.assertEqual(1011, struct.unpack("!H", payload)[0])
+        self.assertTrue(self.relay.fatal_event.is_set())
+        self.assertEqual("forced relay failure", self.relay.fatal_error)
+        self.assertIsNone(self.authority.current_snapshot())
 
     def test_frontend_upgrade_requires_host_header(self):
         stream = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)

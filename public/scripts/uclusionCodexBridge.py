@@ -929,6 +929,40 @@ class InboxStore:
             ).fetchone()
         return None if row is None else int(row["last_sequence"])
 
+    def has_pending_poke(
+        self,
+        config: BridgeConfig,
+        consumer: str = BRIDGE_CONSUMER,
+    ) -> bool:
+        """Read-only preflight that does not initialize the consumer."""
+        with closing(self.connect()) as connection:
+            row = connection.execute(
+                """
+                SELECT 1
+                FROM poke_messages
+                WHERE environment = ? AND workspace_id = ?
+                  AND consumed_at IS NULL
+                  AND sequence > COALESCE(
+                      (
+                          SELECT last_sequence
+                          FROM poke_consumers
+                          WHERE environment = ? AND workspace_id = ?
+                            AND consumer = ?
+                      ),
+                      0
+                  )
+                LIMIT 1
+                """,
+                (
+                    config.environment,
+                    config.workspace_id,
+                    config.environment,
+                    config.workspace_id,
+                    consumer,
+                ),
+            ).fetchone()
+        return row is not None
+
     def peek_next(
         self,
         config: BridgeConfig,
@@ -4391,6 +4425,25 @@ class BridgeEngine:
             )
             return StepResult("retry_pending_update_notice")
 
+        pending_notice: Optional[UpdateNotice] = None
+        if snapshot is not None:
+            # Do not poll Codex merely to rediscover that there is no
+            # delivery work. Apart from creating unnecessary app-server
+            # pressure, a slow metadata read used to be mistaken for loss of
+            # the continuous startup witness and could sacrifice an otherwise
+            # healthy TUI. Legacy binding callers retain their preflight read
+            # so they can reject stale or unloaded persisted roots first.
+            if not self.may_deliver():
+                return StepResult("orphaned")
+            has_pending_poke = self.store.has_pending_poke(
+                self.config, self.consumer
+            )
+            pending_notice = self.store.get_pending_update_notice(
+                self.config
+            )
+            if not has_pending_poke and pending_notice is None:
+                return StepResult("empty")
+
         thread, failure = self._read_thread(
             target_thread_id, include_turns=False
         )
@@ -4432,16 +4485,19 @@ class BridgeEngine:
         if not self.may_deliver():
             return StepResult("orphaned")
         poke = self.store.peek_next(self.config, self.consumer)
+        if pending_notice is None:
+            pending_notice = self.store.get_pending_update_notice(
+                self.config
+            )
         if poke is None:
             # Update notices are operational messages, not user Pokes. Keep
             # them out of an active turn and deliver them once it is idle.
             if status == "active":
                 return StepResult("busy")
-            notice = self.store.get_pending_update_notice(self.config)
-            if notice is None:
+            if pending_notice is None:
                 return StepResult("empty")
             return self._deliver_update_notice(
-                notice, target_thread_id, binding
+                pending_notice, target_thread_id, binding
             )
         expected_turn_id: Optional[str] = None
         if status == "active":
@@ -5702,15 +5758,18 @@ class FrontendWebSocket:
         with self.write_lock:
             with self.state_lock:
                 if self.closed:
-                    raise AppServerTransportError(
-                        "TUI WebSocket is closed"
-                    )
+                    return
             try:
                 self.connection.sendall(frame)
-            except OSError as exc:
-                raise AppServerTransportError(
-                    "TUI WebSocket closed while writing Close response"
-                ) from exc
+            except OSError:
+                # Receipt and validation of the peer's Close frame already
+                # established the shutdown classification and revoked any
+                # primary authority. Codex may close immediately after
+                # sending /quit's normal Close rather than wait for the echo;
+                # a failed best-effort echo must not rewrite that clean exit
+                # into a fatal relay failure. Non-normal codes are still
+                # classified and failed by the caller below.
+                return
 
     def read_json_message(
         self,
@@ -5789,6 +5848,30 @@ class FrontendWebSocket:
                 "relay attempted to send invalid JSON to TUI"
             ) from exc
         self._write_frame(0x1, payload)
+
+    def close_with_error(self) -> None:
+        """Best-effort WebSocket 1011 before bounded fatal teardown."""
+        frame = self._unmasked_frame(0x8, struct.pack("!H", 1011))
+        with self.state_lock:
+            should_write = not self.closed and not self.closing
+            if should_write:
+                self.closing = True
+        if should_write and self.write_lock.acquire(blocking=False):
+            try:
+                with self.state_lock:
+                    writable = not self.closed
+                if writable:
+                    try:
+                        # Fatal teardown must never wait for a peer that has
+                        # stopped reading. A single nonblocking write is
+                        # sufficient for this best-effort diagnostic frame;
+                        # partial delivery falls back to the raw close below.
+                        self.connection.send(frame, socket.MSG_DONTWAIT)
+                    except OSError:
+                        pass
+            finally:
+                self.write_lock.release()
+        self.close()
 
     def close(self) -> None:
         with self.state_lock:
@@ -6507,6 +6590,13 @@ class _RelayConnection:
             ):
                 self.relay.fail("primary TUI WebSocket disconnected")
 
+    def fail(self) -> None:
+        if self.closed.is_set():
+            return
+        if self.frontend is not None:
+            self.frontend.close_with_error()
+        self.close()
+
     def close(self) -> None:
         if self.closed.is_set():
             return
@@ -6728,7 +6818,7 @@ class UnixWebSocketRelay:
         with self.connections_lock:
             connections = list(self.connections.values())
         for connection in connections:
-            connection.close()
+            connection.fail()
 
     def close(self) -> None:
         self.stop_event.set()
@@ -7133,6 +7223,9 @@ def run_bridge(
     ),
     update_check_interval: float = UPDATE_CHECK_INTERVAL_SECONDS,
     deliver_existing_pokes: bool = False,
+    control_client_factory: Optional[
+        Callable[[str], AppServerClient]
+    ] = None,
     **_legacy_options: Any,
 ) -> int:
     """Run the relay-owned bridge.
@@ -7193,13 +7286,18 @@ def run_bridge(
         if token_audit is not None
         else None
     )
-    client: Optional[AppServerClient] = None
+    # The driver is a continuous notification witness whose exact connection
+    # identity is part of MCP-startup authority. Delivery/control RPCs use a
+    # separate disposable connection so a slow or failed request can be
+    # retried without pretending that the witness itself disconnected.
+    driver_client: Optional[AppServerClient] = None
+    control_client: Optional[AppServerClient] = None
+    control_factory = control_client_factory or client_factory
     update_worker: Optional[UpdateNoticeWorker] = None
     ready_published = False
     last_error: Optional[str] = None
     deferred_steer_turn_id: Optional[str] = None
     next_driver_connection_id = INITIAL_DRIVER_CONNECTION_ID
-    active_driver_connection_id: Optional[int] = None
     audit_subscribed_thread_ids = set()
 
     def receiver_live() -> bool:
@@ -7243,11 +7341,13 @@ def run_bridge(
             if token_audit is not None:
                 token_audit.refresh_ready()
 
-            if client is None:
+            if driver_client is None:
                 try:
                     driver_connection_id = next_driver_connection_id
                     next_driver_connection_id -= 1
-                    client = client_factory(config.app_server_socket)
+                    driver_client = client_factory(
+                        config.app_server_socket
+                    )
 
                     def observe_driver_notification(
                         message: Dict[str, Any],
@@ -7268,63 +7368,48 @@ def run_bridge(
                                 "Codex audit driver disconnected"
                             )
 
-                    client.notification_handler = (
+                    driver_client.notification_handler = (
                         observe_driver_notification
                     )
-                    client.disconnect_handler = driver_disconnected
-                    client.start()
+                    driver_client.disconnect_handler = driver_disconnected
+                    driver_client.start()
                     # Register the witness atomically with the reader-failure
                     # check. An EOF before this point is a retryable
                     # pre-frontend initialization failure; an EOF after
                     # registration invokes driver_disconnected and fails the
                     # live bridge closed.
-                    with client.response_lock:
-                        if client.reader_failure is not None:
-                            raise client.reader_failure
+                    with driver_client.response_lock:
+                        if driver_client.reader_failure is not None:
+                            raise driver_client.reader_failure
                         authority.driver_connected(driver_connection_id)
-                        active_driver_connection_id = (
-                            driver_connection_id
-                        )
-                    relay.driver_thread_pinner = (
-                        lambda thread_id, lifecycle_epoch: client.subscribe_thread(
+                    registered_driver = driver_client
+
+                    def pin_driver_thread(
+                        thread_id: str, lifecycle_epoch: int
+                    ) -> None:
+                        registered_driver.subscribe_thread(
                             thread_id,
                             lambda: authority.driver_thread_pinned(
                                 thread_id, lifecycle_epoch
                             ),
                         )
+
+                    relay.driver_thread_pinner = pin_driver_thread
+                    relay.driver_thread_fencer = (
+                        registered_driver.fence_thread
                     )
-                    relay.driver_thread_fencer = client.fence_thread
                     audit_subscribed_thread_ids.clear()
-                    if relay.listener is None:
-                        relay.start()
-                    if not ready_published:
-                        _write_private_marker(
-                            config.ready_file, config.instance
-                        )
-                        ready_published = True
-                    if update_worker is None:
-                        update_worker = UpdateNoticeWorker(
-                            config.environment,
-                            update_notice_source,
-                            interval=update_check_interval,
-                            result_sink=lambda notice: (
-                                store.enqueue_update_notice(config, notice)
-                            ),
-                        )
-                        update_worker.set_enabled(True)
-                        update_worker.start()
                     last_error = None
                 except (BridgeError, OSError) as exc:
                     message = "Uclusion Codex bridge: {}".format(exc)
                     if message != last_error:
                         print(message, file=sys.stderr, flush=True)
                         last_error = message
-                    if client is not None:
-                        client.close()
-                        client = None
+                    if driver_client is not None:
+                        driver_client.close()
+                        driver_client = None
                     relay.driver_thread_pinner = None
                     relay.driver_thread_fencer = None
-                    active_driver_connection_id = None
                     # Failure before the frontend is bound is retryable.
                     if relay.listener is not None:
                         relay.fail(
@@ -7334,15 +7419,70 @@ def run_bridge(
                     stopping.wait(max(1.0, poll_interval))
                     continue
 
+            if stopping.is_set():
+                continue
+
+            if control_client is None:
+                try:
+                    control_client = control_factory(
+                        config.app_server_socket
+                    )
+                    control_client.start()
+                    last_error = None
+                except (BridgeError, OSError) as exc:
+                    message = (
+                        "Uclusion Codex bridge control retry: {}"
+                        .format(exc)
+                    )
+                    if message != last_error:
+                        print(message, file=sys.stderr, flush=True)
+                        last_error = message
+                    if control_client is not None:
+                        control_client.close()
+                        control_client = None
+                    stopping.wait(max(1.0, poll_interval))
+                    continue
+
+            # The witness reader remains live while the disposable control
+            # connection initializes. Do not publish a frontend if that
+            # continuous witness failed during the initialization window.
+            if authority.fatal_error is not None:
+                continue
+
+            try:
+                if relay.listener is None:
+                    relay.start()
+                if not ready_published:
+                    _write_private_marker(
+                        config.ready_file, config.instance
+                    )
+                    ready_published = True
+                if update_worker is None:
+                    update_worker = UpdateNoticeWorker(
+                        config.environment,
+                        update_notice_source,
+                        interval=update_check_interval,
+                        result_sink=lambda notice: (
+                            store.enqueue_update_notice(config, notice)
+                        ),
+                    )
+                    update_worker.set_enabled(True)
+                    update_worker.start()
+            except (BridgeError, OSError) as exc:
+                relay.fail("bridge startup failed: {}".format(exc))
+                continue
+
             if token_audit is not None:
-                assert client is not None
+                assert driver_client is not None
                 for thread_id in (
                     token_audit.drain_descendant_thread_ids()
                 ):
                     if thread_id in audit_subscribed_thread_ids:
                         continue
                     try:
-                        client.subscribe_thread(thread_id, lambda: None)
+                        driver_client.subscribe_thread(
+                            thread_id, lambda: None
+                        )
                     except Exception as exc:
                         token_audit.mark_partial(
                             "Codex descendant {} could not be subscribed: {}"
@@ -7367,14 +7507,14 @@ def run_bridge(
                             last_error = message
                         break
 
-            assert client is not None
+            assert control_client is not None
             with authority.delivery_lease(receiver_live) as snapshot:
                 if snapshot is None:
                     stopping.wait(poll_interval)
                     continue
                 engine = BridgeEngine(
                     store,
-                    client,
+                    control_client,
                     config,
                     may_deliver=lambda: (
                         receiver_live()
@@ -7399,19 +7539,8 @@ def run_bridge(
             if result.action == "nonsteerable":
                 deferred_steer_turn_id = result.turn_id
             if result.reconnect:
-                if token_audit is not None:
-                    token_audit.mark_partial(
-                        "Codex audit driver reconnected"
-                    )
-                if active_driver_connection_id is not None:
-                    authority.driver_disconnected(
-                        active_driver_connection_id
-                    )
-                    active_driver_connection_id = None
-                relay.driver_thread_pinner = None
-                relay.driver_thread_fencer = None
-                client.close()
-                client = None
+                control_client.close()
+                control_client = None
             if result.error:
                 message = "Uclusion Codex bridge: {}".format(result.error)
                 if message != last_error:
@@ -7425,8 +7554,10 @@ def run_bridge(
         relay.close()
         if update_worker is not None:
             update_worker.close()
-        if client is not None:
-            client.close()
+        if control_client is not None:
+            control_client.close()
+        if driver_client is not None:
+            driver_client.close()
         if token_audit is not None:
             token_audit.close()
         try:

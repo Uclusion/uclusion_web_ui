@@ -560,10 +560,22 @@ def make_token_audit_publisher(post_url, token_provider):
     """Build an authenticated, out-of-band finalization callback.
 
     The callback intentionally creates no user-visible stdout traffic and
-    never logs the finalization body. Server-side idempotency makes retrying a
-    leased outbox row safe after crashes or token refreshes.
+    never logs the finalization body. The leased outbox keeps the payload
+    immutable across retries, and the server reuses a matching audit note once
+    that ordinary report is visible in the job export.
     """
     def publish(row):
+        finalization = row.get('finalization')
+        buckets = (
+            finalization.get('buckets')
+            if isinstance(finalization, dict) else None
+        )
+        if (
+            not isinstance(buckets, dict)
+            or not isinstance(buckets.get('items'), list)
+            or 'phases' in finalization
+        ):
+            raise RuntimeError('audit finalization uses an unsupported shape')
         request_id = 'job-audit-' + row['audit_run_id']
         request = {
             'jsonrpc': '2.0',
@@ -607,12 +619,39 @@ def make_token_audit_publisher(post_url, token_provider):
             tool_result.get('structuredContent')
             if isinstance(tool_result, dict) else None
         )
+        expected_total = finalization.get('measurement', {}).get(
+            'normalized_total_tokens'
+        )
+        returned_total = (
+            structured.get('run_normalized_total_tokens')
+            if isinstance(structured, dict) else None
+        )
+        total_matches = (
+            returned_total is None
+            if expected_total is None
+            else (
+                isinstance(expected_total, int)
+                and not isinstance(expected_total, bool)
+                and isinstance(returned_total, int)
+                and not isinstance(returned_total, bool)
+                and returned_total == expected_total
+            )
+        )
         if (
             not isinstance(structured, dict)
+            or not isinstance(structured.get('schema_version'), int)
+            or isinstance(structured.get('schema_version'), bool)
             or structured.get('schema_version') != 1
             or structured.get('state') != 'completed'
             or structured.get('audit_run_id') != row['audit_run_id']
             or structured.get('canonical_job_id') != row['job_id']
+            or not isinstance(structured.get('idempotent'), bool)
+            or not isinstance(structured.get('note_short_code_id'), str)
+            or not structured.get('note_short_code_id')
+            or not isinstance(structured.get('note_url'), str)
+            or not structured.get('note_url')
+            or 'run_normalized_total_tokens' not in structured
+            or not total_matches
         ):
             raise RuntimeError('audit finalization was not completed')
         return structured

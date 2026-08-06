@@ -55,7 +55,9 @@ CLAUDE_TRANSCRIPT_HOOK_DEADLINE_GRACE_SECONDS = 75.0
 OUTBOX_LEASE_SECONDS = 30
 OUTBOX_POLL_SECONDS = 0.5
 CODEX_COLLECTOR_READY_TTL_SECONDS = 30.0
-PHASES = ("planning", "implementation", "testing", "other")
+DEFAULT_BUCKET = "planning"
+MAX_BUCKETS = 32
+MAX_BUCKET_LABEL_LENGTH = 80
 PARTIAL_REASON_PRIORITY = {
     "session_interrupted": 0,
     "unsupported_client_version": 1,
@@ -71,6 +73,7 @@ MARKER_TOOLS = {
     "end_job_audit",
 }
 SAFE_LABEL = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/+@ -]{0,254}$")
+BUCKET_LABEL = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/+@ -]{0,79}$")
 SUPPORTED_CLAUDE_TRANSCRIPT_VERSION = re.compile(r"^2(?:\.[0-9]+){1,3}(?:[-+].*)?$")
 TEST_COMMAND = re.compile(
     r"(?:^|[;&|()\s])(?:pytest|py\.test|npm\s+(?:run\s+)?test|pnpm\s+"
@@ -140,6 +143,24 @@ def _safe_label(value):
         return None
     value = value.strip()
     if SAFE_LABEL.fullmatch(value):
+        return value
+    return None
+
+
+def _safe_bucket(value):
+    """Return an exact, bounded user bucket label or ``None``.
+
+    Unlike metadata labels, bucket labels are part of the user-visible audit
+    note. Do not silently trim them: the marker arguments, MCP result, local
+    assignment, and published item must all name exactly the same bucket.
+    """
+    if (
+        not isinstance(value, str)
+        or not 1 <= len(value) <= MAX_BUCKET_LABEL_LENGTH
+        or value != value.strip()
+    ):
+        return None
+    if BUCKET_LABEL.fullmatch(value):
         return value
     return None
 
@@ -531,6 +552,10 @@ class AuditStore:
         )
         # Existing opt-in installations may already have the v1 tables. Keep
         # migrations additive so an update never discards an unfinished run.
+        # The historical ``phase`` table/column names deliberately remain:
+        # their TEXT values now hold bucket labels, and old fixed values such
+        # as planning/testing are valid labels. This lets old and new local
+        # processes overlap without a destructive table rewrite.
         # Bridge, proxy, and hook processes can all initialize concurrently;
         # serialize the inspect-and-ALTER sequence and recheck only after the
         # write lock is held so two upgraders cannot add the same column.
@@ -804,12 +829,13 @@ class AuditStore:
             )
         cursor = connection.execute(
             """
-            UPDATE token_audit_usage SET audit_run_id=?, phase='planning'
+            UPDATE token_audit_usage SET audit_run_id=?, phase=?
             WHERE environment=? AND workspace_id=? AND client=?
               AND event_key=? AND audit_run_id IS NULL
             """,
             (
                 audit_run_id,
+                DEFAULT_BUCKET,
                 self.environment,
                 self.workspace_id,
                 client,
@@ -1054,8 +1080,7 @@ class AuditStore:
                     provider, client, client_version, source_mode,
                     root_session_fp, started_at, current_phase, state,
                     updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'planning',
-                    'active', ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?)
                 """,
                 (
                     audit_run_id,
@@ -1068,6 +1093,7 @@ class AuditStore:
                     source_mode,
                     session_fp,
                     now,
+                    DEFAULT_BUCKET,
                     now,
                 ),
             )
@@ -1206,22 +1232,24 @@ class AuditStore:
                 return False
         return job_id is None or row["job_id"] == job_id
 
-    def set_phase(
+    def set_bucket(
         self,
         audit_run_id,
-        phase,
+        bucket,
         marker_sequence=None,
         marker_identity=None,
         client=None,
         session_fp=None,
         job_id=None,
     ):
-        if phase not in PHASES:
+        bucket = _safe_bucket(bucket)
+        if bucket is None:
             return False
         with closing(self.connect()) as connection, connection:
             connection.execute("BEGIN IMMEDIATE")
             row = connection.execute(
-                "SELECT marker_sequence, state FROM token_audit_runs "
+                "SELECT marker_sequence, current_phase, state "
+                "FROM token_audit_runs "
                 "WHERE audit_run_id=?",
                 (audit_run_id,),
             ).fetchone()
@@ -1244,7 +1272,7 @@ class AuditStore:
                 if existing_event is not None:
                     supplied_sequence = _non_negative_int(marker_sequence)
                     return (
-                        existing_event["phase"] == phase
+                        existing_event["phase"] == bucket
                         and (
                             marker_sequence is None
                             or supplied_sequence
@@ -1265,23 +1293,37 @@ class AuditStore:
                     "WHERE audit_run_id=? AND marker_sequence=?",
                     (audit_run_id, sequence),
                 ).fetchone()
-                if existing_marker is None or existing_marker["phase"] != phase:
+                if existing_marker is None or existing_marker["phase"] != bucket:
                     return False
                 if event_key is not None:
                     connection.execute(
                         "INSERT INTO token_audit_marker_events "
                         "(audit_run_id, event_key, phase, marker_sequence, created_at) "
                         "VALUES (?, ?, ?, ?, ?)",
-                        (audit_run_id, event_key, phase, sequence, time.time()),
+                        (audit_run_id, event_key, bucket, sequence, time.time()),
                     )
                 return True
+            # ``phase`` is the legacy SQLite column name; it now stores the
+            # single user-labelable bucket dimension. Count the default and
+            # every marker, including labels that have not received a request
+            # yet, so concurrent callers cannot exceed the closed API bound.
+            existing_buckets = {DEFAULT_BUCKET, row["current_phase"]}
+            existing_buckets.update(
+                item["phase"] for item in connection.execute(
+                    "SELECT DISTINCT phase FROM token_audit_phase_markers "
+                    "WHERE audit_run_id=?",
+                    (audit_run_id,),
+                ).fetchall()
+            )
+            if bucket not in existing_buckets and len(existing_buckets) >= MAX_BUCKETS:
+                return False
             now = time.time()
             connection.execute(
                 """
                 UPDATE token_audit_runs SET current_phase=?, marker_sequence=?,
                     updated_at=? WHERE audit_run_id=? AND state IN ('active','closing')
                 """,
-                (phase, sequence, now, audit_run_id),
+                (bucket, sequence, now, audit_run_id),
             )
             connection.execute(
                 """
@@ -1289,14 +1331,14 @@ class AuditStore:
                     audit_run_id, marker_sequence, phase, effective_at
                 ) VALUES (?, ?, ?, ?)
                 """,
-                (audit_run_id, sequence, phase, now),
+                (audit_run_id, sequence, bucket, now),
             )
             if event_key is not None:
                 connection.execute(
                     "INSERT INTO token_audit_marker_events "
                     "(audit_run_id, event_key, phase, marker_sequence, created_at) "
                     "VALUES (?, ?, ?, ?, ?)",
-                    (audit_run_id, event_key, phase, sequence, now),
+                    (audit_run_id, event_key, bucket, sequence, now),
                 )
         return True
 
@@ -1790,7 +1832,7 @@ class AuditStore:
             ).fetchone()
             return (
                 row["audit_run_id"],
-                marker["phase"] if marker is not None else "planning",
+                marker["phase"] if marker is not None else DEFAULT_BUCKET,
                 bool(row["is_root"]),
             )
         return None, None, None
@@ -1853,7 +1895,7 @@ class AuditStore:
             # A deferred provider event and its payload rebuild are one atomic
             # operation relative to prepare_due_outbox/claim_outbox.
             connection.execute("BEGIN IMMEDIATE")
-            run_id, phase, is_root = self._assignment_for_timestamp(
+            run_id, bucket, is_root = self._assignment_for_timestamp(
                 connection, client, session_fp, timestamp
             )
             cursor = connection.execute(
@@ -1876,7 +1918,7 @@ class AuditStore:
                     session_fp,
                     turn_fp,
                     run_id,
-                    phase,
+                    bucket,
                     source_mode,
                     values["input_tokens"],
                     values["cached_input_tokens"],
@@ -2202,7 +2244,11 @@ class AuditStore:
             "provider_total_tokens": 0,
             "normalized_total_tokens": 0,
         }
-        phases = {phase: 0 for phase in PHASES}
+        # A normal dict preserves insertion order. Usage is selected in
+        # provider-request order above, so this is also the first-use order
+        # presented in the exported note. Re-entering a bucket adds to the
+        # same item instead of creating a second dimension or duplicate row.
+        bucket_totals = {}
         source_modes = set()
         models = set()
         efforts = set()
@@ -2215,8 +2261,23 @@ class AuditStore:
                     sums[field] += int(value)
             if event["provider_total_tokens"] is None:
                 provider_totals_complete = False
-            phase = event["phase"] if event["phase"] in PHASES else "other"
-            phases[phase] += int(event["normalized_total_tokens"])
+            bucket = _safe_bucket(event["phase"])
+            if bucket is None:
+                # Only a corrupted/foreign database can reach this path;
+                # marker ingestion rejects unsafe labels. Preserve the token
+                # total without publishing untrusted text and be honest that
+                # the result is partial.
+                bucket = DEFAULT_BUCKET
+                aggregate_overflow = True
+            if bucket not in bucket_totals and len(bucket_totals) >= MAX_BUCKETS:
+                bucket = (
+                    DEFAULT_BUCKET
+                    if DEFAULT_BUCKET in bucket_totals
+                    else next(iter(bucket_totals))
+                )
+                aggregate_overflow = True
+            bucket_totals.setdefault(bucket, 0)
+            bucket_totals[bucket] += int(event["normalized_total_tokens"])
             source_modes.add(event["source_mode"])
             if event["model"]:
                 models.add(event["model"])
@@ -2226,16 +2287,16 @@ class AuditStore:
             if value > MAX_SAFE_INTEGER:
                 sums[field] = MAX_SAFE_INTEGER
                 aggregate_overflow = True
-        for phase, value in tuple(phases.items()):
+        for bucket, value in tuple(bucket_totals.items()):
             if value > MAX_SAFE_INTEGER:
-                phases[phase] = MAX_SAFE_INTEGER
+                bucket_totals[bucket] = MAX_SAFE_INTEGER
                 aggregate_overflow = True
-        remaining_phase_tokens = sums["normalized_total_tokens"]
-        for phase in PHASES:
-            if phases[phase] > remaining_phase_tokens:
-                phases[phase] = remaining_phase_tokens
+        remaining_bucket_tokens = sums["normalized_total_tokens"]
+        for bucket in bucket_totals:
+            if bucket_totals[bucket] > remaining_bucket_tokens:
+                bucket_totals[bucket] = remaining_bucket_tokens
                 aggregate_overflow = True
-            remaining_phase_tokens -= phases[phase]
+            remaining_bucket_tokens -= bucket_totals[bucket]
 
         descendants = [item for item in sessions if not bool(item["is_root"])]
         descendants_included = sum(1 for item in descendants if item["usage_seen"])
@@ -2299,7 +2360,7 @@ class AuditStore:
         if not usage:
             status = "unavailable"
             reason = reason or "telemetry_unavailable"
-            phases = {phase: 0 for phase in PHASES}
+            bucket_totals = {}
         elif reason or not main_seen:
             status = "partial"
             reason = reason or "collector_failure"
@@ -2437,7 +2498,13 @@ class AuditStore:
                 "elapsed_ms": max(0, int((ended_at - started_at) * 1000)),
             },
             "measurement": measurement,
-            "phases": {"method": "next_request_marker_v1", **phases},
+            "buckets": {
+                "method": "next_request_marker_v1",
+                "items": [
+                    {"label": label, "tokens": tokens}
+                    for label, tokens in bucket_totals.items()
+                ],
+            },
             "activity": {
                 "model_requests": model_requests,
                 "tool_calls": len(tool_activity),
@@ -2538,6 +2605,54 @@ class AuditStore:
                 if row is None:
                     connection.commit()
                     return None
+                try:
+                    stored_finalization = json.loads(row["finalization_json"])
+                except (TypeError, ValueError):
+                    stored_finalization = None
+                if (
+                    isinstance(stored_finalization, dict)
+                    and "buckets" not in stored_finalization
+                    and "phases" in stored_finalization
+                ):
+                    # An immediately previous release may have queued its
+                    # fixed phase map before this process started. Rebuild it
+                    # from the retained allowlisted usage rows, preserving
+                    # first-use ordering and every lifecycle/coverage signal,
+                    # instead of publishing the obsolete API shape.
+                    run = connection.execute(
+                        "SELECT * FROM token_audit_runs WHERE audit_run_id=?",
+                        (row["audit_run_id"],),
+                    ).fetchone()
+                    if run is None:
+                        raise RuntimeError(
+                            "legacy audit outbox row has no retained run"
+                        )
+                    ended_at = (
+                        float(run["completed_at"])
+                        if run["completed_at"] is not None
+                        else (
+                            float(run["closing_at"])
+                            if run["closing_at"] is not None
+                            else current
+                        )
+                    )
+                    rebuilt = self._build_finalization(
+                        connection, run, ended_at
+                    )
+                    connection.execute(
+                        "UPDATE token_audit_outbox SET finalization_json=?, "
+                        "updated_at=? WHERE audit_run_id=?",
+                        (
+                            _canonical_json(rebuilt),
+                            current,
+                            row["audit_run_id"],
+                        ),
+                    )
+                    row = connection.execute(
+                        "SELECT * FROM token_audit_outbox "
+                        "WHERE audit_run_id=?",
+                        (row["audit_run_id"],),
+                    ).fetchone()
                 lease_token = uuid.uuid4().hex
                 connection.execute(
                     """
@@ -3022,10 +3137,10 @@ def _apply_marker(
             return run_id
     elif tool_name == "set_job_audit_phase":
         run_id = structured.get("audit_run_id")
-        phase = structured.get("phase")
+        bucket = structured.get("bucket")
         if (
             arguments.get("audit_run_id") != run_id
-            or arguments.get("phase") != phase
+            or arguments.get("bucket") != bucket
         ):
             return None
         requested_sequence = arguments.get("marker_sequence")
@@ -3049,9 +3164,9 @@ def _apply_marker(
             )
         ):
             return None
-        if store.set_phase(
+        if store.set_bucket(
             run_id,
-            phase,
+            bucket,
             canonical_sequence,
             marker_identity=marker_identity,
             client=client,
@@ -4148,7 +4263,7 @@ def process_claude_hook(environment, workspace_id, source_mode, payload):
     }:
         # Marker state is durable before a potentially large first transcript
         # scan. If Claude reaches the hook timeout, a later hook can resume the
-        # scan without losing the accepted start/phase/end operation.
+        # scan without losing the accepted start/bucket/end operation.
         scan_claude_transcript(store, session_fp, transcript_path)
 
     if event in {"Stop", "SessionEnd"}:

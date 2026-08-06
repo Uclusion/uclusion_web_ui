@@ -69,6 +69,13 @@ def mcp_item(thread_id, turn_id, item_id, tool, arguments, result):
     }
 
 
+def bucket_map(finalization):
+    return {
+        item["label"]: item["tokens"]
+        for item in finalization["buckets"]["items"]
+    }
+
+
 class TokenAuditTestCase(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
@@ -372,9 +379,9 @@ class StorageConcurrencyTests(TokenAuditTestCase):
             second_run, store.session_run("codex", session)["audit_run_id"]
         )
 
-    def test_phase_sequence_cannot_regress_under_concurrent_markers(self):
+    def test_bucket_sequence_cannot_regress_under_concurrent_markers(self):
         store = self.store()
-        session = store.fingerprint("codex-thread", "phase-race")
+        session = store.fingerprint("codex-thread", "bucket-race")
         store.bind_session("codex", session, is_root=True)
         run_id = str(uuid.uuid4())
         store.start_run(
@@ -391,18 +398,18 @@ class StorageConcurrencyTests(TokenAuditTestCase):
             if threading.current_thread().name == "newer-marker":
                 entered.set()
                 if not release.wait(5):
-                    raise TimeoutError("phase race barrier timed out")
+                    raise TimeoutError("bucket race barrier timed out")
             return result
 
         def newer():
-            results["newer"] = store.set_phase(
-                run_id, "testing", 2, client="codex",
+            results["newer"] = store.set_bucket(
+                run_id, "verification", 2, client="codex",
                 session_fp=session, job_id="J-all-549",
             )
 
         def older():
-            results["older"] = store.set_phase(
-                run_id, "implementation", 1, client="codex",
+            results["older"] = store.set_bucket(
+                run_id, "source review", 1, client="codex",
                 session_fp=session, job_id="J-all-549",
             )
             older_done.set()
@@ -423,7 +430,121 @@ class StorageConcurrencyTests(TokenAuditTestCase):
         self.assertFalse(results["older"])
         current = store.session_run("codex", session)
         self.assertEqual(2, current["marker_sequence"])
-        self.assertEqual("testing", current["current_phase"])
+        self.assertEqual("verification", current["current_phase"])
+
+    def test_bucket_labels_are_bounded_and_run_has_one_32_label_dimension(self):
+        self.assertEqual("a", audit._safe_bucket("a"))
+        self.assertEqual("a" * 80, audit._safe_bucket("a" * 80))
+        for invalid in (
+            "", " leading", "trailing ", "a" * 81, "unsafe\nlabel",
+            "ümlaut",
+        ):
+            with self.subTest(invalid=invalid):
+                self.assertIsNone(audit._safe_bucket(invalid))
+
+        store = self.store()
+        session = store.fingerprint("codex-thread", "bucket-limit")
+        store.bind_session("codex", session, is_root=True)
+        run_id = str(uuid.uuid4())
+        store.start_run(
+            "codex", "openai", "native", session, run_id, "J-all-550"
+        )
+        # The implicit planning bucket counts toward the 32-label limit.
+        for sequence in range(1, audit.MAX_BUCKETS):
+            self.assertTrue(store.set_bucket(
+                run_id, f"custom-{sequence}", sequence,
+            ))
+        self.assertFalse(store.set_bucket(
+            run_id, "one-too-many", audit.MAX_BUCKETS,
+        ))
+        # Re-entering a prior label remains valid after reaching the limit.
+        self.assertTrue(store.set_bucket(
+            run_id, "custom-1", audit.MAX_BUCKETS,
+        ))
+
+    def test_dynamic_buckets_are_ordered_by_first_request_and_reconcile(self):
+        store = self.store()
+        session = store.fingerprint("codex-thread", "bucket-order")
+        store.bind_session("codex", session, is_root=True)
+        run_id = str(uuid.uuid4())
+        store.start_run(
+            "codex", "openai", "native", session, run_id, "J-all-551"
+        )
+        store.record_usage(
+            "codex", session, "planning-request",
+            audit._openai_counts({"totalTokens": 3}), "native",
+        )
+        store.set_bucket(run_id, "web searches", 1)
+        store.record_usage(
+            "codex", session, "search-request",
+            audit._openai_counts({"totalTokens": 5}), "native",
+        )
+        store.set_bucket(run_id, "copywriting", 2)
+        store.record_usage(
+            "codex", session, "copy-request",
+            audit._openai_counts({"totalTokens": 7}), "native",
+        )
+        store.set_bucket(run_id, "web searches", 3)
+        store.record_usage(
+            "codex", session, "second-search-request",
+            audit._openai_counts({"totalTokens": 11}), "native",
+        )
+        store.request_end(run_id, "progress")
+        store.signal_complete("codex", session)
+        finalization = store.claim_outbox()["finalization"]
+        self.assertEqual(
+            [
+                {"label": "planning", "tokens": 3},
+                {"label": "web searches", "tokens": 16},
+                {"label": "copywriting", "tokens": 7},
+            ],
+            finalization["buckets"]["items"],
+        )
+        self.assertEqual(
+            finalization["measurement"]["normalized_total_tokens"],
+            sum(item["tokens"] for item in finalization["buckets"]["items"]),
+        )
+
+    def test_queued_fixed_phase_payload_is_rebuilt_for_bucket_api(self):
+        store = self.store()
+        session = store.fingerprint("codex-thread", "legacy-outbox")
+        store.bind_session("codex", session, is_root=True)
+        run_id = str(uuid.uuid4())
+        store.start_run(
+            "codex", "openai", "native", session, run_id, "J-all-552"
+        )
+        store.record_usage(
+            "codex", session, "legacy-planning",
+            audit._openai_counts({"totalTokens": 2}), "native",
+        )
+        store.set_bucket(run_id, "implementation", 1)
+        store.record_usage(
+            "codex", session, "legacy-implementation",
+            audit._openai_counts({"totalTokens": 4}), "native",
+        )
+        store.request_end(run_id, "progress")
+        store.signal_complete("codex", session)
+        with closing(store.connect()) as connection, connection:
+            connection.execute(
+                "UPDATE token_audit_outbox SET finalization_json=? "
+                "WHERE audit_run_id=?",
+                (json.dumps({
+                    "schema_version": 1,
+                    "phases": {
+                        "method": "next_request_marker_v1",
+                        "planning": 2,
+                        "implementation": 4,
+                        "testing": 0,
+                        "other": 0,
+                    },
+                }), run_id),
+            )
+        finalization = store.claim_outbox()["finalization"]
+        self.assertNotIn("phases", finalization)
+        self.assertEqual(
+            {"planning": 2, "implementation": 4},
+            bucket_map(finalization),
+        )
 
 
 class CodexAuditTests(TokenAuditTestCase):
@@ -631,13 +752,13 @@ class CodexAuditTests(TokenAuditTestCase):
         ))
 
         # The marker is seen after response-2, so response-2 remains planning
-        # and only the next provider request becomes implementation.
+        # and only the next provider request becomes source review.
         observer.observe_notification(mcp_item(
-            "root-thread", "turn-1", "item-phase", "set_job_audit_phase",
+            "root-thread", "turn-1", "item-bucket", "set_job_audit_phase",
             {
                 "job_id": "J-all-387",
                 "audit_run_id": run_id,
-                "phase": "implementation",
+                "bucket": "source review",
                 "marker_sequence": 1,
             },
             {
@@ -645,7 +766,7 @@ class CodexAuditTests(TokenAuditTestCase):
                 "state": "marked",
                 "audit_run_id": run_id,
                 "canonical_job_id": "J-all-387",
-                "phase": "implementation",
+                "bucket": "source review",
             },
         ))
         observer.observe_notification(raw_response(
@@ -706,8 +827,14 @@ class CodexAuditTests(TokenAuditTestCase):
         self.assertEqual(
             105, finalization["measurement"]["normalized_total_tokens"]
         )
-        self.assertEqual(30, finalization["phases"]["planning"])
-        self.assertEqual(75, finalization["phases"]["implementation"])
+        self.assertEqual(
+            {"planning": 30, "source review": 75},
+            bucket_map(finalization),
+        )
+        self.assertEqual(
+            ["planning", "source review"],
+            [item["label"] for item in finalization["buckets"]["items"]],
+        )
         self.assertEqual(1, finalization["coverage"]["descendants_discovered"])
         self.assertEqual(1, finalization["coverage"]["descendants_included"])
         self.assertEqual(3, finalization["activity"]["tool_calls"])
@@ -736,12 +863,12 @@ class CodexAuditTests(TokenAuditTestCase):
             "forked-thread", "turn-2", "response-fork", usage(15, 11, 4)
         ))
         observer.observe_notification(mcp_item(
-            "forked-thread", "turn-2", "phase", "set_job_audit_phase",
+            "forked-thread", "turn-2", "bucket", "set_job_audit_phase",
             {"job_id": "J-all-20", "audit_run_id": run_id,
-             "phase": "testing", "marker_sequence": 1},
+             "bucket": "verification", "marker_sequence": 1},
             {"state": "marked", "schema_version": 1,
              "audit_run_id": run_id, "canonical_job_id": "J-all-20",
-             "phase": "testing"},
+             "bucket": "verification"},
         ))
         observer.observe_notification(raw_response(
             "forked-thread", "turn-2", "response-test", usage(20, 15, 5)
@@ -763,8 +890,10 @@ class CodexAuditTests(TokenAuditTestCase):
         finalization = self.store().claim_outbox()["finalization"]
         self.assertEqual("exact", finalization["measurement"]["status"])
         self.assertEqual(45, finalization["measurement"]["normalized_total_tokens"])
-        self.assertEqual(25, finalization["phases"]["planning"])
-        self.assertEqual(20, finalization["phases"]["testing"])
+        self.assertEqual(
+            {"planning": 25, "verification": 20},
+            bucket_map(finalization),
+        )
 
     def test_primary_switch_to_in_progress_turn_is_measured_partial(self):
         observer = audit.CodexTokenAudit("stage", "workspace-1")
@@ -1088,14 +1217,14 @@ class ClaudeAuditTests(TokenAuditTestCase):
             tool_name="mcp__Uclusion__set_job_audit_phase",
             tool_input={
                 "job_id": "J-all-387", "audit_run_id": run_id,
-                "phase": "testing", "marker_sequence": 1,
+                "bucket": "source review", "marker_sequence": 1,
             },
             tool_response={"structuredContent": {
                 "schema_version": 1, "state": "marked",
                 "audit_run_id": run_id, "canonical_job_id": "J-all-387",
-                "phase": "testing",
+                "bucket": "source review",
             }},
-            tool_use_id="marker-phase",
+            tool_use_id="marker-bucket",
         )
         self.append_record(transcript, self.assistant("message-3", 7, 3))
         self.hook(
@@ -1121,8 +1250,10 @@ class ClaudeAuditTests(TokenAuditTestCase):
         finalization = row["finalization"]
         # 11 + 14 + 10 + 5. The duplicated message-1 counts once.
         self.assertEqual(40, finalization["measurement"]["normalized_total_tokens"])
-        self.assertEqual(25, finalization["phases"]["planning"])
-        self.assertEqual(15, finalization["phases"]["testing"])
+        self.assertEqual(
+            {"planning": 25, "source review": 15},
+            bucket_map(finalization),
+        )
         self.assertEqual("partial", finalization["measurement"]["status"])
         self.assertEqual(
             "telemetry_unavailable",
@@ -1242,8 +1373,8 @@ class ClaudeAuditTests(TokenAuditTestCase):
         self.assertFalse(store.start_run(
             "claude", "anthropic", "otel", other, run_id, "J-all-5"
         ))
-        self.assertFalse(store.set_phase(
-            run_id, "testing", 1, client="claude", session_fp=other,
+        self.assertFalse(store.set_bucket(
+            run_id, "verification", 1, client="claude", session_fp=other,
             job_id="J-all-5",
         ))
         self.assertFalse(store.request_end(
@@ -1266,7 +1397,7 @@ class HardeningRegressionTests(TokenAuditTestCase):
         }
         self.assertEqual(3, len(fingerprints))
 
-    def test_marker_requires_accepted_result_and_replay_cannot_revert_phase(self):
+    def test_marker_requires_accepted_result_and_replay_cannot_revert_bucket(self):
         store = self.store()
         session_fp = store.fingerprint("codex-thread", "marker-root")
         store.bind_session("codex", session_fp, is_root=True)
@@ -1289,15 +1420,26 @@ class HardeningRegressionTests(TokenAuditTestCase):
             store, "codex", "openai", "native", session_fp,
             "set_job_audit_phase",
             {"job_id": "J-all-30", "audit_run_id": run_id,
-             "phase": "implementation"},
-            {"structuredContent": {"schema_version": 1, "state": "error"}},
-            marker_identity="failed-phase",
+             "phase": "testing"},
+            {"structuredContent": {
+                "schema_version": 1, "state": "marked",
+                "audit_run_id": run_id, "canonical_job_id": "J-all-30",
+                "phase": "testing",
+            }}, marker_identity="obsolete-phase-shape",
         ))
-        phase_result = {
+        self.assertIsNone(audit._apply_marker(
+            store, "codex", "openai", "native", session_fp,
+            "set_job_audit_phase",
+            {"job_id": "J-all-30", "audit_run_id": run_id,
+             "bucket": "source review"},
+            {"structuredContent": {"schema_version": 1, "state": "error"}},
+            marker_identity="failed-bucket",
+        ))
+        bucket_result = {
             "structuredContent": {
                 "schema_version": 1, "state": "marked",
                 "audit_run_id": run_id, "canonical_job_id": "J-all-30",
-                "phase": "implementation",
+                "bucket": "source review",
             }
         }
         for _ in range(2):
@@ -1305,29 +1447,29 @@ class HardeningRegressionTests(TokenAuditTestCase):
                 store, "codex", "openai", "native", session_fp,
                 "set_job_audit_phase",
                 {"job_id": "J-all-30", "audit_run_id": run_id,
-                 "phase": "implementation"},
-                phase_result, marker_identity="phase-item-1",
+                 "bucket": "source review"},
+                bucket_result, marker_identity="bucket-item-1",
             ))
         self.assertEqual(run_id, audit._apply_marker(
             store, "codex", "openai", "native", session_fp,
             "set_job_audit_phase",
             {"job_id": "J-all-30", "audit_run_id": run_id,
-             "phase": "testing"},
+             "bucket": "copywriting"},
             {"structuredContent": {
                 "schema_version": 1, "state": "marked",
                 "audit_run_id": run_id, "canonical_job_id": "J-all-30",
-                "phase": "testing",
-            }}, marker_identity="phase-item-2",
+                "bucket": "copywriting",
+            }}, marker_identity="bucket-item-2",
         ))
         # Replaying the older tool item is idempotent, not a new transition.
         self.assertEqual(run_id, audit._apply_marker(
             store, "codex", "openai", "native", session_fp,
             "set_job_audit_phase",
             {"job_id": "J-all-30", "audit_run_id": run_id,
-             "phase": "implementation"},
-            phase_result, marker_identity="phase-item-1",
+             "bucket": "source review"},
+            bucket_result, marker_identity="bucket-item-1",
         ))
-        self.assertEqual("testing", store.session_run(
+        self.assertEqual("copywriting", store.session_run(
             "codex", session_fp
         )["current_phase"])
         self.assertIsNone(audit._apply_marker(
@@ -1354,25 +1496,25 @@ class HardeningRegressionTests(TokenAuditTestCase):
             "codex", "openai", "native", session, run_id, "J-all-533"
         )
 
-        def phase(name, sequence, identity):
+        def bucket(name, sequence, identity):
             return audit._apply_marker(
                 store, "codex", "openai", "native", session,
                 "set_job_audit_phase",
                 {"job_id": "J-all-533", "audit_run_id": run_id,
-                 "phase": name},
+                 "bucket": name},
                 {"structuredContent": {
                     "schema_version": 1, "state": "marked",
                     "audit_run_id": run_id,
                     "canonical_job_id": "J-all-533",
-                    "phase": name, "marker_sequence": sequence,
+                    "bucket": name, "marker_sequence": sequence,
                 }},
                 marker_identity=identity,
             )
 
-        self.assertEqual(run_id, phase("testing", 2, "phase-new"))
-        self.assertIsNone(phase("implementation", 1, "phase-old"))
+        self.assertEqual(run_id, bucket("copywriting", 2, "bucket-new"))
+        self.assertIsNone(bucket("source review", 1, "bucket-old"))
         self.assertEqual(
-            "testing", store.session_run("codex", session)["current_phase"]
+            "copywriting", store.session_run("codex", session)["current_phase"]
         )
 
         def end(handoff, identity):
@@ -1530,7 +1672,7 @@ class HardeningRegressionTests(TokenAuditTestCase):
             finalization["measurement"]["normalized_total_tokens"],
         )
         self.assertLessEqual(
-            sum(finalization["phases"][phase] for phase in audit.PHASES),
+            sum(item["tokens"] for item in finalization["buckets"]["items"]),
             audit.MAX_SAFE_INTEGER,
         )
 
@@ -2212,6 +2354,7 @@ class HardeningRegressionTests(TokenAuditTestCase):
         )
         self.assertIsNotNone(row)
         self.assertEqual("unavailable", row["finalization"]["measurement"]["status"])
+        self.assertEqual([], row["finalization"]["buckets"]["items"])
 
     def test_next_prompt_closes_interrupted_turn_before_new_usage(self):
         store = self.store()
@@ -2354,7 +2497,7 @@ class OtlpAndOutboxTests(TokenAuditTestCase):
         ]
         self.assertEqual(40, total)
 
-    def test_late_otel_export_uses_provider_time_for_phase_boundary(self):
+    def test_late_otel_export_uses_provider_time_for_bucket_boundary(self):
         store = self.store()
         session_fp = store.fingerprint("claude-session", "otel-session")
         run_id = str(uuid.uuid4())
@@ -2363,7 +2506,7 @@ class OtlpAndOutboxTests(TokenAuditTestCase):
             "claude", "anthropic", "otel", session_fp, run_id, "J-all-9"
         )
         before_marker = time.time() - 0.5
-        store.set_phase(run_id, "testing", 1)
+        store.set_bucket(run_id, "verification", 1)
         after_marker = time.time()
         # Both exports arrive after the marker. Event time keeps the request
         # that invoked the marker in planning and applies testing only next.
@@ -2377,9 +2520,11 @@ class OtlpAndOutboxTests(TokenAuditTestCase):
         ))
         store.request_end(run_id, "progress")
         store.signal_complete("claude", session_fp)
-        phases = store.claim_outbox()["finalization"]["phases"]
-        self.assertEqual(20, phases["planning"])
-        self.assertEqual(20, phases["testing"])
+        finalization = store.claim_outbox()["finalization"]
+        self.assertEqual(
+            {"planning": 20, "verification": 20},
+            bucket_map(finalization),
+        )
 
     def test_delayed_pre_job_batch_backfills_only_newest_start_request(self):
         store = self.store()
@@ -2416,7 +2561,7 @@ class OtlpAndOutboxTests(TokenAuditTestCase):
         self.assertEqual(
             40, finalization["measurement"]["normalized_total_tokens"]
         )
-        self.assertEqual(40, finalization["phases"]["planning"])
+        self.assertEqual({"planning": 40}, bucket_map(finalization))
 
     def test_otlp_dedupes_normalizes_and_never_persists_unlisted_content(self):
         store = self.store()
@@ -3109,6 +3254,10 @@ class ProxyContractTests(TokenAuditTestCase):
                     "canonical_job_id": captured["params"]["arguments"][
                         "job_id"
                     ],
+                    "idempotent": False,
+                    "note_short_code_id": "R-all-42",
+                    "note_url": "https://example.test/R-all-42",
+                    "run_normalized_total_tokens": 42,
                 }},
             }), None
 
@@ -3116,7 +3265,16 @@ class ProxyContractTests(TokenAuditTestCase):
             "job_id": "J-all-387",
             "audit_run_id": str(uuid.uuid4()),
             "handoff_type": "review_requested",
-            "finalization": {"schema_version": 1},
+            "finalization": {
+                "schema_version": 1,
+                "measurement": {
+                    "status": "exact", "normalized_total_tokens": 42,
+                },
+                "buckets": {
+                    "method": "next_request_marker_v1",
+                    "items": [{"label": "planning", "tokens": 42}],
+                },
+            },
         }
         with mock.patch.object(proxy, "post_to_mcp_refreshing_token", post):
             result = proxy.make_token_audit_publisher(
@@ -3129,6 +3287,26 @@ class ProxyContractTests(TokenAuditTestCase):
             captured["params"]["arguments"]["finalization"],
         )
 
+    def test_private_publisher_never_sends_obsolete_fixed_phase_payload(self):
+        row = {
+            "job_id": "J-all-387",
+            "audit_run_id": str(uuid.uuid4()),
+            "handoff_type": "review_requested",
+            "finalization": {
+                "schema_version": 1,
+                "phases": {
+                    "method": "next_request_marker_v1", "planning": 1,
+                },
+            },
+        }
+        with mock.patch.object(
+            proxy, "post_to_mcp_refreshing_token"
+        ) as post, self.assertRaises(RuntimeError):
+            proxy.make_token_audit_publisher(
+                "https://example.test/mcp", lambda: "token"
+            )(row)
+        post.assert_not_called()
+
     def test_private_publisher_rejects_uncorrelated_completion_responses(self):
         class Response(io.BytesIO):
             def __init__(self, payload):
@@ -3139,7 +3317,16 @@ class ProxyContractTests(TokenAuditTestCase):
             "job_id": "J-all-387",
             "audit_run_id": str(uuid.uuid4()),
             "handoff_type": "review_requested",
-            "finalization": {"schema_version": 1},
+            "finalization": {
+                "schema_version": 1,
+                "measurement": {
+                    "status": "exact", "normalized_total_tokens": 42,
+                },
+                "buckets": {
+                    "method": "next_request_marker_v1",
+                    "items": [{"label": "planning", "tokens": 42}],
+                },
+            },
         }
         valid_id = "job-audit-" + row["audit_run_id"]
         valid_structured = {
@@ -3147,6 +3334,10 @@ class ProxyContractTests(TokenAuditTestCase):
             "state": "completed",
             "audit_run_id": row["audit_run_id"],
             "canonical_job_id": row["job_id"],
+            "idempotent": False,
+            "note_short_code_id": "R-all-42",
+            "note_url": "https://example.test/R-all-42",
+            "run_normalized_total_tokens": 42,
         }
         invalid_responses = {
             "wrong_rpc_id": {
@@ -3159,6 +3350,12 @@ class ProxyContractTests(TokenAuditTestCase):
                     **valid_structured, "schema_version": 2,
                 }},
             },
+            "boolean_schema": {
+                "jsonrpc": "2.0", "id": valid_id,
+                "result": {"structuredContent": {
+                    **valid_structured, "schema_version": True,
+                }},
+            },
             "wrong_run": {
                 "jsonrpc": "2.0", "id": valid_id,
                 "result": {"structuredContent": {
@@ -3169,6 +3366,26 @@ class ProxyContractTests(TokenAuditTestCase):
                 "jsonrpc": "2.0", "id": valid_id,
                 "result": {"structuredContent": {
                     **valid_structured, "canonical_job_id": "J-all-999",
+                }},
+            },
+            "missing_note": {
+                "jsonrpc": "2.0", "id": valid_id,
+                "result": {"structuredContent": {
+                    **valid_structured, "note_url": "",
+                }},
+            },
+            "wrong_total": {
+                "jsonrpc": "2.0", "id": valid_id,
+                "result": {"structuredContent": {
+                    **valid_structured,
+                    "run_normalized_total_tokens": 41,
+                }},
+            },
+            "boolean_total": {
+                "jsonrpc": "2.0", "id": valid_id,
+                "result": {"structuredContent": {
+                    **valid_structured,
+                    "run_normalized_total_tokens": True,
                 }},
             },
         }

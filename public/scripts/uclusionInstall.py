@@ -1130,7 +1130,7 @@ def configure_claude_token_audit(settings_path, enabled, environment,
     hooks select transcript collection instead. The return value contains the
     chosen source and the exact env values Uclusion owns for later cleanup.
     Claude's ``disableAllHooks`` setting is a hard boundary: without hooks the
-    collector cannot bind usage to a job or observe phase and handoff markers,
+    collector cannot bind usage to a job or observe bucket and handoff markers,
     so the function cleans up prior Uclusion-owned settings and reports that
     Claude auditing is unavailable instead of pretending telemetry is usable.
     """
@@ -1197,7 +1197,7 @@ def configure_claude_token_audit(settings_path, enabled, environment,
         print(
             "  ⚠️  Claude settings contain disableAllHooks=true. "
             "Uclusion token audit needs hooks to bind usage to jobs and "
-            "phases, so Claude token audit was not enabled. Remove that "
+            "buckets, so Claude token audit was not enabled. Remove that "
             "setting (or set it to false) and reinstall to enable auditing."
         )
     else:

@@ -189,11 +189,16 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             self.workflow,
         )
 
-    def test_token_audit_boundaries_and_phase_semantics_are_documented(self):
+    def test_token_audit_boundaries_and_bucket_semantics_are_documented(self):
         self.assertIn('`start_job_audit` before substantive planning', self.workflow)
-        self.assertIn('Planning is the default phase', self.workflow)
+        self.assertIn('initial bucket is `planning`', self.workflow)
         self.assertIn('applies to the next model request', self.workflow)
-        self.assertIn('implementation to testing', self.workflow)
+        self.assertIn('Bucket labels are user-labelable', self.workflow)
+        self.assertIn('ordinary defaults are `planning`', self.workflow)
+        self.assertIn('but they are not restrictions', self.workflow)
+        self.assertIn('no more than 32 distinct labels', self.workflow)
+        self.assertIn('Every request belongs to exactly one active bucket', self.workflow)
+        self.assertIn('do not create separate standard/custom dimensions', self.workflow)
         self.assertIn('lookup performed only to classify an inbound Poke', self.workflow)
         self.assertIn('collection finishes out of band', self.workflow)
         self.assertIn('partial client telemetry never block', self.workflow)

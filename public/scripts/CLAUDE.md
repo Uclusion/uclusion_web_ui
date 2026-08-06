@@ -421,17 +421,25 @@ When the Uclusion server exposes `start_job_audit`, `set_job_audit_phase`, and
 lookup performed only to classify an inbound Poke does not start an audit. As
 soon as the lookup establishes that this job is your active work lane, call
 `start_job_audit` before substantive planning or execution and retain the run
-identifier it returns. Planning is the default phase.
+identifier it returns. The initial bucket is `planning`.
 
-Call `set_job_audit_phase` when the work changes from planning to
-implementation, from implementation to testing, or otherwise enters a phase
-the tool supports. A phase marker applies to the next model request; it cannot
-retroactively relabel tokens already consumed, so set it before beginning the
-new kind of work. Include a monotonically increasing `marker_sequence`,
-starting at 1 for the run, so delayed tool-result delivery cannot reorder two
-transitions. Replaying the same marker reuses its original sequence. Do not
-create a new run merely because a task or turn within the same active job
-changes.
+Use the single `bucket` argument to `set_job_audit_phase` whenever the kind of
+work changes. Bucket labels are user-labelable descriptions of the actual
+work, not a fixed taxonomy. The ordinary defaults are `planning`,
+`implementation`, `testing`, and `other`, but they are not restrictions: for
+example, a marketing job might instead use `web searches`, `source review`,
+and `copywriting`. Keep labels concise (1–80 safe characters), use no more
+than 32 distinct labels in a run, and do not create separate standard/custom
+dimensions. Re-entering an earlier bucket is allowed and adds to that bucket's
+total.
+
+A bucket marker applies to the next model request; it cannot retroactively
+relabel tokens already consumed, so set it before beginning the new kind of
+work. Include a monotonically increasing `marker_sequence`, starting at 1 for
+the run, so delayed tool-result delivery cannot reorder two transitions.
+Replaying the same marker reuses its original sequence. Every request belongs
+to exactly one active bucket. Do not create a new run merely because a task or
+turn within the same active job changes.
 
 Call `end_job_audit` at a material handoff that ends the active lane for now:
 the job blocks on human input, a testable result is submitted for review, or

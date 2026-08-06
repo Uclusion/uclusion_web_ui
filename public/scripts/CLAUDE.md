@@ -414,6 +414,32 @@ Run the steps in order. Don't skip ahead: questions and suggestions come
 BEFORE approval, approval comes BEFORE execution, and review comes AFTER a
 testable result exists.
 
+### Token usage audit (when enabled)
+
+When the Uclusion server exposes `start_job_audit`, `set_job_audit_phase`, and
+`end_job_audit`, use them to attach token-usage statistics to this job. A
+lookup performed only to classify an inbound Poke does not start an audit. As
+soon as the lookup establishes that this job is your active work lane, call
+`start_job_audit` before substantive planning or execution and retain the run
+identifier it returns. Planning is the default phase.
+
+Call `set_job_audit_phase` when the work changes from planning to
+implementation, from implementation to testing, or otherwise enters a phase
+the tool supports. A phase marker applies to the next model request; it cannot
+retroactively relabel tokens already consumed, so set it before beginning the
+new kind of work. Include a monotonically increasing `marker_sequence`,
+starting at 1 for the run, so delayed tool-result delivery cannot reorder two
+transitions. Replaying the same marker reuses its original sequence. Do not
+create a new run merely because a task or turn within the same active job
+changes.
+
+Call `end_job_audit` at a material handoff that ends the active lane for now:
+the job blocks on human input, a testable result is submitted for review, or
+the work completes. Ending marks the run pending while collection finishes
+out of band; do not wait or poll for the final note. Audit failures, missing
+tools, or partial client telemetry never block the job workflow — continue the
+work and let the collector report an honest partial result.
+
 The job's **stage** is not the same as your **step**. The stage (for
 example "Approvable", "Doable", or "Reviewable") tells you which actions
 Uclusion permits right now — it does NOT tell you which step you are on or let
@@ -435,7 +461,8 @@ When working on a Uclusion job, ALL workflow artifacts — questions,
 suggestions, approvals, votes, info notes, resolutions, and review
 requests — go through the Uclusion MCP tools (`ask_question`,
 `make_suggestion`, `approve_job_or_option`, `vote_on_suggestion`,
-`add_info`, `resolve`, `ask_for_review`). Do
+`add_info`, `resolve`, `ask_for_review`, `start_job_audit`,
+`set_job_audit_phase`, `end_job_audit`). Do
 NOT substitute a built-in or local equivalent (e.g. `AskUserQuestion`,
 inline multiple-choice prompts, chat-only "which would you prefer?"
 messages, plain-text approvals or progress reports in chat). The only

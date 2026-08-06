@@ -12,3 +12,9 @@ export function getUclusionEnvironment() {
   }
   return 'production';
 }
+
+export function buildInstallArgs(marketId, viewId, environment, clients, scope, tokenAudit) {
+  return `${marketId} ${viewId}${environment === 'production' ? '' : ` ${environment}`}` +
+    ` --clients ${clients.join(',')}${scope === 'project' ? ' --project' : ''}` +
+    ` ${tokenAudit ? '--token-audit' : '--no-token-audit'}`;
+}

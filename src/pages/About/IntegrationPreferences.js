@@ -21,7 +21,7 @@ import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGr
 import _ from 'lodash';
 import CopyCommand from './CopyCommand';
 import InstallSelector, { INSTALL_CLIENTS } from './InstallSelector';
-import { getUclusionEnvironment } from './installUtils';
+import { buildInstallArgs, getUclusionEnvironment } from './installUtils';
 
 const useStyles = makeStyles((theme) => ({
   disabled: {
@@ -100,10 +100,12 @@ function IntegrationPreferences (props) {
   const [installScope, setInstallScope] = useState('global');
   // T-all-2314: every AI tool starts selected
   const [installClients, setInstallClients] = useState(INSTALL_CLIENTS.map((client) => client.key));
+  const [tokenAudit, setTokenAudit] = useState(false);
   const env = getUclusionEnvironment();
   const installBaseUrl = config.ui_base_url;
-  const installArgs = `${marketId} ${useGroupId}${env === 'production' ? '' : ` ${env}`}` +
-    ` --clients ${installClients.join(',')}${installScope === 'project' ? ' --project' : ''}`;
+  const installArgs = buildInstallArgs(
+    marketId, useGroupId, env, installClients, installScope, tokenAudit
+  );
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   let markets = [];
   const allowableGroups = groupsState[marketId];
@@ -256,7 +258,8 @@ function IntegrationPreferences (props) {
                 </div>
               )}
               <InstallSelector scope={installScope} setScope={setInstallScope} clients={installClients}
-                               setClients={setInstallClients} />
+                               setClients={setInstallClients} tokenAudit={tokenAudit}
+                               setTokenAudit={setTokenAudit} />
               <Typography variant="h6" style={{paddingTop: '1.5rem', paddingBottom: '0.5rem'}}>
                 Step 3. Copy and run the install command
               </Typography>

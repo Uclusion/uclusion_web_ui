@@ -189,6 +189,15 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             self.workflow,
         )
 
+    def test_token_audit_boundaries_and_phase_semantics_are_documented(self):
+        self.assertIn('`start_job_audit` before substantive planning', self.workflow)
+        self.assertIn('Planning is the default phase', self.workflow)
+        self.assertIn('applies to the next model request', self.workflow)
+        self.assertIn('implementation to testing', self.workflow)
+        self.assertIn('lookup performed only to classify an inbound Poke', self.workflow)
+        self.assertIn('collection finishes out of band', self.workflow)
+        self.assertIn('partial client telemetry never block', self.workflow)
+
 
 class PortableFileLockTests(unittest.TestCase):
     def test_installer_imports_without_fcntl(self):
@@ -553,6 +562,327 @@ class ConfigVersionStampTests(unittest.TestCase):
                 result = INSTALL.json.load(config)
 
         self.assertNotIn('scriptReinstallVersion', result)
+
+
+class TokenAuditInstallerTests(unittest.TestCase):
+    def test_claude_disabled_hooks_declines_audit_and_preserves_setting(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            settings_path = os.path.join(temp_dir, 'settings.json')
+            managed_env = INSTALL.claude_token_audit_env(23456)
+            owned_command = INSTALL.claude_token_audit_hook_command(
+                'stage', 'workspace-1', 'otel', 23456
+            )
+            with open(settings_path, 'w', encoding='utf-8') as settings:
+                INSTALL.json.dump(
+                    {
+                        'disableAllHooks': True,
+                        'env': dict(managed_env, KEEP_ME='yes'),
+                        'hooks': {
+                            'Stop': [
+                                {
+                                    'hooks': [
+                                        {
+                                            'type': 'command',
+                                            'command': owned_command,
+                                        },
+                                        {
+                                            'type': 'command',
+                                            'command': 'keep-stop',
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    },
+                    settings,
+                )
+
+            with mock.patch('builtins.print') as output:
+                result = INSTALL.configure_claude_token_audit(
+                    settings_path, True, 'stage', 'workspace-1', 23456,
+                    managed_env,
+                )
+            with open(settings_path, encoding='utf-8') as settings:
+                config = INSTALL.json.load(settings)
+
+        self.assertEqual(
+            result,
+            {'source': None, 'managedEnv': {}, 'available': False},
+        )
+        self.assertIs(config['disableAllHooks'], True)
+        self.assertEqual(config['env'], {'KEEP_ME': 'yes'})
+        self.assertEqual(
+            config['hooks']['Stop'],
+            [{'hooks': [{'type': 'command', 'command': 'keep-stop'}]}],
+        )
+        warning = ' '.join(
+            str(call.args[0]) for call in output.call_args_list if call.args
+        )
+        self.assertIn('disableAllHooks=true', warning)
+        self.assertIn('Claude token audit was not enabled', warning)
+
+    def test_disabled_hooks_omits_audit_args_from_claude_registration(self):
+        unavailable = {
+            'source': None,
+            'managedEnv': {},
+            'available': False,
+        }
+        with tempfile.TemporaryDirectory() as project_dir, \
+                mock.patch.object(INSTALL, 'write_uclusion_config', return_value={
+                    'enabled': True, 'port': 23456,
+                }), \
+                mock.patch.object(INSTALL, 'add_claude_permissions'), \
+                mock.patch.object(
+                    INSTALL, 'configure_claude_token_audit',
+                    return_value=unavailable,
+                ), \
+                mock.patch.object(INSTALL, 'update_token_audit_client_config'), \
+                mock.patch.object(INSTALL, 'register_mcp_json') as register, \
+                mock.patch.object(INSTALL, 'install_workflow_md'):
+            INSTALL.install_project_level(
+                'workspace-1', 'view-1', 'stage', mock.Mock(), project_dir,
+                clients={'claude'}, token_audit_enabled=True,
+            )
+
+        self.assertIsNone(register.call_args.kwargs['token_audit'])
+
+    def test_claude_settings_failure_degrades_audit_not_mcp_registration(self):
+        with tempfile.TemporaryDirectory() as project_dir, \
+                mock.patch.object(INSTALL, 'write_uclusion_config', return_value={
+                    'enabled': True, 'port': 23456,
+                }), \
+                mock.patch.object(INSTALL, 'add_claude_permissions'), \
+                mock.patch.object(
+                    INSTALL, 'configure_claude_token_audit', return_value=None
+                ), \
+                mock.patch.object(INSTALL, 'register_mcp_json') as register, \
+                mock.patch.object(INSTALL, 'install_workflow_md'):
+            INSTALL.install_project_level(
+                'workspace-1', 'view-1', 'stage', mock.Mock(), project_dir,
+                clients={'claude'}, token_audit_enabled=True,
+            )
+
+        self.assertIsNone(register.call_args.kwargs['token_audit'])
+        self.assertEqual('claude', register.call_args.kwargs['token_audit_client'])
+
+    def test_helper_script_and_tri_state_flags(self):
+        self.assertIn(
+            (
+                'uclusionTokenAudit.py',
+                'uclusionTokenAudit.py',
+                INSTALL.TOKEN_AUDIT_SYMLINK_NAME,
+            ),
+            INSTALL.SCRIPT_FILES,
+        )
+        base = ['stage', 'workspace-1', 'view-1']
+        self.assertIsNone(INSTALL.build_parser().parse_args(base).token_audit)
+        self.assertTrue(
+            INSTALL.build_parser().parse_args(base + ['--token-audit']).token_audit
+        )
+        self.assertFalse(
+            INSTALL.build_parser().parse_args(base + ['--no-token-audit']).token_audit
+        )
+
+    def test_config_defaults_off_and_preserves_explicit_preference(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config_path = os.path.join(temp_dir, 'uclusion.json')
+            initial = INSTALL.write_uclusion_config(
+                'workspace-1', None, config_path
+            )
+            enabled = INSTALL.write_uclusion_config(
+                'workspace-1', None, config_path, token_audit_enabled=True
+            )
+            preserved = INSTALL.write_uclusion_config(
+                'workspace-1', None, config_path
+            )
+            disabled = INSTALL.write_uclusion_config(
+                'workspace-1', None, config_path, token_audit_enabled=False
+            )
+
+        self.assertFalse(initial['enabled'])
+        self.assertIsInstance(initial['port'], int)
+        self.assertTrue(enabled['enabled'])
+        self.assertEqual(enabled['port'], initial['port'])
+        self.assertTrue(preserved['enabled'])
+        self.assertFalse(disabled['enabled'])
+
+    def test_enabled_claude_registration_receives_audit_arguments(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            mcp_path = os.path.join(temp_dir, '.mcp.json')
+            INSTALL.register_mcp_json(
+                mcp_path,
+                'Claude Code',
+                'workspace-1',
+                'stage',
+                require_existing=False,
+                token_audit={
+                    'enabled': True,
+                    'port': 23456,
+                    'claudeSource': 'otel',
+                },
+                token_audit_client='claude',
+            )
+            with open(mcp_path, encoding='utf-8') as mcp_file:
+                args = INSTALL.json.load(mcp_file)['mcpServers']['Uclusion']['args']
+
+        self.assertEqual(
+            args,
+            [
+                INSTALL.MCP_PROXY_SYMLINK_PATH,
+                'workspace-1',
+                'stage',
+                '--token-audit',
+                '--token-audit-port', '23456',
+                '--token-audit-source', 'otel',
+                '--token-audit-client', 'claude',
+            ],
+        )
+
+    def test_claude_otel_merge_is_private_and_idempotent(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            settings_path = os.path.join(temp_dir, 'settings.json')
+            with open(settings_path, 'w', encoding='utf-8') as settings:
+                INSTALL.json.dump(
+                    {
+                        'theme': 'dark',
+                        'env': {'KEEP_ME': 'yes'},
+                        'hooks': {
+                            'Stop': [
+                                {'hooks': [{'type': 'command', 'command': 'keep-stop'}]},
+                            ],
+                        },
+                    },
+                    settings,
+                )
+
+            first = INSTALL.configure_claude_token_audit(
+                settings_path, True, 'stage', 'workspace-1', 23456
+            )
+            with open(settings_path, encoding='utf-8') as settings:
+                first_config = INSTALL.json.load(settings)
+            second = INSTALL.configure_claude_token_audit(
+                settings_path, True, 'stage', 'workspace-1', 23456,
+                first['managedEnv'],
+            )
+            with open(settings_path, encoding='utf-8') as settings:
+                second_config = INSTALL.json.load(settings)
+
+        self.assertEqual(first['source'], 'otel')
+        self.assertEqual(second['source'], 'otel')
+        self.assertEqual(first_config, second_config)
+        self.assertEqual(first_config['theme'], 'dark')
+        self.assertEqual(first_config['env']['KEEP_ME'], 'yes')
+        for key, value in INSTALL.claude_token_audit_env(23456).items():
+            self.assertEqual(first_config['env'][key], value)
+        marker_groups = first_config['hooks']['PostToolUse']
+        self.assertEqual(len(marker_groups), 1)
+        self.assertEqual(
+            marker_groups[0]['matcher'],
+            INSTALL.CLAUDE_TOKEN_AUDIT_MARKER_MATCHER,
+        )
+        marker_command = INSTALL.shlex.split(
+            marker_groups[0]['hooks'][0]['command']
+        )
+        self.assertEqual(
+            marker_command,
+            [
+                INSTALL.TOKEN_AUDIT_SYMLINK_PATH,
+                'hook',
+                '--environment', 'stage',
+                '--workspace-id', 'workspace-1',
+                '--source', 'otel',
+                '--port', '23456',
+            ],
+        )
+        self.assertEqual(len(first_config['hooks']['Stop']), 2)
+        for event, _matcher in INSTALL.CLAUDE_TOKEN_AUDIT_HOOK_EVENTS:
+            owned_handlers = [
+                handler
+                for group in first_config['hooks'][event]
+                for handler in group.get('hooks', [])
+                if INSTALL._is_claude_token_audit_handler(handler)
+            ]
+            self.assertEqual(len(owned_handlers), 1, event)
+            self.assertEqual(
+                owned_handlers[0]['timeout'],
+                INSTALL.CLAUDE_TOKEN_AUDIT_OTEL_HOOK_TIMEOUT_SECONDS,
+                event,
+            )
+
+    def test_existing_telemetry_policy_uses_transcript_without_changes(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            settings_path = os.path.join(temp_dir, 'settings.json')
+            existing_env = {
+                'OTEL_EXPORTER_OTLP_ENDPOINT': 'https://telemetry.example',
+                'OTEL_LOG_USER_PROMPTS': '1',
+                'KEEP_ME': 'yes',
+            }
+            with open(settings_path, 'w', encoding='utf-8') as settings:
+                INSTALL.json.dump({'env': existing_env}, settings)
+
+            result = INSTALL.configure_claude_token_audit(
+                settings_path, True, 'production', 'workspace-1', 23456
+            )
+            with open(settings_path, encoding='utf-8') as settings:
+                config = INSTALL.json.load(settings)
+
+        self.assertEqual(result, {'source': 'transcript', 'managedEnv': {}})
+        self.assertEqual(config['env'], existing_env)
+        command = config['hooks']['PostToolUse'][0]['hooks'][0]['command']
+        self.assertIn('--source transcript', command)
+        for event, _matcher in INSTALL.CLAUDE_TOKEN_AUDIT_HOOK_EVENTS:
+            owned_handlers = [
+                handler
+                for group in config['hooks'][event]
+                for handler in group.get('hooks', [])
+                if INSTALL._is_claude_token_audit_handler(handler)
+            ]
+            self.assertEqual(len(owned_handlers), 1, event)
+            self.assertEqual(
+                owned_handlers[0]['timeout'],
+                INSTALL.CLAUDE_TOKEN_AUDIT_TRANSCRIPT_HOOK_TIMEOUT_SECONDS,
+                event,
+            )
+
+    def test_disable_removes_only_owned_values_and_hook_handlers(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            settings_path = os.path.join(temp_dir, 'settings.json')
+            enabled = INSTALL.configure_claude_token_audit(
+                settings_path, True, 'stage', 'workspace-1', 23456
+            )
+            with open(settings_path, encoding='utf-8') as settings:
+                config = INSTALL.json.load(settings)
+            config['env']['OTEL_LOG_USER_PROMPTS'] = '1'
+            config['hooks']['Stop'][0]['hooks'].append(
+                {'type': 'command', 'command': 'keep-stop'}
+            )
+            config['hooks']['PreToolUse'] = [
+                {'matcher': '^keep$', 'hooks': []},
+            ]
+            with open(settings_path, 'w', encoding='utf-8') as settings:
+                INSTALL.json.dump(config, settings)
+
+            result = INSTALL.configure_claude_token_audit(
+                settings_path, False, 'stage', 'workspace-1', 23456,
+                enabled['managedEnv'],
+            )
+            with open(settings_path, encoding='utf-8') as settings:
+                disabled = INSTALL.json.load(settings)
+
+        self.assertEqual(result, {'source': None, 'managedEnv': {}})
+        self.assertEqual(disabled['env'], {'OTEL_LOG_USER_PROMPTS': '1'})
+        self.assertEqual(
+            disabled['hooks']['Stop'],
+            [{'hooks': [{'type': 'command', 'command': 'keep-stop'}]}],
+        )
+        self.assertEqual(
+            disabled['hooks']['PreToolUse'],
+            [{'matcher': '^keep$', 'hooks': []}],
+        )
+        for groups in disabled['hooks'].values():
+            for group in groups:
+                for handler in group.get('hooks', []):
+                    self.assertFalse(INSTALL._is_claude_token_audit_handler(handler))
 
 
 class AtomicScriptInstallTests(unittest.TestCase):

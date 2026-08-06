@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import argparse
+import hashlib
 import io
 import json
 import math
@@ -13,6 +14,7 @@ import stat
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import urllib.request
 import urllib.parse
@@ -78,10 +80,16 @@ CODEX_CHILD_SHUTDOWN_TIMEOUT = 5
 CODEX_CHILD_POLL_INTERVAL = 0.1
 CODEX_APP_SERVER_START_TIMEOUT = 10
 CODEX_BRIDGE_READY_TIMEOUT = 10
+CODEX_APP_SERVER_DIAGNOSTIC_BYTES = 16 * 1024
+CODEX_APP_SERVER_DIAGNOSTIC_LINES = 8
+CODEX_APP_SERVER_DIAGNOSTIC_LINE_CHARS = 512
+CODEX_APP_SERVER_DIAGNOSTIC_DRAIN_TIMEOUT = 0.2
 # Keep synchronized with uclusionCodexBridge.EXIT_RELAY_FAILED.
 CODEX_BRIDGE_RELAY_FAILED_EXIT = 5
 MINIMUM_CODEX_VERSION = (0, 145, 0)
 MINIMUM_CODEX_VERSION_TEXT = '.'.join(str(part) for part in MINIMUM_CODEX_VERSION)
+TOKEN_AUDIT_DEFAULT_PORT_BASE = 20000
+TOKEN_AUDIT_PORT_SPAN = 30000
 CODEX_LEGACY_BRIDGE_ENV = (
     'UCLUSION_CODEX_BRIDGE_INSTANCE',
     'UCLUSION_CODEX_BRIDGE_ENV',
@@ -1294,6 +1302,127 @@ def stop_codex_children(*processes):
             )
 
 
+class CodexAppServerDiagnostics:
+    """Drain private app-server output without letting it reach the TUI.
+
+    Codex writes tracing to the app-server's inherited terminal even though
+    its protocol uses the Unix socket. Those writes can interleave with a TUI
+    redraw and leave fragments such as a bare timestamp and ``ERROR`` on the
+    user's screen. Continuously draining a combined stdout/stderr pipe avoids
+    both terminal corruption and child-process backpressure. Only a bounded
+    in-memory tail is retained; it is never written to disk.
+    """
+
+    def __init__(
+        self,
+        stream,
+        max_bytes=CODEX_APP_SERVER_DIAGNOSTIC_BYTES,
+    ):
+        self.stream = stream
+        self.max_bytes = max(1, int(max_bytes))
+        self._tail = bytearray()
+        self._truncated = False
+        self._lock = threading.Lock()
+        self._done = threading.Event()
+        self._thread = None
+        if stream is None:
+            self._done.set()
+            return
+        self._thread = threading.Thread(
+            target=self._drain,
+            name='uclusion-codex-app-server-diagnostics',
+            daemon=True,
+        )
+        self._thread.start()
+
+    def _drain(self):
+        try:
+            while True:
+                chunk = self.stream.read(4096)
+                if not chunk:
+                    break
+                if isinstance(chunk, str):
+                    chunk = chunk.encode('utf-8', errors='replace')
+                with self._lock:
+                    self._tail.extend(chunk)
+                    overflow = len(self._tail) - self.max_bytes
+                    if overflow > 0:
+                        del self._tail[:overflow]
+                        self._truncated = True
+        except (OSError, ValueError):
+            # Cleanup can close the pipe while the daemon reader is blocked.
+            pass
+        finally:
+            self._done.set()
+
+    def wait_for_eof(self, timeout=CODEX_APP_SERVER_DIAGNOSTIC_DRAIN_TIMEOUT):
+        """Give an exited child a bounded window to flush its pipe."""
+        self._done.wait(timeout)
+
+    def lines(self, wait_for_eof=False):
+        """Return a terminal-safe, display-bounded tail and truncation flag."""
+        if wait_for_eof:
+            self.wait_for_eof()
+        with self._lock:
+            raw = bytes(self._tail)
+            truncated = self._truncated
+        text = raw.decode('utf-8', errors='replace')
+        # Strip ANSI/terminal control sequences so even abnormal-exit output
+        # cannot manipulate the launcher's terminal.
+        text = re.sub(r'\x1b\[[0-?]*[ -/]*[@-~]', '', text)
+        text = ''.join(
+            character
+            if character in ('\n', '\t') or character.isprintable()
+            else '\ufffd'
+            for character in text
+        )
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+        if truncated and len(lines) > 1:
+            # The first retained line may start midway through a message.
+            lines = lines[1:]
+        lines = lines[-CODEX_APP_SERVER_DIAGNOSTIC_LINES:]
+        bounded = []
+        for line in lines:
+            if len(line) > CODEX_APP_SERVER_DIAGNOSTIC_LINE_CHARS:
+                line = '\u2026' + line[-(
+                    CODEX_APP_SERVER_DIAGNOSTIC_LINE_CHARS - 1
+                ):]
+            bounded.append(line)
+        return bounded, truncated
+
+    def close(self):
+        """Release the pipe after the managed child has been stopped."""
+        self.wait_for_eof()
+        if not self._done.is_set() and self.stream is not None:
+            try:
+                self.stream.close()
+            except (OSError, ValueError):
+                pass
+        if self._thread is not None:
+            self._thread.join(CODEX_APP_SERVER_DIAGNOSTIC_DRAIN_TIMEOUT)
+        if self.stream is not None:
+            try:
+                self.stream.close()
+            except (OSError, ValueError):
+                pass
+
+
+def print_app_server_diagnostics(diagnostics, wait_for_eof=False):
+    """Print a private child tail only when launch supervision needs it."""
+    if diagnostics is None:
+        return
+    lines, truncated = diagnostics.lines(wait_for_eof=wait_for_eof)
+    if not lines:
+        return
+    qualifier = ' (tail truncated)' if truncated else ''
+    print(
+        'Private app-server diagnostic tail{}:'.format(qualifier),
+        file=sys.stderr,
+    )
+    for line in lines:
+        print('  ' + line, file=sys.stderr)
+
+
 @contextmanager
 def codex_shutdown_signals():
     """Turn launcher termination signals into orderly child cleanup."""
@@ -1346,12 +1475,13 @@ def print_bridge_exit_error(returncode):
         )
 
 
-def print_app_server_exit_error(returncode):
+def print_app_server_exit_error(returncode, diagnostics=None):
     print(
         "❌ The private Codex app-server exited unexpectedly with status "
         f"{returncode} before the Codex TUI exited. The Codex TUI was stopped.",
         file=sys.stderr,
     )
+    print_app_server_diagnostics(diagnostics, wait_for_eof=True)
 
 
 def is_unix_socket(path):
@@ -1467,8 +1597,38 @@ def codex_receiver_liveness_supported():
     )
 
 
+def codex_token_audit_settings(config, workspace_id):
+    """Normalize the persisted token-audit preference for Codex launch."""
+    value = config.get('tokenAudit') if isinstance(config, dict) else None
+    if isinstance(value, dict):
+        enabled = value.get('enabled') is True
+        port = value.get('port')
+    else:
+        # Older experimental configs used a scalar. Preserve an explicit
+        # truthy opt-in while the installer migrates it to the object shape.
+        enabled = bool(value)
+        port = None
+    if not enabled:
+        return None
+    if (
+        not isinstance(port, int)
+        or isinstance(port, bool)
+        or not 1024 <= port <= 65535
+    ):
+        digest = hashlib.sha256(str(workspace_id).encode('utf-8')).digest()
+        port = TOKEN_AUDIT_DEFAULT_PORT_BASE + (
+            int.from_bytes(digest[:4], 'big') % TOKEN_AUDIT_PORT_SPAN
+        )
+    return {'enabled': True, 'port': port}
+
+
 def build_codex_mcp_overrides(
-    workspace_id, environment, proxy_path=UCLUSION_MCP_PROXY_SYMLINK
+    workspace_id,
+    environment,
+    proxy_path=UCLUSION_MCP_PROXY_SYMLINK,
+    token_audit=None,
+    token_audit_ready_file=None,
+    token_audit_owner=None,
 ):
     """Build a complete per-launch Uclusion MCP table as Codex ``-c`` args."""
     proxy_args = [
@@ -1476,6 +1636,18 @@ def build_codex_mcp_overrides(
         str(workspace_id),
         environment,
     ]
+    if token_audit is not None:
+        if not token_audit_ready_file or not token_audit_owner:
+            raise ValueError(
+                'Codex token audit requires a launch-scoped readiness marker'
+            )
+        proxy_args.extend([
+            '--token-audit',
+            '--token-audit-port', str(token_audit['port']),
+            '--token-audit-source', 'codex',
+            '--token-audit-ready-file', str(token_audit_ready_file),
+            '--token-audit-owner', str(token_audit_owner),
+        ])
     inline_table = (
         '{ enabled = true, command = '
         + json.dumps("python3")
@@ -1518,25 +1690,41 @@ def resolve_codex_companion_paths():
 
 
 def stage_codex_companions(
-    runtime_dir, cli_source, bridge_source, proxy_source
+    runtime_dir,
+    cli_source,
+    bridge_source,
+    proxy_source,
+    token_audit_required=False,
 ):
     """Copy one validated release into this launch's private lifetime."""
     staging_dir = os.path.join(runtime_dir, 'bin')
     staged_cli = os.path.join(staging_dir, 'uclusion.py')
     staged_bridge = os.path.join(staging_dir, 'uclusionCodexBridge.py')
     staged_proxy = os.path.join(staging_dir, 'uclusionMCPProxy.py')
+    token_audit_source = os.path.join(
+        os.path.dirname(os.path.realpath(bridge_source)),
+        'uclusionTokenAudit.py',
+    )
+    staged_token_audit = os.path.join(
+        staging_dir, 'uclusionTokenAudit.py'
+    )
     try:
         os.makedirs(staging_dir, mode=0o700, exist_ok=False)
         shutil.copy2(cli_source, staged_cli)
         shutil.copy2(bridge_source, staged_bridge)
         shutil.copy2(proxy_source, staged_proxy)
+        if os.path.isfile(token_audit_source):
+            shutil.copy2(token_audit_source, staged_token_audit)
     except OSError as error:
         raise RuntimeError(
             f'could not stage the Uclusion Codex release: {error}'
         ) from error
+    required_paths = [staged_cli, staged_bridge, staged_proxy]
+    if token_audit_required:
+        required_paths.append(staged_token_audit)
     if not all(
         os.path.isfile(path)
-        for path in (staged_cli, staged_bridge, staged_proxy)
+        for path in required_paths
     ):
         raise RuntimeError(
             'the staged Uclusion Codex release is incomplete'
@@ -1688,6 +1876,7 @@ def cmd_codex(args):
             file=sys.stderr,
         )
         return 1
+    token_audit = codex_token_audit_settings(config, workspace_id)
     if not codex_receiver_liveness_supported():
         print(
             "❌ Cannot launch Codex safely on this platform: Uclusion cannot "
@@ -1736,6 +1925,7 @@ def cmd_codex(args):
         return 1
 
     app_server = None
+    app_server_diagnostics = None
     bridge = None
     tui = None
     with codex_shutdown_signals() as shutdown_state, \
@@ -1750,7 +1940,11 @@ def cmd_codex(args):
                     staged_proxy_path,
                 ) = (
                     stage_codex_companions(
-                        runtime_dir, cli_path, bridge_path, proxy_path
+                        runtime_dir,
+                        cli_path,
+                        bridge_path,
+                        proxy_path,
+                        token_audit_required=token_audit is not None,
                     )
                 )
             except RuntimeError as error:
@@ -1773,6 +1967,9 @@ def cmd_codex(args):
             )
             bridge_ready_path = os.path.join(runtime_dir, 'bridge.ready')
             receiver_pid_path = os.path.join(runtime_dir, 'receiver.pid')
+            token_audit_ready_path = os.path.join(
+                runtime_dir, 'token-audit.ready'
+            )
             backend_listen_url = f'unix://{backend_socket_path}'
             frontend_listen_url = f'unix://{frontend_socket_path}'
             app_server_command = [
@@ -1780,7 +1977,12 @@ def cmd_codex(args):
                 'app-server',
                 *app_server_passthrough,
                 *build_codex_mcp_overrides(
-                    workspace_id, environment, staged_proxy_path
+                    workspace_id,
+                    environment,
+                    staged_proxy_path,
+                    token_audit=token_audit,
+                    token_audit_ready_file=token_audit_ready_path,
+                    token_audit_owner=instance_id,
                 ),
                 '--listen',
                 backend_listen_url,
@@ -1798,6 +2000,11 @@ def cmd_codex(args):
                 '--ready-file', bridge_ready_path,
                 '--receiver-pid-file', receiver_pid_path,
             ]
+            if token_audit is not None:
+                bridge_command.extend([
+                    '--token-audit',
+                    '--token-audit-ready-file', token_audit_ready_path,
+                ])
             if getattr(args, 'deliver_existing_pokes', False):
                 bridge_command.append('--deliver-existing-pokes')
             tui_command = [
@@ -1808,7 +2015,16 @@ def cmd_codex(args):
             ]
 
             try:
-                app_server = subprocess.Popen(app_server_command, env=child_env)
+                app_server = subprocess.Popen(
+                    app_server_command,
+                    env=child_env,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    bufsize=0,
+                )
+                app_server_diagnostics = CodexAppServerDiagnostics(
+                    getattr(app_server, 'stdout', None)
+                )
             except OSError as error:
                 print(
                     f"❌ Could not start the private Codex app-server: {error}",
@@ -1830,8 +2046,11 @@ def cmd_codex(args):
                         f"socket at '{backend_socket_path}'.",
                         file=sys.stderr,
                     )
+                    print_app_server_diagnostics(app_server_diagnostics)
                 else:
-                    print_app_server_exit_error(app_server_returncode)
+                    print_app_server_exit_error(
+                        app_server_returncode, app_server_diagnostics
+                    )
                 return 1
 
             try:
@@ -1862,7 +2081,9 @@ def cmd_codex(args):
                 if failed_child == 'bridge':
                     print_bridge_exit_error(child_returncode)
                 elif failed_child == 'app-server':
-                    print_app_server_exit_error(child_returncode)
+                    print_app_server_exit_error(
+                        child_returncode, app_server_diagnostics
+                    )
                 elif failed_child == 'invalid':
                     print(
                         "❌ The Uclusion Codex bridge wrote an invalid private "
@@ -1904,7 +2125,9 @@ def cmd_codex(args):
                     return tui_returncode
                 app_server_returncode = app_server.poll()
                 if app_server_returncode is not None:
-                    print_app_server_exit_error(app_server_returncode)
+                    print_app_server_exit_error(
+                        app_server_returncode, app_server_diagnostics
+                    )
                     return 1
                 bridge_returncode = bridge.poll()
                 if bridge_returncode is not None:
@@ -1913,6 +2136,8 @@ def cmd_codex(args):
                 time.sleep(CODEX_CHILD_POLL_INTERVAL)
         finally:
             stop_codex_children(tui, bridge, app_server)
+            if app_server_diagnostics is not None:
+                app_server_diagnostics.close()
 
 
 def is_orphaned(initial_ppid):
@@ -2318,6 +2543,12 @@ def run_installer(
     view_id = source.get('todoViewId') or workspace_id
     command = [sys.executable, installer_path, env, workspace_id, view_id]
     command += ['--script-version', script_version]
+    token_audit = source.get('tokenAudit')
+    if isinstance(token_audit, dict):
+        token_audit_enabled = token_audit.get('enabled') is True
+    else:
+        token_audit_enabled = bool(token_audit)
+    command.append('--token-audit' if token_audit_enabled else '--no-token-audit')
     if clients:
         command += ['--clients', ','.join(sorted(clients))]
     else:

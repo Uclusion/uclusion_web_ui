@@ -150,6 +150,8 @@ class BridgeConfig:
     ready_file: Optional[str] = None
     receiver_pid_file: Optional[str] = None
     frontend_socket: Optional[str] = None
+    token_audit: bool = False
+    token_audit_ready_file: Optional[str] = None
 
     def resolved_inbox_path(self) -> str:
         if self.inbox_path:
@@ -2910,7 +2912,12 @@ class RootAuthority:
         return thread_id
 
     def finish_tui_request(
-        self, gate: RelayGate, response: Dict[str, Any]
+        self,
+        gate: RelayGate,
+        response: Dict[str, Any],
+        before_release: Optional[
+            Callable[[Optional[str], Optional[str]], None]
+        ] = None,
     ) -> None:
         """Commit/restore authority before the response reaches the TUI."""
         with self.condition:
@@ -3203,6 +3210,13 @@ class RootAuthority:
                     self.mcp_primary_witness_lifecycle_epoch = None
                 # Successful invalidation and ambiguous transport remain
                 # NoRoot. Admission changes no root state.
+                if before_release is not None:
+                    try:
+                        before_release(self.thread_id, self.active_turn_id)
+                    except Exception:
+                        # Optional telemetry must not revoke authority, but it
+                        # must run while the gate still blocks driver events.
+                        pass
             except RelayProtocolError as exc:
                 self.fail(str(exc))
                 raise
@@ -5807,6 +5821,7 @@ class _RelayConnection:
         self.upstream: Optional[AppServerClient] = None
         self.role = "pending"
         self.initialize_seen = False
+        self.client_version: Optional[str] = None
         self.pending: Dict[Tuple[str, Any], _RelayPending] = {}
         self.pending_lock = threading.Lock()
         self.backend_pending: Dict[Tuple[str, Any], bool] = {}
@@ -6111,6 +6126,36 @@ class _RelayConnection:
                 candidate = client_info.get("name")
                 if isinstance(candidate, str):
                     initialize_name = candidate
+                version = client_info.get("version")
+                if isinstance(version, str) and version:
+                    self.client_version = version
+
+        if self.relay.token_audit_enabled:
+            audit_params: Optional[Dict[str, Any]] = None
+            if (
+                method == "initialize"
+                and initialize_name == TUI_CLIENT_NAME
+            ):
+                capabilities = params.get("capabilities")
+                if capabilities is None or isinstance(capabilities, dict):
+                    audit_params = dict(params)
+                    audit_capabilities = (
+                        dict(capabilities)
+                        if isinstance(capabilities, dict)
+                        else {}
+                    )
+                    audit_capabilities["experimentalApi"] = True
+                    audit_params["capabilities"] = audit_capabilities
+            elif method == "thread/start" and self.role == "primary":
+                audit_params = dict(params)
+                audit_params["experimentalRawEvents"] = True
+            if audit_params is not None:
+                # Keep the caller-owned JSON object pristine. Pending request
+                # bookkeeping must use the exact parameters sent upstream so
+                # authority checks and forwarding cannot disagree.
+                message = dict(message)
+                message["params"] = audit_params
+                params = audit_params
 
         is_request = "id" in message
         if not is_request:
@@ -6219,6 +6264,7 @@ class _RelayConnection:
             self._claim_initialize_role(pending, message)
         buffered_after_root = []
         preobserved_notifications = set()
+        candidate_primary_thread: Optional[Dict[str, Any]] = None
         if (
             pending.method in ROOT_SWITCH_METHODS
             and "result" in message
@@ -6240,6 +6286,16 @@ class _RelayConnection:
                 and result_thread.get("sessionId") == result_thread_id
                 and result_thread.get("parentThreadId") is None
             ):
+                candidate_primary_thread = dict(result_thread)
+                if isinstance(result, dict):
+                    for key in ("model", "reasoningEffort"):
+                        value = result.get(key)
+                        if value is not None:
+                            candidate_primary_thread[key] = value
+                if self.client_version is not None:
+                    candidate_primary_thread["clientVersion"] = (
+                        self.client_version
+                    )
                 fresh_thread_start = _needs_fresh_primary_witness(
                     pending.method
                 )
@@ -6298,8 +6354,26 @@ class _RelayConnection:
                         complete_origin_handoff=complete_origin_handoff,
                     )
         if pending.gate is not None:
+            def observe_primary_before_release(
+                committed_thread_id: Optional[str],
+                active_turn_id: Optional[str],
+            ) -> None:
+                if (
+                    candidate_primary_thread is None
+                    or committed_thread_id
+                    != candidate_primary_thread.get("id")
+                    or self.relay.primary_thread_observer is None
+                ):
+                    return
+                observed = dict(candidate_primary_thread)
+                if isinstance(active_turn_id, str) and active_turn_id:
+                    observed["activeTurnId"] = active_turn_id
+                self.relay.primary_thread_observer(observed)
+
             self.relay.authority.finish_tui_request(
-                pending.gate, message
+                pending.gate,
+                message,
+                before_release=observe_primary_before_release,
             )
         if (
             pending.method in ROOT_INVALIDATION_METHODS
@@ -6482,6 +6556,10 @@ class UnixWebSocketRelay:
             Callable[[str, int], None]
         ] = None
         self.driver_thread_fencer: Optional[Callable[[str], None]] = None
+        self.token_audit_enabled = False
+        self.primary_thread_observer: Optional[
+            Callable[[Dict[str, Any]], None]
+        ] = None
 
     def pin_driver_thread(
         self,
@@ -6741,9 +6819,13 @@ def config_from_args(
     frontend_value = getattr(
         args, "frontend_socket", None
     ) or os.environ.get("UCLUSION_CODEX_FRONTEND_SOCKET")
+    token_audit_ready_value = getattr(
+        args, "token_audit_ready_file", None
+    ) or os.environ.get("UCLUSION_CODEX_TOKEN_AUDIT_READY_FILE")
     ready_file = None
     receiver_pid_file = None
     frontend_socket = None
+    token_audit_ready_file = None
     if ready_value:
         ready_file = _required_text(
             ready_value, "--ready-file", allow_path=True
@@ -6762,6 +6844,17 @@ def config_from_args(
         )
     elif require_socket:
         raise ConfigurationError("--frontend-socket is required for run")
+    token_audit_enabled = bool(getattr(args, "token_audit", False))
+    if token_audit_ready_value:
+        token_audit_ready_file = _required_text(
+            token_audit_ready_value,
+            "--token-audit-ready-file",
+            allow_path=True,
+        )
+    elif token_audit_enabled and require_socket:
+        raise ConfigurationError(
+            "--token-audit-ready-file is required with --token-audit"
+        )
     return BridgeConfig(
         environment=environment,
         workspace_id=workspace_id,
@@ -6772,6 +6865,8 @@ def config_from_args(
         ready_file=ready_file,
         receiver_pid_file=receiver_pid_file,
         frontend_socket=frontend_socket,
+        token_audit=token_audit_enabled,
+        token_audit_ready_file=token_audit_ready_file,
     )
 
 
@@ -6891,6 +6986,140 @@ class UpdateNoticeWorker:
         self.thread.join(timeout=0.1)
 
 
+class _CodexTokenAuditIntegration:
+    """Failure-isolated adapter for the optional token audit module."""
+
+    def __init__(self, observer: Any):
+        self.observer = observer
+        self.reported_errors = set()
+        self.usable = True
+
+    def _report(self, operation: str, error: Exception) -> None:
+        message = "{}: {}".format(operation, error)
+        if message in self.reported_errors:
+            return
+        self.reported_errors.add(message)
+        print(
+            "Uclusion Codex token audit degraded: {}".format(message),
+            file=sys.stderr,
+            flush=True,
+        )
+
+    def mark_partial(self, reason: str) -> bool:
+        try:
+            self.observer.mark_partial(reason)
+            return True
+        except Exception as exc:
+            self._report("mark_partial failed", exc)
+            self.usable = False
+            self.revoke_ready()
+            return False
+
+    def mark_ready(self) -> bool:
+        if not self.usable:
+            return False
+        try:
+            return bool(self.observer.mark_ready())
+        except Exception as exc:
+            self._report("collector readiness failed", exc)
+            self.revoke_ready()
+            return False
+
+    def refresh_ready(self) -> bool:
+        if not self.usable:
+            return False
+        try:
+            return bool(self.observer.refresh_ready())
+        except Exception as exc:
+            self._report("collector heartbeat failed", exc)
+            self.revoke_ready()
+            return False
+
+    def revoke_ready(self) -> None:
+        try:
+            self.observer.revoke_ready()
+        except Exception as exc:
+            self._report("collector readiness revoke failed", exc)
+
+    def observe_notification(self, message: Dict[str, Any]) -> None:
+        try:
+            self.observer.observe_notification(message)
+        except Exception as exc:
+            self._report("observe_notification failed", exc)
+            self.mark_partial(
+                "Codex driver notification could not be audited: {}"
+                .format(exc)
+            )
+
+    def set_primary_thread(self, thread: Dict[str, Any]) -> None:
+        try:
+            self.observer.set_primary_thread(thread)
+        except Exception as exc:
+            self._report("set_primary_thread failed", exc)
+            self.mark_partial(
+                "Codex primary thread could not be recorded: {}".format(
+                    exc
+                )
+            )
+
+    def drain_descendant_thread_ids(self) -> Tuple[str, ...]:
+        try:
+            thread_ids = self.observer.drain_descendant_thread_ids()
+            if thread_ids is None:
+                return ()
+            if isinstance(thread_ids, str):
+                raise TypeError("descendant thread ids must be an iterable")
+            result = tuple(thread_ids)
+            if any(
+                not isinstance(thread_id, str) or not thread_id
+                for thread_id in result
+            ):
+                raise TypeError(
+                    "descendant thread ids must be non-empty strings"
+                )
+            return result
+        except Exception as exc:
+            self._report("drain_descendant_thread_ids failed", exc)
+            self.mark_partial(
+                "Codex descendant subscriptions could not be audited: {}"
+                .format(exc)
+            )
+            return ()
+
+    def close(self) -> None:
+        try:
+            self.observer.close()
+        except Exception as exc:
+            self._report("close failed", exc)
+        finally:
+            self.revoke_ready()
+
+
+def _load_codex_token_audit(
+    config: BridgeConfig,
+) -> Optional[_CodexTokenAuditIntegration]:
+    if not config.token_audit:
+        return None
+    try:
+        module = importlib.import_module("uclusionTokenAudit")
+        audit_type = getattr(module, "CodexTokenAudit")
+        observer = audit_type(
+            config.environment,
+            config.workspace_id,
+            client_version=None,
+            ready_file=config.token_audit_ready_file,
+            ready_owner=config.instance,
+        )
+        return _CodexTokenAuditIntegration(observer)
+    except Exception as exc:
+        print(
+            "Uclusion Codex token audit is unavailable: {}".format(exc),
+            file=sys.stderr,
+            flush=True,
+        )
+        return None
+
+
 def run_bridge(
     config: BridgeConfig,
     poll_interval: float = POLL_INTERVAL_SECONDS,
@@ -6943,11 +7172,26 @@ def run_bridge(
 
     stopping = stop_event or threading.Event()
     previous_handlers = _install_signal_handlers(stopping)
+    token_audit = _load_codex_token_audit(config)
+    if token_audit is not None:
+        # Publish before app-server/MCP initialization can cache tools/list.
+        # The launcher still withholds the TUI until the driver and relay are
+        # ready, while a failed observer leaves this marker absent.
+        token_audit.mark_ready()
     authority = RootAuthority(config.cwd, gate_mcp_startup=True)
     relay = relay_factory(
         config.frontend_socket,
         config.app_server_socket,
         authority,
+    )
+    # Only request experimental raw events when the observer actually loaded.
+    # Configuration alone is not enough: an import/schema failure must degrade
+    # the feature without changing the TUI/app-server protocol.
+    relay.token_audit_enabled = token_audit is not None
+    relay.primary_thread_observer = (
+        token_audit.set_primary_thread
+        if token_audit is not None
+        else None
     )
     client: Optional[AppServerClient] = None
     update_worker: Optional[UpdateNoticeWorker] = None
@@ -6956,6 +7200,7 @@ def run_bridge(
     deferred_steer_turn_id: Optional[str] = None
     next_driver_connection_id = INITIAL_DRIVER_CONNECTION_ID
     active_driver_connection_id: Optional[int] = None
+    audit_subscribed_thread_ids = set()
 
     def receiver_live() -> bool:
         return (
@@ -6995,24 +7240,38 @@ def run_bridge(
                 continue
             if not owns_primary:
                 return EXIT_PRIMARY_HELD
+            if token_audit is not None:
+                token_audit.refresh_ready()
 
             if client is None:
                 try:
                     driver_connection_id = next_driver_connection_id
                     next_driver_connection_id -= 1
                     client = client_factory(config.app_server_socket)
-                    client.notification_handler = (
-                        lambda message, connection_id=driver_connection_id: (
-                            authority.observe_notification(
-                                connection_id, message
+
+                    def observe_driver_notification(
+                        message: Dict[str, Any],
+                        connection_id: int = driver_connection_id,
+                    ) -> None:
+                        authority.observe_notification(
+                            connection_id, message
+                        )
+                        if token_audit is not None:
+                            token_audit.observe_notification(message)
+
+                    def driver_disconnected(
+                        connection_id: int = driver_connection_id,
+                    ) -> None:
+                        authority.driver_disconnected(connection_id)
+                        if token_audit is not None:
+                            token_audit.mark_partial(
+                                "Codex audit driver disconnected"
                             )
-                        )
+
+                    client.notification_handler = (
+                        observe_driver_notification
                     )
-                    client.disconnect_handler = (
-                        lambda connection_id=driver_connection_id: (
-                            authority.driver_disconnected(connection_id)
-                        )
-                    )
+                    client.disconnect_handler = driver_disconnected
                     client.start()
                     # Register the witness atomically with the reader-failure
                     # check. An EOF before this point is a retryable
@@ -7035,6 +7294,7 @@ def run_bridge(
                         )
                     )
                     relay.driver_thread_fencer = client.fence_thread
+                    audit_subscribed_thread_ids.clear()
                     if relay.listener is None:
                         relay.start()
                     if not ready_published:
@@ -7073,6 +7333,23 @@ def run_bridge(
                         )
                     stopping.wait(max(1.0, poll_interval))
                     continue
+
+            if token_audit is not None:
+                assert client is not None
+                for thread_id in (
+                    token_audit.drain_descendant_thread_ids()
+                ):
+                    if thread_id in audit_subscribed_thread_ids:
+                        continue
+                    try:
+                        client.subscribe_thread(thread_id, lambda: None)
+                    except Exception as exc:
+                        token_audit.mark_partial(
+                            "Codex descendant {} could not be subscribed: {}"
+                            .format(thread_id, exc)
+                        )
+                        continue
+                    audit_subscribed_thread_ids.add(thread_id)
 
             if update_worker is not None:
                 for notice in update_worker.drain():
@@ -7122,6 +7399,10 @@ def run_bridge(
             if result.action == "nonsteerable":
                 deferred_steer_turn_id = result.turn_id
             if result.reconnect:
+                if token_audit is not None:
+                    token_audit.mark_partial(
+                        "Codex audit driver reconnected"
+                    )
                 if active_driver_connection_id is not None:
                     authority.driver_disconnected(
                         active_driver_connection_id
@@ -7146,6 +7427,8 @@ def run_bridge(
             update_worker.close()
         if client is not None:
             client.close()
+        if token_audit is not None:
+            token_audit.close()
         try:
             store.release_primary(config, pid)
         except sqlite3.Error as exc:
@@ -7179,6 +7462,15 @@ def build_parser() -> argparse.ArgumentParser:
     add_identity_options(run_parser)
     run_parser.add_argument("--ready-file")
     run_parser.add_argument("--receiver-pid-file")
+    run_parser.add_argument(
+        "--token-audit",
+        action="store_true",
+        help=argparse.SUPPRESS,
+    )
+    run_parser.add_argument(
+        "--token-audit-ready-file",
+        help=argparse.SUPPRESS,
+    )
     backlog_group = run_parser.add_mutually_exclusive_group()
     backlog_group.add_argument(
         "--deliver-existing-pokes",

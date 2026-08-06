@@ -5,6 +5,7 @@ import io
 import json
 import os
 import socket
+import sqlite3
 import struct
 import sys
 import tempfile
@@ -164,6 +165,9 @@ class BridgeTestCase(unittest.TestCase):
             receiver_pid_file=os.path.join(
                 self.temporary.name, "receiver.pid"
             ),
+            token_audit_ready_file=os.path.join(
+                self.temporary.name, "token-audit.ready"
+            ),
         )
         Path(self.config.receiver_pid_file).write_text(
             "{} {}\n".format(self.config.instance, os.getpid()),
@@ -291,6 +295,36 @@ class CompatibilityTests(unittest.TestCase):
             poll_interval=0.25,
             deliver_existing_pokes=False,
         )
+
+    def test_token_audit_flag_populates_bridge_config_only_when_enabled(self):
+        required = [
+            "--environment", "stage",
+            "--workspace-id", "workspace-1",
+            "--instance", "instance-1",
+            "--cwd", "/workspace/project",
+            "--app-server-socket", "/tmp/backend.sock",
+            "--frontend-socket", "/tmp/frontend.sock",
+            "--ready-file", "/tmp/ready",
+            "--receiver-pid-file", "/tmp/receiver",
+        ]
+        parser = bridge.build_parser()
+        enabled = bridge.config_from_args(
+            parser.parse_args([
+                "run", *required, "--token-audit",
+                "--token-audit-ready-file", "/tmp/audit-ready",
+            ]),
+            require_socket=True,
+        )
+        disabled = bridge.config_from_args(
+            parser.parse_args(["run", *required]),
+            require_socket=True,
+        )
+
+        self.assertTrue(enabled.token_audit)
+        self.assertEqual(
+            "/tmp/audit-ready", enabled.token_audit_ready_file
+        )
+        self.assertFalse(disabled.token_audit)
 
 
 class RunBridgeTests(BridgeTestCase):
@@ -452,6 +486,238 @@ class RunBridgeTests(BridgeTestCase):
         self.assertTrue(clients[0].closed)
         self.assertIsNone(relay_holder["relay"].authority.fatal_error)
         self.assertTrue(relay_holder["relay"].closed)
+
+    def test_token_audit_load_is_lazy_and_uses_expected_api(self):
+        disabled = dataclass_replace(self.config, token_audit=False)
+        with mock.patch.object(
+            bridge.importlib, "import_module"
+        ) as import_module:
+            self.assertIsNone(bridge._load_codex_token_audit(disabled))
+        import_module.assert_not_called()
+
+        calls = []
+
+        class Audit:
+            def __init__(
+                self, environment, workspace_id, client_version=None,
+                ready_file=None, ready_owner=None,
+            ):
+                calls.append(
+                    (
+                        environment, workspace_id, client_version,
+                        ready_file, ready_owner,
+                    )
+                )
+
+            def mark_partial(self, _reason):
+                pass
+
+            def close(self):
+                pass
+
+            def revoke_ready(self):
+                pass
+
+        module = types.SimpleNamespace(CodexTokenAudit=Audit)
+        enabled = dataclass_replace(self.config, token_audit=True)
+        with mock.patch.object(
+            bridge.importlib, "import_module", return_value=module
+        ) as import_module:
+            integration = bridge._load_codex_token_audit(enabled)
+
+        self.assertIsNotNone(integration)
+        self.assertEqual(
+            [(
+                "stage", "workspace-1", None,
+                enabled.token_audit_ready_file, "instance-1",
+            )], calls
+        )
+        import_module.assert_called_once_with("uclusionTokenAudit")
+        integration.close()
+
+    def test_driver_notifications_queue_descendant_subscriptions_off_reader(self):
+        stopping = threading.Event()
+        observed = []
+        subscribed = []
+        reader_thread_names = []
+
+        class Audit:
+            def __init__(self):
+                self.descendants = []
+                self.closed = False
+
+            def observe_notification(self, message):
+                observed.append(message)
+                self.descendants.append("child-thread")
+
+            def set_primary_thread(self, _thread):
+                pass
+
+            def drain_descendant_thread_ids(self):
+                result = self.descendants
+                self.descendants = []
+                return result
+
+            def mark_partial(self, _reason):
+                pass
+
+            def mark_ready(self):
+                return True
+
+            def refresh_ready(self):
+                return True
+
+            def revoke_ready(self):
+                pass
+
+            def close(self):
+                self.closed = True
+
+        audit = Audit()
+        integration = bridge._CodexTokenAuditIntegration(audit)
+
+        class Client:
+            def __init__(self):
+                self.response_lock = threading.Lock()
+                self.reader_failure = None
+                self.notification_handler = None
+                self.disconnect_handler = None
+
+            def start(self):
+                def notify():
+                    reader_thread_names.append(
+                        threading.current_thread().name
+                    )
+                    self.notification_handler(
+                        {
+                            "method": "rawResponse/completed",
+                            "params": {
+                                "threadId": "child-thread",
+                                "turnId": "turn-1",
+                                "responseId": "response-1",
+                                "usage": None,
+                            },
+                        }
+                    )
+
+                reader = threading.Thread(
+                    target=notify, name="fake-driver-reader"
+                )
+                reader.start()
+                reader.join(1)
+
+            def subscribe_thread(self, thread_id, on_subscribed):
+                subscribed.append(
+                    (thread_id, threading.current_thread().name)
+                )
+                on_subscribed()
+                stopping.set()
+
+            def fence_thread(self, _thread_id):
+                pass
+
+            def close(self):
+                pass
+
+        class Relay:
+            def __init__(self, _frontend, _backend, authority):
+                self.authority = authority
+                self.fatal_event = threading.Event()
+                self.fatal_error = None
+                self.listener = None
+                self.driver_thread_pinner = None
+                self.driver_thread_fencer = None
+
+            def start(self):
+                self.listener = object()
+
+            def close(self):
+                pass
+
+        client = Client()
+        config = dataclass_replace(
+            self.config,
+            frontend_socket=os.path.join(
+                self.temporary.name, "frontend.sock"
+            ),
+            token_audit=True,
+        )
+        with mock.patch.object(
+            bridge,
+            "_load_codex_token_audit",
+            return_value=integration,
+        ):
+            result = bridge.run_bridge(
+                config,
+                poll_interval=0.001,
+                stop_event=stopping,
+                client_factory=lambda _path: client,
+                relay_factory=Relay,
+                update_notice_source=lambda _environment: None,
+            )
+
+        self.assertEqual(bridge.EXIT_OK, result)
+        self.assertEqual(1, len(observed))
+        self.assertEqual(["fake-driver-reader"], reader_thread_names)
+        self.assertEqual("child-thread", subscribed[0][0])
+        self.assertNotEqual(reader_thread_names[0], subscribed[0][1])
+        self.assertTrue(audit.closed)
+
+    def test_token_audit_notification_failure_is_nonfatal_and_partial(self):
+        partial_reasons = []
+
+        class Audit:
+            def observe_notification(self, _message):
+                raise RuntimeError("bad telemetry")
+
+            def set_primary_thread(self, _thread):
+                pass
+
+            def drain_descendant_thread_ids(self):
+                return []
+
+            def mark_partial(self, reason):
+                partial_reasons.append(reason)
+
+            def close(self):
+                pass
+
+        integration = bridge._CodexTokenAuditIntegration(Audit())
+        integration.observe_notification(
+            {"method": "rawResponse/completed", "params": {}}
+        )
+
+        self.assertEqual(1, len(partial_reasons))
+        self.assertIn("bad telemetry", partial_reasons[0])
+
+    def test_hard_observer_failure_latches_readiness_off(self):
+        class Audit:
+            def __init__(self):
+                self.ready = False
+                self.refreshes = 0
+
+            def mark_ready(self):
+                self.ready = True
+                return True
+
+            def refresh_ready(self):
+                self.refreshes += 1
+                self.ready = True
+                return True
+
+            def revoke_ready(self):
+                self.ready = False
+
+            def mark_partial(self, _reason):
+                raise sqlite3.OperationalError("store unavailable")
+
+        observer = Audit()
+        integration = bridge._CodexTokenAuditIntegration(observer)
+        self.assertTrue(integration.mark_ready())
+        self.assertFalse(integration.mark_partial("hard failure"))
+        self.assertFalse(observer.ready)
+        self.assertFalse(integration.refresh_ready())
+        self.assertEqual(0, observer.refreshes)
 
 
 class DeliveryTests(BridgeTestCase):
@@ -2312,6 +2578,70 @@ class DeliveryTests(BridgeTestCase):
         self.assertEqual([True], committed)
         self.assertTrue(invalidated.is_set())
         self.assertIsNone(authority.current_snapshot())
+
+    def test_primary_observer_callback_precedes_new_root_notifications(self):
+        authority = bridge.RootAuthority(self.config.cwd)
+        self.assertTrue(authority.claim_primary(1))
+        gate = authority.begin_tui_request(
+            1, "thread/start", {"cwd": self.config.cwd}
+        )
+        observer_entered = threading.Event()
+        release_observer = threading.Event()
+        notification_done = threading.Event()
+        order = []
+
+        def before_release(thread_id, active_turn_id):
+            self.assertEqual("root-live", thread_id)
+            self.assertIsNone(active_turn_id)
+            order.append("observer-start")
+            observer_entered.set()
+            release_observer.wait(1)
+            order.append("observer-finish")
+
+        response = {
+            "id": "root",
+            "result": {
+                "thread": {
+                    "id": "root-live",
+                    "sessionId": "root-live",
+                    "parentThreadId": None,
+                    "cwd": self.config.cwd,
+                },
+                "cwd": self.config.cwd,
+            },
+        }
+        finisher = threading.Thread(target=lambda: authority.finish_tui_request(
+            gate, response, before_release=before_release
+        ))
+        finisher.start()
+        self.assertTrue(observer_entered.wait(1))
+
+        def deliver_new_root_notification():
+            authority.observe_notification(1, {
+                "method": "turn/started",
+                "params": {
+                    "threadId": "root-live",
+                    "turn": {"id": "turn-live"},
+                },
+            })
+            order.append("notification")
+            notification_done.set()
+
+        notification = threading.Thread(
+            target=deliver_new_root_notification
+        )
+        notification.start()
+        self.assertFalse(notification_done.wait(0.05))
+        release_observer.set()
+        finisher.join(1)
+        notification.join(1)
+
+        self.assertEqual(
+            ["observer-start", "observer-finish", "notification"], order
+        )
+        self.assertEqual(
+            "turn-live", authority.current_snapshot().active_turn_id
+        )
 
     def test_authority_revocation_before_commit_leaves_callback_unrun(self):
         authority = bridge.RootAuthority(self.config.cwd)

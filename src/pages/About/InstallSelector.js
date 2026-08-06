@@ -60,7 +60,7 @@ export const INSTALL_CLIENTS = [
 ];
 
 function InstallSelector(props) {
-  const { scope, setScope, clients, setClients } = props;
+  const { scope, setScope, clients, setClients, tokenAudit, setTokenAudit } = props;
   const classes = useStyles();
 
   function toggleClient(key) {
@@ -100,6 +100,17 @@ function InstallSelector(props) {
           </div>
         ))}
       </div>
+      <div className={classes.row}>
+        <div className={classes.label}>Token usage notes</div>
+        <div className={optionClass(!tokenAudit)} onClick={() => setTokenAudit(false)}
+             id='installTokenAuditOff'>
+          Off
+        </div>
+        <div className={optionClass(tokenAudit)} onClick={() => setTokenAudit(true)}
+             id='installTokenAuditOn'>
+          On
+        </div>
+      </div>
     </div>
   );
 }
@@ -109,6 +120,8 @@ InstallSelector.propTypes = {
   setScope: PropTypes.func.isRequired,
   clients: PropTypes.arrayOf(PropTypes.string).isRequired,
   setClients: PropTypes.func.isRequired,
+  tokenAudit: PropTypes.bool.isRequired,
+  setTokenAudit: PropTypes.func.isRequired,
 };
 
 export default InstallSelector;

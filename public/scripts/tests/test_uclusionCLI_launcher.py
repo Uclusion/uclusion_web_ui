@@ -21,7 +21,7 @@ import uclusionCodexBridge as codex_bridge
 class FakeProcess:
     next_pid = 4100
 
-    def __init__(self, poll_results, wait_result=0, pid=None):
+    def __init__(self, poll_results, wait_result=0, pid=None, output=b''):
         self.poll_results = list(poll_results)
         self.wait_result = wait_result
         if pid is None:
@@ -31,6 +31,7 @@ class FakeProcess:
         self.terminate_called = False
         self.kill_called = False
         self.wait_calls = []
+        self.stdout = io.BytesIO(output)
 
     def poll(self):
         if len(self.poll_results) > 1:
@@ -274,6 +275,53 @@ class CodexLauncherTests(unittest.TestCase):
                 )
                 self.assertNotIn('global-A', ' '.join(overrides))
 
+    def test_codex_token_audit_settings_use_canonical_object_and_legacy_fallback(self):
+        self.assertEqual(
+            {'enabled': True, 'port': 23456},
+            cli.codex_token_audit_settings(
+                {
+                    'tokenAudit': {
+                        'enabled': True,
+                        'port': 23456,
+                        'claudeSource': 'otel',
+                    }
+                },
+                'workspace-123',
+            ),
+        )
+        self.assertIsNone(
+            cli.codex_token_audit_settings(
+                {'tokenAudit': {'enabled': False, 'port': 23456}},
+                'workspace-123',
+            )
+        )
+        legacy = cli.codex_token_audit_settings(
+            {'tokenAudit': True}, 'workspace-123'
+        )
+        self.assertTrue(legacy['enabled'])
+        self.assertGreaterEqual(legacy['port'], 20000)
+        self.assertLess(legacy['port'], 50000)
+
+    def test_codex_mcp_override_forwards_token_audit_collector_contract(self):
+        overrides = cli.build_codex_mcp_overrides(
+            'project-B',
+            'stage',
+            '/release/uclusionMCPProxy.py',
+            token_audit={'enabled': True, 'port': 23456},
+            token_audit_ready_file='/private/token-audit.ready',
+            token_audit_owner='instance-456',
+        )
+
+        self.assertEqual('-c', overrides[0])
+        self.assertIn('"--token-audit"', overrides[1])
+        self.assertIn('"--token-audit-port", "23456"', overrides[1])
+        self.assertIn('"--token-audit-source", "codex"', overrides[1])
+        self.assertIn(
+            '"--token-audit-ready-file", "/private/token-audit.ready"',
+            overrides[1],
+        )
+        self.assertIn('"--token-audit-owner", "instance-456"', overrides[1])
+
     def test_launches_private_server_bridge_and_remote_tui_with_shared_environment(self):
         app_server = FakeProcess([None])
         bridge = FakeProcess([None])
@@ -372,6 +420,13 @@ class CodexLauncherTests(unittest.TestCase):
                 '/private/runtime/bin/uclusion.py',
         }
         self.assertEqual(app_server_call.kwargs['env'], expected_bridge_env)
+        self.assertIs(app_server_call.kwargs['stdout'], cli.subprocess.PIPE)
+        self.assertIs(app_server_call.kwargs['stderr'], cli.subprocess.STDOUT)
+        self.assertEqual(app_server_call.kwargs['bufsize'], 0)
+        self.assertNotIn('stdout', bridge_call.kwargs)
+        self.assertNotIn('stderr', bridge_call.kwargs)
+        self.assertNotIn('stdout', tui_call.kwargs)
+        self.assertNotIn('stderr', tui_call.kwargs)
         self.assertEqual(bridge_call.kwargs['env'], expected_bridge_env)
         self.assertEqual(tui_call.kwargs['env'], expected_bridge_env)
         self.assertTrue(app_server.terminate_called)
@@ -399,6 +454,7 @@ class CodexLauncherTests(unittest.TestCase):
             os.path.realpath(cli.__file__),
             '/release/bin/uclusionCodexBridge.py',
             '/release/bin/uclusionMCPProxy.py',
+            token_audit_required=False,
         )
 
     def test_explicit_backlog_opt_in_is_forwarded_only_to_bridge(self):
@@ -427,6 +483,62 @@ class CodexLauncherTests(unittest.TestCase):
         )
         self.assertIn('--deliver-existing-pokes', bridge_call.args[0])
         self.assertNotIn('--deliver-existing-pokes', tui_call.args[0])
+
+    def test_token_audit_config_is_forwarded_to_proxy_and_bridge_only(self):
+        app_server = FakeProcess([None])
+        bridge = FakeProcess([None])
+        tui = FakeProcess([7])
+        with ExitStack() as stack:
+            self.launcher_prerequisites(
+                stack,
+                config={
+                    'workspaceId': 'workspace-123',
+                    'tokenAudit': {
+                        'enabled': True,
+                        'port': 23456,
+                        'claudeSource': 'transcript',
+                    },
+                },
+            )
+            popen = stack.enter_context(
+                mock.patch.object(
+                    cli.subprocess,
+                    'Popen',
+                    side_effect=[app_server, bridge, tui],
+                )
+            )
+
+            result = cli.cmd_codex(self.launcher_args())
+
+        self.assertEqual(7, result)
+        app_server_call, bridge_call, tui_call = popen.call_args_list
+        app_server_command = app_server_call.args[0]
+        mcp_override = app_server_command[
+            app_server_command.index('-c') + 1
+        ]
+        self.assertIn('"--token-audit"', mcp_override)
+        self.assertIn('"--token-audit-port", "23456"', mcp_override)
+        self.assertIn('"--token-audit-source", "codex"', mcp_override)
+        self.assertIn(
+            '"--token-audit-ready-file", '
+            '"/private/runtime/token-audit.ready"',
+            mcp_override,
+        )
+        self.assertIn('"--token-audit-owner", "instance-456"', mcp_override)
+        self.assertIn('--token-audit', bridge_call.args[0])
+        ready_index = bridge_call.args[0].index('--token-audit-ready-file')
+        self.assertEqual(
+            '/private/runtime/token-audit.ready',
+            bridge_call.args[0][ready_index + 1],
+        )
+        self.stage_companions.assert_called_once_with(
+            '/private/runtime',
+            os.path.realpath(cli.__file__),
+            '/release/bin/uclusionCodexBridge.py',
+            '/release/bin/uclusionMCPProxy.py',
+            token_audit_required=True,
+        )
+        self.assertNotIn('--token-audit', tui_call.args[0])
 
     def test_bridge_ready_wait_accepts_only_the_expected_instance(self):
         bridge = FakeProcess([None])
@@ -561,6 +673,36 @@ class CodexLauncherTests(unittest.TestCase):
             contents,
         )
         self.assertEqual([0o755, 0o755, 0o644], modes)
+
+    def test_runtime_staging_includes_optional_token_audit_sibling(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source_bin = Path(directory) / 'release' / 'bin'
+            runtime_dir = Path(directory) / 'runtime'
+            source_bin.mkdir(parents=True)
+            runtime_dir.mkdir()
+            cli_source = source_bin / 'uclusion.py'
+            bridge_source = source_bin / 'uclusionCodexBridge.py'
+            proxy_source = source_bin / 'uclusionMCPProxy.py'
+            audit_source = source_bin / 'uclusionTokenAudit.py'
+            for source in (
+                cli_source, bridge_source, proxy_source, audit_source
+            ):
+                source.write_text(source.name + '\n', encoding='utf-8')
+
+            cli.stage_codex_companions(
+                str(runtime_dir),
+                str(cli_source),
+                str(bridge_source),
+                str(proxy_source),
+            )
+
+            staged_audit = (
+                runtime_dir / 'bin' / 'uclusionTokenAudit.py'
+            )
+            self.assertEqual(
+                'uclusionTokenAudit.py\n',
+                staged_audit.read_text(encoding='utf-8'),
+            )
 
     def test_staged_cli_uses_launcher_release_for_update_checks(self):
         with mock.patch.dict(
@@ -759,7 +901,13 @@ class CodexLauncherTests(unittest.TestCase):
                 cli.resolve_codex_companion_paths()
 
     def test_app_server_exit_before_socket_prevents_bridge_start(self):
-        app_server = FakeProcess([12])
+        app_server = FakeProcess(
+            [12],
+            output=(
+                b'\x1b[31m2026-08-05 ERROR codex_server::startup: '
+                b'backend stopped\x1b[0m\n'
+            ),
+        )
         with ExitStack() as stack:
             self.launcher_prerequisites(stack)
             popen = stack.enter_context(
@@ -772,9 +920,68 @@ class CodexLauncherTests(unittest.TestCase):
 
         self.assertEqual(result, 1)
         self.assertIn('app-server exited unexpectedly with status 12', stderr.getvalue())
+        self.assertIn('Private app-server diagnostic tail:', stderr.getvalue())
+        self.assertIn(
+            '2026-08-05 ERROR codex_server::startup: backend stopped',
+            stderr.getvalue(),
+        )
+        self.assertNotIn('\x1b[31m', stderr.getvalue())
         self.assertEqual(popen.call_count, 1)
         self.assertEqual(app_server.wait_calls, [None])
         self.assertTrue(self.runtime_directory.exited)
+
+    def test_app_server_diagnostics_keep_only_bounded_in_memory_tail(self):
+        diagnostics = cli.CodexAppServerDiagnostics(
+            io.BytesIO(
+                (b'discard-me\n' * 100)
+                + (b'x' * 700)
+                + b'\nfinal\x00line\n'
+            ),
+            max_bytes=720,
+        )
+        diagnostics.wait_for_eof()
+
+        lines, truncated = diagnostics.lines()
+
+        self.assertTrue(truncated)
+        self.assertNotIn('discard-me', '\n'.join(lines))
+        self.assertLessEqual(
+            len(lines), cli.CODEX_APP_SERVER_DIAGNOSTIC_LINES
+        )
+        self.assertTrue(all(
+            len(line) <= cli.CODEX_APP_SERVER_DIAGNOSTIC_LINE_CHARS
+            for line in lines
+        ))
+        self.assertIn('final\ufffdline', lines)
+        diagnostics.close()
+
+    def test_normal_tui_exit_never_echoes_private_app_server_tracing(self):
+        app_server = FakeProcess(
+            [None],
+            output=(
+                b'2026-08-05 ERROR codex_core::tools::router: '
+                b'apply_patch verification failed\n'
+            ),
+        )
+        bridge = FakeProcess([None])
+        tui = FakeProcess([0])
+        with ExitStack() as stack:
+            self.launcher_prerequisites(stack)
+            stack.enter_context(
+                mock.patch.object(
+                    cli.subprocess,
+                    'Popen',
+                    side_effect=[app_server, bridge, tui],
+                )
+            )
+            stderr = io.StringIO()
+            stack.enter_context(mock.patch('sys.stderr', stderr))
+
+            result = cli.cmd_codex(self.launcher_args())
+
+        self.assertEqual(result, 0)
+        self.assertNotIn('apply_patch verification failed', stderr.getvalue())
+        self.assertNotIn('codex_core::tools::router', stderr.getvalue())
 
     def test_socket_readiness_timeout_stops_app_server(self):
         app_server = FakeProcess([None])
@@ -1039,12 +1246,35 @@ class UpdateReleaseConsistencyTests(unittest.TestCase):
                 'workspace-1',
                 '--script-version',
                 'release-123',
+                '--no-token-audit',
                 '--clients',
                 'codex',
                 '--project',
                 '--skip-scripts',
             ],
         )
+
+    def test_run_installer_preserves_enabled_token_audit(self):
+        completed = SimpleNamespace(returncode=0)
+        with mock.patch.object(
+            cli.subprocess, 'run', return_value=completed
+        ) as run:
+            result = cli.run_installer(
+                '/tmp/installer.py',
+                'stage',
+                {
+                    'workspaceId': 'workspace-1',
+                    'tokenAudit': {'enabled': True, 'port': 23456},
+                },
+                None,
+                {'claude'},
+                project=False,
+                script_version='release-123',
+            )
+
+        self.assertTrue(result)
+        self.assertIn('--token-audit', run.call_args.args[0])
+        self.assertNotIn('--no-token-audit', run.call_args.args[0])
 
     def test_update_rejects_workspace_release_disagreement_before_download(self):
         with ExitStack() as stack:

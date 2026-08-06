@@ -2254,6 +2254,116 @@ class RelayIntegrationTests(unittest.TestCase):
         self.assertEqual(request_id, read_server_json(client)["id"])
         return client, upstream
 
+    def test_token_audit_augments_only_enabled_primary_tui_protocol(self):
+        self.relay.token_audit_enabled = True
+        primary = connect_frontend(self.frontend_path)
+        self.clients.append(primary)
+        upstream = self.factory.get(0)
+        send_client_json(
+            primary,
+            {
+                "id": "init-audit",
+                "method": "initialize",
+                "params": {
+                    "clientInfo": {
+                        "name": "codex-tui",
+                        "version": "0.146.0",
+                    },
+                    "capabilities": {"existing": True},
+                },
+            },
+        )
+        initialize = upstream.sent.get(timeout=1)
+        self.assertEqual(
+            {"existing": True, "experimentalApi": True},
+            initialize["params"]["capabilities"],
+        )
+        upstream.respond(
+            {"id": "init-audit", "result": {"userAgent": "test"}}
+        )
+        self.assertEqual("init-audit", read_server_json(primary)["id"])
+
+        send_client_json(
+            primary,
+            {
+                "id": "start-audit",
+                "method": "thread/start",
+                "params": {"cwd": "/workspace/project"},
+            },
+        )
+        started = upstream.sent.get(timeout=1)
+        self.assertEqual(True, started["params"]["experimentalRawEvents"])
+        upstream.respond(
+            {"id": "start-audit", "result": root_result("root-audit")}
+        )
+        self.assertEqual("start-audit", read_server_json(primary)["id"])
+
+    def test_disabled_token_audit_preserves_tui_requests_exactly(self):
+        primary = connect_frontend(self.frontend_path)
+        self.clients.append(primary)
+        upstream = self.factory.get(0)
+        initialize_request = {
+            "id": "init-plain",
+            "method": "initialize",
+            "params": {
+                "clientInfo": {
+                    "name": "codex-tui",
+                    "version": "0.146.0",
+                },
+                "capabilities": {"existing": True},
+            },
+        }
+        send_client_json(primary, initialize_request)
+        self.assertEqual(initialize_request, upstream.sent.get(timeout=1))
+        upstream.respond(
+            {"id": "init-plain", "result": {"userAgent": "test"}}
+        )
+        read_server_json(primary)
+
+        start_request = {
+            "id": "start-plain",
+            "method": "thread/start",
+            "params": {"cwd": "/workspace/project"},
+        }
+        send_client_json(primary, start_request)
+        self.assertEqual(start_request, upstream.sent.get(timeout=1))
+        upstream.respond(
+            {"id": "start-plain", "result": root_result("root-plain")}
+        )
+        read_server_json(primary)
+
+    def test_primary_thread_observer_failure_does_not_break_relay(self):
+        observed = []
+
+        def observer(thread):
+            observed.append(thread)
+            raise RuntimeError("telemetry failed")
+
+        self.relay.primary_thread_observer = observer
+        primary, upstream = self.initialized_connection()
+        send_client_json(
+            primary,
+            {
+                "id": 1,
+                "method": "thread/start",
+                "params": {"cwd": "/workspace/project"},
+            },
+        )
+        upstream.sent.get(timeout=1)
+        result = root_result("root-primary")
+        result.update({"model": "gpt-5.6-sol", "reasoningEffort": "high"})
+        upstream.respond({"id": 1, "result": result})
+
+        self.assertEqual(1, read_server_json(primary)["id"])
+        self.assertEqual("root-primary", observed[0]["id"])
+        self.assertEqual("gpt-5.6-sol", observed[0]["model"])
+        self.assertEqual("high", observed[0]["reasoningEffort"])
+        self.assertEqual("0.145.0", observed[0]["clientVersion"])
+        self.assertEqual(
+            "root-primary", self.authority.current_snapshot().thread_id
+        )
+        self.assertFalse(self.relay.fatal_event.is_set())
+
     def test_primary_disconnect_revokes_authority_before_socket_cleanup(self):
         primary, upstream = self.initialized_connection()
         send_client_json(

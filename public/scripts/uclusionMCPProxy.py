@@ -1,4 +1,5 @@
 import base64
+import argparse
 import hashlib
 import os
 import sys
@@ -26,6 +27,87 @@ PRODUCTION_WEBSOCKET_URL = "wss://production.ws.uclusion.com/v1"
 INBOX_FILE = 'poke_inbox.sqlite3'
 WEBSOCKET_ACCEPT_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
 MESSAGE_RETENTION_SECONDS = 7 * 24 * 60 * 60
+TOKEN_AUDIT_TOOLS = frozenset({
+    'start_job_audit', 'set_job_audit_phase', 'end_job_audit'
+})
+
+
+def prune_token_audit_storage(environment, workspace_id):
+    """Apply scoped retention even when collection is currently disabled."""
+    try:
+        from uclusionTokenAudit import prune_existing_audit_store
+        return prune_existing_audit_store(environment, workspace_id)
+    except Exception:
+        # Cleanup must never make the ordinary MCP connection unavailable.
+        return 0
+
+
+def token_audit_port(value):
+    try:
+        port = int(value)
+    except (TypeError, ValueError):
+        raise argparse.ArgumentTypeError('token-audit port must be an integer')
+    if not 1024 <= port <= 65535:
+        raise argparse.ArgumentTypeError(
+            'token-audit port must be between 1024 and 65535'
+        )
+    return port
+
+
+def parse_args(argv=None):
+    parser = argparse.ArgumentParser(
+        description='Proxy a local MCP client to Uclusion.'
+    )
+    parser.add_argument('workspace_id')
+    parser.add_argument(
+        'environment', nargs='?', choices=('dev', 'stage', 'production')
+    )
+    parser.add_argument('--token-audit', action='store_true')
+    parser.add_argument('--token-audit-port', type=token_audit_port)
+    parser.add_argument(
+        '--token-audit-source', choices=('codex', 'otel', 'transcript')
+    )
+    parser.add_argument(
+        '--token-audit-client', choices=('codex', 'claude')
+    )
+    parser.add_argument('--token-audit-ready-file')
+    parser.add_argument('--token-audit-owner')
+    args = parser.parse_args(argv)
+    if args.token_audit:
+        if args.token_audit_port is None or args.token_audit_source is None:
+            parser.error(
+                '--token-audit requires --token-audit-port and '
+                '--token-audit-source'
+            )
+        expected_client = (
+            'codex' if args.token_audit_source == 'codex' else 'claude'
+        )
+        if args.token_audit_client is None:
+            args.token_audit_client = expected_client
+        elif args.token_audit_client != expected_client:
+            parser.error(
+                f'--token-audit-source {args.token_audit_source} requires '
+                f'--token-audit-client {expected_client}'
+            )
+        if args.token_audit_source == 'codex':
+            if not args.token_audit_ready_file or not args.token_audit_owner:
+                parser.error(
+                    '--token-audit-source codex requires '
+                    '--token-audit-ready-file and --token-audit-owner'
+                )
+        elif args.token_audit_ready_file or args.token_audit_owner:
+            parser.error(
+                'token-audit readiness settings apply only to Codex'
+            )
+    elif any((
+        args.token_audit_port is not None,
+        args.token_audit_source is not None,
+        args.token_audit_client is not None,
+        args.token_audit_ready_file is not None,
+        args.token_audit_owner is not None,
+    )):
+        parser.error('token-audit settings require --token-audit')
+    return args
 
 
 def get_inbox_path():
@@ -423,27 +505,128 @@ def write_jsonrpc_error(request_id, code, message, data=None):
     write_message({"jsonrpc": "2.0", "id": request_id, "error": err})
 
 
-def handle_json_response(resp):
+def filter_token_audit_tools(message, enabled):
+    """Hide audit markers unless this MCP process owns a collector."""
+    if enabled or not isinstance(message, dict):
+        return message
+    result = message.get('result')
+    if not isinstance(result, dict) or not isinstance(result.get('tools'), list):
+        return message
+    filtered = [
+        tool for tool in result['tools']
+        if not isinstance(tool, dict) or tool.get('name') not in TOKEN_AUDIT_TOOLS
+    ]
+    if len(filtered) == len(result['tools']):
+        return message
+    return {**message, 'result': {**result, 'tools': filtered}}
+
+
+def handle_json_response(resp, token_audit_enabled=False):
     data = resp.read().decode('utf-8')
     if data.strip():
-        write_message(json.loads(data))
+        write_message(filter_token_audit_tools(
+            json.loads(data), token_audit_enabled
+        ))
 
 
-def handle_sse_response(resp):
+def handle_sse_response(resp, token_audit_enabled=False):
     for raw_line in resp:
         line = raw_line.decode('utf-8').rstrip('\r\n')
         if line.startswith('data: '):
             payload = line[6:]
             if payload.strip():
-                write_message(json.loads(payload))
+                write_message(filter_token_audit_tools(
+                    json.loads(payload), token_audit_enabled
+                ))
+
+
+def read_mcp_response(resp):
+    """Read one JSON-RPC response for the private audit publisher."""
+    content_type = resp.headers.get('Content-Type', '')
+    if 'text/event-stream' in content_type:
+        result = None
+        for raw_line in resp:
+            line = raw_line.decode('utf-8').rstrip('\r\n')
+            if line.startswith('data: '):
+                payload = line[6:].strip()
+                if payload:
+                    result = json.loads(payload)
+        return result
+    body = resp.read().decode('utf-8')
+    return json.loads(body) if body.strip() else None
+
+
+def make_token_audit_publisher(post_url, token_provider):
+    """Build an authenticated, out-of-band finalization callback.
+
+    The callback intentionally creates no user-visible stdout traffic and
+    never logs the finalization body. Server-side idempotency makes retrying a
+    leased outbox row safe after crashes or token refreshes.
+    """
+    def publish(row):
+        request_id = 'job-audit-' + row['audit_run_id']
+        request = {
+            'jsonrpc': '2.0',
+            'id': request_id,
+            'method': 'tools/call',
+            'params': {
+                'name': 'end_job_audit',
+                'arguments': {
+                    'job_id': row['job_id'],
+                    'audit_run_id': row['audit_run_id'],
+                    'handoff_type': row['handoff_type'],
+                    'finalization': row['finalization'],
+                },
+            },
+        }
+        token = token_provider()
+        headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json, text/event-stream',
+            'Authorization': token,
+        }
+        resp, _refreshed = post_to_mcp_refreshing_token(
+            post_url,
+            headers,
+            json.dumps(request, separators=(',', ':')),
+            token_provider,
+        )
+        try:
+            result = read_mcp_response(resp)
+        finally:
+            resp.close()
+        if (
+            not isinstance(result, dict)
+            or result.get('jsonrpc') != '2.0'
+            or result.get('id') != request_id
+            or result.get('error') is not None
+        ):
+            raise RuntimeError('audit finalization RPC failed')
+        tool_result = result.get('result')
+        structured = (
+            tool_result.get('structuredContent')
+            if isinstance(tool_result, dict) else None
+        )
+        if (
+            not isinstance(structured, dict)
+            or structured.get('schema_version') != 1
+            or structured.get('state') != 'completed'
+            or structured.get('audit_run_id') != row['audit_run_id']
+            or structured.get('canonical_job_id') != row['job_id']
+        ):
+            raise RuntimeError('audit finalization was not completed')
+        return structured
+
+    return publish
 
 
 def main():
     sys.stdin = os.fdopen(sys.stdin.fileno(), 'r', buffering=1, closefd=False)
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering=1, closefd=False)
 
-    market_id = sys.argv[1]
-    url_env = sys.argv[2] if len(sys.argv) > 2 else None
+    args = parse_args()
+    market_id = args.workspace_id
+    url_env = args.environment
     if url_env == 'dev':
         api_url = DEV_API_URL
         credentials_path = DEV_CREDENTIALS_FILE
@@ -461,7 +644,11 @@ def main():
         environment = 'production'
 
     stop_event = threading.Event()
+    token_audit_runtime = None
     try:
+        # Retention is scoped local maintenance and does not depend on login
+        # succeeding. This remains active after an explicit audit opt-out.
+        prune_token_audit_storage(environment, market_id)
         credentials = get_credentials(credentials_path)
         if credentials is None:
             sys.exit(1)
@@ -481,6 +668,34 @@ def main():
         listener.start()
 
         post_url = 'https://investibles.' + api_url + '/mcp'
+        if args.token_audit:
+            try:
+                from uclusionTokenAudit import TokenAuditProxy
+                token_audit_runtime = TokenAuditProxy(
+                    environment,
+                    market_id,
+                    args.token_audit_source,
+                    args.token_audit_client,
+                    args.token_audit_port,
+                    make_token_audit_publisher(post_url, websocket_token),
+                    ready_file=args.token_audit_ready_file,
+                    ready_owner=args.token_audit_owner,
+                )
+            except Exception as error:
+                # Token accounting is opt-in diagnostics; it must not make the
+                # user's Uclusion MCP connection unavailable. Avoid exception
+                # text because import/runtime errors can contain local paths.
+                sys.stderr.write(
+                    'Uclusion token audit is unavailable '
+                    f'({error.__class__.__name__}).\n'
+                )
+        def token_audit_available():
+            if token_audit_runtime is None:
+                return False
+            try:
+                return bool(token_audit_runtime.tools_ready())
+            except Exception:
+                return False
         session_id = None
 
         while True:
@@ -508,6 +723,21 @@ def main():
             is_notification = 'id' not in msg
             request_id = msg.get('id')
 
+            params = msg.get('params')
+            audit_tool_call = (
+                msg.get('method') == 'tools/call'
+                and isinstance(params, dict)
+                and params.get('name') in TOKEN_AUDIT_TOOLS
+            )
+            if audit_tool_call and not token_audit_available():
+                if not is_notification:
+                    write_jsonrpc_error(
+                        request_id=request_id,
+                        code=-32601,
+                        message='Token audit is not enabled for this connection',
+                    )
+                continue
+
             try:
                 resp, refreshed_token = post_to_mcp_refreshing_token(
                     post_url,
@@ -528,9 +758,9 @@ def main():
 
                 content_type = resp.headers.get('Content-Type', '')
                 if 'text/event-stream' in content_type:
-                    handle_sse_response(resp)
+                    handle_sse_response(resp, token_audit_available())
                 else:
-                    handle_json_response(resp)
+                    handle_json_response(resp, token_audit_available())
 
             except urllib.request.HTTPError as e:
                 body = e.read().decode('utf-8', errors='replace')
@@ -560,6 +790,8 @@ def main():
         sys.exit(1)
     finally:
         stop_event.set()
+        if token_audit_runtime is not None:
+            token_audit_runtime.close()
 
 
 if __name__ == "__main__":

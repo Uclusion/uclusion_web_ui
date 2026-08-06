@@ -41,9 +41,11 @@ Without ``--clients`` the installer asks whether to configure Uclusion globally
 import argparse
 import errno
 import filecmp
+import hashlib
 import json
 import os
 import re
+import shlex
 import shutil
 import stat
 import subprocess
@@ -95,6 +97,12 @@ SYMLINK_DIR = os.path.join(LOCAL_PREFIX, 'bin')
 # Cursor stop-hook drain binary name (S-all-192); also the hooks.json token.
 CURSOR_POKE_DRAIN_SYMLINK_NAME = 'uclusionCursorPokeDrain.py'
 CURSOR_POKE_DRAIN_HOOK_TOKEN = 'uclusionCursorPokeDrain'
+# Token-audit collection is a separate installed helper. Claude hooks invoke
+# the stable public symlink, so updates move the hook and proxy to the same
+# immutable release without rewriting settings.json.
+TOKEN_AUDIT_SYMLINK_NAME = 'uclusionTokenAudit.py'
+TOKEN_AUDIT_DEFAULT_PORT_BASE = 20000
+TOKEN_AUDIT_PORT_SPAN = 30000
 
 # Connect/read timeout (seconds) for every network fetch. Without it a stalled
 # TLS handshake or read blocks urlopen forever and the installer has to be
@@ -108,6 +116,7 @@ SCRIPT_FILES = (
     ('uclusionCLI.py', 'uclusion.py', 'uclusion'),
     ('uclusionMCPProxy.py', 'uclusionMCPProxy.py', 'uclusionMCPProxy.py'),
     ('uclusionCodexBridge.py', 'uclusionCodexBridge.py', 'uclusionCodexBridge.py'),
+    ('uclusionTokenAudit.py', 'uclusionTokenAudit.py', TOKEN_AUDIT_SYMLINK_NAME),
     # Cursor stop-hook drain (S-all-192): claimed by hooks.json, not PATH UX.
     ('uclusionCursorPokeDrain.py', 'uclusionCursorPokeDrain.py',
      CURSOR_POKE_DRAIN_SYMLINK_NAME),
@@ -129,6 +138,48 @@ CLAUDE_SETTINGS_PATH = os.path.join(os.path.expanduser('~'), '.claude', 'setting
 # Explicit allow rules are checked before Claude Code's permission classifier, so the Uclusion
 # workflow tools never prompt or hit classifier outages (T-all-2299)
 CLAUDE_ALLOW_RULE = 'mcp__Uclusion__*'
+CLAUDE_TOKEN_AUDIT_MARKER_MATCHER = (
+    r'^mcp__Uclusion__(start_job_audit|set_job_audit_phase|end_job_audit)$'
+)
+CLAUDE_TOKEN_AUDIT_HOOK_EVENTS = (
+    ('PostToolUse', CLAUDE_TOKEN_AUDIT_MARKER_MATCHER),
+    ('UserPromptSubmit', None),
+    ('SessionStart', None),
+    ('SubagentStart', None),
+    ('SubagentStop', None),
+    ('Stop', None),
+    ('StopFailure', None),
+    ('SessionEnd', None),
+)
+# Claude command hooks normally default to ten minutes, but SessionEnd has a
+# separate 1.5-second overall budget that an explicit per-hook timeout can
+# raise only as high as 60 seconds. Keep the lightweight OTel hooks tightly
+# bounded while giving transcript fallback's bounded JSONL scan the full
+# supported SessionEnd window.
+CLAUDE_TOKEN_AUDIT_OTEL_HOOK_TIMEOUT_SECONDS = 10
+CLAUDE_TOKEN_AUDIT_TRANSCRIPT_HOOK_TIMEOUT_SECONDS = 60
+# Generic/log-specific exporters and content policy can affect Uclusion's log
+# stream. Existing values without our ownership record belong to the user and
+# select the transcript fallback instead of being overwritten.
+CLAUDE_TOKEN_AUDIT_CONFLICT_KEYS = frozenset({
+    'CLAUDE_CODE_ENABLE_TELEMETRY',
+    'OTEL_LOGS_EXPORTER',
+    'OTEL_EXPORTER_OTLP_ENDPOINT',
+    'OTEL_EXPORTER_OTLP_PROTOCOL',
+    'OTEL_EXPORTER_OTLP_HEADERS',
+    'OTEL_EXPORTER_OTLP_LOGS_ENDPOINT',
+    'OTEL_EXPORTER_OTLP_LOGS_PROTOCOL',
+    'OTEL_EXPORTER_OTLP_LOGS_HEADERS',
+    'OTEL_LOGS_EXPORT_INTERVAL',
+    'OTEL_LOG_USER_PROMPTS',
+    'OTEL_LOG_ASSISTANT_RESPONSES',
+    'OTEL_LOG_TOOL_DETAILS',
+    'OTEL_LOG_TOOL_CONTENT',
+    'OTEL_LOG_RAW_API_BODIES',
+})
+CLAUDE_TOKEN_AUDIT_SETTINGS_POLICY_KEYS = frozenset({
+    'otelHeadersHelper',
+})
 CLAUDE_MD_MARKER = '<!-- uclusion-workflow:v1 -->'
 CLAUDE_MD_END_MARKER = '<!-- /uclusion-workflow:v1 -->'
 CURSOR_MDC_PATH = os.path.join(os.path.expanduser('~'), '.cursor', 'rules', 'uclusion.mdc')
@@ -141,6 +192,7 @@ CURSOR_MDC_FRONTMATTER = (
     '---\n'
 )
 MCP_PROXY_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionMCPProxy.py')
+TOKEN_AUDIT_SYMLINK_PATH = os.path.join(SYMLINK_DIR, TOKEN_AUDIT_SYMLINK_NAME)
 CODEX_BRIDGE_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionCodexBridge.py')
 CODEX_HOME = os.path.join(os.path.expanduser('~'), '.codex')
 CODEX_CONFIG_PATH = os.path.join(CODEX_HOME, 'config.toml')
@@ -679,7 +731,15 @@ def install_scripts(env, script_version):
         warn_if_not_on_path(SYMLINK_DIR)
 
 
-def write_uclusion_config(workspace_id, view_id, config_path, script_version=None):
+def token_audit_default_port(workspace_id):
+    """Return a stable, non-privileged collector port for a workspace."""
+    digest = hashlib.sha256(workspace_id.encode('utf-8')).digest()
+    offset = int.from_bytes(digest[:4], 'big') % TOKEN_AUDIT_PORT_SPAN
+    return TOKEN_AUDIT_DEFAULT_PORT_BASE + offset
+
+
+def write_uclusion_config(workspace_id, view_id, config_path, script_version=None,
+                           token_audit_enabled=None):
     """Write or refresh the workspace config, preserving user customizations.
 
     Merging (rather than rewriting) matters because ``uclusion update`` reruns
@@ -688,6 +748,11 @@ def write_uclusion_config(workspace_id, view_id, config_path, script_version=Non
     todoViewId) are authoritative from the arguments, defaults fill in only
     when missing, and ``scriptReinstallVersion`` stamps which release wrote
     this config so stale project installs are detectable (T-all-2410).
+
+    ``token_audit_enabled`` is deliberately tri-state. Explicit True/False
+    updates the preference selected by the user; None preserves an existing
+    preference and defaults a new install to off. The returned copy is used to
+    configure client-specific collection without rereading the file.
     """
     print(f"🗂  Writing workspace config to {config_path}")
     os.makedirs(os.path.dirname(config_path), exist_ok=True)
@@ -726,13 +791,59 @@ def write_uclusion_config(workspace_id, view_id, config_path, script_version=Non
         config['scriptReinstallVersion'] = script_version
     else:
         config.pop('scriptReinstallVersion', None)
+    token_audit_value = config.get('tokenAudit')
+    if isinstance(token_audit_value, dict):
+        token_audit = token_audit_value
+    elif isinstance(token_audit_value, bool):
+        token_audit = {'enabled': token_audit_value}
+    else:
+        token_audit = {}
+    if token_audit_enabled is not None:
+        token_audit['enabled'] = bool(token_audit_enabled)
+    elif not isinstance(token_audit.get('enabled'), bool):
+        token_audit['enabled'] = False
+    port = token_audit.get('port')
+    if not isinstance(port, int) or isinstance(port, bool) or not 1024 <= port <= 65535:
+        token_audit['port'] = token_audit_default_port(workspace_id)
+    config['tokenAudit'] = token_audit
     with open(config_path, 'w', encoding='utf-8') as out:
         json.dump(config, out, indent=2)
         out.write('\n')
     print(f"  ✅ Wrote {config_path}")
+    return dict(token_audit)
 
 
-def register_mcp_json(path, label, workspace_id, env, require_existing):
+def update_token_audit_client_config(config_path, source=None, managed_env=None):
+    """Persist Claude collection ownership after settings were merged.
+
+    Ownership metadata lets ``--no-token-audit`` remove only values previously
+    written by Uclusion. A user-modified value is never removed.
+    """
+    try:
+        with open(config_path, 'r', encoding='utf-8') as src:
+            config = json.load(src)
+    except (OSError, json.JSONDecodeError) as err:
+        print(f"  ⚠️  Could not record Claude token-audit settings in {config_path}: {err}")
+        return
+    token_audit = config.get('tokenAudit')
+    if not isinstance(token_audit, dict):
+        token_audit = {'enabled': False}
+        config['tokenAudit'] = token_audit
+    if source is None:
+        token_audit.pop('claudeSource', None)
+    else:
+        token_audit['claudeSource'] = source
+    if managed_env:
+        token_audit['claudeManagedEnv'] = dict(managed_env)
+    else:
+        token_audit.pop('claudeManagedEnv', None)
+    with open(config_path, 'w', encoding='utf-8') as out:
+        json.dump(config, out, indent=2)
+        out.write('\n')
+
+
+def register_mcp_json(path, label, workspace_id, env, require_existing,
+                      token_audit=None, token_audit_client=None):
     """Register the Uclusion MCP server in a JSON config at ``path``.
 
     Handles every ``{"mcpServers": {...}}`` surface: the global Cursor
@@ -763,6 +874,16 @@ def register_mcp_json(path, label, workspace_id, env, require_existing):
     args = [MCP_PROXY_SYMLINK_PATH, workspace_id]
     if env is not None:
         args.append(env)
+    if token_audit and token_audit.get('enabled'):
+        args.extend([
+            '--token-audit',
+            '--token-audit-port', str(token_audit['port']),
+        ])
+        source = token_audit.get('claudeSource')
+        if source in ('otel', 'transcript'):
+            args.extend(['--token-audit-source', source])
+        if token_audit_client is not None:
+            args.extend(['--token-audit-client', token_audit_client])
 
     servers = config.setdefault('mcpServers', {})
     if not isinstance(servers, dict):
@@ -905,6 +1026,251 @@ def add_claude_permissions(settings_path):
         print(f"  ✅ Added {CLAUDE_ALLOW_RULE} to {settings_path}")
     except OSError as err:
         print(f"  ❌ Could not write {settings_path}: {err}")
+
+
+def claude_token_audit_env(port):
+    """Return the privacy-minimized Claude Code OTel log configuration."""
+    return {
+        'CLAUDE_CODE_ENABLE_TELEMETRY': '1',
+        'OTEL_LOGS_EXPORTER': 'otlp',
+        'OTEL_EXPORTER_OTLP_LOGS_PROTOCOL': 'http/json',
+        'OTEL_EXPORTER_OTLP_LOGS_ENDPOINT': f'http://127.0.0.1:{port}/v1/logs',
+        'OTEL_LOGS_EXPORT_INTERVAL': '1000',
+        'OTEL_LOG_USER_PROMPTS': '0',
+        'OTEL_LOG_ASSISTANT_RESPONSES': '0',
+        'OTEL_LOG_TOOL_DETAILS': '0',
+        'OTEL_LOG_TOOL_CONTENT': '0',
+        'OTEL_LOG_RAW_API_BODIES': '0',
+    }
+
+
+def _is_claude_token_audit_policy_key(key):
+    """Whether a Claude env key can govern the log stream or its content."""
+    if key in CLAUDE_TOKEN_AUDIT_CONFLICT_KEYS:
+        return True
+    if key.startswith(('OTEL_LOG_', 'OTEL_LOGS_', 'OTEL_EXPORTER_OTLP_LOGS_')):
+        return True
+    if key.startswith('OTEL_EXPORTER_OTLP_'):
+        # Signal-specific metrics/traces settings can safely coexist with the
+        # Uclusion logs receiver. Generic exporter settings affect logs too.
+        suffix = key[len('OTEL_EXPORTER_OTLP_'):]
+        return not suffix.startswith(('METRICS_', 'TRACES_'))
+    return False
+
+
+def claude_token_audit_hook_command(environment, workspace_id, source, port):
+    """Build the command shared by Claude marker and lifecycle hooks."""
+    command = [
+        TOKEN_AUDIT_SYMLINK_PATH,
+        'hook',
+        '--environment', environment or 'production',
+        '--workspace-id', workspace_id,
+        '--source', source,
+        '--port', str(port),
+    ]
+    return ' '.join(shlex.quote(part) for part in command)
+
+
+def _is_claude_token_audit_handler(handler):
+    if not isinstance(handler, dict):
+        return False
+    command = handler.get('command')
+    if not isinstance(command, str):
+        return False
+    try:
+        parts = shlex.split(command)
+    except ValueError:
+        return False
+    return (
+        len(parts) >= 2
+        and os.path.basename(parts[0]) == TOKEN_AUDIT_SYMLINK_NAME
+        and parts[1] == 'hook'
+    )
+
+
+def _remove_claude_token_audit_hooks(hooks):
+    """Remove only Uclusion-owned handlers, retaining mixed hook groups."""
+    for event, groups in list(hooks.items()):
+        if not isinstance(groups, list):
+            continue
+        retained_groups = []
+        removed_from_event = False
+        for group in groups:
+            if not isinstance(group, dict):
+                retained_groups.append(group)
+                continue
+            handlers = group.get('hooks')
+            if not isinstance(handlers, list):
+                retained_groups.append(group)
+                continue
+            retained_handlers = [
+                handler for handler in handlers
+                if not _is_claude_token_audit_handler(handler)
+            ]
+            removed_owned_handler = len(retained_handlers) != len(handlers)
+            removed_from_event = removed_from_event or removed_owned_handler
+            if retained_handlers or not removed_owned_handler:
+                if removed_owned_handler:
+                    group = dict(group)
+                    group['hooks'] = retained_handlers
+                retained_groups.append(group)
+        if retained_groups or not removed_from_event:
+            hooks[event] = retained_groups
+        else:
+            hooks.pop(event, None)
+
+
+def configure_claude_token_audit(settings_path, enabled, environment,
+                                 workspace_id, port, managed_env=None):
+    """Merge or remove Claude token-audit settings without claiming user data.
+
+    A clean Claude settings file uses OTel logs over localhost HTTP/JSON. If a
+    relevant telemetry or content-policy value already exists and was not
+    recorded as Uclusion-owned, the existing policy is preserved wholesale and
+    hooks select transcript collection instead. The return value contains the
+    chosen source and the exact env values Uclusion owns for later cleanup.
+    Claude's ``disableAllHooks`` setting is a hard boundary: without hooks the
+    collector cannot bind usage to a job or observe phase and handoff markers,
+    so the function cleans up prior Uclusion-owned settings and reports that
+    Claude auditing is unavailable instead of pretending telemetry is usable.
+    """
+    print(
+        f"📊 {'Configuring' if enabled else 'Disabling'} Claude token audit "
+        f"in {settings_path}"
+    )
+    exists = os.path.exists(settings_path)
+    if not exists and not enabled:
+        return {'source': None, 'managedEnv': {}}
+    config = {}
+    if exists:
+        try:
+            with open(settings_path, 'r', encoding='utf-8') as src:
+                config = json.load(src)
+        except json.JSONDecodeError as err:
+            print(f"  ❌ {settings_path} is not valid JSON: {err}")
+            return None
+        if not isinstance(config, dict):
+            print(f"  ❌ {settings_path} top-level value must be a JSON object.")
+            return None
+
+    existing_hooks = config.get('hooks')
+    if existing_hooks is None:
+        hooks = {}
+    elif isinstance(existing_hooks, dict):
+        hooks = existing_hooks
+    else:
+        print(f"  ❌ 'hooks' in {settings_path} must be a JSON object.")
+        return None
+    for event, _matcher in CLAUDE_TOKEN_AUDIT_HOOK_EVENTS:
+        groups = hooks.get(event)
+        if groups is not None and not isinstance(groups, list):
+            print(f"  ❌ 'hooks.{event}' in {settings_path} must be a JSON array.")
+            return None
+
+    existing_env = config.get('env')
+    env_is_object = existing_env is None or isinstance(existing_env, dict)
+    env = {} if existing_env is None else existing_env
+    owned = managed_env if isinstance(managed_env, dict) else {}
+    owned = {
+        key: value for key, value in owned.items()
+        if isinstance(key, str) and isinstance(value, str)
+    }
+
+    def remove_owned_values():
+        if not isinstance(env, dict):
+            return
+        for key, owned_value in owned.items():
+            if env.get(key) == owned_value:
+                env.pop(key, None)
+
+    _remove_claude_token_audit_hooks(hooks)
+    if not enabled:
+        remove_owned_values()
+        source = None
+        next_owned = {}
+        available = True
+    elif config.get('disableAllHooks') is True:
+        remove_owned_values()
+        source = None
+        next_owned = {}
+        available = False
+        print(
+            "  ⚠️  Claude settings contain disableAllHooks=true. "
+            "Uclusion token audit needs hooks to bind usage to jobs and "
+            "phases, so Claude token audit was not enabled. Remove that "
+            "setting (or set it to false) and reinstall to enable auditing."
+        )
+    else:
+        available = True
+        conflicts = not env_is_object or any(
+            key in config for key in CLAUDE_TOKEN_AUDIT_SETTINGS_POLICY_KEYS
+        )
+        if isinstance(env, dict):
+            conflicts = conflicts or any(
+                _is_claude_token_audit_policy_key(key)
+                and not (key in owned and env[key] == owned[key])
+                for key in env
+            )
+        if conflicts:
+            # Our per-log settings would override a user's generic exporter,
+            # so remove only values we still own and leave their policy intact.
+            remove_owned_values()
+            source = 'transcript'
+            next_owned = {}
+            print(
+                "  ℹ️  Preserving existing Claude telemetry policy; "
+                "using transcript fallback."
+            )
+        else:
+            source = 'otel'
+            next_owned = claude_token_audit_env(port)
+            env.update(next_owned)
+
+        command = claude_token_audit_hook_command(
+            environment, workspace_id, source, port
+        )
+        timeout = (
+            CLAUDE_TOKEN_AUDIT_TRANSCRIPT_HOOK_TIMEOUT_SECONDS
+            if source == 'transcript'
+            else CLAUDE_TOKEN_AUDIT_OTEL_HOOK_TIMEOUT_SECONDS
+        )
+        handler = {'type': 'command', 'command': command, 'timeout': timeout}
+        for event, matcher in CLAUDE_TOKEN_AUDIT_HOOK_EVENTS:
+            group = {'hooks': [dict(handler)]}
+            if matcher is not None:
+                group['matcher'] = matcher
+            hooks.setdefault(event, []).append(group)
+
+    if hooks or existing_hooks is not None:
+        config['hooks'] = hooks
+    else:
+        config.pop('hooks', None)
+    if isinstance(env, dict):
+        if env or existing_env is not None:
+            config['env'] = env
+        else:
+            config.pop('env', None)
+    # A non-object user value is preserved exactly in transcript mode.
+
+    try:
+        os.makedirs(os.path.dirname(settings_path), exist_ok=True)
+        with open(settings_path, 'w', encoding='utf-8') as out:
+            json.dump(config, out, indent=2)
+            out.write('\n')
+        if enabled and not available:
+            print(f"  ℹ️  Left Claude token audit disabled in {settings_path}")
+        else:
+            print(
+                f"  ✅ {'Configured ' + source if enabled else 'Removed Uclusion-owned'} "
+                f"token-audit settings in {settings_path}"
+            )
+    except OSError as err:
+        print(f"  ❌ Could not write {settings_path}: {err}")
+        return None
+    result = {'source': source, 'managedEnv': next_owned}
+    if not available:
+        result['available'] = False
+    return result
 
 
 def build_codex_mcp_block(workspace_id, env):
@@ -1594,6 +1960,20 @@ def build_parser():
              '`uclusion update` for the project pass after its global pass '
              'already refreshed the scripts).',
     )
+    token_audit_group = parser.add_mutually_exclusive_group()
+    token_audit_group.add_argument(
+        '--token-audit',
+        dest='token_audit',
+        action='store_true',
+        help='Enable per-job token usage notes for supported AI clients.',
+    )
+    token_audit_group.add_argument(
+        '--no-token-audit',
+        dest='token_audit',
+        action='store_false',
+        help='Disable token usage notes and remove Uclusion-owned client settings.',
+    )
+    parser.set_defaults(token_audit=None)
     parser.add_argument(
         '--script-version',
         help=argparse.SUPPRESS,
@@ -1616,7 +1996,7 @@ def parse_clients(clients_arg):
 
 
 def install_global(workspace_id, view_id, mcp_env, fetch_md, clients=None,
-                   script_version=None):
+                   script_version=None, token_audit_enabled=None):
     """Configure Uclusion in the user's home directory (the default).
 
     Without ``clients`` every detected client is offered interactively. With
@@ -1627,13 +2007,63 @@ def install_global(workspace_id, view_id, mcp_env, fetch_md, clients=None,
     """
     interactive = clients is None
     config_path = os.path.join(UCLUSION_HOME, CONFIG_FILES[mcp_env or 'production'])
-    write_uclusion_config(workspace_id, view_id, config_path, script_version)
+    token_audit = write_uclusion_config(
+        workspace_id, view_id, config_path, script_version, token_audit_enabled
+    )
+    claude_registration_audit = token_audit
+    claude_selected = interactive or 'claude' in clients
+    claude_detected = not interactive or os.path.exists(CLAUDE_JSON_PATH)
+    if claude_selected and claude_detected:
+        add_claude_permissions(CLAUDE_SETTINGS_PATH)
+        result = configure_claude_token_audit(
+            CLAUDE_SETTINGS_PATH,
+            token_audit['enabled'],
+            mcp_env or 'production',
+            workspace_id,
+            token_audit['port'],
+            token_audit.get('claudeManagedEnv'),
+        )
+        if result is not None:
+            update_token_audit_client_config(
+                config_path, result['source'], result['managedEnv']
+            )
+            if result['source'] is None:
+                token_audit.pop('claudeSource', None)
+            else:
+                token_audit['claudeSource'] = result['source']
+            if result['managedEnv']:
+                token_audit['claudeManagedEnv'] = result['managedEnv']
+            else:
+                token_audit.pop('claudeManagedEnv', None)
+            if result.get('available') is False:
+                claude_registration_audit = None
+        else:
+            # A malformed/unwritable Claude settings file must degrade only
+            # auditing. Registering an enabled proxy without a selected source
+            # would make Claude's entire Uclusion MCP process fail argument
+            # validation.
+            claude_registration_audit = None
+    elif (
+        clients
+        and token_audit_enabled is False
+        and os.path.exists(CLAUDE_SETTINGS_PATH)
+    ):
+        # An explicit global disable cleans up a prior Claude selection even
+        # when this reinstall currently selects only Codex.
+        result = configure_claude_token_audit(
+            CLAUDE_SETTINGS_PATH, False, mcp_env or 'production', workspace_id,
+            token_audit['port'], token_audit.get('claudeManagedEnv')
+        )
+        if result is not None:
+            update_token_audit_client_config(config_path, None, {})
     if interactive or 'cursor' in clients:
         register_mcp_json(CURSOR_MCP_PATH, 'Cursor', workspace_id, mcp_env, require_existing=interactive)
-    if interactive or 'claude' in clients:
-        register_mcp_json(CLAUDE_JSON_PATH, 'Claude Code', workspace_id, mcp_env, require_existing=interactive)
-        if not interactive or os.path.exists(CLAUDE_JSON_PATH):
-            add_claude_permissions(CLAUDE_SETTINGS_PATH)
+    if claude_selected:
+        register_mcp_json(
+            CLAUDE_JSON_PATH, 'Claude Code', workspace_id, mcp_env,
+            require_existing=interactive, token_audit=claude_registration_audit,
+            token_audit_client='claude'
+        )
     if interactive or 'codex' in clients:
         update_codex_integration_config(
             workspace_id, mcp_env, force=not interactive
@@ -1651,7 +2081,7 @@ def install_global(workspace_id, view_id, mcp_env, fetch_md, clients=None,
 
 
 def install_project_level(workspace_id, view_id, mcp_env, fetch_md, project_dir, clients=None,
-                          script_version=None):
+                          script_version=None, token_audit_enabled=None):
     """Configure Uclusion inside ``project_dir`` instead of the home directory.
 
     Writes the workspace config and the project-scoped MCP registrations and
@@ -1670,13 +2100,56 @@ def install_project_level(workspace_id, view_id, mcp_env, fetch_md, project_dir,
     print(f"📁 Project-level install into {project_dir}")
     os.makedirs(project_dir, exist_ok=True)
 
-    write_uclusion_config(workspace_id, view_id,
-                          os.path.join(project_dir, CONFIG_FILES[mcp_env or 'production']),
-                          script_version)
-    if interactive or 'claude' in clients:
-        register_mcp_json(os.path.join(project_dir, '.mcp.json'),
-                          'Claude Code (project)', workspace_id, mcp_env, require_existing=False)
-        add_claude_permissions(os.path.join(project_dir, '.claude', 'settings.local.json'))
+    config_path = os.path.join(project_dir, CONFIG_FILES[mcp_env or 'production'])
+    token_audit = write_uclusion_config(
+        workspace_id, view_id, config_path, script_version, token_audit_enabled
+    )
+    claude_registration_audit = token_audit
+    claude_settings_path = os.path.join(project_dir, '.claude', 'settings.local.json')
+    claude_selected = interactive or 'claude' in clients
+    if claude_selected:
+        add_claude_permissions(claude_settings_path)
+        result = configure_claude_token_audit(
+            claude_settings_path,
+            token_audit['enabled'],
+            mcp_env or 'production',
+            workspace_id,
+            token_audit['port'],
+            token_audit.get('claudeManagedEnv'),
+        )
+        if result is not None:
+            update_token_audit_client_config(
+                config_path, result['source'], result['managedEnv']
+            )
+            if result['source'] is None:
+                token_audit.pop('claudeSource', None)
+            else:
+                token_audit['claudeSource'] = result['source']
+            if result['managedEnv']:
+                token_audit['claudeManagedEnv'] = result['managedEnv']
+            else:
+                token_audit.pop('claudeManagedEnv', None)
+            if result.get('available') is False:
+                claude_registration_audit = None
+        else:
+            claude_registration_audit = None
+        register_mcp_json(
+            os.path.join(project_dir, '.mcp.json'),
+            'Claude Code (project)', workspace_id, mcp_env,
+            require_existing=False, token_audit=claude_registration_audit,
+            token_audit_client='claude'
+        )
+    elif (
+        clients
+        and token_audit_enabled is False
+        and os.path.exists(claude_settings_path)
+    ):
+        result = configure_claude_token_audit(
+            claude_settings_path, False, mcp_env or 'production', workspace_id,
+            token_audit['port'], token_audit.get('claudeManagedEnv')
+        )
+        if result is not None:
+            update_token_audit_client_config(config_path, None, {})
     if interactive or 'cursor' in clients:
         register_mcp_json(os.path.join(project_dir, '.cursor', 'mcp.json'),
                           'Cursor (project)', workspace_id, mcp_env, require_existing=False)
@@ -1726,10 +2199,10 @@ def main():
         fetch_md = make_workflow_md_fetcher(env)
         if project_dir is None:
             install_global(workspace_id, view_id, mcp_env, fetch_md, clients,
-                           script_version)
+                           script_version, args.token_audit)
         else:
             install_project_level(workspace_id, view_id, mcp_env, fetch_md, project_dir,
-                                  clients, script_version)
+                                  clients, script_version, args.token_audit)
     except subprocess.CalledProcessError as err:
         print(f"❌ Command failed: {err}")
         return 1

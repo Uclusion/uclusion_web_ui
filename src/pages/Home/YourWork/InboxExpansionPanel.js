@@ -39,6 +39,7 @@ import OptionSubmittedWizard from '../../../components/InboxWizards/Submission/O
 import UpgradeWizard from '../../../components/InboxWizards/Upgrade/UpgradeWizard';
 import ReplyResolveWizard from '../../../components/InboxWizards/ReplyResolve/ReplyResolveWizard';
 import NewGroupWizard from '../../../components/InboxWizards/NewGroup/NewGroupWizard';
+import RequestWorkWizard from '../../../components/InboxWizards/RequestWork/RequestWorkWizard';
 import RespondInOptionWizard from '../../../components/InboxWizards/OptionResponse/RespondInOptionWizard';
 import LightbulbOutlined from '../../../components/CustomChip/LightbulbOutlined';
 import TaskedWizard from '../../../components/InboxWizards/ReviewNewTask/TaskedWizard';
@@ -68,6 +69,8 @@ export function calculateTitleExpansionPanel(props) {
       'DecidePayTitle', intl);
   } else if (messageType === 'UNREAD_GROUP') {
     setItem(item, openExpansion, <NewGroupWizard message={message} />, 'GroupWelcome', intl);
+  } else if (messageType === 'REQUEST_WORK') {
+    setItem(item, openExpansion, <RequestWorkWizard message={message} />, 'RequestWorkTitle', intl);
   }
   else if (isOutboxAccepted) {
     setItem(item, openExpansion, <AssignToOtherWizard investibleId={message.id} marketId={message.marketId}

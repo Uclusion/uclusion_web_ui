@@ -78,6 +78,9 @@ function getPriorityIcon(message, isAssigned, isMentioned, originalComment) {
   if (message.type === 'INVESTIBLE_SUBMITTED') {
     Icon = ThumbsUpDownIcon;
   }
+  if (message.type === 'REQUEST_WORK') {
+    Icon = Assignment;
+  }
   if ([NOT_FULLY_VOTED_TYPE, UNREAD_JOB_APPROVAL_REQUEST].includes(message.type)) {
     if (marketType === INITIATIVE_TYPE) {
       Icon = LightbulbOutlined;

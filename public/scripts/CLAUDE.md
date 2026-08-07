@@ -64,6 +64,12 @@ the job's Debatable section in Uclusion for questions and suggestions,
 and using Poke AI after responding so you continue without them typing a
 separate chat message.
 
+When `find_work` comes back with no work and the human is NOT active in
+chat — an autonomous session, or an auto-take view whose list went dry —
+call `request_work` instead of asking in chat: it notifies the workspace
+humans, whose inbox shows the request with a wizard that hands work over
+as an ordinary `Start` poke. Call it once per dry spell, not repeatedly.
+
 ## Wait for Poke AI
 
 The Uclusion MCP proxy writes inbound Poke AI prompts to a local queue on
@@ -321,6 +327,13 @@ is always globally resolvable and loads the enclosing work — then locate and
 act on the named item within it. An inline-market first code (like `C-1` or
 `O-2`) is local to the option market and is not globally resolvable; never
 call `get_job` with such a local code alone.
+
+When reloading a job whose markdown is already in your context, prefer a
+scoped fetch over another full copy: pass `sections` (any of `tasks`,
+`assistance`, `reports`, `notes`, `resolved`) to render only the parts that
+changed, or `thread_only` true when the event names one comment to get just
+that comment's thread. A full reload is still right when you have lost track
+of the job's overall state.
 
 `Added` and `Updated` are additive event notices, not instructions to replace
 the work already underway. When the target is inside the job or bug you are
@@ -890,17 +903,48 @@ exist, still create the job but cite their short codes in its
 description so the relationships are visible on the job itself, not
 just in chat.
 
+When the work decomposes naturally, pass `tasks` on the `add_job` call so
+the pieces land as real tasks at creation — a task is anything that might
+be reviewed, committed, or have info added on separately.
+
+## Creating tasks, bugs, and blockers
+
+`add_task` (a task on a job), `add_bug` (a view-level bug with a severity
+the human indicates: RED critical, YELLOW normal, BLUE minor), and
+`add_blocker` (a blocker issue on a job) create artifacts AS THE HUMAN,
+exactly like `add_job`. Use them only to record what the human explicitly
+asked for in their own words — never for your own ideas. When you see work
+worth doing or a dependency worth recording, use `make_suggestion`; the
+human can convert it. The one exception is the `tasks` list on `add_job`
+itself, where the AI decomposing the just-requested job is expected.
+
+## Attaching images and files
+
+To put a screenshot or file ON a Uclusion artifact: call `get_upload` with
+the file's MIME type and exact byte size (the CLI form takes a path and
+sizes it for you). POST the returned presigned_post fields plus the file as
+multipart form data to presigned_post.url — every fields entry first, the
+file last; `curl -F` does this. Then create the artifact with the body
+referencing the returned file_url (markdown image syntax for images) and
+the metadata object passed in `uploaded_files` on the creating call
+(`add_info`, `ask_question`, `make_suggestion`, `ask_for_review`) — an
+upload not referenced this way is not retained. The bytes never pass
+through the model; any shell-capable agent can do the POST itself.
+
 ## Job dependencies
 
 There is no first-class depends-on link between jobs; the convention is a
 blocker whose text links the dependency. When job A cannot start until job
 B completes:
 
-- **Record it as a blocker on A that links B.** You cannot create blockers
-  through the MCP tools, so ask the user to add a blocker on A that links B
-  — typing `#` in the blocker text picks the job to link — or names it by
-  short code (for example "Blocked until J-x-22 ships"). The blocker moves
-  A out of the doable flow and shows the reason and the link in one place.
+- **Record it as a blocker on A that links B.** `add_blocker` creates the
+  blocker AS THE HUMAN, exactly like `add_task` — a job is not really
+  blocked until a human confirms, so use it only when the human explicitly
+  says the job is blocked; when you discover the dependency yourself, use
+  `make_suggestion` and let the human decide. Name the dependency by short
+  code in the text (for example "Blocked until J-x-22 ships") so the
+  completion sweep can find it. The blocker moves A out of the doable flow
+  and shows the reason and the link in one place.
 - **Sweep for unblocks whenever a job completes.** Completion moments: you
   `resolve` the job, its J- short code goes into a commit message, or the
   user tells you it shipped or is done. At each one, run `uclusion export`

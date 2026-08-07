@@ -720,6 +720,42 @@ def add_suggestion(credentials, job_short_code, suggestion):
     return send(data, 'POST', suggestion_api_url, credentials['api_token'])
 
 
+def add_task(credentials, job_short_code, task):
+    # T-all-2342: created as the human running the CLI, unlike AI-authored assistance
+    task_api_url = 'https://investibles.' + credentials['api_url'] + '/cli/' + job_short_code
+    data = {
+        'body': task,
+        'is_task': True
+    }
+    return send(data, 'POST', task_api_url, credentials['api_token'])
+
+
+def get_upload(credentials, content_type, content_length, original_name=None):
+    # Q-all-394 O-4: mint the presigned S3 form; the caller does the multipart POST itself
+    upload_api_url = 'https://investibles.' + credentials['api_url'] + '/upload'
+    data = {
+        'content_type': content_type,
+        'content_length': content_length
+    }
+    if original_name:
+        data['original_name'] = original_name
+    response = send(data, 'POST', upload_api_url, credentials['api_token'])
+    if isinstance(response, dict) and 'metadata' in response:
+        response['file_url'] = (credentials['ui_url'].replace('.uclusion.com', '.imagecdn.uclusion.com') +
+                                '/' + response['metadata']['path'])
+    return response
+
+
+def add_blocker(credentials, job_short_code, blocker):
+    # Q-all-392: created as the human running the CLI - a job is not blocked until a human confirms
+    blocker_api_url = 'https://investibles.' + credentials['api_url'] + '/cli/' + job_short_code
+    data = {
+        'body': blocker,
+        'is_blocker': True
+    }
+    return send(data, 'POST', blocker_api_url, credentials['api_token'])
+
+
 EXPORT_SEPARATOR = '<br/><br/>\n***\n'
 EXPORT_MARKER_RE = re.compile(r'^<!-- uclusion:(marketInvestible|comment):([^:]+):([^ ]+) -->\n',
                               re.MULTILINE)
@@ -2758,6 +2794,50 @@ def cmd_add_report(args):
     return 0
 
 
+def cmd_add_task(args):
+    result = initialize(args.env)
+    if result is None:
+        return 1
+    credentials, _config, _stages = result
+    response = add_task(credentials, args.job_short_code, args.task)
+    print(response)
+    return 0
+
+
+def cmd_get_upload(args):
+    result = initialize(args.env)
+    if result is None:
+        return 1
+    credentials, _config, _stages = result
+    file_size = os.path.getsize(args.file)
+    response = get_upload(credentials, args.content_type, file_size, os.path.basename(args.file))
+    print(json.dumps(response, indent=2))
+    return 0
+
+
+def cmd_add_blocker(args):
+    result = initialize(args.env)
+    if result is None:
+        return 1
+    credentials, _config, _stages = result
+    response = add_blocker(credentials, args.job_short_code, args.blocker)
+    print(response)
+    return 0
+
+
+BUG_SEVERITY_BY_NAME = {'critical': 'RED', 'normal': 'YELLOW', 'minor': 'BLUE'}
+
+
+def cmd_add_bug(args):
+    result = initialize(args.env)
+    if result is None:
+        return 1
+    credentials, _config, _stages = result
+    response = send_bug(BUG_SEVERITY_BY_NAME[args.severity], args.bug, credentials)
+    print(response)
+    return 0
+
+
 def cmd_resolve(args):
     result = initialize(args.env)
     if result is None:
@@ -3098,6 +3178,69 @@ def build_parser():
     )
 
     add_report_parser.set_defaults(func=cmd_add_report)
+
+    add_task_parser = subparsers.add_parser(
+        'add_task',
+        help='Add a task to a job by job short code, created as you. Returns the created task.',
+    )
+    add_task_parser.add_argument(
+        'job_short_code',
+        help='The short code id of the job to add the task to (e.g. J-abc-123).',
+    )
+    add_task_parser.add_argument(
+        'task',
+        help='Task text.',
+    )
+
+    add_task_parser.set_defaults(func=cmd_add_task)
+
+    add_bug_parser = subparsers.add_parser(
+        'add_bug',
+        help='Add a view level bug with a severity, created as you. Returns the created bug.',
+    )
+    add_bug_parser.add_argument(
+        'severity',
+        choices=['critical', 'normal', 'minor'],
+        help='Bug severity: critical shows red, normal yellow, minor blue.',
+    )
+    add_bug_parser.add_argument(
+        'bug',
+        help='Bug text.',
+    )
+
+    add_bug_parser.set_defaults(func=cmd_add_bug)
+
+    add_blocker_parser = subparsers.add_parser(
+        'add_blocker',
+        help='Add a blocker issue to a job by job short code, created as you. Returns the created blocker.',
+    )
+    add_blocker_parser.add_argument(
+        'job_short_code',
+        help='The short code id of the blocked job (e.g. J-abc-123).',
+    )
+    add_blocker_parser.add_argument(
+        'blocker',
+        help='Blocker text; name any dependency short code so completion sweeps find it.',
+    )
+
+    add_blocker_parser.set_defaults(func=cmd_add_blocker)
+
+    get_upload_parser = subparsers.add_parser(
+        'get_upload',
+        help='Return a presigned S3 post for a local file plus its file_url. POST the fields then '
+             'the file as multipart to presigned_post.url, reference file_url in the body, and pass '
+             'metadata in uploaded_files on the creating call.',
+    )
+    get_upload_parser.add_argument(
+        'file',
+        help='Path of the local file to size and name the upload for.',
+    )
+    get_upload_parser.add_argument(
+        'content_type',
+        help='MIME type of the file, for example image/png.',
+    )
+
+    get_upload_parser.set_defaults(func=cmd_get_upload)
 
     return parser
 

@@ -1195,6 +1195,7 @@ const messages = defineMessages({
   DecideAssignmentTitle: 'Take this job?',
 
   // Comments
+  RequestWorkTitle: 'AI asking for work',
   messagePresent: 'Go to notification for this job',
   messagePresentComment: 'Click to go to notification',
   messagePresentCommentChoice: 'Click to go to or clear notification',

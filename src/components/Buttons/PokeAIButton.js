@@ -61,6 +61,7 @@ function PokeAIButton(props) {
     lightSurface = false,
     noAlign = false,
     useDark = false,
+    onPoked,
   } = props;
   const intl = useIntl();
   const { pokeAI } = useContext(WebSocketContext);
@@ -76,6 +77,12 @@ function PokeAIButton(props) {
     preventDefaultAndProp(event);
     setOperationRunning(operationId);
     return Promise.resolve(pokeAI(marketId, message))
+      .then(() => {
+        // T-all-2345: the request-work wizard clears its notification once work is handed over
+        if (onPoked) {
+          onPoked();
+        }
+      })
       .catch((error) => toastError(error, 'errorPokeAIFailed'))
       .finally(() => setOperationRunning(false));
   }

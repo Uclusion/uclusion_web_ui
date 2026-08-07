@@ -193,6 +193,14 @@ def _preferred_partial_reason(existing, candidate):
     return existing
 
 
+def _source_settle_grace(source_mode):
+    if source_mode == "transcript_fallback":
+        return CLAUDE_TRANSCRIPT_GRACE_SECONDS
+    if source_mode in {"otel", "mixed"}:
+        return CLAUDE_EXPORT_GRACE_SECONDS
+    return 0.0
+
+
 def _tool_basename(name):
     if not isinstance(name, str):
         return None
@@ -254,6 +262,7 @@ class AuditStore:
         self._salt = self._load_salt()
         with closing(self.connect()) as connection:
             self.ensure_schema(connection)
+        self._backfill_missing_checkpoints()
 
     def _load_salt(self):
         directory = os.path.dirname(self.path) or "."
@@ -396,6 +405,7 @@ class AuditStore:
                 completed_at REAL,
                 finalize_after REAL,
                 partial_reason TEXT,
+                partial_reason_at REAL,
                 model TEXT,
                 effort TEXT,
                 updated_at REAL NOT NULL
@@ -455,7 +465,10 @@ class AuditStore:
                 is_root INTEGER NOT NULL DEFAULT 0,
                 usage_seen INTEGER NOT NULL DEFAULT 0,
                 partial_reason TEXT,
+                partial_reason_at REAL,
                 client_version TEXT,
+                discovered_at REAL,
+                root_at REAL,
                 updated_at REAL NOT NULL,
                 PRIMARY KEY (audit_run_id, session_fp)
             );
@@ -539,6 +552,63 @@ class AuditStore:
                 ON token_audit_outbox(environment, workspace_id, state,
                     next_attempt_at, lease_until);
 
+            -- This is deliberately additive instead of widening/rekeying the
+            -- one-row-per-run terminal outbox. Immediately previous bridge,
+            -- hook, and proxy processes can continue using that table while
+            -- an updated publisher drains both durable queues.
+            CREATE TABLE IF NOT EXISTS token_audit_checkpoints (
+                audit_run_id TEXT NOT NULL,
+                marker_sequence INTEGER NOT NULL,
+                environment TEXT NOT NULL,
+                workspace_id TEXT NOT NULL,
+                job_id TEXT NOT NULL,
+                bucket TEXT NOT NULL,
+                cutoff_at REAL NOT NULL,
+                finalization_json TEXT NOT NULL,
+                state TEXT NOT NULL,
+                attempts INTEGER NOT NULL DEFAULT 0,
+                next_attempt_at REAL NOT NULL,
+                lease_until REAL,
+                lease_token TEXT,
+                last_error_code TEXT,
+                created_at REAL NOT NULL,
+                updated_at REAL NOT NULL,
+                PRIMARY KEY (audit_run_id, marker_sequence)
+            );
+            CREATE INDEX IF NOT EXISTS token_audit_checkpoints_due
+                ON token_audit_checkpoints(
+                    environment, workspace_id, state, next_attempt_at,
+                    lease_until
+                );
+
+            -- Marker receipts outlive independently-pruned sent checkpoint
+            -- bodies. They are compact identity tombstones: a rolling-upgrade
+            -- backfill may create a missing checkpoint exactly once, but can
+            -- never resurrect it after the body has aged out.
+            CREATE TABLE IF NOT EXISTS token_audit_checkpoint_receipts (
+                audit_run_id TEXT NOT NULL,
+                marker_sequence INTEGER NOT NULL,
+                created_at REAL NOT NULL,
+                PRIMARY KEY (audit_run_id, marker_sequence)
+            );
+
+            -- Current run/session rows retain their legacy summary fields for
+            -- terminal snapshots. Closed-prefix checkpoints instead read this
+            -- append-only evidence so a later, higher-priority gap cannot
+            -- rewrite the reason that was true at an earlier marker boundary.
+            CREATE TABLE IF NOT EXISTS token_audit_partial_events (
+                audit_run_id TEXT NOT NULL,
+                session_fp TEXT NOT NULL,
+                reason_code TEXT NOT NULL,
+                effective_at REAL NOT NULL,
+                created_at REAL NOT NULL,
+                PRIMARY KEY (
+                    audit_run_id, session_fp, reason_code, effective_at
+                )
+            );
+            CREATE INDEX IF NOT EXISTS token_audit_partial_events_run_time
+                ON token_audit_partial_events(audit_run_id, effective_at);
+
             CREATE TABLE IF NOT EXISTS token_audit_source_health (
                 environment TEXT NOT NULL,
                 workspace_id TEXT NOT NULL,
@@ -570,6 +640,11 @@ class AuditStore:
                 connection.execute(
                     "ALTER TABLE token_audit_runs ADD COLUMN completed_at REAL"
                 )
+            if "partial_reason_at" not in run_columns:
+                connection.execute(
+                    "ALTER TABLE token_audit_runs "
+                    "ADD COLUMN partial_reason_at REAL"
+                )
             session_columns = {
                 row[1] for row in connection.execute(
                     "PRAGMA table_info(token_audit_sessions)"
@@ -589,17 +664,239 @@ class AuditStore:
                 connection.execute(
                     "ALTER TABLE token_audit_outbox ADD COLUMN lease_token TEXT"
                 )
+            run_session_columns = {
+                row[1] for row in connection.execute(
+                    "PRAGMA table_info(token_audit_run_sessions)"
+                ).fetchall()
+            }
+            if "partial_reason_at" not in run_session_columns:
+                connection.execute(
+                    "ALTER TABLE token_audit_run_sessions "
+                    "ADD COLUMN partial_reason_at REAL"
+                )
+            if "discovered_at" not in run_session_columns:
+                connection.execute(
+                    "ALTER TABLE token_audit_run_sessions "
+                    "ADD COLUMN discovered_at REAL"
+                )
+            if "root_at" not in run_session_columns:
+                connection.execute(
+                    "ALTER TABLE token_audit_run_sessions "
+                    "ADD COLUMN root_at REAL"
+                )
             # Preserve membership for runs created by an immediately previous
             # release before the immutable per-run table existed.
             connection.execute(
                 """
                 INSERT OR IGNORE INTO token_audit_run_sessions (
                     audit_run_id, session_fp, parent_session_fp, is_root,
-                    usage_seen, partial_reason, client_version, updated_at
+                    usage_seen, partial_reason, partial_reason_at,
+                    client_version, discovered_at, root_at, updated_at
                 )
                 SELECT audit_run_id, session_fp, parent_session_fp, is_root,
-                    usage_seen, partial_reason, client_version, updated_at
+                    usage_seen, partial_reason, partial_reason_at,
+                    client_version, NULL, NULL, updated_at
                 FROM token_audit_sessions WHERE audit_run_id IS NOT NULL
+                """
+            )
+            # Existing rows predate immutable membership timestamps. Their
+            # mutable updated_at may have advanced past an earlier marker, so
+            # use run start as the conservative bound: false-partial is safer
+            # than claiming exact coverage from history the legacy schema did
+            # not retain.
+            connection.execute(
+                """
+                UPDATE token_audit_run_sessions AS rs
+                SET discovered_at=COALESCE(
+                    (SELECT r.started_at FROM token_audit_runs r
+                     WHERE r.audit_run_id=rs.audit_run_id),
+                    rs.updated_at
+                )
+                WHERE rs.discovered_at IS NULL
+                """
+            )
+            connection.execute(
+                """
+                UPDATE token_audit_run_sessions AS rs
+                SET root_at=CASE
+                    WHEN rs.session_fp=(
+                        SELECT r.root_session_fp FROM token_audit_runs r
+                        WHERE r.audit_run_id=rs.audit_run_id
+                    ) THEN COALESCE(
+                        (SELECT r.started_at FROM token_audit_runs r
+                         WHERE r.audit_run_id=rs.audit_run_id),
+                        rs.discovered_at,
+                        rs.updated_at
+                    )
+                    ELSE rs.updated_at
+                END
+                WHERE rs.is_root!=0 AND rs.root_at IS NULL
+                """
+            )
+            connection.execute(
+                "UPDATE token_audit_runs SET partial_reason_at=started_at "
+                "WHERE partial_reason IS NOT NULL "
+                "AND partial_reason_at IS NULL"
+            )
+            connection.execute(
+                """
+                UPDATE token_audit_run_sessions AS rs
+                SET partial_reason_at=COALESCE(
+                    (SELECT s.partial_reason_at
+                     FROM token_audit_sessions s
+                     WHERE s.audit_run_id=rs.audit_run_id
+                       AND s.session_fp=rs.session_fp
+                       AND s.partial_reason=rs.partial_reason),
+                    rs.discovered_at,
+                    (SELECT r.started_at FROM token_audit_runs r
+                     WHERE r.audit_run_id=rs.audit_run_id),
+                    rs.updated_at
+                )
+                WHERE rs.partial_reason IS NOT NULL
+                  AND rs.partial_reason_at IS NULL
+                """
+            )
+            connection.execute(
+                """
+                INSERT OR IGNORE INTO token_audit_partial_events (
+                    audit_run_id, session_fp, reason_code,
+                    effective_at, created_at
+                )
+                SELECT audit_run_id, '', partial_reason,
+                    partial_reason_at, updated_at
+                FROM token_audit_runs
+                WHERE partial_reason IS NOT NULL
+                  AND partial_reason_at IS NOT NULL
+                """
+            )
+            connection.execute(
+                """
+                INSERT OR IGNORE INTO token_audit_partial_events (
+                    audit_run_id, session_fp, reason_code,
+                    effective_at, created_at
+                )
+                SELECT audit_run_id, session_fp, partial_reason,
+                    partial_reason_at, updated_at
+                FROM token_audit_run_sessions
+                WHERE partial_reason IS NOT NULL
+                  AND partial_reason_at IS NOT NULL
+                """
+            )
+            # Triggers preserve temporal evidence when an immediately older
+            # bridge/hook process writes the legacy summary columns during a
+            # mixed-version overlap.
+            connection.execute(
+                """
+                CREATE TRIGGER IF NOT EXISTS token_audit_run_session_discovery
+                AFTER INSERT ON token_audit_run_sessions
+                WHEN NEW.discovered_at IS NULL
+                BEGIN
+                    UPDATE token_audit_run_sessions
+                    SET discovered_at=NEW.updated_at
+                    WHERE audit_run_id=NEW.audit_run_id
+                      AND session_fp=NEW.session_fp
+                      AND discovered_at IS NULL;
+                END
+                """
+            )
+            connection.execute(
+                """
+                CREATE TRIGGER IF NOT EXISTS token_audit_run_partial_evidence
+                AFTER UPDATE OF partial_reason ON token_audit_runs
+                WHEN NEW.partial_reason IS NOT NULL
+                  AND OLD.partial_reason IS NOT NEW.partial_reason
+                BEGIN
+                    INSERT OR IGNORE INTO token_audit_partial_events (
+                        audit_run_id, session_fp, reason_code,
+                        effective_at, created_at
+                    ) VALUES (
+                        NEW.audit_run_id, '', NEW.partial_reason,
+                        CASE
+                            WHEN NEW.partial_reason_at IS NOT NULL
+                              AND NEW.partial_reason_at
+                                  IS NOT OLD.partial_reason_at
+                            THEN NEW.partial_reason_at
+                            ELSE NEW.updated_at
+                        END,
+                        NEW.updated_at
+                    );
+                END
+                """
+            )
+            connection.execute(
+                """
+                CREATE TRIGGER IF NOT EXISTS token_audit_run_session_root_insert
+                AFTER INSERT ON token_audit_run_sessions
+                WHEN NEW.is_root!=0 AND NEW.root_at IS NULL
+                BEGIN
+                    UPDATE token_audit_run_sessions
+                    SET root_at=NEW.updated_at
+                    WHERE audit_run_id=NEW.audit_run_id
+                      AND session_fp=NEW.session_fp
+                      AND root_at IS NULL;
+                END
+                """
+            )
+            connection.execute(
+                """
+                CREATE TRIGGER IF NOT EXISTS token_audit_run_session_root_update
+                AFTER UPDATE OF is_root ON token_audit_run_sessions
+                WHEN NEW.is_root!=0 AND NEW.root_at IS NULL
+                BEGIN
+                    UPDATE token_audit_run_sessions
+                    SET root_at=NEW.updated_at
+                    WHERE audit_run_id=NEW.audit_run_id
+                      AND session_fp=NEW.session_fp
+                      AND root_at IS NULL;
+                END
+                """
+            )
+            connection.execute(
+                """
+                CREATE TRIGGER IF NOT EXISTS token_audit_session_partial_evidence
+                AFTER UPDATE OF partial_reason
+                ON token_audit_run_sessions
+                WHEN NEW.partial_reason IS NOT NULL
+                  AND OLD.partial_reason IS NOT NEW.partial_reason
+                BEGIN
+                    INSERT OR IGNORE INTO token_audit_partial_events (
+                        audit_run_id, session_fp, reason_code,
+                        effective_at, created_at
+                    ) VALUES (
+                        NEW.audit_run_id, NEW.session_fp, NEW.partial_reason,
+                        CASE
+                            WHEN NEW.partial_reason_at IS NOT NULL
+                              AND NEW.partial_reason_at
+                                  IS NOT OLD.partial_reason_at
+                            THEN NEW.partial_reason_at
+                            ELSE NEW.updated_at
+                        END,
+                        NEW.updated_at
+                    );
+                END
+                """
+            )
+            connection.execute(
+                """
+                CREATE TRIGGER IF NOT EXISTS token_audit_current_session_partial_evidence
+                AFTER UPDATE OF partial_reason, partial_reason_at
+                ON token_audit_sessions
+                WHEN NEW.audit_run_id IS NOT NULL
+                  AND NEW.partial_reason IS NOT NULL
+                  AND (
+                    OLD.partial_reason IS NOT NEW.partial_reason
+                    OR OLD.partial_reason_at IS NOT NEW.partial_reason_at
+                  )
+                BEGIN
+                    INSERT OR IGNORE INTO token_audit_partial_events (
+                        audit_run_id, session_fp, reason_code,
+                        effective_at, created_at
+                    ) VALUES (
+                        NEW.audit_run_id, NEW.session_fp, NEW.partial_reason,
+                        COALESCE(NEW.partial_reason_at, NEW.updated_at),
+                        NEW.updated_at
+                    );
+                END
                 """
             )
             connection.commit()
@@ -619,6 +916,7 @@ class AuditStore:
         is_root=False,
         client_version=None,
         updated_at=None,
+        root_at=None,
     ):
         if audit_run_id is None or session_fp is None:
             return
@@ -627,8 +925,8 @@ class AuditStore:
             """
             INSERT INTO token_audit_run_sessions (
                 audit_run_id, session_fp, parent_session_fp, is_root,
-                client_version, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?)
+                client_version, discovered_at, root_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(audit_run_id, session_fp) DO UPDATE SET
                 parent_session_fp=COALESCE(
                     excluded.parent_session_fp,
@@ -641,6 +939,25 @@ class AuditStore:
                     excluded.client_version,
                     token_audit_run_sessions.client_version
                 ),
+                discovered_at=COALESCE(
+                    MIN(
+                        token_audit_run_sessions.discovered_at,
+                        excluded.discovered_at
+                    ),
+                    token_audit_run_sessions.discovered_at,
+                    excluded.discovered_at
+                ),
+                root_at=CASE
+                    WHEN excluded.root_at IS NOT NULL THEN COALESCE(
+                        MIN(
+                            token_audit_run_sessions.root_at,
+                            excluded.root_at
+                        ),
+                        token_audit_run_sessions.root_at,
+                        excluded.root_at
+                    )
+                    ELSE token_audit_run_sessions.root_at
+                END,
                 updated_at=MAX(
                     token_audit_run_sessions.updated_at, excluded.updated_at
                 )
@@ -652,6 +969,39 @@ class AuditStore:
                 1 if is_root else 0,
                 _safe_label(client_version),
                 timestamp,
+                None if root_at is None else float(root_at),
+                timestamp,
+            ),
+        )
+
+    @staticmethod
+    def _record_partial_event(
+        connection,
+        audit_run_id,
+        reason_code,
+        effective_at,
+        session_fp=None,
+        created_at=None,
+    ):
+        if audit_run_id is None or reason_code is None:
+            return
+        timestamp = float(effective_at)
+        recorded_at = (
+            time.time() if created_at is None else float(created_at)
+        )
+        connection.execute(
+            """
+            INSERT OR IGNORE INTO token_audit_partial_events (
+                audit_run_id, session_fp, reason_code,
+                effective_at, created_at
+            ) VALUES (?, ?, ?, ?, ?)
+            """,
+            (
+                audit_run_id,
+                session_fp or "",
+                reason_code,
+                timestamp,
+                recorded_at,
             ),
         )
 
@@ -694,10 +1044,22 @@ class AuditStore:
                         THEN NULL ELSE token_audit_sessions.partial_reason_at END,
                     audit_run_id=COALESCE(excluded.audit_run_id,
                         token_audit_sessions.audit_run_id),
-                    parent_session_fp=COALESCE(excluded.parent_session_fp,
-                        token_audit_sessions.parent_session_fp),
-                    is_root=MAX(token_audit_sessions.is_root,
-                        excluded.is_root),
+                    parent_session_fp=CASE
+                        WHEN excluded.audit_run_id IS NOT NULL
+                          AND token_audit_sessions.audit_run_id
+                              IS NOT excluded.audit_run_id
+                        THEN excluded.parent_session_fp
+                        ELSE COALESCE(excluded.parent_session_fp,
+                            token_audit_sessions.parent_session_fp)
+                    END,
+                    is_root=CASE
+                        WHEN excluded.audit_run_id IS NOT NULL
+                          AND token_audit_sessions.audit_run_id
+                              IS NOT excluded.audit_run_id
+                        THEN excluded.is_root
+                        ELSE MAX(token_audit_sessions.is_root,
+                            excluded.is_root)
+                    END,
                     client_version=COALESCE(excluded.client_version,
                         token_audit_sessions.client_version),
                     updated_at=excluded.updated_at
@@ -732,9 +1094,10 @@ class AuditStore:
                     current["audit_run_id"],
                     session_fp,
                     parent_session_fp=current["parent_session_fp"],
-                    is_root=bool(current["is_root"]),
+                    is_root=bool(is_root),
                     client_version=current["client_version"],
                     updated_at=now,
+                    root_at=(now if is_root else None),
                 )
 
     def session_run(self, client, session_fp):
@@ -870,6 +1233,9 @@ class AuditStore:
             "updated_at=MAX(updated_at, ?) "
             "WHERE audit_run_id=? AND session_fp=?",
             (started_at, audit_run_id, session_fp),
+        )
+        self._refresh_unattempted_checkpoints(
+            connection, audit_run_id, event_time=float(candidate["created_at"])
         )
         if outbox is not None:
             run = connection.execute(
@@ -1052,23 +1418,45 @@ class AuditStore:
                         updated_at=now,
                     )
                     prior_membership = connection.execute(
-                        "SELECT partial_reason FROM token_audit_run_sessions "
+                        "SELECT partial_reason, partial_reason_at "
+                        "FROM token_audit_run_sessions "
                         "WHERE audit_run_id=? AND session_fp=?",
                         (prior_session["audit_run_id"], session_fp),
                     ).fetchone()
+                    prior_reason = (
+                        prior_membership["partial_reason"]
+                        if prior_membership is not None else None
+                    )
+                    interrupted_reason = _preferred_partial_reason(
+                        prior_reason, "session_interrupted"
+                    )
+                    interrupted_reason_at = (
+                        now
+                        if interrupted_reason != prior_reason
+                        else (
+                            prior_membership["partial_reason_at"]
+                            if prior_membership is not None else now
+                        )
+                    )
                     connection.execute(
                         "UPDATE token_audit_run_sessions SET partial_reason=?, "
-                        "updated_at=? WHERE audit_run_id=? AND session_fp=?",
+                        "partial_reason_at=?, updated_at=? "
+                        "WHERE audit_run_id=? AND session_fp=?",
                         (
-                            _preferred_partial_reason(
-                                prior_membership["partial_reason"]
-                                if prior_membership is not None else None,
-                                "session_interrupted",
-                            ),
+                            interrupted_reason,
+                            interrupted_reason_at,
                             now,
                             prior_session["audit_run_id"],
                             session_fp,
                         ),
+                    )
+                    self._record_partial_event(
+                        connection,
+                        prior_session["audit_run_id"],
+                        "session_interrupted",
+                        now,
+                        session_fp=session_fp,
+                        created_at=now,
                     )
                     interrupted_prior = True
                     prior_session_reason = None
@@ -1113,8 +1501,18 @@ class AuditStore:
                     connection.execute(
                         "UPDATE token_audit_runs SET "
                         "partial_reason=COALESCE(partial_reason, ?), "
+                        "partial_reason_at=COALESCE(partial_reason_at, ?), "
                         "updated_at=? WHERE audit_run_id=?",
-                        ("telemetry_unavailable", now, audit_run_id),
+                        (
+                            "telemetry_unavailable", now, now, audit_run_id,
+                        ),
+                    )
+                    self._record_partial_event(
+                        connection,
+                        audit_run_id,
+                        "telemetry_unavailable",
+                        now,
+                        created_at=now,
                     )
             if session_fp is not None:
                 connection.execute(
@@ -1126,7 +1524,8 @@ class AuditStore:
                     ON CONFLICT(environment, workspace_id, client, session_fp)
                     DO UPDATE SET usage_seen=0, partial_reason=NULL,
                         partial_reason_at=NULL, audit_run_id=excluded.audit_run_id,
-                        is_root=1, updated_at=excluded.updated_at
+                        parent_session_fp=NULL, is_root=1,
+                        updated_at=excluded.updated_at
                     """,
                     (
                         self.environment,
@@ -1144,6 +1543,7 @@ class AuditStore:
                     is_root=True,
                     client_version=client_version,
                     updated_at=now,
+                    root_at=now,
                 )
                 if prior_session_reason is not None:
                     connection.execute(
@@ -1162,8 +1562,23 @@ class AuditStore:
                     )
                     connection.execute(
                         "UPDATE token_audit_run_sessions SET partial_reason=?, "
-                        "updated_at=? WHERE audit_run_id=? AND session_fp=?",
-                        (prior_session_reason, now, audit_run_id, session_fp),
+                        "partial_reason_at=?, updated_at=? "
+                        "WHERE audit_run_id=? AND session_fp=?",
+                        (
+                            prior_session_reason,
+                            now,
+                            now,
+                            audit_run_id,
+                            session_fp,
+                        ),
+                    )
+                    self._record_partial_event(
+                        connection,
+                        audit_run_id,
+                        prior_session_reason,
+                        now,
+                        session_fp=session_fp,
+                        created_at=now,
                     )
                 backfilled = self._backfill_start_request(
                     connection, client, session_fp, audit_run_id, now
@@ -1232,6 +1647,165 @@ class AuditStore:
                 return False
         return job_id is None or row["job_id"] == job_id
 
+    def _enqueue_checkpoint(
+        self, connection, run, marker_sequence, bucket, cutoff_at
+    ):
+        """Persist one immutable-identity, cumulative bucket checkpoint.
+
+        The payload remains replaceable only until its first publish attempt.
+        Delayed provider events use ``cutoff_at`` to refresh that pending body
+        without changing the checkpoint's run/marker idempotency key.
+        """
+        receipt = connection.execute(
+            "SELECT 1 FROM token_audit_checkpoint_receipts "
+            "WHERE audit_run_id=? AND marker_sequence=?",
+            (run["audit_run_id"], marker_sequence),
+        ).fetchone()
+        if receipt is not None:
+            return False
+        grace = _source_settle_grace(run["source_mode"])
+        finalization = self._build_finalization(
+            connection, run, cutoff_at, inclusive_end=False
+        )
+        cursor = connection.execute(
+            """
+            INSERT OR IGNORE INTO token_audit_checkpoints (
+                audit_run_id, marker_sequence, environment, workspace_id,
+                job_id, bucket, cutoff_at, finalization_json, state,
+                next_attempt_at, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)
+            """,
+            (
+                run["audit_run_id"],
+                marker_sequence,
+                self.environment,
+                self.workspace_id,
+                run["job_id"],
+                bucket,
+                cutoff_at,
+                _canonical_json(finalization),
+                cutoff_at + grace,
+                cutoff_at,
+                cutoff_at,
+            ),
+        )
+        connection.execute(
+            "INSERT OR IGNORE INTO token_audit_checkpoint_receipts "
+            "(audit_run_id, marker_sequence, created_at) VALUES (?, ?, ?)",
+            (run["audit_run_id"], marker_sequence, time.time()),
+        )
+        return cursor.rowcount == 1
+
+    def _backfill_missing_checkpoints(self):
+        """Recover marker boundaries accepted by an older local process.
+
+        The receipt and payload are committed atomically under the same writer
+        lock. A retained receipt suppresses recreation after the independently
+        prunable payload has been published and removed.
+        """
+        created = 0
+        with closing(self.connect()) as connection, connection:
+            connection.execute("BEGIN IMMEDIATE")
+            rows = connection.execute(
+                """
+                SELECT r.*,
+                    m.marker_sequence AS checkpoint_sequence,
+                    m.phase AS checkpoint_bucket,
+                    m.effective_at AS checkpoint_cutoff
+                FROM token_audit_phase_markers m
+                JOIN token_audit_runs r
+                  ON r.audit_run_id=m.audit_run_id
+                LEFT JOIN token_audit_checkpoint_receipts receipt
+                  ON receipt.audit_run_id=m.audit_run_id
+                 AND receipt.marker_sequence=m.marker_sequence
+                WHERE r.environment=? AND r.workspace_id=?
+                  AND receipt.audit_run_id IS NULL
+                ORDER BY m.effective_at, m.audit_run_id, m.marker_sequence
+                """,
+                (self.environment, self.workspace_id),
+            ).fetchall()
+            for run in rows:
+                if self._enqueue_checkpoint(
+                    connection,
+                    run,
+                    int(run["checkpoint_sequence"]),
+                    run["checkpoint_bucket"],
+                    float(run["checkpoint_cutoff"]),
+                ):
+                    created += 1
+        return created
+
+    def _ensure_checkpoint_for_marker(
+        self, connection, run, marker_sequence, bucket
+    ):
+        marker = connection.execute(
+            "SELECT phase, effective_at FROM token_audit_phase_markers "
+            "WHERE audit_run_id=? AND marker_sequence=?",
+            (run["audit_run_id"], marker_sequence),
+        ).fetchone()
+        if marker is None or marker["phase"] != bucket:
+            return False
+        self._enqueue_checkpoint(
+            connection,
+            run,
+            int(marker_sequence),
+            bucket,
+            float(marker["effective_at"]),
+        )
+        return True
+
+    def _refresh_unattempted_checkpoints(
+        self,
+        connection,
+        audit_run_id,
+        event_time=None,
+        settle_until=None,
+    ):
+        """Refresh cumulative snapshots that provably include new evidence."""
+        run = connection.execute(
+            "SELECT * FROM token_audit_runs WHERE audit_run_id=?",
+            (audit_run_id,),
+        ).fetchone()
+        if run is None:
+            return 0
+        parameters = [audit_run_id]
+        time_clause = ""
+        if event_time is not None:
+            # A marker is effective for a request at the exact marker time, so
+            # its closed-prefix checkpoint is intentionally exclusive.
+            time_clause = " AND cutoff_at>?"
+            parameters.append(float(event_time))
+        checkpoints = connection.execute(
+            "SELECT marker_sequence, cutoff_at, next_attempt_at "
+            "FROM token_audit_checkpoints WHERE audit_run_id=? "
+            "AND state='pending' AND attempts=0" + time_clause,
+            tuple(parameters),
+        ).fetchall()
+        now = time.time()
+        for checkpoint in checkpoints:
+            finalization = self._build_finalization(
+                connection,
+                run,
+                float(checkpoint["cutoff_at"]),
+                inclusive_end=False,
+            )
+            next_attempt_at = float(checkpoint["next_attempt_at"])
+            if settle_until is not None:
+                next_attempt_at = max(next_attempt_at, float(settle_until))
+            connection.execute(
+                "UPDATE token_audit_checkpoints SET finalization_json=?, "
+                "next_attempt_at=?, updated_at=? WHERE audit_run_id=? "
+                "AND marker_sequence=? AND state='pending' AND attempts=0",
+                (
+                    _canonical_json(finalization),
+                    next_attempt_at,
+                    now,
+                    audit_run_id,
+                    checkpoint["marker_sequence"],
+                ),
+            )
+        return len(checkpoints)
+
     def set_bucket(
         self,
         audit_run_id,
@@ -1248,9 +1822,7 @@ class AuditStore:
         with closing(self.connect()) as connection, connection:
             connection.execute("BEGIN IMMEDIATE")
             row = connection.execute(
-                "SELECT marker_sequence, current_phase, state "
-                "FROM token_audit_runs "
-                "WHERE audit_run_id=?",
+                "SELECT * FROM token_audit_runs WHERE audit_run_id=?",
                 (audit_run_id,),
             ).fetchone()
             if row is None or not self._marker_run_matches(
@@ -1271,7 +1843,7 @@ class AuditStore:
                 ).fetchone()
                 if existing_event is not None:
                     supplied_sequence = _non_negative_int(marker_sequence)
-                    return (
+                    matches = (
                         existing_event["phase"] == bucket
                         and (
                             marker_sequence is None
@@ -1279,6 +1851,14 @@ class AuditStore:
                             == int(existing_event["marker_sequence"])
                         )
                     )
+                    if matches:
+                        self._ensure_checkpoint_for_marker(
+                            connection,
+                            row,
+                            int(existing_event["marker_sequence"]),
+                            bucket,
+                        )
+                    return matches
             sequence = _non_negative_int(marker_sequence)
             if marker_sequence is None:
                 sequence = int(row["marker_sequence"]) + 1
@@ -1302,6 +1882,9 @@ class AuditStore:
                         "VALUES (?, ?, ?, ?, ?)",
                         (audit_run_id, event_key, bucket, sequence, time.time()),
                     )
+                self._ensure_checkpoint_for_marker(
+                    connection, row, sequence, bucket
+                )
                 return True
             # ``phase`` is the legacy SQLite column name; it now stores the
             # single user-labelable bucket dimension. Count the default and
@@ -1340,6 +1923,9 @@ class AuditStore:
                     "VALUES (?, ?, ?, ?, ?)",
                     (audit_run_id, event_key, bucket, sequence, now),
                 )
+            self._enqueue_checkpoint(
+                connection, row, sequence, bucket, now
+            )
         return True
 
     def request_end(
@@ -1567,26 +2153,56 @@ class AuditStore:
                         updated_at=now,
                     )
                     run_session = connection.execute(
-                        "SELECT partial_reason FROM token_audit_run_sessions "
+                        "SELECT partial_reason, partial_reason_at "
+                        "FROM token_audit_run_sessions "
                         "WHERE audit_run_id=? AND session_fp=?",
                         (run_id, session_fp),
                     ).fetchone()
-                    run_reason = _preferred_partial_reason(
+                    existing_run_reason = (
                         run_session["partial_reason"]
-                        if run_session is not None else None,
-                        reason_code,
+                        if run_session is not None else None
+                    )
+                    run_reason = _preferred_partial_reason(
+                        existing_run_reason, reason_code
+                    )
+                    run_reason_at = (
+                        effective_at
+                        if run_reason != existing_run_reason
+                        else (
+                            run_session["partial_reason_at"]
+                            if run_session is not None
+                            and run_session["partial_reason_at"] is not None
+                            else effective_at
+                        )
                     )
                     connection.execute(
                         "UPDATE token_audit_run_sessions SET "
-                        "partial_reason=?, updated_at=? "
+                        "partial_reason=?, partial_reason_at=?, updated_at=? "
                         "WHERE audit_run_id=? AND session_fp=?",
-                        (run_reason, now, run_id, session_fp),
+                        (
+                            run_reason,
+                            run_reason_at,
+                            now,
+                            run_id,
+                            session_fp,
+                        ),
+                    )
+                    self._record_partial_event(
+                        connection,
+                        run_id,
+                        reason_code,
+                        effective_at,
+                        session_fp=session_fp,
+                        created_at=now,
                     )
                     connection.execute(
                         "UPDATE token_audit_runs SET updated_at=? "
                         "WHERE audit_run_id=? "
                         "AND state IN ('active','closing','queued')",
                         (now, run_id),
+                    )
+                    self._refresh_unattempted_checkpoints(
+                        connection, run_id, event_time=effective_at
                     )
                     queued = connection.execute(
                         "SELECT state, attempts FROM token_audit_outbox "
@@ -1618,7 +2234,8 @@ class AuditStore:
                     candidates = connection.execute(
                         """
                         SELECT r.audit_run_id, o.state AS outbox_state,
-                            o.attempts, rs.partial_reason
+                            o.attempts, rs.partial_reason,
+                            rs.partial_reason_at
                         FROM token_audit_run_sessions rs
                         JOIN token_audit_runs r
                           ON r.audit_run_id=rs.audit_run_id
@@ -1648,16 +2265,40 @@ class AuditStore:
                         candidate_reason = _preferred_partial_reason(
                             candidate["partial_reason"], reason_code
                         )
+                        candidate_reason_at = (
+                            effective_at
+                            if candidate_reason != candidate["partial_reason"]
+                            else (
+                                candidate["partial_reason_at"]
+                                if candidate["partial_reason_at"] is not None
+                                else effective_at
+                            )
+                        )
                         connection.execute(
                             "UPDATE token_audit_run_sessions SET "
-                            "partial_reason=?, updated_at=? "
+                            "partial_reason=?, partial_reason_at=?, "
+                            "updated_at=? "
                             "WHERE audit_run_id=? AND session_fp=?",
                             (
                                 candidate_reason,
+                                candidate_reason_at,
                                 now,
                                 candidate_run_id,
                                 session_fp,
                             ),
+                        )
+                        self._record_partial_event(
+                            connection,
+                            candidate_run_id,
+                            reason_code,
+                            effective_at,
+                            session_fp=session_fp,
+                            created_at=now,
+                        )
+                        self._refresh_unattempted_checkpoints(
+                            connection,
+                            candidate_run_id,
+                            event_time=effective_at,
                         )
                         if candidate["outbox_state"] == "pending":
                             connection.execute(
@@ -1733,8 +2374,21 @@ class AuditStore:
                         THEN NULL ELSE token_audit_sessions.partial_reason_at END,
                     audit_run_id=COALESCE(excluded.audit_run_id,
                         token_audit_sessions.audit_run_id),
-                    parent_session_fp=COALESCE(excluded.parent_session_fp,
-                        token_audit_sessions.parent_session_fp),
+                    parent_session_fp=CASE
+                        WHEN excluded.audit_run_id IS NOT NULL
+                          AND token_audit_sessions.audit_run_id
+                              IS NOT excluded.audit_run_id
+                        THEN excluded.parent_session_fp
+                        ELSE COALESCE(excluded.parent_session_fp,
+                            token_audit_sessions.parent_session_fp)
+                    END,
+                    is_root=CASE
+                        WHEN excluded.audit_run_id IS NOT NULL
+                          AND token_audit_sessions.audit_run_id
+                              IS NOT excluded.audit_run_id
+                        THEN excluded.is_root
+                        ELSE token_audit_sessions.is_root
+                    END,
                     updated_at=excluded.updated_at
                 """,
                 (
@@ -1797,7 +2451,7 @@ class AuditStore:
             return None, None, None
         rows = connection.execute(
             """
-            SELECT r.audit_run_id, r.state, rs.is_root,
+            SELECT r.audit_run_id, r.state, rs.root_at,
                 o.state AS outbox_state, o.attempts
             FROM token_audit_run_sessions rs
             JOIN token_audit_runs r ON r.audit_run_id=rs.audit_run_id
@@ -1833,7 +2487,10 @@ class AuditStore:
             return (
                 row["audit_run_id"],
                 marker["phase"] if marker is not None else DEFAULT_BUCKET,
-                bool(row["is_root"]),
+                bool(
+                    row["root_at"] is not None
+                    and float(row["root_at"]) <= float(timestamp)
+                ),
             )
         return None, None, None
 
@@ -1884,11 +2541,7 @@ class AuditStore:
         event_key = self.fingerprint("usage-event", client + "\0" + event_identity)
         received_at = time.time()
         timestamp = received_at if created_at is None else float(created_at)
-        settle_grace = (
-            CLAUDE_TRANSCRIPT_GRACE_SECONDS
-            if source_mode == "transcript_fallback"
-            else CLAUDE_EXPORT_GRACE_SECONDS
-        )
+        settle_grace = _source_settle_grace(source_mode)
         safe_model = _safe_label(model)
         safe_effort = _safe_label(effort)
         with closing(self.connect()) as connection, connection:
@@ -2000,6 +2653,12 @@ class AuditStore:
                         run_id,
                     ),
                 )
+                self._refresh_unattempted_checkpoints(
+                    connection,
+                    run_id,
+                    event_time=timestamp,
+                    settle_until=received_at + settle_grace,
+                )
                 # A late OTLP export may arrive before the first publish claim.
                 # Rebuild only that never-attempted payload. Once a request may
                 # have reached the server, its idempotency body is immutable.
@@ -2093,6 +2752,9 @@ class AuditStore:
                 ),
             )
             if run_id is not None:
+                self._refresh_unattempted_checkpoints(
+                    connection, run_id, event_time=timestamp
+                )
                 queued = connection.execute(
                     "SELECT o.state, o.attempts, r.source_mode "
                     "FROM token_audit_outbox o JOIN token_audit_runs r "
@@ -2140,7 +2802,8 @@ class AuditStore:
             if failed:
                 session = connection.execute(
                     "SELECT parent_session_fp, is_root, client_version, "
-                    "partial_reason FROM token_audit_sessions "
+                    "partial_reason, partial_reason_at "
+                    "FROM token_audit_sessions "
                     "WHERE environment=? AND workspace_id=? AND client=? "
                     "AND session_fp=? AND audit_run_id=?",
                     (
@@ -2155,6 +2818,15 @@ class AuditStore:
                     reason = _preferred_partial_reason(
                         session["partial_reason"], "session_interrupted"
                     )
+                    reason_at = (
+                        now
+                        if reason != session["partial_reason"]
+                        else (
+                            session["partial_reason_at"]
+                            if session["partial_reason_at"] is not None
+                            else now
+                        )
+                    )
                     connection.execute(
                         "UPDATE token_audit_sessions SET partial_reason=?, "
                         "partial_reason_at=?, updated_at=? WHERE environment=? "
@@ -2162,7 +2834,7 @@ class AuditStore:
                         "AND audit_run_id=?",
                         (
                             reason,
-                            now,
+                            reason_at,
                             now,
                             self.environment,
                             self.workspace_id,
@@ -2181,23 +2853,45 @@ class AuditStore:
                         updated_at=now,
                     )
                     membership = connection.execute(
-                        "SELECT partial_reason FROM token_audit_run_sessions "
+                        "SELECT partial_reason, partial_reason_at "
+                        "FROM token_audit_run_sessions "
                         "WHERE audit_run_id=? AND session_fp=?",
                         (run_id, session_fp),
                     ).fetchone()
+                    membership_reason = _preferred_partial_reason(
+                        membership["partial_reason"]
+                        if membership is not None else None,
+                        "session_interrupted",
+                    )
+                    membership_reason_at = (
+                        now
+                        if membership is None
+                        or membership_reason != membership["partial_reason"]
+                        else (
+                            membership["partial_reason_at"]
+                            if membership["partial_reason_at"] is not None
+                            else now
+                        )
+                    )
                     connection.execute(
                         "UPDATE token_audit_run_sessions SET partial_reason=?, "
-                        "updated_at=? WHERE audit_run_id=? AND session_fp=?",
+                        "partial_reason_at=?, updated_at=? "
+                        "WHERE audit_run_id=? AND session_fp=?",
                         (
-                            _preferred_partial_reason(
-                                membership["partial_reason"]
-                                if membership is not None else None,
-                                "session_interrupted",
-                            ),
+                            membership_reason,
+                            membership_reason_at,
                             now,
                             run_id,
                             session_fp,
                         ),
+                    )
+                    self._record_partial_event(
+                        connection,
+                        run_id,
+                        "session_interrupted",
+                        now,
+                        session_fp=session_fp,
+                        created_at=now,
                     )
             cursor = connection.execute(
                 """
@@ -2216,22 +2910,89 @@ class AuditStore:
     def _raw_count(field, value, semantics):
         return {"field": field, "value": int(value), "semantics": semantics}
 
-    def _build_finalization(self, connection, run, ended_at):
-        usage = connection.execute(
-            """
-            SELECT * FROM token_audit_usage
-            WHERE audit_run_id=? ORDER BY created_at, event_key
-            """,
+    def _build_finalization(
+        self, connection, run, ended_at, inclusive_end=None
+    ):
+        if inclusive_end is None:
+            usage = connection.execute(
+                "SELECT * FROM token_audit_usage WHERE audit_run_id=? "
+                "ORDER BY created_at, event_key",
+                (run["audit_run_id"],),
+            ).fetchall()
+            activity = connection.execute(
+                "SELECT * FROM token_audit_activity WHERE audit_run_id=?",
+                (run["audit_run_id"],),
+            ).fetchall()
+        else:
+            usage_boundary = "<=" if inclusive_end else "<"
+            usage = connection.execute(
+                f"SELECT * FROM token_audit_usage WHERE audit_run_id=? "
+                f"AND created_at{usage_boundary}? ORDER BY created_at, event_key",
+                (run["audit_run_id"], ended_at),
+            ).fetchall()
+            activity = connection.execute(
+                f"SELECT * FROM token_audit_activity WHERE audit_run_id=? "
+                f"AND created_at{usage_boundary}?",
+                (run["audit_run_id"], ended_at),
+            ).fetchall()
+        all_sessions = connection.execute(
+            "SELECT * FROM token_audit_run_sessions "
+            "WHERE audit_run_id=?",
             (run["audit_run_id"],),
         ).fetchall()
-        activity = connection.execute(
-            "SELECT * FROM token_audit_activity WHERE audit_run_id=?",
-            (run["audit_run_id"],),
-        ).fetchall()
-        sessions = connection.execute(
-            "SELECT * FROM token_audit_run_sessions WHERE audit_run_id=?",
-            (run["audit_run_id"],),
-        ).fetchall()
+        if inclusive_end is None:
+            sessions = all_sessions
+            partial_events = None
+        else:
+            boundary = "<=" if inclusive_end else "<"
+            partial_events = connection.execute(
+                f"SELECT session_fp, reason_code "
+                f"FROM token_audit_partial_events "
+                f"WHERE audit_run_id=? AND effective_at{boundary}?",
+                (run["audit_run_id"], ended_at),
+            ).fetchall()
+            historically_evidenced_fps = {
+                item["session_fp"] for item in usage if item["session_fp"]
+            }
+            historically_evidenced_fps.update(
+                item["session_fp"]
+                for item in activity if item["session_fp"]
+            )
+            historically_evidenced_fps.update(
+                item["session_fp"]
+                for item in partial_events if item["session_fp"]
+            )
+            sessions = [
+                item for item in all_sessions
+                if (
+                    item["discovered_at"] is not None
+                    and (
+                        float(item["discovered_at"]) <= ended_at
+                        if inclusive_end
+                        else float(item["discovered_at"]) < ended_at
+                    )
+                )
+                or item["session_fp"] in historically_evidenced_fps
+            ]
+            known_session_fps = {
+                item["session_fp"] for item in sessions
+            }
+            # A legacy writer can persist timestamped usage, activity, or
+            # partial evidence without knowing the additive discovered_at
+            # column. Any retained event proves that session existed inside
+            # this prefix, even if its membership summary is missing or still
+            # carries a later receipt timestamp.
+            for session_fp in historically_evidenced_fps - known_session_fps:
+                sessions.append({
+                    "session_fp": session_fp,
+                    "is_root": int(session_fp == run["root_session_fp"]),
+                    "root_at": (
+                        float(run["started_at"])
+                        if session_fp == run["root_session_fp"] else None
+                    ),
+                    "partial_reason": None,
+                    "client_version": None,
+                })
 
         sums = {
             "input_tokens": 0,
@@ -2298,10 +3059,36 @@ class AuditStore:
                 aggregate_overflow = True
             remaining_bucket_tokens -= bucket_totals[bucket]
 
-        descendants = [item for item in sessions if not bool(item["is_root"])]
-        descendants_included = sum(1 for item in descendants if item["usage_seen"])
-        main_sessions = [item for item in sessions if bool(item["is_root"])]
-        main_seen = any(item["usage_seen"] for item in main_sessions)
+        seen_session_fps = {
+            item["session_fp"] for item in usage if item["session_fp"]
+        }
+        if inclusive_end is None:
+            is_main_session = lambda item: bool(item["is_root"])
+        else:
+            # Authoritative Codex fork/resume can legitimately carry an open
+            # run to another root session. root_at timestamps that promotion,
+            # preventing a later bind from rewriting an earlier prefix while
+            # allowing every root active by this boundary to count as main.
+            is_main_session = lambda item: (
+                item["session_fp"] == run["root_session_fp"]
+                or (
+                    item["root_at"] is not None
+                    and (
+                        float(item["root_at"]) <= ended_at
+                        if inclusive_end
+                        else float(item["root_at"]) < ended_at
+                    )
+                )
+            )
+        descendants = [item for item in sessions if not is_main_session(item)]
+        descendants_included = sum(
+            1 for item in descendants
+            if item["session_fp"] in seen_session_fps
+        )
+        main_sessions = [item for item in sessions if is_main_session(item)]
+        main_seen = any(
+            item["session_fp"] in seen_session_fps for item in main_sessions
+        )
         if (
             usage
             and run["client"] == "claude"
@@ -2313,15 +3100,53 @@ class AuditStore:
             # therefore already contains descendant tokens even though they
             # cannot be assigned to individual child rows.
             descendants_included = len(descendants)
-        run_reason = run["partial_reason"]
-        root_reasons = [
-            item["partial_reason"] for item in main_sessions
-            if item["partial_reason"]
-        ]
-        descendant_reasons = [
-            item["partial_reason"] for item in descendants
-            if item["partial_reason"]
-        ]
+        if partial_events is None:
+            run_reason = run["partial_reason"]
+            root_reasons = [
+                item["partial_reason"] for item in main_sessions
+                if item["partial_reason"]
+            ]
+            descendant_reasons = [
+                item["partial_reason"] for item in descendants
+                if item["partial_reason"]
+            ]
+            reasons = [
+                value for value in (
+                    run_reason,
+                    *(item["partial_reason"] for item in sessions),
+                ) if value
+            ]
+        else:
+            included_session_fps = {
+                item["session_fp"] for item in sessions
+            }
+            run_reasons = [
+                item["reason_code"] for item in partial_events
+                if not item["session_fp"]
+            ]
+            session_reasons = {}
+            for item in partial_events:
+                session_fp = item["session_fp"]
+                if session_fp and session_fp in included_session_fps:
+                    session_reasons.setdefault(session_fp, []).append(
+                        item["reason_code"]
+                    )
+            run_reason = min(
+                run_reasons,
+                key=lambda value: PARTIAL_REASON_PRIORITY.get(value, 99),
+                default=None,
+            )
+            root_reasons = [
+                reason
+                for item in main_sessions
+                for reason in session_reasons.get(item["session_fp"], ())
+            ]
+            descendant_reasons = [
+                reason
+                for item in descendants
+                for reason in session_reasons.get(item["session_fp"], ())
+            ]
+            reasons = run_reasons + root_reasons + descendant_reasons
         if not main_seen:
             main_coverage = "unavailable"
         elif run_reason or root_reasons:
@@ -2340,12 +3165,6 @@ class AuditStore:
             descendant_coverage = "partial"
         else:
             descendant_coverage = "complete"
-        reasons = [
-            value for value in (
-                run["partial_reason"],
-                *(item["partial_reason"] for item in sessions),
-            ) if value
-        ]
         if descendants_included < len(descendants):
             reasons.append("incomplete_descendant_coverage")
         if aggregate_overflow:
@@ -2457,11 +3276,17 @@ class AuditStore:
             source_mode = "mixed"
         elif source_modes:
             source_mode = next(iter(source_modes))
+        metadata_fallback_model = (
+            run["model"] if inclusive_end is None else None
+        )
+        metadata_fallback_effort = (
+            run["effort"] if inclusive_end is None else None
+        )
         model = next(iter(models)) if len(models) == 1 else (
-            "multiple" if len(models) > 1 else run["model"]
+            "multiple" if len(models) > 1 else metadata_fallback_model
         )
         effort = next(iter(efforts)) if len(efforts) == 1 else (
-            "multiple" if len(efforts) > 1 else run["effort"]
+            "multiple" if len(efforts) > 1 else metadata_fallback_effort
         )
         client_version = run["client_version"]
         if client_version is None:
@@ -2528,10 +3353,10 @@ class AuditStore:
             connection.execute("BEGIN IMMEDIATE")
             rows = connection.execute(
                 """
-                SELECT * FROM token_audit_runs
-                WHERE environment=? AND workspace_id=? AND state='closing'
-                  AND handoff_type IS NOT NULL AND finalize_after IS NOT NULL
-                  AND finalize_after<=?
+                SELECT r.* FROM token_audit_runs r
+                WHERE r.environment=? AND r.workspace_id=?
+                  AND r.state='closing' AND r.handoff_type IS NOT NULL
+                  AND r.finalize_after IS NOT NULL AND r.finalize_after<=?
                 ORDER BY finalize_after
                 """,
                 (self.environment, self.workspace_id, current),
@@ -2580,6 +3405,208 @@ class AuditStore:
                 prepared += 1
         return prepared
 
+    def claim_checkpoint(self, now=None):
+        current = time.time() if now is None else float(now)
+        # An immediately older hook/bridge may have accepted a marker after
+        # this process initialized. Sweep its durable marker log before every
+        # claim; compact receipts make the scan idempotent after publication.
+        self._backfill_missing_checkpoints()
+        with closing(self.connect()) as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            try:
+                row = connection.execute(
+                    """
+                    SELECT c.* FROM token_audit_checkpoints c
+                    WHERE c.environment=? AND c.workspace_id=?
+                      AND c.next_attempt_at<=?
+                      AND (c.state='pending' OR
+                        (c.state='publishing' AND c.lease_until<?))
+                    ORDER BY c.created_at, c.audit_run_id, c.marker_sequence
+                    LIMIT 1
+                    """,
+                    (
+                        self.environment,
+                        self.workspace_id,
+                        current,
+                        current,
+                    ),
+                ).fetchone()
+                if row is None:
+                    connection.commit()
+                    return None
+                row = dict(row)
+                if row["state"] == "pending" and int(row["attempts"]) == 0:
+                    run = connection.execute(
+                        "SELECT * FROM token_audit_runs "
+                        "WHERE audit_run_id=?",
+                        (row["audit_run_id"],),
+                    ).fetchone()
+                    if run is not None:
+                        # This writer lock is the publication fence for
+                        # immediately older collectors. Rebuild from every
+                        # committed pre-cutoff fact before the first attempt,
+                        # then atomically transition that exact body to its
+                        # immutable publishing state. Retried/expired claims
+                        # never enter this branch.
+                        finalization_json = _canonical_json(
+                            self._build_finalization(
+                                connection,
+                                run,
+                                float(row["cutoff_at"]),
+                                inclusive_end=False,
+                            )
+                        )
+                        body_changed = (
+                            finalization_json != row["finalization_json"]
+                        )
+                        settle_grace = _source_settle_grace(
+                            run["source_mode"]
+                        )
+                        if body_changed and settle_grace > 0:
+                            # Legacy OTLP/transcript writers cannot extend the
+                            # additive checkpoint queue. A changed body proves
+                            # that pre-cutoff evidence arrived since its last
+                            # snapshot; wait one fresh source grace so a
+                            # multi-row export batch can quiesce. Another
+                            # changed rebuild repeats this bounded fence.
+                            settle_until = current + settle_grace
+                            refreshed = connection.execute(
+                                "UPDATE token_audit_checkpoints SET "
+                                "finalization_json=?, next_attempt_at=?, "
+                                "updated_at=? WHERE audit_run_id=? "
+                                "AND marker_sequence=? AND state='pending' "
+                                "AND attempts=0",
+                                (
+                                    finalization_json,
+                                    settle_until,
+                                    current,
+                                    row["audit_run_id"],
+                                    row["marker_sequence"],
+                                ),
+                            )
+                            if refreshed.rowcount != 1:
+                                connection.rollback()
+                                return None
+                            connection.commit()
+                            return None
+                        refreshed = connection.execute(
+                            "UPDATE token_audit_checkpoints "
+                            "SET finalization_json=?, updated_at=? "
+                            "WHERE audit_run_id=? AND marker_sequence=? "
+                            "AND state='pending' AND attempts=0",
+                            (
+                                finalization_json,
+                                current,
+                                row["audit_run_id"],
+                                row["marker_sequence"],
+                            ),
+                        )
+                        if refreshed.rowcount != 1:
+                            connection.rollback()
+                            return None
+                        row["finalization_json"] = finalization_json
+                lease_token = uuid.uuid4().hex
+                cursor = connection.execute(
+                    """
+                    UPDATE token_audit_checkpoints SET state='publishing',
+                        lease_until=?, lease_token=?, updated_at=?
+                    WHERE audit_run_id=? AND marker_sequence=?
+                      AND (state='pending' OR
+                        (state='publishing' AND lease_until<?))
+                    """,
+                    (
+                        current + OUTBOX_LEASE_SECONDS,
+                        lease_token,
+                        current,
+                        row["audit_run_id"],
+                        row["marker_sequence"],
+                        current,
+                    ),
+                )
+                if cursor.rowcount != 1:
+                    connection.rollback()
+                    return None
+                connection.commit()
+            except Exception:
+                connection.rollback()
+                raise
+        result = row
+        result["lease_token"] = lease_token
+        result["finalization"] = json.loads(result.pop("finalization_json"))
+        result["publication_kind"] = "checkpoint"
+        return result
+
+    def complete_checkpoint(
+        self, audit_run_id, marker_sequence, lease_token
+    ):
+        if not isinstance(lease_token, str) or not lease_token:
+            return False
+        now = time.time()
+        with closing(self.connect()) as connection, connection:
+            cursor = connection.execute(
+                """
+                UPDATE token_audit_checkpoints SET state='sent',
+                    lease_until=NULL, lease_token=NULL, last_error_code=NULL,
+                    updated_at=?
+                WHERE audit_run_id=? AND marker_sequence=?
+                  AND state='publishing' AND lease_token=?
+                """,
+                (
+                    now,
+                    audit_run_id,
+                    marker_sequence,
+                    lease_token,
+                ),
+            )
+        if cursor.rowcount == 1:
+            # If the terminal boundary became due while this checkpoint was
+            # publishing, make it visible promptly. A failed checkpoint never
+            # blocks the more complete terminal snapshot.
+            self.prepare_due_outbox(now)
+            return True
+        return False
+
+    def retry_checkpoint(
+        self,
+        audit_run_id,
+        marker_sequence,
+        lease_token,
+        error_code="publish_failed",
+    ):
+        if not isinstance(lease_token, str) or not lease_token:
+            return False
+        now = time.time()
+        with closing(self.connect()) as connection, connection:
+            row = connection.execute(
+                "SELECT attempts FROM token_audit_checkpoints "
+                "WHERE audit_run_id=? AND marker_sequence=? "
+                "AND state='publishing' AND lease_token=?",
+                (audit_run_id, marker_sequence, lease_token),
+            ).fetchone()
+            if row is None:
+                return False
+            attempts = int(row["attempts"]) + 1
+            delay = min(300, 2 ** min(attempts, 8))
+            cursor = connection.execute(
+                """
+                UPDATE token_audit_checkpoints SET state='pending',
+                    attempts=?, next_attempt_at=?, lease_until=NULL,
+                    lease_token=NULL, last_error_code=?, updated_at=?
+                WHERE audit_run_id=? AND marker_sequence=?
+                  AND state='publishing' AND lease_token=?
+                """,
+                (
+                    attempts,
+                    now + delay,
+                    _safe_label(error_code) or "publish_failed",
+                    now,
+                    audit_run_id,
+                    marker_sequence,
+                    lease_token,
+                ),
+            )
+        return cursor.rowcount == 1
+
     def claim_outbox(self, now=None):
         current = time.time() if now is None else float(now)
         self.prepare_due_outbox(current)
@@ -2588,12 +3615,12 @@ class AuditStore:
             try:
                 row = connection.execute(
                     """
-                    SELECT * FROM token_audit_outbox
-                    WHERE environment=? AND workspace_id=?
-                      AND next_attempt_at<=?
-                      AND (state='pending' OR
-                        (state='publishing' AND lease_until<?))
-                    ORDER BY created_at LIMIT 1
+                    SELECT o.* FROM token_audit_outbox o
+                    WHERE o.environment=? AND o.workspace_id=?
+                      AND o.next_attempt_at<=?
+                      AND (o.state='pending' OR
+                        (o.state='publishing' AND o.lease_until<?))
+                    ORDER BY o.created_at LIMIT 1
                     """,
                     (
                         self.environment,
@@ -2674,6 +3701,7 @@ class AuditStore:
         result = dict(row)
         result["lease_token"] = lease_token
         result["finalization"] = json.loads(result.pop("finalization_json"))
+        result["publication_kind"] = "final"
         return result
 
     def complete_outbox(self, audit_run_id, lease_token):
@@ -2755,6 +3783,19 @@ class AuditStore:
             # separate processes. Select and delete under the same writer lock
             # so a publish claim or late event cannot race a stale snapshot.
             connection.execute("BEGIN IMMEDIATE")
+            # Published prefixes are independently recoverable from Uclusion.
+            # Prune them without ending a still-active local run; unpublished
+            # checkpoints retain the longer run-level recovery window below.
+            connection.execute(
+                "DELETE FROM token_audit_checkpoints "
+                "WHERE environment=? AND workspace_id=? AND state='sent' "
+                "AND updated_at<?",
+                (
+                    self.environment,
+                    self.workspace_id,
+                    finalized_cutoff,
+                ),
+            )
             sent_rows = connection.execute(
                 """
                 SELECT r.audit_run_id FROM token_audit_runs r
@@ -2763,6 +3804,10 @@ class AuditStore:
                 WHERE r.environment=? AND r.workspace_id=?
                   AND r.state='finalized' AND o.state='sent'
                   AND r.updated_at<? AND o.updated_at<?
+                  AND NOT EXISTS (
+                    SELECT 1 FROM token_audit_checkpoints c
+                    WHERE c.audit_run_id=r.audit_run_id AND c.state!='sent'
+                  )
                 """,
                 (
                     self.environment,
@@ -2779,7 +3824,10 @@ class AuditStore:
                 WHERE r.environment=? AND r.workspace_id=?
                   AND r.started_at<?
                   AND (r.state!='finalized' OR o.state IS NULL
-                       OR o.state!='sent')
+                       OR o.state!='sent' OR EXISTS (
+                         SELECT 1 FROM token_audit_checkpoints c
+                         WHERE c.audit_run_id=r.audit_run_id AND c.state!='sent'
+                       ))
                 """,
                 (
                     self.environment,
@@ -2805,6 +3853,16 @@ class AuditStore:
                     (run_id,),
                 )
                 connection.execute(
+                    "DELETE FROM token_audit_checkpoint_receipts "
+                    "WHERE audit_run_id=?",
+                    (run_id,),
+                )
+                connection.execute(
+                    "DELETE FROM token_audit_partial_events "
+                    "WHERE audit_run_id=?",
+                    (run_id,),
+                )
+                connection.execute(
                     "DELETE FROM token_audit_usage WHERE audit_run_id=?",
                     (run_id,),
                 )
@@ -2823,6 +3881,10 @@ class AuditStore:
                 )
                 connection.execute(
                     "DELETE FROM token_audit_outbox WHERE audit_run_id=?",
+                    (run_id,),
+                )
+                connection.execute(
+                    "DELETE FROM token_audit_checkpoints WHERE audit_run_id=?",
                     (run_id,),
                 )
                 connection.execute(
@@ -2942,8 +4004,19 @@ class AuditStore:
                     connection.execute(
                         "UPDATE token_audit_runs SET "
                         "partial_reason=COALESCE(partial_reason, ?), "
+                        "partial_reason_at=COALESCE(partial_reason_at, ?), "
                         "updated_at=? WHERE audit_run_id=?",
-                        ("telemetry_unavailable", now, run_id),
+                        ("telemetry_unavailable", now, now, run_id),
+                    )
+                    self._record_partial_event(
+                        connection,
+                        run_id,
+                        "telemetry_unavailable",
+                        now,
+                        created_at=now,
+                    )
+                    self._refresh_unattempted_checkpoints(
+                        connection, run_id
                     )
                     if row["state"] != "queued":
                         continue
@@ -4757,7 +5830,9 @@ class TokenAuditProxy:
         try:
             if maintain_receiver:
                 self._maintain_receiver()
-            row = self.store.claim_outbox()
+            row = self.store.claim_checkpoint()
+            if row is None:
+                row = self.store.claim_outbox()
         except Exception:
             return False
         if row is None:
@@ -4766,20 +5841,36 @@ class TokenAuditProxy:
             self.publish(row)
         except Exception as error:
             try:
-                self.store.retry_outbox(
-                    row["audit_run_id"],
-                    row["lease_token"],
-                    "publish_" + error.__class__.__name__.lower(),
-                )
+                error_code = "publish_" + error.__class__.__name__.lower()
+                if row.get("publication_kind") == "checkpoint":
+                    self.store.retry_checkpoint(
+                        row["audit_run_id"],
+                        row["marker_sequence"],
+                        row["lease_token"],
+                        error_code,
+                    )
+                else:
+                    self.store.retry_outbox(
+                        row["audit_run_id"],
+                        row["lease_token"],
+                        error_code,
+                    )
             except Exception:
                 # Leave the row publishing; its lease expiry is the recovery
                 # mechanism when even the retry write fails.
                 pass
         else:
             try:
-                self.store.complete_outbox(
-                    row["audit_run_id"], row["lease_token"]
-                )
+                if row.get("publication_kind") == "checkpoint":
+                    self.store.complete_checkpoint(
+                        row["audit_run_id"],
+                        row["marker_sequence"],
+                        row["lease_token"],
+                    )
+                else:
+                    self.store.complete_outbox(
+                        row["audit_run_id"], row["lease_token"]
+                    )
                 self.store.prune_retained()
             except Exception:
                 # A successful remote idempotent write can safely be sent

@@ -556,6 +556,30 @@ def read_mcp_response(resp):
     return json.loads(body) if body.strip() else None
 
 
+def checkpoint_identity_fingerprint(
+    canonical_job_id,
+    audit_run_id,
+    marker_sequence,
+    bucket,
+    finalization,
+):
+    identity = {
+        'identity_version': 1,
+        'canonical_job_id': canonical_job_id,
+        'audit_run_id': audit_run_id,
+        'marker_sequence': marker_sequence,
+        'bucket': bucket,
+        'finalization': finalization,
+    }
+    canonical = json.dumps(
+        identity,
+        sort_keys=True,
+        separators=(',', ':'),
+        ensure_ascii=True,
+    ).encode('utf-8')
+    return 'sha256-v1:' + hashlib.sha256(canonical).hexdigest()
+
+
 def make_token_audit_publisher(post_url, token_provider):
     """Build an authenticated, out-of-band finalization callback.
 
@@ -576,19 +600,60 @@ def make_token_audit_publisher(post_url, token_provider):
             or 'phases' in finalization
         ):
             raise RuntimeError('audit finalization uses an unsupported shape')
-        request_id = 'job-audit-' + row['audit_run_id']
+        is_checkpoint = row.get('publication_kind') == 'checkpoint'
+        if is_checkpoint:
+            marker_sequence = row.get('marker_sequence')
+            bucket = row.get('bucket')
+            if (
+                not isinstance(marker_sequence, int)
+                or isinstance(marker_sequence, bool)
+                or marker_sequence < 1
+                or not isinstance(bucket, str)
+                or not bucket
+            ):
+                raise RuntimeError('audit checkpoint identity is invalid')
+            request_id = (
+                'job-audit-' + row['audit_run_id']
+                + '-checkpoint-' + str(marker_sequence)
+            )
+            tool_name = 'set_job_audit_phase'
+            arguments = {
+                'job_id': row['job_id'],
+                'audit_run_id': row['audit_run_id'],
+                'bucket': bucket,
+                'marker_sequence': marker_sequence,
+                'finalization': finalization,
+            }
+            expected_state = 'checkpointed'
+            expected_publication = 'checkpoint'
+            expected_checkpoint_fingerprint = (
+                checkpoint_identity_fingerprint(
+                    row['job_id'],
+                    row['audit_run_id'],
+                    marker_sequence,
+                    bucket,
+                    finalization,
+                )
+            )
+        else:
+            request_id = 'job-audit-' + row['audit_run_id']
+            tool_name = 'end_job_audit'
+            arguments = {
+                'job_id': row['job_id'],
+                'audit_run_id': row['audit_run_id'],
+                'handoff_type': row['handoff_type'],
+                'finalization': finalization,
+            }
+            expected_state = 'completed'
+            expected_publication = 'final'
+            expected_checkpoint_fingerprint = None
         request = {
             'jsonrpc': '2.0',
             'id': request_id,
             'method': 'tools/call',
             'params': {
-                'name': 'end_job_audit',
-                'arguments': {
-                    'job_id': row['job_id'],
-                    'audit_run_id': row['audit_run_id'],
-                    'handoff_type': row['handoff_type'],
-                    'finalization': row['finalization'],
-                },
+                'name': tool_name,
+                'arguments': arguments,
             },
         }
         token = token_provider()
@@ -622,8 +687,12 @@ def make_token_audit_publisher(post_url, token_provider):
         expected_total = finalization.get('measurement', {}).get(
             'normalized_total_tokens'
         )
+        returned_total_field = (
+            'checkpoint_normalized_total_tokens'
+            if is_checkpoint else 'run_normalized_total_tokens'
+        )
         returned_total = (
-            structured.get('run_normalized_total_tokens')
+            structured.get(returned_total_field)
             if isinstance(structured, dict) else None
         )
         total_matches = (
@@ -642,7 +711,12 @@ def make_token_audit_publisher(post_url, token_provider):
             or not isinstance(structured.get('schema_version'), int)
             or isinstance(structured.get('schema_version'), bool)
             or structured.get('schema_version') != 1
-            or structured.get('state') != 'completed'
+            or structured.get('state') != expected_state
+            # During a rolling API deployment, a legacy server can mistake a
+            # visible checkpoint note for a completed run. Requiring the new
+            # explicit publication kind keeps the terminal row retryable until
+            # a server can prove that it found or created the final snapshot.
+            or structured.get('publication') != expected_publication
             or structured.get('audit_run_id') != row['audit_run_id']
             or structured.get('canonical_job_id') != row['job_id']
             or not isinstance(structured.get('idempotent'), bool)
@@ -650,10 +724,29 @@ def make_token_audit_publisher(post_url, token_provider):
             or not structured.get('note_short_code_id')
             or not isinstance(structured.get('note_url'), str)
             or not structured.get('note_url')
-            or 'run_normalized_total_tokens' not in structured
+            or returned_total_field not in structured
             or not total_matches
         ):
             raise RuntimeError('audit finalization was not completed')
+        if is_checkpoint:
+            superseded = structured.get('superseded')
+            identity_verified = structured.get('identity_verified')
+            if (
+                structured.get('marker_sequence') != row['marker_sequence']
+                or structured.get('bucket') != row['bucket']
+                or not isinstance(superseded, bool)
+                or not isinstance(identity_verified, bool)
+                or (
+                    not superseded
+                    and (
+                        not identity_verified
+                        or structured.get(
+                            'checkpoint_identity_fingerprint'
+                        ) != expected_checkpoint_fingerprint
+                    )
+                )
+            ):
+                raise RuntimeError('audit checkpoint was not correlated')
         return structured
 
     return publish

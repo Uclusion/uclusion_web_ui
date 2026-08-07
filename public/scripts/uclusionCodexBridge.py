@@ -2008,6 +2008,17 @@ class RootAuthority:
         # MCP-startup witness until that thread can be resumed normally.
         self.mcp_primary_witness_thread_id: Optional[str] = None
         self.mcp_primary_witness_lifecycle_epoch: Optional[int] = None
+        # A fresh root initially has no resumable rollout, so token-audit
+        # notifications come from the primary stream.  When that same root is
+        # later pinned on the driver, keep the primary as the ordered prefix
+        # through the origin fence and queue driver copies until both streams
+        # have been fenced.  Otherwise the subscribe acknowledgment can make
+        # the primary ineligible while an origin-only notification is still
+        # waiting behind the root response.
+        self.mcp_audit_handoff_source_connection_id: Optional[int] = None
+        self.mcp_audit_handoff_thread_id: Optional[str] = None
+        self.mcp_audit_handoff_lifecycle_epoch: Optional[int] = None
+        self.mcp_audit_handoff_driver_notifications = collections.deque()
         self.turn_event_serial = 0
         self.generation = 0
         self.driver_active = False
@@ -2121,6 +2132,149 @@ class RootAuthority:
                 self.mcp_driver_connection_id is not None
                 and thread_id in self.mcp_driver_pinned_threads
             )
+
+    def primary_notification_is_audit_witness(
+        self, connection_id: int, message: Dict[str, Any]
+    ) -> bool:
+        """Whether this primary-stream event is the sole audit copy.
+
+        A fresh ``thread/start`` has no rollout that the companion driver can
+        resume, so its authoritative primary relay stream owns token-audit
+        observation until a later root handoff pins the driver. Resumed roots
+        are observed on that driver instead; rejecting their primary fan-out
+        copy here prevents duplicate marker, activity, and usage ingestion.
+        """
+        params = message.get("params")
+        if not isinstance(params, dict):
+            return False
+        event_thread_id = params.get("threadId")
+        if event_thread_id is not None and (
+            not isinstance(event_thread_id, str) or not event_thread_id
+        ):
+            return False
+        with self.condition:
+            witness_thread_id = self.mcp_primary_witness_thread_id
+            audit_handoff_active = (
+                self.mcp_audit_handoff_source_connection_id
+                == connection_id
+                and self.mcp_audit_handoff_thread_id
+                == witness_thread_id
+                and self.mcp_audit_handoff_lifecycle_epoch
+                == self.mcp_primary_witness_lifecycle_epoch
+            )
+            return (
+                self.primary_live
+                and self.primary_connection_id == connection_id
+                and self.thread_id == witness_thread_id
+                and witness_thread_id is not None
+                and (
+                    event_thread_id is None
+                    or event_thread_id == witness_thread_id
+                )
+                and (
+                    witness_thread_id
+                    not in self.mcp_driver_pinned_threads
+                    or audit_handoff_active
+                )
+                and self.mcp_primary_witness_lifecycle_epoch
+                == self.mcp_lifecycle_epoch_by_thread.get(
+                    witness_thread_id, 0
+                )
+            )
+
+    def begin_primary_audit_handoff(
+        self,
+        source_connection_id: int,
+        thread_id: str,
+        expected_lifecycle_epoch: int,
+    ) -> bool:
+        """Hold driver audit copies while a fresh primary is fenced.
+
+        Returns false when the origin is not the current fresh-primary audit
+        witness.  Resumed roots already owned by the driver need no audit
+        cutover; their ordinary driver subscription/fence remains unchanged.
+        """
+        with self.condition:
+            self._raise_if_fatal()
+            if self.mcp_audit_handoff_thread_id is not None:
+                raise RelayProtocolError(
+                    "another token-audit handoff is already active"
+                )
+            if not (
+                self.primary_live
+                and self.primary_connection_id == source_connection_id
+                and self.thread_id == thread_id
+                and self.mcp_primary_witness_thread_id == thread_id
+                and self.mcp_primary_witness_lifecycle_epoch
+                == expected_lifecycle_epoch
+                and self.mcp_lifecycle_epoch_by_thread.get(thread_id, 0)
+                == expected_lifecycle_epoch
+            ):
+                return False
+            self.mcp_audit_handoff_source_connection_id = (
+                source_connection_id
+            )
+            self.mcp_audit_handoff_thread_id = thread_id
+            self.mcp_audit_handoff_lifecycle_epoch = (
+                expected_lifecycle_epoch
+            )
+            self.mcp_audit_handoff_driver_notifications.clear()
+            return True
+
+    def buffer_driver_audit_notification(
+        self, connection_id: int, message: Dict[str, Any]
+    ) -> bool:
+        """Queue a target-root driver copy during audit handoff."""
+        params = message.get("params")
+        if not isinstance(params, dict):
+            return False
+        event_thread_id = params.get("threadId")
+        if event_thread_id is not None and (
+            not isinstance(event_thread_id, str) or not event_thread_id
+        ):
+            return False
+        with self.condition:
+            handoff_thread_id = self.mcp_audit_handoff_thread_id
+            if not (
+                handoff_thread_id is not None
+                and connection_id == self.mcp_driver_connection_id
+                and (
+                    event_thread_id is None
+                    or event_thread_id == handoff_thread_id
+                )
+            ):
+                return False
+            self.mcp_audit_handoff_driver_notifications.append(message)
+            return True
+
+    def take_primary_audit_handoff_batch(
+        self, source_connection_id: int, thread_id: str
+    ) -> Tuple[Tuple[Dict[str, Any], ...], bool]:
+        """Take the next driver batch, atomically releasing on empty.
+
+        While a non-empty batch is observed the handoff stays active, so new
+        driver notifications remain queued while the caller invokes the audit
+        observer.  An empty queue and ownership release happen under the same
+        lock, preventing a live driver callback from overtaking a buffered
+        batch.
+        """
+        with self.condition:
+            if (
+                self.mcp_audit_handoff_source_connection_id
+                != source_connection_id
+                or self.mcp_audit_handoff_thread_id != thread_id
+            ):
+                return (), True
+            if self.mcp_audit_handoff_driver_notifications:
+                batch = tuple(
+                    self.mcp_audit_handoff_driver_notifications
+                )
+                self.mcp_audit_handoff_driver_notifications.clear()
+                return batch, False
+            self.mcp_audit_handoff_source_connection_id = None
+            self.mcp_audit_handoff_thread_id = None
+            self.mcp_audit_handoff_lifecycle_epoch = None
+            return (), True
 
     def driver_thread_pin_epoch(self, thread_id: str) -> int:
         with self.condition:
@@ -6049,6 +6203,13 @@ class _RelayConnection:
             raise RelayProtocolError(
                 self.relay.authority.fatal_error
             )
+        if (
+            self.relay.primary_notification_observer is not None
+            and self.relay.authority.primary_notification_is_audit_witness(
+                self.connection_id, message
+            )
+        ):
+            self.relay.primary_notification_observer(message)
 
     def _queue_buffered_upstream(
         self,
@@ -6650,6 +6811,26 @@ class UnixWebSocketRelay:
         self.primary_thread_observer: Optional[
             Callable[[Dict[str, Any]], None]
         ] = None
+        self.primary_notification_observer: Optional[
+            Callable[[Dict[str, Any]], None]
+        ] = None
+
+    def _drain_primary_audit_handoff(
+        self,
+        source_connection_id: int,
+        thread_id: str,
+        observer: Callable[[Dict[str, Any]], None],
+    ) -> None:
+        while True:
+            batch, released = (
+                self.authority.take_primary_audit_handoff_batch(
+                    source_connection_id, thread_id
+                )
+            )
+            for message in batch:
+                observer(message)
+            if released:
+                return
 
     def pin_driver_thread(
         self,
@@ -6667,78 +6848,97 @@ class UnixWebSocketRelay:
         def handoff_abandoned() -> bool:
             return self.authority.handoffs_abandoned_after_primary_close()
 
-        with self.authority.driver_subscription_lease(held_gate):
-            result = None
+        audit_observer = self.primary_notification_observer
+        audit_handoff_started = False
+        try:
             try:
-                if handoff_abandoned():
-                    return abandoned_result()
-                if not self.authority.driver_thread_is_pinned(
-                    thread_id
-                ):
-                    if self.driver_thread_pinner is None:
-                        raise RelayProtocolError(
-                            "companion driver thread pinner is unavailable"
+                with self.authority.driver_subscription_lease(held_gate):
+                    if handoff_abandoned():
+                        return abandoned_result()
+                    if audit_observer is not None:
+                        audit_handoff_started = (
+                            self.authority.begin_primary_audit_handoff(
+                                source_connection_id,
+                                thread_id,
+                                root_lifecycle_epoch,
+                            )
                         )
-                    self.driver_thread_pinner(
-                        thread_id, root_lifecycle_epoch
-                    )
                     if not self.authority.driver_thread_is_pinned(
                         thread_id
                     ):
-                        raise RelayProtocolError(
-                            "driver subscription was invalidated before "
-                            "confirmation"
+                        if self.driver_thread_pinner is None:
+                            raise RelayProtocolError(
+                                "companion driver thread pinner is "
+                                "unavailable"
+                            )
+                        self.driver_thread_pinner(
+                            thread_id, root_lifecycle_epoch
                         )
-                if handoff_abandoned():
-                    return abandoned_result()
-                driver_sequence_cut = (
-                    self.authority.driver_handoff_cut(thread_id)
-                )
-                result = (
-                    complete_origin_handoff()
-                    if complete_origin_handoff is not None
-                    else None
-                )
-                if handoff_abandoned():
-                    return abandoned_result()
-                if self.driver_thread_fencer is None:
-                    raise RelayProtocolError(
-                        "companion driver thread fencer is unavailable"
+                        if not self.authority.driver_thread_is_pinned(
+                            thread_id
+                        ):
+                            raise RelayProtocolError(
+                                "driver subscription was invalidated before "
+                                "confirmation"
+                            )
+                    if handoff_abandoned():
+                        return abandoned_result()
+                    driver_sequence_cut = (
+                        self.authority.driver_handoff_cut(thread_id)
                     )
-                self.driver_thread_fencer(thread_id)
-                if handoff_abandoned():
-                    return abandoned_result()
-                self.authority.handoff_origin_startup_to_driver(
-                    source_connection_id,
-                    thread_id,
-                    driver_sequence_cut,
-                    root_lifecycle_epoch,
-                )
-                if held_gate is not None:
-                    self.authority.record_root_handoff_complete(
-                        held_gate,
+                    result = (
+                        complete_origin_handoff()
+                        if complete_origin_handoff is not None
+                        else None
+                    )
+                    if handoff_abandoned():
+                        return abandoned_result()
+                    if self.driver_thread_fencer is None:
+                        raise RelayProtocolError(
+                            "companion driver thread fencer is unavailable"
+                        )
+                    self.driver_thread_fencer(thread_id)
+                    if handoff_abandoned():
+                        return abandoned_result()
+                    self.authority.handoff_origin_startup_to_driver(
+                        source_connection_id,
                         thread_id,
+                        driver_sequence_cut,
                         root_lifecycle_epoch,
                     )
-                if (
-                    held_gate is None
-                    and not self.authority.driver_thread_is_pinned(
-                        thread_id
+                    if held_gate is not None:
+                        self.authority.record_root_handoff_complete(
+                            held_gate,
+                            thread_id,
+                            root_lifecycle_epoch,
+                        )
+                    if (
+                        held_gate is None
+                        and not self.authority.driver_thread_is_pinned(
+                            thread_id
+                        )
+                    ):
+                        raise RelayProtocolError(
+                            "driver subscription was invalidated during "
+                            "origin handoff"
+                        )
+                    return result
+            finally:
+                if audit_handoff_started and audit_observer is not None:
+                    self._drain_primary_audit_handoff(
+                        source_connection_id,
+                        thread_id,
+                        audit_observer,
                     )
-                ):
-                    raise RelayProtocolError(
-                        "driver subscription was invalidated during "
-                        "origin handoff"
-                    )
-                return result
-            except Exception as exc:
-                if handoff_abandoned():
-                    return abandoned_result()
-                self.fail(
-                    "companion driver handoff failed for {}: {}"
-                    .format(thread_id, exc)
+        except Exception as exc:
+            if handoff_abandoned():
+                return abandoned_result()
+            self.fail(
+                "companion driver handoff failed for {}: {}".format(
+                    thread_id, exc
                 )
-                raise
+            )
+            raise
 
     def start(self) -> None:
         if self.listener is not None:
@@ -7286,6 +7486,11 @@ def run_bridge(
         if token_audit is not None
         else None
     )
+    relay.primary_notification_observer = (
+        token_audit.observe_notification
+        if token_audit is not None
+        else None
+    )
     # The driver is a continuous notification witness whose exact connection
     # identity is part of MCP-startup authority. Delivery/control RPCs use a
     # separate disposable connection so a slow or failed request can be
@@ -7356,7 +7561,12 @@ def run_bridge(
                         authority.observe_notification(
                             connection_id, message
                         )
-                        if token_audit is not None:
+                        if (
+                            token_audit is not None
+                            and not authority.buffer_driver_audit_notification(
+                                connection_id, message
+                            )
+                        ):
                             token_audit.observe_notification(message)
 
                     def driver_disconnected(

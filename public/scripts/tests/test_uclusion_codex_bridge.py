@@ -882,6 +882,288 @@ class RunBridgeTests(BridgeTestCase):
         self.assertEqual(0, observer.refreshes)
 
 
+class PrimaryAuditRoutingTests(BridgeTestCase):
+    def _fresh_primary(self, observer):
+        authority = bridge.RootAuthority(
+            self.config.cwd, gate_mcp_startup=True
+        )
+        authority.driver_connected(
+            bridge.INITIAL_DRIVER_CONNECTION_ID
+        )
+        self.assertTrue(authority.claim_primary(1))
+        gate = authority.begin_tui_request(
+            1, "thread/start", {"cwd": self.config.cwd}
+        )
+        authority.connection_root_subscribed(
+            1, "root-fresh", primary_witness_only=True
+        )
+        authority.finish_tui_request(
+            gate,
+            {
+                "id": "start-root",
+                "result": {
+                    "thread": {
+                        "id": "root-fresh",
+                        "sessionId": "root-fresh",
+                        "parentThreadId": None,
+                        "cwd": self.config.cwd,
+                    }
+                },
+            },
+        )
+        relay = bridge.UnixWebSocketRelay(
+            "/tmp/not-used-frontend",
+            "/tmp/not-used-backend",
+            authority,
+        )
+        relay.primary_notification_observer = observer
+        connection = bridge._RelayConnection(
+            relay, 1, mock.Mock()
+        )
+        connection.role = "primary"
+        return authority, connection
+
+    @staticmethod
+    def _mcp_item(tool, item_id):
+        return {
+            "method": "item/completed",
+            "params": {
+                "threadId": "root-fresh",
+                "turnId": "turn-1",
+                "item": {
+                    "id": item_id,
+                    "type": "mcpToolCall",
+                    "server": "Uclusion",
+                    "tool": tool,
+                    "status": "completed",
+                    "arguments": {},
+                    "result": {"content": []},
+                },
+            },
+        }
+
+    def test_fresh_primary_routes_audit_markers_and_usage_to_collector(self):
+        observed_tools = []
+        observed_usage = []
+
+        class Collector:
+            def observe_notification(self, message):
+                if message["method"] == "item/completed":
+                    observed_tools.append(
+                        message["params"]["item"]["tool"]
+                    )
+                elif message["method"] == "rawResponse/completed":
+                    observed_usage.append(
+                        message["params"]["usage"]
+                    )
+
+            def mark_partial(self, _reason):
+                pass
+
+        integration = bridge._CodexTokenAuditIntegration(Collector())
+        _authority, connection = self._fresh_primary(
+            integration.observe_notification
+        )
+        expected_tools = [
+            "start_job_audit",
+            "get_job",
+            "set_job_audit_phase",
+            "end_job_audit",
+        ]
+        for index, tool in enumerate(expected_tools, 1):
+            connection._observe_upstream_notification(
+                self._mcp_item(tool, "tool-{}".format(index))
+            )
+        usage = {
+            "input_tokens": 11,
+            "cached_input_tokens": 3,
+            "output_tokens": 5,
+            "total_tokens": 16,
+        }
+        connection._observe_upstream_notification(
+            {
+                "method": "rawResponse/completed",
+                "params": {
+                    "threadId": "root-fresh",
+                    "turnId": "turn-1",
+                    "responseId": "response-1",
+                    "usage": usage,
+                },
+            }
+        )
+
+        self.assertEqual(expected_tools, observed_tools)
+        self.assertEqual([usage], observed_usage)
+
+    def test_resumed_driver_pin_preserves_origin_audit_prefix(self):
+        observed = []
+        effective = []
+        seen = set()
+
+        class Collector:
+            def observe_notification(self, message):
+                params = message["params"]
+                item = params.get("item")
+                identity = (
+                    item.get("id")
+                    if isinstance(item, dict)
+                    else params.get("responseId")
+                )
+                observed.append(identity)
+                if identity not in seen:
+                    seen.add(identity)
+                    effective.append(identity)
+
+            def mark_partial(self, _reason):
+                pass
+
+        integration = bridge._CodexTokenAuditIntegration(Collector())
+        authority, connection = self._fresh_primary(
+            integration.observe_notification
+        )
+        gate = authority.begin_tui_request(
+            1,
+            "thread/resume",
+            {"threadId": "root-fresh"},
+        )
+        lifecycle_epoch = authority.connection_root_subscribed(
+            1, "root-fresh"
+        )
+        relay = connection.relay
+
+        usage_before_marker = {
+            "method": "rawResponse/completed",
+            "params": {
+                "threadId": "root-fresh",
+                "turnId": "turn-2",
+                "responseId": "usage-before-marker",
+                "usage": {"total_tokens": 23},
+            },
+        }
+        marker = self._mcp_item(
+            "set_job_audit_phase", "marker-after-usage"
+        )
+        origin_only = {
+            "method": "rawResponse/completed",
+            "params": {
+                "threadId": "root-fresh",
+                "turnId": "turn-2",
+                "responseId": "origin-only",
+                "usage": {"total_tokens": 27},
+            },
+        }
+        driver_suffix = {
+            "method": "rawResponse/completed",
+            "params": {
+                "threadId": "root-fresh",
+                "turnId": "turn-2",
+                "responseId": "driver-suffix",
+                "usage": {"total_tokens": 28},
+            },
+        }
+
+        def driver_notification(message):
+            authority.observe_notification(
+                bridge.INITIAL_DRIVER_CONNECTION_ID, message
+            )
+            if not authority.buffer_driver_audit_notification(
+                bridge.INITIAL_DRIVER_CONNECTION_ID, message
+            ):
+                integration.observe_notification(message)
+
+        def pin_driver(thread_id, expected_lifecycle_epoch):
+            self.assertEqual("root-fresh", thread_id)
+            # The driver's fan-out order differs from the origin's order.
+            # Neither copy may reach the collector before the origin fence.
+            driver_notification(marker)
+            driver_notification(usage_before_marker)
+            self.assertEqual([], observed)
+            authority.driver_thread_pinned(
+                thread_id, expected_lifecycle_epoch
+            )
+
+        def complete_origin_handoff():
+            # These messages were already queued on the origin when the
+            # subscription acknowledgment made the driver pin visible. The
+            # last one has no driver copy and must not be lost.
+            connection._observe_upstream_notification(
+                usage_before_marker
+            )
+            connection._observe_upstream_notification(marker)
+            connection._observe_upstream_notification(origin_only)
+            return "origin-fenced"
+
+        def fence_driver(thread_id):
+            self.assertEqual("root-fresh", thread_id)
+            driver_notification(driver_suffix)
+
+        relay.driver_thread_pinner = pin_driver
+        relay.driver_thread_fencer = fence_driver
+        self.assertEqual(
+            "origin-fenced",
+            relay.pin_driver_thread(
+                "root-fresh",
+                1,
+                lifecycle_epoch,
+                held_gate=gate,
+                complete_origin_handoff=complete_origin_handoff,
+            ),
+        )
+
+        authority.finish_tui_request(
+            gate,
+            {
+                "id": "resume-root",
+                "result": {
+                    "thread": {
+                        "id": "root-fresh",
+                        "sessionId": "root-fresh",
+                        "parentThreadId": None,
+                        "cwd": self.config.cwd,
+                    }
+                },
+            },
+        )
+        steady_driver_usage = {
+            "method": "rawResponse/completed",
+            "params": {
+                "threadId": "root-fresh",
+                "turnId": "turn-3",
+                "responseId": "steady-driver",
+                "usage": {"total_tokens": 29},
+            },
+        }
+
+        # App-server fans the notification to both subscribed sockets. The
+        # primary relay copy is rejected after handoff; the driver remains the
+        # collector's single source for the resumed root.
+        connection._observe_upstream_notification(steady_driver_usage)
+        driver_notification(steady_driver_usage)
+
+        self.assertEqual(
+            [
+                "usage-before-marker",
+                "marker-after-usage",
+                "origin-only",
+                "marker-after-usage",
+                "usage-before-marker",
+                "driver-suffix",
+                "steady-driver",
+            ],
+            observed,
+        )
+        self.assertEqual(
+            [
+                "usage-before-marker",
+                "marker-after-usage",
+                "origin-only",
+                "driver-suffix",
+                "steady-driver",
+            ],
+            effective,
+        )
+
+
 class DeliveryTests(BridgeTestCase):
     @unittest.skipUnless(
         sys.platform.startswith("linux")

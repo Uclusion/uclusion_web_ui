@@ -76,6 +76,34 @@ def bucket_map(finalization):
     }
 
 
+def drain_checkpoints(store, now=None):
+    current = time.time() + 100 if now is None else now
+    rows = []
+    while True:
+        row = store.claim_checkpoint(current)
+        if row is None:
+            return rows
+        rows.append(row)
+        if not store.complete_checkpoint(
+            row["audit_run_id"],
+            row["marker_sequence"],
+            row["lease_token"],
+        ):
+            raise AssertionError("checkpoint completion failed")
+
+
+def checkpoint_payload(store, audit_run_id, marker_sequence=1):
+    with closing(store.connect()) as connection:
+        row = connection.execute(
+            "SELECT finalization_json FROM token_audit_checkpoints "
+            "WHERE audit_run_id=? AND marker_sequence=?",
+            (audit_run_id, marker_sequence),
+        ).fetchone()
+    if row is None:
+        return None
+    return json.loads(row["finalization_json"])
+
+
 class TokenAuditTestCase(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
@@ -491,6 +519,10 @@ class StorageConcurrencyTests(TokenAuditTestCase):
         )
         store.request_end(run_id, "progress")
         store.signal_complete("codex", session)
+        checkpoints = drain_checkpoints(store)
+        self.assertEqual([1, 2, 3], [
+            row["marker_sequence"] for row in checkpoints
+        ])
         finalization = store.claim_outbox()["finalization"]
         self.assertEqual(
             [
@@ -524,6 +556,7 @@ class StorageConcurrencyTests(TokenAuditTestCase):
         )
         store.request_end(run_id, "progress")
         store.signal_complete("codex", session)
+        drain_checkpoints(store)
         with closing(store.connect()) as connection, connection:
             connection.execute(
                 "UPDATE token_audit_outbox SET finalization_json=? "
@@ -545,6 +578,1032 @@ class StorageConcurrencyTests(TokenAuditTestCase):
             {"planning": 2, "implementation": 4},
             bucket_map(finalization),
         )
+
+    def test_bucket_boundaries_persist_ordered_cumulative_checkpoints(self):
+        store = self.store()
+        session = store.fingerprint("codex-thread", "checkpoint-prefixes")
+        store.bind_session("codex", session, is_root=True)
+        run_id = str(uuid.uuid4())
+        store.start_run(
+            "codex", "openai", "native", session, run_id, "J-all-553"
+        )
+        store.record_usage(
+            "codex", session, "prefix-planning",
+            audit._openai_counts({"totalTokens": 3}), "native",
+        )
+        self.assertTrue(store.set_bucket(run_id, "web searches", 1))
+        self.assertEqual("active", store.session_run(
+            "codex", session
+        )["state"])
+        self.assertIsNone(store.claim_outbox())
+
+        first = store.claim_checkpoint(time.time() + 100)
+        self.assertEqual("checkpoint", first["publication_kind"])
+        self.assertEqual(1, first["marker_sequence"])
+        self.assertEqual("web searches", first["bucket"])
+        self.assertEqual(
+            {"planning": 3}, bucket_map(first["finalization"])
+        )
+        self.assertTrue(store.complete_checkpoint(
+            run_id, 1, first["lease_token"]
+        ))
+
+        store.record_usage(
+            "codex", session, "prefix-search",
+            audit._openai_counts({"totalTokens": 5}), "native",
+        )
+        self.assertTrue(store.set_bucket(run_id, "copywriting", 2))
+        second = store.claim_checkpoint(time.time() + 100)
+        self.assertEqual(2, second["marker_sequence"])
+        self.assertEqual(
+            {"planning": 3, "web searches": 5},
+            bucket_map(second["finalization"]),
+        )
+        self.assertTrue(store.complete_checkpoint(
+            run_id, 2, second["lease_token"]
+        ))
+
+        store.record_usage(
+            "codex", session, "prefix-copy",
+            audit._openai_counts({"totalTokens": 7}), "native",
+        )
+        self.assertTrue(store.set_bucket(run_id, "web searches", 3))
+        third = store.claim_checkpoint(time.time() + 100)
+        self.assertEqual(3, third["marker_sequence"])
+        self.assertEqual(
+            {"planning": 3, "web searches": 5, "copywriting": 7},
+            bucket_map(third["finalization"]),
+        )
+        self.assertEqual(
+            ["planning", "web searches", "copywriting"],
+            [item["label"] for item in third["finalization"]["buckets"]["items"]],
+        )
+
+        # Replaying an accepted marker identity cannot create another durable
+        # publication for the same boundary.
+        self.assertTrue(store.set_bucket(run_id, "web searches", 3))
+        with closing(store.connect()) as connection:
+            count = connection.execute(
+                "SELECT COUNT(*) FROM token_audit_checkpoints "
+                "WHERE audit_run_id=?", (run_id,),
+            ).fetchone()[0]
+        self.assertEqual(3, count)
+
+    def test_late_pre_cutoff_telemetry_refreshes_only_pending_checkpoint(self):
+        store = self.store()
+        session = store.fingerprint("claude-session", "late-checkpoint")
+        store.bind_session("claude", session, is_root=True)
+        run_id = str(uuid.uuid4())
+        with mock.patch.object(audit.time, "time", return_value=1000.0):
+            store.start_run(
+                "claude", "anthropic", "otel", session,
+                run_id, "J-all-554",
+            )
+        with mock.patch.object(audit.time, "time", return_value=1010.0):
+            self.assertTrue(store.set_bucket(run_id, "verification", 1))
+
+        self.assertIsNone(store.claim_checkpoint(1012.0))
+        with mock.patch.object(audit.time, "time", return_value=1011.0):
+            store.record_usage(
+                "claude", session, "late-before-cutoff",
+                audit._anthropic_counts({
+                    "input_tokens": 4,
+                    "output_tokens": 1,
+                    "cache_read_input_tokens": 0,
+                    "cache_creation_input_tokens": 0,
+                }),
+                "otel",
+                created_at=1009.0,
+            )
+        with mock.patch.object(audit.time, "time", return_value=1012.0):
+            store.record_usage(
+                "claude", session, "after-cutoff",
+                audit._anthropic_counts({
+                    "input_tokens": 6,
+                    "output_tokens": 1,
+                    "cache_read_input_tokens": 0,
+                    "cache_creation_input_tokens": 0,
+                }),
+                "otel",
+                created_at=1010.5,
+            )
+
+        self.assertIsNone(store.claim_checkpoint(1013.0))
+        checkpoint = store.claim_checkpoint(1014.0)
+        self.assertEqual(
+            5,
+            checkpoint["finalization"]["measurement"][
+                "normalized_total_tokens"
+            ],
+        )
+        self.assertEqual(
+            {"planning": 5}, bucket_map(checkpoint["finalization"])
+        )
+
+    def test_post_cutoff_descendant_does_not_reclassify_checkpoint(self):
+        store = self.store()
+        root = store.fingerprint("codex-thread", "temporal-root")
+        child = store.fingerprint("codex-thread", "temporal-child")
+        run_id = str(uuid.uuid4())
+        with mock.patch.object(audit.time, "time", return_value=1000.0):
+            store.start_run(
+                "codex", "openai", "native", root, run_id, "J-all-561"
+            )
+        with mock.patch.object(audit.time, "time", return_value=1001.0):
+            store.record_usage(
+                "codex", root, "temporal-root-usage",
+                audit._openai_counts({"totalTokens": 3}), "native",
+                created_at=1001.0,
+            )
+        with mock.patch.object(audit.time, "time", return_value=1010.0):
+            store.set_bucket(run_id, "implementation", 1)
+        before = checkpoint_payload(store, run_id)
+
+        with mock.patch.object(audit.time, "time", return_value=1020.0):
+            store.discover_descendant("codex", root, child)
+        # This late activity legitimately refreshes the still-unattempted
+        # closed prefix, but the child discovered after the boundary does not
+        # exist in that historical coverage window.
+        with mock.patch.object(audit.time, "time", return_value=1030.0):
+            store.record_activity(
+                "codex", root, "temporal-late-activity", created_at=1005.0
+            )
+        after = checkpoint_payload(store, run_id)
+        self.assertEqual(before["measurement"], after["measurement"])
+        self.assertEqual(before["coverage"], after["coverage"])
+        self.assertEqual("exact", after["measurement"]["status"])
+        self.assertEqual(0, after["coverage"]["descendants_discovered"])
+
+    def test_late_child_usage_moves_discovery_into_checkpoint_prefix(self):
+        store = self.store()
+        root = store.fingerprint("codex-thread", "late-child-root")
+        child = store.fingerprint("codex-thread", "late-child")
+        run_id = str(uuid.uuid4())
+        with mock.patch.object(audit.time, "time", return_value=1000.0):
+            store.start_run(
+                "codex", "openai", "native", root, run_id, "J-all-565"
+            )
+        with mock.patch.object(audit.time, "time", return_value=1001.0):
+            store.record_usage(
+                "codex", root, "late-child-root-usage",
+                audit._openai_counts({"totalTokens": 3}), "native",
+                created_at=1001.0,
+            )
+        with mock.patch.object(audit.time, "time", return_value=1010.0):
+            store.set_bucket(run_id, "implementation", 1)
+        with mock.patch.object(audit.time, "time", return_value=1020.0):
+            store.discover_descendant("codex", root, child)
+
+        # Provider time is historical evidence that the child already existed
+        # inside the closed prefix. Discovery may move earlier, never later.
+        with mock.patch.object(audit.time, "time", return_value=1030.0):
+            store.record_usage(
+                "codex", child, "late-child-usage",
+                audit._openai_counts({"totalTokens": 2}), "native",
+                created_at=1005.0,
+            )
+        checkpoint = checkpoint_payload(store, run_id)
+        self.assertEqual("exact", checkpoint["measurement"]["status"])
+        self.assertEqual(
+            5, checkpoint["measurement"]["normalized_total_tokens"]
+        )
+        self.assertEqual({
+            "main_session": "complete",
+            "descendants": "complete",
+            "descendants_discovered": 1,
+            "descendants_included": 1,
+        }, checkpoint["coverage"])
+
+    def test_claim_refreshes_unattempted_checkpoint_from_legacy_sql(self):
+        store = self.store()
+        root = store.fingerprint("codex-thread", "legacy-claim-root")
+        child = store.fingerprint("codex-thread", "legacy-claim-child")
+        run_id = str(uuid.uuid4())
+        with mock.patch.object(audit.time, "time", return_value=1000.0):
+            store.start_run(
+                "codex", "openai", "native", root, run_id, "J-all-567"
+            )
+        with mock.patch.object(audit.time, "time", return_value=1001.0):
+            store.record_usage(
+                "codex", root, "legacy-claim-root-usage",
+                audit._openai_counts({"totalTokens": 3}), "native",
+                created_at=1001.0,
+            )
+        with mock.patch.object(audit.time, "time", return_value=1010.0):
+            store.set_bucket(run_id, "implementation", 1)
+        with mock.patch.object(audit.time, "time", return_value=1020.0):
+            store.discover_descendant("codex", root, child)
+
+        # Simulate the immediately previous collector version: it commits
+        # delayed provider rows and legacy summary updates but knows neither
+        # the checkpoint refresh method nor discovered_at.
+        with closing(store.connect()) as connection, connection:
+            connection.execute(
+                "INSERT INTO token_audit_usage (environment, workspace_id, "
+                "client, event_key, session_fp, audit_run_id, phase, "
+                "source_mode, provider_total_tokens, "
+                "normalized_total_tokens, created_at) "
+                "VALUES ('stage', 'workspace-1', 'codex', ?, ?, ?, "
+                "'planning', 'native', 2, 2, 1005)",
+                ("legacy-child-usage", child, run_id),
+            )
+            connection.execute(
+                "INSERT INTO token_audit_activity (environment, workspace_id, "
+                "client, event_key, session_fp, audit_run_id, kind, failed, "
+                "is_test, created_at) VALUES ('stage', 'workspace-1', "
+                "'codex', 'legacy-child-tool', ?, ?, 'tool', 0, 0, 1006)",
+                (child, run_id),
+            )
+            # This is the real legacy mark_partial ordering: the current
+            # session preserves provider event_time, then the run membership
+            # summary is updated using receipt time only.
+            connection.execute(
+                "UPDATE token_audit_sessions SET partial_reason=?, "
+                "partial_reason_at=1007, updated_at=1030 "
+                "WHERE environment='stage' AND workspace_id='workspace-1' "
+                "AND client='codex' AND session_fp=?",
+                ("collector_failure", child),
+            )
+            connection.execute(
+                "UPDATE token_audit_run_sessions SET partial_reason=?, "
+                "updated_at=1030 WHERE audit_run_id=? AND session_fp=?",
+                ("collector_failure", run_id, child),
+            )
+
+        stale = checkpoint_payload(store, run_id)
+        self.assertEqual(
+            3, stale["measurement"]["normalized_total_tokens"]
+        )
+        self.assertEqual("exact", stale["measurement"]["status"])
+
+        claimed = store.claim_checkpoint(1100.0)["finalization"]
+        self.assertEqual(
+            5, claimed["measurement"]["normalized_total_tokens"]
+        )
+        self.assertEqual("partial", claimed["measurement"]["status"])
+        self.assertEqual(
+            "collector_failure", claimed["measurement"]["reason_code"]
+        )
+        self.assertEqual(1, claimed["activity"]["tool_calls"])
+        self.assertEqual({
+            "main_session": "complete",
+            "descendants": "partial",
+            "descendants_discovered": 1,
+            "descendants_included": 1,
+        }, claimed["coverage"])
+
+    def test_claim_uses_legacy_activity_as_historical_membership(self):
+        store = self.store()
+        root = store.fingerprint("codex-thread", "legacy-activity-root")
+        child = store.fingerprint("codex-thread", "legacy-activity-child")
+        run_id = str(uuid.uuid4())
+        with mock.patch.object(audit.time, "time", return_value=1000.0):
+            store.start_run(
+                "codex", "openai", "native", root, run_id, "J-all-568"
+            )
+        with mock.patch.object(audit.time, "time", return_value=1001.0):
+            store.record_usage(
+                "codex", root, "legacy-activity-root-usage",
+                audit._openai_counts({"totalTokens": 3}), "native",
+                created_at=1001.0,
+            )
+        with mock.patch.object(audit.time, "time", return_value=1010.0):
+            store.set_bucket(run_id, "implementation", 1)
+        with mock.patch.object(audit.time, "time", return_value=1020.0):
+            store.discover_descendant("codex", root, child)
+        with closing(store.connect()) as connection, connection:
+            connection.execute(
+                "INSERT INTO token_audit_activity (environment, workspace_id, "
+                "client, event_key, session_fp, audit_run_id, kind, failed, "
+                "is_test, created_at) VALUES ('stage', 'workspace-1', "
+                "'codex', 'legacy-activity-only', ?, ?, 'tool', 0, 0, 1005)",
+                (child, run_id),
+            )
+
+        claimed = store.claim_checkpoint(1100.0)["finalization"]
+        self.assertEqual(1, claimed["activity"]["tool_calls"])
+        self.assertEqual("partial", claimed["measurement"]["status"])
+        self.assertEqual(
+            "incomplete_descendant_coverage",
+            claimed["measurement"]["reason_code"],
+        )
+        self.assertEqual(1, claimed["coverage"]["descendants_discovered"])
+        self.assertEqual(0, claimed["coverage"]["descendants_included"])
+
+    def test_claim_uses_legacy_partial_event_as_historical_membership(self):
+        store = self.store()
+        root = store.fingerprint("codex-thread", "legacy-partial-root")
+        child = store.fingerprint("codex-thread", "legacy-partial-child")
+        run_id = str(uuid.uuid4())
+        with mock.patch.object(audit.time, "time", return_value=1000.0):
+            store.start_run(
+                "codex", "openai", "native", root, run_id, "J-all-569"
+            )
+        with mock.patch.object(audit.time, "time", return_value=1001.0):
+            store.record_usage(
+                "codex", root, "legacy-partial-root-usage",
+                audit._openai_counts({"totalTokens": 3}), "native",
+                created_at=1001.0,
+            )
+        with mock.patch.object(audit.time, "time", return_value=1010.0):
+            store.set_bucket(run_id, "implementation", 1)
+        with mock.patch.object(audit.time, "time", return_value=1020.0):
+            store.discover_descendant("codex", root, child)
+        with closing(store.connect()) as connection, connection:
+            connection.execute(
+                "UPDATE token_audit_sessions SET partial_reason=?, "
+                "partial_reason_at=1005, updated_at=1030 "
+                "WHERE environment='stage' AND workspace_id='workspace-1' "
+                "AND client='codex' AND session_fp=?",
+                ("collector_failure", child),
+            )
+            connection.execute(
+                "UPDATE token_audit_run_sessions SET partial_reason=?, "
+                "updated_at=1030 WHERE audit_run_id=? AND session_fp=?",
+                ("collector_failure", run_id, child),
+            )
+
+        claimed = store.claim_checkpoint(1100.0)["finalization"]
+        self.assertEqual("partial", claimed["measurement"]["status"])
+        self.assertEqual(1, claimed["coverage"]["descendants_discovered"])
+        self.assertEqual(0, claimed["coverage"]["descendants_included"])
+
+    def test_expired_attempted_checkpoint_payload_is_not_refreshed(self):
+        store = self.store()
+        root = store.fingerprint("codex-thread", "immutable-attempt-root")
+        run_id = str(uuid.uuid4())
+        with mock.patch.object(audit.time, "time", return_value=1000.0):
+            store.start_run(
+                "codex", "openai", "native", root, run_id, "J-all-570"
+            )
+        with mock.patch.object(audit.time, "time", return_value=1001.0):
+            store.record_usage(
+                "codex", root, "immutable-attempt-initial",
+                audit._openai_counts({"totalTokens": 3}), "native",
+                created_at=1001.0,
+            )
+        with mock.patch.object(audit.time, "time", return_value=1010.0):
+            store.set_bucket(run_id, "implementation", 1)
+        first = store.claim_checkpoint(1100.0)
+        self.assertEqual(
+            3,
+            first["finalization"]["measurement"]["normalized_total_tokens"],
+        )
+        with closing(store.connect()) as connection, connection:
+            connection.execute(
+                "INSERT INTO token_audit_usage (environment, workspace_id, "
+                "client, event_key, session_fp, audit_run_id, phase, "
+                "source_mode, provider_total_tokens, "
+                "normalized_total_tokens, created_at) "
+                "VALUES ('stage', 'workspace-1', 'codex', "
+                "'immutable-late-usage', ?, ?, 'planning', 'native', "
+                "5, 5, 1005)",
+                (root, run_id),
+            )
+        reclaimed = store.claim_checkpoint(
+            1100.0 + audit.OUTBOX_LEASE_SECONDS + 1
+        )
+        self.assertNotEqual(first["lease_token"], reclaimed["lease_token"])
+        self.assertEqual(
+            3,
+            reclaimed["finalization"]["measurement"][
+                "normalized_total_tokens"
+            ],
+        )
+
+    def test_legacy_export_changes_rearm_checkpoint_settle_grace(self):
+        store = self.store()
+        root = store.fingerprint("claude-session", "legacy-batch-root")
+        run_id = str(uuid.uuid4())
+        with mock.patch.object(audit.time, "time", return_value=1000.0):
+            store.start_run(
+                "claude", "anthropic", "otel", root,
+                run_id, "J-all-575",
+            )
+        with mock.patch.object(audit.time, "time", return_value=1001.0):
+            store.record_usage(
+                "claude", root, "legacy-batch-initial",
+                audit._anthropic_counts({
+                    "input_tokens": 3,
+                    "output_tokens": 0,
+                    "cache_read_input_tokens": 0,
+                    "cache_creation_input_tokens": 0,
+                }),
+                "otel", created_at=1001.0,
+            )
+        with mock.patch.object(audit.time, "time", return_value=1010.0):
+            store.set_bucket(run_id, "implementation", 1)
+
+        def legacy_row(event_key, tokens, created_at):
+            with closing(store.connect()) as connection, connection:
+                connection.execute(
+                    "INSERT INTO token_audit_usage (environment, "
+                    "workspace_id, client, event_key, session_fp, "
+                    "audit_run_id, phase, source_mode, input_tokens, "
+                    "normalized_total_tokens, created_at) VALUES ('stage', "
+                    "'workspace-1', 'claude', ?, ?, ?, 'planning', "
+                    "'otel', ?, ?, ?)",
+                    (
+                        event_key, root, run_id, tokens, tokens, created_at,
+                    ),
+                )
+
+        legacy_row("legacy-batch-one", 2, 1005.0)
+        self.assertIsNone(store.claim_checkpoint(1100.0))
+        self.assertEqual(
+            5,
+            checkpoint_payload(store, run_id)["measurement"][
+                "normalized_total_tokens"
+            ],
+        )
+        legacy_row("legacy-batch-two", 1, 1006.0)
+        self.assertIsNone(store.claim_checkpoint(1103.0))
+        claimed = store.claim_checkpoint(1106.0)["finalization"]
+        self.assertEqual(6, claimed["measurement"]["normalized_total_tokens"])
+
+    def test_post_cutoff_session_gap_does_not_reclassify_checkpoint(self):
+        store = self.store()
+        root = store.fingerprint("codex-thread", "temporal-session-gap")
+        run_id = str(uuid.uuid4())
+        with mock.patch.object(audit.time, "time", return_value=1000.0):
+            store.start_run(
+                "codex", "openai", "native", root, run_id, "J-all-562"
+            )
+        with mock.patch.object(audit.time, "time", return_value=1001.0):
+            store.record_usage(
+                "codex", root, "temporal-session-usage",
+                audit._openai_counts({"totalTokens": 3}), "native",
+                created_at=1001.0,
+            )
+        with mock.patch.object(audit.time, "time", return_value=1010.0):
+            store.set_bucket(run_id, "implementation", 1)
+        before = checkpoint_payload(store, run_id)
+
+        with mock.patch.object(audit.time, "time", return_value=1020.0):
+            store.mark_partial(
+                "codex", root, "collector_failure", event_time=1020.0
+            )
+        with mock.patch.object(audit.time, "time", return_value=1030.0):
+            store.record_activity(
+                "codex", root, "temporal-session-late",
+                created_at=1005.0,
+            )
+        after = checkpoint_payload(store, run_id)
+        self.assertEqual(before["measurement"], after["measurement"])
+        self.assertEqual(before["coverage"], after["coverage"])
+        self.assertNotIn("reason_code", after["measurement"])
+
+    def test_checkpoint_reason_history_does_not_change_terminal_summary(self):
+        store = self.store()
+        root = store.fingerprint("codex-thread", "temporal-reason-history")
+        run_id = str(uuid.uuid4())
+        with mock.patch.object(audit.time, "time", return_value=1000.0):
+            store.start_run(
+                "codex", "openai", "native", root, run_id, "J-all-566"
+            )
+        with mock.patch.object(audit.time, "time", return_value=1001.0):
+            store.record_usage(
+                "codex", root, "temporal-reason-usage",
+                audit._openai_counts({"totalTokens": 3}), "native",
+                created_at=1001.0,
+            )
+        with mock.patch.object(audit.time, "time", return_value=1005.0):
+            store.mark_partial(
+                "codex", root, "telemetry_unavailable", event_time=1005.0
+            )
+        with mock.patch.object(audit.time, "time", return_value=1010.0):
+            store.set_bucket(run_id, "implementation", 1)
+        with mock.patch.object(audit.time, "time", return_value=1020.0):
+            store.mark_partial(
+                "codex", root, "session_interrupted", event_time=1020.0
+            )
+        with mock.patch.object(audit.time, "time", return_value=1030.0):
+            store.record_activity(
+                "codex", root, "temporal-reason-late", created_at=1006.0
+            )
+        checkpoint = checkpoint_payload(store, run_id)
+        self.assertEqual(
+            "telemetry_unavailable",
+            checkpoint["measurement"]["reason_code"],
+        )
+
+        with mock.patch.object(audit.time, "time", return_value=1040.0):
+            store.request_end(run_id, "progress")
+            store.signal_complete("codex", root)
+        terminal = store.claim_outbox(1040.0)["finalization"]
+        self.assertEqual(
+            "session_interrupted", terminal["measurement"]["reason_code"]
+        )
+
+    def test_post_cutoff_run_gap_does_not_reclassify_checkpoint(self):
+        store = self.store()
+        root = store.fingerprint("codex-thread", "temporal-run-gap")
+        run_id = str(uuid.uuid4())
+        with mock.patch.object(audit.time, "time", return_value=1000.0):
+            store.start_run(
+                "codex", "openai", "native", root, run_id, "J-all-563"
+            )
+        with mock.patch.object(audit.time, "time", return_value=1001.0):
+            store.record_usage(
+                "codex", root, "temporal-run-usage",
+                audit._openai_counts({"totalTokens": 3}), "native",
+                created_at=1001.0,
+            )
+        with mock.patch.object(audit.time, "time", return_value=1010.0):
+            store.set_bucket(run_id, "implementation", 1)
+        before = checkpoint_payload(store, run_id)
+
+        with mock.patch.object(audit.time, "time", return_value=1020.0):
+            store.set_source_available("codex", "native", False)
+        after = checkpoint_payload(store, run_id)
+        self.assertEqual(before, after)
+        self.assertEqual("exact", after["measurement"]["status"])
+
+    def test_checkpoint_metadata_does_not_fall_back_to_post_cutoff_run_state(self):
+        store = self.store()
+        root = store.fingerprint("codex-thread", "temporal-metadata-root")
+        run_id = str(uuid.uuid4())
+        with mock.patch.object(audit.time, "time", return_value=1000.0):
+            store.start_run(
+                "codex", "openai", "native", root, run_id, "J-all-571"
+            )
+        with mock.patch.object(audit.time, "time", return_value=1001.0):
+            store.record_usage(
+                "codex", root, "temporal-metadata-before",
+                audit._openai_counts({"totalTokens": 3}), "native",
+                created_at=1001.0,
+            )
+        with mock.patch.object(audit.time, "time", return_value=1010.0):
+            store.set_bucket(run_id, "implementation", 1)
+        with mock.patch.object(audit.time, "time", return_value=1020.0):
+            store.record_usage(
+                "codex", root, "temporal-metadata-after",
+                audit._openai_counts({"totalTokens": 5}), "native",
+                model="gpt-later", effort="high", created_at=1020.0,
+            )
+
+        claimed = store.claim_checkpoint(1100.0)["finalization"]
+        self.assertIsNone(claimed["source"]["model"])
+        self.assertIsNone(claimed["source"]["effort"])
+        self.assertEqual(
+            3, claimed["measurement"]["normalized_total_tokens"]
+        )
+
+    def test_post_cutoff_root_promotion_is_not_rewound_by_late_usage(self):
+        store = self.store()
+        original = store.fingerprint("codex-thread", "promotion-original")
+        promoted = store.fingerprint("codex-thread", "promotion-later")
+        run_id = str(uuid.uuid4())
+        with mock.patch.object(audit.time, "time", return_value=1000.0):
+            store.start_run(
+                "codex", "openai", "native", original,
+                run_id, "J-all-572",
+            )
+        with mock.patch.object(audit.time, "time", return_value=1005.0):
+            store.discover_descendant("codex", original, promoted)
+        with mock.patch.object(audit.time, "time", return_value=1010.0):
+            store.set_bucket(run_id, "implementation", 1)
+        # Simulate an older bridge's authoritative bind. Its SQL knows only
+        # is_root; the additive trigger must timestamp the promotion.
+        with closing(store.connect()) as connection, connection:
+            connection.execute(
+                "UPDATE token_audit_sessions SET is_root=1, updated_at=1020 "
+                "WHERE environment='stage' AND workspace_id='workspace-1' "
+                "AND client='codex' AND session_fp=?",
+                (promoted,),
+            )
+            connection.execute(
+                "UPDATE token_audit_run_sessions SET is_root=1, "
+                "updated_at=1020 WHERE audit_run_id=? AND session_fp=?",
+                (run_id, promoted),
+            )
+        with mock.patch.object(audit.time, "time", return_value=1030.0):
+            store.record_usage(
+                "codex", promoted, "promotion-late-usage",
+                audit._openai_counts({"totalTokens": 4}), "native",
+                created_at=1007.0,
+            )
+
+        checkpoint = checkpoint_payload(store, run_id)
+        self.assertEqual("partial", checkpoint["measurement"]["status"])
+        self.assertEqual(
+            "unavailable", checkpoint["coverage"]["main_session"]
+        )
+        self.assertEqual(1, checkpoint["coverage"]["descendants_discovered"])
+        self.assertEqual(1, checkpoint["coverage"]["descendants_included"])
+        with closing(store.connect()) as connection:
+            root_at = connection.execute(
+                "SELECT root_at FROM token_audit_run_sessions "
+                "WHERE audit_run_id=? AND session_fp=?",
+                (run_id, promoted),
+            ).fetchone()["root_at"]
+        self.assertEqual(1020.0, root_at)
+
+    def test_root_in_prior_run_rebinds_as_descendant_in_next_run(self):
+        store = self.store()
+        prior_root = store.fingerprint("codex-thread", "prior-run-root")
+        next_root = store.fingerprint("codex-thread", "next-run-root")
+        prior_run = str(uuid.uuid4())
+        next_run = str(uuid.uuid4())
+        with mock.patch.object(audit.time, "time", return_value=1000.0):
+            store.start_run(
+                "codex", "openai", "native", prior_root,
+                prior_run, "J-all-573",
+            )
+        with mock.patch.object(audit.time, "time", return_value=1002.0):
+            store.request_end(prior_run, "progress")
+            store.signal_complete("codex", prior_root)
+        prior_outbox = store.claim_outbox(1002.0)
+        self.assertTrue(store.complete_outbox(
+            prior_run, prior_outbox["lease_token"]
+        ))
+
+        with mock.patch.object(audit.time, "time", return_value=1010.0):
+            store.start_run(
+                "codex", "openai", "native", next_root,
+                next_run, "J-all-574",
+            )
+        with mock.patch.object(audit.time, "time", return_value=1011.0):
+            store.discover_descendant("codex", next_root, prior_root)
+            store.bind_session(
+                "codex", prior_root, audit_run_id=next_run,
+                parent_session_fp=next_root, is_root=False,
+            )
+        with mock.patch.object(audit.time, "time", return_value=1012.0):
+            store.record_usage(
+                "codex", next_root, "next-run-main-usage",
+                audit._openai_counts({"totalTokens": 3}), "native",
+                created_at=1012.0,
+            )
+            store.record_usage(
+                "codex", prior_root, "next-run-child-usage",
+                audit._openai_counts({"totalTokens": 2}), "native",
+                created_at=1012.0,
+            )
+        with mock.patch.object(audit.time, "time", return_value=1020.0):
+            store.set_bucket(next_run, "implementation", 1)
+
+        checkpoint = store.claim_checkpoint(1100.0)["finalization"]
+        self.assertEqual("exact", checkpoint["measurement"]["status"])
+        self.assertEqual({
+            "main_session": "complete",
+            "descendants": "complete",
+            "descendants_discovered": 1,
+            "descendants_included": 1,
+        }, checkpoint["coverage"])
+        with closing(store.connect()) as connection:
+            current = connection.execute(
+                "SELECT is_root, parent_session_fp FROM token_audit_sessions "
+                "WHERE environment='stage' AND workspace_id='workspace-1' "
+                "AND client='codex' AND session_fp=?",
+                (prior_root,),
+            ).fetchone()
+            membership = connection.execute(
+                "SELECT is_root, root_at FROM token_audit_run_sessions "
+                "WHERE audit_run_id=? AND session_fp=?",
+                (next_run, prior_root),
+            ).fetchone()
+        self.assertEqual((0, next_root), tuple(current))
+        self.assertEqual((0, None), tuple(membership))
+
+        with mock.patch.object(audit.time, "time", return_value=1030.0):
+            store.request_end(next_run, "progress")
+            store.signal_complete("codex", next_root)
+        terminal = store.claim_outbox(1030.0)["finalization"]
+        self.assertEqual(checkpoint["coverage"], terminal["coverage"])
+
+    def test_upgrade_backfills_old_marker_once_and_receipt_prevents_recreation(self):
+        now = time.time()
+        run_id = str(uuid.uuid4())
+        with closing(sqlite3.connect(self.db_path)) as connection, connection:
+            connection.executescript(
+                """
+                CREATE TABLE token_audit_runs (
+                    audit_run_id TEXT PRIMARY KEY,
+                    environment TEXT NOT NULL,
+                    workspace_id TEXT NOT NULL,
+                    job_id TEXT NOT NULL,
+                    provider TEXT NOT NULL,
+                    client TEXT NOT NULL,
+                    client_version TEXT,
+                    source_mode TEXT NOT NULL,
+                    root_session_fp TEXT,
+                    started_at REAL NOT NULL,
+                    current_phase TEXT NOT NULL,
+                    marker_sequence INTEGER NOT NULL DEFAULT 0,
+                    handoff_type TEXT,
+                    state TEXT NOT NULL,
+                    closing_at REAL,
+                    finalize_after REAL,
+                    partial_reason TEXT,
+                    model TEXT,
+                    effort TEXT,
+                    updated_at REAL NOT NULL
+                );
+                CREATE TABLE token_audit_phase_markers (
+                    audit_run_id TEXT NOT NULL,
+                    marker_sequence INTEGER NOT NULL,
+                    phase TEXT NOT NULL,
+                    effective_at REAL NOT NULL,
+                    PRIMARY KEY (audit_run_id, marker_sequence)
+                );
+                CREATE TABLE token_audit_run_sessions (
+                    audit_run_id TEXT NOT NULL,
+                    session_fp TEXT NOT NULL,
+                    parent_session_fp TEXT,
+                    is_root INTEGER NOT NULL DEFAULT 0,
+                    usage_seen INTEGER NOT NULL DEFAULT 0,
+                    partial_reason TEXT,
+                    client_version TEXT,
+                    updated_at REAL NOT NULL,
+                    PRIMARY KEY (audit_run_id, session_fp)
+                );
+                CREATE TABLE token_audit_usage (
+                    environment TEXT NOT NULL,
+                    workspace_id TEXT NOT NULL,
+                    client TEXT NOT NULL,
+                    event_key TEXT NOT NULL,
+                    session_fp TEXT,
+                    turn_fp TEXT,
+                    audit_run_id TEXT,
+                    phase TEXT,
+                    source_mode TEXT NOT NULL,
+                    input_tokens INTEGER NOT NULL DEFAULT 0,
+                    cached_input_tokens INTEGER NOT NULL DEFAULT 0,
+                    cache_write_tokens INTEGER NOT NULL DEFAULT 0,
+                    output_tokens INTEGER NOT NULL DEFAULT 0,
+                    reasoning_output_tokens INTEGER NOT NULL DEFAULT 0,
+                    cache_read_tokens INTEGER NOT NULL DEFAULT 0,
+                    cache_creation_tokens INTEGER NOT NULL DEFAULT 0,
+                    provider_total_tokens INTEGER,
+                    normalized_total_tokens INTEGER NOT NULL,
+                    model TEXT,
+                    effort TEXT,
+                    created_at REAL NOT NULL,
+                    PRIMARY KEY (environment, workspace_id, client, event_key)
+                );
+                """
+            )
+            connection.execute(
+                "INSERT INTO token_audit_runs ("
+                "audit_run_id, environment, workspace_id, job_id, provider, "
+                "client, source_mode, root_session_fp, started_at, "
+                "current_phase, marker_sequence, state, partial_reason, "
+                "updated_at"
+                ") VALUES (?, 'stage', 'workspace-1', 'J-all-564', "
+                "'openai', 'codex', 'native', 'legacy-root', ?, "
+                "'implementation', 1, 'active', 'telemetry_unavailable', ?)",
+                (run_id, now - 10, now),
+            )
+            connection.execute(
+                "INSERT INTO token_audit_run_sessions (audit_run_id, "
+                "session_fp, is_root, usage_seen, updated_at) "
+                "VALUES (?, 'legacy-root', 1, 1, ?)",
+                (run_id, now),
+            )
+            connection.execute(
+                "INSERT INTO token_audit_run_sessions (audit_run_id, "
+                "session_fp, parent_session_fp, is_root, usage_seen, "
+                "updated_at) VALUES (?, 'legacy-child', 'legacy-root', "
+                "0, 0, ?)",
+                (run_id, now),
+            )
+            connection.execute(
+                "INSERT INTO token_audit_usage (environment, workspace_id, "
+                "client, event_key, session_fp, audit_run_id, phase, "
+                "source_mode, provider_total_tokens, "
+                "normalized_total_tokens, created_at) VALUES ('stage', "
+                "'workspace-1', 'codex', 'legacy-root-usage', "
+                "'legacy-root', ?, 'planning', 'native', 3, 3, ?)",
+                (run_id, now - 8),
+            )
+            connection.execute(
+                "INSERT INTO token_audit_phase_markers VALUES (?, 1, ?, ?)",
+                (run_id, "implementation", now - 5),
+            )
+
+        upgraded = audit.AuditStore("stage", "workspace-1")
+        with closing(upgraded.connect()) as connection:
+            self.assertEqual(1, connection.execute(
+                "SELECT COUNT(*) FROM token_audit_checkpoints "
+                "WHERE audit_run_id=?", (run_id,),
+            ).fetchone()[0])
+            self.assertEqual(1, connection.execute(
+                "SELECT COUNT(*) FROM token_audit_checkpoint_receipts "
+                "WHERE audit_run_id=?", (run_id,),
+            ).fetchone()[0])
+
+        checkpoint = upgraded.claim_checkpoint(now + 100)
+        self.assertEqual(1, checkpoint["marker_sequence"])
+        self.assertEqual(
+            "partial", checkpoint["finalization"]["measurement"]["status"]
+        )
+        self.assertEqual(
+            1,
+            checkpoint["finalization"]["coverage"][
+                "descendants_discovered"
+            ],
+        )
+        self.assertEqual(
+            0,
+            checkpoint["finalization"]["coverage"][
+                "descendants_included"
+            ],
+        )
+        with closing(upgraded.connect()) as connection:
+            run_reason_at = connection.execute(
+                "SELECT partial_reason_at FROM token_audit_runs "
+                "WHERE audit_run_id=?", (run_id,),
+            ).fetchone()["partial_reason_at"]
+            child_discovered_at = connection.execute(
+                "SELECT discovered_at FROM token_audit_run_sessions "
+                "WHERE audit_run_id=? AND session_fp='legacy-child'",
+                (run_id,),
+            ).fetchone()["discovered_at"]
+        self.assertEqual(now - 10, run_reason_at)
+        self.assertEqual(now - 10, child_discovered_at)
+        self.assertTrue(upgraded.complete_checkpoint(
+            run_id, 1, checkpoint["lease_token"]
+        ))
+        with closing(upgraded.connect()) as connection, connection:
+            connection.execute(
+                "UPDATE token_audit_checkpoints SET updated_at=? "
+                "WHERE audit_run_id=?",
+                (now - audit.FINALIZED_RETENTION_SECONDS - 1, run_id),
+            )
+        upgraded.prune_retained(now)
+        self.assertIsNone(checkpoint_payload(upgraded, run_id))
+
+        reopened = audit.AuditStore("stage", "workspace-1")
+        self.assertTrue(reopened.set_bucket(run_id, "implementation", 1))
+        self.assertIsNone(reopened.claim_checkpoint(now + 100))
+        with closing(reopened.connect()) as connection:
+            self.assertEqual(1, connection.execute(
+                "SELECT COUNT(*) FROM token_audit_checkpoint_receipts "
+                "WHERE audit_run_id=?", (run_id,),
+            ).fetchone()[0])
+
+    def test_post_cutoff_usage_does_not_upgrade_checkpoint_coverage(self):
+        store = self.store()
+        session = store.fingerprint("codex-thread", "cutoff-coverage")
+        store.bind_session("codex", session, is_root=True)
+        run_id = str(uuid.uuid4())
+        store.start_run(
+            "codex", "openai", "native", session, run_id, "J-all-560"
+        )
+        store.set_bucket(run_id, "implementation", 1)
+        store.record_usage(
+            "codex", session, "only-after-cutoff",
+            audit._openai_counts({"totalTokens": 5}), "native",
+        )
+
+        checkpoint = store.claim_checkpoint(time.time() + 100)
+        self.assertEqual(
+            "unavailable", checkpoint["finalization"]["measurement"]["status"]
+        )
+        self.assertEqual(
+            "unavailable", checkpoint["finalization"]["coverage"]["main_session"]
+        )
+        self.assertEqual([], checkpoint["finalization"]["buckets"]["items"])
+
+    def test_checkpoint_retry_does_not_block_terminal_snapshot(self):
+        store = self.store()
+        session = store.fingerprint("codex-thread", "checkpoint-retry")
+        store.bind_session("codex", session, is_root=True)
+        run_id = str(uuid.uuid4())
+        store.start_run(
+            "codex", "openai", "native", session, run_id, "J-all-555"
+        )
+        store.record_usage(
+            "codex", session, "retry-planning",
+            audit._openai_counts({"totalTokens": 4}), "native",
+        )
+        store.set_bucket(run_id, "implementation", 1)
+        store.record_usage(
+            "codex", session, "retry-implementation",
+            audit._openai_counts({"totalTokens": 6}), "native",
+        )
+        store.request_end(run_id, "review_requested")
+        store.signal_complete("codex", session)
+
+        checkpoint = store.claim_checkpoint(time.time() + 100)
+        self.assertTrue(store.retry_checkpoint(
+            run_id, 1, checkpoint["lease_token"], "network"
+        ))
+        terminal = store.claim_outbox(time.time() + 100)
+        self.assertEqual("final", terminal["publication_kind"])
+        self.assertEqual(
+            10,
+            terminal["finalization"]["measurement"][
+                "normalized_total_tokens"
+            ],
+        )
+        self.assertTrue(store.complete_outbox(
+            run_id, terminal["lease_token"]
+        ))
+        self.assertFalse(store.complete_checkpoint(
+            run_id, 1, checkpoint["lease_token"]
+        ))
+        retried = store.claim_checkpoint(time.time() + 100)
+        self.assertEqual(1, retried["marker_sequence"])
+        reclaimed = store.claim_checkpoint(
+            time.time() + 100 + audit.OUTBOX_LEASE_SECONDS + 1
+        )
+        self.assertNotEqual(retried["lease_token"], reclaimed["lease_token"])
+        self.assertFalse(store.retry_checkpoint(
+            run_id, 1, retried["lease_token"], "stale-worker"
+        ))
+        self.assertTrue(store.complete_checkpoint(
+            run_id, 1, reclaimed["lease_token"]
+        ))
+
+    def test_later_checkpoint_bypasses_earlier_retry_backoff(self):
+        store = self.store()
+        session = store.fingerprint("codex-thread", "checkpoint-supersedes")
+        store.bind_session("codex", session, is_root=True)
+        run_id = str(uuid.uuid4())
+        store.start_run(
+            "codex", "openai", "native", session, run_id, "J-all-559"
+        )
+        store.record_usage(
+            "codex", session, "supersede-planning",
+            audit._openai_counts({"totalTokens": 2}), "native",
+        )
+        store.set_bucket(run_id, "implementation", 1)
+        first = store.claim_checkpoint(time.time() + 1)
+        self.assertTrue(store.retry_checkpoint(
+            run_id, 1, first["lease_token"], "network"
+        ))
+
+        store.record_usage(
+            "codex", session, "supersede-implementation",
+            audit._openai_counts({"totalTokens": 3}), "native",
+        )
+        store.set_bucket(run_id, "testing", 2)
+        newer = store.claim_checkpoint(time.time() + 1)
+        self.assertEqual(2, newer["marker_sequence"])
+        self.assertEqual(
+            {"planning": 2, "implementation": 3},
+            bucket_map(newer["finalization"]),
+        )
+        self.assertTrue(store.complete_checkpoint(
+            run_id, 2, newer["lease_token"]
+        ))
+
+        stale = store.claim_checkpoint(time.time() + 100)
+        self.assertEqual(1, stale["marker_sequence"])
+        self.assertTrue(store.complete_checkpoint(
+            run_id, 1, stale["lease_token"]
+        ))
+
+    def test_sent_checkpoint_prunes_before_active_run_but_pending_is_retained(self):
+        store = self.store()
+        session = store.fingerprint("codex-thread", "checkpoint-retention")
+        store.bind_session("codex", session, is_root=True)
+        run_id = str(uuid.uuid4())
+        store.start_run(
+            "codex", "openai", "native", session, run_id, "J-all-556"
+        )
+        store.set_bucket(run_id, "implementation", 1)
+        first = store.claim_checkpoint(time.time() + 100)
+        store.complete_checkpoint(run_id, 1, first["lease_token"])
+        store.set_bucket(run_id, "testing", 2)
+
+        now = time.time()
+        old_sent = now - audit.FINALIZED_RETENTION_SECONDS - 1
+        with closing(store.connect()) as connection, connection:
+            connection.execute(
+                "UPDATE token_audit_checkpoints SET updated_at=? "
+                "WHERE audit_run_id=?", (old_sent, run_id),
+            )
+        store.prune_retained(now)
+        with closing(store.connect()) as connection:
+            rows = connection.execute(
+                "SELECT marker_sequence, state FROM token_audit_checkpoints "
+                "WHERE audit_run_id=? ORDER BY marker_sequence", (run_id,),
+            ).fetchall()
+            run = connection.execute(
+                "SELECT state FROM token_audit_runs WHERE audit_run_id=?",
+                (run_id,),
+            ).fetchone()
+        self.assertEqual([(2, "pending")], [tuple(row) for row in rows])
+        self.assertIsNotNone(run)
+
+        with closing(store.connect()) as connection, connection:
+            connection.execute(
+                "UPDATE token_audit_runs SET started_at=? WHERE audit_run_id=?",
+                (now - audit.UNPUBLISHED_RETENTION_SECONDS - 1, run_id),
+            )
+        store.prune_retained(now)
+        with closing(store.connect()) as connection:
+            self.assertIsNone(connection.execute(
+                "SELECT 1 FROM token_audit_runs WHERE audit_run_id=?",
+                (run_id,),
+            ).fetchone())
+            self.assertIsNone(connection.execute(
+                "SELECT 1 FROM token_audit_checkpoints WHERE audit_run_id=?",
+                (run_id,),
+            ).fetchone())
 
 
 class CodexAuditTests(TokenAuditTestCase):
@@ -816,6 +1875,7 @@ class CodexAuditTests(TokenAuditTestCase):
             },
         })
 
+        drain_checkpoints(self.store())
         row = self.store().claim_outbox()
         self.assertIsNotNone(row)
         finalization = row["finalization"]
@@ -887,6 +1947,15 @@ class CodexAuditTests(TokenAuditTestCase):
                        "turn": {"id": "turn-2", "status": "completed"}},
         })
 
+        checkpoints = drain_checkpoints(self.store())
+        self.assertEqual(1, len(checkpoints))
+        checkpoint = checkpoints[0]["finalization"]
+        self.assertEqual("exact", checkpoint["measurement"]["status"])
+        self.assertEqual(
+            25, checkpoint["measurement"]["normalized_total_tokens"]
+        )
+        self.assertEqual("complete", checkpoint["coverage"]["main_session"])
+        self.assertEqual(0, checkpoint["coverage"]["descendants_discovered"])
         finalization = self.store().claim_outbox()["finalization"]
         self.assertEqual("exact", finalization["measurement"]["status"])
         self.assertEqual(45, finalization["measurement"]["normalized_total_tokens"])
@@ -1088,6 +2157,59 @@ class CodexAuditTests(TokenAuditTestCase):
             "session_interrupted", finalization["measurement"]["reason_code"]
         )
 
+    def test_shutdown_preserves_closed_checkpoint_and_resumable_active_bucket(self):
+        observer = audit.CodexTokenAudit("stage", "workspace-1")
+        observer.set_primary_thread({"id": "active-shutdown"})
+        run_id = str(uuid.uuid4())
+        observer.store.start_run(
+            "codex", "openai", "native", observer.primary_session_fp,
+            run_id, "J-all-557",
+        )
+        observer.store.record_usage(
+            "codex", observer.primary_session_fp, "shutdown-planning",
+            audit._openai_counts({"totalTokens": 3}), "native",
+        )
+        observer.store.set_bucket(run_id, "implementation", 1)
+        first = observer.store.claim_checkpoint(time.time() + 100)
+        self.assertTrue(observer.store.complete_checkpoint(
+            run_id, 1, first["lease_token"]
+        ))
+        observer.store.record_usage(
+            "codex", observer.primary_session_fp, "shutdown-implementation",
+            audit._openai_counts({"totalTokens": 5}), "native",
+        )
+
+        observer.close()
+
+        self.assertIsNone(self.store().claim_outbox())
+        resumed = audit.CodexTokenAudit("stage", "workspace-1")
+        resumed.set_primary_thread({"id": "active-shutdown"})
+        active = resumed.store.session_run(
+            "codex", resumed.primary_session_fp
+        )
+        self.assertEqual(run_id, active["audit_run_id"])
+        self.assertEqual("active", active["state"])
+
+        with closing(resumed.store.connect()) as connection:
+            persisted = connection.execute(
+                "SELECT state, finalization_json "
+                "FROM token_audit_checkpoints WHERE audit_run_id=? "
+                "AND marker_sequence=1", (run_id,),
+            ).fetchone()
+        self.assertEqual("sent", persisted["state"])
+        self.assertEqual(
+            {"planning": 3},
+            bucket_map(json.loads(persisted["finalization_json"])),
+        )
+
+        resumed.store.set_bucket(run_id, "testing", 2)
+        second = resumed.store.claim_checkpoint(time.time() + 100)
+        self.assertEqual(
+            {"planning": 3, "implementation": 5},
+            bucket_map(second["finalization"]),
+        )
+        resumed.close()
+
 
 class ClaudeAuditTests(TokenAuditTestCase):
     def append_record(self, path, record):
@@ -1244,6 +2366,10 @@ class ClaudeAuditTests(TokenAuditTestCase):
         self.append_record(transcript, self.assistant("message-4", 4, 1))
         self.hook("Stop", transcript)
 
+        drain_checkpoints(
+            self.store(),
+            time.time() + audit.CLAUDE_TRANSCRIPT_GRACE_SECONDS + 1,
+        )
         row = self.store().claim_outbox(
             time.time() + audit.CLAUDE_TRANSCRIPT_GRACE_SECONDS + 1
         )
@@ -2520,6 +3646,9 @@ class OtlpAndOutboxTests(TokenAuditTestCase):
         ))
         store.request_end(run_id, "progress")
         store.signal_complete("claude", session_fp)
+        drain_checkpoints(
+            store, time.time() + audit.CLAUDE_EXPORT_GRACE_SECONDS + 1
+        )
         finalization = store.claim_outbox()["finalization"]
         self.assertEqual(
             {"planning": 20, "verification": 20},
@@ -2936,6 +4065,9 @@ class OtlpAndOutboxTests(TokenAuditTestCase):
                 def __init__(self):
                     self.claims = 0
 
+                def claim_checkpoint(inner_self):
+                    return None
+
                 def claim_outbox(inner_self):
                     inner_self.claims += 1
                     if inner_self.claims == 1:
@@ -3004,6 +4136,36 @@ class OtlpAndOutboxTests(TokenAuditTestCase):
                 (run_id,),
             ).fetchone()["state"]
         self.assertEqual("finalized", state)
+
+    def test_publisher_prefers_due_checkpoint_then_terminal_snapshot(self):
+        store = self.store()
+        session = store.fingerprint("codex-thread", "publisher-order")
+        store.bind_session("codex", session, is_root=True)
+        run_id = str(uuid.uuid4())
+        store.start_run(
+            "codex", "openai", "native", session, run_id, "J-all-558"
+        )
+        store.record_usage(
+            "codex", session, "publisher-planning",
+            audit._openai_counts({"totalTokens": 5}), "native",
+        )
+        store.set_bucket(run_id, "implementation", 1)
+        store.request_end(run_id, "review_requested")
+        store.signal_complete("codex", session)
+
+        runtime = audit.TokenAuditProxy.__new__(audit.TokenAuditProxy)
+        runtime.store = store
+        runtime.source = "native"
+        runtime.receiver = None
+        published = []
+        runtime.publish = published.append
+
+        self.assertTrue(runtime._publish_once(maintain_receiver=False))
+        self.assertTrue(runtime._publish_once(maintain_receiver=False))
+        self.assertEqual(
+            ["checkpoint", "final"],
+            [row["publication_kind"] for row in published],
+        )
 
     def test_late_activity_rebuilds_unattempted_payload(self):
         store = self.store()
@@ -3232,6 +4394,213 @@ class ProxyContractTests(TokenAuditTestCase):
         ])
         self.assertEqual("codex", codex.token_audit_client)
 
+    def test_private_publisher_calls_checkpoint_phase_tool(self):
+        class Response(io.BytesIO):
+            def __init__(self, payload):
+                super().__init__(json.dumps(payload).encode())
+                self.headers = {"Content-Type": "application/json"}
+
+        captured = {}
+
+        def post(_url, _headers, body, _provider, timeout=30):
+            del timeout
+            captured.update(json.loads(body))
+            arguments = captured["params"]["arguments"]
+            return Response({
+                "jsonrpc": "2.0", "id": captured["id"],
+                "result": {"structuredContent": {
+                    "schema_version": 1,
+                    "state": "checkpointed",
+                    "publication": "checkpoint",
+                    "audit_run_id": arguments["audit_run_id"],
+                    "canonical_job_id": arguments["job_id"],
+                    "marker_sequence": arguments["marker_sequence"],
+                    "bucket": arguments["bucket"],
+                    "idempotent": False,
+                    "superseded": False,
+                    "identity_verified": True,
+                    "checkpoint_identity_fingerprint": (
+                        proxy.checkpoint_identity_fingerprint(
+                            arguments["job_id"],
+                            arguments["audit_run_id"],
+                            arguments["marker_sequence"],
+                            arguments["bucket"],
+                            arguments["finalization"],
+                        )
+                    ),
+                    "note_short_code_id": "R-all-41",
+                    "note_url": "https://example.test/R-all-41",
+                    "checkpoint_normalized_total_tokens": 21,
+                }},
+            }), None
+
+        row = {
+            "publication_kind": "checkpoint",
+            "job_id": "J-all-387",
+            "audit_run_id": str(uuid.uuid4()),
+            "marker_sequence": 3,
+            "bucket": "testing",
+            "finalization": {
+                "schema_version": 1,
+                "measurement": {
+                    "status": "exact", "normalized_total_tokens": 21,
+                },
+                "buckets": {
+                    "method": "next_request_marker_v1",
+                    "items": [{"label": "planning", "tokens": 21}],
+                },
+            },
+        }
+        with mock.patch.object(proxy, "post_to_mcp_refreshing_token", post):
+            result = proxy.make_token_audit_publisher(
+                "https://example.test/mcp", lambda: "token"
+            )(row)
+        self.assertEqual("checkpointed", result["state"])
+        self.assertEqual("set_job_audit_phase", captured["params"]["name"])
+        self.assertEqual(
+            row["finalization"],
+            captured["params"]["arguments"]["finalization"],
+        )
+        self.assertEqual(3, captured["params"]["arguments"]["marker_sequence"])
+        self.assertIn("-checkpoint-3", captured["id"])
+
+    def test_private_publisher_accepts_superseded_checkpoint_without_echo(self):
+        class Response(io.BytesIO):
+            def __init__(self, payload):
+                super().__init__(json.dumps(payload).encode())
+                self.headers = {"Content-Type": "application/json"}
+
+        row = {
+            "publication_kind": "checkpoint",
+            "job_id": "J-all-387",
+            "audit_run_id": str(uuid.uuid4()),
+            "marker_sequence": 2,
+            "bucket": "testing",
+            "finalization": {
+                "schema_version": 1,
+                "measurement": {
+                    "status": "exact", "normalized_total_tokens": 13,
+                },
+                "buckets": {
+                    "method": "next_request_marker_v1",
+                    "items": [{"label": "planning", "tokens": 13}],
+                },
+            },
+        }
+
+        def post(_url, _headers, body, _provider, timeout=30):
+            del timeout
+            request = json.loads(body)
+            return Response({
+                "jsonrpc": "2.0", "id": request["id"],
+                "result": {"structuredContent": {
+                    "schema_version": 1,
+                    "state": "checkpointed",
+                    "publication": "checkpoint",
+                    "audit_run_id": row["audit_run_id"],
+                    "canonical_job_id": row["job_id"],
+                    "marker_sequence": row["marker_sequence"],
+                    "bucket": row["bucket"],
+                    "idempotent": True,
+                    "superseded": True,
+                    "identity_verified": False,
+                    "note_short_code_id": "R-all-43",
+                    "note_url": "https://example.test/R-all-43",
+                    "checkpoint_normalized_total_tokens": 13,
+                }},
+            }), None
+
+        with mock.patch.object(proxy, "post_to_mcp_refreshing_token", post):
+            result = proxy.make_token_audit_publisher(
+                "https://example.test/mcp", lambda: "token"
+            )(row)
+        self.assertTrue(result["superseded"])
+        self.assertFalse(result["identity_verified"])
+
+    def test_private_publisher_rejects_unverified_checkpoint_identity(self):
+        class Response(io.BytesIO):
+            def __init__(self, payload):
+                super().__init__(json.dumps(payload).encode())
+                self.headers = {"Content-Type": "application/json"}
+
+        row = {
+            "publication_kind": "checkpoint",
+            "job_id": "J-all-387",
+            "audit_run_id": str(uuid.uuid4()),
+            "marker_sequence": 4,
+            "bucket": "testing",
+            "finalization": {
+                "schema_version": 1,
+                "measurement": {
+                    "status": "exact", "normalized_total_tokens": 8,
+                },
+                "buckets": {
+                    "method": "next_request_marker_v1",
+                    "items": [{"label": "planning", "tokens": 8}],
+                },
+            },
+        }
+        fingerprint = proxy.checkpoint_identity_fingerprint(
+            row["job_id"], row["audit_run_id"], row["marker_sequence"],
+            row["bucket"], row["finalization"],
+        )
+        valid = {
+            "schema_version": 1,
+            "state": "checkpointed",
+            "publication": "checkpoint",
+            "audit_run_id": row["audit_run_id"],
+            "canonical_job_id": row["job_id"],
+            "marker_sequence": row["marker_sequence"],
+            "bucket": row["bucket"],
+            "idempotent": False,
+            "superseded": False,
+            "identity_verified": True,
+            "checkpoint_identity_fingerprint": fingerprint,
+            "note_short_code_id": "R-all-44",
+            "note_url": "https://example.test/R-all-44",
+            "checkpoint_normalized_total_tokens": 8,
+        }
+        invalid = {
+            "missing_superseded": {
+                key: value for key, value in valid.items()
+                if key != "superseded"
+            },
+            "non_boolean_superseded": {
+                **valid, "superseded": "false",
+            },
+            "missing_identity_verified": {
+                key: value for key, value in valid.items()
+                if key != "identity_verified"
+            },
+            "unverified_current": {
+                **valid, "identity_verified": False,
+            },
+            "wrong_fingerprint": {
+                **valid,
+                "checkpoint_identity_fingerprint": "sha256-v1:" + "0" * 64,
+            },
+            "missing_fingerprint": {
+                key: value for key, value in valid.items()
+                if key != "checkpoint_identity_fingerprint"
+            },
+        }
+        for name, structured in invalid.items():
+            with self.subTest(name=name):
+                def post(_url, _headers, body, _provider, timeout=30):
+                    del timeout
+                    request = json.loads(body)
+                    return Response({
+                        "jsonrpc": "2.0", "id": request["id"],
+                        "result": {"structuredContent": structured},
+                    }), None
+
+                with mock.patch.object(
+                    proxy, "post_to_mcp_refreshing_token", post
+                ), self.assertRaises(RuntimeError):
+                    proxy.make_token_audit_publisher(
+                        "https://example.test/mcp", lambda: "token"
+                    )(row)
+
     def test_private_publisher_calls_finalizing_end_tool(self):
         class Response(io.BytesIO):
             def __init__(self, payload):
@@ -3248,6 +4617,7 @@ class ProxyContractTests(TokenAuditTestCase):
                 "result": {"structuredContent": {
                     "schema_version": 1,
                     "state": "completed",
+                    "publication": "final",
                     "audit_run_id": captured["params"]["arguments"][
                         "audit_run_id"
                     ],
@@ -3332,6 +4702,7 @@ class ProxyContractTests(TokenAuditTestCase):
         valid_structured = {
             "schema_version": 1,
             "state": "completed",
+            "publication": "final",
             "audit_run_id": row["audit_run_id"],
             "canonical_job_id": row["job_id"],
             "idempotent": False,
@@ -3366,6 +4737,19 @@ class ProxyContractTests(TokenAuditTestCase):
                 "jsonrpc": "2.0", "id": valid_id,
                 "result": {"structuredContent": {
                     **valid_structured, "canonical_job_id": "J-all-999",
+                }},
+            },
+            "missing_publication": {
+                "jsonrpc": "2.0", "id": valid_id,
+                "result": {"structuredContent": {
+                    key: value for key, value in valid_structured.items()
+                    if key != "publication"
+                }},
+            },
+            "wrong_publication": {
+                "jsonrpc": "2.0", "id": valid_id,
+                "result": {"structuredContent": {
+                    **valid_structured, "publication": "checkpoint",
                 }},
             },
             "missing_note": {

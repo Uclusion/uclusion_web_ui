@@ -433,6 +433,14 @@ than 32 distinct labels in a run, and do not create separate standard/custom
 dimensions. Re-entering an earlier bucket is allowed and adds to that bucket's
 total.
 
+Do not let one bucket silently absorb a different kind of work the reader
+would expect to see broken out. In particular, switch to `testing` when you
+begin running tests, builds, or other validation — leaving that work inside
+`implementation` hides it from the usage note entirely. When a default label
+fits the work, use the default rather than inventing a synonym; reserve
+custom labels like `commit and push` for work none of the defaults
+describes, so notes from different runs of the same job stay comparable.
+
 A bucket marker applies to the next model request; it cannot retroactively
 relabel tokens already consumed, so set it before beginning the new kind of
 work. Include a monotonically increasing `marker_sequence`, starting at 1 for

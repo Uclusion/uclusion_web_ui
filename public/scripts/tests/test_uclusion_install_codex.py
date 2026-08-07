@@ -199,6 +199,8 @@ class WorkflowProtocolContractTests(unittest.TestCase):
         self.assertIn('no more than 32 distinct labels', self.workflow)
         self.assertIn('Every request belongs to exactly one active bucket', self.workflow)
         self.assertIn('do not create separate standard/custom dimensions', self.workflow)
+        self.assertIn('switch to `testing` when you begin running tests', self.workflow)
+        self.assertIn('reserve custom labels like `commit and push`', self.workflow)
         self.assertIn('lookup performed only to classify an inbound Poke', self.workflow)
         self.assertIn('collection finishes out of band', self.workflow)
         self.assertIn('partial client telemetry never block', self.workflow)

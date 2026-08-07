@@ -275,7 +275,8 @@ function WorkListItem(props) {
             {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
             {showTicketCode && (
               <Tooltip title={ticketName || ''} placement="top">
-                <span style={{ color: '#5f6368', opacity: read ? 0.75 : 0.87, whiteSpace: 'nowrap', flexShrink: 0,
+                <span style={{ color: read ? '#5f6368' : (theme.palette.type === 'dark' ? 'white' : 'black'),
+                  opacity: read ? 0.75 : 0.87, whiteSpace: 'nowrap', flexShrink: 0,
                   marginRight: '8px', fontSize: mobileLayout ? 14 : 18,
                   fontWeight: read ? undefined : 'bold' }}>{ticketCode}</span>
               </Tooltip>

@@ -13,7 +13,7 @@ import NameField, { clearNameStoredState, getNameStoredState } from '../../TextF
 import SpinningIconLabelButton from '../../Buttons/SpinningIconLabelButton';
 import { Clear, SettingsBackupRestore } from '@material-ui/icons';
 import { useIntl } from 'react-intl';
-import { useEditor } from '../../TextEditors/quillHooks';
+import { HASH_MENTION_CHARS, useEditor } from '../../TextEditors/quillHooks';
 import { realeaseInvestibleEditLock, updateInvestible } from '../../../api/investibles';
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
@@ -41,10 +41,11 @@ function JobEditStep(props) {
     onUpload: (files) => updateFormData({uploadedFiles: files}),
     marketId,
     mentionsAllowed: true,
-    mentionDenotationChars: ['#'],
+    mentionDenotationChars: HASH_MENTION_CHARS,
     placeholder: intl.formatMessage({ id: 'investibleAddDescriptionDefault' }),
     value: useDescription,
-    autoFocus: true
+    // B-all-535: the name field above owns arrival focus; both autofocusing was a timer race
+    autoFocus: false
   };
 
   const [Editor] = useEditor(editorName, editorSpec);

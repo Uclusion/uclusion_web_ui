@@ -245,6 +245,7 @@ export function getSidebarGroups(isDark, navListItemTextArray, groupsState, mark
     const outsetAvailable = isChosen && useHoverFunctions;
     let num = undefined;
     let numSuffix = undefined;
+    let hasCritical = false;
     if (!_.isEmpty(search)) {
       const groupResults = (results || []).filter((item) => item.groupId === group.id);
       const groupLevelResults = []
@@ -285,6 +286,8 @@ export function getSidebarGroups(isDark, navListItemTextArray, groupsState, mark
           comment.notification_type === RED_LEVEL &&
           !groupMessages.find((message) => message.comment_id === comment.id));
         count += criticalBugs.length;
+        // B-all-538: a count that includes critical bugs must read as critical, not routine
+        hasCritical = !_.isEmpty(criticalBugs);
       }
       if (count > 0) {
         num = count;
@@ -293,7 +296,7 @@ export function getSidebarGroups(isDark, navListItemTextArray, groupsState, mark
     const groupName = market.object_type === DEMO_TYPE && group.name === 'Single' && isGravatarDisplay ? singlePresence.name : group.name;
     return {icon: myIcon, complexIcon: isGravatarDisplay, iconColor: isDark ? DARK_ACTION_BUTTON_COLOR : 'black', 
       endIcon: outsetAvailable ? MoreVert : undefined,
-      text: groupName, num, numSuffix,
+      text: groupName, num, numSuffix, hasCritical,
       isBold: isChosen, openMenuItems: isChosen ? openMenuItems : undefined,
       isBlue: groupId === group.id || pathname === '/',
       resetFunction: isChosen ? resetFunction : undefined,

@@ -2,10 +2,12 @@ import React, { useEffect, useReducer, useState } from 'react'
 import reducer, { initializeState, NOTIFICATIONS_CONTEXT_NAMESPACE, } from './notificationsContextReducer'
 import beginListening from './notificationsContextMessages'
 import LocalForageHelper from '../../utils/LocalForageHelper'
+import { notificationsDispatchHack } from './pendingClearsFlusher'
 
 export const EMPTY_STATE = {
   messages: [],
   navigations: [],
+  pendingClears: [],
 };
 
 const NotificationsContext = React.createContext(EMPTY_STATE);
@@ -18,6 +20,8 @@ function NotificationsProvider(props) {
 
   useEffect(() => {
     console.info('Beginning listening in notifications provider');
+    // B-all-544: the background clear flusher acks delivered clears through this dispatch
+    notificationsDispatchHack.dispatch = dispatch;
     beginListening(dispatch, setInitialized);
     return () => {};
   }, []);
@@ -32,7 +36,8 @@ function NotificationsProvider(props) {
           dispatch(initializeState({
             page: undefined,
             messages: [],
-            navigations: []
+            navigations: [],
+            pendingClears: []
           }));
         }
       });

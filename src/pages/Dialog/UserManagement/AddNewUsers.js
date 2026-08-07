@@ -151,6 +151,7 @@ function AddNewUsers(props) {
                   <TextField
                     className={classes.search}
                     placeholder="Search in your organization"
+                    autoFocus
                     onChange={onSearchChange}
                     InputProps={{
                       startAdornment: (

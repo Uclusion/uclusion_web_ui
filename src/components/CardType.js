@@ -29,11 +29,10 @@ import HowToVoteIcon from '@material-ui/icons/HowToVote'
 import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
 import UsefulRelativeTime from './TextFields/UseRelativeTime'
 import { Typography, useMediaQuery, useTheme } from '@material-ui/core'
-import { Block, Notes, Notifications } from '@material-ui/icons';
+import { Block, Notes } from '@material-ui/icons';
+import NotificationMenuButton from './Buttons/NotificationMenuButton';
 import LightbulbOutlined from './CustomChip/LightbulbOutlined';
 import CommentTypeChip from './Comments/CommentTypeChip';
-import TooltipIconButton from './Buttons/TooltipIconButton'
-import { DARK_INFO_COLOR, useButtonColors } from './Buttons/ButtonConstants'
 
 export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, DECISION_TYPE }
 export const VOTING_TYPE = 'VOTING'
@@ -167,14 +166,12 @@ export default function CardType(props) {
     compressed = false,
     alwaysShowTypeChip = false,
     linker,
-    notificationFunc,
-    notificationIsHighlighted
+    notificationMessage
   } = props;
   const classes = useCardTypeStyles({ type, resolved, color });
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const { warningColor } = useButtonColors();
   const IconComponent = (subtype || type) in labelIntlIds ? {
     [ISSUE_TYPE]: Block,
     [QUESTION_TYPE]: QuestionIcon,
@@ -245,15 +242,8 @@ export default function CardType(props) {
         )
       )}
       {linker}
-      {notificationFunc && (
-        <TooltipIconButton
-          noAlign
-          onClick={notificationFunc}
-          icon={<Notifications fontSize='small' htmlColor={notificationIsHighlighted ? warningColor : 
-            (theme.palette.type === 'dark' ? DARK_INFO_COLOR : undefined)} />}
-          size='small'
-          translationId='messagePresentComment'
-        />
+      {notificationMessage && (
+        <NotificationMenuButton message={notificationMessage} />
       )}
       {createdAt && (
         <Typography className={classes.timeElapsed} variant="body2">

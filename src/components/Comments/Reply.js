@@ -21,7 +21,7 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
 import {
   decomposeMarketPath,
-  formCommentLink, formInboxItemLink, formMarketAddInvestibleLink,
+  formCommentLink, formMarketAddInvestibleLink,
   formWizardLink,
   navigate,
   preventDefaultAndProp
@@ -31,6 +31,7 @@ import { NotificationsContext } from '../../contexts/NotificationsContext/Notifi
 import { findMessageForCommentId } from '../../utils/messageUtils';
 import { invalidEditEvent } from '../../utils/windowUtils';
 import TooltipIconButton from '../Buttons/TooltipIconButton';
+import NotificationMenuButton from '../Buttons/NotificationMenuButton';
 import { ScrollContext } from '../../contexts/ScrollContext';
 import { EditCommentContext } from '../../contexts/EditCommentContext/EditCommentContext';
 import ListAltIcon from '@material-ui/icons/ListAlt';
@@ -52,7 +53,7 @@ import { useInlineWizardLaunch } from '../InlineWizard/InlineWizardContext';
 import EditIcon from '@material-ui/icons/Edit';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
-import { Done, Edit, Eject, Notifications, NotificationsActive } from '@material-ui/icons';
+import { Done, Edit, Eject, NotificationsActive } from '@material-ui/icons';
 import { resolveComment, updateComment } from '../../api/comments';
 import { previousInProgress } from '../AddNewWizards/TaskInProgress/TaskInProgressWizard';
 import { getNotDoingStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
@@ -61,8 +62,7 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { isMyPokableComment } from '../../pages/Home/YourWork/InboxExpansionPanel';
 import { getMarketClient } from '../../api/marketLogin';
-import { ACTION_BUTTON_COLOR, DARK_TEXT_BACKGROUND_COLOR, useButtonColors } from '../Buttons/ButtonConstants';
-import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
+import { ACTION_BUTTON_COLOR, DARK_TEXT_BACKGROUND_COLOR } from '../Buttons/ButtonConstants';
 import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 import InvesibleCommentLinker from '../../pages/Dialog/InvesibleCommentLinker';
 import { BLUE_LEVEL } from '../../constants/notifications';
@@ -209,7 +209,6 @@ function Reply(props) {
   const isDark = themeMode === 'dark';
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const { warningColor } = useButtonColors();
   const {
     marketId,
     idPrepend,
@@ -221,7 +220,7 @@ function Reply(props) {
   const commenter = useCommenter(comment, presences) || { name: "unknown", email: "" };
   const [hashFragment, noHighlightId, setNoHighlightId] = useContext(ScrollContext);
   const { editComment, openEditComment, closeEditComment } = useContext(EditCommentContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [messagesState] = useContext(NotificationsContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketsState] = useContext(MarketsContext);
@@ -398,19 +397,10 @@ function Reply(props) {
           </Typography>
         )}
         {myMessage?.type_object_id && !isInbox && !replyBeingEdited && (
-          <TooltipIconButton
-            lightSurface
-            onClick={(event) => {
-              if (!invalidEditEvent(event, history)) {
-                dehighlightMessage(myMessage, messagesDispatch);
-                navigate(history, formInboxItemLink(myMessage));
-              }
-            }}
-            icon={<Notifications fontSize='small' htmlColor={myMessage?.is_highlighted ? warningColor : ACTION_BUTTON_COLOR} 
-              style={{marginLeft: '1rem'}} />}
-            size='small'
-            translationId='messagePresentComment'
-          />
+          // T-all-2447: the bell offers go-to or clear via NotificationMenuButton
+          <NotificationMenuButton lightSurface message={myMessage}
+                                  unhighlightedColor={ACTION_BUTTON_COLOR}
+                                  iconStyle={{marginLeft: '1rem'}} />
         )}
         {enableActions && isDeletable && (
           <TooltipIconButton

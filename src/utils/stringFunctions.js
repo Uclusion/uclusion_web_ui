@@ -2,6 +2,18 @@ import _ from 'lodash';
 import { getGroup } from '../contexts/MarketGroupsContext/marketGroupsContextHelper';
 
 
+// Condensed ticket code: J-view-152 displays as J-152 since context usually names the view
+export function transformTicketCode(inputString) {
+  if (!inputString) {
+    return inputString;
+  }
+  const allMatches = inputString.split('-');
+  if (allMatches.length < 3) {
+    return inputString;
+  }
+  return `${allMatches[0]}-${allMatches[2]}`;
+}
+
 export function getTicketNumber(groupId, marketId, groupsState, isAutonomous=false, isSameGroup = true) {
   if (isAutonomous && !isSameGroup) {
       const group = getGroup(groupsState, marketId, groupId);

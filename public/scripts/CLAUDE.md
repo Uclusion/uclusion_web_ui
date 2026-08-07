@@ -602,7 +602,13 @@ or re-ask the question merely because no reply was recorded.
 
 Even once answered, if the not AI users' votes are all marked less than or equal to 50 out of 100
 and you are able to come up with an option that you are more certain of than your 
-current vote, you can propose that new option using `add_options`.
+current vote, you can propose that new option using `add_options`. If you cannot
+come up with such an option, next consider whether the existing question or its
+voted option could be explained better: when you see a clarification that could
+raise the human's certainty — what the option really means, a consequence they
+may not have weighed, evidence they may not have seen — add it as a reply on the
+question or option. If you have neither a better option nor a better
+explanation, proceed as normal with the answer as voted.
 
 Call `resolve` on questions you feel have already been answered and require no 
 further operations. Do not resolve a question and then reply or other operation to 

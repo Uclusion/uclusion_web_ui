@@ -511,6 +511,7 @@ function Signup(props) {
                       variant="outlined"
                       required
                       fullWidth
+                      autoFocus
                       id="email"
                       name="email"
                       type="email"

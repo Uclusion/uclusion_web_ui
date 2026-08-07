@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import WizardStepButtons from '../WizardStepButtons';
 import { editorEmpty, getQuillStoredState, resetEditor } from '../../TextEditors/Utilities/CoreUtils';
-import { useEditor } from '../../TextEditors/quillHooks';
+import { HASH_MENTION_CHARS, useEditor } from '../../TextEditors/quillHooks';
 import { convertDescription } from '../../../utils/stringFunctions';
 import { addDecisionInvestible } from '../../../api/investibles';
 import { processTextAndFilesForSave } from '../../../api/files';
@@ -61,7 +61,7 @@ function OptionDescriptionStep (props) {
     value: getQuillStoredState(editorName),
     marketId,
     mentionsAllowed: true,
-    mentionDenotationChars: ['#'],
+    mentionDenotationChars: HASH_MENTION_CHARS,
     onUpload: setUploadedFiles,
     autoFocus: true,
     onChange: () => { setHasValue(!editorEmpty(getQuillStoredState(editorName))); updateName(); },

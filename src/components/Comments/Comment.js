@@ -68,7 +68,7 @@ import {
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   decomposeMarketPath,
-  formCommentLink, formInboxItemLink,
+  formCommentLink,
   formInvestibleAddCommentLink,
   formMarketAddInvestibleLink,
   formWizardLink,
@@ -132,7 +132,7 @@ import Gravatar from '../Avatars/Gravatar';
 import styled from 'styled-components';
 import { BLUE_LEVEL, NOT_FULLY_VOTED_TYPE, RED_LEVEL, UNASSIGNED_TYPE } from '../../constants/notifications';
 import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
-import { dehighlightMessage, getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
+import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import EditIcon from '@material-ui/icons/Edit';
 import ListAltIcon from '@material-ui/icons/ListAlt';
 import { hasReply } from '../AddNewWizards/Reply/ReplyStep';
@@ -976,24 +976,20 @@ function Comment(props) {
                                             avatarClassName={classes.smallGravatar}
   />;
   const showLinker = !isInbox && !beingEdited && ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType);
-  const notificationFunc = !replyEditId && myMessage?.type_object_id && !isInbox &&
-  (investibleId || commentType !== TODO_TYPE || myMessage.type !== UNASSIGNED_TYPE) ? () => {
-    dehighlightMessage(myMessage, messagesDispatch);
-    navigate(history, formInboxItemLink(myMessage));
-  } : undefined;
+  // T-all-2447: the bell offers go-to or clear via NotificationMenuButton
+  const notificationMessage = !replyEditId && myMessage?.type_object_id && !isInbox &&
+  (investibleId || commentType !== TODO_TYPE || myMessage.type !== UNASSIGNED_TYPE) ? myMessage : undefined;
   const linkerShouldBeFirst = noAuthor && commentType === TODO_TYPE && investibleId;
   const cardTypeDisplay = overrideLabel ? (
     <CardType className={classes.commentType} type={commentType} resolved={resolved} compact
               subtype={commentType === TODO_TYPE && _.isEmpty(investibleId) ? BUG : (commentType === REPLY_TYPE ?
                 TODO_TYPE : (isNote ? NOTE :undefined))} linker={(reallyNoAuthor || isMarketTodo) && showLinker && linker}
-              label={overrideLabel} color={color} compressed={useCompression} notificationFunc={notificationFunc}
-              notificationIsHighlighted={myMessage?.is_highlighted}
+              label={overrideLabel} color={color} compressed={useCompression} notificationMessage={notificationMessage}
               gravatar={noAuthor || mobileLayout || isDisplayOfSubTask ? undefined : gravatarWithName}
     />
   ): (
     <CardType className={classes.commentType} type={commentType} resolved={resolved} compact compressed={useCompression}
-              gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName} notificationFunc={notificationFunc}
-              notificationIsHighlighted={myMessage?.is_highlighted}
+              gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName} notificationMessage={notificationMessage}
               alwaysShowTypeChip={compressAll}
               linker={(linkerShouldBeFirst || reallyNoAuthor || isMarketTodo) && showLinker && linker}
     />

@@ -89,6 +89,7 @@ function PromoCodeInput(props) {
         className={classes.promoInput}
         value={promoBoxValue} onChange={promoBoxOnChange}
         placeholder="Your Code"
+        autoFocus
       />
       {!wizardProps && (
         <SpinningButton

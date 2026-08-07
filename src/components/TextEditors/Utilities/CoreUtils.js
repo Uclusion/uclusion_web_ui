@@ -272,6 +272,11 @@ export function createEditor (id, editorContents, config, forceCreate) {
 
 
   const imageDeleteDetector = (delta, oldContents) => {
+    // T-all-2448: only a delta that deletes something can remove an image - skip the
+    // full-document diff this ran synchronously on every ordinary typing insert
+    if (!delta?.ops?.some((op) => op.delete != null)) {
+      return;
+    }
     const newContents = editor.getContents();
     const diff = newContents.diff(oldContents);
     // if the old contents had an image insert and the new doesn't it was deleted
@@ -321,6 +326,27 @@ export function focusEditor (id) {
   }
   const {editor} = QuillEditorRegistry.getEditor(id);
   editor?.focus()
+}
+
+// B-all-535: focusEditor silently no-ops when the editor is not yet in the registry, and an
+// arrival-time recreate (placeholder/layout change) drops focus after it fires. Retry over a
+// short window, but never take focus away from anything the user or another control now owns.
+export function focusEditorOnArrival(id, attempt = 0) {
+  const { editor } = QuillEditorRegistry.getEditor(id);
+  const ownRoot = editor?.root;
+  const active = document.activeElement;
+  if (ownRoot && (active === ownRoot || ownRoot.contains(active))) {
+    return;
+  }
+  if (active && active !== document.body && active !== document.documentElement) {
+    return;
+  }
+  if (editor) {
+    focusEditor(id);
+  }
+  if (attempt < 3) {
+    setTimeout(() => focusEditorOnArrival(id, attempt + 1), 50 + 150 * attempt);
+  }
 }
 
 export function replaceEditorContents(contents, id) {

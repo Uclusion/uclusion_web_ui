@@ -15,7 +15,7 @@ import { useHistory } from 'react-router';
 import clsx from 'clsx';
 import GravatarAndName from '../../../components/Avatars/GravatarAndName';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
-import { formInboxItemLink, formWizardLink, navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
+import { formWizardLink, navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
 import { APPROVAL_WIZARD_TYPE, REPLY_WIZARD_TYPE } from '../../../constants/markets';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { removeInvestment, removeOthersInvestment } from '../../../api/marketInvestibles';
@@ -33,7 +33,6 @@ import NotificationDeletion from '../../Home/YourWork/NotificationDeletion';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import { useIntl } from 'react-intl';
-import { dehighlightMessage } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
 
 const useVoteStyles = makeStyles(
@@ -196,10 +195,8 @@ function Voting(props) {
           const { name, email, id: userId, quantity, commentId, updatedAt } = voter;
           const isYourVote = userId === yourPresence.id;
           const myMessage = findMessageByInvestmentUserId(userId, investibleId, messagesState);
-          const notificationFunc = !isInbox && myMessage?.type_object_id ? () => {
-            dehighlightMessage(myMessage, messagesDispatch)
-            navigate(history, formInboxItemLink(myMessage));
-          } : undefined;
+          // T-all-2447: the bell offers go-to or clear via NotificationMenuButton
+          const notificationMessage = !isInbox && myMessage?.type_object_id ? myMessage : undefined;
           const reason = investmentReasons.find((comment) => comment.id === commentId);
           const voteReplies = reason ? _.sortBy(marketComments.filter((comment) => comment.reply_id === reason.id),
             'created_at') : [];
@@ -233,8 +230,7 @@ function Voting(props) {
                   <CardType compact={!midLayout} compressed={!hasContent || myUseCompression}
                     className={classes.cardType}
                     type={`certainty${Math.abs(quantity)}`}
-                    notificationFunc={notificationFunc}
-                    notificationIsHighlighted={myMessage?.is_highlighted}
+                    notificationMessage={notificationMessage}
                     gravatar={<GravatarAndName email={email}
                                        name={name} typographyVariant="caption"
                                        typographyClassName={classes.createdBy}
@@ -264,7 +260,7 @@ function Voting(props) {
                     <div style={{ flexGrow: 1 }}/>
                   )}
                   {showExpiration && !mobileLayout && (
-                    <div style={{marginRight: '1rem', paddingTop: '5px', marginLeft: notificationFunc ? '1rem' : undefined}}>
+                    <div style={{marginRight: '1rem', paddingTop: '5px', marginLeft: notificationMessage ? '1rem' : undefined}}>
                       <ExpiresDisplay
                         createdAt={new Date(updatedAt)}
                         expirationMinutes={expirationMinutes}

@@ -1,8 +1,8 @@
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import _ from 'lodash'
 import { findMessagesForInvestibleId } from '../../utils/messageUtils'
-import { getMarketClient } from '../../api/marketLogin'
 import { leaderContextHack } from '../LeaderContext/LeaderContext';
+import { flushPendingClears, PENDING_CLEARS_ACKED } from './pendingClearsFlusher';
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
@@ -89,13 +89,25 @@ export function initializeState (newState) {
  * Stores messages in the state.
  * @param state
  * @param messagesToStore
+ * @param pendingClears
  * @returns {*}
  */
-function storeMessagesInState(state, messagesToStore) {
+function storeMessagesInState(state, messagesToStore, pendingClears) {
   return {
     messages: messagesToStore,
-    navigations: state.navigations
+    navigations: state.navigations,
+    pendingClears: pendingClears || state.pendingClears || []
   };
+}
+
+// B-all-544: clears are delivered by the background flusher, so they are enqueued durably
+// alongside the tombstone instead of fired and forgotten. Entries without a market cannot be
+// sent and rollup ids may repeat, so both are filtered here.
+function withEnqueuedClears(state, additions) {
+  const existing = state.pendingClears || [];
+  const fresh = additions.filter((addition) => addition.marketId &&
+    !existing.find((entry) => entry.typeObjectId === addition.typeObjectId && entry.event === addition.event));
+  return _.isEmpty(fresh) ? existing : existing.concat(fresh);
 }
 
 /**
@@ -107,6 +119,7 @@ function storeMessagesInState(state, messagesToStore) {
 function doUpdateMessages (state, action) {
   const { messages } = action;
   const { messages: existingMessages } = state;
+  const reEnqueued = [];
   if (!_.isEmpty(existingMessages)) {
     const deletedMessages = existingMessages.filter((message) => message.deleted);
     // Keep around the quick added welcome group message till overwritten by real one
@@ -116,16 +129,23 @@ function doUpdateMessages (state, action) {
       messages.concat(preservedMessages);
     }
     if (!_.isEmpty(deletedMessages)) {
+      const pending = state.pendingClears || [];
       messages.forEach((message) => {
         if (!_.isEmpty(deletedMessages.find((deletedMessage) => deletedMessage.type_object_id === message.type_object_id
             && message.updated_at === deletedMessage.updated_at))) {
           // Mark deleted any shadow copies of deleted messages before replacing
           message.deleted = true;
+          // B-all-544: the server still returning this row highlighted means its clear was
+          // lost (the old mechanism dropped them) - re-enqueue delivery to self-heal the drift
+          if (message.is_highlighted &&
+              !pending.find((entry) => entry.typeObjectId === message.type_object_id)) {
+            reEnqueued.push({ typeObjectId: message.type_object_id, marketId: message.market_id, event: 'remove' });
+          }
         }
       });
     }
   }
-  return storeMessagesInState(state, messages);
+  return storeMessagesInState(state, messages, withEnqueuedClears(state, reEnqueued));
 }
 
 function addSingleMessage(state, action) {
@@ -153,14 +173,19 @@ function removeForInvestible(state, action) {
 
 function doRemoveMessages(state, action) {
   const { messages } = state;
-  const { messages: toRemoveMessages } = action;
+  const { messages: toRemoveMessages, isPromise } = action;
+  const additions = [];
   const mappedMessages = (messages || []).map((aMessage) => {
     if (toRemoveMessages.find((msgId) => aMessage.type_object_id === msgId)) {
+      // isPromise means the caller runs the network call itself
+      if (!isPromise) {
+        additions.push({ typeObjectId: aMessage.type_object_id, marketId: aMessage.market_id, event: 'remove' });
+      }
       return { ...aMessage, deleted: true};
     }
     return aMessage;
   });
-  return storeMessagesInState(state, mappedMessages);
+  return storeMessagesInState(state, mappedMessages, withEnqueuedClears(state, additions));
 }
 
 function doDehighlightMessages(state, action) {
@@ -182,8 +207,10 @@ function doDehighlightMessages(state, action) {
   if (_.isEmpty(dehighlightedMessages)) {
     return state;
   }
+  const additions = action.isPromise ? [] : dehighlightedMessages.map((message) => (
+    { typeObjectId: message.type_object_id, marketId: message.market_id, event: 'dehighlight' }));
   const newMessages = _.unionBy(dehighlightedMessages, existingMessages, 'type_object_id');
-  return storeMessagesInState(state, newMessages);
+  return storeMessagesInState(state, newMessages, withEnqueuedClears(state, additions));
 }
 
 function doDehighlightCriticalMessage (state, action) {
@@ -201,8 +228,10 @@ function doDehighlightCriticalMessage (state, action) {
   if (_.isEmpty(message.highlighted_list)) {
     message.is_highlighted = false;
   }
+  // The rollup is client-side only; the server row to dehighlight is the original message
+  const additions = [{ typeObjectId: originalMessage, marketId: message.market_id, event: 'dehighlight' }];
   const newMessages = _.unionBy([message], existingMessages, 'type_object_id');
-  return storeMessagesInState(state, newMessages);
+  return storeMessagesInState(state, newMessages, withEnqueuedClears(state, additions));
 }
 
 function doRemoveNavigation (state, action) {
@@ -213,7 +242,8 @@ function doRemoveNavigation (state, action) {
   });
   return {
     messages: state.messages,
-    navigations: filteredNavigations
+    navigations: filteredNavigations,
+    pendingClears: state.pendingClears || []
   };
 }
 
@@ -232,8 +262,17 @@ function doAddNavigation(state, action) {
   });
   return {
     messages: state.messages,
-    navigations: filteredNavigations
+    navigations: filteredNavigations,
+    pendingClears: state.pendingClears || []
   };
+}
+
+function doClearsAcked(state, action) {
+  const { acked } = action;
+  const pendingClears = (state.pendingClears || []).filter((entry) =>
+    !acked.find((ackedEntry) => ackedEntry.typeObjectId === entry.typeObjectId &&
+      ackedEntry.event === entry.event));
+  return { ...state, pendingClears };
 }
 
 function computeNewState (state, action) {
@@ -241,7 +280,9 @@ function computeNewState (state, action) {
     case UPDATE_MESSAGES:
       return doUpdateMessages(state, action);
     case INITIALIZE_STATE:
-      return action.newState;
+      return { ...action.newState, pendingClears: action.newState.pendingClears || [] };
+    case PENDING_CLEARS_ACKED:
+      return doClearsAcked(state, action);
     case REMOVE_MESSAGES:
     case QUICK_REMOVE_MESSAGES:
       return doRemoveMessages(state, action);
@@ -276,63 +317,16 @@ function storeStatePromise(action, newState) {
 }
 
 function reducer (state, action) {
-  // If isPromise is true, we don't need to kludge removing or dehighlighting because the upper level promise will handle it
-  const isDehighilightRemove = [DEHIGHLIGHT_MESSAGES, DEHIGHLIGHT_CRITICAL_MESSAGE,
-    REMOVE_MESSAGES].includes(action.type) && action.isPromise !== true;
-  if (isDehighilightRemove) {
-    if (action.type === DEHIGHLIGHT_CRITICAL_MESSAGE) {
-      const { message: rollupTypeObjectId, originalMessage } = action;
-      const { messages: existingMessages } = state;
-      const message = existingMessages?.find((message) => message.type_object_id === rollupTypeObjectId);
-      if (message) {
-        setTimeout(() => {
-          getMarketClient(message.market_id).then((client) =>
-            client?.users.dehighlightNotifications([originalMessage]))
-            .then(() => storeStatePromise(action, computeNewState(state, action)));
-        }, 0);
-      }
-    } else {
-      const { messages, message } = action;
-      let allMessages = {};
-      if (message) {
-        if (message.market_id) {
-          allMessages[message.market_id] = [];
-          allMessages[message.market_id].push(message.type_object_id);
-        }
-      } else {
-        const { messages: existingMessages } = state;
-        (messages || []).forEach((messageId) => {
-          const message = existingMessages.find((message) => message.type_object_id === messageId);
-          if (message?.market_id) {
-            if (!allMessages[message.market_id]) {
-              allMessages[message.market_id] = [];
-            }
-            if (action.type !== DEHIGHLIGHT_MESSAGES || message.is_highlighted) {
-              allMessages[message.market_id].push(message.type_object_id);
-            }
-          }
-        });
-      }
-      Object.keys(allMessages).forEach((key) => {
-        if (action.type === REMOVE_MESSAGES) {
-          setTimeout(() => {
-            getMarketClient(key).then((client) => client?.users.removeNotifications(allMessages[key])).then(() =>
-              storeStatePromise(action, computeNewState(state, action)));
-          }, 0);
-        } else if (!_.isEmpty(allMessages[key])) {
-          setTimeout(() => {
-            getMarketClient(key).then((client) => client?.users.dehighlightNotifications(allMessages[key]))
-              .then(() => storeStatePromise(action, computeNewState(state, action)));
-          }, 0);
-        }
-      });
-    }
-  }
+  // B-all-544: clears no longer go to the server fire-and-forget from here. computeNewState
+  // enqueues them durably in state.pendingClears (persisted with the tombstone below) and the
+  // background flusher owns delivery and retry, so the UI never waits and a clear that fails
+  // is retried instead of lost.
   const newState = computeNewState(state, action);
-  if (!isDehighilightRemove) {
-    setTimeout(() => {
-      storeStatePromise(action, newState);
-    }, 0);
+  setTimeout(() => {
+    storeStatePromise(action, newState);
+  }, 0);
+  if (action.type !== PENDING_CLEARS_ACKED && !_.isEmpty(newState.pendingClears)) {
+    setTimeout(() => flushPendingClears(newState.pendingClears), 0);
   }
   return newState;
 }

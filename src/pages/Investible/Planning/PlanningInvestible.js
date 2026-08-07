@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { IconButton, makeStyles, Menu, MenuItem, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core';
@@ -439,12 +439,16 @@ function PlanningInvestible(props) {
   // it normally displays (T-all-2188). Any navigation - including the post-submit navigate to the new
   // item (Q-all-147) - clears it via the effect below.
   const [inlineWizard, setInlineWizard] = useState(undefined);
-  function openInlineWizard(descriptor) {
+  // T-all-2448: stable identities so the inline wizard context values don't force every
+  // consumer (including a live editor's owner) to re-render on each page render
+  const openInlineWizard = useCallback((descriptor) => {
     setInlineWizard(descriptor);
-  }
-  function closeInlineWizard() {
+  }, []);
+  const closeInlineWizard = useCallback(() => {
     setInlineWizard(undefined);
-  }
+  }, []);
+  const inlineWizardLaunchValue = useMemo(() => ({ openInlineWizard, inlineWizard }),
+    [openInlineWizard, inlineWizard]);
   useEffect(() => {
     // Clear the inline wizard whenever the location changes (navigating away, or the wizard navigating
     // to the item it just created). Opening the wizard does not change the URL, so it is unaffected.
@@ -874,7 +878,7 @@ function PlanningInvestible(props) {
       leftNavAdjust={mobileLayout ? undefined : (leftNavBreak ? 245 : 465)}
     >
       {/* J-all-325 (T-all-2197): expose openInlineWizard to the comment delete buttons so delete opens inline. */}
-      <InlineWizardLaunchContext.Provider value={{ openInlineWizard, inlineWizard }}>
+      <InlineWizardLaunchContext.Provider value={inlineWizardLaunchValue}>
       {!mobileLayout && (
         <div className={classes.paper} style={{ paddingTop: mobileLayout ? undefined : '2rem', paddingBottom: '1rem',
           transform: mobileLayout ? undefined :

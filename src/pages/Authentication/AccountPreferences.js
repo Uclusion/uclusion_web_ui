@@ -191,6 +191,7 @@ function AccountPreferences(props) {
                 margin="normal"
                 required
                 fullWidth
+                autoFocus
                 name="password"
                 label={intl.formatMessage({ id: 'changePasswordOldLabel' })}
                 key="passwordold"

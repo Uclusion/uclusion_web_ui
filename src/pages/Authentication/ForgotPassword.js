@@ -152,6 +152,7 @@ function ForgotPassword(props) {
               id="email"
               fullWidth
               autoComplete="email"
+              autoFocus
               required
               value={email}
               label={intl.formatMessage({ id: 'forgotPasswordEmailLabel' })}

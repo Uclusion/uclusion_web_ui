@@ -16,7 +16,7 @@ import { updateInvestment } from '../../../api/marketInvestibles';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { useEditor } from '../../../components/TextEditors/quillHooks';
+import { HASH_MENTION_CHARS, useEditor } from '../../../components/TextEditors/quillHooks';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { focusEditor, getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils';
 import WizardStepButtons from '../../../components/InboxWizards/WizardStepButtons';
@@ -123,9 +123,11 @@ function AddEditVote(props) {
   const editorSpec = {
     marketId,
     mentionsAllowed: true,
-    mentionDenotationChars: ['#'],
+    mentionDenotationChars: HASH_MENTION_CHARS,
     placeholder: intl.formatMessage({ id: 'yourReason' }),
     value: getQuillStoredState(editorName) || originalReason,
+    // B-all-535: the reason editor is this screen's purpose, so the caret starts in it
+    autoFocus: true,
     onUpload: (files) => updateFormData({uploadedFiles: files})
   };
   const [Editor, resetEditor] = useEditor(editorName, editorSpec);

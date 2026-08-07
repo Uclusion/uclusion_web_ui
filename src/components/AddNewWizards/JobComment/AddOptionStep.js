@@ -5,7 +5,7 @@ import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import { editorEmpty, getQuillStoredState, resetEditor } from '../../TextEditors/Utilities/CoreUtils';
-import { useEditor } from '../../TextEditors/quillHooks';
+import { HASH_MENTION_CHARS, useEditor } from '../../TextEditors/quillHooks';
 import { convertDescription } from '../../../utils/stringFunctions';
 import { addPlanningInvestible } from '../../../api/investibles';
 import { processTextAndFilesForSave } from '../../../api/files';
@@ -70,7 +70,7 @@ function AddOptionStep(props) {
     value: getQuillStoredState(editorName),
     marketId: inlineMarketId,
     mentionsAllowed: true,
-    mentionDenotationChars: ['#'],
+    mentionDenotationChars: HASH_MENTION_CHARS,
     onUpload: setUploadedFiles,
     autoFocus: true,
     onChange: () => { setHasValue(!editorEmpty(getQuillStoredState(editorName))); updateName(); },

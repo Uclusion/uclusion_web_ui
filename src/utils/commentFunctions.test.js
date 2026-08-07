@@ -188,4 +188,43 @@ describe('isAssistanceRespondedByHuman option chronology', () => {
       { [inlineMarketId]: [aiOptionQuestion] }
     )).toBe(true);
   });
+
+  it('keeps a voted question Responded when the AI replies inside an option', () => {
+    const aiOptionQuestion = comment('option-question', aiUserId, '2026-07-28T10:01:00Z', {
+      investible_id: 'option-id',
+    });
+    const aiClarification = comment('option-ai-clarification', aiUserId, '2026-07-28T10:03:00Z', {
+      investible_id: 'option-id',
+      reply_id: aiOptionQuestion.id,
+      root_comment_id: aiOptionQuestion.id,
+    });
+    const afterHumanVote = [
+      presence(aiUserId, ''),
+      presence(humanUserId, 'human@example.com', [{
+        investible_id: 'option-id',
+        quantity: 5,
+        updated_at: '2026-07-28T10:02:00Z',
+      }]),
+    ];
+
+    // T-all-2449: the vote already answered the question, so a later AI clarification inside an
+    // option must not flip it back to Unresponded
+    expect(isAssistanceRespondedByHuman(
+      parentQuestion,
+      [parentQuestion],
+      marketPresences,
+      { ...marketPresencesState, [inlineMarketId]: afterHumanVote },
+      { [inlineMarketId]: [aiOptionQuestion, aiClarification] }
+    )).toBe(true);
+
+    // An AI edit of the question itself is a real new turn and still reopens it
+    const editedQuestion = { ...parentQuestion, updated_at: '2026-07-28T10:04:00Z' };
+    expect(isAssistanceRespondedByHuman(
+      editedQuestion,
+      [editedQuestion],
+      marketPresences,
+      { ...marketPresencesState, [inlineMarketId]: afterHumanVote },
+      { [inlineMarketId]: [aiOptionQuestion, aiClarification] }
+    )).toBe(false);
+  });
 });

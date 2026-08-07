@@ -13,7 +13,7 @@ import {
   resetEditor,
   storeState
 } from '../../TextEditors/Utilities/CoreUtils';
-import { useEditor } from '../../TextEditors/quillHooks';
+import { HASH_MENTION_CHARS, useEditor } from '../../TextEditors/quillHooks';
 import { convertDescription } from '../../../utils/stringFunctions';
 import { addPlanningInvestible } from '../../../api/investibles';
 import {
@@ -94,7 +94,7 @@ function JobDescriptionStep (props) {
     value: getQuillStoredState(editorName),
     marketId,
     mentionsAllowed: true,
-    mentionDenotationChars: ['#'],
+    mentionDenotationChars: HASH_MENTION_CHARS,
     autoFocus: true,
     maxHeight: '300px',
     onUpload: setUploadedFiles,

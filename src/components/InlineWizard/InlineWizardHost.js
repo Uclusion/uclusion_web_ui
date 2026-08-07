@@ -56,11 +56,14 @@ function InlineWizardDispatch(props) {
 
 function InlineWizardHost(props) {
   const { inlineWizard, onClose } = props;
+  // T-all-2448: a fresh context value each render forced every consumer (including a live
+  // editor's owner) to re-render on any page render; keep it stable while onClose is
+  const contextValue = React.useMemo(() => ({ closeInlineWizard: onClose }), [onClose]);
   if (_.isEmpty(inlineWizard)) {
     return null;
   }
   return (
-    <InlineWizardContext.Provider value={{ closeInlineWizard: onClose }}>
+    <InlineWizardContext.Provider value={contextValue}>
       <InlineWizardDispatch {...inlineWizard} />
     </InlineWizardContext.Provider>
   );

@@ -3,7 +3,7 @@ import { getInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { getComment, getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { stripHTML } from '../../../utils/stringFunctions';
+import { stripHTML, transformTicketCode } from '../../../utils/stringFunctions';
 import { formCommentLink, formWizardLink, navigate,
   preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
 import { calculateTitleExpansionPanel } from './InboxExpansionPanel';
@@ -164,6 +164,11 @@ function InboxRow(props) {
     message,
     isNotSynced: !messageIsSynced(message, marketsState, marketPresencesState, commentState, investiblesState,
       groupState)
+  }
+  // T-all-2445: rows associated with a job carry its condensed code; hovering it reveals the job name
+  if (marketInfo.ticket_code) {
+    item.ticketCode = transformTicketCode(decodeURI(marketInfo.ticket_code));
+    item.ticketName = inv ? inv.investible.name : investibleName;
   }
 
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};

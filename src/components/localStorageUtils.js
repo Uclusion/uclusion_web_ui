@@ -8,12 +8,34 @@ Keys under LOGIN_PERSISTENT stick around until cleared by our code
 const ROOT = 'uclusion:root';
 const LOGIN_PERSISTENT = 'uclusion:loginPersistent';
 
+// T-all-2448: the ROOT blob holds every editor draft and page state, and it was re-parsed on
+// every read - several times per keystroke while typing in an editor. Cache the parsed object;
+// the storage event only fires for writes from other tabs, which is exactly when the cache
+// goes stale.
+const storageCache = {};
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (event) => {
+    if (event.key === null) {
+      delete storageCache[ROOT];
+      delete storageCache[LOGIN_PERSISTENT];
+    } else {
+      delete storageCache[event.key];
+    }
+  });
+}
+
 function getStorage(storageKey) {
+  if (storageCache[storageKey]) {
+    return storageCache[storageKey];
+  }
   const storage = localStorage.getItem(storageKey);
   if (_.isEmpty(storage)) {
     return {};
   }
-  return JSON.parse(storage);
+  const parsed = JSON.parse(storage);
+  storageCache[storageKey] = parsed;
+  return parsed;
 }
 
 export function removeInitializing(state) {
@@ -36,6 +58,8 @@ export function getUclusionLocalStorageItem(key) {
 export function clearUclusionLocalStorage(doReload=true) {
   const persistent = localStorage.getItem(LOGIN_PERSISTENT);
   localStorage.clear()
+  delete storageCache[ROOT];
+  delete storageCache[LOGIN_PERSISTENT];
   localStorage.setItem(LOGIN_PERSISTENT, persistent);
   localStorage.setItem(ROOT, '');
   return localforage.clear().then(() => {
@@ -60,6 +84,7 @@ function setStorageItem(storageKey, key, value) {
   } else {
     delete data[key];
   }
+  storageCache[storageKey] = data;
   localStorage.setItem(storageKey, JSON.stringify(data));
 }
 

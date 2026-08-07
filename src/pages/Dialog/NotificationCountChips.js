@@ -31,7 +31,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 function NotificationCountChips(props) {
-  const { id, mentions, approvals,  num, numSuffix } = props;
+  const { id, mentions, approvals,  num, numSuffix, hasCritical } = props;
   const classes = useStyles();
   const intl = useIntl();
   const [themeMode] = useContext(ThemeModeContext);
@@ -43,7 +43,7 @@ function NotificationCountChips(props) {
     title={intl.formatMessage({ id: numSuffix })}>
       <Chip label={`${num}`} size="small" classes={{labelSmall: num === 1 ? classes.oneChipStyle : classes.numChipStyle}}
       style={{ marginLeft: '5px', backgroundClip: 'padding-box', height: '20px',
-      ...outlinedChipStyle(isNew ? 'red' : 'teal', isDark) }}/>
+      ...outlinedChipStyle(isNew || hasCritical ? 'red' : 'teal', isDark) }}/>
     </Tooltip>;
   }
 

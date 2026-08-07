@@ -214,14 +214,16 @@ export function isAssistanceRespondedByHuman(rootComment, investibleComments, ma
   }
   let aiLatest = new Date(rootComment.updated_at).getTime();
   let humanLatest = undefined;
-  function foldCommentActivity(comment) {
-    const commentTime = new Date(comment.updated_at).getTime();
+  function activityOwnerOf(comment) {
     // Resolving a root is a new turn by the resolver even though its creator
     // remains unchanged. Other edits keep the creator's chronology role.
     const isDirectResolution = comment.resolved && comment.updated_by &&
       !comment.auto_closed && !comment.last_update_auto_generated;
-    const activityOwner = isDirectResolution ? comment.updated_by : comment.created_by;
-    if (isAIPresenceId(activityOwner)) {
+    return isDirectResolution ? comment.updated_by : comment.created_by;
+  }
+  function foldCommentActivity(comment) {
+    const commentTime = new Date(comment.updated_at).getTime();
+    if (isAIPresenceId(activityOwnerOf(comment))) {
       aiLatest = Math.max(aiLatest, commentTime);
     } else {
       humanLatest = Math.max(humanLatest || 0, commentTime);
@@ -235,7 +237,15 @@ export function isAssistanceRespondedByHuman(rootComment, investibleComments, ma
     // visible comment/reply attached to an option into that parent question's chronology.
     const inlineComments = getMarketComments(commentsState || {}, inlineMarketId)
       .filter((comment) => !!comment.investible_id && comment.comment_type !== JUSTIFY_TYPE);
-    inlineComments.forEach(foldCommentActivity);
+    // T-all-2449: a live human vote already answers the question. A later AI comment inside an
+    // option (like the low-certainty clarification reply) is supplementary - it must not flip
+    // the question back to Unresponded. AI edits to the question itself still reopen it.
+    const hasLiveHumanVote = inlinePresences.some((presence) => !_.isEmpty(presence.email) &&
+      (presence.investments || []).some((investment) =>
+        investment.quantity !== undefined && investment.quantity !== null && !investment.deleted));
+    const foldedInlineComments = hasLiveHumanVote ?
+      inlineComments.filter((comment) => !isAIPresenceId(activityOwnerOf(comment))) : inlineComments;
+    foldedInlineComments.forEach(foldCommentActivity);
     inlinePresences.forEach((presence) => {
       const isAI = _.isEmpty(presence.email);
       (presence.investments || []).filter((investment) =>

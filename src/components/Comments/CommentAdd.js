@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl';
 import _ from 'lodash'
 import {
@@ -338,7 +338,10 @@ function CommentAdd(props) {
   const optionName = investible?.name;
   const optionUrl = `${formInvestibleLink(marketId, investibleId)}#option${fromDecisionInvestibleId}`;
   const optionLinkBody = optionName ? `<p><a target="_self" href="${optionUrl}">${optionName}</a></p>` : undefined;
-  const useBody = getQuillStoredState(editorName) || optionLinkBody;
+  // T-all-2448: value only seeds the editor's initial contents, but re-reading the draft every
+  // render made it a fresh string after each keystroke, defeating React.memo(QuillEditor2)
+  const useBody = useMemo(() => getQuillStoredState(editorName) || optionLinkBody,
+    [editorName, optionLinkBody]);
   const [hasValue, setHasValue] = useState(!editorEmpty(useBody));
 
   useEffect(() => {

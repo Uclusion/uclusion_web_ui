@@ -11,7 +11,7 @@ import FileCopyIcon from '@material-ui/icons/FileCopy'
 import { getComment } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
-import { stripHTML } from '../../utils/stringFunctions'
+import { stripHTML, transformTicketCode } from '../../utils/stringFunctions'
 
 const useStyles = makeStyles(() => ({
   hidden: {
@@ -55,17 +55,6 @@ const useStyles = makeStyles(() => ({
     margin: 4,
   },
 }));
-
-function transformTicketCode(inputString) {
-  if (!inputString) {
-    return inputString;
-  }
-  const allMatches = inputString.split('-');
-  if (allMatches.length < 3) {
-    return inputString;
-  }
-  return `${allMatches[0]}-${allMatches[2]}`;
-}
 
 function InvesibleCommentLinker(props) {
   const intl = useIntl();

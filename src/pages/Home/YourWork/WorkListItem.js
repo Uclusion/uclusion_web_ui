@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import cx from 'clsx';
 import styled from 'styled-components';
-import { Box, IconButton, makeStyles, useMediaQuery, useTheme } from '@material-ui/core';
+import { Box, IconButton, makeStyles, Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
 import Checkbox from '@material-ui/icons/CheckBox';
 import CheckBoxOutlineBlank from '@material-ui/icons/CheckBoxOutlineBlank';
 import { useSizedIconButtonStyles } from '@mui-treasury/styles/iconButton/sized';
@@ -190,7 +190,9 @@ function WorkListItem(props) {
     isDeletable = false,
     useSelect,
     isNotSynced = false,
-    jobSweepActions
+    jobSweepActions,
+    ticketCode,
+    ticketName
   } = props;
   const history = useHistory();
   const classes = workListStyles();
@@ -204,6 +206,9 @@ function WorkListItem(props) {
   if ('REVIEW_REQUIRED' === messageType && linkType === 'INVESTIBLE_REVIEW') {
     fullText = investible;
   }
+  // T-all-2445 (S-1 of Q-all-390): when the row text is not already the job name, prefix the
+  // condensed job code with the full name on hover - the view is stated by the group header
+  const showTicketCode = !!ticketCode && fullText !== investible;
 
   function remove(event) {
     if (message) {
@@ -268,6 +273,13 @@ function WorkListItem(props) {
             {read ? (<Title style={{ color: theme.palette.type === 'dark' ? 'white' : 'black' }}>{title}</Title>) : 
             (<TitleB style={{ color: theme.palette.type === 'dark' ? 'white' : 'black' }}>{title}</TitleB>)}
             {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
+            {showTicketCode && (
+              <Tooltip title={ticketName || ''} placement="top">
+                <span style={{ color: '#5f6368', opacity: read ? 0.75 : 0.87, whiteSpace: 'nowrap', flexShrink: 0,
+                  marginRight: '8px', fontSize: mobileLayout ? 14 : 18,
+                  fontWeight: read ? undefined : 'bold' }}>{ticketCode}</span>
+              </Tooltip>
+            )}
             <Text>{fullText}</Text>
             {mobileLayout || !date ? React.Fragment : (read ? (<DateLabelNotHovered>{date}</DateLabelNotHovered>) :
               (<DateLabelBNotHovered style={{ color: theme.palette.type === 'dark' ? 'white' : 'black' }}>{date}</DateLabelBNotHovered>))}

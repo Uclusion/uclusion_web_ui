@@ -170,6 +170,12 @@ function QuillEditor2 (props) {
     setUploadedFiles(newUploads);
     pushMessage(`editor-${id}`, { type: 'uploads', newUploads });
   }
+  // T-all-2448: onS3Upload closes over uploadedFiles so its identity changes every render, which
+  // made editorCreator (and its effect) run on every render; the ref keeps the upload handler
+  // fresh behind a stable identity
+  const onS3UploadRef = useRef();
+  onS3UploadRef.current = onS3Upload;
+  const stableOnS3Upload = useCallback((metadatas) => onS3UploadRef.current(metadatas), []);
 
   // bridge our fonts in from the theme;
   const editorStyle = {
@@ -208,7 +214,7 @@ function QuillEditor2 (props) {
         marketId,
         layout: mobileLayout,
         noToolbar,
-        onS3Upload,
+        onS3Upload: stableOnS3Upload,
         setUploadInProgress,
         setVideoDialogOpen,
         setLinkDialogOpen,
@@ -225,7 +231,7 @@ function QuillEditor2 (props) {
     // This is probably a bad idea, but the create should be fine
     // due to the checks above (missing createEditor dep)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mobileLayout, noToolbar, onS3Upload, setUploadInProgress, setVideoDialogOpen, setLinkDialogOpen, simple,
+  }, [mobileLayout, noToolbar, stableOnS3Upload, setUploadInProgress, setVideoDialogOpen, setLinkDialogOpen, simple,
     uploadDisabled, mentionsAllowed, mentionDenotationChars, boundsId, boxRef, marketId, containerRef, placeholder,
     value
   ]);

@@ -606,6 +606,8 @@ const messages = defineMessages({
   commentTypeLabelREPLY: 'Reply',
   commentTypeLabelREPORT: 'Note',
   commentTypeLabelSubTaskREPLY: 'Grouped task',
+  groupedTaskChosenHint: 'Use the Grouped button drop down to create a note instead.',
+  groupedNoteChosenHint: 'Use the Grouped button drop down to create a grouped task instead.',
   addNote: 'Add note',
 
   // card types

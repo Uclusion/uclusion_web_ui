@@ -16,7 +16,7 @@ import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
 import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, } from '../../constants/comments';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { usePresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { addCommentToMarket, getComment, getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper';
+import { addCommentToMarket, getComment, getCommentRoot, moveToDiscussion } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
 import {
@@ -32,6 +32,7 @@ import { findMessageForCommentId } from '../../utils/messageUtils';
 import { invalidEditEvent } from '../../utils/windowUtils';
 import TooltipIconButton from '../Buttons/TooltipIconButton';
 import NotificationMenuButton from '../Buttons/NotificationMenuButton';
+import MenuButton from '../Buttons/MenuButton';
 import { ScrollContext } from '../../contexts/ScrollContext';
 import { EditCommentContext } from '../../contexts/EditCommentContext/EditCommentContext';
 import ListAltIcon from '@material-ui/icons/ListAlt';
@@ -315,6 +316,42 @@ function Reply(props) {
     });
   }
 
+  // J-all-392 / T-all-2453: the reply Move button carries BugDecisionStep's
+  // choices so the wizard opens past that step; the separate Make task /
+  // Ungroup button folds in as the Task item per S-all-227.
+  const replyMoveBugLink = `${formMarketAddInvestibleLink(marketId, groupId, undefined, undefined,
+    BUG_WIZARD_TYPE)}&fromCommentId=${comment.id}`;
+  const replyMoveItems = [
+    {
+      id: `moveTask${comment.id}`,
+      label: <FormattedMessage id={isTopLevelSubTask ? 'ungroupLabel' : 'TaskLabel'} />,
+      onClick: () => {
+        if (myPresenceIsAssigned) {
+          return moveToTask();
+        }
+        navigate(history, `${replyMoveBugLink}&useType=Task`);
+      }
+    },
+    {
+      id: `moveSuggestion${comment.id}`,
+      label: <FormattedMessage id='SuggestionLabel' />,
+      onClick: () => navigate(history, `${replyMoveBugLink}&useType=Suggestion`)
+    },
+    {
+      id: `moveDiscussion${comment.id}`,
+      label: <FormattedMessage id='DiscussionLabel' />,
+      onClick: () => {
+        setOperationRunning(true);
+        return moveToDiscussion(comment, commentsState, commentsDispatch, setOperationRunning, history);
+      }
+    },
+    {
+      id: `moveBug${comment.id}`,
+      label: <FormattedMessage id='BugLabel' />,
+      onClick: () => navigate(history, `${replyMoveBugLink}&useType=Bug`)
+    }
+  ];
+
   function handleToggleInProgress() {
     setOperationRunning(`inProgressCheckbox${comment.id}`);
     const notDoingStage = getNotDoingStage(marketStagesState, marketId) || {};
@@ -466,39 +503,16 @@ function Reply(props) {
           />
         )}
         {showConvert && (
-          <TooltipIconButton
-            lightSurface
-            disabled={operationRunning !== false}
-            onClick={(event) => {
-              preventDefaultAndProp(event);
-              navigate(history,
-                `${formMarketAddInvestibleLink(marketId, groupId, undefined, undefined,
-                  BUG_WIZARD_TYPE)}&fromCommentId=${comment.id}`)
-            }}
-            icon={<Eject fontSize='small' htmlColor={ACTION_BUTTON_COLOR} /> }
-            size='small'
-            translationId='storyFromComment'
-            doFloatRight
-          />
-        )}
-        {showConvert && !mobileLayout && (
-          <TooltipIconButton
-            lightSurface
-            disabled={operationRunning !== false}
-            onClick={(event) => {
-              preventDefaultAndProp(event);
-              if (myPresenceIsAssigned) {
-                return moveToTask();
-              }
-              navigate(history,
-                `${formMarketAddInvestibleLink(marketId, groupId, undefined, undefined,
-                  BUG_WIZARD_TYPE)}&fromCommentId=${comment.id}&useType=Task`);
-            }}
-            icon={<ListAltIcon fontSize='small' htmlColor={ACTION_BUTTON_COLOR} />}
-            size='small'
-            translationId={isTopLevelSubTask ? 'ungroupLabel' : 'makeTask'}
-            doFloatRight
-          />
+          <MenuButton items={replyMoveItems}>
+            <TooltipIconButton
+              lightSurface
+              disabled={operationRunning !== false}
+              icon={<Eject fontSize='small' htmlColor={ACTION_BUTTON_COLOR} /> }
+              size='small'
+              translationId='storyFromComment'
+              doFloatRight
+            />
+          </MenuButton>
         )}
         {showConvert && isTopLevelSubTask && !rootComment?.resolved && (
           <TooltipIconButton
@@ -566,23 +580,6 @@ function Reply(props) {
             }
             label={mobileLayout ? undefined : intl.formatMessage({ id: 'inProgress' })}
           />
-        )}
-        {showConvert && mobileLayout && (
-          <Button
-            className={classes.action}
-            onClick={(event) => {
-              preventDefaultAndProp(event);
-              if (myPresenceIsAssigned) {
-                return moveToTask();
-              }
-              navigate(history,
-                `${formMarketAddInvestibleLink(marketId, groupId, undefined, undefined,
-                  BUG_WIZARD_TYPE)}&fromCommentId=${comment.id}&useType=Task`);
-            }}
-            variant="text"
-          >
-            <FormattedMessage id="makeTask" />
-          </Button>
         )}
       </CardActions>
     </div>

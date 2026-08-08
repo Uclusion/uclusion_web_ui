@@ -5,12 +5,13 @@ import FormdataWizard from 'react-formdata-wizard';
 import ReplyStep from './ReplyStep';
 
 function ReplyWizard(props) {
-  const { marketId, commentId, isSubtask, isNote } = props;
+  const { marketId, commentId, isSubtask, isNote, groupedType } = props;
 
   return (
     <WizardStylesProvider>
       <FormdataWizard name={`reply_wizard${commentId}`} defaultFormData={{useCompression: true}}>
-        <ReplyStep marketId={marketId} commentId={commentId} isSubtask={isSubtask} isNote={isNote} />
+        <ReplyStep marketId={marketId} commentId={commentId} isSubtask={isSubtask} isNote={isNote}
+                   groupedType={groupedType} />
       </FormdataWizard>
     </WizardStylesProvider>
   );

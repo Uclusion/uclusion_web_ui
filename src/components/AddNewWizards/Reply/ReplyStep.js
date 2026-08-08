@@ -40,7 +40,11 @@ export function hasReply(comment) {
 }
 
 function ReplyStep(props) {
-  const { marketId, commentId, isSubtask, isNote: addingNote, updateFormData = () => {}, formData = {} } = props;
+  const { marketId, commentId, isSubtask, isNote: addingNote, groupedType,
+    updateFormData = () => {}, formData = {} } = props;
+  // T-all-2454: the Grouped button's drop down already chose task or note, so
+  // the step no longer asks; without the param (stale links) the pills remain.
+  const preChosenType = [REPLY_TYPE, REPORT_TYPE].includes(groupedType) ? groupedType : undefined;
   const history = useHistory();
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
@@ -50,7 +54,7 @@ function ReplyStep(props) {
   const [marketsState] = useContext(MarketsContext);
   const classes = useContext(WizardStylesContext);
   const presences = usePresences(marketId);
-  const [commentType, setCommentType] = useState(REPLY_TYPE);
+  const [commentType, setCommentType] = useState(preChosenType || REPLY_TYPE);
   const comment = getComment(commentState, marketId, commentId) || {};
   const { comment_type: parentCommentType, created_by: createdById, investible_id: investibleId } = comment;
   const myPresence = presences.find((presence) => presence.current_user) || {};
@@ -137,14 +141,24 @@ function ReplyStep(props) {
           What is your reply?
         </Typography>
       )}
-      {showSubTask && (
+      {showSubTask && !preChosenType && (
         <Typography className={classes.introText}>
           What is your grouped task or note?
         </Typography>
       )}
-      {(noteOnly || noteReply) && (
+      {showSubTask && preChosenType === REPLY_TYPE && (
+        <Typography className={classes.introText}>
+          What is your grouped task?
+        </Typography>
+      )}
+      {(noteOnly || noteReply || (showSubTask && preChosenType === REPORT_TYPE)) && (
         <Typography className={classes.introText}>
           What is your note?
+        </Typography>
+      )}
+      {showSubTask && preChosenType && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          <FormattedMessage id={preChosenType === REPLY_TYPE ? 'groupedTaskChosenHint' : 'groupedNoteChosenHint'} />
         </Typography>
       )}
       {!showSubTask && !noteOnly && !noteReply && (
@@ -169,7 +183,7 @@ function ReplyStep(props) {
         useCompression={useCompression}
       />
       {/* 4px inset keeps the pills left aligned with the comment card and composer - B-all-458. */}
-      {showSubTask && (
+      {showSubTask && !preChosenType && (
         <div style={{marginLeft: '4px'}}>
           <ChoicePills
             ariaLabel="add-reply-type"

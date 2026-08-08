@@ -38,8 +38,8 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { addMarketToStorage, getMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper';
 import CardType, { BUG, DECISION_TYPE, NOTE } from '../CardType';
 import {
-  addCommentToMarket, getComment,
-  getMarketComments
+  addCommentToMarket, addMarketComments, getComment,
+  getMarketComments, getOpenInvestibleComments, moveToDiscussion
 } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import {
@@ -78,7 +78,7 @@ import {
 import { useHistory, useLocation } from 'react-router';
 import { marketAbstain } from '../../api/markets';
 import {
-  changeInvestibleStage,
+  changeInvestibleStage, changeInvestibleStageOnCommentClose,
   handleAcceptSuggestion,
   isSingleAssisted,
   onCommentOpen, onCommentsMove
@@ -93,8 +93,8 @@ import GravatarAndName from '../Avatars/GravatarAndName';
 import { invalidEditEvent } from '../../utils/windowUtils';
 import AddIcon from '@material-ui/icons/Add';
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
+import MenuButton from '../Buttons/MenuButton';
 import {
-  BugReport,
   Done,
   Edit,
   Eject,
@@ -922,6 +922,50 @@ function Comment(props) {
     });
   }
 
+  // J-all-392: the Move drop down runs the wizard first step's final actions
+  // directly, so mirror DecideWhereStep's stage fix when the move closes the
+  // job's last open assistance.
+  function fixInvestibleStageOnMove(updatedAt) {
+    const investibleOpenComments = getOpenInvestibleComments(investibleId,
+      investibleComments || getMarketComments(commentsState, marketId, groupId));
+    const otherAssistance = investibleOpenComments.find((aComment) => aComment.id !== id &&
+      [SUGGEST_CHANGE_TYPE, QUESTION_TYPE, ISSUE_TYPE].includes(aComment.comment_type));
+    if (_.isEmpty(otherAssistance) && investible?.investible) {
+      changeInvestibleStageOnCommentClose([marketInfo], investible.investible, investiblesDispatch,
+        updatedAt, marketStagesState);
+    }
+  }
+
+  function moveToDiscussionAction() {
+    setOperationRunning(true);
+    if (investibleId) {
+      fixInvestibleStageOnMove(comment.updated_at);
+    }
+    return moveToDiscussion(comment, commentsState, commentsDispatch, setOperationRunning, history);
+  }
+
+  // Mirrors DecideWhereStep's moveToBug terminate for a blocker.
+  function moveToBug() {
+    setOperationRunning(true);
+    return alterComment(marketId, id, 'RED')
+      .then((response) => {
+        addCommentToMarket(response, commentsState, commentsDispatch);
+        const marketComments = getMarketComments(commentsState, marketId, groupId);
+        const thread = marketComments.filter((aComment) => {
+          return aComment.root_comment_id === id && aComment.id !== id;
+        });
+        const fixedThread = thread.map((aComment) => {
+          return _.omit(aComment, 'investible_id');
+        });
+        addMarketComments(commentsDispatch, marketId, [...fixedThread]);
+        if (investibleId) {
+          fixInvestibleStageOnMove(comment.updated_at);
+        }
+        setOperationRunning(false);
+        navigate(history, formCommentLink(marketId, groupId, undefined, id));
+      });
+  }
+
   const displayingDiff = showDiff && diff;
   const displayEditing = enableEditing && isEditable && !isInbox;
   if (loading) {
@@ -940,10 +984,107 @@ function Comment(props) {
   const showViewSelect = isSent !== false && enableEditing && !removeActions && !investibleId && groupId
     && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE].includes(commentType)
     && marketType === PLANNING_TYPE && _.size(marketGroups) > 1;
-  // B-all-482: tasks only exist inside jobs - a view level suggestion converts to a bug in place instead
-  const showMakeTaskButton = (showMoveButton  && commentType === SUGGEST_CHANGE_TYPE && !_.isEmpty(investibleId))
-    || isNote;
-  const showMakeBugButton = showMoveButton && commentType === SUGGEST_CHANGE_TYPE && _.isEmpty(investibleId);
+  // J-all-392 / S-all-227 / T-all-2455: Make task and Make bug on suggestions folded into the
+  // Move drop down; a note keeps its own Make task button since notes have no Move.
+  const showMakeTaskButton = isNote;
+  // T-all-2453: the Move button carries the choices of the wizard first step it
+  // would have gone to, so the wizard opens past that step (or the final
+  // choices run directly, exactly as the step's terminate buttons would).
+  const isBugWizardMove = showMoveButton && !_.isEmpty(investibleId) &&
+    [TODO_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType);
+  const moveBugWizardLink = `${formMarketAddInvestibleLink(marketId, groupId, undefined, typeObjectId,
+    BUG_WIZARD_TYPE)}&fromCommentId=${id}`;
+  const moveJobWizardLink = `${formMarketAddInvestibleLink(marketId, groupId, undefined,
+    typeObjectId)}&fromCommentId=${id}`;
+  function doesMoveTypeMatch(checkType) {
+    return commentType === TODO_TYPE ? checkType === 'Task' :
+      (commentType === SUGGEST_CHANGE_TYPE && ['Suggestion', 'Discussion'].includes(checkType));
+  }
+  let moveMenuItems = [];
+  if (isBugWizardMove) {
+    // BugDecisionStep's choices - S-all-227 puts Task first, keeping the
+    // assigned user's direct conversion the Make task button had.
+    moveMenuItems = ['Task', 'Suggestion', 'Discussion', 'Bug'].map((checkType) => {
+      const isSameType = doesMoveTypeMatch(checkType);
+      let onClick;
+      if (checkType === 'Discussion') {
+        onClick = moveToDiscussionAction;
+      } else if (isSameType) {
+        onClick = () => navigate(history, `${moveJobWizardLink}&commentType=${checkType}`);
+      } else if (checkType === 'Task') {
+        onClick = () => {
+          if (myPresenceIsAssigned) {
+            return moveToTask();
+          }
+          navigate(history, `${moveBugWizardLink}&useType=Task`);
+        };
+      } else {
+        onClick = () => navigate(history, `${moveBugWizardLink}&useType=${checkType}`);
+      }
+      return {
+        id: `move${checkType}${id}`,
+        label: <FormattedMessage id={isSameType ? `${checkType}OtherMoveLabel` : `${checkType}Label`} />,
+        onClick
+      };
+    });
+  } else if (showMoveButton) {
+    // DecideWhereStep's choices, plus T-all-2455's Bug conversion for a view
+    // level suggestion in place of the removed Make bug button.
+    const isViewLevelBug = commentType === TODO_TYPE && _.isEmpty(investibleId);
+    const isConvertibleToDiscussion = isViewLevelBug ||
+      (!resolved && commentType === QUESTION_TYPE && !_.isEmpty(investibleId));
+    moveMenuItems = [
+      {
+        id: `moveNewJob${id}`,
+        label: <FormattedMessage id='JobWizardNewJob' />,
+        onClick: () => navigate(history, `${moveJobWizardLink}&isNewJob=true`)
+      },
+      {
+        id: `moveExistingJob${id}`,
+        label: <FormattedMessage id='JobWizardExistingJob' />,
+        onClick: () => navigate(history, `${moveJobWizardLink}&isNewJob=false`)
+      }
+    ];
+    if (isConvertibleToDiscussion) {
+      moveMenuItems.push({
+        id: `moveDiscussion${id}`,
+        label: <FormattedMessage id='DiscussionMoveLabel' />,
+        onClick: moveToDiscussionAction
+      });
+    }
+    if (commentType === ISSUE_TYPE) {
+      moveMenuItems.push({
+        id: `moveBug${id}`,
+        label: <FormattedMessage id='BugMoveLabel' />,
+        onClick: moveToBug
+      });
+    }
+    if (commentType === SUGGEST_CHANGE_TYPE && _.isEmpty(investibleId)) {
+      moveMenuItems.push({
+        id: `moveBug${id}`,
+        label: <FormattedMessage id='BugLabel' />,
+        onClick: () => navigate(history, `${moveBugWizardLink}&useType=Bug`)
+      });
+    }
+  }
+  // T-all-2454: the Grouped buttons choose task or note up front so the wizard
+  // no longer asks.
+  const groupedBaseLink = formWizardLink(REPLY_WIZARD_TYPE, marketId, undefined, undefined, id, typeObjectId);
+  function getGroupedMenuItems(isSubtaskLaunch) {
+    const suffix = isSubtaskLaunch ? '&isSubtask=true' : '';
+    return [
+      {
+        id: `groupedTask${id}`,
+        label: <FormattedMessage id='commentTypeLabelSubTaskREPLY' />,
+        onClick: () => navigate(history, `${groupedBaseLink}${suffix}&groupedType=${REPLY_TYPE}`)
+      },
+      {
+        id: `groupedNote${id}`,
+        label: <FormattedMessage id='commentTypeLabelREPORT' />,
+        onClick: () => navigate(history, `${groupedBaseLink}${suffix}&groupedType=${REPORT_TYPE}`)
+      }
+    ];
+  }
   const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId);
   const showConfigureVotingButton = commentType === QUESTION_TYPE && !inArchives &&
     !_.isEmpty(inlineInvestibles) && !resolved && !removeActions && (myPresence === createdBy || isAiAuthored);
@@ -1054,31 +1195,18 @@ function Comment(props) {
       {intl.formatMessage({ id: 'makeTask' })}
     </SpinningIconLabelButton>
   )}
-  {showMakeBugButton && !mobileLayout && (
-    <SpinningIconLabelButton
-      onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId, groupId, undefined,
-        typeObjectId, BUG_WIZARD_TYPE)}&fromCommentId=${id}&useType=Bug`)}
-      id={`makeBug${id}`}
-      doSpin={false}
-      icon={BugReport}
-      focus={focusMove}
-    >
-      {intl.formatMessage({ id: 'makeBug' })}
-    </SpinningIconLabelButton>
-  )}
   {showMoveButton && !mobileLayout && (
-    <SpinningIconLabelButton
-      onClick={() => navigate(history,
-        `${formMarketAddInvestibleLink(marketId, groupId, undefined, typeObjectId,
-          investibleId && [TODO_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType) ?
-            BUG_WIZARD_TYPE : undefined)}&fromCommentId=${id}`)}
-      id={`moveComment${id}`}
-      doSpin={false}
-      icon={Eject}
-      focus={focusMove && !showMakeTaskButton && !showMakeBugButton}
-    >
-      {intl.formatMessage({ id: "storyFromComment" })}
-    </SpinningIconLabelButton>
+    <MenuButton items={moveMenuItems}>
+      <SpinningIconLabelButton
+        id={`moveComment${id}`}
+        doSpin={false}
+        icon={Eject}
+        endIcon={<ExpandMoreIcon htmlColor='black' />}
+        focus={focusMove}
+      >
+        {intl.formatMessage({ id: "storyFromComment" })}
+      </SpinningIconLabelButton>
+    </MenuButton>
   )}
   {((resolved && showReopen) || (!resolved && showResolve)) && !mobileLayout && (
     <SpinningIconLabelButton
@@ -1310,29 +1438,44 @@ function Comment(props) {
                 label={intl.formatMessage({ id: 'inProgress' })}
               />
             )}
-            {isSent !== false && enableEditing && !removeActions && (
+            {/* T-all-2454: in Grouped mode the button asks task or note up front */}
+            {isSent !== false && enableEditing && !removeActions && showSubTask && (
+              <MenuButton items={getGroupedMenuItems(false)}>
+                <SpinningIconLabelButton
+                  icon={AddIcon}
+                  iconOnly={mobileLayout}
+                  id={`commentReplyButton${id}`}
+                  doSpin={false}
+                  endIcon={mobileLayout ? undefined : <ExpandMoreIcon htmlColor='black' />}
+                >
+                  {!mobileLayout && intl.formatMessage({ id: 'commentSubTaskLabel' })} {hasReply(comment) && <EditIcon htmlColor={ACTION_BUTTON_COLOR} />}
+                </SpinningIconLabelButton>
+              </MenuButton>
+            )}
+            {isSent !== false && enableEditing && !removeActions && !showSubTask && (
               <SpinningIconLabelButton
                 onClick={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
                   undefined, undefined, id, typeObjectId))}
-                icon={showSubTask || thisIsMyNote ? AddIcon : ReplyIcon}
+                icon={thisIsMyNote ? AddIcon : ReplyIcon}
                 iconOnly={mobileLayout}
                 id={`commentReplyButton${id}`}
                 doSpin={false}
               >
-                {!mobileLayout && intl.formatMessage({ id: showSubTask ? 'commentSubTaskLabel' : (thisIsMyNote ? 'addNote' : 'commentReplyLabel') })} {hasReply(comment) && <EditIcon htmlColor={ACTION_BUTTON_COLOR} />}
+                {!mobileLayout && intl.formatMessage({ id: thisIsMyNote ? 'addNote' : 'commentReplyLabel' })} {hasReply(comment) && <EditIcon htmlColor={ACTION_BUTTON_COLOR} />}
               </SpinningIconLabelButton>
             )}
             {isSent !== false && enableEditing && !removeActions && showSubTaskButton && (
-              <SpinningIconLabelButton
-                onClick={() => navigate(history, `${formWizardLink(REPLY_WIZARD_TYPE, marketId,
-                  undefined, undefined, id, typeObjectId)}&isSubtask=true`)}
-                icon={AddIcon}
-                iconOnly={mobileLayout}
-                id={`commentSubTaskButton${id}`}
-                doSpin={false}
-              >
-                {!mobileLayout && intl.formatMessage({ id: 'commentSubTaskLabel' })}
-              </SpinningIconLabelButton>
+              <MenuButton items={getGroupedMenuItems(true)}>
+                <SpinningIconLabelButton
+                  icon={AddIcon}
+                  iconOnly={mobileLayout}
+                  id={`commentSubTaskButton${id}`}
+                  doSpin={false}
+                  endIcon={mobileLayout ? undefined : <ExpandMoreIcon htmlColor='black' />}
+                >
+                  {!mobileLayout && intl.formatMessage({ id: 'commentSubTaskLabel' })}
+                </SpinningIconLabelButton>
+              </MenuButton>
             )}
             {/* On someone else's note the single button stays a plain "Reply"; offer a separate
                 "Note" button beside it so a non-author can create a sub note the way AI does. */}
@@ -1483,15 +1626,13 @@ function Comment(props) {
               </SpinningIconLabelButton>
             )}
             {showMoveButton && mobileLayout && (
-              <SpinningIconLabelButton
-                onClick={() => navigate(history,
-                  `${formMarketAddInvestibleLink(marketId, groupId, undefined, typeObjectId,
-                    investibleId && [TODO_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType) ?
-                      BUG_WIZARD_TYPE : undefined)}&fromCommentId=${id}`)}
-                doSpin={false}
-                iconOnly={true}
-                icon={Eject}
-              />
+              <MenuButton items={moveMenuItems}>
+                <SpinningIconLabelButton
+                  doSpin={false}
+                  iconOnly={true}
+                  icon={Eject}
+                />
+              </MenuButton>
             )}
             {endActions}
           </div>

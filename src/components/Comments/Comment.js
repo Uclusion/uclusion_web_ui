@@ -980,21 +980,26 @@ function Comment(props) {
   const notificationMessage = !replyEditId && myMessage?.type_object_id && !isInbox &&
   (investibleId || commentType !== TODO_TYPE || myMessage.type !== UNASSIGNED_TYPE) ? myMessage : undefined;
   const linkerShouldBeFirst = noAuthor && commentType === TODO_TYPE && investibleId;
+  // A TODO comment with no investible_id is a view-level bug - its type chip
+  // must read "Bug", not "Task" (B-all-549).
+  const bugSubtype = commentType === TODO_TYPE && _.isEmpty(investibleId) ? BUG : undefined;
   const cardTypeDisplay = overrideLabel ? (
     <CardType className={classes.commentType} type={commentType} resolved={resolved} compact
-              subtype={commentType === TODO_TYPE && _.isEmpty(investibleId) ? BUG : (commentType === REPLY_TYPE ?
+              subtype={bugSubtype || (commentType === REPLY_TYPE ?
                 TODO_TYPE : (isNote ? NOTE :undefined))} linker={(reallyNoAuthor || isMarketTodo) && showLinker && linker}
               label={overrideLabel} color={color} compressed={useCompression} notificationMessage={notificationMessage}
               gravatar={noAuthor || mobileLayout || isDisplayOfSubTask ? undefined : gravatarWithName}
     />
   ): (
     <CardType className={classes.commentType} type={commentType} resolved={resolved} compact compressed={useCompression}
+              subtype={bugSubtype}
               gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName} notificationMessage={notificationMessage}
               alwaysShowTypeChip={compressAll}
               linker={(linkerShouldBeFirst || reallyNoAuthor || isMarketTodo) && showLinker && linker}
     />
   );
-  const commentTypeChip = <CommentTypeChip type={commentType} resolved={resolved} mobileLayout={mobileLayout}
+  const commentTypeChip = <CommentTypeChip type={commentType} subtype={bugSubtype} resolved={resolved}
+                                           mobileLayout={mobileLayout}
                                            label={commentType === REPORT_TYPE && !isNote ?
                                              <FormattedMessage id="reportPresent" /> : undefined} />;
   const deleteWizardBaseLink = formWizardLink(DELETE_COMMENT_TYPE, marketId, undefined,

@@ -219,7 +219,8 @@ export default function CardType(props) {
       {showCommentChip ? (
         <>
           <span style={{marginRight: mobileLayout ? '0.25rem' : '1rem'}}>
-            <CommentTypeChip type={type} resolved={resolved} mobileLayout={mobileLayout} label={label} />
+            <CommentTypeChip type={type} subtype={subtype} resolved={resolved} mobileLayout={mobileLayout}
+                             label={label} />
           </span>
           {gravatar}
         </>

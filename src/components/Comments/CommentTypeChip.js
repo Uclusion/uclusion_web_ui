@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import QuestionIcon from '@material-ui/icons/ContactSupport';
 import AssignmentIcon from '@material-ui/icons/Assignment';
+import BugReportIcon from '@material-ui/icons/BugReport';
 import ReplyIcon from '@material-ui/icons/Reply';
 import { Block, Notes } from '@material-ui/icons';
 import LightbulbOutlined from '../CustomChip/LightbulbOutlined';
@@ -23,6 +24,9 @@ const TYPE_CHIP = {
   [SUGGEST_CHANGE_TYPE]: { label: 'Suggestion', border: '#F29100', color: '#B96F00', icon: LightbulbOutlined },
   [QUESTION_TYPE]: { label: 'Question', border: '#2F80ED', color: '#2F80ED', icon: QuestionIcon },
   [TODO_TYPE]: { label: 'Task', border: '#43A047', color: '#2E7D32', icon: AssignmentIcon },
+  // A TODO comment with no investible_id is a view-level bug, not a job task
+  // (B-all-549) - callers pass subtype BUG (from CardType.js) to relabel it.
+  BUG: { label: 'Bug', border: '#43A047', color: '#2E7D32', icon: BugReportIcon },
   [REPORT_TYPE]: { label: 'Note', border: '#00897B', color: '#00695C', icon: Notes },
   [REPLY_TYPE]: { label: 'Reply', border: '#8f8f8f', color: '#5f6368', icon: ReplyIcon },
   // Vote certainty levels (used on approvals, C-all-987) - outlined to match,
@@ -36,8 +40,8 @@ const TYPE_CHIP = {
 };
 
 function CommentTypeChip(props) {
-  const { type, resolved, label: overrideLabel, mobileLayout, style } = props;
-  const info = TYPE_CHIP[type];
+  const { type, subtype, resolved, label: overrideLabel, mobileLayout, style } = props;
+  const info = (subtype && TYPE_CHIP[subtype]) || TYPE_CHIP[type];
   if (!info) {
     return null;
   }
@@ -58,6 +62,7 @@ function CommentTypeChip(props) {
 
 CommentTypeChip.propTypes = {
   type: PropTypes.string,
+  subtype: PropTypes.string,
   resolved: PropTypes.bool,
   label: PropTypes.node,
   mobileLayout: PropTypes.bool,

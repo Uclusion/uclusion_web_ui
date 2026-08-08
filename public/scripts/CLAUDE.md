@@ -130,6 +130,17 @@ the stream ever ends (monitor stopped or died), arm it again and simply
 continue — a re-armed listener is a NEW session cursor starting at arm
 time, so nothing older is redelivered.
 
+Arming is once per MACHINE session, not per conversation: a `/clear` or
+fresh conversation in the same harness process inherits any listener the
+previous conversation armed, still running and still delivering into the
+new conversation. ALWAYS check for a live listener before arming — in
+Claude Code list the background tasks (TaskList) for a running monitor
+whose command is `uclusion listen`, or check processes with
+`pgrep -f "uclusion.*listen"`. One already running: reuse it and do not
+arm another — every listener claims its own broadcast copy, so a second
+one makes each prompt arrive twice. More than one running: keep one and
+stop the extras (TaskStop in Claude Code) before continuing.
+
 **Clients whose harness turns a background command's completion into a new
 agent event:** run the bounded wait as a background (detached) task and
 relaunch it after every completion — being able to poll a dormant process

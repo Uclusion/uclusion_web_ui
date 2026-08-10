@@ -16,7 +16,9 @@ import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
 import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, } from '../../constants/comments';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { usePresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { addCommentToMarket, getComment, getCommentRoot, moveToDiscussion } from '../../contexts/CommentsContext/commentsContextHelper';
+import {
+  addCommentToMarket, getComment, getCommentRoot, getCommentThreads, getMarketComments, moveToDiscussion
+} from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
 import {
@@ -29,6 +31,7 @@ import {
 import { useHistory, useLocation } from 'react-router';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { findMessageForCommentId } from '../../utils/messageUtils';
+import { onCommentsMove } from '../../utils/commentFunctions';
 import { invalidEditEvent } from '../../utils/windowUtils';
 import TooltipIconButton from '../Buttons/TooltipIconButton';
 import NotificationMenuButton from '../Buttons/NotificationMenuButton';
@@ -55,7 +58,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
 import { Done, Edit, Eject, NotificationsActive } from '@material-ui/icons';
-import { resolveComment, updateComment } from '../../api/comments';
+import { moveComments, updateComment } from '../../api/comments';
 import { previousInProgress } from '../AddNewWizards/TaskInProgress/TaskInProgressWizard';
 import { getNotDoingStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
@@ -221,7 +224,7 @@ function Reply(props) {
   const commenter = useCommenter(comment, presences) || { name: "unknown", email: "" };
   const [hashFragment, noHighlightId, setNoHighlightId] = useContext(ScrollContext);
   const { editComment, openEditComment, closeEditComment } = useContext(EditCommentContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketsState] = useContext(MarketsContext);
@@ -521,14 +524,20 @@ function Reply(props) {
             onClick={(event) => {
               preventDefaultAndProp(event);
               setOperationRunning(true);
-              return resolveComment(marketId, comment.id)
-                .then((comment) => {
-                  addCommentToMarket(comment, commentsState, commentsDispatch);
+              // B-all-552: the backend 403s resolve of a reply, so send the move that
+              // promotes to a top level task and resolves in one update
+              const movingComments = getCommentThreads([comment],
+                getMarketComments(commentsState, marketId, groupId));
+              return moveComments(marketId, investibleId, [comment.id], [comment.id], [comment.id])
+                .then((movedComments) => {
+                  onCommentsMove([comment.id], messagesState, movingComments, investibleId,
+                    commentsDispatch, marketId, movedComments, messagesDispatch);
                   setOperationRunning(false);
                 });
             }}
             icon={<Done fontSize='small' htmlColor={ACTION_BUTTON_COLOR} />}
             size='small'
+            id={`subTaskResolve${comment.id}`}
             translationId="commentResolveLabel"
             doFloatRight
           />

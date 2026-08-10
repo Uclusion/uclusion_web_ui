@@ -2,7 +2,7 @@ import { useIntl } from 'react-intl'
 import Screen from '../../../containers/Screen/Screen'
 import PropTypes from 'prop-types'
 import Inbox from './Inbox'
-import React, { useContext, useReducer } from 'react'
+import React, { useContext, useMemo, useReducer } from 'react'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import {
   getNotHiddenMarketDetailsForUser,
@@ -30,7 +30,10 @@ function InboxFull(props) {
   const history = useHistory();
   const { location } = history;
   const { pathname } = location;
-  const { marketId: workItemId } = decomposeMarketPath(pathname);
+  const { marketId: workItemIdRaw } = decomposeMarketPath(pathname);
+  // While hidden the inbox output is invisible, so don't let route changes force recomputes -
+  // when it unhides the real path is present and everything derives fresh (J-all-394)
+  const workItemId = hidden ? undefined : workItemIdRaw;
   const [marketsState, , tokensHash] = useContext(MarketsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -41,16 +44,24 @@ function InboxFull(props) {
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { messages: messagesUnsafe } = messagesState;
-  const messagesMapped = (messagesUnsafe || []).map((message) => {
-    return {...message, id: message.type_object_id};
-  });
-  const messagesFull = messagesMapped.filter((message) => {
-    return isInInbox(message);
-  });
-  const allOutBoxMessagesOrdered = getOutboxMessages({messagesState, marketsState, marketPresencesState,
-    investiblesState, marketStagesState, commentsState, groupPresencesState, intl});
-  const messagesHash = getMessages(allOutBoxMessagesOrdered, messagesFull,
-    searchResults, workItemId, groupsState);
+  // J-all-394: this component stays mounted on every route, so these derivations otherwise
+  // rebuild the whole inbox and outbox data set - with fresh array identities - on every
+  // context tick even while hidden, re-rendering the Inbox subtree for nothing
+  const messagesFull = useMemo(() => {
+    const messagesMapped = (messagesUnsafe || []).map((message) => {
+      return {...message, id: message.type_object_id};
+    });
+    return messagesMapped.filter((message) => {
+      return isInInbox(message);
+    });
+  }, [messagesUnsafe]);
+  const allOutBoxMessagesOrdered = useMemo(() => getOutboxMessages({messagesState, marketsState,
+    marketPresencesState, investiblesState, marketStagesState, commentsState, groupPresencesState, intl}),
+    [messagesState, marketsState, marketPresencesState, investiblesState, marketStagesState, commentsState,
+      groupPresencesState, intl]);
+  const messagesHash = useMemo(() => getMessages(allOutBoxMessagesOrdered, messagesFull,
+    searchResults, workItemId, groupsState),
+    [allOutBoxMessagesOrdered, messagesFull, searchResults, workItemId, groupsState]);
   const [inboxState, inboxDispatch] = useReducer(getReducer(),
     {page: 1, expansionState: {}, pageState: {}, defaultPage: 1});
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);

@@ -293,4 +293,6 @@ Inbox.propTypes = {
   searchResults: PropTypes.object
 }
 
-export default Inbox;
+// With InboxFull's derivations memoized the props are referentially stable, so this
+// always-mounted component skips re-rendering while hidden on other routes (J-all-394 profiling)
+export default React.memo(Inbox);

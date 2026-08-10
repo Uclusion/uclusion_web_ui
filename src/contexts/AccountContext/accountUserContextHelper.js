@@ -9,6 +9,11 @@ export const OnboardingState = {
   FirstMarketJoined: 'FIRST_MARKET_JOINED'
 };
 
+export function accountUserPresent(state) {
+  const { user } = state || {};
+  return !_.isEmpty(user);
+}
+
 export function userIsLoaded(state, marketsState) {
   const { user } = state || {};
   const { marketDetails } = marketsState || {};

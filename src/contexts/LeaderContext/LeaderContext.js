@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useReducer, useRef, useState } from 'reac
 import reducer, { updateLeader } from './leaderContextReducer'
 import { refreshNotifications, refreshVersions } from '../../api/versionedFetchUtils';
 import { AccountContext } from '../AccountContext/AccountContext';
-import { userIsLoaded } from '../AccountContext/accountUserContextHelper';
+import { accountUserPresent, userIsLoaded } from '../AccountContext/accountUserContextHelper';
 import { MarketsContext } from '../MarketsContext/MarketsContext';
 import { MarketPresencesContext } from '../MarketPresencesContext/MarketPresencesContext';
 import { MarketStagesContext } from '../MarketStagesContext/MarketStagesContext';
@@ -59,6 +59,7 @@ function LeaderProvider(props) {
   const [myTab, setMyTab] = useState(new Tab('uclusion'));
   const electionStartedRef = useRef(false);
   const isUserLoaded = userIsLoaded(userState, marketsState);
+  const hasAccountUser = accountUserPresent(userState);
   const { isLeader } = state;
 
   useEffect(() => {
@@ -95,9 +96,20 @@ function LeaderProvider(props) {
   }, [authState, myTab]);
 
   useEffect(() => {
+    const dispatchers = { marketsDispatch, marketStagesDispatch, groupsDispatch, presenceDispatch,
+      groupMembersDispatch, investiblesDispatch, commentsDispatch, diffDispatch, index, ticketsDispatch };
+    if (!isUserLoaded && isLeader && hasAccountUser) {
+      // S-all-230: a stale NEEDS_ONBOARDING flag otherwise deadlocks startup - the sync is
+      // gated on userIsLoaded, which waits for a planning market that only the sync can load.
+      // After a grace period for normal onboarding to finish, refresh anyway so the client
+      // recovers; a mid-onboarding sync just loads what exists and pushes fill in the rest.
+      const timer = setTimeout(() => {
+        console.warn('Refreshing versions despite onboarding state');
+        refreshVersions(dispatchers).catch(() => console.warn('Error refreshing'));
+      }, 15000);
+      return () => clearTimeout(timer);
+    }
     if (isUserLoaded) {
-      const dispatchers = { marketsDispatch, marketStagesDispatch, groupsDispatch, presenceDispatch,
-        groupMembersDispatch, investiblesDispatch, commentsDispatch, diffDispatch, index, ticketsDispatch };
       if (isLeader) {
         console.info('Leadership refreshing versions');
         // Try use set timeout and dispatchers for stability but my have to move to suspend
@@ -118,7 +130,7 @@ function LeaderProvider(props) {
       }
     }
     return () => {};
-  }, [isUserLoaded, isLeader, marketsDispatch, marketStagesDispatch, groupsDispatch, presenceDispatch,
+  }, [isUserLoaded, isLeader, hasAccountUser, marketsDispatch, marketStagesDispatch, groupsDispatch, presenceDispatch,
     groupMembersDispatch, investiblesDispatch, commentsDispatch, diffDispatch, index, ticketsDispatch]);
   leaderContextHack = state;
   return (

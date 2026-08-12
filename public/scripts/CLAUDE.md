@@ -731,6 +731,12 @@ asked for in their own words — never for your own ideas: those go through
 `tasks` list on `add_job` itself, where the AI decomposing the
 just-requested job is expected.
 
+The view-level creators — `add_job`, `add_bug`, and `make_suggestion`
+without a `job_id` — can target an existing bug or job's view instead of
+the default view. Use that when the human names or implies a view (for
+example work clearly belonging to the same view as an item just
+discussed); the tool descriptions cover the argument.
+
 ## Attaching images and files
 
 To put a screenshot or file ON a Uclusion artifact: call `get_upload` with
@@ -767,6 +773,33 @@ does not always need a blocker: simply not moving the job to Doable also
 prevents execution while approval proceeds; use a blocker when the wait
 should be visible on the job itself and caught by the completion sweep.
 
+## Saving lessons: view notes, not private memory
+
+A lesson learned while working — a correction from the human, a practice
+that turned out to matter, guidance any future session should follow —
+belongs in the agent's private memory only when it is genuinely specific
+to this machine or user: environments, local paths, personal quirks.
+Everything general goes where every session and every human can see it: a
+standing view note, written with `add_view_note`.
+
+- Target it with the bug or job you are working to land in that item's
+  view, or update the view's existing AI-authored note — the tool's own
+  description covers the arguments.
+- Default to updating: every job markdown renders its view's notes, so
+  fold the new lesson into the AI note already there and prune anything
+  it supersedes — the note is a tight topical digest that rides along
+  with every job in the view, not an append-only log. Create a second
+  note only when topics genuinely diverge. Never edit a human's note;
+  propose changes to those with a reply or `make_suggestion`.
+- Save autonomously — no permission ask needed. Creating or modifying the
+  note notifies the view's humans so they can review, edit, or delete it;
+  treat the note's current text as authoritative afterward, human edits
+  included.
+- The first time you act under this instruction, run a one-time sweep:
+  test each existing private memory against the machine-specific bar,
+  move the general ones into view notes with `add_view_note`, and delete
+  them from private memory.
+
 ## Notes
 
 - Every question, option, suggestion, approval, and progress note lives
@@ -793,7 +826,8 @@ should be visible on the job itself and caught by the completion sweep.
 # Uclusion single comment workflow
 
 A single comment markdown has no Job J-... header. For a single comment
-that is a bug use only the `get_job`, `add_info`, and `resolve` tools; for
+that is a bug use only the `get_job`, `add_info`, `resolve`, and — for
+saving a general lesson learned from it — `add_view_note` tools; for
 a single comment that is a question use only `get_job`, `add_info`, and —
 for options inside it — `approve_job_or_option`. Use `add_info` to ask
 questions or explain the work done. Offer to commit after resolving, with

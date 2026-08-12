@@ -1004,28 +1004,40 @@ function Comment(props) {
   if (isBugWizardMove) {
     // BugDecisionStep's choices - S-all-227 puts Task first, keeping the
     // assigned user's direct conversion the Make task button had.
-    moveMenuItems = ['Task', 'Suggestion', 'Discussion', 'Bug'].map((checkType) => {
+    // B-all-555: a suggestion's Task choice carries WhereDecisionStep's
+    // current job or other job options directly instead of the wizard hop.
+    moveMenuItems = ['Task', 'Suggestion', 'Discussion', 'Bug'].flatMap((checkType) => {
       const isSameType = doesMoveTypeMatch(checkType);
+      if (checkType === 'Task' && !isSameType) {
+        return [
+          {
+            id: `moveTaskLocal${id}`,
+            label: <FormattedMessage id='TaskLocalMoveLabel' />,
+            onClick: () => {
+              setOperationRunning(true);
+              return moveToTask();
+            }
+          },
+          {
+            id: `moveTaskOther${id}`,
+            label: <FormattedMessage id='TaskOtherMoveLabel' />,
+            onClick: () => navigate(history, `${moveJobWizardLink}&commentType=Task`)
+          }
+        ];
+      }
       let onClick;
       if (checkType === 'Discussion') {
         onClick = moveToDiscussionAction;
       } else if (isSameType) {
         onClick = () => navigate(history, `${moveJobWizardLink}&commentType=${checkType}`);
-      } else if (checkType === 'Task') {
-        onClick = () => {
-          if (myPresenceIsAssigned) {
-            return moveToTask();
-          }
-          navigate(history, `${moveBugWizardLink}&useType=Task`);
-        };
       } else {
         onClick = () => navigate(history, `${moveBugWizardLink}&useType=${checkType}`);
       }
-      return {
+      return [{
         id: `move${checkType}${id}`,
         label: <FormattedMessage id={isSameType ? `${checkType}OtherMoveLabel` : `${checkType}Label`} />,
         onClick
-      };
+      }];
     });
   } else if (showMoveButton) {
     // DecideWhereStep's choices, plus T-all-2455's Bug conversion for a view

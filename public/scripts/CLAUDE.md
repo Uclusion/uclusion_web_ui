@@ -773,6 +773,11 @@ should be visible on the job itself and caught by the completion sweep.
   inside the job — written as Uclusion artifacts, not summarized away into
   chat replies, so the next session (yours or someone else's) can pick up
   the thread.
+- Thread `add_info` under the thing it answers: when responding to a
+  specific reply or comment, pass THAT comment's short code, not the
+  thread root's — the root is only for new top-level information. A flat
+  reply on the root separates an answer from its question and cannot be
+  re-threaded afterward.
 - The short code (for example `J-Marketing-22`) is the canonical id: use
   it verbatim in tool calls, chat, commit messages, and code comments not
   referencing a question; a code comment that references a question uses

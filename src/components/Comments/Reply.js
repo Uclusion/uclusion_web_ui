@@ -52,6 +52,7 @@ import {
   REPLY_WIZARD_TYPE
 } from '../../constants/markets';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import { hasReply } from '../AddNewWizards/Reply/ReplyStep';
 import { useInlineWizardLaunch } from '../InlineWizard/InlineWizardContext';
 import EditIcon from '@material-ui/icons/Edit';
@@ -378,17 +379,38 @@ function Reply(props) {
     return React.Fragment;
   }
 
+  // B-all-559: every comment displayed in an inbox wizard gets the same direct navigation
+  // affordance as a root comment; expansion remains a separate explicit action.
+  function openComment(event) {
+    preventDefaultAndProp(event);
+    navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
+  }
+
   const compressedCommentCard = <div style={{
     display: 'flex', paddingBottom: '0.5rem', paddingLeft: '0.5rem',
     paddingTop: '0.5rem', paddingRight: '0.5rem', cursor: 'pointer', backgroundColor: 'white'
-  }} onClick={toggleCompression}>
+  }} onClick={isInbox ? openComment : toggleCompression}>
     <Gravatar name={commenter.name} email={commenter.email} className={commentClasses.smallGravatar}/>
     <div className={commentClasses.compressedComment}>{stripHTML(comment.body)}</div>
     <div style={{ flexGrow: 1 }}/>
+    {isInbox && (
+      <TooltipIconButton
+        lightSurface
+        icon={<OpenInNewIcon htmlColor={theme.palette.type === 'dark' ? 'black' : '#2F80ED'} />}
+        onClick={openComment}
+        size="small"
+        noPadding
+        translationId="rowOpenComment"
+      />
+    )}
     <div style={{ marginRight: '1rem' }}>
       <TooltipIconButton
         lightSurface
         icon={<ExpandMoreIcon />}
+        onClick={(event) => {
+          preventDefaultAndProp(event);
+          toggleCompression();
+        }}
         size="small"
         noPadding
         translationId="rowExpandComment"
@@ -435,6 +457,16 @@ function Reply(props) {
               <> Updated <UsefulRelativeTime value={comment.updated_at}/>.</>
             )}
           </Typography>
+        )}
+        {isInbox && (
+          <TooltipIconButton
+            lightSurface
+            icon={<OpenInNewIcon htmlColor={theme.palette.type === 'dark' ? 'black' : '#2F80ED'} />}
+            onClick={openComment}
+            size="small"
+            noPadding
+            translationId="rowOpenComment"
+          />
         )}
         {myMessage?.type_object_id && !isInbox && !replyBeingEdited && (
           // T-all-2447: the bell offers go-to or clear via NotificationMenuButton

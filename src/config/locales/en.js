@@ -1194,6 +1194,9 @@ const messages = defineMessages({
   DecideStartTitle: 'Can you start this bug?',
   CriticalBugTitle: 'Can you assign?',
   DecideReviewTitle: 'Will you review?',
+  ReviewAINoteTitle: 'Review AI note?',
+  ReviewAINoteExplanation: 'Edit the AI-maintained note if it needs changes, or dismiss it when the guidance is ready.',
+  editNote: 'Edit note',
   DecideAssignmentTitle: 'Take this job?',
 
   // Comments

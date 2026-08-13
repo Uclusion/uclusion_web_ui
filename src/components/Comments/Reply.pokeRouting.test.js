@@ -16,6 +16,13 @@ import { WebSocketContext } from '../../contexts/WebSocketContext';
 import Reply from './Reply';
 import { LocalCommentsContext } from './Comment';
 
+const mockNavigate = jest.fn();
+
+jest.mock('../../utils/marketIdPathFunctions', () => ({
+  ...jest.requireActual('../../utils/marketIdPathFunctions'),
+  navigate: (...args) => mockNavigate(...args),
+}));
+
 jest.mock('./Comment', () => {
   const React = require('react');
   return {
@@ -84,7 +91,7 @@ afterAll(() => {
   window.IS_REACT_ACT_ENVIRONMENT = previousActEnvironment;
 });
 
-function replyTree(pokeAI, setOperationRunning) {
+function replyTree(pokeAI, setOperationRunning, replyProps = {}) {
   const inlineMarketId = 'inline-option-market';
   const root = {
     id: 'option-question',
@@ -97,6 +104,7 @@ function replyTree(pokeAI, setOperationRunning) {
     id: 'option-reply',
     reply_id: root.id,
     root_comment_id: root.id,
+    group_id: 'view-id',
     created_by: 'ai-user',
     ticket_code: 'C-2',
     body: '<p>Which tradeoff should we choose?</p>',
@@ -143,6 +151,7 @@ function replyTree(pokeAI, setOperationRunning) {
                                   enableEditing
                                   enableActions={false}
                                   isDeletable={false}
+                                  {...replyProps}
                                 />
                               </LocalCommentsContext.Provider>
                             </GroupMembersContext.Provider>
@@ -162,6 +171,10 @@ function replyTree(pokeAI, setOperationRunning) {
 }
 
 describe('Reply option Poke AI routing', () => {
+  beforeEach(() => {
+    mockNavigate.mockClear();
+  });
+
   it('sends the exact compound command through the parent planning market', async () => {
     const pokeAI = jest.fn().mockResolvedValue();
     const setOperationRunning = jest.fn();
@@ -181,6 +194,70 @@ describe('Reply option Poke AI routing', () => {
     );
     expect(setOperationRunning).toHaveBeenNthCalledWith(1, 'pokeAIoption-reply');
     expect(setOperationRunning).toHaveBeenLastCalledWith(false);
+
+    await act(async () => root.unmount());
+  });
+
+  it('opens a compressed inbox reply from either its card or open icon', async () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    const toggleCompression = jest.fn();
+
+    await act(async () => {
+      root.render(replyTree(jest.fn(), jest.fn(), {
+        isInbox: true,
+        useCompression: true,
+        inboxMessageId: 'option-question',
+        toggleCompression,
+      }));
+    });
+
+    const openButton = container.querySelector('button[title="rowOpenComment"]');
+    expect(openButton).not.toBeNull();
+
+    await act(async () => {
+      openButton.parentElement.click();
+    });
+    expect(mockNavigate).toHaveBeenLastCalledWith(
+      expect.anything(),
+      '/dialog/inline-option-market?groupId=view-id#coption-reply'
+    );
+
+    mockNavigate.mockClear();
+    await act(async () => {
+      openButton.click();
+    });
+    expect(mockNavigate).toHaveBeenLastCalledWith(
+      expect.anything(),
+      '/dialog/inline-option-market?groupId=view-id#coption-reply'
+    );
+    expect(toggleCompression).not.toHaveBeenCalled();
+
+    await act(async () => root.unmount());
+  });
+
+  it('shows an open icon on an expanded inbox reply', async () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(replyTree(jest.fn(), jest.fn(), {
+        isInbox: true,
+        useCompression: false,
+        inboxMessageId: 'option-reply',
+      }));
+    });
+
+    const openButton = container.querySelector('button[title="rowOpenComment"]');
+    expect(openButton).not.toBeNull();
+
+    await act(async () => {
+      openButton.click();
+    });
+    expect(mockNavigate).toHaveBeenLastCalledWith(
+      expect.anything(),
+      '/dialog/inline-option-market?groupId=view-id#coption-reply'
+    );
 
     await act(async () => root.unmount());
   });

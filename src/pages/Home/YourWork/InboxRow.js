@@ -50,7 +50,7 @@ import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/Marke
 import _ from 'lodash';
 import Approval from '../../../components/CustomChip/Approval';
 import EditNote from '../../../components/CustomChip/EditNote';
-import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import { QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 
 function getPriorityIcon(message, isAssigned, isMentioned, originalComment) {
   const { level, link_type: linkType, is_highlighted: isHighlighted, decision_investible_id: decisionInvestibleId,
@@ -97,6 +97,10 @@ function getPriorityIcon(message, isAssigned, isMentioned, originalComment) {
       Icon = LightbulbOutlined;
     } else if ('INVESTIBLE_REVIEW' === linkType) {
       Icon = ListAltIcon;
+    // B-all-559: match the dedicated AI view-note route instead of showing the blocker icon.
+    } else if (message.alert_type === 'AI_GENERATED' && linkType === 'MARKET_COMMENT' &&
+      originalComment?.comment_type === REPORT_TYPE && !originalComment.investible_id) {
+      Icon = EditNote;
     } else {
       Icon = Block;
     }
@@ -270,7 +274,7 @@ function InboxRow(props) {
     item.expansionPanel = <BlockedNotificationPanel message={message} explanationId="blockedNotificationResolved"
                                                     commentLink={rootCommentLink}/>;
   } else {
-    calculateTitleExpansionPanel({ item, openExpansion: expansionOpen, intl });
+    calculateTitleExpansionPanel({ item, openExpansion: expansionOpen, intl, rootComment });
     if (expansionOpen && !item.expansionPanel) {
       item.expansionPanel = <BlockedNotificationPanel message={message}
                                                       explanationId="blockedNotificationGeneric"/>;

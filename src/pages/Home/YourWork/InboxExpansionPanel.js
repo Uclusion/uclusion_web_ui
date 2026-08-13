@@ -15,7 +15,14 @@ import {
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { getUserInvestibles, getUserPendingAcceptanceInvestibles } from '../../Dialog/Planning/userUtils';
 import { getComment, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { ISSUE_TYPE, QUESTION_TYPE, REPLY_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
+import {
+  ISSUE_TYPE,
+  QUESTION_TYPE,
+  REPLY_TYPE,
+  REPORT_TYPE,
+  SUGGEST_CHANGE_TYPE,
+  TODO_TYPE
+} from '../../../constants/comments';
 import QuestionIcon from '@material-ui/icons/ContactSupport';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions';
@@ -48,6 +55,7 @@ import TriageWizard from '../../../components/InboxWizards/Triage/TriageWizard';
 import InvestibleEditedWizard from '../../../components/InboxWizards/JobEdited/InvestibleEditedWizard';
 import Approval from '../../../components/CustomChip/Approval';
 import { getCommentPokeList, getHumanPresences, getInvestiblePokeList } from '../../../utils/pokeUtils';
+import NoteReviewWizard from '../../../components/InboxWizards/NoteReview/NoteReviewWizard';
 
 function setItem(item, isOpen, panel, titleId, intl) {
   if (isOpen) {
@@ -59,7 +67,7 @@ function setItem(item, isOpen, panel, titleId, intl) {
 }
 
 export function calculateTitleExpansionPanel(props) {
-  const { item, openExpansion, intl } = props;
+  const { item, openExpansion, intl, rootComment } = props;
   const { message, isAssigned } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId, market_type: marketType, isOutboxAccepted,
@@ -110,7 +118,14 @@ export function calculateTitleExpansionPanel(props) {
     setItem(item, openExpansion, <StatusWizard investibleId={investibleId} marketId={marketId} message={message} />,
       messageType === 'REPORT_REQUIRED' ? 'JobStatusTitle' : 'JobMovedTitle', intl);
   } else if (['ISSUE', 'UNREAD_COMMENT'].includes(messageType)) {
-    if (['INVESTIBLE_SUGGESTION', 'MARKET_SUGGESTION'].includes(linkType)) {
+    // B-all-559: AI-authored view notes share MARKET_COMMENT with view issues, so use the loaded
+    // root's REPORT semantics before the generic blocker fallback.
+    if (messageType === 'UNREAD_COMMENT' && linkType === 'MARKET_COMMENT' && message.alert_type === 'AI_GENERATED' &&
+      rootComment?.comment_type === REPORT_TYPE && !rootComment.investible_id) {
+      setItem(item, openExpansion, <NoteReviewWizard marketId={commentMarketId || marketId} commentId={commentId}
+                                                          message={message} />,
+        'ReviewAINoteTitle', intl);
+    } else if (['INVESTIBLE_SUGGESTION', 'MARKET_SUGGESTION'].includes(linkType)) {
       if (isAssigned) {
         setItem(item, openExpansion, <AcceptRejectWizard commentId={commentId} marketId={marketId} message={message}/>,
           'DecideAcceptRejectTitle', intl);

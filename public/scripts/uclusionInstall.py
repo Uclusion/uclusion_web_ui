@@ -33,7 +33,9 @@ Without ``--clients`` the installer asks whether to configure Uclusion globally
   workspace config (``uclusion.json``), project-scoped MCP registrations
   (``.mcp.json`` for Claude Code, ``.cursor/mcp.json`` for Cursor), the
   Cursor ``.cursor/hooks.json`` stop-hook entry, and the workflow docs
-  (``CLAUDE.md``, ``.cursor/rules/uclusion.mdc``, ``AGENTS.md``).
+  (``CLAUDE.md``, ``.cursor/rules/uclusion.mdc``, ``AGENTS.md``) plus each
+  client's native ``skills/uclusion`` package. Claude and Cursor use their
+  client directories; Codex uses the cross-agent ``.agents/skills`` path.
   Codex receives its project-specific MCP table from ``uclusion codex`` at
   launch. The CLI binaries themselves always stay user-global under
   ``~/.local``.
@@ -122,7 +124,8 @@ SCRIPT_FILES = (
      CURSOR_POKE_DRAIN_SYMLINK_NAME),
 )
 
-UCLUSION_HOME = os.path.join(os.path.expanduser('~'), '.uclusion')
+USER_HOME = os.path.expanduser('~')
+UCLUSION_HOME = os.path.join(USER_HOME, '.uclusion')
 # Workspace config filenames are environment-specific — the same names the CLI
 # reads (S-all-163): production stays uclusion.json, stage/dev get prefixed so
 # `uclusion -e stage ...` finds the config the installer wrote.
@@ -131,10 +134,16 @@ CONFIG_FILES = {
     'stage': 'stage_uclusion.json',
     'production': 'uclusion.json',
 }
-CURSOR_MCP_PATH = os.path.join(os.path.expanduser('~'), '.cursor', 'mcp.json')
-CLAUDE_JSON_PATH = os.path.join(os.path.expanduser('~'), '.claude.json')
-CLAUDE_MD_PATH = os.path.join(os.path.expanduser('~'), '.claude', 'CLAUDE.md')
-CLAUDE_SETTINGS_PATH = os.path.join(os.path.expanduser('~'), '.claude', 'settings.json')
+CURSOR_MCP_PATH = os.path.join(USER_HOME, '.cursor', 'mcp.json')
+CLAUDE_JSON_PATH = os.path.join(USER_HOME, '.claude.json')
+CLAUDE_CONFIG_HOME = os.path.abspath(os.path.expanduser(
+    os.environ.get('CLAUDE_CONFIG_DIR', os.path.join(USER_HOME, '.claude'))
+))
+CLAUDE_MD_PATH = os.path.join(CLAUDE_CONFIG_HOME, 'CLAUDE.md')
+CLAUDE_SKILL_DIR = os.path.join(
+    CLAUDE_CONFIG_HOME, 'skills', 'uclusion'
+)
+CLAUDE_SETTINGS_PATH = os.path.join(CLAUDE_CONFIG_HOME, 'settings.json')
 # Explicit allow rules are checked before Claude Code's permission classifier, so the Uclusion
 # workflow tools never prompt or hit classifier outages (T-all-2299)
 CLAUDE_ALLOW_RULE = 'mcp__Uclusion__*'
@@ -182,8 +191,11 @@ CLAUDE_TOKEN_AUDIT_SETTINGS_POLICY_KEYS = frozenset({
 })
 CLAUDE_MD_MARKER = '<!-- uclusion-workflow:v1 -->'
 CLAUDE_MD_END_MARKER = '<!-- /uclusion-workflow:v1 -->'
-CURSOR_MDC_PATH = os.path.join(os.path.expanduser('~'), '.cursor', 'rules', 'uclusion.mdc')
-CURSOR_HOOKS_PATH = os.path.join(os.path.expanduser('~'), '.cursor', 'hooks.json')
+CURSOR_MDC_PATH = os.path.join(USER_HOME, '.cursor', 'rules', 'uclusion.mdc')
+CURSOR_SKILL_DIR = os.path.join(
+    USER_HOME, '.cursor', 'skills', 'uclusion'
+)
+CURSOR_HOOKS_PATH = os.path.join(USER_HOME, '.cursor', 'hooks.json')
 CURSOR_MDC_FRONTMATTER = (
     '---\n'
     'description: Uclusion job workflow — invoke when working on a Uclusion '
@@ -194,9 +206,16 @@ CURSOR_MDC_FRONTMATTER = (
 MCP_PROXY_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionMCPProxy.py')
 TOKEN_AUDIT_SYMLINK_PATH = os.path.join(SYMLINK_DIR, TOKEN_AUDIT_SYMLINK_NAME)
 CODEX_BRIDGE_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionCodexBridge.py')
-CODEX_HOME = os.path.join(os.path.expanduser('~'), '.codex')
+CODEX_HOME = os.path.abspath(os.path.expanduser(
+    os.environ.get('CODEX_HOME', os.path.join(USER_HOME, '.codex'))
+))
 CODEX_CONFIG_PATH = os.path.join(CODEX_HOME, 'config.toml')
 CODEX_AGENTS_MD_PATH = os.path.join(CODEX_HOME, 'AGENTS.md')
+# Codex discovers user skills from the cross-agent native directory. The
+# older ~/.codex/skills location is compatibility-only and is not installed.
+CODEX_SKILL_DIR = os.path.join(
+    USER_HOME, '.agents', 'skills', 'uclusion'
+)
 # The MCP table we manage in config.toml is delimited by TOML comment markers so
 # reruns can replace it in place without disturbing the user's other settings.
 CODEX_CONFIG_MARKER = '# uclusion-mcp:v1'
@@ -207,6 +226,45 @@ CODEX_CONFIG_END_MARKER = '# /uclusion-mcp:v1'
 # obsolete Uclusion-owned block without disturbing anybody else's hooks.
 LEGACY_CODEX_HOOKS_MARKER = '# uclusion-codex-bridge-hooks:v1'
 LEGACY_CODEX_HOOKS_END_MARKER = '# /uclusion-codex-bridge-hooks:v1'
+
+SKILL_MARKER = '<!-- uclusion-skill:v1 -->'
+SKILL_END_MARKER = '<!-- /uclusion-skill:v1 -->'
+SKILL_REFERENCE_MARKER = '<!-- uclusion-skill-reference:v1 -->'
+SKILL_REFERENCE_END_MARKER = '<!-- /uclusion-skill-reference:v1 -->'
+WORKFLOW_ENV_PLACEHOLDER = '{{UCLUSION_CLI}}'
+WORKFLOW_ASSET_PATHS = {
+    'claude_stub': 'CLAUDE.md',
+    'codex_stub': 'AGENTS.md',
+    'cursor_stub': 'uclusion.mdc',
+    'skill': 'skills/uclusion/SKILL.md',
+    'pokes_reference': 'skills/uclusion/references/pokes.md',
+    'operations_reference': 'skills/uclusion/references/operations.md',
+    'openai_metadata': 'skills/uclusion/agents/openai.yaml',
+}
+# These digests bind the installer to one coherent workflow release. A host
+# serving a partially-deployed asset set fails before any client mutation.
+WORKFLOW_ASSET_SHA256 = {
+    'claude_stub': 'd32a75328b011f3ccd7f8c7742906e4a7039c8d7629c61f54025d017eedf388e',
+    'codex_stub': 'bc2c2ef1644d29d1118a1be532aa1c69b69223b06475ba83001280a064dd294b',
+    'cursor_stub': '1ec1ec972a7b2b4486d447ece29a158f02f62ff8e3c7554ecf453b037a700977',
+    'skill': '3ce9e03bce4797f9728f37410922c3f144c91ff2c55bf3ddc110a9a3b3308b09',
+    'pokes_reference': '515f5a33262cdacad1553ca3ec45d3bbb5a566c7bd62cdd341aa0c52d6b5dbe6',
+    'operations_reference': '2fe81054a9ad3e8803fc8d41674532766f8cebeda816acd92c46d791457ddf3e',
+    'openai_metadata': 'ecf2759354ff3bbfd7178452a705650aff7a13352458bb20e1df122da7c30f40',
+}
+CLIENT_STUB_ASSET = {
+    'claude': 'claude_stub',
+    'codex': 'codex_stub',
+    'cursor': 'cursor_stub',
+}
+SKILL_PACKAGE_ASSETS = (
+    ('pokes_reference', os.path.join('references', 'pokes.md')),
+    ('operations_reference', os.path.join('references', 'operations.md')),
+    ('openai_metadata', os.path.join('agents', 'openai.yaml')),
+    # Publish the entrypoint last so an interrupted refresh never exposes a
+    # new SKILL.md before all files it routes to are durable.
+    ('skill', 'SKILL.md'),
+)
 
 
 def get_scripts_base_url(env):
@@ -770,10 +828,15 @@ def write_uclusion_config(workspace_id, view_id, config_path, script_version=Non
         try:
             with open(merge_path, 'r', encoding='utf-8') as src:
                 existing = json.load(src)
-            if isinstance(existing, dict):
-                config = existing
+            if not isinstance(existing, dict):
+                raise RuntimeError(
+                    f'{merge_path} top-level value must be a JSON object'
+                )
+            config = existing
         except json.JSONDecodeError as err:
-            print(f"  ⚠️  {merge_path} is not valid JSON ({err}); rewriting it.")
+            raise RuntimeError(
+                f'{merge_path} is not valid JSON: {err}'
+            ) from err
     defaults = {
         'extensionsList': ['js', 'py'],
         'sourcesList': ['./src'],
@@ -823,8 +886,12 @@ def update_token_audit_client_config(config_path, source=None, managed_env=None)
         with open(config_path, 'r', encoding='utf-8') as src:
             config = json.load(src)
     except (OSError, json.JSONDecodeError) as err:
-        print(f"  ⚠️  Could not record Claude token-audit settings in {config_path}: {err}")
-        return
+        raise RuntimeError(
+            f'could not record Claude token-audit settings in '
+            f'{config_path}: {err}'
+        ) from err
+    if not isinstance(config, dict):
+        raise RuntimeError(f'{config_path} top-level value must be a JSON object')
     token_audit = config.get('tokenAudit')
     if not isinstance(token_audit, dict):
         token_audit = {'enabled': False}
@@ -856,7 +923,7 @@ def register_mcp_json(path, label, workspace_id, env, require_existing,
     exists = os.path.exists(path)
     if require_existing and not exists:
         print(f"ℹ️  No {path} found; skipping {label} MCP server registration.")
-        return
+        return False
 
     print(f"🧩 Registering Uclusion MCP server in {path}")
     config = {}
@@ -865,11 +932,9 @@ def register_mcp_json(path, label, workspace_id, env, require_existing,
             with open(path, 'r', encoding='utf-8') as src:
                 config = json.load(src)
         except json.JSONDecodeError as err:
-            print(f"  ❌ {path} is not valid JSON: {err}")
-            return
+            raise RuntimeError(f'{path} is not valid JSON: {err}') from err
         if not isinstance(config, dict):
-            print(f"  ❌ {path} top-level value must be a JSON object.")
-            return
+            raise RuntimeError(f'{path} top-level value must be a JSON object')
 
     args = [MCP_PROXY_SYMLINK_PATH, workspace_id]
     if env is not None:
@@ -887,8 +952,7 @@ def register_mcp_json(path, label, workspace_id, env, require_existing,
 
     servers = config.setdefault('mcpServers', {})
     if not isinstance(servers, dict):
-        print(f"  ❌ 'mcpServers' in {path} must be a JSON object.")
-        return
+        raise RuntimeError(f"'mcpServers' in {path} must be a JSON object")
 
     servers['Uclusion'] = {
         'command': 'python3',
@@ -900,6 +964,7 @@ def register_mcp_json(path, label, workspace_id, env, require_existing,
         json.dump(config, out, indent=2)
         out.write('\n')
     print(f"  ✅ Updated {path}")
+    return True
 
 
 def cursor_poke_drain_hook_entry():
@@ -935,32 +1000,33 @@ def install_cursor_poke_drain_hook(hooks_path=CURSOR_HOOKS_PATH):
             with open(hooks_path, 'r', encoding='utf-8') as src:
                 config = json.load(src)
         except json.JSONDecodeError as err:
-            print(f"  ❌ {hooks_path} is not valid JSON: {err}")
-            return
+            raise RuntimeError(
+                f'{hooks_path} is not valid JSON: {err}'
+            ) from err
         if not isinstance(config, dict):
-            print(f"  ❌ {hooks_path} top-level value must be a JSON object.")
-            return
+            raise RuntimeError(
+                f'{hooks_path} top-level value must be a JSON object'
+            )
 
     if 'version' not in config:
         config['version'] = 1
     elif config.get('version') != 1:
-        print(
-            f"  ❌ {hooks_path} has unsupported hooks version "
-            f"{config.get('version')!r}; expected 1."
+        raise RuntimeError(
+            f'{hooks_path} has unsupported hooks version '
+            f'{config.get("version")!r}; expected 1'
         )
-        return
 
     hooks = config.setdefault('hooks', {})
     if not isinstance(hooks, dict):
-        print(f"  ❌ 'hooks' in {hooks_path} must be a JSON object.")
-        return
+        raise RuntimeError(f"'hooks' in {hooks_path} must be a JSON object")
     stop_hooks = hooks.get('stop')
     if stop_hooks is None:
         stop_hooks = []
         hooks['stop'] = stop_hooks
     if not isinstance(stop_hooks, list):
-        print(f"  ❌ 'hooks.stop' in {hooks_path} must be a JSON array.")
-        return
+        raise RuntimeError(
+            f"'hooks.stop' in {hooks_path} must be a JSON array"
+        )
 
     entry = cursor_poke_drain_hook_entry()
     replaced = False
@@ -972,15 +1038,13 @@ def install_cursor_poke_drain_hook(hooks_path=CURSOR_HOOKS_PATH):
     if not replaced:
         stop_hooks.append(entry)
 
-    try:
-        os.makedirs(os.path.dirname(hooks_path), exist_ok=True)
-        with open(hooks_path, 'w', encoding='utf-8') as out:
-            json.dump(config, out, indent=2)
-            out.write('\n')
-        action = 'Refreshed' if replaced else 'Added'
-        print(f"  ✅ {action} Uclusion stop hook in {hooks_path}")
-    except OSError as err:
-        print(f"  ❌ Could not write {hooks_path}: {err}")
+    os.makedirs(os.path.dirname(hooks_path), exist_ok=True)
+    with open(hooks_path, 'w', encoding='utf-8') as out:
+        json.dump(config, out, indent=2)
+        out.write('\n')
+    action = 'Refreshed' if replaced else 'Added'
+    print(f"  ✅ {action} Uclusion stop hook in {hooks_path}")
+    return True
 
 
 def add_claude_permissions(settings_path):
@@ -999,33 +1063,35 @@ def add_claude_permissions(settings_path):
             with open(settings_path, 'r', encoding='utf-8') as src:
                 config = json.load(src)
         except json.JSONDecodeError as err:
-            print(f"  ❌ {settings_path} is not valid JSON: {err}")
-            return
+            raise RuntimeError(
+                f'{settings_path} is not valid JSON: {err}'
+            ) from err
         if not isinstance(config, dict):
-            print(f"  ❌ {settings_path} top-level value must be a JSON object.")
-            return
+            raise RuntimeError(
+                f'{settings_path} top-level value must be a JSON object'
+            )
 
     permissions = config.setdefault('permissions', {})
     if not isinstance(permissions, dict):
-        print(f"  ❌ 'permissions' in {settings_path} must be a JSON object.")
-        return
+        raise RuntimeError(
+            f"'permissions' in {settings_path} must be a JSON object"
+        )
     allow = permissions.setdefault('allow', [])
     if not isinstance(allow, list):
-        print(f"  ❌ 'permissions.allow' in {settings_path} must be a JSON array.")
-        return
+        raise RuntimeError(
+            f"'permissions.allow' in {settings_path} must be a JSON array"
+        )
     if CLAUDE_ALLOW_RULE in allow:
         print(f"  ⏭  {settings_path} already allows {CLAUDE_ALLOW_RULE}.")
-        return
+        return True
     allow.insert(0, CLAUDE_ALLOW_RULE)
 
-    try:
-        os.makedirs(os.path.dirname(settings_path), exist_ok=True)
-        with open(settings_path, 'w', encoding='utf-8') as out:
-            json.dump(config, out, indent=2)
-            out.write('\n')
-        print(f"  ✅ Added {CLAUDE_ALLOW_RULE} to {settings_path}")
-    except OSError as err:
-        print(f"  ❌ Could not write {settings_path}: {err}")
+    os.makedirs(os.path.dirname(settings_path), exist_ok=True)
+    with open(settings_path, 'w', encoding='utf-8') as out:
+        json.dump(config, out, indent=2)
+        out.write('\n')
+    print(f"  ✅ Added {CLAUDE_ALLOW_RULE} to {settings_path}")
+    return True
 
 
 def claude_token_audit_env(port):
@@ -1147,11 +1213,13 @@ def configure_claude_token_audit(settings_path, enabled, environment,
             with open(settings_path, 'r', encoding='utf-8') as src:
                 config = json.load(src)
         except json.JSONDecodeError as err:
-            print(f"  ❌ {settings_path} is not valid JSON: {err}")
-            return None
+            raise RuntimeError(
+                f'{settings_path} is not valid JSON: {err}'
+            ) from err
         if not isinstance(config, dict):
-            print(f"  ❌ {settings_path} top-level value must be a JSON object.")
-            return None
+            raise RuntimeError(
+                f'{settings_path} top-level value must be a JSON object'
+            )
 
     existing_hooks = config.get('hooks')
     if existing_hooks is None:
@@ -1159,13 +1227,15 @@ def configure_claude_token_audit(settings_path, enabled, environment,
     elif isinstance(existing_hooks, dict):
         hooks = existing_hooks
     else:
-        print(f"  ❌ 'hooks' in {settings_path} must be a JSON object.")
-        return None
+        raise RuntimeError(
+            f"'hooks' in {settings_path} must be a JSON object"
+        )
     for event, _matcher in CLAUDE_TOKEN_AUDIT_HOOK_EVENTS:
         groups = hooks.get(event)
         if groups is not None and not isinstance(groups, list):
-            print(f"  ❌ 'hooks.{event}' in {settings_path} must be a JSON array.")
-            return None
+            raise RuntimeError(
+                f"'hooks.{event}' in {settings_path} must be a JSON array"
+            )
 
     existing_env = config.get('env')
     env_is_object = existing_env is None or isinstance(existing_env, dict)
@@ -1252,21 +1322,17 @@ def configure_claude_token_audit(settings_path, enabled, environment,
             config.pop('env', None)
     # A non-object user value is preserved exactly in transcript mode.
 
-    try:
-        os.makedirs(os.path.dirname(settings_path), exist_ok=True)
-        with open(settings_path, 'w', encoding='utf-8') as out:
-            json.dump(config, out, indent=2)
-            out.write('\n')
-        if enabled and not available:
-            print(f"  ℹ️  Left Claude token audit disabled in {settings_path}")
-        else:
-            print(
-                f"  ✅ {'Configured ' + source if enabled else 'Removed Uclusion-owned'} "
-                f"token-audit settings in {settings_path}"
-            )
-    except OSError as err:
-        print(f"  ❌ Could not write {settings_path}: {err}")
-        return None
+    os.makedirs(os.path.dirname(settings_path), exist_ok=True)
+    with open(settings_path, 'w', encoding='utf-8') as out:
+        json.dump(config, out, indent=2)
+        out.write('\n')
+    if enabled and not available:
+        print(f"  ℹ️  Left Claude token audit disabled in {settings_path}")
+    else:
+        print(
+            f"  ✅ {'Configured ' + source if enabled else 'Removed Uclusion-owned'} "
+            f"token-audit settings in {settings_path}"
+        )
     result = {'source': source, 'managedEnv': next_owned}
     if not available:
         result['available'] = False
@@ -1745,175 +1811,888 @@ def prompt_install_scope():
     return os.path.abspath(os.path.expanduser(path))
 
 
-def make_workflow_md_fetcher(env):
-    """Return a callable that downloads ``CLAUDE.md`` at most once and caches it.
+def validate_workflow_bundle(bundle):
+    """Validate every resident stub and portable-skill asset as one unit."""
+    if not isinstance(bundle, dict) or set(bundle) != set(WORKFLOW_ASSET_PATHS):
+        raise RuntimeError('workflow bundle has an unexpected asset set')
+    for key, content in bundle.items():
+        if not isinstance(content, str) or not content.strip():
+            raise RuntimeError(f'workflow asset {key} is empty or not text')
+        digest = hashlib.sha256(content.encode('utf-8')).hexdigest()
+        if digest != WORKFLOW_ASSET_SHA256[key]:
+            raise RuntimeError(
+                f'workflow asset {key} does not match this installer release'
+            )
 
-    The same ``CLAUDE.md`` feeds three surfaces in one run — ``~/.claude/CLAUDE.md``,
-    the Cursor ``.mdc``, and ``~/.codex/AGENTS.md`` — so we fetch it lazily on first
-    need and memoize the result (including a failure) instead of pulling the identical
-    URL three times. Lazy means a user who declines every prompt triggers no network
-    call; memoizing a failure means a single bounded timeout, not one per surface.
-    Returns the marker-validated, newline-terminated content, or ``None`` on any
-    download/validation failure.
+    for key in CLIENT_STUB_ASSET.values():
+        content = bundle[key]
+        if (
+            content.count(CLAUDE_MD_MARKER) != 1
+            or content.count(CLAUDE_MD_END_MARKER) != 1
+            or content.find(CLAUDE_MD_MARKER)
+            > content.find(CLAUDE_MD_END_MARKER)
+        ):
+            raise RuntimeError(f'workflow asset {key} has invalid markers')
+        if WORKFLOW_ENV_PLACEHOLDER not in content:
+            raise RuntimeError(
+                f'workflow asset {key} lacks its CLI environment placeholder'
+            )
+        if len(content.encode('utf-8')) > 4096:
+            raise RuntimeError(f'workflow asset {key} exceeds 4 KiB')
+
+    skill = bundle['skill']
+    if (
+        not skill.startswith('---\n')
+        or '\nname: uclusion\n' not in skill
+        or '\ndescription:' not in skill
+        or skill.count(SKILL_MARKER) != 1
+        or skill.count(SKILL_END_MARKER) != 1
+        or not skill.rstrip().endswith(SKILL_END_MARKER)
+    ):
+        raise RuntimeError('SKILL.md has invalid frontmatter or ownership markers')
+    if len(skill.splitlines()) > 500:
+        raise RuntimeError('SKILL.md exceeds the 500-line entrypoint budget')
+
+    for key in ('pokes_reference', 'operations_reference'):
+        reference = bundle[key]
+        if (
+            reference.count(SKILL_REFERENCE_MARKER) != 1
+            or reference.count(SKILL_REFERENCE_END_MARKER) != 1
+            or not reference.rstrip().endswith(SKILL_REFERENCE_END_MARKER)
+        ):
+            raise RuntimeError(
+                f'workflow asset {key} has invalid reference markers'
+            )
+
+    metadata = bundle['openai_metadata']
+    if (
+        'display_name: "Uclusion"' not in metadata
+        or '$uclusion' not in metadata
+        or 'allow_implicit_invocation: true' not in metadata
+    ):
+        raise RuntimeError('agents/openai.yaml has invalid Uclusion metadata')
+
+
+def make_workflow_bundle_fetcher(env):
+    """Return a callable that downloads and validates the workflow bundle once.
+
+    A partial or invalid download is cached as failure. Consequently no client
+    can receive a stub from one release and a skill from another, and repeated
+    client installs do not re-fetch identical assets.
     """
     base_url = get_scripts_base_url(env)
-    url = base_url + 'CLAUDE.md'
     cache = {}
 
     def fetch():
         if 'result' in cache:
             return cache['result']
+        if 'error' in cache:
+            raise RuntimeError(
+                'the Uclusion workflow bundle could not be downloaded'
+            ) from cache['error']
 
-        print(f"  ⬇️  Downloading {url}")
+        bundle = {}
         try:
-            with urllib.request.urlopen(url, timeout=HTTP_TIMEOUT) as response:
-                if response.status != 200:
-                    raise RuntimeError(f"status {response.status}")
-                content = response.read().decode('utf-8')
+            for key, relative_path in WORKFLOW_ASSET_PATHS.items():
+                url = base_url + relative_path
+                print(f"  ⬇️  Downloading {url}")
+                with urllib.request.urlopen(
+                    url, timeout=HTTP_TIMEOUT
+                ) as response:
+                    if response.status != 200:
+                        raise RuntimeError(
+                            f'{relative_path}: status {response.status}'
+                        )
+                    content = response.read().decode('utf-8')
+                if not content.endswith('\n'):
+                    content += '\n'
+                bundle[key] = content
+            validate_workflow_bundle(bundle)
         except Exception as err:
-            print(f"  ❌ Failed to download {url}: {err}")
-            cache['result'] = None
-            return None
+            print(f"  ❌ Failed to download the Uclusion workflow bundle: {err}")
+            cache['error'] = err
+            raise RuntimeError(
+                f'failed to download the Uclusion workflow bundle: {err}'
+            ) from err
 
-        if CLAUDE_MD_MARKER not in content or CLAUDE_MD_END_MARKER not in content:
-            print(f"  ❌ Downloaded CLAUDE.md is missing the workflow markers; refusing to write.")
-            cache['result'] = None
-            return None
+        cache['result'] = bundle
+        return bundle
 
-        if not content.endswith('\n'):
-            content += '\n'
-        cache['result'] = content
-        return content
-
+    # install_skill_and_stub uses this only for real installer fetchers. Tests
+    # and embedders that supply an ordinary callable receive the unrendered
+    # source asset, which makes the helper independently testable.
+    fetch.workflow_environment = env
     return fetch
 
 
-def install_workflow_md(fetch_md, target_path, client_label, require_dir=None, assume_yes=False):
-    """Install or refresh the Uclusion workflow block in ``target_path``.
+WORKFLOW_TRANSACTION_OWNER = 'uclusion-workflow-installer:v1'
+WORKFLOW_STAGING_SUFFIX = '.uclusion-install-staging'
+WORKFLOW_BACKUP_SUFFIX = '.uclusion-install-backup'
+WORKFLOW_TRANSACTION_SUFFIX = '.uclusion-install-transaction.json'
 
-    Used for both ``~/.claude/CLAUDE.md`` (Claude Code) and ``~/.codex/AGENTS.md``
-    (Codex); both clients read a plain-Markdown instructions file and use the
-    same delimited block so the workflow text never drifts between surfaces. The
-    block is delimited by ``CLAUDE_MD_MARKER`` and ``CLAUDE_MD_END_MARKER`` so
-    that on reruns we can replace it in place without disturbing anything the
-    user appended afterwards. ``require_dir`` gates the install on a directory
-    existing (Codex's ``~/.codex``) rather than on the target file. ``fetch_md``
-    supplies the (shared, cached) CLAUDE.md content. ``assume_yes`` (an explicit
-    ``--clients`` selection) writes without prompting.
-    """
-    if require_dir is not None and not os.path.isdir(require_dir):
-        print(f"ℹ️  No {require_dir} found; skipping {client_label} workflow file.")
+
+def _skill_transaction_paths(skill_dir):
+    skill_dir = os.path.abspath(os.path.expanduser(skill_dir))
+    return (
+        skill_dir,
+        skill_dir + WORKFLOW_STAGING_SUFFIX,
+        skill_dir + WORKFLOW_BACKUP_SUFFIX,
+        skill_dir + WORKFLOW_TRANSACTION_SUFFIX,
+    )
+
+
+def _validate_regular_tree(root):
+    """Reject links and special files anywhere in an existing skill tree."""
+    root_stat = os.lstat(root)
+    if stat.S_ISLNK(root_stat.st_mode):
+        raise RuntimeError(f'{root} is a symlink; refusing to install')
+    if not stat.S_ISDIR(root_stat.st_mode):
+        raise RuntimeError(f'{root} exists and is not a skill directory')
+
+    pending = [root]
+    while pending:
+        directory = pending.pop()
+        with os.scandir(directory) as entries:
+            for entry in entries:
+                entry_stat = entry.stat(follow_symlinks=False)
+                if stat.S_ISLNK(entry_stat.st_mode):
+                    raise RuntimeError(
+                        f'{entry.path} is a symlink; refusing to install'
+                    )
+                if stat.S_ISDIR(entry_stat.st_mode):
+                    pending.append(entry.path)
+                elif not stat.S_ISREG(entry_stat.st_mode):
+                    raise RuntimeError(
+                        f'{entry.path} is not a regular file; refusing to install'
+                    )
+
+
+def _validate_owned_skill(skill_dir):
+    """Validate a managed package while permitting safe extra files."""
+    if not os.path.lexists(skill_dir):
+        return False
+    _validate_regular_tree(skill_dir)
+    skill_path = os.path.join(skill_dir, 'SKILL.md')
+    if not os.path.lexists(skill_path):
+        if os.listdir(skill_dir):
+            raise RuntimeError(
+                f'{skill_dir} contains an unmarked skill package; '
+                'refusing to overwrite it'
+            )
+        return True
+    if not stat.S_ISREG(os.lstat(skill_path).st_mode):
+        raise RuntimeError(
+            f'{skill_path} is not a regular managed file; refusing to install'
+        )
+    content, _signature = _read_text_snapshot(skill_path)
+    if (
+        content.count(SKILL_MARKER) != 1
+        or content.count(SKILL_END_MARKER) != 1
+        or content.find(SKILL_MARKER) > content.find(SKILL_END_MARKER)
+    ):
+        raise RuntimeError(
+            f'{skill_path} is not a Uclusion-managed skill; '
+            'refusing to overwrite it'
+        )
+
+    for _asset_key, relative_path in SKILL_PACKAGE_ASSETS:
+        managed_path = os.path.join(skill_dir, relative_path)
+        if os.path.lexists(managed_path) and not stat.S_ISREG(
+            os.lstat(managed_path).st_mode
+        ):
+            raise RuntimeError(
+                f'{managed_path} is not a regular managed file; '
+                'refusing to install'
+            )
+    return True
+
+
+def _remove_installer_tree(path):
+    """Remove an installer-owned tree without ever following its root."""
+    if not os.path.lexists(path):
+        return
+    path_stat = os.lstat(path)
+    if stat.S_ISLNK(path_stat.st_mode) or not stat.S_ISDIR(path_stat.st_mode):
+        raise RuntimeError(
+            f'installer transaction path {path} is not a directory'
+        )
+    # shutil.rmtree unlinks nested links instead of following them. These are
+    # private staging paths authenticated by the sibling transaction record.
+    shutil.rmtree(path)
+
+
+def _resident_state_digest(content, signature):
+    """Hash a resident snapshot, distinguishing absence from an empty file."""
+    if signature is None:
+        return 'missing'
+    return hashlib.sha256(content.encode('utf-8')).hexdigest()
+
+
+def _write_skill_transaction(
+    path,
+    skill_dir,
+    had_existing,
+    resident_target,
+    resident_before_digest,
+    resident_after_digest,
+    resident_before_signature=None,
+):
+    payload = json.dumps({
+        'owner': WORKFLOW_TRANSACTION_OWNER,
+        'skillDir': skill_dir,
+        'hadExisting': bool(had_existing),
+        'residentTarget': resident_target,
+        'residentBefore': resident_before_digest,
+        'residentAfter': resident_after_digest,
+        'residentBeforeSignature': (
+            list(resident_before_signature)
+            if resident_before_signature is not None
+            else None
+        ),
+    }, sort_keys=True) + '\n'
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    if hasattr(os, 'O_NOFOLLOW'):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(path, flags, 0o600)
+    try:
+        with os.fdopen(descriptor, 'w', encoding='utf-8') as output:
+            descriptor = None
+            output.write(payload)
+            output.flush()
+            os.fsync(output.fileno())
+    finally:
+        if descriptor is not None:
+            os.close(descriptor)
+    _fsync_directory(os.path.dirname(path))
+
+
+def _read_skill_transaction(path, skill_dir):
+    path_stat = os.lstat(path)
+    if stat.S_ISLNK(path_stat.st_mode) or not stat.S_ISREG(path_stat.st_mode):
+        raise RuntimeError(f'unsafe workflow transaction record at {path}')
+    payload, _signature = _read_text_snapshot(path)
+    try:
+        transaction = json.loads(payload)
+    except json.JSONDecodeError as err:
+        raise RuntimeError(
+            f'invalid workflow transaction record at {path}: {err}'
+        ) from err
+    if (
+        not isinstance(transaction, dict)
+        or set(transaction) != {
+            'owner',
+            'skillDir',
+            'hadExisting',
+            'residentTarget',
+            'residentBefore',
+            'residentAfter',
+            'residentBeforeSignature',
+        }
+        or transaction.get('owner') != WORKFLOW_TRANSACTION_OWNER
+        or transaction.get('skillDir') != skill_dir
+        or not isinstance(transaction.get('hadExisting'), bool)
+        or not isinstance(transaction.get('residentTarget'), str)
+        or not os.path.isabs(transaction.get('residentTarget'))
+        or not isinstance(transaction.get('residentBefore'), str)
+        or not isinstance(transaction.get('residentAfter'), str)
+        or (
+            transaction.get('residentBeforeSignature') is not None
+            and (
+                not isinstance(
+                    transaction.get('residentBeforeSignature'), list
+                )
+                or len(transaction.get('residentBeforeSignature')) != 6
+                or not all(
+                    isinstance(value, int)
+                    for value in transaction.get('residentBeforeSignature')
+                )
+            )
+        )
+    ):
+        raise RuntimeError(f'unrecognized workflow transaction record at {path}')
+    return transaction
+
+
+def _transaction_resident_state(transaction):
+    target = transaction['residentTarget']
+    content, signature = _read_text_snapshot(target)
+    digest = _resident_state_digest(content, signature)
+    matches_before = digest == transaction['residentBefore']
+    matches_after = digest == transaction['residentAfter']
+    if matches_before and matches_after:
+        before_signature = transaction['residentBeforeSignature']
+        return (
+            'before'
+            if before_signature is not None
+            and list(signature) == before_signature
+            else 'after'
+        )
+    if matches_before:
+        return 'before'
+    if matches_after:
+        return 'after'
+    raise RuntimeError(
+        f'{target} does not match either resident state recorded by the '
+        'interrupted Uclusion workflow transaction; refusing recovery'
+    )
+
+
+def _rollback_skill_transaction(skill_dir, transaction=None):
+    """Restore the pre-transaction package without changing the resident."""
+    skill_dir, staging_dir, backup_dir, transaction_path = (
+        _skill_transaction_paths(skill_dir)
+    )
+    if transaction is None:
+        transaction = _read_skill_transaction(transaction_path, skill_dir)
+    had_existing = transaction['hadExisting']
+    if os.path.lexists(backup_dir):
+        if not had_existing:
+            raise RuntimeError(
+                f'unexpected workflow backup for new package {skill_dir}'
+            )
+        _validate_owned_skill(backup_dir)
+        if os.path.lexists(skill_dir):
+            _validate_owned_skill(skill_dir)
+            _remove_installer_tree(skill_dir)
+        os.replace(backup_dir, skill_dir)
+        _fsync_directory(os.path.dirname(skill_dir))
+    elif had_existing:
+        if not os.path.lexists(skill_dir):
+            raise RuntimeError(
+                f'workflow transaction lost both {skill_dir} and its backup'
+            )
+        _validate_owned_skill(skill_dir)
+    elif os.path.lexists(skill_dir):
+        _validate_owned_skill(skill_dir)
+        _remove_installer_tree(skill_dir)
+
+    if os.path.lexists(staging_dir):
+        _remove_installer_tree(staging_dir)
+    os.remove(transaction_path)
+    _fsync_directory(os.path.dirname(skill_dir))
+
+
+def _recover_skill_transaction(skill_dir):
+    """Roll back an interrupted package swap identified by its owned record."""
+    skill_dir, staging_dir, backup_dir, transaction_path = (
+        _skill_transaction_paths(skill_dir)
+    )
+    has_artifact = os.path.lexists(staging_dir) or os.path.lexists(backup_dir)
+    if not os.path.lexists(transaction_path):
+        if has_artifact:
+            raise RuntimeError(
+                f'unowned workflow transaction artifact beside {skill_dir}'
+            )
         return
 
-    exists = os.path.exists(target_path)
-    existing = ''
-    if exists:
-        try:
-            with open(target_path, 'r', encoding='utf-8') as src:
-                existing = src.read()
-        except OSError as err:
-            print(f"  ❌ Could not read {target_path}: {err}")
-            return
+    transaction = _read_skill_transaction(transaction_path, skill_dir)
+    had_existing = transaction['hadExisting']
+    resident_state = _transaction_resident_state(transaction)
+    if resident_state == 'after':
+        if os.path.lexists(staging_dir) and os.path.lexists(skill_dir):
+            # A staged tree plus the original live tree means the package swap
+            # never began. The resident cannot legitimately be in its after
+            # state, so do not guess which tree should survive.
+            raise RuntimeError(
+                f'interrupted workflow transaction published its resident '
+                f'before swapping the package at {skill_dir}'
+            )
+        if not os.path.lexists(skill_dir):
+            if os.path.lexists(staging_dir):
+                _validate_owned_skill(staging_dir)
+                os.replace(staging_dir, skill_dir)
+                _fsync_directory(os.path.dirname(skill_dir))
+            else:
+                raise RuntimeError(
+                    f'interrupted workflow transaction published its resident '
+                    f'but has no new package at {skill_dir}'
+                )
+        _validate_owned_skill(skill_dir)
+        if os.path.lexists(staging_dir):
+            _remove_installer_tree(staging_dir)
+        if os.path.lexists(backup_dir):
+            _remove_installer_tree(backup_dir)
+        os.remove(transaction_path)
+        _fsync_directory(os.path.dirname(skill_dir))
+        return
 
+    _rollback_skill_transaction(skill_dir, transaction)
+
+
+def _ensure_staging_parent(directory):
+    if os.path.lexists(directory):
+        directory_stat = os.lstat(directory)
+        if stat.S_ISLNK(directory_stat.st_mode) or not stat.S_ISDIR(
+            directory_stat.st_mode
+        ):
+            raise RuntimeError(
+                f'{directory} is not a regular package directory'
+            )
+        return
+    os.mkdir(directory, 0o700)
+
+
+def _write_staged_asset(staging_dir, relative_path, content):
+    components = relative_path.split(os.sep)
+    parent = staging_dir
+    for component in components[:-1]:
+        parent = os.path.join(parent, component)
+        _ensure_staging_parent(parent)
+    target = os.path.join(staging_dir, relative_path)
+    if os.path.lexists(target) and not stat.S_ISREG(os.lstat(target).st_mode):
+        raise RuntimeError(f'{target} is not a regular managed file')
+    flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC
+    if hasattr(os, 'O_NOFOLLOW'):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(target, flags, 0o600)
+    try:
+        with os.fdopen(descriptor, 'w', encoding='utf-8') as output:
+            descriptor = None
+            output.write(content)
+            output.flush()
+            os.fsync(output.fileno())
+    finally:
+        if descriptor is not None:
+            os.close(descriptor)
+
+
+def _fsync_skill_tree(skill_dir):
+    directories = []
+    for root, dir_names, file_names in os.walk(skill_dir, followlinks=False):
+        directories.append(root)
+        for name in dir_names + file_names:
+            path = os.path.join(root, name)
+            path_stat = os.lstat(path)
+            if stat.S_ISLNK(path_stat.st_mode):
+                raise RuntimeError(f'{path} is a symlink; refusing to install')
+            if stat.S_ISREG(path_stat.st_mode):
+                _fsync_file(path)
+            elif not stat.S_ISDIR(path_stat.st_mode):
+                raise RuntimeError(
+                    f'{path} is not a regular package path; refusing to install'
+                )
+    for directory in reversed(directories):
+        _fsync_directory(directory)
+
+
+def _stage_skill_package(skill_dir, staging_dir, bundle):
+    if os.path.lexists(skill_dir):
+        # Preserve a raced-in link as a link so validation rejects it; never
+        # follow it and copy data from outside the managed package.
+        shutil.copytree(skill_dir, staging_dir, symlinks=True)
+    else:
+        os.mkdir(staging_dir, 0o700)
+    for asset_key, relative_path in SKILL_PACKAGE_ASSETS:
+        _write_staged_asset(staging_dir, relative_path, bundle[asset_key])
+    _validate_owned_skill(staging_dir)
+    _fsync_skill_tree(staging_dir)
+    _fsync_directory(os.path.dirname(staging_dir))
+
+
+def _begin_skill_transaction(
+    skill_dir,
+    bundle,
+    resident_target,
+    resident_before_digest,
+    resident_after_digest,
+    resident_before_signature,
+):
+    skill_dir, staging_dir, backup_dir, transaction_path = (
+        _skill_transaction_paths(skill_dir)
+    )
+    _recover_skill_transaction(skill_dir)
+    had_existing = _validate_owned_skill(skill_dir)
+    ensure_dir(os.path.dirname(skill_dir))
+    for path in (staging_dir, backup_dir, transaction_path):
+        if os.path.lexists(path):
+            raise RuntimeError(f'workflow transaction path already exists: {path}')
+    _write_skill_transaction(
+        transaction_path,
+        skill_dir,
+        had_existing,
+        resident_target,
+        resident_before_digest,
+        resident_after_digest,
+        resident_before_signature,
+    )
+    try:
+        _stage_skill_package(skill_dir, staging_dir, bundle)
+    except Exception:
+        _rollback_skill_transaction(skill_dir)
+        raise
+    return skill_dir, staging_dir, backup_dir, transaction_path, had_existing
+
+
+def _swap_staged_skill(skill_dir, staging_dir, backup_dir, had_existing):
+    if had_existing:
+        os.replace(skill_dir, backup_dir)
+        _fsync_directory(os.path.dirname(skill_dir))
+    try:
+        os.replace(staging_dir, skill_dir)
+        _fsync_directory(os.path.dirname(skill_dir))
+    except Exception:
+        if had_existing and os.path.lexists(backup_dir):
+            os.replace(backup_dir, skill_dir)
+            _fsync_directory(os.path.dirname(skill_dir))
+        # The caller's recovery path will now observe the resident's before
+        # hash and clean up the journal without deleting the restored package.
+        raise
+
+
+def _commit_skill_transaction(skill_dir):
+    skill_dir, staging_dir, backup_dir, transaction_path = (
+        _skill_transaction_paths(skill_dir)
+    )
+    if os.path.lexists(staging_dir):
+        _remove_installer_tree(staging_dir)
+    if os.path.lexists(backup_dir):
+        _remove_installer_tree(backup_dir)
+    if os.path.lexists(transaction_path):
+        os.remove(transaction_path)
+    _fsync_directory(os.path.dirname(skill_dir))
+
+
+def _resident_update(existing, rendered_stub, client, target_path):
+    """Build the new resident file while preserving non-Uclusion content."""
     has_start = CLAUDE_MD_MARKER in existing
     has_end = CLAUDE_MD_END_MARKER in existing
-
     if has_start != has_end:
         which = 'start' if has_start else 'end'
-        print(f"  ❌ {target_path} has the Uclusion {which} marker but not its")
-        print(f"      counterpart; refusing to modify. Remove the orphan marker and re-run.")
-        return
-
+        raise RuntimeError(
+            f'{target_path} has the Uclusion {which} marker but not its '
+            'counterpart'
+        )
     if has_start:
-        print(f"📝 Found Uclusion workflow block in {target_path}")
-        action = 'replace'
-        prompt = f"  Refresh Uclusion job workflow in {target_path}?"
-        default_yes = True
-    elif exists:
-        print(f"📝 Found existing {target_path}")
-        action = 'append'
-        prompt = f"  Append Uclusion job workflow to {target_path}?"
-        default_yes = False
-    else:
-        print(f"📝 No {target_path} found.")
-        action = 'create'
-        prompt = f"  Create {target_path} with Uclusion job workflow?"
-        default_yes = False
+        if (
+            existing.count(CLAUDE_MD_MARKER) != 1
+            or existing.count(CLAUDE_MD_END_MARKER) != 1
+        ):
+            raise RuntimeError(
+                f'{target_path} has duplicate Uclusion workflow markers'
+            )
+        # A Cursor rule is a dedicated Uclusion-owned file. Refresh the whole
+        # asset so YAML frontmatter changes together with its managed body.
+        if client == 'cursor':
+            return rendered_stub
+        old_start = existing.find(CLAUDE_MD_MARKER)
+        old_end = (
+            existing.find(CLAUDE_MD_END_MARKER, old_start)
+            + len(CLAUDE_MD_END_MARKER)
+        )
+        if old_end < len(existing) and existing[old_end] == '\n':
+            old_end += 1
+        new_start = rendered_stub.find(CLAUDE_MD_MARKER)
+        new_end = (
+            rendered_stub.find(CLAUDE_MD_END_MARKER, new_start)
+            + len(CLAUDE_MD_END_MARKER)
+        )
+        if new_end < len(rendered_stub) and rendered_stub[new_end] == '\n':
+            new_end += 1
+        block = rendered_stub[new_start:new_end]
+        return existing[:old_start] + block + existing[old_end:]
 
-    if not assume_yes and not prompt_yes_no(prompt, default=default_yes):
-        print(f"  ⏭  Skipped {os.path.basename(target_path)} update.")
-        return
+    # Older releases generated a dedicated Cursor rule without ownership
+    # markers. Recognize only that exact Uclusion-owned frontmatter; an
+    # arbitrary same-named rule belongs to the user.
+    if client == 'cursor':
+        if existing.startswith(CURSOR_MDC_FRONTMATTER):
+            return rendered_stub
+        if existing:
+            raise RuntimeError(
+                f'{target_path} is not a Uclusion-managed Cursor rule; '
+                'refusing to overwrite it'
+            )
+        return rendered_stub
 
-    content = fetch_md()
-    if content is None:
-        return
-
-    if action == 'replace':
-        start_idx = existing.find(CLAUDE_MD_MARKER)
-        end_idx = existing.find(CLAUDE_MD_END_MARKER, start_idx) + len(CLAUDE_MD_END_MARKER)
-        if end_idx < len(existing) and existing[end_idx] == '\n':
-            end_idx += 1
-        updated = existing[:start_idx] + content + existing[end_idx:]
-        verb = 'Refreshed Uclusion workflow in'
-    elif action == 'append':
-        sep = '' if existing.endswith('\n') else '\n'
-        updated = existing + sep + '\n' + content
-        verb = 'Appended Uclusion workflow to'
-    else:  # create
-        updated = content
-        verb = 'Wrote'
-
-    try:
-        os.makedirs(os.path.dirname(target_path), exist_ok=True)
-        with open(target_path, 'w', encoding='utf-8') as out:
-            out.write(updated)
-        print(f"  ✅ {verb} {target_path}")
-    except OSError as err:
-        print(f"  ❌ Could not write {target_path}: {err}")
+    if not existing:
+        return rendered_stub
+    separator = '' if existing.endswith('\n') else '\n'
+    return existing + separator + '\n' + rendered_stub
 
 
-def install_cursor_mdc(fetch_md, target_path=CURSOR_MDC_PATH, assume_yes=False):
-    """Install or refresh a Cursor rule (.mdc) at ``target_path``.
+def install_skill_and_stub(
+    fetch_bundle,
+    skill_dir,
+    resident_path,
+    client,
+    client_label,
+    assume_yes=False,
+    require_dir=None,
+):
+    """Install one native skill package, then shrink its resident instructions.
 
-    ``target_path`` is ~/.cursor/rules/uclusion.mdc for a global install and
-    ``<project>/.cursor/rules/uclusion.mdc`` for a project-level one. The body of
-    the rule is the same workflow markdown that lands in CLAUDE.md — we take the
-    (shared, cached) CLAUDE.md content, strip the install markers, prepend a
-    description-based Cursor frontmatter, and write the result. Keeping CLAUDE.md
-    as the single source of truth means the two surfaces never drift.
+    The complete bundle is fetched and validated before the first write. The
+    complete managed package is staged and durably swapped as one directory;
+    a resident-write failure rolls that swap back. Existing unmarked packages,
+    links, special files, and resident Cursor rules are user-owned collisions.
     """
-    exists = os.path.exists(target_path)
-    if exists:
-        print(f"📝 Found existing {target_path}")
-        prompt = f"  Refresh Uclusion Cursor rule at {target_path}?"
-        verb = 'Refreshed'
-        default_yes = True
-    else:
-        print(f"📝 No {target_path} found.")
-        prompt = f"  Create {target_path} with Uclusion job workflow?"
-        verb = 'Wrote'
-        default_yes = False
+    if client not in CLIENT_STUB_ASSET:
+        raise ValueError(f'unsupported workflow client: {client}')
+    if require_dir is not None and not os.path.isdir(require_dir):
+        print(f"ℹ️  No {require_dir} found; skipping {client_label} workflow.")
+        return False
+    with install_lock():
+        _recover_skill_transaction(skill_dir)
+        _validate_owned_skill(skill_dir)
+        resident_target = _codex_config_write_target(resident_path)
+        existing, resident_signature = _read_text_snapshot(resident_target)
 
-    if not assume_yes and not prompt_yes_no(prompt, default=default_yes):
-        print("  ⏭  Skipped uclusion.mdc update.")
-        return
+        has_managed_resident = (
+            (
+                CLAUDE_MD_MARKER in existing
+                and CLAUDE_MD_END_MARKER in existing
+            )
+            or (
+                client == 'cursor'
+                and existing.startswith(CURSOR_MDC_FRONTMATTER)
+            )
+        )
+        action = 'refresh' if has_managed_resident else (
+            'append' if existing and client != 'cursor' else 'create'
+        )
+        if not assume_yes:
+            default_yes = action == 'refresh'
+            prompt = (
+                f"  Install Uclusion skill and {action} its {client_label} "
+                f"bootstrap at {resident_path}?"
+            )
+            if not prompt_yes_no(prompt, default=default_yes):
+                print(f"  ⏭  Skipped {client_label} workflow update.")
+                return False
 
-    content = fetch_md()
-    if content is None:
-        return
+        bundle = fetch_bundle()
+        if bundle is None:
+            raise RuntimeError('the Uclusion workflow bundle is unavailable')
+        validate_workflow_bundle(bundle)
 
-    start_idx = content.find(CLAUDE_MD_MARKER) + len(CLAUDE_MD_MARKER)
-    end_idx = content.find(CLAUDE_MD_END_MARKER, start_idx)
-    body = content[start_idx:end_idx].lstrip('\n').rstrip() + '\n'
-    mdc_content = CURSOR_MDC_FRONTMATTER + body
+        environment = getattr(fetch_bundle, '__dict__', {}).get(
+            'workflow_environment'
+        )
+        rendered_stub = bundle[CLIENT_STUB_ASSET[client]]
+        if environment in ('dev', 'stage', 'production'):
+            cli_command = (
+                'uclusion'
+                if environment == 'production'
+                else f'uclusion -e {environment}'
+            )
+            rendered_stub = rendered_stub.replace(
+                WORKFLOW_ENV_PLACEHOLDER, cli_command
+            )
+        resident_content = _resident_update(
+            existing, rendered_stub, client, resident_path
+        )
 
+        transaction = _begin_skill_transaction(
+            skill_dir,
+            bundle,
+            resident_target,
+            _resident_state_digest(existing, resident_signature),
+            hashlib.sha256(resident_content.encode('utf-8')).hexdigest(),
+            resident_signature,
+        )
+        normalized_skill_dir, staging_dir, backup_dir = transaction[:3]
+        had_existing = transaction[4]
+        try:
+            _swap_staged_skill(
+                normalized_skill_dir, staging_dir, backup_dir, had_existing
+            )
+            atomic_write_text(
+                resident_path,
+                resident_content,
+                existing,
+                resident_target,
+                resident_signature,
+            )
+        except Exception:
+            # atomic_write_text never raises after its os.replace commit. Any
+            # caught error therefore leaves the resident uncommitted, so the
+            # package must be restored even if an editor concurrently changed
+            # unrelated resident text to a third journal hash.
+            _rollback_skill_transaction(normalized_skill_dir)
+            raise
+        _commit_skill_transaction(normalized_skill_dir)
+
+    print(f"  ✅ Installed Uclusion skill for {client_label} at {skill_dir}")
+    action_past_tense = {
+        'refresh': 'Refreshed',
+        'append': 'Appended',
+        'create': 'Created',
+    }[action]
+    print(f"  ✅ {action_past_tense} Uclusion bootstrap in {resident_path}")
+    return True
+
+
+def _codex_project_fallback_filenames():
+    """Read safe project instruction fallback names from Codex config."""
+    if tomllib is None:
+        return ()
+    config_target = _codex_config_write_target(CODEX_CONFIG_PATH)
+    if not os.path.exists(config_target):
+        return ()
     try:
-        os.makedirs(os.path.dirname(target_path), exist_ok=True)
-        with open(target_path, 'w', encoding='utf-8') as out:
-            out.write(mdc_content)
-        print(f"  ✅ {verb} {target_path}")
-    except OSError as err:
-        print(f"  ❌ Could not write {target_path}: {err}")
+        with open(config_target, 'rb') as config_file:
+            config = tomllib.load(config_file)
+    except (OSError, tomllib.TOMLDecodeError) as err:
+        raise RuntimeError(
+            f'could not read Codex instruction fallbacks from '
+            f'{CODEX_CONFIG_PATH}: {err}'
+        ) from err
+    names = config.get('project_doc_fallback_filenames', [])
+    if not isinstance(names, list):
+        raise RuntimeError(
+            'Codex project_doc_fallback_filenames must be an array of names'
+        )
+    result = []
+    for name in names:
+        if (
+            not isinstance(name, str)
+            or not name
+            or name in ('.', '..')
+            or os.path.basename(name) != name
+            or '/' in name
+            or '\\' in name
+        ):
+            raise RuntimeError(
+                f'unsafe Codex project instruction fallback name: {name!r}'
+            )
+        if name not in result:
+            result.append(name)
+    return tuple(result)
+
+
+def effective_codex_instruction_path(scope_dir, include_fallbacks=False):
+    """Return the first nonempty instruction file Codex reads in a scope."""
+    names = ['AGENTS.override.md', 'AGENTS.md']
+    if include_fallbacks:
+        names.extend(_codex_project_fallback_filenames())
+    for name in names:
+        path = os.path.join(scope_dir, name)
+        if not os.path.lexists(path):
+            continue
+        target = _codex_config_write_target(path)
+        existing, _signature = _read_text_snapshot(target)
+        if existing.strip():
+            return path
+    return os.path.join(scope_dir, 'AGENTS.md')
+
+
+_WORKFLOW_VERSION_UNSET = object()
+
+
+def persist_workflow_install_state(
+    config_path,
+    installed_clients,
+    workflow_version=_WORKFLOW_VERSION_UNSET,
+    pending_add=(),
+    pending_remove=(),
+):
+    """Merge successful client installs and optionally stamp their release."""
+    clients = {
+        client for client in installed_clients
+        if client in CLIENT_STUB_ASSET
+    }
+    with install_lock():
+        logical_path = os.path.abspath(os.path.expanduser(config_path))
+        target_path = _codex_config_write_target(logical_path)
+        existing, signature = _read_text_snapshot(target_path)
+        try:
+            config = json.loads(existing)
+        except json.JSONDecodeError as err:
+            raise RuntimeError(
+                f'{config_path} is not valid JSON: {err}'
+            ) from err
+        if not isinstance(config, dict):
+            raise RuntimeError(f'{config_path} must contain a JSON object')
+        previous = config.get('workflowClients', [])
+        if not isinstance(previous, list):
+            previous = []
+        clients.update(
+            client for client in previous if client in CLIENT_STUB_ASSET
+        )
+        config['workflowClients'] = sorted(clients)
+        if workflow_version is not _WORKFLOW_VERSION_UNSET:
+            if workflow_version:
+                config['workflowReinstallVersion'] = workflow_version
+            else:
+                config.pop('workflowReinstallVersion', None)
+        previous_pending = config.get('workflowInstallPending', [])
+        if not isinstance(previous_pending, list):
+            previous_pending = []
+        pending = {
+            client for client in previous_pending
+            if client in CLIENT_STUB_ASSET
+        }
+        pending.difference_update({
+            client for client in pending_remove
+            if client in CLIENT_STUB_ASSET
+        })
+        pending.update({
+            client for client in pending_add
+            if client in CLIENT_STUB_ASSET
+        })
+        if pending:
+            config['workflowInstallPending'] = sorted(pending)
+        else:
+            config.pop('workflowInstallPending', None)
+        updated = json.dumps(config, indent=2) + '\n'
+        atomic_write_text(
+            logical_path,
+            updated,
+            existing,
+            target_path,
+            signature,
+        )
+
+
+def finish_workflow_installs(
+    config_path,
+    results,
+    errors,
+    script_version,
+    allow_skips=True,
+):
+    """Persist successes, stamp only a fully successful selected install."""
+    successful = {
+        client for client, installed in results.items() if installed
+    }
+    skipped = {
+        client for client, installed in results.items() if not installed
+    }
+    aggregate_errors = list(errors)
+    if skipped and not allow_skips:
+        aggregate_errors.extend(
+            (
+                client,
+                RuntimeError('selected workflow did not install'),
+            )
+            for client in sorted(skipped)
+            if not any(error_client == client for error_client, _ in errors)
+        )
+    failed = skipped | {
+        client for client, _error in aggregate_errors
+    }
+    all_succeeded = (
+        bool(results)
+        and not skipped
+        and not aggregate_errors
+    )
+    if results:
+        workflow_version = (
+            script_version if all_succeeded else _WORKFLOW_VERSION_UNSET
+        )
+        persist_workflow_install_state(
+            config_path,
+            successful,
+            workflow_version,
+            pending_add=failed,
+            pending_remove=successful,
+        )
+    if aggregate_errors:
+        detail = '; '.join(
+            f'{client}: {error}' for client, error in aggregate_errors
+        )
+        raise RuntimeError(f'workflow installation failed ({detail})')
+    return results
 
 
 def build_parser():
@@ -1995,7 +2774,7 @@ def parse_clients(clients_arg):
     return clients
 
 
-def install_global(workspace_id, view_id, mcp_env, fetch_md, clients=None,
+def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                    script_version=None, token_audit_enabled=None):
     """Configure Uclusion in the user's home directory (the default).
 
@@ -2010,9 +2789,39 @@ def install_global(workspace_id, view_id, mcp_env, fetch_md, clients=None,
     token_audit = write_uclusion_config(
         workspace_id, view_id, config_path, script_version, token_audit_enabled
     )
+    if clients:
+        persist_workflow_install_state(
+            config_path,
+            clients,
+            pending_add=clients,
+        )
+    workflow_results = {}
+    workflow_errors = []
     claude_registration_audit = token_audit
     claude_selected = interactive or 'claude' in clients
-    claude_detected = not interactive or os.path.exists(CLAUDE_JSON_PATH)
+    claude_detected = (
+        not interactive
+        or os.path.exists(CLAUDE_JSON_PATH)
+        or os.path.isdir(CLAUDE_CONFIG_HOME)
+    )
+    cursor_selected = interactive or 'cursor' in clients
+    cursor_detected = not interactive or os.path.exists(CURSOR_MCP_PATH)
+    codex_selected = interactive or 'codex' in clients
+    codex_detected = not interactive or os.path.isdir(CODEX_HOME)
+    if interactive:
+        persist_workflow_install_state(
+            config_path,
+            set(),
+            pending_add={
+                client
+                for client, detected in (
+                    ('claude', claude_detected),
+                    ('cursor', cursor_detected),
+                    ('codex', codex_detected),
+                )
+                if detected
+            },
+        )
     if claude_selected and claude_detected:
         add_claude_permissions(CLAUDE_SETTINGS_PATH)
         result = configure_claude_token_audit(
@@ -2038,11 +2847,10 @@ def install_global(workspace_id, view_id, mcp_env, fetch_md, clients=None,
             if result.get('available') is False:
                 claude_registration_audit = None
         else:
-            # A malformed/unwritable Claude settings file must degrade only
-            # auditing. Registering an enabled proxy without a selected source
-            # would make Claude's entire Uclusion MCP process fail argument
-            # validation.
-            claude_registration_audit = None
+            raise RuntimeError(
+                f'failed to configure Claude settings at '
+                f'{CLAUDE_SETTINGS_PATH}'
+            )
     elif (
         clients
         and token_audit_enabled is False
@@ -2056,7 +2864,12 @@ def install_global(workspace_id, view_id, mcp_env, fetch_md, clients=None,
         )
         if result is not None:
             update_token_audit_client_config(config_path, None, {})
-    if interactive or 'cursor' in clients:
+        else:
+            raise RuntimeError(
+                f'failed to disable Claude token audit at '
+                f'{CLAUDE_SETTINGS_PATH}'
+            )
+    if cursor_selected:
         register_mcp_json(CURSOR_MCP_PATH, 'Cursor', workspace_id, mcp_env, require_existing=interactive)
     if claude_selected:
         register_mcp_json(
@@ -2064,24 +2877,85 @@ def install_global(workspace_id, view_id, mcp_env, fetch_md, clients=None,
             require_existing=interactive, token_audit=claude_registration_audit,
             token_audit_client='claude'
         )
-    if interactive or 'codex' in clients:
-        update_codex_integration_config(
-            workspace_id, mcp_env, force=not interactive
-        )
-    if interactive or 'claude' in clients:
-        install_workflow_md(fetch_md, CLAUDE_MD_PATH, 'Claude Code', assume_yes=not interactive)
-    if interactive or 'cursor' in clients:
-        install_cursor_mdc(fetch_md, assume_yes=not interactive)
-        # Merge/create hooks.json whenever Cursor is being configured (S-all-192).
-        install_cursor_poke_drain_hook(CURSOR_HOOKS_PATH)
-    if interactive or 'codex' in clients:
-        install_workflow_md(fetch_md, CODEX_AGENTS_MD_PATH, 'Codex',
-                            require_dir=CODEX_HOME if interactive else None,
-                            assume_yes=not interactive)
+    if claude_selected:
+        if not claude_detected:
+            workflow_results['claude'] = False
+        else:
+            try:
+                workflow_results['claude'] = install_skill_and_stub(
+                    fetch_bundle,
+                    CLAUDE_SKILL_DIR,
+                    CLAUDE_MD_PATH,
+                    'claude',
+                    'Claude Code',
+                    assume_yes=not interactive,
+                )
+            except Exception as err:
+                workflow_results['claude'] = False
+                workflow_errors.append(('claude', err))
+    if cursor_selected:
+        if not cursor_detected:
+            workflow_results['cursor'] = False
+        else:
+            try:
+                installed = install_skill_and_stub(
+                    fetch_bundle,
+                    CURSOR_SKILL_DIR,
+                    CURSOR_MDC_PATH,
+                    'cursor',
+                    'Cursor',
+                    assume_yes=not interactive,
+                )
+                workflow_results['cursor'] = installed
+                if installed:
+                    install_cursor_poke_drain_hook(CURSOR_HOOKS_PATH)
+            except Exception as err:
+                workflow_results['cursor'] = False
+                workflow_errors.append(('cursor', err))
+    if codex_selected:
+        if not codex_detected:
+            workflow_results['codex'] = False
+        else:
+            try:
+                codex_resident_path = effective_codex_instruction_path(
+                    CODEX_HOME
+                )
+                installed = install_skill_and_stub(
+                    fetch_bundle,
+                    CODEX_SKILL_DIR,
+                    codex_resident_path,
+                    'codex',
+                    'Codex',
+                    assume_yes=not interactive,
+                    require_dir=CODEX_HOME if interactive else None,
+                )
+                workflow_results['codex'] = installed
+                if installed:
+                    update_codex_integration_config(
+                        workspace_id, mcp_env, force=not interactive
+                    )
+            except Exception as err:
+                workflow_results['codex'] = False
+                workflow_errors.append(('codex', err))
+    return finish_workflow_installs(
+        config_path,
+        workflow_results,
+        workflow_errors,
+        script_version,
+        allow_skips=interactive,
+    )
 
 
-def install_project_level(workspace_id, view_id, mcp_env, fetch_md, project_dir, clients=None,
-                          script_version=None, token_audit_enabled=None):
+def install_project_level(
+    workspace_id,
+    view_id,
+    mcp_env,
+    fetch_bundle,
+    project_dir,
+    clients=None,
+    script_version=None,
+    token_audit_enabled=None,
+):
     """Configure Uclusion inside ``project_dir`` instead of the home directory.
 
     Writes the workspace config and the project-scoped MCP registrations and
@@ -2104,6 +2978,20 @@ def install_project_level(workspace_id, view_id, mcp_env, fetch_md, project_dir,
     token_audit = write_uclusion_config(
         workspace_id, view_id, config_path, script_version, token_audit_enabled
     )
+    if clients:
+        persist_workflow_install_state(
+            config_path,
+            clients,
+            pending_add=clients,
+        )
+    workflow_results = {}
+    workflow_errors = []
+    if interactive:
+        persist_workflow_install_state(
+            config_path,
+            set(),
+            pending_add=set(CLIENT_STUB_ASSET),
+        )
     claude_registration_audit = token_audit
     claude_settings_path = os.path.join(project_dir, '.claude', 'settings.local.json')
     claude_selected = interactive or 'claude' in clients
@@ -2132,7 +3020,10 @@ def install_project_level(workspace_id, view_id, mcp_env, fetch_md, project_dir,
             if result.get('available') is False:
                 claude_registration_audit = None
         else:
-            claude_registration_audit = None
+            raise RuntimeError(
+                f'failed to configure Claude settings at '
+                f'{claude_settings_path}'
+            )
         register_mcp_json(
             os.path.join(project_dir, '.mcp.json'),
             'Claude Code (project)', workspace_id, mcp_env,
@@ -2150,25 +3041,72 @@ def install_project_level(workspace_id, view_id, mcp_env, fetch_md, project_dir,
         )
         if result is not None:
             update_token_audit_client_config(config_path, None, {})
+        else:
+            raise RuntimeError(
+                f'failed to disable Claude token audit at '
+                f'{claude_settings_path}'
+            )
     if interactive or 'cursor' in clients:
         register_mcp_json(os.path.join(project_dir, '.cursor', 'mcp.json'),
                           'Cursor (project)', workspace_id, mcp_env, require_existing=False)
-        install_cursor_poke_drain_hook(
-            os.path.join(project_dir, '.cursor', 'hooks.json')
-        )
     if interactive or 'claude' in clients:
-        install_workflow_md(fetch_md, os.path.join(project_dir, 'CLAUDE.md'), 'Claude Code (project)',
-                            assume_yes=not interactive)
+        try:
+            workflow_results['claude'] = install_skill_and_stub(
+                fetch_bundle,
+                os.path.join(project_dir, '.claude', 'skills', 'uclusion'),
+                os.path.join(project_dir, 'CLAUDE.md'),
+                'claude',
+                'Claude Code (project)',
+                assume_yes=not interactive,
+            )
+        except Exception as err:
+            workflow_results['claude'] = False
+            workflow_errors.append(('claude', err))
     if interactive or 'cursor' in clients:
-        install_cursor_mdc(fetch_md, os.path.join(project_dir, '.cursor', 'rules', 'uclusion.mdc'),
-                           assume_yes=not interactive)
+        try:
+            installed = install_skill_and_stub(
+                fetch_bundle,
+                os.path.join(project_dir, '.cursor', 'skills', 'uclusion'),
+                os.path.join(project_dir, '.cursor', 'rules', 'uclusion.mdc'),
+                'cursor',
+                'Cursor (project)',
+                assume_yes=not interactive,
+            )
+            workflow_results['cursor'] = installed
+            if installed:
+                install_cursor_poke_drain_hook(
+                    os.path.join(project_dir, '.cursor', 'hooks.json')
+                )
+        except Exception as err:
+            workflow_results['cursor'] = False
+            workflow_errors.append(('cursor', err))
     if interactive or 'codex' in clients:
-        # The relay-authoritative companion needs no Codex lifecycle hooks.
-        # Clean up only the obsolete Uclusion-owned block left by older
-        # installs; unrelated user/project hooks remain untouched.
-        remove_legacy_codex_hooks_config(force=not interactive)
-        install_workflow_md(fetch_md, os.path.join(project_dir, 'AGENTS.md'), 'Codex (project)',
-                            assume_yes=not interactive)
+        try:
+            codex_resident_path = effective_codex_instruction_path(
+                project_dir, include_fallbacks=True
+            )
+            installed = install_skill_and_stub(
+                fetch_bundle,
+                os.path.join(project_dir, '.agents', 'skills', 'uclusion'),
+                codex_resident_path,
+                'codex',
+                'Codex (project)',
+                assume_yes=not interactive,
+            )
+            workflow_results['codex'] = installed
+            if installed:
+                # The relay-authoritative companion needs no lifecycle hooks.
+                remove_legacy_codex_hooks_config(force=not interactive)
+        except Exception as err:
+            workflow_results['codex'] = False
+            workflow_errors.append(('codex', err))
+    return finish_workflow_installs(
+        config_path,
+        workflow_results,
+        workflow_errors,
+        script_version,
+        allow_skips=interactive,
+    )
 
 
 def main():
@@ -2184,6 +3122,11 @@ def main():
         clients = parse_clients(args.clients) if args.clients else None
 
     try:
+        fetch_bundle = make_workflow_bundle_fetcher(env)
+        # A web/update-selected workflow install must prove that every asset
+        # belongs to this installer release before scripts or config change.
+        if clients:
+            fetch_bundle()
         script_version = (
             validate_release_name(args.script_version)
             if args.script_version is not None
@@ -2196,13 +3139,27 @@ def main():
             project_dir = os.getcwd() if args.project else None
         else:
             project_dir = prompt_install_scope()
-        fetch_md = make_workflow_md_fetcher(env)
         if project_dir is None:
-            install_global(workspace_id, view_id, mcp_env, fetch_md, clients,
-                           script_version, args.token_audit)
+            install_global(
+                workspace_id,
+                view_id,
+                mcp_env,
+                fetch_bundle,
+                clients,
+                script_version,
+                args.token_audit,
+            )
         else:
-            install_project_level(workspace_id, view_id, mcp_env, fetch_md, project_dir,
-                                  clients, script_version, args.token_audit)
+            install_project_level(
+                workspace_id,
+                view_id,
+                mcp_env,
+                fetch_bundle,
+                project_dir,
+                clients,
+                script_version,
+                args.token_audit,
+            )
     except subprocess.CalledProcessError as err:
         print(f"❌ Command failed: {err}")
         return 1

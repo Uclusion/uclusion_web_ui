@@ -1,0 +1,38 @@
+---
+description: Uclusion Poke AI and work-discovery bootstrap
+alwaysApply: true
+---
+<!-- uclusion-workflow:v1 -->
+<!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->
+# Uclusion bootstrap for Cursor
+
+The detailed Uclusion job workflow lives in the `/uclusion` skill. Keep this
+resident rule small; load the skill whenever the triggers below apply.
+If both user and project Uclusion bootstrap rules are visible, only the closest
+project-scoped rule and its adjacent Uclusion skill/reference package own
+delivery, work discovery, and workflow. In that case do not invoke the
+ambiguous user `/uclusion`; directly read the closest project's
+`.cursor/skills/uclusion/SKILL.md` and its required references. Ignore and do
+not combine the user Uclusion skill.
+
+Never leave `uclusion wait` or `uclusion listen` running. At the beginning of
+every real user-triggered turn, synchronously run
+`{{UCLUSION_CLI}} wait --timeout 0` as its own tool call, wait for its result,
+and handle every returned line before issuing any command for the new request.
+The installed Cursor stop hook handles Pokes arriving during a
+turn and returns them as a follow-up message; it does not wake a fully idle
+chat. The turn-start drain uses the shared default cursor unless the human set
+`UCLUSION_CONSUMER`; never set a consumer yourself.
+
+On any `Start`, `Added`, `Updated`, or `Responded` line, or when a request
+names Uclusion, Poke AI, find_work, or a Uclusion short code beginning `J-`,
+`T-`, `B-`, `Q-`, `S-`, `O-`, `I-`, `R-`, or `C-`, load the `/uclusion` skill
+before acting.
+
+With no concrete work at session start or after finishing work, load the
+`/uclusion` skill and call `find_work`. If the skill or one of its required
+references is absent or unreadable, report that the Uclusion install is broken,
+ask permission to run `{{UCLUSION_CLI}} update`, and after success require a
+client restart or MCP reconnect before Uclusion work. Do not improvise the
+workflow.
+<!-- /uclusion-workflow:v1 -->

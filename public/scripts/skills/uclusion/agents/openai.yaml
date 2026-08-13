@@ -1,0 +1,6 @@
+interface:
+  display_name: "Uclusion"
+  short_description: "Work Uclusion jobs and respond to Poke AI"
+  default_prompt: "Use $uclusion to load and work the referenced Uclusion item."
+policy:
+  allow_implicit_invocation: true

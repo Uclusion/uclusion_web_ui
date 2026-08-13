@@ -101,6 +101,7 @@ CODEX_LEGACY_BRIDGE_ENV = (
     'UCLUSION_CODEX_RECEIVER_PID_FILE',
 )
 CODEX_LAUNCH_MANAGED_ENV = CODEX_LEGACY_BRIDGE_ENV + (
+    'UCLUSION_CODEX_BRIDGE_ACTIVE',
     'UCLUSION_CODEX_ACTIVE_RELEASE',
     'UCLUSION_CODEX_STAGED_CLI',
 )
@@ -119,7 +120,10 @@ UNVERSIONED_DIR_NAMES = ('v1', 'current', 'unversioned', 'bin')
 UPDATE_CHECK_STATE_FILE = os.path.join(os.path.expanduser('~'), '.uclusion', 'update_check.json')
 UPDATE_CHECK_INTERVAL = 900
 WORKFLOW_MD_MARKER = '<!-- uclusion-workflow:v1 -->'
+WORKFLOW_SKILL_MARKER = '<!-- uclusion-skill:v1 -->'
 CODEX_UCLUSION_TABLE = '[mcp_servers.Uclusion]'
+PROJECT_ROOT_MARKERS = ('.git', '.hg', '.svn')
+WORKFLOW_CLIENTS = frozenset(('claude', 'cursor', 'codex'))
 
 
 def get_inbox_path():
@@ -1211,13 +1215,21 @@ def get_env_paths(env):
 
 
 def load_config(json_path):
-    # Prefer a project-local config in the current directory (written by a
-    # project-level install) so `uclusion` run inside a project uses that
-    # project's sources/report settings; fall back to the user-global
-    # ~/.uclusion copy. Credentials always stay user-global (see get_credentials).
-    local_path = os.path.join(os.getcwd(), json_path)
-    config_path = local_path if os.path.exists(local_path) else \
-        os.path.join(os.path.expanduser('~'), '.uclusion', json_path)
+    # Prefer the closest containing project install so commands launched from
+    # a subdirectory still use that project's workspace and report settings;
+    # fall back to the user-global ~/.uclusion copy. Credentials always stay
+    # user-global (see get_credentials).
+    environment_by_name = {
+        DEV_SOURCES_CONFIG_FILE: 'dev',
+        STAGE_SOURCES_CONFIG_FILE: 'stage',
+        SOURCES_CONFIG_FILE: 'production',
+    }
+    environment = environment_by_name.get(os.path.basename(json_path))
+    project_path = get_project_config_path(environment) \
+        if environment is not None else None
+    config_path = project_path or os.path.join(
+        os.path.expanduser('~'), '.uclusion', json_path
+    )
     try:
         with open(config_path, 'r') as f:
             return json.load(f)
@@ -1992,6 +2004,11 @@ def cmd_codex(args):
             child_env = os.environ.copy()
             for managed_name in CODEX_LAUNCH_MANAGED_ENV:
                 child_env.pop(managed_name, None)
+            # The resident Codex bootstrap can distinguish this authoritative
+            # companion from a bare Codex process without relying on versioned
+            # release metadata. Presence is the contract; the value is never
+            # model-visible or logged.
+            child_env['UCLUSION_CODEX_BRIDGE_ACTIVE'] = '1'
             if active_release is not None:
                 child_env['UCLUSION_CODEX_ACTIVE_RELEASE'] = active_release
                 child_env['UCLUSION_CODEX_STAGED_CLI'] = staged_cli_path
@@ -2350,6 +2367,19 @@ def file_contains(path, needle):
         return False
 
 
+def effective_file_contains(paths, needle):
+    """Check ``needle`` only in the first nonempty file in precedence order."""
+    for path in paths:
+        try:
+            with open(path, 'r', encoding='utf-8') as src:
+                content = src.read()
+        except OSError:
+            continue
+        if content.strip():
+            return needle in content
+    return False
+
+
 def json_has_uclusion_server(path):
     try:
         with open(path, 'r', encoding='utf-8') as src:
@@ -2363,45 +2393,198 @@ def json_has_uclusion_server(path):
 def detect_global_clients():
     """Return the AI clients with a global Uclusion install on this machine."""
     home = os.path.expanduser('~')
+    claude_config_dir = os.path.abspath(os.path.expanduser(
+        os.environ.get('CLAUDE_CONFIG_DIR', os.path.join(home, '.claude'))
+    ))
+    codex_home = os.path.abspath(os.path.expanduser(
+        os.environ.get('CODEX_HOME', os.path.join(home, '.codex'))
+    ))
     clients = set()
     if (json_has_uclusion_server(os.path.join(home, '.claude.json'))
-            or file_contains(os.path.join(home, '.claude', 'CLAUDE.md'), WORKFLOW_MD_MARKER)):
+            or file_contains(
+                os.path.join(claude_config_dir, 'CLAUDE.md'),
+                WORKFLOW_MD_MARKER,
+            )
+            or file_contains(
+                os.path.join(
+                    claude_config_dir, 'skills', 'uclusion', 'SKILL.md'
+                ),
+                WORKFLOW_SKILL_MARKER,
+            )):
         clients.add('claude')
     if (json_has_uclusion_server(os.path.join(home, '.cursor', 'mcp.json'))
-            or os.path.exists(os.path.join(home, '.cursor', 'rules', 'uclusion.mdc'))):
+            or file_contains(
+                os.path.join(home, '.cursor', 'rules', 'uclusion.mdc'),
+                WORKFLOW_MD_MARKER,
+            )
+            or file_contains(
+                os.path.join(
+                    home, '.cursor', 'skills', 'uclusion', 'SKILL.md'
+                ),
+                WORKFLOW_SKILL_MARKER,
+            )):
         clients.add('cursor')
-    if (file_contains(os.path.join(home, '.codex', 'config.toml'), CODEX_UCLUSION_TABLE)
-            or file_contains(os.path.join(home, '.codex', 'AGENTS.md'), WORKFLOW_MD_MARKER)):
+    if (file_contains(os.path.join(codex_home, 'config.toml'), CODEX_UCLUSION_TABLE)
+            or effective_file_contains(
+                (
+                    os.path.join(codex_home, 'AGENTS.override.md'),
+                    os.path.join(codex_home, 'AGENTS.md'),
+                ),
+                WORKFLOW_MD_MARKER,
+            )
+            or file_contains(
+                os.path.join(
+                    home, '.agents', 'skills', 'uclusion', 'SKILL.md'
+                ),
+                WORKFLOW_SKILL_MARKER,
+            )):
         clients.add('codex')
     return clients
 
 
-def detect_project_clients(project_dir):
-    """Return the AI clients with a project-level Uclusion install in ``project_dir``."""
+def _detect_project_clients_at(project_dir):
+    """Return project clients installed exactly in ``project_dir``."""
     clients = set()
     if (json_has_uclusion_server(os.path.join(project_dir, '.mcp.json'))
-            or file_contains(os.path.join(project_dir, 'CLAUDE.md'), WORKFLOW_MD_MARKER)):
+            or file_contains(os.path.join(project_dir, 'CLAUDE.md'), WORKFLOW_MD_MARKER)
+            or file_contains(
+                os.path.join(
+                    project_dir, '.claude', 'skills', 'uclusion', 'SKILL.md'
+                ),
+                WORKFLOW_SKILL_MARKER,
+            )):
         clients.add('claude')
     if (json_has_uclusion_server(os.path.join(project_dir, '.cursor', 'mcp.json'))
-            or os.path.exists(os.path.join(project_dir, '.cursor', 'rules', 'uclusion.mdc'))):
+            or file_contains(
+                os.path.join(
+                    project_dir, '.cursor', 'rules', 'uclusion.mdc'
+                ),
+                WORKFLOW_MD_MARKER,
+            )
+            or file_contains(
+                os.path.join(
+                    project_dir, '.cursor', 'skills', 'uclusion', 'SKILL.md'
+                ),
+                WORKFLOW_SKILL_MARKER,
+            )):
         clients.add('cursor')
-    if file_contains(os.path.join(project_dir, 'AGENTS.md'), WORKFLOW_MD_MARKER):
+    if (
+        effective_file_contains(
+            (
+                os.path.join(project_dir, 'AGENTS.override.md'),
+                os.path.join(project_dir, 'AGENTS.md'),
+            ),
+            WORKFLOW_MD_MARKER,
+        )
+        or file_contains(
+            os.path.join(
+                project_dir, '.agents', 'skills', 'uclusion', 'SKILL.md'
+            ),
+            WORKFLOW_SKILL_MARKER,
+        )
+    ):
         clients.add('codex')
     return clients
 
 
-def get_project_config_path(env):
-    """Return the project workspace config path in cwd, or None.
+def _project_config_names(env):
+    """Return config names that identify a project install for ``env``."""
+    if env is None:
+        return tuple(dict.fromkeys((
+            DEV_SOURCES_CONFIG_FILE,
+            STAGE_SOURCES_CONFIG_FILE,
+            SOURCES_CONFIG_FILE,
+        )))
+    json_names = {
+        'dev': DEV_SOURCES_CONFIG_FILE,
+        'stage': STAGE_SOURCES_CONFIG_FILE,
+    }
+    # A plain uclusion.json is production-scoped. Treating it as a stage/dev
+    # fallback can silently bind a client to the wrong workspace. Older
+    # project installs are migrated by rerunning setup for the intended env.
+    return (json_names.get(env, SOURCES_CONFIG_FILE),)
+
+
+def _project_config_path_at(project_dir, env):
+    """Return a matching config exactly in ``project_dir``, or None."""
+    for name in _project_config_names(env):
+        path = os.path.join(project_dir, name)
+        if os.path.isfile(path):
+            return path
+    return None
+
+
+def _repository_root(start_dir):
+    """Return the closest repository root containing ``start_dir``."""
+    current = os.path.realpath(os.path.abspath(start_dir))
+    while True:
+        if any(
+            os.path.exists(os.path.join(current, marker))
+            for marker in PROJECT_ROOT_MARKERS
+        ):
+            return current
+        parent = os.path.dirname(current)
+        if parent == current:
+            return None
+        current = parent
+
+
+def _project_ancestor_dirs(start_dir):
+    """Yield cwd-to-root project directories without crossing its repository.
+
+    A repository marker bounds the walk. When no repository root can be
+    established, the starting directory is the workspace boundary; this
+    avoids treating an unrelated install in a parent or the user's home as
+    belonging to the current project.
+    """
+    start_dir = os.path.realpath(os.path.abspath(start_dir))
+    boundary = _repository_root(start_dir)
+    yield start_dir
+    if boundary is None:
+        return
+    current = start_dir
+    while current != boundary:
+        parent = os.path.dirname(current)
+        try:
+            inside_boundary = os.path.commonpath((boundary, parent)) == boundary
+        except ValueError:
+            inside_boundary = False
+        if parent == current or not inside_boundary:
+            return
+        current = parent
+        yield current
+
+
+def get_project_install_root(env=None, start_dir=None):
+    """Return the closest containing project-level Uclusion install root."""
+    start_dir = os.getcwd() if start_dir is None else start_dir
+    for candidate in _project_ancestor_dirs(start_dir):
+        if (
+            _project_config_path_at(candidate, env) is not None
+            or _detect_project_clients_at(candidate)
+        ):
+            return candidate
+    return None
+
+
+def detect_project_clients(project_dir=None):
+    """Return clients installed at the closest containing project install."""
+    root = get_project_install_root(start_dir=project_dir)
+    return _detect_project_clients_at(root) if root is not None else set()
+
+
+def get_project_config_path(env, start_dir=None):
+    """Return the closest containing project workspace config, or None.
 
     Installs write plain uclusion.json, but a hand-configured project may use
-    the env-specific name the CLI reads, so accept either.
+    the env-specific name the CLI reads, so accept either. Discovery is
+    bounded at the repository/workspace root.
     """
-    json_names = {'dev': DEV_SOURCES_CONFIG_FILE, 'stage': STAGE_SOURCES_CONFIG_FILE}
-    candidates = [json_names.get(env, SOURCES_CONFIG_FILE), SOURCES_CONFIG_FILE]
-    for name in dict.fromkeys(candidates):
-        path = os.path.join(os.getcwd(), name)
-        if os.path.exists(path):
-            return path
+    start_dir = os.getcwd() if start_dir is None else start_dir
+    for candidate in _project_ancestor_dirs(start_dir):
+        config_path = _project_config_path_at(candidate, env)
+        if config_path is not None:
+            return config_path
     return None
 
 
@@ -2418,6 +2601,44 @@ def load_config_at(config_path):
     except (OSError, json.JSONDecodeError) as error:
         print(f"⚠️ Warning: could not parse '{config_path}': {error}")
         return None
+
+
+def persisted_workflow_clients(config):
+    """Return supported clients recorded by a prior workflow install."""
+    if not isinstance(config, dict):
+        return set()
+    clients = config.get('workflowClients')
+    if not isinstance(clients, list):
+        return set()
+    return {
+        client for client in clients
+        if isinstance(client, str) and client in WORKFLOW_CLIENTS
+    }
+
+
+def workflow_install_is_stale(config, latest):
+    """True when a configured workflow package is pending or on another release."""
+    clients = persisted_workflow_clients(config)
+    pending = config.get('workflowInstallPending') if isinstance(config, dict) else None
+    pending_clients = {
+        client for client in pending
+        if isinstance(client, str) and client in WORKFLOW_CLIENTS
+    } if isinstance(pending, list) else set()
+    if not clients and not pending_clients:
+        return False
+    return bool(pending_clients) or config.get('workflowReinstallVersion') != latest
+
+
+def workflow_clients_needing_repair(config):
+    """Return persisted and pending clients so update can repair missing surfaces."""
+    clients = persisted_workflow_clients(config)
+    pending = config.get('workflowInstallPending') if isinstance(config, dict) else None
+    if isinstance(pending, list):
+        clients.update(
+            client for client in pending
+            if isinstance(client, str) and client in WORKFLOW_CLIENTS
+        )
+    return clients
 
 
 def fetch_script_version_for_workspace(env, workspace_id):
@@ -2494,18 +2715,23 @@ def save_update_check_state(state):
 def check_wait_update_notice(environment):
     """Staleness check inside the wait loop (Q-all-301 O-1).
 
-    Compares the installed release and any project stamp in cwd against the
-    current script_reinstall_version, network-checking at most once per
-    UPDATE_CHECK_INTERVAL across processes (checked_at). The first wait to
-    see a given newer release returns the notice and records it (notified),
-    so relaunched waits — from any AI client sharing this machine — stay
-    silent about that release and a declined update never renags. Every
-    failure returns None: an update check must never break waiting.
+    Compares the installed release and the closest containing project stamp
+    against the current script_reinstall_version, network-checking at most
+    once per UPDATE_CHECK_INTERVAL across processes (checked_at). The first
+    wait to see a given newer release returns the notice and records it
+    (notified), so relaunched waits — from any AI client sharing this machine
+    — stay silent about that release and a declined update never renags.
+    Every failure returns None: an update check must never break waiting.
     """
     try:
         installed_version = get_installed_script_version()
         project_config_path = get_project_config_path(environment)
-        if installed_version is None and project_config_path is None:
+        _api_url, json_name, _credentials_path = get_env_paths(environment)
+        global_config_path = os.path.join(
+            os.path.expanduser('~'), '.uclusion', json_name
+        )
+        global_config = load_config_at(global_config_path)
+        if installed_version is None and project_config_path is None and global_config is None:
             return None
         state = load_update_check_state()
         env_state = state.get(environment)
@@ -2519,14 +2745,25 @@ def check_wait_update_notice(environment):
         # The nested helpers print their own errors; the wait's output must
         # hold nothing but prompts and the notice, so swallow stdout here.
         with redirect_stdout(io.StringIO()):
-            latest = fetch_latest_script_version(environment)
-            project_version = (load_config_at(project_config_path) or {}).get(
-                'scriptReinstallVersion'
-            ) if project_config_path else None
+            project_config = load_config_at(project_config_path)
+            latest = resolve_update_release(
+                environment,
+                global_config,
+                project_config,
+                project_config_path is not None,
+                allow_unscoped_fallback=True,
+            )
+            project_version = (project_config or {}).get('scriptReinstallVersion')
         if not latest or env_state.get('notified') == latest:
             return None
         global_stale = installed_version is not None and installed_version != latest
-        project_stale = project_config_path is not None and project_version != latest
+        global_workflow_stale = workflow_install_is_stale(global_config, latest)
+        project_script_stale = (
+            project_config_path is not None and project_version != latest
+        )
+        project_workflow_stale = workflow_install_is_stale(project_config, latest)
+        project_stale = project_script_stale or project_workflow_stale
+        global_stale = global_stale or global_workflow_stale
         if not (global_stale or project_stale):
             return None
         env_state['notified'] = latest
@@ -2562,6 +2799,7 @@ def run_installer(
     script_version,
     skip_scripts=False,
     token_audit_enabled=None,
+    project_dir=None,
 ):
     """Run the downloaded installer non-interactively for one install scope.
 
@@ -2595,12 +2833,74 @@ def run_installer(
         command.append('--project')
     if skip_scripts:
         command.append('--skip-scripts')
-    print(f"🚀 Running installer: {' '.join(command[2:])}")
-    result = subprocess.run(command)
+    execution_cwd = None
+    if project:
+        execution_cwd = os.path.realpath(os.path.abspath(
+            project_dir if project_dir is not None else os.getcwd()
+        ))
+        print(
+            f"🚀 Running installer in {execution_cwd}: "
+            f"{' '.join(command[2:])}"
+        )
+    else:
+        print(f"🚀 Running installer: {' '.join(command[2:])}")
+    result = subprocess.run(command, cwd=execution_cwd) if execution_cwd \
+        else subprocess.run(command)
     if result.returncode != 0:
         print(f"❌ Installer exited with status {result.returncode}.")
         return False
     return True
+
+
+def resolve_update_release(
+    env,
+    global_config,
+    project_config,
+    has_project_install,
+    allow_unscoped_fallback=False,
+):
+    """Resolve one release shared by every workspace participating in update."""
+    workspace_ids = set()
+    if global_config is not None and global_config.get('workspaceId'):
+        workspace_ids.add(global_config['workspaceId'])
+    project_source = project_config or global_config
+    if (
+        has_project_install
+        and project_source is not None
+        and project_source.get('workspaceId')
+    ):
+        workspace_ids.add(project_source['workspaceId'])
+    if not workspace_ids:
+        if allow_unscoped_fallback:
+            release = fetch_latest_script_version(env)
+            if release is None:
+                print("❌ Could not determine the current release version.")
+            return release
+        print("❌ No workspaceId is available to resolve the update release.")
+        return None
+
+    release_by_workspace = {}
+    for workspace_id in sorted(workspace_ids):
+        release = fetch_script_version_for_workspace(env, workspace_id)
+        if release is None:
+            print(
+                "❌ Could not determine a script release for workspace "
+                f"{workspace_id}; no update was applied."
+            )
+            return None
+        release_by_workspace[workspace_id] = release
+    releases = set(release_by_workspace.values())
+    if len(releases) != 1:
+        detail = ', '.join(
+            f'{workspace_id}={release}'
+            for workspace_id, release in sorted(release_by_workspace.items())
+        )
+        print(
+            "❌ Global and project workspaces resolve to different script "
+            f"releases ({detail}); no update was applied."
+        )
+        return None
+    return releases.pop()
 
 
 def cmd_update(args):
@@ -2609,24 +2909,36 @@ def cmd_update(args):
     Downloads the CURRENT installer and runs it non-interactively, so the
     update logic always comes from the new release rather than this possibly
     years-old CLI (Q-all-299). Scope is the global surfaces plus a project
-    install in the current directory when one exists (Q-all-298).
+    install at the closest containing project root when one exists
+    (Q-all-298).
     """
     env = args.env or 'production'
 
-    project_dir = os.getcwd()
+    project_dir = get_project_install_root(env)
     project_config_path = get_project_config_path(env)
-    project_clients = detect_project_clients(project_dir)
-    has_project_install = project_config_path is not None or bool(project_clients)
+    if project_config_path is not None:
+        project_dir = os.path.dirname(project_config_path)
+    has_project_install = project_dir is not None
 
     _api_url, json_path, _credentials_path = get_env_paths(env)
     global_config_path = os.path.join(os.path.expanduser('~'), '.uclusion', json_path)
     global_config = load_config_at(global_config_path)
     project_config = load_config_at(project_config_path)
+    project_clients = detect_project_clients(project_dir) \
+        if project_dir is not None else set()
+    project_clients.update(workflow_clients_needing_repair(project_config))
+    global_clients = detect_global_clients()
+    global_clients.update(workflow_clients_needing_repair(global_config))
 
     if args.check:
-        latest = fetch_latest_script_version(env)
+        latest = resolve_update_release(
+            env,
+            global_config,
+            project_config,
+            has_project_install,
+            allow_unscoped_fallback=True,
+        )
         if latest is None:
-            print("❌ Could not determine the current release version.")
             return 1
         installed = get_installed_script_version()
         stale = False
@@ -2639,56 +2951,63 @@ def cmd_update(args):
         else:
             print(f"⬆️  Update available: installed {installed}, current release {latest}.")
             stale = True
+        if global_clients:
+            if workflow_install_is_stale(global_config, latest):
+                workflow_version = (global_config or {}).get(
+                    'workflowReinstallVersion'
+                )
+                pending = (global_config or {}).get('workflowInstallPending')
+                detail = (
+                    f"pending {pending}"
+                    if isinstance(pending, list) and pending
+                    else f"stamped {workflow_version or 'nothing'}"
+                )
+                print(
+                    "⬆️  Global workflow packages are out of date "
+                    f"({detail}, current release {latest})."
+                )
+                stale = True
+            else:
+                print("✅ Global workflow packages are current.")
         if has_project_install:
             project_version = (project_config or {}).get('scriptReinstallVersion')
-            if project_version == latest:
-                print(f"✅ Project install in {project_dir} is current.")
-            else:
+            project_script_stale = project_version != latest
+            project_workflow_stale = workflow_install_is_stale(
+                project_config, latest
+            )
+            if project_script_stale:
                 print(f"⬆️  Project install in {project_dir} is out of date "
                       f"(stamped {project_version or 'nothing'}, current release {latest}).")
                 stale = True
+            elif project_workflow_stale:
+                workflow_version = (project_config or {}).get(
+                    'workflowReinstallVersion'
+                )
+                pending = (project_config or {}).get('workflowInstallPending')
+                detail = (
+                    f"pending {pending}"
+                    if isinstance(pending, list) and pending
+                    else f"workflow stamped {workflow_version or 'nothing'}"
+                )
+                print(
+                    f"⬆️  Project workflow packages in {project_dir} are out "
+                    f"of date ({detail}, current release {latest})."
+                )
+                stale = True
+            else:
+                print(f"✅ Project install in {project_dir} is current.")
         return 2 if stale else 0
 
     if global_config is None and not has_project_install:
         print("❌ No Uclusion install found to update (no workspace config in "
-              "~/.uclusion or the current directory).")
+              "~/.uclusion or the current project).")
         return 1
 
-    workspace_ids = set()
-    if global_config is not None and global_config.get('workspaceId'):
-        workspace_ids.add(global_config['workspaceId'])
-    project_source = project_config or global_config
-    if (
-        has_project_install
-        and project_source is not None
-        and project_source.get('workspaceId')
-    ):
-        workspace_ids.add(project_source['workspaceId'])
-    if not workspace_ids:
-        print("❌ No workspaceId is available to resolve the update release.")
+    script_version = resolve_update_release(
+        env, global_config, project_config, has_project_install
+    )
+    if script_version is None:
         return 1
-    release_by_workspace = {}
-    for workspace_id in sorted(workspace_ids):
-        release = fetch_script_version_for_workspace(env, workspace_id)
-        if release is None:
-            print(
-                "❌ Could not determine a script release for workspace "
-                f"{workspace_id}; no update was applied."
-            )
-            return 1
-        release_by_workspace[workspace_id] = release
-    releases = set(release_by_workspace.values())
-    if len(releases) != 1:
-        detail = ', '.join(
-            f'{workspace_id}={release}'
-            for workspace_id, release in sorted(release_by_workspace.items())
-        )
-        print(
-            "❌ Global and project workspaces resolve to different script "
-            f"releases ({detail}); no update was applied."
-        )
-        return 1
-    script_version = releases.pop()
 
     installer_url = get_scripts_base_url(env) + 'uclusionInstall.py'
     with tempfile.TemporaryDirectory() as tmp_dir:
@@ -2708,7 +3027,7 @@ def cmd_update(args):
         ran_global = False
         if global_config is not None:
             if not run_installer(installer_path, env, global_config, None,
-                                 detect_global_clients(), project=False,
+                                 global_clients, project=False,
                                  script_version=script_version,
                                  token_audit_enabled=args.token_audit):
                 return 1
@@ -2718,7 +3037,8 @@ def cmd_update(args):
                                  project_clients, project=True,
                                  script_version=script_version,
                                  skip_scripts=ran_global,
-                                 token_audit_enabled=args.token_audit):
+                                 token_audit_enabled=args.token_audit,
+                                 project_dir=project_dir):
                 return 1
 
     print("🎉 Update complete. Restart your AI client sessions (or reconnect the "
@@ -3012,8 +3332,8 @@ def build_parser():
     update_parser = subparsers.add_parser(
         'update',
         help='Update the Uclusion scripts and every installed AI client surface '
-             'to the current release (global surfaces plus a project install in '
-             'the current directory).',
+             'to the current release (global surfaces plus the closest containing '
+             'project install).',
     )
     update_action_group = update_parser.add_mutually_exclusive_group()
     update_action_group.add_argument(
@@ -3027,14 +3347,14 @@ def build_parser():
         dest='token_audit',
         action='store_true',
         help='Enable per-job token usage notes while updating global surfaces '
-             'and any project install in the current directory.',
+             'and the closest containing project install.',
     )
     update_action_group.add_argument(
         '--no-token-audit',
         dest='token_audit',
         action='store_false',
         help='Disable per-job token usage notes while updating global surfaces '
-             'and any project install in the current directory.',
+             'and the closest containing project install.',
     )
     update_parser.set_defaults(func=cmd_update, token_audit=None)
 

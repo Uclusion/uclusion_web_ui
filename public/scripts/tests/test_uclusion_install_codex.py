@@ -19,191 +19,225 @@ SPEC.loader.exec_module(INSTALL)
 class WorkflowProtocolContractTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        workflow_path = os.path.join(SCRIPT_DIR, 'CLAUDE.md')
-        with open(workflow_path, encoding='utf-8') as workflow:
-            cls.workflow = ' '.join(workflow.read().split())
+        workflow_paths = (
+            os.path.join(SCRIPT_DIR, 'skills', 'uclusion', 'SKILL.md'),
+            os.path.join(
+                SCRIPT_DIR, 'skills', 'uclusion', 'references', 'pokes.md'
+            ),
+            os.path.join(
+                SCRIPT_DIR, 'skills', 'uclusion', 'references', 'operations.md'
+            ),
+        )
+        parts = []
+        for workflow_path in workflow_paths:
+            with open(workflow_path, encoding='utf-8') as workflow:
+                parts.append(workflow.read())
+        cls.workflow = ' '.join(' '.join(parts).split())
+        with open(
+            os.path.join(SCRIPT_DIR, 'AGENTS.md'), encoding='utf-8'
+        ) as codex_stub:
+            cls.codex_stub = ' '.join(codex_stub.read().split())
+        with open(
+            os.path.join(SCRIPT_DIR, 'uclusion.mdc'), encoding='utf-8'
+        ) as cursor_stub:
+            cls.cursor_stub = ' '.join(cursor_stub.read().split())
 
     def test_protocol_reserves_start_for_explicit_ui_poke(self):
         self.assertIn(
-            '`Start <target>` is reserved exclusively for an explicit human '
-            'click on',
+            '`Start <target>` comes only from an explicit human Poke AI click',
             self.workflow,
         )
-        self.assertIn('never uses `Start`', self.workflow)
-        # T-all-2428 / Q-all-349 / T-all-2430: Start only auto-starts when
-        # live and idle; replayed lines are dropped on the floor
-        self.assertIn(
-            'A deferred `Start` does NOT convert into an auto-start',
-            self.workflow,
-        )
-        self.assertIn('drop it like every replayed line', self.workflow)
-        # S-all-205: fresh session cursors start at arm time; the marked-line
-        # rule survives only as the older-CLI compatibility note
-        self.assertIn("cursor starts at arm time", self.workflow)
-        self.assertIn('drop them on the floor', self.workflow)
-        # Q-all-351 O-1: the backlog stays reachable on explicit request
+        self.assertIn('A deferred Start never auto-starts', self.workflow)
+        self.assertIn('Replayed Start is history', self.workflow)
+        self.assertIn('fresh per-session cursor starts at arm time', self.workflow)
         self.assertIn('--deliver-existing-pokes', self.workflow)
 
     def test_codex_bridge_skips_startup_backlog_by_default(self):
         self.assertIn(
-            'establishes a startup cutoff and atomically skips every Poke '
-            'already queued at that cutoff',
-            self.workflow,
+            'bridge starts after the retained backlog by default',
+            self.codex_stub,
         )
         self.assertIn(
-            'uclusion codex --deliver-existing-pokes',
-            self.workflow,
+            '`--deliver-existing-pokes`',
+            self.codex_stub,
         )
-        self.assertIn(
-            'Never add this flag on your own initiative',
-            self.workflow,
-        )
+        self.assertIn('Never add `--deliver-existing-pokes` yourself', self.codex_stub)
+        self.assertIn('unmarked private copy', self.codex_stub)
 
     def test_added_and_updated_preserve_active_scope_and_stage_lock(self):
         self.assertIn(
-            '`Added` and `Updated` are additive event notices',
+            'Added and Updated are additive, not instructions to abandon active work',
             self.workflow,
         )
-        # T-all-2428: in-lane targets incorporate; out-of-lane defers unreloaded
+        self.assertIn('Defer an unrelated event without loading it', self.workflow)
         self.assertIn(
-            'abandon the work merely because the event arrived',
-            self.workflow,
-        )
-        self.assertIn(
-            'whatever assistance it awaits',
+            'live Start, Responded, and Added events load and activate their '
+            'targets subject to normal stage/workflow checks',
             self.workflow,
         )
         self.assertIn(
-            'defer it unreloaded',
+            'Soft-deleted direct items reload as the enclosing job with the '
+            'item absent',
             self.workflow,
         )
-        self.assertIn(
-            'make the loaded target active subject to the same stage',
-            self.workflow,
-        )
-        self.assertIn(
-            'returns the current enclosing job with the deleted item absent',
-            self.workflow,
-        )
+        self.assertIn('then obey the current stage', self.workflow)
 
     def test_direct_and_compound_targets_have_explicit_lookup_rules(self):
         self.assertIn(
-            'For a direct prompt, call `get_job` with exactly its',
+            'Call `get_job` with their exact short code',
             self.workflow,
         )
         self.assertIn(
-            'For any compound prompt, call `get_job` with the parent code after',
+            'call `get_job` with the parent after `of`',
             self.workflow,
         )
+        self.assertIn('Direct lookup already retries five times', self.workflow)
         self.assertIn(
-            'needs no research to',
-            self.workflow,
-        )
-        self.assertIn(
-            'the parent code after `of` names the enclosing work',
-            self.workflow,
-        )
-        self.assertIn(
-            'A direct lookup makes five short-code attempts total',
-            self.workflow,
-        )
-        self.assertIn(
-            'retry `get_job` later instead of discarding the event',
+            'retry later rather than discarding it',
             self.workflow,
         )
 
     def test_stage_changing_addition_is_delivered_after_workflow_commit(self):
         self.assertIn(
-            'withholds that item\'s `Added` event until the workflow write has',
+            'emits its Added event only after the workflow transaction commits',
             self.workflow,
         )
         self.assertIn(
-            'include both the new item and the current',
+            'That single reload contains both item and new stage',
             self.workflow,
         )
         self.assertIn(
-            'Do not expect or wait for a second stage Poke',
+            'never wait for a second stage Poke',
             self.workflow,
         )
 
     def test_cursor_stop_hook_drain_is_documented(self):
-        self.assertIn('Cursor stop-hook drain', self.workflow)
-        self.assertIn('uclusionCursorPokeDrain.py', self.workflow)
-        self.assertIn('followup_message', self.workflow)
-        self.assertIn(
-            'does **not** wake a fully idle chat',
-            self.workflow,
-        )
+        self.assertIn('installed Cursor stop hook', self.cursor_stub)
+        self.assertIn('returns them as a follow-up message', self.cursor_stub)
+        self.assertIn('does not wake a fully idle chat', self.cursor_stub)
 
     def test_auto_take_starts_first_marked_item_and_persists_handoffs(self):
-        # T-all-2440 / Q-all-370 O-1: auto-take is an idle, same-turn action,
-        # and every material handoff survives outside transient chat.
-        self.assertIn('When the response carries `auto_take_directions`', self.workflow)
-        self.assertIn('you are idle', self.workflow)
+        self.assertIn('response has `auto_take_directions`', self.workflow)
+        self.assertIn(
+            'immediately load the first item marked `auto_take`',
+            self.workflow,
+        )
         self.assertIn('in the same turn', self.workflow)
-        self.assertIn('call `get_job` for the FIRST `auto_take` item', self.workflow)
-        self.assertIn('Merely announcing that you will start is not enough', self.workflow)
-        self.assertIn('handoff rule lasts for its entire active work lane', self.workflow)
-        self.assertIn('initial auto-take turn or any later turn', self.workflow)
-        self.assertIn('MUST leave a material handoff in Uclusion', self.workflow)
-        self.assertIn('specialized Uclusion MCP tool', self.workflow)
-        self.assertIn('otherwise use `add_info` on the active item', self.workflow)
-        self.assertIn('must never be its only copy', self.workflow)
-        self.assertIn('Transient conversation', self.workflow)
+        self.assertIn(
+            'An auto-taken lane always gets a durable handoff before a turn ends',
+            self.workflow,
+        )
+        self.assertIn('This rule lasts for every turn in that lane', self.workflow)
+        self.assertIn(
+            'Use the specialized Uclusion tool when one applies, otherwise '
+            '`add_info` on the active item',
+            self.workflow,
+        )
+        self.assertIn('Chat may mirror the artifact but never replace it', self.workflow)
 
     def test_execution_is_allowed_in_doable_or_reviewable(self):
-        # T-all-2441: Reviewable remains governed by review authorship, but it
-        # is an executable stage alongside Doable for review work and revisions.
+        self.assertIn('Doable and Reviewable permit execution', self.workflow)
         self.assertIn(
-            'Execute and document - only applies if the job is in stage '
-            '"Doable" or "Reviewable"',
+            'neither proves questions or suggestions were handled',
             self.workflow,
         )
         self.assertIn(
-            'Finding a job already in "Doable" or "Reviewable" does NOT mean',
-            self.workflow,
-        )
-        self.assertIn('Both stages unlock execution', self.workflow)
-        self.assertIn(
-            'after the job returns to either "Doable" or "Reviewable"',
+            'job returns to Doable or Reviewable',
             self.workflow,
         )
         self.assertIn(
-            'reaching "Doable" or "Reviewable" only unlocks execution',
+            'Execute only in Doable or Reviewable',
             self.workflow,
         )
         self.assertIn(
-            'review-direction rules in step 6 still determine whether to work or wait',
+            'latest Reports comment still controls review direction',
+            self.workflow,
+        )
+
+    def test_ai_questions_use_advisory_markers_or_explicit_delegation(self):
+        self.assertIn(
+            'An open AI-authored question created from Doable or Reviewable '
+            'moves the job to Requires Input',
             self.workflow,
         )
         self.assertIn(
-            'If the job is in neither "Doable" nor "Reviewable" and you are ready',
+            'Treat the rendered advisory marker as authoritative',
             self.workflow,
         )
-        self.assertNotIn(
-            'implement only after the job is back in "Doable"',
+        self.assertIn(
+            'do not infer authority from other metadata',
             self.workflow,
         )
-        self.assertNotIn(
-            'reaching "Doable" only unlocks execution',
+        self.assertIn(
+            'cannot make the question answerable or unlock execution',
+            self.workflow,
+        )
+        self.assertIn(
+            'job stays locked until the AI calls `resolve`',
+            self.workflow,
+        )
+        self.assertIn(
+            'restores the prior executable stage',
+            self.workflow,
+        )
+        self.assertIn(
+            'Standalone AI-authored view-level questions have no advisory gate',
+            self.workflow,
+        )
+        self.assertIn(
+            'any clear non-AI reply or Approvable For vote answers',
+            self.workflow,
+        )
+        self.assertIn(
+            'delegates the choice to the AI',
+            self.workflow,
+        )
+        self.assertIn(
+            'Advisory responses also send it',
+            self.workflow,
+        )
+        self.assertNotIn('current human assignees', self.workflow)
+        self.assertNotIn('reassignment changes that set', self.workflow)
+
+    def test_optioned_bug_question_converts_to_a_human_owned_job(self):
+        self.assertIn(
+            'Ask for missing facts with `add_info`, keeping the single-comment '
+            'workflow',
+            self.workflow,
+        )
+        self.assertIn(
+            'call `ask_question` with the bug short code and a nonempty '
+            'options list',
+            self.workflow,
+        )
+        self.assertIn('creates a human-owned Bugs job', self.workflow)
+        self.assertIn(
+            'moves the original bug thread into that job as a task',
+            self.workflow,
+        )
+        self.assertIn(
+            'Never convert a bug merely to ask an open-ended question',
             self.workflow,
         )
 
     def test_token_audit_boundaries_and_bucket_semantics_are_documented(self):
-        self.assertIn('`start_job_audit` before substantive planning', self.workflow)
+        self.assertIn(
+            'call `start_job_audit` before substantive planning',
+            self.workflow,
+        )
         self.assertIn('initial bucket is `planning`', self.workflow)
-        self.assertIn('applies to the next model request', self.workflow)
-        self.assertIn('Bucket labels are user-labelable', self.workflow)
-        self.assertIn('ordinary defaults are `planning`', self.workflow)
-        self.assertIn('but they are not restrictions', self.workflow)
-        self.assertIn('no more than 32 distinct labels', self.workflow)
-        self.assertIn('Every request belongs to exactly one active bucket', self.workflow)
-        self.assertIn('do not create separate standard/custom dimensions', self.workflow)
-        self.assertIn('switch to `testing` when you begin running tests', self.workflow)
-        self.assertIn('reserve custom labels like `commit and push`', self.workflow)
-        self.assertIn('lookup performed only to classify an inbound Poke', self.workflow)
-        self.assertIn('collection finishes out of band', self.workflow)
-        self.assertIn('partial client telemetry never block', self.workflow)
+        self.assertIn('marker applies to the next model request', self.workflow)
+        self.assertIn(
+            'Ordinary labels are `planning`, `implementation`, `testing`, and '
+            '`other`',
+            self.workflow,
+        )
+        self.assertIn('Keep at most 32 labels', self.workflow)
+        self.assertIn('Every request belongs to one bucket', self.workflow)
+        self.assertIn('Switch to `testing` before tests or builds', self.workflow)
+        self.assertIn('lookup used only to classify a Poke starts no audit', self.workflow)
+        self.assertIn('Collection finishes asynchronously', self.workflow)
+        self.assertIn('partial telemetry never block', self.workflow)
 
 
 class PortableFileLockTests(unittest.TestCase):
@@ -531,10 +565,18 @@ class CodexIntegrationConfigTests(unittest.TestCase):
     def test_project_codex_install_cleans_legacy_hooks_and_installs_agents(self):
         with tempfile.TemporaryDirectory() as project_dir, \
                 mock.patch.object(INSTALL, 'write_uclusion_config'), \
+                mock.patch.object(INSTALL, 'persist_workflow_install_state'), \
+                mock.patch.object(
+                    INSTALL,
+                    'effective_codex_instruction_path',
+                    return_value=os.path.join(project_dir, 'AGENTS.md'),
+                ), \
                 mock.patch.object(
                     INSTALL, 'remove_legacy_codex_hooks_config'
                 ) as remove_hooks, \
-                mock.patch.object(INSTALL, 'install_workflow_md') as install_md:
+                mock.patch.object(
+                    INSTALL, 'install_skill_and_stub'
+                ) as install_skill:
             fetch_md = mock.Mock()
             INSTALL.install_project_level(
                 'workspace-1',
@@ -547,9 +589,13 @@ class CodexIntegrationConfigTests(unittest.TestCase):
             )
 
         remove_hooks.assert_called_once_with(force=True)
-        install_md.assert_called_once_with(
+        install_skill.assert_called_once_with(
             fetch_md,
+            os.path.join(
+                project_dir, '.agents', 'skills', 'uclusion'
+            ),
             os.path.join(project_dir, 'AGENTS.md'),
+            'codex',
             'Codex (project)',
             assume_yes=True,
         )
@@ -638,6 +684,7 @@ class TokenAuditInstallerTests(unittest.TestCase):
                 mock.patch.object(INSTALL, 'write_uclusion_config', return_value={
                     'enabled': True, 'port': 23456,
                 }), \
+                mock.patch.object(INSTALL, 'persist_workflow_install_state'), \
                 mock.patch.object(INSTALL, 'add_claude_permissions'), \
                 mock.patch.object(
                     INSTALL, 'configure_claude_token_audit',
@@ -645,7 +692,7 @@ class TokenAuditInstallerTests(unittest.TestCase):
                 ), \
                 mock.patch.object(INSTALL, 'update_token_audit_client_config'), \
                 mock.patch.object(INSTALL, 'register_mcp_json') as register, \
-                mock.patch.object(INSTALL, 'install_workflow_md'):
+                mock.patch.object(INSTALL, 'install_skill_and_stub'):
             INSTALL.install_project_level(
                 'workspace-1', 'view-1', 'stage', mock.Mock(), project_dir,
                 clients={'claude'}, token_audit_enabled=True,
@@ -653,24 +700,27 @@ class TokenAuditInstallerTests(unittest.TestCase):
 
         self.assertIsNone(register.call_args.kwargs['token_audit'])
 
-    def test_claude_settings_failure_degrades_audit_not_mcp_registration(self):
+    def test_claude_settings_failure_is_operational_failure(self):
         with tempfile.TemporaryDirectory() as project_dir, \
                 mock.patch.object(INSTALL, 'write_uclusion_config', return_value={
                     'enabled': True, 'port': 23456,
                 }), \
+                mock.patch.object(INSTALL, 'persist_workflow_install_state'), \
                 mock.patch.object(INSTALL, 'add_claude_permissions'), \
                 mock.patch.object(
                     INSTALL, 'configure_claude_token_audit', return_value=None
                 ), \
                 mock.patch.object(INSTALL, 'register_mcp_json') as register, \
-                mock.patch.object(INSTALL, 'install_workflow_md'):
-            INSTALL.install_project_level(
-                'workspace-1', 'view-1', 'stage', mock.Mock(), project_dir,
-                clients={'claude'}, token_audit_enabled=True,
-            )
+                mock.patch.object(INSTALL, 'install_skill_and_stub'):
+            with self.assertRaisesRegex(
+                RuntimeError, 'failed to configure Claude settings'
+            ):
+                INSTALL.install_project_level(
+                    'workspace-1', 'view-1', 'stage', mock.Mock(), project_dir,
+                    clients={'claude'}, token_audit_enabled=True,
+                )
 
-        self.assertIsNone(register.call_args.kwargs['token_audit'])
-        self.assertEqual('claude', register.call_args.kwargs['token_audit_client'])
+        register.assert_not_called()
 
     def test_helper_script_and_tri_state_flags(self):
         self.assertIn(
@@ -1403,8 +1453,11 @@ class CursorPokeDrainHookInstallTests(unittest.TestCase):
             bin_dir = os.path.join(temp_dir, 'bin')
             with mock.patch.object(INSTALL, 'SYMLINK_DIR', bin_dir), \
                     mock.patch.object(INSTALL, 'register_mcp_json'), \
-                    mock.patch.object(INSTALL, 'install_cursor_mdc'), \
+                    mock.patch.object(INSTALL, 'install_skill_and_stub'), \
                     mock.patch.object(INSTALL, 'write_uclusion_config'), \
+                    mock.patch.object(
+                        INSTALL, 'persist_workflow_install_state'
+                    ), \
                     mock.patch.object(
                         INSTALL, 'remove_legacy_codex_hooks_config'
                     ):
@@ -1412,7 +1465,7 @@ class CursorPokeDrainHookInstallTests(unittest.TestCase):
                     'workspace-1',
                     None,
                     'stage',
-                    fetch_md=lambda: None,
+                    fetch_bundle=lambda: None,
                     project_dir=project_dir,
                     clients={'cursor'},
                 )

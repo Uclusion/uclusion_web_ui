@@ -415,6 +415,7 @@ class CodexLauncherTests(unittest.TestCase):
         )
         expected_bridge_env = {
             'PRESERVED': 'yes',
+            'UCLUSION_CODEX_BRIDGE_ACTIVE': '1',
             'UCLUSION_CODEX_ACTIVE_RELEASE': 'release-123',
             'UCLUSION_CODEX_STAGED_CLI':
                 '/private/runtime/bin/uclusion.py',
@@ -1179,6 +1180,508 @@ class CodexLauncherTests(unittest.TestCase):
         self.assertTrue(app_server.terminate_called)
 
 
+class ProjectInstallDiscoveryTests(unittest.TestCase):
+    def test_unmanaged_cursor_rule_filename_is_not_treated_as_an_install(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            home = temp_path / 'home'
+            project = temp_path / 'project'
+            (project / '.git').mkdir(parents=True)
+            global_rule = home / '.cursor' / 'rules' / 'uclusion.mdc'
+            project_rule = project / '.cursor' / 'rules' / 'uclusion.mdc'
+            global_rule.parent.mkdir(parents=True)
+            project_rule.parent.mkdir(parents=True)
+            global_rule.write_text('# User-owned Cursor rule\n', encoding='utf-8')
+            project_rule.write_text('# User-owned Cursor rule\n', encoding='utf-8')
+
+            with mock.patch.object(
+                cli.os.path,
+                'expanduser',
+                side_effect=lambda path: path.replace('~', str(home), 1),
+            ):
+                self.assertNotIn('cursor', cli.detect_global_clients())
+            self.assertNotIn(
+                'cursor', cli.detect_project_clients(str(project))
+            )
+
+    def test_workflow_release_state_fails_closed_for_pending_or_stale_clients(self):
+        self.assertFalse(cli.workflow_install_is_stale({}, 'release-one'))
+        self.assertFalse(cli.workflow_install_is_stale({
+            'workflowClients': ['codex'],
+            'workflowReinstallVersion': 'release-one',
+        }, 'release-one'))
+        self.assertTrue(cli.workflow_install_is_stale({
+            'workflowClients': ['codex'],
+            'workflowReinstallVersion': 'release-old',
+        }, 'release-one'))
+        self.assertEqual(
+            {'codex', 'cursor'},
+            cli.workflow_clients_needing_repair({
+                'workflowClients': ['codex'],
+                'workflowInstallPending': ['cursor', 'unknown'],
+            }),
+        )
+        self.assertTrue(cli.workflow_install_is_stale({
+            'workflowClients': ['codex'],
+            'workflowReinstallVersion': 'release-one',
+            'workflowInstallPending': ['codex'],
+        }, 'release-one'))
+
+    def test_global_detection_honors_client_config_directory_overrides(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            claude_root = temp_path / 'claude-data'
+            codex_root = temp_path / 'codex-data'
+            claude_skill = claude_root / 'skills' / 'uclusion' / 'SKILL.md'
+            claude_skill.parent.mkdir(parents=True)
+            claude_skill.write_text(
+                cli.WORKFLOW_SKILL_MARKER + '\n', encoding='utf-8'
+            )
+            codex_override = codex_root / 'AGENTS.override.md'
+            codex_override.parent.mkdir(parents=True)
+            codex_override.write_text(
+                cli.WORKFLOW_MD_MARKER + '\n', encoding='utf-8'
+            )
+
+            with mock.patch.dict(os.environ, {
+                'CLAUDE_CONFIG_DIR': str(claude_root),
+                'CODEX_HOME': str(codex_root),
+            }, clear=False), mock.patch.object(
+                cli.os.path,
+                'expanduser',
+                side_effect=lambda path: path.replace(
+                    '~', str(temp_path / 'unused-home'), 1
+                ),
+            ):
+                clients = cli.detect_global_clients()
+
+            self.assertIn('claude', clients)
+            self.assertIn('codex', clients)
+
+    def test_codex_override_bootstraps_are_detected_globally_and_in_project(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            global_base = temp_path / '.codex' / 'AGENTS.md'
+            global_override = temp_path / '.codex' / 'AGENTS.override.md'
+            global_override.parent.mkdir(parents=True)
+            global_base.write_text(
+                cli.WORKFLOW_MD_MARKER + '\n', encoding='utf-8'
+            )
+            global_override.write_text(
+                cli.WORKFLOW_MD_MARKER + '\n', encoding='utf-8'
+            )
+
+            project = temp_path / 'project'
+            (project / '.git').mkdir(parents=True)
+            project_base = project / 'AGENTS.md'
+            project_override = project / 'AGENTS.override.md'
+            project_base.write_text(
+                cli.WORKFLOW_MD_MARKER + '\n', encoding='utf-8'
+            )
+            project_override.write_text(
+                cli.WORKFLOW_MD_MARKER + '\n', encoding='utf-8'
+            )
+
+            with mock.patch.object(
+                cli.os.path,
+                'expanduser',
+                side_effect=lambda path: path.replace('~', temp_dir, 1),
+            ):
+                self.assertIn('codex', cli.detect_global_clients())
+            self.assertEqual({'codex'}, cli.detect_project_clients(str(project)))
+
+            global_override.write_text(
+                '# Different global override\n', encoding='utf-8'
+            )
+            project_override.write_text(
+                '# Different project override\n', encoding='utf-8'
+            )
+            with mock.patch.object(
+                cli.os.path,
+                'expanduser',
+                side_effect=lambda path: path.replace('~', temp_dir, 1),
+            ):
+                self.assertNotIn('codex', cli.detect_global_clients())
+            self.assertEqual(set(), cli.detect_project_clients(str(project)))
+
+            global_override.write_text('\n', encoding='utf-8')
+            project_override.write_text('\n', encoding='utf-8')
+            with mock.patch.object(
+                cli.os.path,
+                'expanduser',
+                side_effect=lambda path: path.replace('~', temp_dir, 1),
+            ):
+                self.assertIn('codex', cli.detect_global_clients())
+            self.assertEqual({'codex'}, cli.detect_project_clients(str(project)))
+
+    def test_closest_ancestor_install_is_selected_without_crossing_repo_root(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            outside = temp_path / 'outside'
+            repo = outside / 'repo'
+            service = repo / 'services' / 'api'
+            nested = service / 'src' / 'handlers'
+            nested.mkdir(parents=True)
+            (repo / '.git').mkdir()
+            (outside / cli.STAGE_SOURCES_CONFIG_FILE).write_text(
+                '{}\n', encoding='utf-8'
+            )
+            (repo / cli.STAGE_SOURCES_CONFIG_FILE).write_text(
+                '{}\n', encoding='utf-8'
+            )
+            (service / cli.STAGE_SOURCES_CONFIG_FILE).write_text(
+                '{}\n', encoding='utf-8'
+            )
+            (service / 'AGENTS.override.md').write_text(
+                cli.WORKFLOW_MD_MARKER + '\n', encoding='utf-8'
+            )
+
+            self.assertEqual(
+                str(service),
+                cli.get_project_install_root('stage', str(nested)),
+            )
+            self.assertEqual(
+                str(service / cli.STAGE_SOURCES_CONFIG_FILE),
+                cli.get_project_config_path('stage', str(nested)),
+            )
+            self.assertEqual({'codex'}, cli.detect_project_clients(str(nested)))
+
+            empty_repo = outside / 'empty-repo'
+            empty_nested = empty_repo / 'src'
+            empty_nested.mkdir(parents=True)
+            (empty_repo / '.git').mkdir()
+            self.assertIsNone(
+                cli.get_project_install_root('stage', str(empty_nested))
+            )
+            self.assertIsNone(
+                cli.get_project_config_path('stage', str(empty_nested))
+            )
+            self.assertEqual(
+                set(), cli.detect_project_clients(str(empty_nested))
+            )
+
+    def test_nearer_client_only_marker_does_not_hide_ancestor_config(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = Path(temp_dir) / 'repo'
+            nested = repo / 'service' / 'src'
+            nested.mkdir(parents=True)
+            (repo / '.git').mkdir()
+            config_path = repo / cli.STAGE_SOURCES_CONFIG_FILE
+            config_path.write_text('{}\n', encoding='utf-8')
+            (repo / 'service' / 'AGENTS.md').write_text(
+                cli.WORKFLOW_MD_MARKER + '\n', encoding='utf-8'
+            )
+
+            self.assertEqual(
+                str(config_path),
+                cli.get_project_config_path('stage', str(nested)),
+            )
+
+    def test_stage_config_discovery_does_not_reuse_production_config(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = Path(temp_dir) / 'repo'
+            nested = repo / 'src'
+            nested.mkdir(parents=True)
+            (repo / '.git').mkdir()
+            (repo / cli.SOURCES_CONFIG_FILE).write_text(
+                '{}\n', encoding='utf-8'
+            )
+
+            self.assertIsNone(
+                cli.get_project_config_path('stage', str(nested))
+            )
+            self.assertEqual(
+                str(repo / cli.SOURCES_CONFIG_FILE),
+                cli.get_project_config_path('production', str(nested)),
+            )
+
+    def test_wait_update_check_uses_ancestor_project_workspace(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = Path(temp_dir) / 'repo'
+            nested = repo / 'src' / 'package'
+            nested.mkdir(parents=True)
+            (repo / '.git').mkdir()
+            (repo / cli.STAGE_SOURCES_CONFIG_FILE).write_text(
+                json.dumps({
+                    'workspaceId': 'project-workspace',
+                    'scriptReinstallVersion': 'release-old',
+                }),
+                encoding='utf-8',
+            )
+            fetch_project = mock.Mock(return_value='release-new')
+            with ExitStack() as stack:
+                stack.enter_context(
+                    mock.patch.object(
+                        cli.os.path,
+                        'expanduser',
+                        side_effect=lambda path: path.replace(
+                            '~', str(Path(temp_dir) / 'home'), 1
+                        ),
+                    )
+                )
+                stack.enter_context(
+                    mock.patch.object(cli.os, 'getcwd', return_value=str(nested))
+                )
+                stack.enter_context(
+                    mock.patch.object(
+                        cli, 'get_installed_script_version', return_value=None
+                    )
+                )
+                stack.enter_context(
+                    mock.patch.object(cli, 'load_update_check_state', return_value={})
+                )
+                stack.enter_context(mock.patch.object(cli, 'save_update_check_state'))
+                stack.enter_context(
+                    mock.patch.object(
+                        cli,
+                        'fetch_script_version_for_workspace',
+                        fetch_project,
+                    )
+                )
+                fetch_global = stack.enter_context(
+                    mock.patch.object(cli, 'fetch_latest_script_version')
+                )
+
+                notice = cli.check_wait_update_notice('stage')
+
+            self.assertIsNotNone(notice)
+            self.assertIn("project's Uclusion workflow files", notice)
+            fetch_project.assert_called_once_with('stage', 'project-workspace')
+            fetch_global.assert_not_called()
+
+    def test_wait_update_check_stays_silent_during_workspace_rollout_disagreement(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            home = temp_path / 'home'
+            repo = temp_path / 'repo'
+            (home / '.uclusion').mkdir(parents=True)
+            repo.mkdir()
+            (repo / '.git').mkdir()
+            (home / '.uclusion' / cli.STAGE_SOURCES_CONFIG_FILE).write_text(
+                json.dumps({'workspaceId': 'global-workspace'}),
+                encoding='utf-8',
+            )
+            (repo / cli.STAGE_SOURCES_CONFIG_FILE).write_text(
+                json.dumps({'workspaceId': 'project-workspace'}),
+                encoding='utf-8',
+            )
+            with ExitStack() as stack:
+                stack.enter_context(mock.patch.object(
+                    cli.os.path,
+                    'expanduser',
+                    side_effect=lambda path: path.replace('~', str(home), 1),
+                ))
+                stack.enter_context(mock.patch.object(
+                    cli.os, 'getcwd', return_value=str(repo)
+                ))
+                stack.enter_context(mock.patch.object(
+                    cli, 'get_installed_script_version', return_value='old'
+                ))
+                stack.enter_context(mock.patch.object(
+                    cli, 'load_update_check_state', return_value={}
+                ))
+                stack.enter_context(mock.patch.object(
+                    cli, 'save_update_check_state'
+                ))
+                stack.enter_context(mock.patch.object(
+                    cli,
+                    'fetch_script_version_for_workspace',
+                    side_effect=lambda _env, workspace: {
+                        'global-workspace': 'release-a',
+                        'project-workspace': 'release-b',
+                    }[workspace],
+                ))
+
+                notice = cli.check_wait_update_notice('stage')
+
+            self.assertIsNone(notice)
+
+    def test_update_check_reports_the_resolved_project_root(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            repo = temp_path / 'repo'
+            nested = repo / 'src' / 'package'
+            nested.mkdir(parents=True)
+            (repo / '.git').mkdir()
+            (repo / cli.STAGE_SOURCES_CONFIG_FILE).write_text(
+                json.dumps({
+                    'workspaceId': 'project-workspace',
+                    'scriptReinstallVersion': 'release-current',
+                }),
+                encoding='utf-8',
+            )
+            (repo / 'AGENTS.override.md').write_text(
+                cli.WORKFLOW_MD_MARKER + '\n', encoding='utf-8'
+            )
+            stdout = io.StringIO()
+            with ExitStack() as stack:
+                stack.enter_context(
+                    mock.patch.object(cli.os, 'getcwd', return_value=str(nested))
+                )
+                stack.enter_context(
+                    mock.patch.object(
+                        cli.os.path,
+                        'expanduser',
+                        side_effect=lambda path: path.replace(
+                            '~', str(temp_path / 'home'), 1
+                        ),
+                    )
+                )
+                stack.enter_context(
+                    mock.patch.object(
+                        cli,
+                        'get_installed_script_version',
+                        return_value='release-current',
+                    )
+                )
+                fetch_project = stack.enter_context(
+                    mock.patch.object(
+                        cli,
+                        'fetch_script_version_for_workspace',
+                        return_value='release-current',
+                    )
+                )
+                fetch_global = stack.enter_context(
+                    mock.patch.object(cli, 'fetch_latest_script_version')
+                )
+                stack.enter_context(mock.patch('sys.stdout', stdout))
+
+                result = cli.cmd_update(SimpleNamespace(
+                    env='stage', check=True, token_audit=None
+                ))
+
+            self.assertEqual(0, result)
+            self.assertIn(
+                f'Project install in {repo} is current.', stdout.getvalue()
+            )
+            self.assertNotIn(str(nested), stdout.getvalue())
+            fetch_project.assert_called_once_with(
+                'stage', 'project-workspace'
+            )
+            fetch_global.assert_not_called()
+
+    def test_update_check_reports_pending_project_workflow_at_current_script(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = Path(temp_dir) / 'repo'
+            repo.mkdir()
+            (repo / '.git').mkdir()
+            config_path = repo / cli.STAGE_SOURCES_CONFIG_FILE
+            config_path.write_text(json.dumps({
+                'workspaceId': 'project-workspace',
+                'scriptReinstallVersion': 'release-current',
+                'workflowReinstallVersion': 'release-current',
+                'workflowClients': ['codex'],
+                'workflowInstallPending': ['codex'],
+            }), encoding='utf-8')
+            stdout = io.StringIO()
+            with ExitStack() as stack:
+                stack.enter_context(
+                    mock.patch.object(cli.os, 'getcwd', return_value=str(repo))
+                )
+                stack.enter_context(
+                    mock.patch.object(
+                        cli.os.path,
+                        'expanduser',
+                        side_effect=lambda path: path.replace(
+                            '~', str(Path(temp_dir) / 'home'), 1
+                        ),
+                    )
+                )
+                stack.enter_context(mock.patch.object(
+                    cli, 'get_installed_script_version',
+                    return_value='release-current',
+                ))
+                stack.enter_context(mock.patch.object(
+                    cli, 'fetch_script_version_for_workspace',
+                    return_value='release-current',
+                ))
+                stack.enter_context(mock.patch('sys.stdout', stdout))
+
+                result = cli.cmd_update(SimpleNamespace(
+                    env='stage', check=True, token_audit=None
+                ))
+
+            self.assertEqual(2, result)
+            self.assertIn('pending', stdout.getvalue())
+            self.assertIn('Project workflow packages', stdout.getvalue())
+
+    def test_update_check_refuses_global_project_rollout_disagreement(self):
+        stdout = io.StringIO()
+        with ExitStack() as stack:
+            stack.enter_context(
+                mock.patch.object(cli, 'get_project_install_root', return_value='/work/project')
+            )
+            stack.enter_context(
+                mock.patch.object(
+                    cli, 'get_project_config_path', return_value='/work/project/stage_uclusion.json'
+                )
+            )
+            stack.enter_context(
+                mock.patch.object(cli, 'detect_project_clients', return_value={'codex'})
+            )
+            stack.enter_context(
+                mock.patch.object(
+                    cli,
+                    'load_config_at',
+                    side_effect=[
+                        {'workspaceId': 'global-workspace'},
+                        {'workspaceId': 'project-workspace'},
+                    ],
+                )
+            )
+            stack.enter_context(
+                mock.patch.object(
+                    cli,
+                    'fetch_script_version_for_workspace',
+                    side_effect=lambda _env, workspace: {
+                        'global-workspace': 'release-a',
+                        'project-workspace': 'release-b',
+                    }[workspace],
+                )
+            )
+            stack.enter_context(mock.patch('sys.stdout', stdout))
+
+            result = cli.cmd_update(SimpleNamespace(
+                env='stage', check=True, token_audit=None
+            ))
+
+        self.assertEqual(1, result)
+        self.assertIn('resolve to different script releases', stdout.getvalue())
+
+    def test_load_config_and_codex_launch_find_ancestor_project_config(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            repo = temp_path / 'repo'
+            nested = repo / 'src' / 'package'
+            nested.mkdir(parents=True)
+            (repo / '.git').mkdir()
+            (repo / cli.STAGE_SOURCES_CONFIG_FILE).write_text(
+                json.dumps({'workspaceId': 'project-workspace'}),
+                encoding='utf-8',
+            )
+            stderr = io.StringIO()
+            with ExitStack() as stack:
+                stack.enter_context(
+                    mock.patch.object(cli.os, 'getcwd', return_value=str(nested))
+                )
+                stack.enter_context(
+                    mock.patch.object(cli.shutil, 'which', return_value=None)
+                )
+                stack.enter_context(mock.patch('sys.stderr', stderr))
+
+                config = cli.load_config(cli.STAGE_SOURCES_CONFIG_FILE)
+                result = cli.cmd_codex(SimpleNamespace(
+                    env='stage', codex_args=[], deliver_existing_pokes=False
+                ))
+
+            self.assertEqual(
+                {'workspaceId': 'project-workspace'}, config
+            )
+            self.assertEqual(1, result)
+            self.assertIn("'codex' executable was not found", stderr.getvalue())
+            self.assertNotIn('Configuration file', stderr.getvalue())
+
+
 class UpdateReleaseConsistencyTests(unittest.TestCase):
     def update_args(self, token_audit=None):
         return SimpleNamespace(
@@ -1244,8 +1747,14 @@ class UpdateReleaseConsistencyTests(unittest.TestCase):
                 cli,
                 'load_config_at',
                 side_effect=[
-                    {'workspaceId': 'global-workspace'},
-                    {'workspaceId': 'project-workspace'},
+                    {
+                        'workspaceId': 'global-workspace',
+                        'workflowClients': ['codex'],
+                    },
+                    {
+                        'workspaceId': 'project-workspace',
+                        'workflowClients': ['cursor', 'unknown', 42],
+                    },
                 ],
             )
         )
@@ -1348,7 +1857,9 @@ class UpdateReleaseConsistencyTests(unittest.TestCase):
         completed = SimpleNamespace(returncode=0)
         with ExitStack() as stack:
             stack.enter_context(
-                mock.patch.object(cli.os, 'getcwd', return_value='/work/project')
+                mock.patch.object(
+                    cli.os, 'getcwd', return_value='/work/project/src/package'
+                )
             )
             stack.enter_context(
                 mock.patch.object(
@@ -1417,6 +1928,7 @@ class UpdateReleaseConsistencyTests(unittest.TestCase):
         self.assertIn('--token-audit', command)
         self.assertIn('--project', command)
         self.assertNotIn('--skip-scripts', command)
+        self.assertEqual(run.call_args.kwargs['cwd'], '/work/project')
 
     def test_update_rejects_workspace_release_disagreement_before_download(self):
         with ExitStack() as stack:
@@ -1485,6 +1997,9 @@ class UpdateReleaseConsistencyTests(unittest.TestCase):
                     global_call.kwargs['script_version'], 'release-one'
                 )
                 self.assertEqual(
+                    global_call.args[4], {'claude', 'codex'}
+                )
+                self.assertEqual(
                     project_call.kwargs['script_version'], 'release-one'
                 )
                 self.assertIs(
@@ -1492,6 +2007,9 @@ class UpdateReleaseConsistencyTests(unittest.TestCase):
                 )
                 self.assertIs(
                     project_call.kwargs['token_audit_enabled'], token_audit
+                )
+                self.assertEqual(
+                    project_call.args[4], {'codex', 'cursor'}
                 )
                 self.assertNotIn('skip_scripts', global_call.kwargs)
                 self.assertTrue(project_call.kwargs['skip_scripts'])

@@ -1083,6 +1083,7 @@ const messages = defineMessages({
   errorUsersFetchFailed: 'There was a problem retrieving users',
   errorCommentSaveFailed: 'There was a problem saving your comment',
   errorInvestmentUpdateFailed: 'There was a problem updating your approval',
+  errorQuestionResolved: 'This question has been resolved',
   errorAddParticipantsFailed: 'There was a problem adding participants',
   errorInviteParticipantsFailed: 'There was a problem inviting participants',
   errorDecisionAddFailed: 'There was a problem creating your Dialog',

@@ -19,10 +19,11 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { commonQuick } from './ApprovalWizard';
 import JobDescription from '../../InboxWizards/JobDescription';
 import { DECISION_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
-import { ISSUE_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import { hasDecisionComment } from '../DecisionComment/AddCommentStep';
 import { findMessagesForCommentIds } from '../../../utils/messageUtils';
 import { dismissWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import { toastErrorAndThrow } from '../../../utils/userMessage';
 
 function DecisionApproveStep(props) {
   const { market, updateFormData = () => {}, formData = {}, investibleId, hasOtherVote, currentReasonId } = props;
@@ -40,6 +41,7 @@ function DecisionApproveStep(props) {
     allow_multi_vote: allowsMultiple } = market;
   const parentComment = getComment(commentsState, parentMarketId, parentCommentId) || {};
   const { investible_id: parentInvestibleId, group_id: parentGroupId } = parentComment;
+  const questionResolvedError = parentComment.comment_type === QUESTION_TYPE ? 'errorQuestionResolved' : undefined;
 
   function doQuick(result) {
     commonQuick(result, commentsDispatch, marketId, commentsState, marketPresencesDispatch, messagesState,
@@ -55,6 +57,9 @@ function DecisionApproveStep(props) {
   }
 
   function onNext() {
+    if (questionResolvedError && parentComment.resolved) {
+      return toastErrorAndThrow(new Error('Question resolved'), questionResolvedError);
+    }
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
@@ -74,7 +79,7 @@ function DecisionApproveStep(props) {
       uploadedFiles: filteredUploads,
       version: approveReasonVersion
     };
-    return updateInvestment(updateInfo).then((result) => {
+    return updateInvestment(updateInfo, questionResolvedError).then((result) => {
       doQuick(result);
       navigateToOption(history, parentMarketId, parentInvestibleId, parentGroupId, investibleId);
     })

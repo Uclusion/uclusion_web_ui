@@ -45,9 +45,10 @@ export function removeOthersInvestment(marketId, investibleId, userId) {
  * 3) Nothing
  *
  * @param updateInfo
+ * @param forbiddenErrorMessageKey i18n key to show for an expected 403 response
  * @returns {*}
  */
-export function updateInvestment(updateInfo) {
+export function updateInvestment(updateInfo, forbiddenErrorMessageKey) {
   const {
     marketId,
     investibleId,
@@ -105,5 +106,6 @@ export function updateInvestment(updateInfo) {
             investmentResult,
           };
         });
-    }).catch((error) => toastErrorAndThrow(error, 'errorInvestmentUpdateFailed'));
+    }).catch((error) => toastErrorAndThrow(error,
+      error.status === 403 && forbiddenErrorMessageKey ? forbiddenErrorMessageKey : 'errorInvestmentUpdateFailed'));
 }

@@ -98,8 +98,10 @@ For a view-level bug:
 - For a discrete options question, call `ask_question` with the bug short code
   and a nonempty options list. It creates a human-owned Bugs job in the same
   view, moves the original bug thread into that job as a task, creates the
-  question, and returns both links. Reload the new job. Never convert a bug
-  merely to ask an open-ended question.
+  question, and returns both links. Complete the conversion as one atomic
+  workflow turn: `ask_question` → reload the returned Bugs job → cast exactly
+  one explained preferred-option vote with `approve_job_or_option`, all before
+  ending the turn. Never convert a bug merely to ask an open-ended question.
 
 When offering options, vote for the preferred option with
 `approve_job_or_option` and explain why. Hold that position through mere
@@ -181,6 +183,11 @@ If initial work is ready but the job is not executable, offer to move it to
 Doable or ask the human to do so. When the human instructs a move to Doable,
 change the stage, reload, sweep, and begin work in the same turn unless they
 explicitly request a stage-only change.
+
+An executable stage authorizes implementation, not the form of testing. An
+explicit test plan in the job counts as human approval. Otherwise, before
+running tests or builds, use one `ask_question` per unresolved decision about
+test types and quantities and wait for a qualifying human answer.
 
 Before editing:
 

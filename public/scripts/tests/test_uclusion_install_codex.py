@@ -154,6 +154,26 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             self.workflow,
         )
 
+    def test_testing_form_requires_qualifying_human_approval(self):
+        self.assertIn(
+            'An executable stage authorizes implementation, not the form of '
+            'testing',
+            self.workflow,
+        )
+        self.assertIn(
+            'An explicit test plan in the job counts as human approval',
+            self.workflow,
+        )
+        self.assertIn(
+            'one `ask_question` per unresolved decision about test types and '
+            'quantities',
+            self.workflow,
+        )
+        self.assertIn(
+            'wait for a qualifying human answer',
+            self.workflow,
+        )
+
     def test_ai_questions_use_advisory_markers_or_explicit_delegation(self):
         self.assertIn(
             'An open AI-authored question created from Doable or Reviewable '
@@ -213,6 +233,16 @@ class WorkflowProtocolContractTests(unittest.TestCase):
         self.assertIn('creates a human-owned Bugs job', self.workflow)
         self.assertIn(
             'moves the original bug thread into that job as a task',
+            self.workflow,
+        )
+        self.assertIn(
+            'Complete the conversion as one atomic workflow turn',
+            self.workflow,
+        )
+        self.assertIn(
+            '`ask_question` → reload the returned Bugs job → cast exactly '
+            'one explained preferred-option vote with '
+            '`approve_job_or_option`, all before ending the turn',
             self.workflow,
         )
         self.assertIn(

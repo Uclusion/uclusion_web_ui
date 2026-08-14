@@ -97,6 +97,7 @@ import { deleteOrDehilightMessages } from '../../../api/users';
 import { dehighlightMessage, isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { DARK_ACTION_BUTTON_COLOR, DARK_TEXT_BACKGROUND_COLOR, useButtonColors } from '../../../components/Buttons/ButtonConstants';
 import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
+import { countAssistanceRootsWithNewMessages } from './assistanceNotificationCounts';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -738,7 +739,9 @@ function PlanningInvestible(props) {
     });
     return _.size(bucketMessages.filter((message) => isInInbox(message)));
   }
-  const assistanceTabNewCounts = assistanceTabComments.map((bucket) => countBucketNewMessages(bucket));
+  const assistanceTabNewCounts = assistanceTabComments.map((bucket, index) => index === 0 ?
+    countAssistanceRootsWithNewMessages(bucket, investibleComments, messagesState) :
+    countBucketNewMessages(bucket));
   const newTodoMessages = findMessagesForCommentIds(openTodoCommentsSearchedAll?.map((comment) => comment.id),
     messagesState, true);
   // Do not include each unread task as its own message

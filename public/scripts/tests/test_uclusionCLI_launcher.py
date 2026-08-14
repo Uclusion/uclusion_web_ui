@@ -268,7 +268,7 @@ class CodexLauncherTests(unittest.TestCase):
                     [
                         '-c',
                         'mcp_servers.Uclusion={ enabled = true, '
-                        'command = "python3", args = '
+                        'required = true, command = "python3", args = '
                         f'{expected_proxy_args}, '
                         'default_tools_approval_mode = "approve" }',
                     ],
@@ -381,7 +381,7 @@ class CodexLauncherTests(unittest.TestCase):
                 '--disable', 'apps',
                 '-c',
                 'mcp_servers.Uclusion={ enabled = true, '
-                'command = "python3", args = '
+                'required = true, command = "python3", args = '
                 f'{expected_proxy_args}, '
                 'default_tools_approval_mode = "approve" }',
                 '--listen',

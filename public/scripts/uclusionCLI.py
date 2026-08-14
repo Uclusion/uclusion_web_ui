@@ -1697,7 +1697,7 @@ def build_codex_mcp_overrides(
             '--token-audit-owner', str(token_audit_owner),
         ])
     inline_table = (
-        '{ enabled = true, command = '
+        '{ enabled = true, required = true, command = '
         + json.dumps("python3")
         + ', args = '
         + json.dumps(proxy_args)

@@ -74,6 +74,13 @@ function getInvestibleOnClick(id, marketId, history) {
   navigate(history, link);
 }
 
+export function isVisibleAssistanceComment(comment, commentType, investibleId, assigned, marketPresences, stage) {
+  const isAIQuestion = commentType === QUESTION_TYPE && (marketPresences || []).some((presence) =>
+    presence && presence.id === comment.created_by && _.isEmpty(presence.email));
+  return comment.comment_type === commentType && comment.investible_id === investibleId &&
+    ((assigned || []).includes(comment.created_by) || isAIQuestion || isFurtherWorkStage(stage));
+}
+
 const myArchiveClasses = makeStyles(
   theme => {
     return {
@@ -270,14 +277,10 @@ function ArchiveInvestbiles(props) {
       const stage = getFullStage(marketStagesState, marketId, stageId);
       const usedAssignees = assigned || [];
       const groupMembers = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
-      const questionComments = (unResolvedMarketComments || []).filter((comment) => {
-        return (comment.comment_type === QUESTION_TYPE) && (comment.investible_id === id) &&
-          (usedAssignees.includes(comment.created_by)||isFurtherWorkStage(stage));
-      });
-      const suggestionComments = (unResolvedMarketComments || []).filter((comment) => {
-        return (comment.comment_type === SUGGEST_CHANGE_TYPE) && (comment.investible_id === id) &&
-          (usedAssignees.includes(comment.created_by)||isFurtherWorkStage(stage));
-      });
+      const questionComments = (unResolvedMarketComments || []).filter((comment) =>
+        isVisibleAssistanceComment(comment, QUESTION_TYPE, id, usedAssignees, marketPresences, stage));
+      const suggestionComments = (unResolvedMarketComments || []).filter((comment) =>
+        isVisibleAssistanceComment(comment, SUGGEST_CHANGE_TYPE, id, usedAssignees, marketPresences, stage));
       const blockedComments = (unResolvedMarketComments || []).filter((comment) => {
         return comment.comment_type === ISSUE_TYPE && comment.investible_id === id;
       });

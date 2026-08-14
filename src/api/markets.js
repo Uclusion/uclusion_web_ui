@@ -144,7 +144,11 @@ export function getMarketGroups(signatures, client) {
 }
 
 export function getInvestments(userId, signatures, client) {
-  return client.markets.listInvestments(userId, signatures)
+  // B-all-563: the API caps the signatures array at 100 per call
+  const chunks = _.chunk(signatures, 100);
+  return AllSequentialMap(chunks, (chunk) => {
+    return client.markets.listInvestments(userId, chunk);
+  }).then((investmentsLists) => _.flatten(investmentsLists))
     .catch((error) => errorAndThrow(error, 'errorGroupMembersFetchFailed'));
 }
 

@@ -18,11 +18,10 @@ import { registerListener } from '../../utils/MessageBusUtils';
 import _ from 'lodash'
 import { decomposeMarketPath } from '../../utils/marketIdPathFunctions';
 import queryString from 'query-string'
-import { clearRedirect, clearUtm, getAndClearEmail, getRedirect, getUtm } from '../../utils/redirectUtils';
+import { getAndClearEmail } from '../../utils/redirectUtils';
 import { clearSignedOut } from '../../utils/userFunctions';
 import { AUTH_HUB_CHANNEL, poll } from '../../contexts/AccountContext/accountContextMessages';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
-import { OnboardingState } from '../../contexts/AccountContext/accountUserContextHelper';
 
 Amplify.configure(awsconfig);
 
@@ -66,24 +65,12 @@ function AppWithAuth() {
     const { event } = (payload || {});
     switch (event) {
       case 'signIn':
+        // J-all-400 (C-all-1507): all post sign in routing lives in Root's redirect effect,
+        // which consumes the stored redirect and utm once the user record arrives - this
+        // handler only makes that record arrive quickly
         console.log('Starting poll after sign in');
         clearSignedOut();
-        const user = await poll(dispatch);
-        let redirect = getRedirect();
-        clearRedirect();
-        const utm = getUtm();
-        clearUtm();
-        if ((_.isEmpty(redirect) || redirect === '/')&&(!_.isEmpty(utm) || user?.onboarding_state === OnboardingState.NeedsOnboarding)) {
-          if (!_.isEmpty(utm)) {
-            redirect = `/demo?utm_campaign=${utm}`;
-          } else {
-            redirect = '/demo';
-          }
-        }
-        if (!_.isEmpty(redirect) && redirect !== '/') {
-          console.log(`Redirecting on sign in to ${redirect}`);
-          window.location.replace(redirect);
-        }
+        await poll(dispatch);
         break;
       default:
       // ignore

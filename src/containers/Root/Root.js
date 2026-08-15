@@ -43,7 +43,7 @@ import _ from 'lodash';
 import { getNotHiddenMarketDetailsForUser, getSortedMarkets } from '../../contexts/MarketsContext/marketsContextHelper';
 import PlanningMarketLoad from '../../pages/Dialog/Planning/PlanningMarketLoad';
 import DemoMarketLoad from '../../pages/Dialog/Planning/DemoMarketLoad';
-import { getFirstWorkspace } from '../../utils/redirectUtils';
+import { clearRedirect, clearUtm, getFirstWorkspace, getRedirect, getUtm } from '../../utils/redirectUtils';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import GroupManage from '../../pages/DialogSettings/GroupManage';
 import ManageMarketUsers from '../../pages/Dialog/UserManagement/ManageMarketUsers';
@@ -287,23 +287,56 @@ function Root(props) {
     }
   },  [action, history, marketLink]);
 
+  // J-all-400 (C-all-1507): the single redirector. The sign in handler only polls the user
+  // record in, so the redirect and utm the auth pages stored are consumed here exactly once
+  // when that record arrives, and root path routing lives in the same place.
   useEffect(() => {
-    // No navigation until sign in completes and markets hydrate or the empty check below
-    // fires on the first render and sends a user with workspaces to the wizard
-    if (isRootPath && authState === 'signedIn' && !marketsState.initializing) {
-      if (isDemoWorkspace || _.isEmpty(defaultMarketLink)) {
-        if (_.isEmpty(defaultMarketLink)) {
-          console.info('Navigating to create workspace with no market');
-        } else {
-          console.info('Navigating to create workspace with default demo market');
-        }
-        navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
-      } else {
-        console.info('Navigating on root path to default market');
-        navigate(history, defaultMarketLink, true);
+    if (authState !== 'signedIn' || _.isEmpty(userState?.user)) {
+      return;
+    }
+    const redirect = getRedirect();
+    if (!_.isEmpty(redirect)) {
+      clearRedirect();
+      // The invite flow can land directly on its stored redirect, so do not remount it
+      if (redirect !== '/' && redirect !== pathname) {
+        console.info(`Redirecting on sign in to ${redirect}`);
+        navigate(history, redirect, true);
+        return;
       }
     }
-  },  [history, isRootPath, defaultMarketLink, isDemoWorkspace, authState, marketsState.initializing]);
+    const utm = getUtm();
+    if (!_.isEmpty(utm)) {
+      clearUtm();
+      console.info(`Redirecting on sign in to the ${utm} demo`);
+      navigate(history, `/demo?utm_campaign=${utm}`, true);
+      return;
+    }
+    if (!isRootPath) {
+      return;
+    }
+    if (userState.user.onboarding_state === OnboardingState.NeedsOnboarding) {
+      console.info('Navigating to onboarding choice');
+      navigate(history, '/demo');
+      return;
+    }
+    // No market navigation until markets hydrate or the empty check below fires on the
+    // first render and sends a user with workspaces to the wizard
+    if (marketsState.initializing) {
+      return;
+    }
+    if (isDemoWorkspace || _.isEmpty(defaultMarketLink)) {
+      if (_.isEmpty(defaultMarketLink)) {
+        console.info('Navigating to create workspace with no market');
+      } else {
+        console.info('Navigating to create workspace with default demo market');
+      }
+      navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
+    } else {
+      console.info('Navigating on root path to default market');
+      navigate(history, defaultMarketLink, true);
+    }
+  },  [history, isRootPath, pathname, defaultMarketLink, isDemoWorkspace, authState,
+    marketsState.initializing, userState]);
 
   useEffect(() => {
     function handleViewChange(isEntry) {

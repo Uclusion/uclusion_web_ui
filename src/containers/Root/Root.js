@@ -288,14 +288,8 @@ function Root(props) {
   },  [action, history, marketLink]);
 
   useEffect(() => {
-    // J-all-400: no root redirect until the user record loads or the support workspace can
-    // sync in first as the default market and swallow the root path
-    if (isRootPath && userState?.user) {
-      if (userState.user.onboarding_state === OnboardingState.NeedsOnboarding) {
-        // A user who has not onboarded continues onboarding
-        console.info('Navigating to onboarding choice');
-        navigate(history, '/demo');
-      } else if (isDemoWorkspace) {
+    if (isRootPath) {
+      if (isDemoWorkspace) {
         console.info('Navigating to create workspace with default demo market');
         navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
       } else if (!_.isEmpty(defaultMarketLink)) {
@@ -303,7 +297,7 @@ function Root(props) {
         navigate(history, defaultMarketLink, true);
       }
     }
-  },  [history, isRootPath, defaultMarketLink, isDemoWorkspace, userState]);
+  },  [history, isRootPath, defaultMarketLink, isDemoWorkspace]);
 
   useEffect(() => {
     function handleViewChange(isEntry) {

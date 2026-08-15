@@ -301,6 +301,12 @@ const messages = defineMessages({
   upNavigationMac: 'ctrl+option+arrowUp go up one level',
   up: 'Up',
   skipDemo: 'Skip demo',
+  connectAIFirst: 'Connect AI first',
+  seeDemoFirst: 'See a demo first',
+  skipAIAndDemo: 'Skip AI and demo',
+  skipAIOnly: 'Skip AI',
+  generateAIConnect: 'Generate',
+  goToNewWorkspace: 'Go to workspace',
 
   //Inbox notification titles
   unfinished: 'Unfinished',
@@ -947,7 +953,7 @@ const messages = defineMessages({
   signupPasswordRepeatLabel: 'Repeat Password',
   signupPasswordRepeatHelper: 'Must match Password',
   signupSignupLabel: 'Create Account',
-  signupTitle: 'Try our sandbox demo for free.',
+  signupTitle: 'Connect your AI agent for free.',
   signupHaveAccount: 'Already have an account? Sign in',
   signupAccountExists: 'An account with that email already exists, please log in.',
   signupAccountExistsLoginLink: 'Log In',

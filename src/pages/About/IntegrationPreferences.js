@@ -22,6 +22,7 @@ import _ from 'lodash';
 import CopyCommand from './CopyCommand';
 import InstallSelector, { INSTALL_CLIENTS } from './InstallSelector';
 import { buildInstallArgs, getUclusionEnvironment } from './installUtils';
+import StartWorkingInstructions from './StartWorkingInstructions';
 
 const useStyles = makeStyles((theme) => ({
   disabled: {
@@ -265,7 +266,7 @@ function IntegrationPreferences (props) {
               </Typography>
               {installScope === 'project' && (
                 <Typography variant="subtitle1" style={{paddingBottom: '0.5rem'}}>
-                  Run this from your project's root directory — it configures the directory it runs in.
+                  Run this from your project's root directory. It configures the directory it runs in.
                 </Typography>
               )}
               <CopyCommand
@@ -283,13 +284,7 @@ function IntegrationPreferences (props) {
               <Typography variant="h6" style={{paddingTop: '1.5rem', paddingBottom: '0.5rem'}}>
                 Step 4. Start working inside your AI tool
               </Typography>
-              <Typography variant="subtitle1">
-                Launch your AI tool and type something like "go". The AI then runs Uclusion's find_work
-                and presents your work list. If no work is available, it asks whether you want a
-                tutorial. To skip typing "go" each time,
-                see <Link href="https://documentation.uclusion.com/github-and-cli-integrations/mcp/#starting-a-session-on-find_work" target="_blank">starting
-                a session on find_work</Link> to alias your agent.
-              </Typography>
+              <StartWorkingInstructions />
             </SubSection>
           </Card>
         </div>

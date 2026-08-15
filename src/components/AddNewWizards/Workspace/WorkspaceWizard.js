@@ -2,7 +2,8 @@ import React, { useContext } from 'react';
 import WorkspaceNameStep from './WorkspaceNameStep';
 import { WizardStylesProvider } from '../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
-import { useHistory } from 'react-router';
+import { useHistory, useLocation } from 'react-router';
+import queryString from 'query-string';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
@@ -25,12 +26,21 @@ import { DEMO_TYPE, PLANNING_TYPE } from '../../../constants/markets';
 import { TOKEN_TYPE_MARKET } from '../../../api/tokenConstants';
 import _ from 'lodash';
 import WorkspaceViewStep from './WorkspaceViewStep';
+import AIChoiceStep from './AIChoiceStep';
+import ConnectAIStep from './ConnectAIStep';
+import ConnectAIInstallStep from './ConnectAIInstallStep';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { quickRemoveMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 import { createMarketFromSignup } from '../../../utils/signupMarketUtils';
 
 function WorkspaceWizard() {
   const history = useHistory();
+  const location = useLocation();
+  const { hash } = location;
+  // J-all-400 (Q-all-431): connect AI first is offered at every workspace creation entry point;
+  // startai jumps straight to the connect flow and skipai comes from onboarding's
+  // "Skip AI and demo" where the choice was already made
+  const { startai, skipai } = queryString.parse(hash);
   const [marketsState, marketsDispatch] = useContext(MarketsContext);
   const [presenceState, presenceDispatch] = useContext(MarketPresencesContext);
   const [, groupsDispatch] = useContext(MarketGroupsContext);
@@ -52,7 +62,7 @@ function WorkspaceWizard() {
     return initials;
   }
 
-  function createWorkspace(formData) {
+  function createWorkspace(formData, doNavigate = true) {
     const { name, groupType } = formData;
     const marketInfo = {
       name,
@@ -100,8 +110,11 @@ function WorkspaceWizard() {
         const tokenStorageManager = new TokenStorageManager();
         return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token)
           .then(() => {
+            if (!doNavigate) {
+              return market;
+            }
             setOperationRunning(false);
-            if (marketInfo.group_type === 'TEAM') { 
+            if (marketInfo.group_type === 'TEAM') {
               // Let them choose members
               return navigate(history, formGroupManageLink(market.id, market.id));
             }
@@ -117,8 +130,17 @@ function WorkspaceWizard() {
         useLocalStorage={false}
         name="workspace_wizard"
       >
-        <WorkspaceNameStep createWorkspace={createWorkspace} />
-        <WorkspaceViewStep createWorkspace={createWorkspace} />
+        {startai === 'true' && [
+          <ConnectAIStep key="connectAI" createWorkspace={createWorkspace} />,
+          <ConnectAIInstallStep key="connectAIInstall" />
+        ]}
+        {startai !== 'true' && skipai !== 'true' && (
+          <AIChoiceStep isOnboarding={false} />
+        )}
+        {startai !== 'true' && [
+          <WorkspaceNameStep key="workspaceName" createWorkspace={createWorkspace} />,
+          <WorkspaceViewStep key="workspaceView" createWorkspace={createWorkspace} />
+        ]}
       </FormdataWizard>
     </WizardStylesProvider>
   )

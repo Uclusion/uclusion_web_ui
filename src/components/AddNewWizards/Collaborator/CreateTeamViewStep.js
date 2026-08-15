@@ -54,7 +54,7 @@ function CreateTeamViewStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        Do do you want a view for you and this collaborator?
+        Do you want a view for you and this collaborator?
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1" style={{paddingBottom: '1rem'}}>
         Anything created in that view will notify this person. Otherwise you will have to @ mention them each time

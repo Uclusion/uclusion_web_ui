@@ -288,16 +288,22 @@ function Root(props) {
   },  [action, history, marketLink]);
 
   useEffect(() => {
-    if (isRootPath) {
-      if (isDemoWorkspace) {
-        console.info('Navigating to create workspace with default demo market');
+    // No navigation until sign in completes and markets hydrate or the empty check below
+    // fires on the first render and sends a user with workspaces to the wizard
+    if (isRootPath && authState === 'signedIn' && !marketsState.initializing) {
+      if (isDemoWorkspace || _.isEmpty(defaultMarketLink)) {
+        if (_.isEmpty(defaultMarketLink)) {
+          console.info('Navigating to create workspace with no market');
+        } else {
+          console.info('Navigating to create workspace with default demo market');
+        }
         navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
-      } else if (!_.isEmpty(defaultMarketLink)) {
+      } else {
         console.info('Navigating on root path to default market');
         navigate(history, defaultMarketLink, true);
       }
     }
-  },  [history, isRootPath, defaultMarketLink, isDemoWorkspace]);
+  },  [history, isRootPath, defaultMarketLink, isDemoWorkspace, authState, marketsState.initializing]);
 
   useEffect(() => {
     function handleViewChange(isEntry) {

@@ -31,14 +31,17 @@ export function redirectFromHistory(history) {
 }
 
 export function getFirstWorkspace(markets, marketId, allowArchived=true, allowSupport = true) {
-  if (_.isEmpty(markets)) {
+  // J-all-400: the flags must also govern the fallback or a new user whose only market is
+  // the support workspace gets it as the root path default
+  const allowed = markets?.filter((workspace) =>
+    (allowArchived || workspace.market_stage === 'Active')&&
+    (allowSupport || workspace.market_sub_type !== SUPPORT_SUB_TYPE));
+  if (_.isEmpty(allowed)) {
     return undefined;
   }
   const lastActive = marketId || getCurrentWorkspace();
-  const lastMarket = markets.find((workspace) => workspace.id === lastActive &&
-    (allowArchived || workspace.market_stage === 'Active')&&
-    (allowSupport || workspace.market_sub_type !== SUPPORT_SUB_TYPE));
-  return lastMarket || markets[0];
+  const lastMarket = allowed.find((workspace) => workspace.id === lastActive);
+  return lastMarket || allowed[0];
 }
 
 export function getGroupForInvestibleId(investibleId, marketId, investiblesState) {

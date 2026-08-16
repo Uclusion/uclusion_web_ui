@@ -12,8 +12,11 @@ If both user and project Uclusion bootstrap rules are visible, only the closest
 project-scoped rule and its adjacent Uclusion skill/reference package own
 delivery, work discovery, and workflow. In that case do not invoke the
 ambiguous user `/uclusion`; directly read the closest project's
-`.cursor/skills/uclusion/SKILL.md` and its required references. Ignore and do
-not combine the user Uclusion skill.
+`.cursor/skills/uclusion/SKILL.md` and its required references, each in full
+through end of file, never a partial line range. Each file ends with a
+closing `<!-- ... -->` marker comment; a read that does not reach that marker
+is incomplete, so continue reading until it appears. Ignore and do not
+combine the user Uclusion skill.
 
 Never leave `uclusion wait` or `uclusion listen` running. At the beginning of
 every real user-triggered turn, synchronously run

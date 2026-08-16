@@ -96,8 +96,12 @@ Uclusion dependency; mid-lane, reload only the active item.
 
 Direct targets are globally resolvable. Call `get_job` with their exact short
 code. Compound targets have the form `<verb> <local-code> of <parent-code>`;
-call `get_job` with the parent after `of`, then locate the local item. Never
-globally load an inline option/local code by itself.
+call `get_job` with the parent after `of`, then locate the local item. The
+first load of a parent not yet read this session takes its whole scope. When
+that parent was already loaded, reload only the poked item, with
+`thread_only` for a comment parent or the covering `sections` for a job
+parent, instead of pulling the whole job again. Never globally load an inline
+option/local code by itself.
 
 Added and Updated are additive, not instructions to abandon active work. Reload
 and incorporate in-lane state, then obey the current stage. Soft-deleted direct

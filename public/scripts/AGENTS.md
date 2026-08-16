@@ -8,8 +8,11 @@ If both user and project Uclusion bootstrap blocks are visible, only the
 closest project-scoped block and its adjacent Uclusion skill/reference package
 own delivery, work discovery, and workflow. In that case do not invoke the
 ambiguous user `$uclusion`; directly read the closest project's
-`.agents/skills/uclusion/SKILL.md` and its required references. Ignore and do
-not combine the user Uclusion skill.
+`.agents/skills/uclusion/SKILL.md` and its required references, each in full
+through end of file, never a partial line range. Each file ends with a
+closing `<!-- ... -->` marker comment; a read that does not reach that marker
+is incomplete, so continue reading until it appears. Ignore and do not
+combine the user Uclusion skill.
 
 Establish Poke AI delivery before Uclusion work or idle work discovery. Check
 only for the presence of `UCLUSION_CODEX_BRIDGE_ACTIVE`—never print its value.

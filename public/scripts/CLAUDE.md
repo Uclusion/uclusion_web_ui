@@ -8,8 +8,11 @@ If both personal and project Uclusion bootstrap blocks are visible, only the
 closest project-scoped block and its adjacent Uclusion skill/reference package
 own delivery, work discovery, and workflow. In that case do not invoke the
 ambiguous personal `/uclusion`; directly load the closest project's
-`.claude/skills/uclusion/SKILL.md` and its required references. Ignore and do
-not combine the personal Uclusion skill.
+`.claude/skills/uclusion/SKILL.md` and its required references, each in full
+through end of file, never a partial line range. Each file ends with a
+closing `<!-- ... -->` marker comment; a read that does not reach that marker
+is incomplete, so continue reading until it appears. Ignore and do not
+combine the personal Uclusion skill.
 
 At the start of every session, before acting on the first user request—even
 when that request is unrelated to Uclusion—establish Poke AI delivery. Check

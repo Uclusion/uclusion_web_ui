@@ -80,8 +80,11 @@ tasks, grouped tasks, assistance, blockers, and reports. Use
 rendered View Notes as standing instructions.
 
 On event-driven reloads, use `sections` or `thread_only` when the relevant
-scope is already known. If the result has no Job header and contains one
-top-level comment, use the single-comment workflow below.
+scope is already known. Scoping prevents duplicate loading: the first read of
+a job this session takes the whole job, while a later event for an item
+inside it reloads just that item instead of the full job again. If the result
+has no Job header and contains one top-level comment, use the single-comment
+workflow below.
 
 ## 2. Ask and resolve questions
 

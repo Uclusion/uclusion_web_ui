@@ -47,9 +47,13 @@ skill owns event handling and the job workflow.
 
 If `start_job_audit`, `set_job_audit_phase`, and `end_job_audit` are exposed:
 
-1. A lookup used only to classify a Poke starts no audit. Once a lookup makes a
-   job the active lane, call `start_job_audit` before substantive planning or
-   execution and retain the run identifier. The initial bucket is `planning`.
+1. A lookup used only to classify a Poke starts no audit. Audits attach only
+   to jobs: a standalone view-level comment lane (a single-comment result with
+   no Job header) has no J- job, so never call `start_job_audit` for it — the
+   call fails. If that comment later converts into a Bugs job, audit the
+   returned job. Once a lookup makes a job the active lane, call
+   `start_job_audit` before substantive planning or execution and retain the
+   run identifier. The initial bucket is `planning`.
 2. Before the kind of work changes, call `set_job_audit_phase`. Include the
    active job, run identifier, a `marker_sequence` starting at 1 and increasing
    strictly, and a concise bucket label. A replay reuses its original sequence.

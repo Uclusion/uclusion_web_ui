@@ -244,11 +244,11 @@ WORKFLOW_ASSET_PATHS = {
 # These digests bind the installer to one coherent workflow release. A host
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
-    'claude_stub': 'd32a75328b011f3ccd7f8c7742906e4a7039c8d7629c61f54025d017eedf388e',
-    'codex_stub': 'bc2c2ef1644d29d1118a1be532aa1c69b69223b06475ba83001280a064dd294b',
-    'cursor_stub': '1ec1ec972a7b2b4486d447ece29a158f02f62ff8e3c7554ecf453b037a700977',
-    'skill': 'b511852e4cb1bf826716abc5145d3ab1bc797cfdf64c0445cd4db4b73e63d91f',
-    'pokes_reference': '515f5a33262cdacad1553ca3ec45d3bbb5a566c7bd62cdd341aa0c52d6b5dbe6',
+    'claude_stub': 'b89451b4cf5dbba8199e2b2ac138e58250077415a1da6cac32e5e70ab03f425b',
+    'codex_stub': '02ea82a01620a5909ea40ea33d0ed67a27f275b808d926e21f753cb51861135e',
+    'cursor_stub': 'd6cc373cd329b9302b9a2c9fd53e3ef01eedcfae8819682003435390f597ea21',
+    'skill': '53b6b25bdf4da76aaf9b4d1baf45764ad4acd74270bcf6216159a56bff1d2549',
+    'pokes_reference': '329a0c41f19598aed5ebd629aca1f17904d85e4a021f4534f27e203f734cd22e',
     'operations_reference': '2fe81054a9ad3e8803fc8d41674532766f8cebeda816acd92c46d791457ddf3e',
     'openai_metadata': 'ecf2759354ff3bbfd7178452a705650aff7a13352458bb20e1df122da7c30f40',
 }

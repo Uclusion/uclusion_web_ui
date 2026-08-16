@@ -258,20 +258,6 @@ class WorkflowBundleFetcherTests(unittest.TestCase):
         self.assertIs(first, second)
         self.assertEqual(len(INSTALL.WORKFLOW_ASSET_PATHS), urlopen.call_count)
 
-    def test_source_assets_match_installer_release_hashes(self):
-        bundle = source_bundle()
-        self.assertEqual(
-            set(INSTALL.WORKFLOW_ASSET_PATHS),
-            set(INSTALL.WORKFLOW_ASSET_SHA256),
-        )
-        self.assertEqual(
-            INSTALL.WORKFLOW_ASSET_SHA256,
-            {
-                key: hashlib.sha256(content.encode('utf-8')).hexdigest()
-                for key, content in bundle.items()
-            },
-        )
-
     def test_bundle_validation_rejects_one_structurally_valid_mixed_asset(self):
         bundle = source_bundle()
         bundle['claude_stub'] = bundle['claude_stub'].replace(

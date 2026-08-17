@@ -60,7 +60,8 @@ export const INSTALL_CLIENTS = [
 ];
 
 function InstallSelector(props) {
-  const { scope, setScope, clients, setClients, tokenAudit, setTokenAudit } = props;
+  const { scope, setScope, clients, setClients, tokenAudit, setTokenAudit,
+    workClaims, setWorkClaims } = props;
   const classes = useStyles();
 
   function toggleClient(key) {
@@ -111,6 +112,17 @@ function InstallSelector(props) {
           On
         </div>
       </div>
+      <div className={classes.row}>
+        <div className={classes.label}>Work claim lock</div>
+        <div className={optionClass(!workClaims)} onClick={() => setWorkClaims(false)}
+             id='installWorkClaimsOff'>
+          Off
+        </div>
+        <div className={optionClass(workClaims)} onClick={() => setWorkClaims(true)}
+             id='installWorkClaimsOn'>
+          On
+        </div>
+      </div>
     </div>
   );
 }
@@ -122,6 +134,8 @@ InstallSelector.propTypes = {
   setClients: PropTypes.func.isRequired,
   tokenAudit: PropTypes.bool.isRequired,
   setTokenAudit: PropTypes.func.isRequired,
+  workClaims: PropTypes.bool.isRequired,
+  setWorkClaims: PropTypes.func.isRequired,
 };
 
 export default InstallSelector;

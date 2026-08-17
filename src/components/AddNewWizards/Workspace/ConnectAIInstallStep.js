@@ -22,11 +22,13 @@ function ConnectAIInstallStep(props) {
   const installScope = formData.installScope || 'global';
   const installClients = formData.installClients || INSTALL_CLIENTS.map((client) => client.key);
   const tokenAudit = formData.tokenAudit || false;
+  const workClaims = formData.workClaims || false;
   const env = getUclusionEnvironment();
   const credentialsFile = env === 'production' ? 'credentials' : `${env}_credentials`;
   const installBaseUrl = config.ui_base_url;
   // The new workspace's default view has the same id as the workspace
-  const installArgs = buildInstallArgs(marketId, marketId, env, installClients, installScope, tokenAudit);
+  const installArgs = buildInstallArgs(marketId, marketId, env, installClients, installScope,
+    tokenAudit, workClaims);
 
   return (
     <WizardStepContainer

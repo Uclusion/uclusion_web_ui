@@ -23,6 +23,7 @@ function ConnectAIStep(props) {
   const installScope = formData.installScope || 'global';
   const installClients = formData.installClients || INSTALL_CLIENTS.map((client) => client.key);
   const tokenAudit = formData.tokenAudit || false;
+  const workClaims = formData.workClaims || false;
 
   function onNameChange(event) {
     const { value } = event.target;
@@ -83,7 +84,9 @@ function ConnectAIStep(props) {
                            clients={installClients}
                            setClients={(clients) => updateFormData({ installClients: clients })}
                            tokenAudit={tokenAudit}
-                           setTokenAudit={(audit) => updateFormData({ tokenAudit: audit })} />
+                           setTokenAudit={(audit) => updateFormData({ tokenAudit: audit })}
+                           workClaims={workClaims}
+                           setWorkClaims={(claims) => updateFormData({ workClaims: claims })} />
         </div>
         <div className={classes.borderBottom}/>
         <WizardStepButtons

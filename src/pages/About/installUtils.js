@@ -13,8 +13,10 @@ export function getUclusionEnvironment() {
   return 'production';
 }
 
-export function buildInstallArgs(marketId, viewId, environment, clients, scope, tokenAudit) {
+export function buildInstallArgs(marketId, viewId, environment, clients, scope, tokenAudit,
+  workClaims) {
   return `${marketId} ${viewId}${environment === 'production' ? '' : ` ${environment}`}` +
     ` --clients ${clients.join(',')}${scope === 'project' ? ' --project' : ''}` +
-    ` ${tokenAudit ? '--token-audit' : '--no-token-audit'}`;
+    ` ${tokenAudit ? '--token-audit' : '--no-token-audit'}` +
+    ` ${workClaims ? '--work-claims' : '--no-work-claims'}`;
 }

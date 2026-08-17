@@ -19,6 +19,7 @@ function ConnectInvitedStep(props) {
   const installScope = formData.installScope || 'global';
   const installClients = formData.installClients || INSTALL_CLIENTS.map((client) => client.key);
   const tokenAudit = formData.tokenAudit || false;
+  const workClaims = formData.workClaims || false;
 
   function onGenerate() {
     return getSecret(marketId).then((secretUser) => {
@@ -46,7 +47,9 @@ function ConnectInvitedStep(props) {
                        clients={installClients}
                        setClients={(clients) => updateFormData({ installClients: clients })}
                        tokenAudit={tokenAudit}
-                       setTokenAudit={(audit) => updateFormData({ tokenAudit: audit })} />
+                       setTokenAudit={(audit) => updateFormData({ tokenAudit: audit })}
+                       workClaims={workClaims}
+                       setWorkClaims={(claims) => updateFormData({ workClaims: claims })} />
       <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}

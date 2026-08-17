@@ -722,7 +722,10 @@ function PlanningInvestible(props) {
       newAssistanceMessages.push(message);
     }
   });
-  const numNewAssistanceMessages = _.size(newAssistanceMessages.filter((message) => isInInbox(message)));
+  // T-all-2475: the Debatable tab counts roots needing attention exactly like its Unresponded
+  // sub-tab instead of one per notification, so replies and votes on one thread stay one new
+  const numNewAssistanceMessages = countAssistanceRootsWithNewMessages(
+    assistanceCommentsSearched, investibleComments, messagesState);
   // T-all-2308: per sub-tab notification counts - same rule as the sections, a sub-tab shows its
   // new message count instead of its contents count when new messages are present
   function countBucketNewMessages(bucketComments) {

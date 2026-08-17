@@ -236,6 +236,8 @@ rule lasts for every turn in that lane, not only the first.
 At any lane handoff:
 
 - First read `pokes.md` so the handoff includes current work discovery.
+- If `claim_work` is exposed and the lane's short code is claimed, release it
+  per the work claim lock rules in `pokes.md`.
 - If blocked on a human, leave the exact dependency in Uclusion.
 - If testable, read `operations.md`, request review, then check fresh
   notifications.

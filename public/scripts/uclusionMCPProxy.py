@@ -13,6 +13,7 @@ import time
 import urllib.request
 import urllib.parse
 from contextlib import closing
+from uuid import uuid4
 
 
 CREDENTIALS_FILE = 'credentials'
@@ -30,6 +31,35 @@ MESSAGE_RETENTION_SECONDS = 7 * 24 * 60 * 60
 TOKEN_AUDIT_TOOLS = frozenset({
     'start_job_audit', 'set_job_audit_phase', 'end_job_audit'
 })
+WORK_CLAIM_TOOL_NAME = 'claim_work'
+WORK_CLAIM_TOOL = {
+    'name': WORK_CLAIM_TOOL_NAME,
+    'description': (
+        'Attempts to take, or releases, the opt-in work claim lock for job '
+        'or bug short codes so idle agents do not start the same work. Claim '
+        'right before starting work, passing every candidate you would start '
+        'in preference order via short_code_ids; the result names the one '
+        'code you now hold, and you start that item. A denied claim means '
+        'every listed item is already held by other agents. Release the held '
+        'code at lane handoff. An error result means the lock service is '
+        'unreachable and work should proceed without the lock.'
+    ),
+    'inputSchema': {
+        'type': 'object',
+        'additionalProperties': False,
+        'properties': {
+            'operation': {'enum': ['claim', 'release']},
+            'short_code_id': {'type': 'string', 'minLength': 1, 'maxLength': 255},
+            'short_code_ids': {
+                'type': 'array',
+                'minItems': 1,
+                'maxItems': 32,
+                'items': {'type': 'string', 'minLength': 1, 'maxLength': 255}
+            }
+        },
+        'required': ['operation']
+    }
+}
 
 
 def prune_token_audit_storage(environment, workspace_id):
@@ -62,6 +92,7 @@ def parse_args(argv=None):
     parser.add_argument(
         'environment', nargs='?', choices=('dev', 'stage', 'production')
     )
+    parser.add_argument('--work-claims', action='store_true')
     parser.add_argument('--token-audit', action='store_true')
     parser.add_argument('--token-audit-port', type=token_audit_port)
     parser.add_argument(
@@ -381,7 +412,138 @@ class WebSocketConnection:
         self.socket = None
 
 
-def listen_for_pokes(websocket_url, token, environment, workspace_id, stop_event):
+class WorkClaimsManager:
+    """Client side of the opt-in work claim lock served by the claim_work route.
+
+    The listener thread owns the websocket receive loop, so claim requests
+    from the MCP thread resolve through pending events keyed by message id.
+    A shared send lock keeps claim frames and the heartbeat ping from
+    interleaving on the socket.
+    """
+
+    REQUEST_TIMEOUT_SECONDS = 20
+
+    def __init__(self, token_provider):
+        self._token_provider = token_provider
+        self._lock = threading.Lock()
+        self._send_lock = threading.Lock()
+        self._connection = None
+        self._held = set()
+        self._pending = {}
+        self._subscribe_snapshot = ()
+
+    def send_text(self, connection, text):
+        with self._send_lock:
+            connection.send_text(text)
+
+    def attach_connection(self, connection):
+        with self._lock:
+            self._connection = connection
+
+    def detach_connection(self, connection):
+        with self._lock:
+            if self._connection is connection:
+                self._connection = None
+            pending = list(self._pending.values())
+        # Fail pending waits so tool calls do not hang across a reconnect.
+        for entry in pending:
+            entry['event'].set()
+
+    def owned_short_codes_for_subscribe(self):
+        with self._lock:
+            self._subscribe_snapshot = tuple(sorted(self._held))
+            return list(self._subscribe_snapshot)
+
+    def handle_event(self, payload):
+        if payload.get('event_type') == 'rebind_result':
+            recovered = set(payload.get('short_code_ids') or [])
+            with self._lock:
+                lost = set(self._subscribe_snapshot) - recovered
+                self._held -= lost
+            if lost:
+                sys.stderr.write(
+                    'Work claims lost during reconnect: '
+                    + ', '.join(sorted(lost)) + '\n'
+                )
+            return
+        with self._lock:
+            entry = self._pending.get(payload.get('message_id'))
+        if entry is not None:
+            entry['result'] = payload
+            entry['event'].set()
+
+    def request(self, operation, short_code_id=None, short_code_ids=None):
+        """Run one claim or release round trip.
+
+        A claim may carry an ordered preference list; the result's
+        short_code_id names the single code granted from it.
+
+        :return: the claim_result payload, or None when the lock service is
+                 unreachable so the caller can proceed without the lock
+        """
+        message_id = str(uuid4())
+        entry = {'event': threading.Event(), 'result': None}
+        with self._lock:
+            connection = self._connection
+            self._pending[message_id] = entry
+        try:
+            if connection is None:
+                return None
+            body = {
+                'action': 'claim_work',
+                'identity': self._token_provider(),
+                'operation': operation,
+                'message_id': message_id
+            }
+            if short_code_ids is not None:
+                body['short_code_ids'] = list(short_code_ids)
+            if short_code_id is not None:
+                body['short_code_id'] = short_code_id
+            try:
+                self.send_text(connection, json.dumps(body, separators=(',', ':')))
+            except Exception:
+                return None
+            entry['event'].wait(self.REQUEST_TIMEOUT_SECONDS)
+            result = entry['result']
+            if result is None:
+                return None
+            with self._lock:
+                if operation == 'claim' and result.get('claimed'):
+                    granted = result.get('short_code_id')
+                    if granted:
+                        self._held.add(granted)
+                elif operation == 'release' and short_code_id is not None:
+                    self._held.discard(short_code_id)
+            return result
+        finally:
+            with self._lock:
+                self._pending.pop(message_id, None)
+
+    def release_all_on_exit(self):
+        """Free every held claim during graceful shutdown, fire and forget.
+
+        A crash skips this on purpose; the server lets unrefreshed claims
+        lapse so the lock always fails open.
+        """
+        with self._lock:
+            connection = self._connection
+            held = bool(self._held)
+        if connection is None or not held:
+            return
+        try:
+            body = {
+                'action': 'claim_work',
+                'identity': self._token_provider(),
+                'operation': 'release_all',
+                'message_id': str(uuid4())
+            }
+            self.send_text(connection, json.dumps(body, separators=(',', ':')))
+        except Exception:
+            pass
+
+
+def listen_for_pokes(websocket_url, token, environment, workspace_id, stop_event,
+                     work_claims=None):
     """Maintain the AI websocket subscription until the MCP process exits."""
     retry_delay = 1
     while not stop_event.is_set():
@@ -392,11 +554,20 @@ def listen_for_pokes(websocket_url, token, environment, workspace_id, stop_event
             # break instead of resubscribing forever with an expired token.
             connection_token = token() if callable(token) else token
             websocket.connect()
-            websocket.send_text(json.dumps({
+            subscribe_body = {
                 'action': 'subscribe',
                 'identity': connection_token,
                 'is_ai': True
-            }, separators=(',', ':')))
+            }
+            if work_claims is not None:
+                owned_short_code_ids = work_claims.owned_short_codes_for_subscribe()
+                if owned_short_code_ids:
+                    # Re-binds claims that survived the disconnect to this
+                    # connection; the rebind_result event reports which did.
+                    subscribe_body['owned_short_code_ids'] = owned_short_code_ids
+            websocket.send_text(json.dumps(subscribe_body, separators=(',', ':')))
+            if work_claims is not None:
+                work_claims.attach_connection(websocket)
             retry_delay = 1
             awaiting_pong = False
             while not stop_event.is_set():
@@ -411,20 +582,30 @@ def listen_for_pokes(websocket_url, token, environment, workspace_id, stop_event
                     # server sends this through its tracked-subscriber path,
                     # so pong proves both that the socket is alive and that
                     # the AI subscription still exists. An RFC control ping
-                    # alone cannot prove the latter.
-                    websocket.send_text('ping')
+                    # alone cannot prove the latter. The same ping also
+                    # refreshes any held work claims server side.
+                    if work_claims is not None:
+                        work_claims.send_text(websocket, 'ping')
+                    else:
+                        websocket.send_text('ping')
                     awaiting_pong = True
                     continue
                 payload = json.loads(raw_message)
                 # Any application message proves the receive path is alive.
                 awaiting_pong = False
-                if payload.get('event_type') == 'poke_ai':
+                event_type = payload.get('event_type')
+                if event_type == 'poke_ai':
                     enqueue_prompt(environment, workspace_id, payload)
+                elif work_claims is not None and event_type in (
+                        'claim_result', 'rebind_result'):
+                    work_claims.handle_event(payload)
         except Exception as error:
             if not stop_event.is_set():
                 sys.stderr.write(f'Poke AI websocket reconnecting after error: {error}\n')
                 sys.stderr.flush()
         finally:
+            if work_claims is not None:
+                work_claims.detach_connection(websocket)
             websocket.close()
         if stop_event.wait(retry_delay):
             break
@@ -521,23 +702,85 @@ def filter_token_audit_tools(message, enabled):
     return {**message, 'result': {**result, 'tools': filtered}}
 
 
-def handle_json_response(resp, token_audit_enabled=False):
+def inject_work_claim_tool(message, enabled):
+    """Advertise the proxy-local claim tool when the user opted in."""
+    if not enabled or not isinstance(message, dict):
+        return message
+    result = message.get('result')
+    if not isinstance(result, dict) or not isinstance(result.get('tools'), list):
+        return message
+    tools = result['tools']
+    if any(isinstance(tool, dict) and tool.get('name') == WORK_CLAIM_TOOL_NAME
+           for tool in tools):
+        return message
+    return {**message, 'result': {**result, 'tools': tools + [WORK_CLAIM_TOOL]}}
+
+
+def handle_json_response(resp, token_audit_enabled=False, work_claims_enabled=False):
     data = resp.read().decode('utf-8')
     if data.strip():
-        write_message(filter_token_audit_tools(
+        write_message(inject_work_claim_tool(filter_token_audit_tools(
             json.loads(data), token_audit_enabled
-        ))
+        ), work_claims_enabled))
 
 
-def handle_sse_response(resp, token_audit_enabled=False):
+def handle_sse_response(resp, token_audit_enabled=False, work_claims_enabled=False):
     for raw_line in resp:
         line = raw_line.decode('utf-8').rstrip('\r\n')
         if line.startswith('data: '):
             payload = line[6:]
             if payload.strip():
-                write_message(filter_token_audit_tools(
+                write_message(inject_work_claim_tool(filter_token_audit_tools(
                     json.loads(payload), token_audit_enabled
-                ))
+                ), work_claims_enabled))
+
+
+def handle_claim_tool_call(work_claims, request_id, params):
+    """Service the local claim tool without involving the MCP backend."""
+    arguments = params.get('arguments')
+    arguments = arguments if isinstance(arguments, dict) else {}
+    operation = arguments.get('operation')
+    short_code_id = arguments.get('short_code_id')
+    short_code_ids = arguments.get('short_code_ids')
+    valid_single = isinstance(short_code_id, str) and short_code_id
+    valid_list = (isinstance(short_code_ids, list) and short_code_ids
+                  and all(isinstance(code, str) and code for code in short_code_ids))
+    if operation == 'claim':
+        valid = valid_single or valid_list
+    elif operation == 'release':
+        valid = valid_single and short_code_ids is None
+    else:
+        valid = False
+    if not valid:
+        write_jsonrpc_error(
+            request_id=request_id,
+            code=-32602,
+            message='claim_work takes operation claim with short_code_id or '
+                    'short_code_ids, or operation release with short_code_id',
+        )
+        return
+    result = work_claims.request(
+        operation,
+        short_code_id=short_code_id if valid_single else None,
+        short_code_ids=short_code_ids if valid_list else None,
+    )
+    if result is None:
+        text = json.dumps({
+            'error': 'The work claim service is unreachable; proceed without the lock.'
+        })
+        write_message({'jsonrpc': '2.0', 'id': request_id,
+                       'result': {'content': [{'type': 'text', 'text': text}],
+                                  'isError': True}})
+        return
+    text = json.dumps({
+        'operation': operation,
+        'short_code_id': result.get('short_code_id') if operation == 'claim'
+        else short_code_id,
+        'claimed': bool(result.get('claimed'))
+    })
+    write_message({'jsonrpc': '2.0', 'id': request_id,
+                   'result': {'content': [{'type': 'text', 'text': text}],
+                              'isError': False}})
 
 
 def read_mcp_response(resp):
@@ -777,6 +1020,7 @@ def main():
 
     stop_event = threading.Event()
     token_audit_runtime = None
+    work_claims = None
     try:
         # Retention is scoped local maintenance and does not depend on login
         # succeeding. This remains active after an explicit audit opt-out.
@@ -791,9 +1035,11 @@ def main():
 
         token = websocket_token()
         prune_inbox()
+        work_claims = WorkClaimsManager(websocket_token) if args.work_claims else None
         listener = threading.Thread(
             target=listen_for_pokes,
-            args=(websocket_url, websocket_token, environment, market_id, stop_event),
+            args=(websocket_url, websocket_token, environment, market_id, stop_event,
+                  work_claims),
             name='uclusion-poke-ai',
             daemon=True
         )
@@ -856,6 +1102,25 @@ def main():
             request_id = msg.get('id')
 
             params = msg.get('params')
+            claim_tool_call = (
+                msg.get('method') == 'tools/call'
+                and isinstance(params, dict)
+                and params.get('name') == WORK_CLAIM_TOOL_NAME
+            )
+            if claim_tool_call:
+                # The claim tool is proxy-local; it never reaches the MCP
+                # backend regardless of whether the opt-in is on.
+                if is_notification:
+                    continue
+                if work_claims is None:
+                    write_jsonrpc_error(
+                        request_id=request_id,
+                        code=-32601,
+                        message='Work claims are not enabled for this connection',
+                    )
+                    continue
+                handle_claim_tool_call(work_claims, request_id, params)
+                continue
             audit_tool_call = (
                 msg.get('method') == 'tools/call'
                 and isinstance(params, dict)
@@ -890,9 +1155,11 @@ def main():
 
                 content_type = resp.headers.get('Content-Type', '')
                 if 'text/event-stream' in content_type:
-                    handle_sse_response(resp, token_audit_available())
+                    handle_sse_response(resp, token_audit_available(),
+                                        work_claims is not None)
                 else:
-                    handle_json_response(resp, token_audit_available())
+                    handle_json_response(resp, token_audit_available(),
+                                         work_claims is not None)
 
             except urllib.request.HTTPError as e:
                 body = e.read().decode('utf-8', errors='replace')
@@ -921,6 +1188,10 @@ def main():
         sys.stderr.write(f"Proxy setup failed: {e}\n")
         sys.exit(1)
     finally:
+        if work_claims is not None:
+            # Graceful exit frees held locks immediately instead of waiting
+            # for the server-side expiry to lapse.
+            work_claims.release_all_on_exit()
         stop_event.set()
         if token_audit_runtime is not None:
             token_audit_runtime.close()

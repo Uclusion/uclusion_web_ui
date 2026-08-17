@@ -1677,6 +1677,7 @@ def build_codex_mcp_overrides(
     token_audit=None,
     token_audit_ready_file=None,
     token_audit_owner=None,
+    work_claims=False,
 ):
     """Build a complete per-launch Uclusion MCP table as Codex ``-c`` args."""
     proxy_args = [
@@ -1684,6 +1685,8 @@ def build_codex_mcp_overrides(
         str(workspace_id),
         environment,
     ]
+    if work_claims:
+        proxy_args.append('--work-claims')
     if token_audit is not None:
         if not token_audit_ready_file or not token_audit_owner:
             raise ValueError(
@@ -1925,6 +1928,7 @@ def cmd_codex(args):
         )
         return 1
     token_audit = codex_token_audit_settings(config, workspace_id)
+    work_claims = isinstance(config, dict) and config.get('workClaims') is True
     if not codex_receiver_liveness_supported():
         print(
             "❌ Cannot launch Codex safely on this platform: Uclusion cannot "
@@ -2036,6 +2040,7 @@ def cmd_codex(args):
                     token_audit=token_audit,
                     token_audit_ready_file=token_audit_ready_path,
                     token_audit_owner=instance_id,
+                    work_claims=work_claims,
                 ),
                 '--listen',
                 backend_listen_url,
@@ -2799,6 +2804,7 @@ def run_installer(
     script_version,
     skip_scripts=False,
     token_audit_enabled=None,
+    work_claims_enabled=None,
     project_dir=None,
 ):
     """Run the downloaded installer non-interactively for one install scope.
@@ -2825,6 +2831,9 @@ def run_installer(
         else:
             token_audit_enabled = bool(token_audit)
     command.append('--token-audit' if token_audit_enabled else '--no-token-audit')
+    if work_claims_enabled is None:
+        work_claims_enabled = bool(source.get('workClaims') is True) if source else False
+    command.append('--work-claims' if work_claims_enabled else '--no-work-claims')
     if clients:
         command += ['--clients', ','.join(sorted(clients))]
     else:
@@ -3029,7 +3038,8 @@ def cmd_update(args):
             if not run_installer(installer_path, env, global_config, None,
                                  global_clients, project=False,
                                  script_version=script_version,
-                                 token_audit_enabled=args.token_audit):
+                                 token_audit_enabled=args.token_audit,
+                                 work_claims_enabled=getattr(args, 'work_claims', None)):
                 return 1
             ran_global = True
         if has_project_install:
@@ -3038,6 +3048,7 @@ def cmd_update(args):
                                  script_version=script_version,
                                  skip_scripts=ran_global,
                                  token_audit_enabled=args.token_audit,
+                                 work_claims_enabled=getattr(args, 'work_claims', None),
                                  project_dir=project_dir):
                 return 1
 
@@ -3356,7 +3367,22 @@ def build_parser():
         help='Disable per-job token usage notes while updating global surfaces '
              'and the closest containing project install.',
     )
-    update_parser.set_defaults(func=cmd_update, token_audit=None)
+    update_work_claims_group = update_parser.add_mutually_exclusive_group()
+    update_work_claims_group.add_argument(
+        '--work-claims',
+        dest='work_claims',
+        action='store_true',
+        help='Enable the opt-in work claim lock while updating global surfaces '
+             'and the closest containing project install.',
+    )
+    update_work_claims_group.add_argument(
+        '--no-work-claims',
+        dest='work_claims',
+        action='store_false',
+        help='Disable the work claim lock while updating global surfaces '
+             'and the closest containing project install.',
+    )
+    update_parser.set_defaults(func=cmd_update, token_audit=None, work_claims=None)
 
     report_parser = subparsers.add_parser(
         'report',

@@ -247,8 +247,8 @@ WORKFLOW_ASSET_SHA256 = {
     'claude_stub': 'b89451b4cf5dbba8199e2b2ac138e58250077415a1da6cac32e5e70ab03f425b',
     'codex_stub': '02ea82a01620a5909ea40ea33d0ed67a27f275b808d926e21f753cb51861135e',
     'cursor_stub': 'd6cc373cd329b9302b9a2c9fd53e3ef01eedcfae8819682003435390f597ea21',
-    'skill': 'f6b2ddfe44d3ed84dce12f28efccb5549252a2a0c2297c0d3f5fe3c06647af9a',
-    'pokes_reference': '329a0c41f19598aed5ebd629aca1f17904d85e4a021f4534f27e203f734cd22e',
+    'skill': '0d8eacb28a5f85c3ae523f7dab656a49008cf68c0a79e3021aa74ed935aa2588',
+    'pokes_reference': 'dcba5ac9ad5be741841d6e85475b358186db31c857ac552fcbc009e3568257f7',
     'operations_reference': '2fe81054a9ad3e8803fc8d41674532766f8cebeda816acd92c46d791457ddf3e',
     'openai_metadata': 'ecf2759354ff3bbfd7178452a705650aff7a13352458bb20e1df122da7c30f40',
 }
@@ -797,7 +797,7 @@ def token_audit_default_port(workspace_id):
 
 
 def write_uclusion_config(workspace_id, view_id, config_path, script_version=None,
-                           token_audit_enabled=None):
+                           token_audit_enabled=None, work_claims_enabled=None):
     """Write or refresh the workspace config, preserving user customizations.
 
     Merging (rather than rewriting) matters because ``uclusion update`` reruns
@@ -811,6 +811,10 @@ def write_uclusion_config(workspace_id, view_id, config_path, script_version=Non
     updates the preference selected by the user; None preserves an existing
     preference and defaults a new install to off. The returned copy is used to
     configure client-specific collection without rereading the file.
+
+    ``work_claims_enabled`` follows the same tri-state contract for the opt-in
+    work claim lock; the merged boolean is returned alongside the token-audit
+    settings so registration passes the proxy flag without rereading.
     """
     print(f"🗂  Writing workspace config to {config_path}")
     os.makedirs(os.path.dirname(config_path), exist_ok=True)
@@ -869,11 +873,15 @@ def write_uclusion_config(workspace_id, view_id, config_path, script_version=Non
     if not isinstance(port, int) or isinstance(port, bool) or not 1024 <= port <= 65535:
         token_audit['port'] = token_audit_default_port(workspace_id)
     config['tokenAudit'] = token_audit
+    if work_claims_enabled is not None:
+        config['workClaims'] = bool(work_claims_enabled)
+    elif not isinstance(config.get('workClaims'), bool):
+        config['workClaims'] = False
     with open(config_path, 'w', encoding='utf-8') as out:
         json.dump(config, out, indent=2)
         out.write('\n')
     print(f"  ✅ Wrote {config_path}")
-    return dict(token_audit)
+    return dict(token_audit), config['workClaims']
 
 
 def update_token_audit_client_config(config_path, source=None, managed_env=None):
@@ -910,7 +918,8 @@ def update_token_audit_client_config(config_path, source=None, managed_env=None)
 
 
 def register_mcp_json(path, label, workspace_id, env, require_existing,
-                      token_audit=None, token_audit_client=None):
+                      token_audit=None, token_audit_client=None,
+                      work_claims=False):
     """Register the Uclusion MCP server in a JSON config at ``path``.
 
     Handles every ``{"mcpServers": {...}}`` surface: the global Cursor
@@ -949,6 +958,8 @@ def register_mcp_json(path, label, workspace_id, env, require_existing,
             args.extend(['--token-audit-source', source])
         if token_audit_client is not None:
             args.extend(['--token-audit-client', token_audit_client])
+    if work_claims:
+        args.append('--work-claims')
 
     servers = config.setdefault('mcpServers', {})
     if not isinstance(servers, dict):
@@ -1339,7 +1350,7 @@ def configure_claude_token_audit(settings_path, enabled, environment,
     return result
 
 
-def build_codex_mcp_block(workspace_id, env):
+def build_codex_mcp_block(workspace_id, env, work_claims=False):
     """Return the marker-delimited ``[mcp_servers.Uclusion]`` table for config.toml.
 
     There is no TOML writer in the standard library (``tomllib`` only reads, and
@@ -1362,6 +1373,8 @@ def build_codex_mcp_block(workspace_id, env):
     ]
     if env is not None:
         lines.append(f'    "{env}",')
+    if work_claims:
+        lines.append('    "--work-claims",')
     lines.append(']')
     lines.append('default_tools_approval_mode = "approve"')
     lines.append(CODEX_CONFIG_END_MARKER)
@@ -1613,6 +1626,7 @@ def mutate_codex_config(
     env=None,
     include_mcp=False,
     force=False,
+    work_claims=False,
 ):
     """Apply Codex config changes and remove obsolete Uclusion bridge hooks."""
     if not os.path.isdir(CODEX_HOME):
@@ -1643,7 +1657,7 @@ def mutate_codex_config(
                     updated,
                     CODEX_CONFIG_MARKER,
                     CODEX_CONFIG_END_MARKER,
-                    build_codex_mcp_block(workspace_id, env),
+                    build_codex_mcp_block(workspace_id, env, work_claims),
                     'MCP',
                 )
         updated, legacy_hooks_removed = remove_owned_block(
@@ -1686,23 +1700,26 @@ def remove_legacy_codex_hooks_config(force=False):
     return mutate_codex_config(force=force)
 
 
-def update_codex_config(workspace_id, env, force=False):
+def update_codex_config(workspace_id, env, force=False, work_claims=False):
     """Register the Uclusion MCP server in ``~/.codex/config.toml``."""
     return mutate_codex_config(
         workspace_id=workspace_id,
         env=env,
         include_mcp=True,
         force=force,
+        work_claims=work_claims,
     )
 
 
-def update_codex_integration_config(workspace_id, env, force=False):
+def update_codex_integration_config(workspace_id, env, force=False,
+                                    work_claims=False):
     """Install the MCP table and remove obsolete bridge hooks atomically."""
     return mutate_codex_config(
         workspace_id=workspace_id,
         env=env,
         include_mcp=True,
         force=force,
+        work_claims=work_claims,
     )
 
 
@@ -2753,6 +2770,21 @@ def build_parser():
         help='Disable token usage notes and remove Uclusion-owned client settings.',
     )
     parser.set_defaults(token_audit=None)
+    work_claims_group = parser.add_mutually_exclusive_group()
+    work_claims_group.add_argument(
+        '--work-claims',
+        dest='work_claims',
+        action='store_true',
+        help='Enable the opt-in work claim lock so idle agents on any machine '
+             'do not start the same job or bug.',
+    )
+    work_claims_group.add_argument(
+        '--no-work-claims',
+        dest='work_claims',
+        action='store_false',
+        help='Disable the work claim lock.',
+    )
+    parser.set_defaults(work_claims=None)
     parser.add_argument(
         '--script-version',
         help=argparse.SUPPRESS,
@@ -2775,7 +2807,8 @@ def parse_clients(clients_arg):
 
 
 def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
-                   script_version=None, token_audit_enabled=None):
+                   script_version=None, token_audit_enabled=None,
+                   work_claims_enabled=None):
     """Configure Uclusion in the user's home directory (the default).
 
     Without ``clients`` every detected client is offered interactively. With
@@ -2786,8 +2819,9 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
     """
     interactive = clients is None
     config_path = os.path.join(UCLUSION_HOME, CONFIG_FILES[mcp_env or 'production'])
-    token_audit = write_uclusion_config(
-        workspace_id, view_id, config_path, script_version, token_audit_enabled
+    token_audit, work_claims = write_uclusion_config(
+        workspace_id, view_id, config_path, script_version, token_audit_enabled,
+        work_claims_enabled
     )
     if clients:
         persist_workflow_install_state(
@@ -2870,12 +2904,13 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                 f'{CLAUDE_SETTINGS_PATH}'
             )
     if cursor_selected:
-        register_mcp_json(CURSOR_MCP_PATH, 'Cursor', workspace_id, mcp_env, require_existing=interactive)
+        register_mcp_json(CURSOR_MCP_PATH, 'Cursor', workspace_id, mcp_env,
+                          require_existing=interactive, work_claims=work_claims)
     if claude_selected:
         register_mcp_json(
             CLAUDE_JSON_PATH, 'Claude Code', workspace_id, mcp_env,
             require_existing=interactive, token_audit=claude_registration_audit,
-            token_audit_client='claude'
+            token_audit_client='claude', work_claims=work_claims
         )
     if claude_selected:
         if not claude_detected:
@@ -2932,7 +2967,8 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                 workflow_results['codex'] = installed
                 if installed:
                     update_codex_integration_config(
-                        workspace_id, mcp_env, force=not interactive
+                        workspace_id, mcp_env, force=not interactive,
+                        work_claims=work_claims
                     )
             except Exception as err:
                 workflow_results['codex'] = False
@@ -2955,6 +2991,7 @@ def install_project_level(
     clients=None,
     script_version=None,
     token_audit_enabled=None,
+    work_claims_enabled=None,
 ):
     """Configure Uclusion inside ``project_dir`` instead of the home directory.
 
@@ -2975,8 +3012,9 @@ def install_project_level(
     os.makedirs(project_dir, exist_ok=True)
 
     config_path = os.path.join(project_dir, CONFIG_FILES[mcp_env or 'production'])
-    token_audit = write_uclusion_config(
-        workspace_id, view_id, config_path, script_version, token_audit_enabled
+    token_audit, work_claims = write_uclusion_config(
+        workspace_id, view_id, config_path, script_version, token_audit_enabled,
+        work_claims_enabled
     )
     if clients:
         persist_workflow_install_state(
@@ -3028,7 +3066,7 @@ def install_project_level(
             os.path.join(project_dir, '.mcp.json'),
             'Claude Code (project)', workspace_id, mcp_env,
             require_existing=False, token_audit=claude_registration_audit,
-            token_audit_client='claude'
+            token_audit_client='claude', work_claims=work_claims
         )
     elif (
         clients
@@ -3048,7 +3086,8 @@ def install_project_level(
             )
     if interactive or 'cursor' in clients:
         register_mcp_json(os.path.join(project_dir, '.cursor', 'mcp.json'),
-                          'Cursor (project)', workspace_id, mcp_env, require_existing=False)
+                          'Cursor (project)', workspace_id, mcp_env,
+                          require_existing=False, work_claims=work_claims)
     if interactive or 'claude' in clients:
         try:
             workflow_results['claude'] = install_skill_and_stub(
@@ -3148,6 +3187,7 @@ def main():
                 clients,
                 script_version,
                 args.token_audit,
+                args.work_claims,
             )
         else:
             install_project_level(
@@ -3159,6 +3199,7 @@ def main():
                 clients,
                 script_version,
                 args.token_audit,
+                args.work_claims,
             )
     except subprocess.CalledProcessError as err:
         print(f"❌ Command failed: {err}")

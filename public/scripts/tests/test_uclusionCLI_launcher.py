@@ -1787,6 +1787,7 @@ class UpdateReleaseConsistencyTests(unittest.TestCase):
                 '--script-version',
                 'release-123',
                 '--no-token-audit',
+                '--no-work-claims',
                 '--clients',
                 'codex',
                 '--project',

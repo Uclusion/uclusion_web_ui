@@ -778,10 +778,10 @@ class SkillAndStubInstallerTests(unittest.TestCase):
 class NativeSkillRoutingTests(unittest.TestCase):
     def common_install_patches(self):
         return (
-            mock.patch.object(INSTALL, 'write_uclusion_config', return_value={
+            mock.patch.object(INSTALL, 'write_uclusion_config', return_value=({
                 'enabled': False,
                 'port': 23456,
-            }),
+            }, False)),
             mock.patch.object(INSTALL, 'register_mcp_json'),
             mock.patch.object(INSTALL, 'update_codex_integration_config'),
             mock.patch.object(INSTALL, 'remove_legacy_codex_hooks_config'),

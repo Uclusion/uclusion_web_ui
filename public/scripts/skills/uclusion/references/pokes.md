@@ -4,6 +4,7 @@
 ## Contents
 
 - Finding work and auto-take
+- Work claim lock
 - Resident-stub delivery contract
 - Backlog and session lifecycle
 - Single-lane triage
@@ -28,6 +29,29 @@ is empty—would you like instructions for adding and working on a job?" If yes,
 use the returned directions to explain job creation, find_work, selection,
 stage gating, Debatable assistance, and Poke AI. In an autonomous session or
 an auto-take view gone dry, call `request_work` once per dry spell instead.
+
+## Work claim lock
+
+When the user opted into work claims, a `claim_work` tool is exposed. It stops
+idle agents on any machine from starting the same work; when it is absent this
+section does not apply.
+
+- Call `claim_work` with operation `claim` right before starting a lane. Pass
+  every candidate you would be willing to start, in preference order, as
+  `short_code_ids` (a specifically requested item is a one-element list). The
+  result names the single code you now hold; start that item, even when it is
+  not your first preference.
+- A denied claim means every listed item is already held by other agents. Do
+  not start a lane; return to idle delivery, or re-run find_work when new work
+  may have arrived.
+- An error result means the lock service is unreachable. Proceed without the
+  lock; the claim is a coordination aid, not a permission gate.
+- At every lane handoff (blocked, review requested, or complete), call
+  `claim_work` with operation `release` for the held short code. Claims a
+  crashed agent leaves behind expire on their own, so never wait for another
+  agent's claim beyond a denial.
+- Classification lookups and triage reads never claim; merely reading an item
+  must not block another agent.
 
 ## Delivery contract
 

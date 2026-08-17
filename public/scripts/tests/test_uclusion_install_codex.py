@@ -594,7 +594,10 @@ class CodexIntegrationConfigTests(unittest.TestCase):
 
     def test_project_codex_install_cleans_legacy_hooks_and_installs_agents(self):
         with tempfile.TemporaryDirectory() as project_dir, \
-                mock.patch.object(INSTALL, 'write_uclusion_config'), \
+                mock.patch.object(
+                    INSTALL, 'write_uclusion_config',
+                    return_value=({'enabled': False, 'port': 23456}, False),
+                ), \
                 mock.patch.object(INSTALL, 'persist_workflow_install_state'), \
                 mock.patch.object(
                     INSTALL,
@@ -711,9 +714,9 @@ class TokenAuditInstallerTests(unittest.TestCase):
             'available': False,
         }
         with tempfile.TemporaryDirectory() as project_dir, \
-                mock.patch.object(INSTALL, 'write_uclusion_config', return_value={
+                mock.patch.object(INSTALL, 'write_uclusion_config', return_value=({
                     'enabled': True, 'port': 23456,
-                }), \
+                }, False)), \
                 mock.patch.object(INSTALL, 'persist_workflow_install_state'), \
                 mock.patch.object(INSTALL, 'add_claude_permissions'), \
                 mock.patch.object(
@@ -732,9 +735,9 @@ class TokenAuditInstallerTests(unittest.TestCase):
 
     def test_claude_settings_failure_is_operational_failure(self):
         with tempfile.TemporaryDirectory() as project_dir, \
-                mock.patch.object(INSTALL, 'write_uclusion_config', return_value={
+                mock.patch.object(INSTALL, 'write_uclusion_config', return_value=({
                     'enabled': True, 'port': 23456,
-                }), \
+                }, False)), \
                 mock.patch.object(INSTALL, 'persist_workflow_install_state'), \
                 mock.patch.object(INSTALL, 'add_claude_permissions'), \
                 mock.patch.object(
@@ -773,17 +776,19 @@ class TokenAuditInstallerTests(unittest.TestCase):
     def test_config_defaults_off_and_preserves_explicit_preference(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             config_path = os.path.join(temp_dir, 'uclusion.json')
-            initial = INSTALL.write_uclusion_config(
+            initial, initial_claims = INSTALL.write_uclusion_config(
                 'workspace-1', None, config_path
             )
-            enabled = INSTALL.write_uclusion_config(
-                'workspace-1', None, config_path, token_audit_enabled=True
+            enabled, enabled_claims = INSTALL.write_uclusion_config(
+                'workspace-1', None, config_path, token_audit_enabled=True,
+                work_claims_enabled=True
             )
-            preserved = INSTALL.write_uclusion_config(
+            preserved, preserved_claims = INSTALL.write_uclusion_config(
                 'workspace-1', None, config_path
             )
-            disabled = INSTALL.write_uclusion_config(
-                'workspace-1', None, config_path, token_audit_enabled=False
+            disabled, disabled_claims = INSTALL.write_uclusion_config(
+                'workspace-1', None, config_path, token_audit_enabled=False,
+                work_claims_enabled=False
             )
 
         self.assertFalse(initial['enabled'])
@@ -792,6 +797,10 @@ class TokenAuditInstallerTests(unittest.TestCase):
         self.assertEqual(enabled['port'], initial['port'])
         self.assertTrue(preserved['enabled'])
         self.assertFalse(disabled['enabled'])
+        self.assertFalse(initial_claims)
+        self.assertTrue(enabled_claims)
+        self.assertTrue(preserved_claims)
+        self.assertFalse(disabled_claims)
 
     def test_enabled_claude_registration_receives_audit_arguments(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -1484,7 +1493,10 @@ class CursorPokeDrainHookInstallTests(unittest.TestCase):
             with mock.patch.object(INSTALL, 'SYMLINK_DIR', bin_dir), \
                     mock.patch.object(INSTALL, 'register_mcp_json'), \
                     mock.patch.object(INSTALL, 'install_skill_and_stub'), \
-                    mock.patch.object(INSTALL, 'write_uclusion_config'), \
+                    mock.patch.object(
+                        INSTALL, 'write_uclusion_config',
+                        return_value=({'enabled': False, 'port': 23456}, False),
+                    ), \
                     mock.patch.object(
                         INSTALL, 'persist_workflow_install_state'
                     ), \

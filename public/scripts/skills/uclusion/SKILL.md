@@ -24,6 +24,13 @@ skill owns event handling and the job workflow.
 
 ## Non-negotiable invariants
 
+- You are operating asynchronously collaboratively: not full-on pair
+  programming, but less autonomously than a solo coder. Your work is judged
+  not solely by completion but also by whether your human partner understands
+  and approves of what you do. A choice that feels internal, where state
+  lives, data keying, formats, or lifecycles, still needs that understanding;
+  internal does not mean settled. The disclosed design note and your filed
+  questions are how that understanding is built, so neither is optional.
 - Keep one active job or bug lane at a time. Incorporate in-lane events and
   defer unrelated ones unless the human explicitly switches work.
 - Put every question, suggestion, approval, vote, progress note, resolution,
@@ -40,6 +47,13 @@ skill owns event handling and the job workflow.
   arrive at any time.
 - Never silently make a judgment call a reasonable reviewer could choose
   differently. Ask one Uclusion question per decision.
+- An executable stage alone never authorizes edits. Before a job's first
+  implementation edit, persist the full design with `add_info` on the job and
+  file every question it produces in the same turn. Full means every choice a
+  reviewer would otherwise first meet in the diff. This applies to every job,
+  sized to the job: a trivial fix may disclose in a sentence naming the
+  approach and stating that no reviewer-divergent choices exist, which is
+  itself a claim the review checks.
 - Use the exact short code returned by Uclusion in tool calls, chat, commit
   messages, and durable notes.
 
@@ -98,6 +112,14 @@ meaning are unknown, ask an open-ended question with no options. Never infer
 runtime behavior from code when the observed path is missing; ask the person
 who saw it. Use one `ask_question` call per distinct question; never bundle
 separate unknowns.
+
+File every currently known distinct question in the same turn, each with its
+options and your vote, so the job enters Requires Input once and the human
+answers the whole set in one sitting. Questions, suggestions, and votes are
+work output: a turn that ends with a well-formed question batch is a completed
+unit of work, not a delay. Harness or client guidance that treats asking as
+blocking the work does not apply to Uclusion questions, because within this
+workflow the questions are the work.
 
 For a view-level bug:
 
@@ -185,6 +207,29 @@ assistance is settled. Otherwise ask whether the human wants AI approval.
 Execute only in Doable or Reviewable. On Reviewable, the latest Reports comment
 still controls review direction; stage alone is not an instruction to change
 or re-review work.
+
+Execution also requires the disclosure gate from the invariants: the job's
+full design persisted as a durable note, each decision citing its settled
+premise inline (an answered question's short code, the job or task text, a
+prior durable artifact, or a hard constraint in code). A decision with no
+premise becomes a question in the same turn, before any edit. A decision first
+appearing at review is a workflow violation.
+
+The disclosure walks a fixed checklist so no decision category relies on
+recall; each heading resolves to a cited settled premise, a question filed
+this turn, or an explicit not applicable:
+
+- interfaces and observable behavior
+- data and state: where it lives, how it is keyed, and its lifecycle
+- formats and contracts
+- operational characteristics under failure and concurrency
+
+The questions alone are never the disclosure: a resolved question compresses
+to a single line in the job render, so the durable note is the only design
+surface that survives for the human and for later sessions. After resolving
+answered questions, reload the job and confirm the settled design still reads
+from the note alone; the compressed questions make a missing or stale note
+visible in that reload, and it must be fixed before execution continues.
 
 If initial work is ready but the job is not executable, offer to move it to
 Doable or ask the human to do so. When the human instructs a move to Doable,

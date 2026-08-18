@@ -48,7 +48,8 @@ import Backlog, { BacklogItem } from './Backlog';
 import { PAGE_SIZE } from '../../../components/Comments/BugListContext';
 import { getPaginatedItems } from '../../../utils/messageUtils';
 import { Box, IconButton } from '@material-ui/core';
-import { KeyboardArrowLeft } from '@material-ui/icons';
+import { ExpandLess, KeyboardArrowLeft } from '@material-ui/icons';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import DiscussionSection from './DiscussionSection';
 import InvestiblesByPerson from './InvestiblesByPerson';
@@ -76,6 +77,8 @@ import { InlineWizardLaunchContext } from '../../../components/InlineWizard/Inli
 import DialogOutset from './DialogOutset';
 import SettingsIcon from '@material-ui/icons/Settings';
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
+import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
+import { useButtonColors } from '../../../components/Buttons/ButtonConstants';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 import AddIcon from '@material-ui/icons/Add';
 import { stageChangeInvestible } from '../../../api/investibles';
@@ -131,6 +134,7 @@ function PlanningDialog(props) {
   const intl = useIntl();
   const wizardClasses = wizardStyles();
   const theme = useTheme();
+  const { actionButtonColor } = useButtonColors();
   const refToTop = useRef();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   // C-all-1001: same treatment as the job header (C-all-994 / Q-all-138 O-4) -
@@ -173,7 +177,8 @@ function PlanningDialog(props) {
     {sectionOpen: 'storiesSection', tabIndex: 0 });
   const {
     sectionOpen,
-    tabIndex
+    tabIndex,
+    nextArchiveCollapsed
   } = pageState;
   // J-all-325 (T-all-2186): add wizards open inside this view instead of the full-screen /wizard route.
   // Kept local (not in the URL) so navigating away and back shows the view normally (T-all-2188); any
@@ -233,9 +238,16 @@ function PlanningDialog(props) {
   });
   const requiresInputInvestiblesFullAssist = getInvestiblesInStage(investiblesFullAssist, requiresInputStage.id,
     marketId);
+  const unassignedRequiresInputInvestibles = (requiresInputInvestiblesFullAssist || []).filter((investible) => {
+    const marketInfo = getMarketInfo(investible, marketId) || {};
+    return _.isEmpty(marketInfo.assigned);
+  });
   const blockedInvestiblesFullAssist = getInvestiblesInStage(investiblesFullAssist, inBlockingStage.id, marketId);
   const blockedOrRequiresInputOrReadyInvestiblesFullAssist = blockedInvestiblesFullAssist
     .concat(requiresInputInvestiblesFullAssist).concat(furtherWorkReadyToStartFullAssist)
+    .concat(furtherWorkNotReadyFullAssist);
+  const archiveInvestiblesFullAssist = blockedInvestiblesFullAssist
+    .concat(unassignedRequiresInputInvestibles).concat(furtherWorkReadyToStartFullAssist)
     .concat(furtherWorkNotReadyFullAssist);
   const swimlaneInvestibles = investiblesFullAssist.filter((inv) => {
     const marketInfo = getMarketInfo(inv, marketId) || {};
@@ -243,7 +255,7 @@ function PlanningDialog(props) {
     return stage && stage.appears_in_context && stage.allows_tasks;
   });
   const swimlaneCompleteInvestibles = getSwimlaneInvestiblesForStage(investiblesFullAssist, inReviewStage,
-    marketId, marketComments, messagesState, marketStagesState);
+    marketId, marketComments, marketStagesState);
   // During search use all complete investibles (uncapped) per Q-all-65 O-3
   const allCompleteInvestibles = !_.isEmpty(search)
     ? getInvestiblesInStage(investiblesFullAssist, inReviewStage.id, marketId)
@@ -726,29 +738,42 @@ const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOr
               </div>
             ) : (
               <>
-                <SpinningButton id="addJob"
-                  className={mobileLayout ? wizardClasses.actionNextMobile : wizardClasses.actionNext}
-                  icon={AddIcon} iconColor="black"
-                  variant="text" doSpin={false}
-                  style={{marginTop: '1rem', marginLeft: mobileLayout ? undefined : '0.5rem'}}
-                  toolTipId='hotKeyJob'
-                  onClick={() => openInlineWizard({ wizardType: JOB_WIZARD_TYPE, marketId, groupId })}>
-                  <FormattedMessage id='addStoryLabel'/>
-                </SpinningButton>
+                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  marginTop: '1rem'}}>
+                  <SpinningButton id="addJob"
+                    className={mobileLayout ? wizardClasses.actionNextMobile : wizardClasses.actionNext}
+                    icon={AddIcon} iconColor="black"
+                    variant="text" doSpin={false}
+                    style={{marginLeft: mobileLayout ? undefined : '0.5rem'}}
+                    toolTipId='hotKeyJob'
+                    onClick={() => openInlineWizard({ wizardType: JOB_WIZARD_TYPE, marketId, groupId })}>
+                    <FormattedMessage id='addStoryLabel'/>
+                  </SpinningButton>
+                  {!_.isEmpty(archiveInvestiblesFullAssist) && (
+                    <TooltipIconButton
+                      id="nextArchiveCollapse"
+                      translationId={nextArchiveCollapsed ? 'planningArchiveExpand' : 'planningArchiveCollapse'}
+                      icon={nextArchiveCollapsed
+                        ? <ExpandMoreIcon htmlColor={actionButtonColor} />
+                        : <ExpandLess htmlColor={actionButtonColor} />}
+                      onClick={() => updatePageState({ nextArchiveCollapsed: !nextArchiveCollapsed })}
+                    />
+                  )}
+                </div>
                 <div onDrop={onDropNext} onDragOver={onDragOverNext}
-                  style={{paddingTop: !_.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist) ? '0.5rem' : undefined}}>
+                  style={{paddingTop: !_.isEmpty(archiveInvestiblesFullAssist) && !nextArchiveCollapsed ? '0.5rem' : undefined}}>
                   <SubSection
                     type={NO_SECTION_TYPE}
                     bolder
                     id="blocked"
                     showCard={false}
                   >
-                    {!_.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist) && (
+                    {!_.isEmpty(archiveInvestiblesFullAssist) && !nextArchiveCollapsed && (
                       <ArchiveInvestbiles
                         comments={marketComments}
                         marketId={marketId}
                         presenceMap={presenceMap}
-                        investibles={blockedOrRequiresInputOrReadyInvestiblesFullAssist}
+                        investibles={archiveInvestiblesFullAssist}
                         allowDragDrop
                         isAutonomous={isAutonomous}
                         isSingleUser={isSingleUser}

@@ -1174,6 +1174,8 @@ const messages = defineMessages({
   showInvestiblesDropdownLabel: 'Maximum verified jobs shown in swimlane',
   showInvestiblesDropdownAgeLabel: 'Maximum age in days to show Reviewable jobs',
   showInvestiblesUnlimitedValue: 'Unlimited',
+  planningArchiveCollapse: 'Hide Next / Debatable jobs',
+  planningArchiveExpand: 'Show Next / Debatable jobs',
 
   // warnings
   warningOffline: 'You are offline',

@@ -477,7 +477,9 @@ function Stage(props) {
     event.dataTransfer.setDragImage(card, event.clientX - rect.left, event.clientY - rect.top);
     event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer.setData('text', card.id);
-    event.dataTransfer.setData('stageId', id);
+    const dragged = sortedInvestibles.find((inv) => inv.investible.id === card.id);
+    const draggedStageId = (getMarketInfo(dragged, marketId) || {}).stage;
+    event.dataTransfer.setData('stageId', draggedStageId || id);
   }
 
   const investiblesMap = sortedInvestibles.map(inv => {
@@ -647,6 +649,7 @@ function StageInvestible(props) {
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [marketsState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const classes = generalStageStyles();
   const planClasses = usePlanFormStyles();
@@ -703,13 +706,13 @@ function StageInvestible(props) {
     return undefined;
   }
 
-  function getCountChip(labelNum, toolTipId) {
+  function getCountChip(labelNum, toolTipId, chipColor = 'orange') {
     if (labelNum <= 0) {
       return undefined;
     }
     return (
       <Tooltip title={intl.formatMessage({ id: toolTipId })}>
-        <span className={'MuiTabItem-tag'} style={{...outlinedChipStyle('orange', theme.palette.type === 'dark'),
+        <span className={'MuiTabItem-tag'} style={{...outlinedChipStyle(chipColor, theme.palette.type === 'dark'),
           marginRight: '0.5rem',
           borderRadius: 22, paddingLeft: '8px', paddingRight: '8px', paddingTop: '2px', paddingBottom: '2px',
           display: 'inline-flex', alignItems: 'center', fontSize: '0.75rem', lineHeight: 1.2}}>
@@ -726,14 +729,18 @@ function StageInvestible(props) {
       setAnchorEl(null);
     }
   };
+  const isRequiredInputCard = isRequiredInputStage(getFullStage(marketStagesState, marketId, stageId) || {});
+  const hasHighlightedNotifications = !_.isEmpty(
+    findMessagesForInvestibleId(id, messagesState).filter((message) => isInInbox(message) && message.is_highlighted)
+  );
   const countChip = mobileLayout ? undefined :
     getCountChip(isVoting ? numQuestionsSuggestions : numOpenTasks, isVoting ? 'inputRequiredCountExplanation':
-      'openTasksCountExplanation');
+      'openTasksCountExplanation', isRequiredInputCard && hasHighlightedNotifications ? 'red' : 'orange');
   // B-all-497: a non-assignee question or suggestion does not move a Reviewable job to Debatable,
   // so without its own chip and preview bars it was invisible in the swimlanes
   const assistanceChip = mobileLayout || !isReview ? undefined :
     getCountChip(numQuestionsSuggestions, 'inputRequiredCountExplanation');
-  const messagesChip = mobileLayout ? undefined : getMessagesChip();
+  const messagesChip = mobileLayout || (isRequiredInputCard && countChip) ? undefined : getMessagesChip();
   const isSameGroup = groupId === viewGroupId;
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId);
   const otherVoter = groupPresences.find((presence) => !assigned.includes(presence.id));
@@ -756,7 +763,9 @@ function StageInvestible(props) {
       <div key={investible.id} id={investible.id} onDragStart={investibleOnDragStart} draggable
            className={clsx(classes.outlinedAccepted, isRecentlyMoved && classes.entering)}
            onContextMenu={recordPositionToggle}
-           style={{minWidth: isReview ? (name?.length > 40 ? '90%' : '45%') : undefined, 
+           style={{minWidth: isReview ? '45%' : undefined,
+            maxWidth: isReview ? 'calc(50% - 3px)' : undefined,
+            flex: isReview ? '1 1 45%' : undefined, 
             backgroundColor: isReview ? (isDark ? '#3b5b5f' : '#F4FAFB' ) : (isVoting ? (isDark ? '#273c3f' : '#CCEBEE') : 
             (isDark ? '#314b4f' : '#E0F3F5'))}}
            onMouseOver={() => doShowEdit(investible.id)}
@@ -773,14 +782,14 @@ function StageInvestible(props) {
                 <GravatarGroup users={collaboratorsForInvestible} gravatarClassName={classes.smallGravatar} />
               </div>
             )}
-          {!unaccepted && ((isVoting && _.isEmpty(otherVoter)) || isReview) && (
+          {!unaccepted && ((isVoting && (_.isEmpty(otherVoter) || isRequiredInputCard)) || isReview) && (
             <div style={{marginRight: '0.5rem'}}>
               <Typography style={{fontSize: '.75rem'}}>
-                {isVoting ? <span style={{color: countColor}}>Paused</span> : <span style={{color: 'green'}}>Complete</span>} <UsefulRelativeTime value={new Date(marketInfo.last_stage_change_date)}/>
+                {isVoting ? <span style={{color: countColor}}>{isRequiredInputCard ? 'Unresponded' : 'Paused'}</span> : <span style={{color: 'green'}}>Complete</span>} <UsefulRelativeTime value={new Date(marketInfo.last_stage_change_date)}/>
               </Typography>
             </div>
           )}
-          {!unaccepted && isVoting && !_.isEmpty(otherVoter) && (
+          {!unaccepted && isVoting && !_.isEmpty(otherVoter) && !isRequiredInputCard && (
             <div style={{marginRight: '0.5rem'}}>
               <Typography style={{fontSize: '.85rem', color: countColor}}>
                 {_.size(investors)} {intl.formatMessage({ id: 'approvalsLower' })}
@@ -860,7 +869,7 @@ function StageInvestible(props) {
               navigate(history, to);
             }}
           >
-            <Typography variant="subtitle2">{name}</Typography>
+            <Typography variant="subtitle2" style={isReview ? { overflowWrap: 'anywhere' } : undefined}>{name}</Typography>
             {!_.isEmpty(label) && (
               <div key={label} style={{paddingTop: '0.7rem', cursor: 'pointer'}} onClick={(event) => {
                 preventDefaultAndProp(event);

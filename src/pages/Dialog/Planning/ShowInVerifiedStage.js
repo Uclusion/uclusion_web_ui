@@ -6,11 +6,12 @@ import { useIntl } from 'react-intl';
 
 function ShowInVerifiedStage(props) {
   const {
-    value = 3,
+    value = 6,
     onChange = () => {},
   } = props;
 
   const intl = useIntl();
+  const countChoices = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 
   return (
   <FormControl variant="filled">
@@ -20,18 +21,12 @@ function ShowInVerifiedStage(props) {
       value={value}
       onChange={onChange}
     >
+      {countChoices.map((count) => (
+        <MenuItem key={count} value={count}>{count}</MenuItem>
+      ))}
       <MenuItem value={0}>
         {intl.formatMessage({ id: 'showInvestiblesUnlimitedValue' })}
       </MenuItem>
-      <MenuItem value={1}>1</MenuItem>
-      <MenuItem value={2}>2</MenuItem>
-      <MenuItem value={3}>3</MenuItem>
-      <MenuItem value={4}>4</MenuItem>
-      <MenuItem value={5}>5</MenuItem>
-      <MenuItem value={6}>6</MenuItem>
-      <MenuItem value={7}>7</MenuItem>
-      <MenuItem value={8}>8</MenuItem>
-      <MenuItem value={9}>9</MenuItem>
     </Select>
     <Typography>
       {intl.formatMessage({ id: 'showInvestiblesDropdownHelp' })}

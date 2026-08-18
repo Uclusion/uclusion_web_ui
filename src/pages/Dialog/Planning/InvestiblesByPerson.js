@@ -9,6 +9,7 @@ import {
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { PLACEHOLDER } from '../../../constants/global';
 import { getUserInvestibles, getUserSwimlaneInvestiblesHash } from './userUtils';
+import { getMarketInfo } from '../../../utils/userFunctions';
 import CardHeader from '@material-ui/core/CardHeader';
 import { Typography } from '@material-ui/core';
 import NotificationCountChips from '../NotificationCountChips';
@@ -17,7 +18,6 @@ import CardContent from '@material-ui/core/CardContent';
 import PlanningIdeas from './PlanningIdeas';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { getGroupMentionsApprovals } from '../../../utils/commentFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 
@@ -130,7 +130,6 @@ function InvestiblesByPerson(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [searchResults] = useContext(SearchResultsContext);
-  const [messagesState] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const { search } = searchResults;
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
@@ -149,7 +148,19 @@ function InvestiblesByPerson(props) {
         const showAsPlaceholder = placeholderType === PLACEHOLDER;
         const myInvestibles = getUserInvestibles(id, marketId, investibles);
         const myInvestiblesStageHash = getUserSwimlaneInvestiblesHash(myInvestibles, visibleStages, marketId,
-          comments, messagesState, marketStagesState);
+          comments, marketStagesState);
+        const requiresInputStageId = requiresInputStage?.id;
+        const votingStageId = inDialogStage?.id;
+        if (requiresInputStageId && votingStageId) {
+          const pausedInvestibles = myInvestibles.filter((inv) => {
+            const marketInfo = getMarketInfo(inv, marketId) || {};
+            return marketInfo.stage === requiresInputStageId;
+          });
+          if (!_.isEmpty(pausedInvestibles)) {
+            myInvestiblesStageHash[votingStageId] =
+              (myInvestiblesStageHash[votingStageId] || []).concat(pausedInvestibles);
+          }
+        }
         const myClassName = showAsPlaceholder ? metaClasses.archivedColor : metaClasses.normalColor;
         const { mentions, approvals } = getGroupMentionsApprovals(groupId, myPresence, isAutonomous, comments);
         if (_.isEmpty(myInvestiblesStageHash) &&

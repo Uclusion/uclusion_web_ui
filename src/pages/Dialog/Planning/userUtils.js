@@ -1,8 +1,7 @@
 import { getMarketInfo } from '../../../utils/userFunctions';
 import _ from 'lodash';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { getFullStage, isAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { findMessagesForInvestibleId } from '../../../utils/messageUtils';
+import { getFullStage, isAcceptedStage, isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { TODO_TYPE } from '../../../constants/comments';
 
 /**
@@ -41,12 +40,15 @@ function hasInProgress(investibleId, marketComments) {
     comment.comment_type === TODO_TYPE && comment.in_progress));
 }
 
-export function getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId, marketComments, messagesState, 
-  marketStagesState) {
+export function getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId, marketComments, marketStagesState) {
   const stageId = stage.id;
   const isStartedStage = isAcceptedStage(stage);
-  const limitInvestibles = !isStartedStage ? (stage || {}).allowed_investibles : undefined;
-  const limitInvestiblesAge = (stage || {}).days_visible;
+  const rawLimit = (stage || {}).allowed_investibles;
+  // Reviewable cutoff is a job count. Unset means the product default of 6.
+  // 0 remains Unlimited. Age is not applied. Q-all-458 O-4.
+  const limitInvestibles = !isStartedStage
+    ? (isInReviewStage(stage) ? (rawLimit ?? 6) : rawLimit)
+    : undefined;
   let stageInvestibles = userInvestibles.filter((investible) => {
     const marketInfo = getMarketInfo(investible, marketId) || {};
     const investibleStage = getFullStage(marketStagesState, marketId, marketInfo.stage);
@@ -63,28 +65,15 @@ export function getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId,
     });
     stageInvestibles = _.slice(sortedInvestibles, 0, limitInvestibles);
   }
-  if (limitInvestiblesAge > 0 && stageInvestibles) {
-    stageInvestibles = stageInvestibles.filter((investible) => {
-      const aMarketInfo = getMarketInfo(investible, marketId);
-      const investibleId = investible.investible.id;
-      const messages = findMessagesForInvestibleId(investibleId, messagesState);
-      // Age off the stage entered date but show regardless of age when there is a notification
-      // so swimlanes stay a notification path alongside the inbox
-      // (https://stage.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/Q-all-242)
-      return !_.isEmpty(messages)||
-        (Date.now() - new Date(aMarketInfo.last_stage_change_date).getTime() < limitInvestiblesAge*24*60*60*1000);
-    });
-  }
   return stageInvestibles;
 }
 
-export function getUserSwimlaneInvestiblesHash(userInvestibles, stages, marketId, marketComments, messagesState, 
-  marketStagesState) {
+export function getUserSwimlaneInvestiblesHash(userInvestibles, stages, marketId, marketComments, marketStagesState) {
   const stageInvestiblesHash = {};
   (stages || []).forEach((stage) =>{
     const stageId = stage.id;
     const stageInvestibles = getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId, marketComments,
-      messagesState, marketStagesState);
+      marketStagesState);
     if (!_.isEmpty(stageInvestibles)) {
       stageInvestiblesHash[stageId] = stageInvestibles;
     }

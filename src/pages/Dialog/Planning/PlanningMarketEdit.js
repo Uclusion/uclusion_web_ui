@@ -16,7 +16,7 @@ import {
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import _ from 'lodash'
-import ShowInVerifiedStageAge from './ShowInVerifiedStageAge'
+import ShowInVerifiedStage from './ShowInVerifiedStage'
 import { makeStyles, Typography, useTheme } from '@material-ui/core';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
@@ -54,7 +54,7 @@ function PlanningMarketEdit() {
   const { marketId } = decomposeMarketPath(pathname);
   const marketStages = getStages(marketStagesState, marketId);
   const verifiedStage = marketStages.find(stage => !stage.allows_tasks) || {};
-  const [showInvestiblesAge, setShowInvestiblesAge] = useState(undefined);
+  const [showInvestibles, setShowInvestibles] = useState(undefined);
   const market = getMarket(marketsState, marketId) || {};
   const [investmentExpiration, setInvestmentExpiration] = useState(market.investment_expiration || 14);
   const [startedExpiration, setStartedExpiration] = useState(market.started_expiration || 3);
@@ -67,18 +67,18 @@ function PlanningMarketEdit() {
     if (nameInput) {
       nameInput.value = market.name;
     }
-    setShowInvestiblesAge(undefined);
+    setShowInvestibles(undefined);
     setInvestmentExpiration(undefined);
     setStartedExpiration(undefined);
   }
 
-  function onShowInvestiblesAgeChange(event) {
+  function onShowInvestiblesChange(event) {
     const { value } = event.target;
-    setShowInvestiblesAge(parseInt(value, 10));
+    setShowInvestibles(parseInt(value, 10));
   }
 
   function updateShowInvestibles() {
-    return updateStage(marketId, verifiedStage.id, undefined, showInvestiblesAge).then((newStage) => {
+    return updateStage(marketId, verifiedStage.id, showInvestibles, 0).then((newStage) => {
       const marketStages = getStages(marketStagesState, marketId);
       const newStages = _.unionBy([newStage], marketStages, 'id');
       updateStagesForMarket(marketStagesDispatch, marketId, newStages);
@@ -94,7 +94,7 @@ function PlanningMarketEdit() {
       investmentExpiration ? parseInt(investmentExpiration, 10) : null, null
     ).then(market => {
       addMarketToStorage(marketsDispatch, market);
-      if (showInvestiblesAge) {
+      if (showInvestibles !== undefined) {
         return updateShowInvestibles();
       }
       setOperationRunning(false);
@@ -136,9 +136,9 @@ function PlanningMarketEdit() {
               <NameField id={nameId} initialValue={market.name} />
           </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-            <ShowInVerifiedStageAge
-              onChange={onShowInvestiblesAgeChange}
-              value={showInvestiblesAge || verifiedStage.days_visible}
+            <ShowInVerifiedStage
+              onChange={onShowInvestiblesChange}
+              value={showInvestibles ?? verifiedStage.allowed_investibles ?? 6}
             />
           </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>

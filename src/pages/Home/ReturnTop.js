@@ -14,17 +14,10 @@ import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import { ArrowUpward } from '@material-ui/icons';
 import { useButtonColors } from '../../components/Buttons/ButtonConstants';
 
-function ReturnTop(props) {
-  const { action, pathInvestibleId, market, groupId, pathMarketIdRaw, hashInvestibleId, isArchivedWorkspace,
-    useLink, typeObjectId, isSearch=false, isMac=false } = props;
-  const [investiblesState] = useContext(InvestiblesContext);
-  const [groupsState] = useContext(MarketGroupsContext);
-  const [groupPresencesState] = useContext(GroupMembersContext);
-  const history = useHistory();
-  const presences = usePresences(market?.id);
-  const { actionButtonColor } = useButtonColors();
-  const isConfigScreen = ['userPreferences', 'integrationPreferences', 'billing'].includes(action);
+export function getUpUrl({ action, pathInvestibleId, market, groupId, pathMarketIdRaw, hashInvestibleId,
+  isArchivedWorkspace, useLink, typeObjectId, presences, groupsState, groupPresencesState, investiblesState }) {
   const marketId = market?.id;
+  const isConfigScreen = ['userPreferences', 'integrationPreferences', 'billing'].includes(action);
   const isSupportMarket = market?.market_sub_type === SUPPORT_SUB_TYPE;
   const upFromConfigPossible = isConfigScreen && marketId;
   const downLevel = ['inbox', 'outbox'].includes(action) ? !_.isEmpty(pathMarketIdRaw) :
@@ -34,36 +27,63 @@ function ReturnTop(props) {
   const upDisabled = ((!downLevel ||
       !['dialog', 'inbox', 'outbox', 'demo', 'wizard', 'marketEdit', 'groupEdit', 'groupArchive'].includes(action))
     &&!upFromConfigPossible&&!isSupportMarket)||isArchivedWorkspace;
-  const myPresence = presences.find((presence) => presence.current_user) || {};
-  const activeGroupId = getActiveGroupId(myPresence, groupsState, marketId, presences, groupPresencesState, groupId, 
+  if (upDisabled) {
+    return undefined;
+  }
+  const myPresence = (presences || []).find((presence) => presence.current_user) || {};
+  const activeGroupId = getActiveGroupId(myPresence, groupsState, marketId, presences, groupPresencesState, groupId,
     pathInvestibleId || hashInvestibleId, investiblesState);
+  if (action === 'inbox') {
+    return getInboxTarget();
+  }
+  if (action === 'outbox') {
+    return '/outbox';
+  }
+  if (action === 'demo') {
+    return formMarketLink(marketId, marketId);
+  }
+  if (useLink) {
+    return useLink;
+  }
+  if (upFromConfigPossible) {
+    return formMarketLink(marketId, marketId);
+  }
+  if (action === 'wizard' && typeObjectId) {
+    return getInboxTarget();
+  }
+  if (action === 'wizard' && hashInvestibleId) {
+    return formInvestibleLink(marketId, hashInvestibleId);
+  }
+  if (action === 'marketEdit' || (action === 'wizard' && marketId && !activeGroupId)) {
+    return formMarketLink(marketId, marketId);
+  }
+  if (activeGroupId && downLevel) {
+    return formMarketLink(marketId, activeGroupId);
+  }
+  return getInboxTarget();
+}
+
+function ReturnTop(props) {
+  const { action, pathInvestibleId, market, groupId, pathMarketIdRaw, hashInvestibleId, isArchivedWorkspace,
+    useLink, typeObjectId, isSearch=false, isMac=false } = props;
+  const [investiblesState] = useContext(InvestiblesContext);
+  const [groupsState] = useContext(MarketGroupsContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
+  const history = useHistory();
+  const presences = usePresences(market?.id);
+  const { actionButtonColor } = useButtonColors();
+  const upUrl = getUpUrl({ action, pathInvestibleId, market, groupId, pathMarketIdRaw, hashInvestibleId,
+    isArchivedWorkspace, useLink, typeObjectId, presences, groupsState, groupPresencesState, investiblesState });
+  const upDisabled = _.isEmpty(upUrl);
 
   function goUp(){
-    if (action === 'inbox') {
-      navigate(history, getInboxTarget());
-    } else if (action === 'outbox') {
-      navigate(history, '/outbox');
-    } else if (action === 'demo') {
-      navigate(history, formMarketLink(marketId, marketId))
-    } else if (useLink) {
-      navigate(history, useLink);
-    }else if (upFromConfigPossible) {
-      navigate(history, formMarketLink(marketId, marketId));
-    } else if (action === 'wizard' && typeObjectId) {
-      navigate(history, getInboxTarget());
-    } else if (action === 'wizard' && hashInvestibleId) {
-      navigate(history, formInvestibleLink(marketId, hashInvestibleId));
-    } else if (action === 'marketEdit' || (action === 'wizard' && marketId && !activeGroupId)) {
-      navigate(history, formMarketLink(marketId, marketId));
-    } else if (activeGroupId && downLevel) {
-      navigate(history, formMarketLink(marketId, activeGroupId));
-    } else {
-      navigate(history, getInboxTarget());
+    if (upUrl) {
+      navigate(history, upUrl);
     }
   }
 
   useHotkeys(isMac ? 'ctrl+option+arrowUp' : 'ctrl+arrowUp', goUp, {enabled: !upDisabled, enableOnContentEditable: true},
-    [history, useLink, upFromConfigPossible, marketId, action, hashInvestibleId, activeGroupId]);
+    [history, upUrl]);
 
 
   if (isSearch && pathInvestibleId) {

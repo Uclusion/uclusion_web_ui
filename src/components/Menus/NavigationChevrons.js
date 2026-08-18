@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import Toolbar from '@material-ui/core/Toolbar';
-import { Button, IconButton, Tooltip, makeStyles, useMediaQuery, useTheme } from '@material-ui/core';
-import { ArrowForward } from '@material-ui/icons';
+import { Button, Tooltip, makeStyles } from '@material-ui/core';
+import { ArrowBack, ArrowForward, ArrowUpward } from '@material-ui/icons';
 import {
   ASSIGNED_HASH,
   formatGroupLinkWithSuffix,
@@ -24,7 +24,7 @@ import {
   getNotHiddenMarketDetailsForUser,
   marketTokenLoaded
 } from '../../contexts/MarketsContext/marketsContextHelper';
-import { PLANNING_TYPE, SUPPORT_SUB_TYPE } from '../../constants/markets';
+import { PLANNING_TYPE } from '../../constants/markets';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { useInitialSyncComplete } from '../../api/useInitialSyncComplete';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -37,14 +37,10 @@ import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGr
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
 import { findMessagesForTypeObjectId } from '../../utils/messageUtils';
 import { getOpenInvestibleComments } from '../../contexts/CommentsContext/commentsContextHelper';
+import ReturnTop from '../../pages/Home/ReturnTop';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { WARNING_COLOR } from '../Buttons/ButtonConstants';
-import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
-import { getGroupPresences, getMarketPresences, isAutonomousGroup } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import ReturnTop from '../../pages/Home/ReturnTop';
-import { getCurrentWorkspace } from '../../utils/redirectUtils';
-import { getMarketInfo } from '../../utils/userFunctions';
-import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { getCurrentWorkspace, getGroupForInvestibleId } from '../../utils/redirectUtils';
 
 const useStyles = makeStyles((theme) => ({
   magicButton: {
@@ -73,27 +69,11 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function getInvestibleCandidate(investible, market, navigations) {
-  const candidate = {url: formInvestibleLink(market.id, investible.investible.id), title: 'job'};
-  const candidateMeta = navigations?.find((navigation) => navigation.url === candidate.url);
-  candidate.time = candidateMeta?.time || 0;
-  return candidate;
-}
-
-function getGroupCandidate(group, market, navigations) {
-  const candidate = {url: formMarketLink(market.id, group.id), useUrl: formatGroupLinkWithSuffix(ASSIGNED_HASH, market.id, group.id), title: 'view'};
-  const candidateMeta = navigations?.find((navigation) => navigation.url === candidate.url);
-  candidate.time = candidateMeta?.time || 0;
-  return candidate;
-}
-
 export default function NavigationChevrons(props) {
   const classes = useStyles();
   const history = useHistory();
   const intl = useIntl();
-  const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const { action, pathInvestibleId, defaultMarket, chosenGroup, pathMarketIdRaw, hashInvestibleId, isArchivedWorkspace,
+  const { action, pathInvestibleId, defaultMarket, pathMarketIdRaw, hashInvestibleId, isArchivedWorkspace,
     useLink, typeObjectId } = props;
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
@@ -102,7 +82,6 @@ export default function NavigationChevrons(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [groupsState] = useContext(MarketGroupsContext);
-  const [groupPresencesState] = useContext(GroupMembersContext);
   const [searchResults] = useContext(SearchResultsContext);
   const location = useLocation();
   const { search: searchText } = searchResults;
@@ -128,11 +107,8 @@ export default function NavigationChevrons(props) {
   const workspacesData = stillLoading ? [] :
     getWorkspaceData(planningDetails, marketPresencesState, investiblesState, commentsState,
       marketStagesState);
-  const approvedCandidates = [];
   const inProgressCandidates = [];
-  const assistantanceCandidates = [];
-  const inVotingCandidates = [];
-  const groupCandidates = [];
+  const backUrls = [];
   const isMac = window.navigator.userAgentData ? window.navigator.userAgentData.platform === 'macOS' 
   : /Mac/i.test(window.navigator.userAgent);
 
@@ -140,149 +116,100 @@ export default function NavigationChevrons(props) {
     return formCommentLink(comment.market_id, comment.group_id, comment.investible_id, comment.root_comment_id || comment.id);
   }
 
-  function processComment(comment, market) {
-    if (comment.investible_id) {
-      const investible = getInvestible(investiblesState, market.id, comment.investible_id);
-      const marketInfo = getMarketInfo(investible, market.id);
-      const isAssigned = marketInfo?.assigned?.includes(comment.created_by);
-      if (isAssigned) {
-        const candidate = getInvestibleCandidate(investible, market, navigations);
-        // Use root comment id if it exists as you can't go to a reply directly
-        candidate.useUrl = getCommentUseUrl(comment);
-        assistantanceCandidates.push(candidate);
-      }
-    }
+  const queryGroupId = new URLSearchParams(search).get('groupId');
+  const jobGroupId = pathInvestibleId && defaultMarket?.id
+    ? getGroupForInvestibleId(pathInvestibleId, defaultMarket.id, investiblesState) : undefined;
+  const viewGroupId = jobGroupId || queryGroupId;
+  if (viewGroupId && defaultMarket?.id) {
+    backUrls.push(formMarketLink(defaultMarket.id, viewGroupId));
   }
-
-  function getCandidates() {
-    if (!_.isEmpty(inProgressCandidates)) {
-      return inProgressCandidates;
-    }
-    if (!_.isEmpty(approvedCandidates)) {
-      return approvedCandidates;
-    }
-    if (!_.isEmpty(assistantanceCandidates)) {
-      return assistantanceCandidates;
-    }
-    if (!_.isEmpty(inVotingCandidates)) {
-      return inVotingCandidates;
-    }
-    return [];
-  }
-  // Don't need outbox or read inbox as have poke button on comments and notification icons in swimlanes
   workspacesData.forEach((workspaceData) => {
-    const { market, approvedInvestibles, comments, questions, issues, suggestions, 
-      inVotingInvestibles  } = workspaceData;
-    if (market.market_sub_type !== SUPPORT_SUB_TYPE) {
-      const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
-      const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-      let hasAutonomousGroup = undefined;
-      const groups = groupsState[market.id]?.filter((group) => {
-        const groupPresences = getGroupPresences(marketPresences, groupPresencesState, market.id, group.id) || [];
-        const isMember = !_.isEmpty(groupPresences?.find((presence) => presence.id === myPresence.id))
-        if (isAutonomousGroup(groupPresences, group) && isMember) {
-          hasAutonomousGroup = group;
-        }
-        return isMember;
-      });
-      if (hasAutonomousGroup) {
-        const candidate = getGroupCandidate(hasAutonomousGroup, market, navigations);
-        groupCandidates.push(candidate);
-      } else {
-        groups?.forEach((group) => {
-          const candidate = getGroupCandidate(group, market, navigations);
-          groupCandidates.push(candidate);
-        });
-      }
-    }
+    const { market, approvedInvestibles, comments, inVotingInvestibles } = workspaceData;
     approvedInvestibles?.forEach((investible) => {
       const openInvestibleComments = getOpenInvestibleComments(investible.investible.id, comments);
       const inProgress = openInvestibleComments.find((comment) => comment.in_progress);
-      const candidate = getInvestibleCandidate(investible, market, navigations);
-      // Only interested in in progress because if want not in progress choose it from swimlanes
+      const url = formInvestibleLink(market.id, investible.investible.id);
       if (inProgress) {
-        candidate.useUrl = getCommentUseUrl(inProgress);
-        candidate.title = 'task';
-        inProgressCandidates.push(candidate);
-      } else {
-        candidate.title = 'job';
-        approvedCandidates.push(candidate);
+        const candidateMeta = navigations?.find((navigation) => navigation.url === url);
+        inProgressCandidates.push({
+          url,
+          useUrl: getCommentUseUrl(inProgress),
+          time: candidateMeta?.time || 0
+        });
       }
-    });
-    questions?.forEach((question) => {
-      processComment(question, market);
-    });
-    issues?.forEach((issue) => {
-      processComment(issue, market);
-    });
-    suggestions?.forEach((suggestion) => {
-      processComment(suggestion, market);
+      backUrls.push(url);
     });
     inVotingInvestibles?.forEach((investible) => {
-      const candidate = getInvestibleCandidate(investible, market, navigations);
-      inVotingCandidates.push(candidate);
+      backUrls.push(formInvestibleLink(market.id, investible.investible.id));
     });
   });
-  let allExistingUrls = allMessages.map((message) => formInboxItemLink(message));
-  allExistingUrls = allExistingUrls.concat(getCandidates().concat(groupCandidates).map((candidate) => candidate.url));
+  const allExistingUrls = allMessages.map((message) => formInboxItemLink(message)).concat(backUrls);
   const previous = _.find(orderedNavigations, (navigation) =>
     allExistingUrls.includes(navigation.url) && navigation.url !== resource);
 
-  function computeNext() {
-    const isOnUreadGroupNotification = resource.startsWith(`${getInboxTarget()}`)&&resource.includes('UNREAD_GROUP_');
+  function firstInProgress(excludeUrl) {
+    const ordered = _.orderBy(inProgressCandidates, ['time'], ['asc']);
+    return _.find(ordered, (candidate) => candidate.url !== resource && candidate.url !== excludeUrl);
+  }
+
+  function computeForward() {
+    const isOnUnreadGroupNotification = resource.startsWith(`${getInboxTarget()}`) && resource.includes('UNREAD_GROUP_');
     const isMarketLoad = ['demo', 'invite'].includes(action);
     if (isMarketLoad) {
       const marketId = getCurrentWorkspace();
       if (marketId) {
-        return {url: formMarketLink(marketId, marketId), message: undefined, isHighlighted: true, title: 'view'};
+        return { url: formMarketLink(marketId, marketId), kind: 'view' };
       }
     }
-    if (isOnUreadGroupNotification) {
-      // Next from a new group message is that groups swimlanes
-      const [, ,groupId] = resource.split('_');
+    if (isOnUnreadGroupNotification) {
+      const [, , groupId] = resource.split('_');
       const groupMessage = findMessagesForTypeObjectId(`UNREAD_GROUP_${groupId}`, messagesState);
       if (groupMessage) {
         return {
-          url: formatGroupLinkWithSuffix(ASSIGNED_HASH, groupMessage.market_id, groupId), message: groupMessage, title: 'view',
-          isHighlighted: groupMessage.is_highlighted
+          url: formatGroupLinkWithSuffix(ASSIGNED_HASH, groupMessage.market_id, groupId),
+          message: groupMessage,
+          kind: 'message'
         };
       }
     }
     const highlighted = highlightedMessages?.filter((message) => formInboxItemLink(message) !== resource) || [];
     const highlightedMapped = addWorkspaceGroupAttribute(highlighted, groupsState);
-    const highlightedOrdered =  _.orderBy(highlightedMapped,
+    const highlightedOrdered = _.orderBy(highlightedMapped,
       [function isGroupInvite(msg) {
         return msg.type_object_id.includes('UNREAD_GROUP_');
       }, 'groupAttr', 'updated_at'],
       ['desc', 'asc', 'desc']);
     if (!_.isEmpty(highlightedOrdered)) {
       const message = highlightedOrdered[0];
-      return {url: formInboxItemLink(message), message, isHighlighted: true, title: 'message'};
+      return { url: formInboxItemLink(message), message, kind: 'message' };
     }
-    const candidates = getCandidates();
-    if (!_.isEmpty(candidates)) {
-      const candidatesExtended = candidates.concat(groupCandidates);
-      // Time as a long gets larger so smallest would be oldest
-      const orderedCandidates = _.orderBy(candidatesExtended, ['time'], ['asc']);
-      // Allowed to go to previous here so can cycle through candidates
-      const next = _.find(orderedCandidates, (candidate) => candidate.url !== resource);
-      if (next) {
-        return {url: next.url, useUrl: next.useUrl, title: next.title};
+    const onJob = action === 'dialog' && !_.isEmpty(pathInvestibleId);
+    const onView = action === 'dialog' && _.isEmpty(pathInvestibleId);
+    const currentJobUrl = onJob && defaultMarket?.id
+      ? formInvestibleLink(defaultMarket.id, pathInvestibleId) : undefined;
+    const thisJobHasInProgress = onJob && inProgressCandidates.some((candidate) => candidate.url === currentJobUrl);
+    if (onJob && !thisJobHasInProgress) {
+      const nextInProgress = firstInProgress(currentJobUrl);
+      if (nextInProgress) {
+        return { url: nextInProgress.url, useUrl: nextInProgress.useUrl, kind: 'inProgress' };
       }
     }
-
-    if (!_.isEmpty(allMessages)) {
-      // Just go to inbox for them to choose a message
-      return {url: getInboxTarget(allMessages[0]), isHighlighted: false, title: 'message'};
+    if (onJob && jobGroupId && defaultMarket?.id) {
+      return { url: formMarketLink(defaultMarket.id, jobGroupId), kind: 'view' };
     }
-    // Don't know what to do so disable next - alternatively could go to compose button but that's not great
+    if (onView) {
+      const nextInProgress = firstInProgress();
+      if (nextInProgress) {
+        return { url: nextInProgress.url, useUrl: nextInProgress.useUrl, kind: 'inProgress' };
+      }
+    }
     return {};
   }
 
-  const nextUrl = stillLoading ? {} : computeNext();
+  const nextUrl = stillLoading ? {} : computeForward();
   const backDisabled = _.isEmpty(previous);
-  const nextDisabled = _.isEmpty(nextUrl);
-  const nextHighlighted = nextUrl?.isHighlighted;
+  const nextDisabled = _.isEmpty(nextUrl?.url);
+  const nextHighlighted = nextUrl?.kind === 'message';
 
   function doPreviousNavigation() {
     const url = previous?.url;
@@ -307,7 +234,7 @@ export default function NavigationChevrons(props) {
   }
 
   useHotkeys(isMac ? 'ctrl+option+arrowRight' : 'ctrl+arrowRight', doNextNavigation, {enabled: !nextDisabled, enableOnContentEditable: true},
-    [history, nextUrl.message, nextUrl.url]);
+    [history, nextUrl.message, nextUrl.url, nextUrl.useUrl, nextUrl.kind]);
   useHotkeys(isMac ? 'ctrl+option+arrowLeft' : 'ctrl+arrowLeft', doPreviousNavigation,
     {enabled: !backDisabled, enableOnContentEditable: true}, [history, previous?.url]);
   // B-all-570: invisible during loading (after all hooks so their order is stable)
@@ -317,47 +244,57 @@ export default function NavigationChevrons(props) {
   // To make up arrow navigation work
   const returnTop = <ReturnTop action={action} pathInvestibleId={pathInvestibleId} market={defaultMarket} isMac={isMac}
             isArchivedWorkspace={isArchivedWorkspace} useLink={useLink} typeObjectId={typeObjectId} isSearch={!_.isEmpty(searchText)}
-            groupId={chosenGroup} pathMarketIdRaw={pathMarketIdRaw} hashInvestibleId={hashInvestibleId}/>;
+            groupId={viewGroupId} pathMarketIdRaw={pathMarketIdRaw} hashInvestibleId={hashInvestibleId}/>;
 
   if (!_.isEmpty(searchText)) {
     // Otherwise too confusing and think next goes to next item found or something
     return returnTop;
   }
 
-  if (mobileLayout) {
-    return (
-      <Toolbar>
-        <IconButton
-          disabled={nextDisabled}
-          className={classes.magicButton}
-          onClick={doNextNavigation}
-        > <ArrowForward htmlColor={nextDisabled ? 'disabled' :
-          (nextHighlighted ? WARNING_COLOR : 'black')} />
-        </IconButton>
-      </Toolbar>
-    );
-  }
-
-  const toolTipTitle = <div><p>{intl.formatMessage({ id: isMac ? 'nextNavigationMac' : 'nextNavigation' })}</p>
-  <p>{intl.formatMessage({ id: isMac ? 'previousNavigationMac' : 'previousNavigation' })}</p>
-  <p>{intl.formatMessage({ id: isMac ? 'upNavigationMac' : 'upNavigation' })}</p></div>;
-  const buttonContent = <Button
+  const forwardKind = nextUrl?.kind;
+  const forwardIconColor = nextDisabled ? 'disabled' : (nextHighlighted ? WARNING_COLOR : 'black');
+  const forwardIcon = forwardKind === 'view'
+    ? <ArrowUpward htmlColor={forwardIconColor} />
+    : <ArrowForward htmlColor={forwardIconColor} />;
+  const forwardLabelId = forwardKind === 'view' ? 'navView'
+    : (forwardKind === 'inProgress' ? 'inProgress' : 'navNextMessage');
+  const toolTipTitle = <div>
+    <p>{intl.formatMessage({ id: isMac ? 'nextNavigationMac' : 'nextNavigation' })}</p>
+    <p>{intl.formatMessage({ id: isMac ? 'previousNavigationMac' : 'previousNavigation' })}</p>
+    <p>{intl.formatMessage({ id: isMac ? 'upNavigationMac' : 'upNavigation' })}</p>
+    <p>{intl.formatMessage({ id: isMac ? 'unrespondedNavigationMac' : 'unrespondedNavigation' })}</p>
+  </div>;
+  const forwardButton = <Button
     variant="outlined"
     disabled={nextDisabled}
     id={action === 'demo' || action === 'invite' ? 'nextDisplayNavigation' : 'nextNavigation'}
     onClick={doNextNavigation}
     className={classes.magicButton}
-    endIcon={<ArrowForward htmlColor={nextDisabled ? 'disabled' :
-      (nextHighlighted ? WARNING_COLOR : 'black')} />}
+    endIcon={forwardIcon}
   >
-    Next {nextUrl?.title || ''}
+    {intl.formatMessage({ id: forwardLabelId })}
+  </Button>;
+  const backButton = <Button
+    variant="outlined"
+    disabled={backDisabled}
+    id="backNavigation"
+    onClick={doPreviousNavigation}
+    className={classes.magicButton}
+    startIcon={<ArrowBack htmlColor={backDisabled ? 'disabled' : 'black'} />}
+  >
+    {intl.formatMessage({ id: 'navBack' })}
   </Button>;
   return (
     <>
-    <Toolbar>
-      {nextDisabled ? buttonContent : (
+    <Toolbar style={{ gap: '0.5rem', minHeight: '48px' }}>
+      {nextDisabled ? forwardButton : (
         <Tooltip title={toolTipTitle}>
-          {buttonContent}
+          {forwardButton}
+        </Tooltip>
+      )}
+      {backDisabled ? backButton : (
+        <Tooltip title={intl.formatMessage({ id: isMac ? 'previousNavigationMac' : 'previousNavigation' })}>
+          {backButton}
         </Tooltip>
       )}
     </Toolbar>

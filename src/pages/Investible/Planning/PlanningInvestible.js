@@ -466,6 +466,12 @@ function PlanningInvestible(props) {
   useHotkeys('ctrl+alt+n', () => openInlineWizard({ wizardType: JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
     commentType: REPORT_TYPE, notificationType: 'BLUE' }), { enabled: !hidden && !inlineWizard },
     [investibleId, marketId, hidden, inlineWizard]);
+  const isMac = window.navigator.userAgentData ? window.navigator.userAgentData.platform === 'macOS'
+    : /Mac/i.test(window.navigator.userAgent);
+  useHotkeys(isMac ? 'ctrl+option+arrowDown' : 'ctrl+arrowDown', () => {
+    updatePageState({ sectionOpen: 'assistanceSection', assistanceTabIndex: 0 });
+  }, { enabled: !hidden && !inlineWizard, enableOnContentEditable: true },
+    [hidden, inlineWizard, updatePageState]);
   const showJobHeaderAboveWizard = !!inlineWizard && (inlineWizard.wizardType === APPROVAL_WIZARD_TYPE ||
     (inlineWizard.wizardType === JOB_COMMENT_WIZARD_TYPE && inlineWizard.commentType === REPORT_TYPE &&
       inlineWizard.notificationType !== 'BLUE'));
@@ -1212,6 +1218,7 @@ function PlanningInvestible(props) {
                    B-all-480: Resolved only grows so its contents count does not display - only new
                    message and search match counts */}
                 <GmailTabItem label={intl.formatMessage({ id: 'assistanceUnresponded' })} color='black'
+                              toolTipId={isMac ? 'unrespondedNavigationMac' : 'unrespondedNavigation'}
                               tagColor={assistanceTabNewCounts[0] > 0 ? warningColor : undefined}
                               tagLabel={assistanceTabNewCounts[0] > 0 && _.isEmpty(search) ? 'new' :
                                 getTagLabel('total')}

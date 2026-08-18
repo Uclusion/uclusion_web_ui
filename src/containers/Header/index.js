@@ -279,7 +279,7 @@ function Header (props) {
             </Paper>
           )}
           <NavigationChevrons action={action} pathInvestibleId={pathInvestibleId} defaultMarket={defaultMarket}
-            chosenGroup={chosenGroup} pathMarketIdRaw={pathMarketIdRaw} hashInvestibleId={hashInvestibleId}
+            pathMarketIdRaw={pathMarketIdRaw} hashInvestibleId={hashInvestibleId}
             isArchivedWorkspace={isArchivedWorkspace} useLink={useLink} typeObjectId={typeObjectId}/>
           {!mobileLayout && (
             <div className={classes.grow}/>

@@ -61,9 +61,9 @@ function DemoInviteStep (props) {
       </h2>
       <div style={{ paddingTop: '1rem' }}>
         <Typography variant="body2" style={{ paddingBottom: '1.5rem' }}>
-          ctrl+arrowRight to go to what most likely needs doing
-          <div style={{ backgroundColor: infoColor, width: '20rem', height: '60px' }}>
-            <NavigationChevrons action='demo' defaultMarket={market} chosenGroup={market?.id} pathMarketIdRaw={market?.id} 
+          ctrl+arrowRight does what the Next, View, or In progress button currently says
+          <div style={{ backgroundColor: infoColor, width: '32rem', height: '60px' }}>
+            <NavigationChevrons action='demo' defaultMarket={market} pathMarketIdRaw={market?.id} 
               isArchivedWorkspace={false} /></div>
           {!mobileLayout && (
             <div>

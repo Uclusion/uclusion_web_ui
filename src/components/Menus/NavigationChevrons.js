@@ -271,7 +271,7 @@ export default function NavigationChevrons(props) {
       clearJobBackOrigin();
     }
     rememberSeenNavigationUrl(currentNavUrl);
-  }, [stillLoading, currentNavUrl, action, pathInvestibleId]);
+  }, [stillLoading, currentNavUrl, action, pathInvestibleId, allExistingUrls, messagesDispatch]);
 
   useHotkeys(isMac ? 'ctrl+option+arrowRight' : 'ctrl+arrowRight', doNextNavigation, {enabled: !nextDisabled, enableOnContentEditable: true},
     [history, nextUrl.message, nextUrl.url, nextUrl.useUrl, nextUrl.kind, currentNavUrl, previous?.url]);

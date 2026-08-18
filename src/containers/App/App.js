@@ -15,12 +15,18 @@ import { InvestiblesProvider } from '../../contexts/InvestibesContext/Investible
 import { MarketPresencesProvider } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { MarketsProvider } from '../../contexts/MarketsContext/MarketsContext'
 import { GroupMembersProvider } from '../../contexts/GroupMembersContext/GroupMembersContext'
+import { startEventTimingWatch } from '../../utils/renderProfiler'
 
 
 function App(props) {
   const { authState } = props;
   const configs = { ...config };
   const [userAttributes, setUserAttributes] = useState({});
+
+  // B-all-569: arms the profiler's observers when window.__uclusionProfiler('on') was set
+  useEffect(() => {
+    startEventTimingWatch();
+  }, []);
 
   useEffect(() => {
     function completeLogin (loginInfo) {

@@ -2,7 +2,7 @@ import { useIntl } from 'react-intl'
 import Screen from '../../../containers/Screen/Screen'
 import PropTypes from 'prop-types'
 import Inbox from './Inbox'
-import React, { useContext, useMemo, useReducer } from 'react'
+import React, { useContext, useMemo, useReducer, useRef } from 'react'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import {
   getNotHiddenMarketDetailsForUser,
@@ -23,9 +23,14 @@ import { decomposeMarketPath } from '../../../utils/marketIdPathFunctions';
 import _ from 'lodash';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
+import { useInitialSyncComplete } from '../../../api/useInitialSyncComplete';
 
 function InboxFull(props) {
   const { hidden, isInbox } = props;
+  // B-all-570: dormant until the sync layer says the initial sync converged - the token
+  // gate below opens while data is still chunking, and the isKeptInMemory Screen this
+  // renders would otherwise run its full body on every arriving market's tick
+  const initialSyncComplete = useInitialSyncComplete('inboxFull');
   const intl = useIntl();
   const history = useHistory();
   const { location } = history;
@@ -46,26 +51,49 @@ function InboxFull(props) {
   const { messages: messagesUnsafe } = messagesState;
   // J-all-394: this component stays mounted on every route, so these derivations otherwise
   // rebuild the whole inbox and outbox data set - with fresh array identities - on every
-  // context tick even while hidden, re-rendering the Inbox subtree for nothing
+  // context tick even while hidden, re-rendering the Inbox subtree for nothing.
+  // B-all-570: while hidden they must cost nothing at all - during initial sync at real
+  // workspace volume every arriving market ticks these deps, and recomputing over every
+  // message each tick starves the sync itself of CPU, so loading never finishes. The ref
+  // serves the last visible result while hidden; unhiding derives fresh.
+  const frozenWhileHiddenRef = useRef({ messagesFull: [], outbox: [], messagesHash: {} });
   const messagesFull = useMemo(() => {
+    if (hidden || !initialSyncComplete) {
+      return frozenWhileHiddenRef.current.messagesFull;
+    }
     const messagesMapped = (messagesUnsafe || []).map((message) => {
       return {...message, id: message.type_object_id};
     });
-    return messagesMapped.filter((message) => {
+    const computed = messagesMapped.filter((message) => {
       return isInInbox(message);
     });
-  }, [messagesUnsafe]);
-  const allOutBoxMessagesOrdered = useMemo(() => getOutboxMessages({messagesState, marketsState,
-    marketPresencesState, investiblesState, marketStagesState, commentsState, groupPresencesState, intl}),
-    [messagesState, marketsState, marketPresencesState, investiblesState, marketStagesState, commentsState,
-      groupPresencesState, intl]);
-  const messagesHash = useMemo(() => getMessages(allOutBoxMessagesOrdered, messagesFull,
-    searchResults, workItemId, groupsState),
-    [allOutBoxMessagesOrdered, messagesFull, searchResults, workItemId, groupsState]);
+    frozenWhileHiddenRef.current.messagesFull = computed;
+    return computed;
+  }, [hidden, initialSyncComplete, messagesUnsafe]);
+  const allOutBoxMessagesOrdered = useMemo(() => {
+    if (hidden || !initialSyncComplete) {
+      return frozenWhileHiddenRef.current.outbox;
+    }
+    const computed = getOutboxMessages({messagesState, marketsState,
+      marketPresencesState, investiblesState, marketStagesState, commentsState, groupPresencesState, intl});
+    frozenWhileHiddenRef.current.outbox = computed;
+    return computed;
+  }, [hidden, initialSyncComplete, messagesState, marketsState, marketPresencesState, investiblesState,
+      marketStagesState, commentsState, groupPresencesState, intl]);
+  const messagesHash = useMemo(() => {
+    if (hidden || !initialSyncComplete) {
+      return frozenWhileHiddenRef.current.messagesHash;
+    }
+    const computed = getMessages(allOutBoxMessagesOrdered, messagesFull,
+      searchResults, workItemId, groupsState);
+    frozenWhileHiddenRef.current.messagesHash = computed;
+    return computed;
+  }, [hidden, initialSyncComplete, allOutBoxMessagesOrdered, messagesFull, searchResults, workItemId, groupsState]);
   const [inboxState, inboxDispatch] = useReducer(getReducer(),
     {page: 1, expansionState: {}, pageState: {}, defaultPage: 1});
-  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
-  let loading = marketsState.initializing || !notificationsInitialized;
+  const myNotHiddenMarketsState = initialSyncComplete ?
+    getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState) : {};
+  let loading = !initialSyncComplete || marketsState.initializing || !notificationsInitialized;
   if (!loading && myNotHiddenMarketsState.marketDetails) {
     myNotHiddenMarketsState.marketDetails.forEach((market) => {
       if (!marketTokenLoaded(market.id, tokensHash)) {

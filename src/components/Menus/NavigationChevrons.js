@@ -21,10 +21,12 @@ import { addNavigation, removeNavigation } from '../../contexts/NotificationsCon
 import _ from 'lodash';
 import {
   getMarketDetailsForType,
-  getNotHiddenMarketDetailsForUser
+  getNotHiddenMarketDetailsForUser,
+  marketTokenLoaded
 } from '../../contexts/MarketsContext/marketsContextHelper';
 import { PLANNING_TYPE, SUPPORT_SUB_TYPE } from '../../constants/markets';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import { useInitialSyncComplete } from '../../api/useInitialSyncComplete';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getWorkspaceData } from '../../pages/Home/YourWork/InboxExpansionPanel';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
@@ -94,7 +96,7 @@ export default function NavigationChevrons(props) {
   const { action, pathInvestibleId, defaultMarket, chosenGroup, pathMarketIdRaw, hashInvestibleId, isArchivedWorkspace,
     useLink, typeObjectId } = props;
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const [marketsState] = useContext(MarketsContext);
+  const [marketsState, , tokensHash] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
@@ -106,16 +108,26 @@ export default function NavigationChevrons(props) {
   const { search: searchText } = searchResults;
   const { pathname, search, hash } = location;
   const resource = `${pathname}${search}${hash}`;
-  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
-  const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
+  // B-all-570: dormant until the sync layer itself says the initial sync has converged -
+  // the market-token gate alone opens while data is still chunking in, and this body
+  // otherwise re-runs messageIsSynced over every message and getWorkspaceData over every
+  // market on each context tick of the cold load, starving the sync of CPU
+  const initialSyncComplete = useInitialSyncComplete('navigationChevrons');
+  const myNotHiddenMarketsState = !initialSyncComplete ? {} : getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
+  const planningDetails = !initialSyncComplete ? {} : getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
+  const stillLoading = !initialSyncComplete || marketsState.initializing ||
+    !_.isEmpty((myNotHiddenMarketsState.marketDetails || []).find((market) =>
+      !marketTokenLoaded(market.id, tokensHash)));
   const { messages, navigations } = messagesState || {};
   // Just don't even consider going to a message that's not synced
-  const allMessages = messages?.filter((message) => isInInbox(message) && messageIsSynced(message, marketsState, marketPresencesState, 
+  const allMessages = (stillLoading ? undefined : messages)?.filter((message) => isInInbox(message) &&
+    messageIsSynced(message, marketsState, marketPresencesState,
     commentsState, investiblesState, groupsState)) || [];
   const highlightedMessages = allMessages.filter((message) => message.is_highlighted);
   const orderedNavigations = _.orderBy(navigations || [], ['time'], ['desc']);
-  const workspacesData = getWorkspaceData(planningDetails, marketPresencesState, investiblesState, commentsState,
-    marketStagesState);
+  const workspacesData = stillLoading ? [] :
+    getWorkspaceData(planningDetails, marketPresencesState, investiblesState, commentsState,
+      marketStagesState);
   const approvedCandidates = [];
   const inProgressCandidates = [];
   const assistantanceCandidates = [];
@@ -267,7 +279,7 @@ export default function NavigationChevrons(props) {
     return {};
   }
 
-  const nextUrl = computeNext();
+  const nextUrl = stillLoading ? {} : computeNext();
   const backDisabled = _.isEmpty(previous);
   const nextDisabled = _.isEmpty(nextUrl);
   const nextHighlighted = nextUrl?.isHighlighted;
@@ -298,6 +310,10 @@ export default function NavigationChevrons(props) {
     [history, nextUrl.message, nextUrl.url]);
   useHotkeys(isMac ? 'ctrl+option+arrowLeft' : 'ctrl+arrowLeft', doPreviousNavigation,
     {enabled: !backDisabled, enableOnContentEditable: true}, [history, previous?.url]);
+  // B-all-570: invisible during loading (after all hooks so their order is stable)
+  if (stillLoading) {
+    return React.Fragment;
+  }
   // To make up arrow navigation work
   const returnTop = <ReturnTop action={action} pathInvestibleId={pathInvestibleId} market={defaultMarket} isMac={isMac}
             isArchivedWorkspace={isArchivedWorkspace} useLink={useLink} typeObjectId={typeObjectId} isSearch={!_.isEmpty(searchText)}

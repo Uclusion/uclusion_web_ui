@@ -40,6 +40,7 @@ import {
 import { RepeatingFunction } from '../utils/RepeatingFunction';
 import { isSignedOut } from '../utils/userFunctions';
 import { getMarketClient } from './marketLogin';
+import { recordInitialSyncCycle } from './syncStatus';
 import { TOKEN_TYPE_MARKET } from './tokenConstants';
 import TokenStorageManager from '../authorization/TokenStorageManager';
 import { addMarketsToStorage } from '../contexts/MarketsContext/marketsContextHelper';
@@ -50,6 +51,7 @@ import { versionsUpdateMarketPresences } from '../contexts/MarketPresencesContex
 import { updateMarketStagesFromNetwork } from '../contexts/MarketStagesContext/marketStagesContextReducer';
 import { addGroupsToStorage } from '../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { versionsUpdateGroupMembers } from '../contexts/GroupMembersContext/groupMembersContextReducer';
+import { markSync } from '../utils/renderProfiler';
 
 const MAX_RETRIES = 10;
 const MAX_DRIFT_TIME = 300000;
@@ -97,6 +99,8 @@ const matchErrorHandlingVersionRefresh = (dispatchers=undefined) => {
   }
   refreshInProgress = true;
   let refreshSucceeded = true;
+  // B-all-569: permanent sync-window marker, inert until window.__uclusionProfiler('on')
+  markSync('start');
   return doVersionRefresh(dispatchers)
     .catch((error) => {
       refreshSucceeded = false;
@@ -111,8 +115,10 @@ const matchErrorHandlingVersionRefresh = (dispatchers=undefined) => {
       }
     })
     .then((dirtyMarketCount) => {
+      markSync('end');
       if (refreshSucceeded) {
         lastSuccessfulRefreshMs = Date.now();
+        recordInitialSyncCycle(dirtyMarketCount);
       }
       refreshInProgress = false;
       if (refreshQueued) {

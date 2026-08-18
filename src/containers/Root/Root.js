@@ -54,6 +54,7 @@ import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGr
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { getComment } from '../../contexts/CommentsContext/commentsContextHelper';
 import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
+import { RenderCensus } from '../../utils/renderProfiler';
 
 // T-all-2154 poll fast while a URL references data not yet local, then back off so a tab
 // parked on a dead link does not hit the API every two seconds indefinitely
@@ -419,6 +420,8 @@ function Root(props) {
   // InboxFull and Market - reduce churn by keeping out of existance until first market loaded
   return (
     <EditCommentContext.Provider value={editCommentValue}>
+    {/* B-all-569: permanent census wrap, inert until window.__uclusionProfiler('on') */}
+    <RenderCensus id="Root">
     <div>
       <CssBaseline/>
         <EditCommentModal />
@@ -428,7 +431,9 @@ function Root(props) {
           <Wizard hidden={hideWorkspaceWizard()} />
           <DemoFull hidden={hideDemosFull()} />
           {marketJoinedUser && (
-            <InboxFull hidden={hideInbox()&&hideOutbox()} isInbox={!hideInbox()} />
+            <RenderCensus id="Inbox">
+              <InboxFull hidden={hideInbox()&&hideOutbox()} isInbox={!hideInbox()} />
+            </RenderCensus>
           )}
           {marketJoinedUser && (
             <Market hidden={hideMarket()||isArchivedWorkspace}/>
@@ -466,6 +471,7 @@ function Root(props) {
           <PageNotFound hidden={hidePNF}/>
         </div>
     </div>
+    </RenderCensus>
     </EditCommentContext.Provider>
   );
 }

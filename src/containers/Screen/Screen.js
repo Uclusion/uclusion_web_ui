@@ -19,6 +19,8 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import Sidebar from '../../components/Menus/Sidebar'
+import { RenderCensus } from '../../utils/renderProfiler'
+import { useInitialSyncComplete } from '../../api/useInitialSyncComplete'
 import { Group, GroupOutlined, MoreVert } from '@material-ui/icons';
 import {
   getCurrentGroup,
@@ -219,8 +221,8 @@ export function getActiveGroupId(myPresence, groupsState, marketId, marketPresen
 }
 
 export function getSidebarGroups(isDark, navListItemTextArray, groupsState, marketPresencesState, groupPresencesState,
-  history, market, useGroupId, groupId, classes, useHoverFunctions, search, results, openMenuItems=[], inactiveGroups=[], pathname, resetFunction, 
-  mobileLayout, messagesState, commentsState, investiblesState, investibleId) {
+  history, market, useGroupId, groupId, classes, useHoverFunctions, search, results, openMenuItems=[], inactiveGroups=[], pathname, resetFunction,
+  mobileLayout, messagesState, commentsState, investiblesState, investibleId, syncComplete = true) {
   const marketId = market.id;
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const itemsSorted = _.sortBy(groupsState[marketId],
@@ -269,7 +271,10 @@ export function getSidebarGroups(isDark, navListItemTextArray, groupsState, mark
       });
       num = _.size(groupLevelResults);
       numSuffix = 'total';
-    } else if (!outsetAvailable) {
+    } else if (!outsetAvailable && syncComplete) {
+      // B-all-570: the count badges walk every message per group (and every market comment
+      // for critical bugs) per render, so they wait for sync convergence; the rows render
+      // immediately and the counts fill in once, no flicker, when the latch flips
       let groupMessages = findMessagesForGroupId(group.id, messagesState, true);
       if (_.isEmpty(groupMessages)) {
         groupMessages = findMessagesForGroupId(group.id, messagesState, false);
@@ -386,16 +391,18 @@ function Screen(props) {
     isWizard = false,
     pageBackground
   } = props;
+  // B-all-570: no per-tick counting over every message until the sync layer converges
+  const initialSyncComplete = useInitialSyncComplete('screen');
   useEffect(() => {
     if (!hidden && !_.isEmpty(tabTitle)) {
-      const calcPend = getInboxCount(messagesState);
+      const calcPend = initialSyncComplete ? getInboxCount(messagesState) : 0;
       if (calcPend > 0) {
         document.title = `(${calcPend}) ${tabTitle}`;
       } else {
         document.title = `${tabTitle}`;
       }
     }
-  }, [hidden, messagesState, tabTitle]);
+  }, [hidden, initialSyncComplete, messagesState, tabTitle]);
   if (hidden && !isKeptInMemory) {
     return <React.Fragment/>
   }
@@ -473,8 +480,8 @@ function Screen(props) {
     const { useHoverFunctions, resetFunction } = navigationOptions || {};
     getSidebarGroups(isDark, navListItemTextArray, groupsState, marketPresencesState, groupPresencesState,
       history, defaultMarket, useGroupId || pathGroupId || hashGroupId, groupId, classes, useHoverFunctions, search,
-      results, openMenuItems, inactiveGroups, pathname, resetFunction, mobileLayout, messagesState, commentsState, 
-      investiblesState, investibleId);
+      results, openMenuItems, inactiveGroups, pathname, resetFunction, mobileLayout, messagesState, commentsState,
+      investiblesState, investibleId, initialSyncComplete);
   }
   const composeChosen = action === 'wizard' && type === COMPOSE_WIZARD_TYPE.toLowerCase();
   const navigationMenu = isDemoLoading ? {} :
@@ -495,7 +502,11 @@ function Screen(props) {
   const myContainerClass = !mobileLayout ? (noPadDesktop ? classes.containerAllNoPad : classes.containerAllLeftPad)
     : classes.containerAll;
   const contentClass = mobileLayout ? classes.contentNoStyle : classes.content;
-  const sideNavigationContents = <Sidebar navigationOptions={navigationMenu} marketId={defaultMarket?.id} />;
+  const sideNavigationContents = (
+    <RenderCensus id="Sidebar">
+      <Sidebar navigationOptions={navigationMenu} marketId={defaultMarket?.id} />
+    </RenderCensus>
+  );
   const renderBanner = showBanner && banner && !hidden;
   return (
     <div className={hidden ? classes.hidden : classes.root} id="root" 

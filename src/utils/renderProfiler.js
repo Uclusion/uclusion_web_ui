@@ -1,25 +1,57 @@
 /**
- * J-all-394: dev-only render profiling utility.
+ * J-all-394 / B-all-569: render profiling utility, permanently wired.
  *
- * COMMITTED INERT per Q-all-400 O-3: ACTIVE is false and no call sites exist. To run a
- * new investigation, flip ACTIVE to true and add the call sites below (remove them and
- * flip back before committing):
+ * Per Q-all-452 O-4/O-5 this supersedes the old commit-inert convention (Q-all-400 O-3):
+ * the call sites stay in the tree permanently - RenderCensus wraps Root, Inbox, Sidebar,
+ * and CommentBox; startEventTimingWatch arms at App mount; markSync brackets the version
+ * refresh - and everything gates on a runtime switch instead of a compile-time flag.
+ * Switched off (the default), the whole utility costs a boolean check per call and
+ * collects nothing, so it is harmless in production.
  *
- *   import { RenderCensus, startEventTimingWatch, markSync } from '../utils/renderProfiler';
- *   // 1. Wrap a suspect subtree: <RenderCensus id="Inbox"><Inbox /></RenderCensus>
- *   // 2. Call startEventTimingWatch() once (e.g. in App mount) to log slow input
- *   //    events and long tasks, correlated against sync activity markers.
- *   // 3. Call markSync('start'/'end') at the version refresh entry/exit to attribute
- *   //    slow keystrokes to background sync churn.
- *   // In the console: window.__renderCensus() dumps per-subtree render counts and
- *   // durations; window.__renderCensusReset() clears them between scenarios.
+ * To collect data in any environment:
+ *   window.__uclusionProfiler('on')   // persists in localStorage across reloads
+ *   ...reproduce the problem...
+ *   window.__renderCensus()           // per-subtree render table (see caveat below)
+ *   window.__renderCensusReset()      // clear between scenarios
+ *   window.__uclusionProfiler('off')  // disarm and stop persisting
+ * [renderProfiler] console lines stream long tasks and slow input events, tagged
+ * DURING-SYNC when they overlap or closely follow a version refresh.
  *
- * No dependencies: React's built-in <Profiler> plus the Event Timing, Long Task,
- * and User Timing APIs. Everything no-ops when ACTIVE is false.
+ * Census caveat: production react-dom compiles out React.Profiler timing, so the render
+ * census only fills on a development build; production builds still provide the long
+ * task, slow input, and sync correlation channels. Census counting also starts on each
+ * subtree's first render after arming, not at the moment of arming.
  */
 import React from 'react';
 
-const ACTIVE = false;
+const STORAGE_KEY = 'uclusionProfiler';
+
+function storedOn() {
+  try {
+    return typeof window !== 'undefined' && window.localStorage.getItem(STORAGE_KEY) === 'on';
+  } catch (ignored) {
+    return false;
+  }
+}
+
+let active = storedOn();
+let armedObservers = [];
+let censusTimer = undefined;
+
+// Optional data sink so an agent can harvest without a browser extension: set
+// localStorage uclusionProfilerSink to e.g. 'http://localhost:8123/' and every
+// emitted line plus periodic census snapshots beacon there (fire and forget).
+function emit(line) {
+  console.info(line);
+  try {
+    const sink = window.localStorage.getItem('uclusionProfilerSink');
+    if (sink && navigator.sendBeacon) {
+      navigator.sendBeacon(sink, line);
+    }
+  } catch (ignored) {
+    // sink is best effort only
+  }
+}
 
 // Kept on window so webpack hot reloads share one registry - a module-local object
 // splits the census between the old closure and the reloaded module
@@ -46,14 +78,14 @@ function onRender(id, phase, actualDuration) {
 
 export function RenderCensus(props) {
   const { id, children } = props;
-  if (!ACTIVE) {
+  if (!active) {
     return children;
   }
   return React.createElement(React.Profiler, { id, onRender }, children);
 }
 
 export function markSync(edge) {
-  if (!ACTIVE) {
+  if (!active) {
     return;
   }
   if (edge === 'start') {
@@ -70,37 +102,88 @@ function nearSync() {
   return syncDepth > 0 || performance.now() - lastSyncEndedAt < 500;
 }
 
-export function startEventTimingWatch() {
-  if (!ACTIVE || window.__eventTimingWatchArmed) {
+function arm() {
+  if (armedObservers.length > 0) {
     return;
   }
-  window.__eventTimingWatchArmed = true;
   // Input events whose processing blocks the main thread long enough to feel laggy
   try {
     const eventObserver = new PerformanceObserver((list) => {
       list.getEntries().forEach((entry) => {
         if (entry.duration >= 56) {
-          console.info(`[renderProfiler] slow ${entry.name} ${Math.round(entry.duration)}ms ` +
+          emit(`[renderProfiler] slow ${entry.name} ${Math.round(entry.duration)}ms ` +
             `(processing ${Math.round(entry.processingEnd - entry.processingStart)}ms)` +
             `${nearSync() ? ' DURING-SYNC' : ''}`);
         }
       });
     });
     eventObserver.observe({ type: 'event', durationThreshold: 56, buffered: true });
+    armedObservers.push(eventObserver);
   } catch (ignored) {
     console.info('[renderProfiler] event timing not supported');
   }
   try {
     const taskObserver = new PerformanceObserver((list) => {
       list.getEntries().forEach((entry) => {
-        console.info(`[renderProfiler] long task ${Math.round(entry.duration)}ms` +
+        emit(`[renderProfiler] long task ${Math.round(entry.duration)}ms` +
           `${nearSync() ? ' DURING-SYNC' : ''}`);
       });
     });
     taskObserver.observe({ type: 'longtask', buffered: true });
+    armedObservers.push(taskObserver);
   } catch (ignored) {
     console.info('[renderProfiler] long task timing not supported');
   }
+  emit('[renderProfiler] armed');
+  if (!censusTimer) {
+    censusTimer = setInterval(() => {
+      try {
+        if (window.localStorage.getItem('uclusionProfilerSink')) {
+          emit('[renderProfiler] census ' + JSON.stringify(census));
+        }
+      } catch (ignored) {
+        // best effort
+      }
+    }, 30000);
+  }
+}
+
+function disarm() {
+  armedObservers.forEach((observer) => observer.disconnect());
+  armedObservers = [];
+  if (censusTimer) {
+    clearInterval(censusTimer);
+    censusTimer = undefined;
+  }
+  emit('[renderProfiler] disarmed');
+}
+
+/** Arms the observers when the profiler was switched on; call once at App mount. */
+export function startEventTimingWatch() {
+  if (active) {
+    arm();
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.__uclusionProfiler = (mode) => {
+    try {
+      if (mode === 'on') {
+        window.localStorage.setItem(STORAGE_KEY, 'on');
+        active = true;
+        arm();
+      } else {
+        window.localStorage.removeItem(STORAGE_KEY);
+        active = false;
+        disarm();
+      }
+    } catch (ignored) {
+      console.info('[renderProfiler] localStorage unavailable; setting applies to this page only');
+      active = mode === 'on';
+      if (active) { arm(); } else { disarm(); }
+    }
+    return active ? 'on' : 'off';
+  };
   window.__renderCensus = () => {
     const rows = Object.keys(census).map((id) => ({
       subtree: id,

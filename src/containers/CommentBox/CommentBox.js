@@ -6,6 +6,7 @@ import Comment from '../../components/Comments/Comment';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
+import { RenderCensus } from '../../utils/renderProfiler';
 import { getFullStage, getInReviewStage, isNotDoingStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { getFormerStageId, isSingleAssisted } from '../../utils/commentFunctions';
 import { useHotkeys } from 'react-hotkeys-hook';
@@ -232,10 +233,12 @@ function CommentBox(props) {
   }
 
   return (
-    <Grid id="commentBox" container spacing={1}
-          style={{paddingBottom: _.isEmpty(sortedRoots) || isInbox || usePadding === false ? 0 : '45vh', margin: 0}}>
-      {getCommentCards()}
-    </Grid>
+    <RenderCensus id="CommentBox">
+      <Grid id="commentBox" container spacing={1}
+            style={{paddingBottom: _.isEmpty(sortedRoots) || isInbox || usePadding === false ? 0 : '45vh', margin: 0}}>
+        {getCommentCards()}
+      </Grid>
+    </RenderCensus>
   );
 }
 

@@ -67,6 +67,12 @@ export function flushPendingClears(pendingClears) {
   chain.then(() => {
     recordAcked();
     retryDelayMs = INITIAL_RETRY_DELAY;
+    if (!_.isEmpty(latestPending)) {
+      // A clear enqueued while this flush was in flight was turned away by the guard above and
+      // only recorded in latestPending. Success schedules no retry, so without draining here it
+      // waits for some unrelated dispatch to re-enter and is stranded on an idle tab.
+      flushPendingClears();
+    }
   }).catch(() => {
     // Whatever was delivered before the failure is acked; the rest waits for the retry
     recordAcked();

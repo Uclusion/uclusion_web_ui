@@ -119,12 +119,6 @@ function withEnqueuedClears(state, additions) {
 function doUpdateMessages (state, action) {
   const { messages } = action;
   const { messages: existingMessages } = state;
-  // S-all-255: most syncs return an unchanged list; returning the identical state object
-  // lets React bail out of the dispatch, so none of the 70-plus consumers re-render and
-  // the reducer wrapper below skips the IndexedDB clone
-  if (_.isEqual(existingMessages, messages)) {
-    return state;
-  }
   const reEnqueued = [];
   if (!_.isEmpty(existingMessages)) {
     const deletedMessages = existingMessages.filter((message) => message.deleted);
@@ -150,6 +144,14 @@ function doUpdateMessages (state, action) {
         }
       });
     }
+  }
+  // S-all-255: most syncs return an unchanged list; returning the identical state object lets React
+  // bail out of the dispatch, so none of the 70-plus consumers re-render and the reducer wrapper
+  // skips the IndexedDB clone. The check has to come after the loop above, because that is what
+  // stamps the local deleted tombstones onto the fetched rows - comparing before it would see a
+  // difference on every sync as soon as anything had been cleared, which is most of the time.
+  if (_.isEmpty(reEnqueued) && _.isEqual(existingMessages, messages)) {
+    return state;
   }
   return storeMessagesInState(state, messages, withEnqueuedClears(state, reEnqueued));
 }

@@ -39,6 +39,60 @@ export function decomposeMarketPath(path) {
   return { action, marketId, investibleId };
 }
 
+let jobBackOrigin;
+let lastSeenNavigationUrl;
+
+export function getJobBackOrigin() {
+  return jobBackOrigin || lastSeenNavigationUrl;
+}
+
+export function clearJobBackOrigin() {
+  jobBackOrigin = undefined;
+}
+
+export function rememberSeenNavigationUrl(url) {
+  if (url) {
+    lastSeenNavigationUrl = url;
+  }
+}
+
+function navigationKey(pathname, search) {
+  const { action, marketId, investibleId } = decomposeMarketPath(pathname || '');
+  if (action === 'dialog' && marketId && investibleId) {
+    return `/dialog/${marketId}/${investibleId}`;
+  }
+  if (action === 'dialog' && marketId) {
+    const groupId = new URLSearchParams(search || '').get('groupId');
+    if (groupId) {
+      return `/dialog/${marketId}?groupId=${groupId}`;
+    }
+  }
+  return pathname;
+}
+
+export function getCanonicalNavigationUrl(pathname, search) {
+  return navigationKey(pathname, search);
+}
+
+function rememberOriginIfEnteringJob(fromPathname, fromSearch, to) {
+  if (!to || typeof to !== 'string' || to.startsWith('http')) {
+    return;
+  }
+  const noHash = to.split('#')[0];
+  const queryAt = noHash.indexOf('?');
+  const toPathname = queryAt === -1 ? noHash : noHash.substring(0, queryAt);
+  const toSearch = queryAt === -1 ? '' : noHash.substring(queryAt);
+  const { action, investibleId } = decomposeMarketPath(toPathname);
+  if (action !== 'dialog' || !investibleId) {
+    return;
+  }
+  const fromUrl = navigationKey(fromPathname, fromSearch);
+  const toUrl = navigationKey(toPathname, toSearch);
+  if (fromUrl && fromUrl !== toUrl) {
+    jobBackOrigin = fromUrl;
+  }
+}
+
 export function broadcastView(marketId, investibleId, isEntry, action, to) {
   const message = { marketId, investibleId, isEntry, action, to };
   pushMessage(
@@ -63,6 +117,7 @@ export function navigate(history, to, insideUseEffect, doNotAddToHistory) {
     marketId: fromMarketId,
     investibleId: fromInvestibleId,
   } = decomposeMarketPath(history.location.pathname);
+  rememberOriginIfEnteringJob(history.location.pathname, history.location.search, to);
   broadcastView(fromMarketId, fromInvestibleId, false, fromAction);
   if (to) {
     // If going somewhere new previous scroll position no longer relevant

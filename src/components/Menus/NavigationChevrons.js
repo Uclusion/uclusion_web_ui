@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useLayoutEffect } from 'react';
 import Toolbar from '@material-ui/core/Toolbar';
 import { Button, Tooltip, makeStyles } from '@material-ui/core';
 import { ArrowBack, ArrowForward, ArrowUpward } from '@material-ui/icons';
@@ -8,6 +8,7 @@ import {
   formCommentLink,
   formInboxItemLink,
   formInvestibleLink, formMarketLink,
+  getCanonicalNavigationUrl, getJobBackOrigin, clearJobBackOrigin, rememberSeenNavigationUrl,
   navigate
 } from '../../utils/marketIdPathFunctions';
 import { useIntl } from 'react-intl';
@@ -64,10 +65,16 @@ const useStyles = makeStyles((theme) => ({
       },
     },
     '&:disabled': {
-      backgroundColor: 'transparent'
+      backgroundColor: theme.palette.background.actionButton,
+      color: 'rgba(0, 0, 0, 0.38)',
+      opacity: 0.45
     }
   }
 }));
+
+function isInboxNavigationUrl(url = '') {
+  return url.startsWith('/inbox') || url.startsWith('/outbox') || url.startsWith('outbox/');
+}
 
 export default function NavigationChevrons(props) {
   const classes = useStyles();
@@ -143,13 +150,24 @@ export default function NavigationChevrons(props) {
       backUrls.push(formInvestibleLink(market.id, investible.investible.id));
     });
   });
+  const currentNavUrl = getCanonicalNavigationUrl(pathname, search);
   const allExistingUrls = allMessages.map((message) => formInboxItemLink(message)).concat(backUrls);
-  const previous = _.find(orderedNavigations, (navigation) =>
-    allExistingUrls.includes(navigation.url) && navigation.url !== resource);
+  if (currentNavUrl && !allExistingUrls.includes(currentNavUrl)) {
+    allExistingUrls.push(currentNavUrl);
+  }
+  const previous = _.find(orderedNavigations, (navigation) => {
+    if (navigation.url === currentNavUrl) {
+      return false;
+    }
+    if (isInboxNavigationUrl(navigation.url) && !allExistingUrls.includes(navigation.url)) {
+      return false;
+    }
+    return true;
+  });
 
   function firstInProgress(excludeUrl) {
     const ordered = _.orderBy(inProgressCandidates, ['time'], ['asc']);
-    return _.find(ordered, (candidate) => candidate.url !== resource && candidate.url !== excludeUrl);
+    return _.find(ordered, (candidate) => candidate.url !== currentNavUrl && candidate.url !== excludeUrl);
   }
 
   function computeForward() {
@@ -172,7 +190,10 @@ export default function NavigationChevrons(props) {
         };
       }
     }
-    const highlighted = highlightedMessages?.filter((message) => formInboxItemLink(message) !== resource) || [];
+    const highlighted = highlightedMessages?.filter((message) => {
+      const messageUrl = formInboxItemLink(message);
+      return messageUrl !== resource && messageUrl !== currentNavUrl;
+    }) || [];
     const highlightedMapped = addWorkspaceGroupAttribute(highlighted, groupsState);
     const highlightedOrdered = _.orderBy(highlightedMapped,
       [function isGroupInvite(msg) {
@@ -214,9 +235,9 @@ export default function NavigationChevrons(props) {
   function doPreviousNavigation() {
     const url = previous?.url;
     if (url) {
-      if (_.find(navigations, (navigation) => navigation.url === resource)) {
+      if (_.find(navigations, (navigation) => navigation.url === currentNavUrl)) {
         // if you are currently on a navigation need to remove it so don't go back to it
-        messagesDispatch(removeNavigation(resource));
+        messagesDispatch(removeNavigation(currentNavUrl));
       }
       messagesDispatch(removeNavigation(url));
       navigate(history, url);
@@ -224,19 +245,38 @@ export default function NavigationChevrons(props) {
   }
 
   function doNextNavigation() {
-    // Add the current resource so that it can be matched with a candidate for time and previous can return to it
-    messagesDispatch(addNavigation(resource, allExistingUrls));
-    messagesDispatch(addNavigation(nextUrl.url, allExistingUrls));
+    if (nextUrl.kind === 'message') {
+      // Record the streak origin only. Intermediate highlighted hops are not Back targets.
+      if (!isInboxNavigationUrl(currentNavUrl) || _.isEmpty(previous)) {
+        messagesDispatch(addNavigation(currentNavUrl, allExistingUrls));
+      }
+    } else {
+      messagesDispatch(addNavigation(currentNavUrl, allExistingUrls));
+      messagesDispatch(addNavigation(nextUrl.url, allExistingUrls));
+    }
     if (nextUrl.message) {
       dehighlightMessage(nextUrl.message, messagesDispatch);
     }
     navigate(history, nextUrl.useUrl || nextUrl.url);
   }
 
+  useLayoutEffect(() => {
+    if (stillLoading) {
+      return;
+    }
+    const fromUrl = getJobBackOrigin();
+    const onJob = action === 'dialog' && !_.isEmpty(pathInvestibleId);
+    if (onJob && fromUrl && fromUrl !== currentNavUrl) {
+      messagesDispatch(addNavigation(fromUrl, allExistingUrls.concat(fromUrl)));
+      clearJobBackOrigin();
+    }
+    rememberSeenNavigationUrl(currentNavUrl);
+  }, [stillLoading, currentNavUrl, action, pathInvestibleId]);
+
   useHotkeys(isMac ? 'ctrl+option+arrowRight' : 'ctrl+arrowRight', doNextNavigation, {enabled: !nextDisabled, enableOnContentEditable: true},
-    [history, nextUrl.message, nextUrl.url, nextUrl.useUrl, nextUrl.kind]);
+    [history, nextUrl.message, nextUrl.url, nextUrl.useUrl, nextUrl.kind, currentNavUrl, previous?.url]);
   useHotkeys(isMac ? 'ctrl+option+arrowLeft' : 'ctrl+arrowLeft', doPreviousNavigation,
-    {enabled: !backDisabled, enableOnContentEditable: true}, [history, previous?.url]);
+    {enabled: !backDisabled, enableOnContentEditable: true}, [history, previous?.url, currentNavUrl]);
   // B-all-570: invisible during loading (after all hooks so their order is stable)
   if (stillLoading) {
     return React.Fragment;
@@ -270,6 +310,7 @@ export default function NavigationChevrons(props) {
     id={action === 'demo' || action === 'invite' ? 'nextDisplayNavigation' : 'nextNavigation'}
     onClick={doNextNavigation}
     className={classes.magicButton}
+    style={{ flexShrink: 0 }}
     endIcon={forwardIcon}
   >
     {intl.formatMessage({ id: forwardLabelId })}
@@ -280,13 +321,14 @@ export default function NavigationChevrons(props) {
     id="backNavigation"
     onClick={doPreviousNavigation}
     className={classes.magicButton}
-    startIcon={<ArrowBack htmlColor={backDisabled ? 'disabled' : 'black'} />}
+    style={{ flexShrink: 0 }}
+    startIcon={<ArrowBack htmlColor={backDisabled ? 'rgba(0, 0, 0, 0.38)' : 'black'} />}
   >
     {intl.formatMessage({ id: 'navBack' })}
   </Button>;
   return (
     <>
-    <Toolbar style={{ gap: '0.5rem', minHeight: '48px' }}>
+    <Toolbar style={{ gap: '0.5rem', minHeight: '48px', flexShrink: 0, flexWrap: 'nowrap' }}>
       {nextDisabled ? forwardButton : (
         <Tooltip title={toolTipTitle}>
           {forwardButton}

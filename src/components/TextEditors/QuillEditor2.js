@@ -311,4 +311,22 @@ QuillEditor2.propTypes = {
   dontManageState: PropTypes.bool
 };
 
-export default React.memo(QuillEditor2);
+// B-all-569 (Q-all-449 O-1): an editable editor is insulated from its ancestors after mount.
+// The live Quill instance is outside React in QuillEditorRegistry and the wrapper's only job
+// after creation is holding the container div, so no prop change from a re-rendering host may
+// reach it; anything that must change mid-edit goes over the editor message bus
+// (resetEditor with configOverrides). Read-only (noToolbar) instances keep shallow comparison
+// because recreating on a value change is how they display fresh content.
+function insulatedPropsAreEqual(prevProps, nextProps) {
+  if (prevProps.id !== nextProps.id) {
+    return false;
+  }
+  if (!prevProps.noToolbar && !nextProps.noToolbar) {
+    return true;
+  }
+  const prevKeys = Object.keys(prevProps);
+  return prevKeys.length === Object.keys(nextProps).length &&
+    prevKeys.every((key) => prevProps[key] === nextProps[key]);
+}
+
+export default React.memo(QuillEditor2, insulatedPropsAreEqual);

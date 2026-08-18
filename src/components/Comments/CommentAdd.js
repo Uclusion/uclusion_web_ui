@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useIntl } from 'react-intl';
 import _ from 'lodash'
 import {
@@ -378,6 +378,19 @@ function CommentAdd(props) {
     onChange: () => setHasValue(!editorEmpty(getQuillStoredState(editorName)))
   }
   const [Editor] = useEditor(editorName, editorSpec);
+  // B-all-569 (Q-all-449 O-1): the mounted editor no longer sees prop changes, so a comment
+  // type switch sends its new placeholder over the bus; only an empty draft recreates, which
+  // is all the old createEditor bail allowed, so typing in progress is never interrupted
+  const placeholderRef = useRef(placeholder);
+  useEffect(() => {
+    if (placeholderRef.current !== placeholder) {
+      placeholderRef.current = placeholder;
+      if (editorEmpty(getQuillStoredState(editorName))) {
+        resetEditor(editorName, '', { placeholder });
+        focusEditor(editorName);
+      }
+    }
+  }, [editorName, placeholder]);
   function handleSave(isSent, passedNotificationType, doCreateInitiative, isJustClear) {
     const currentUploadedFiles = uploadedFiles || [];
     // The default was never saved so if they immediately save have to use that instead of stored on disk

@@ -173,10 +173,13 @@ export function resetEditor(id, contents, configOverrides, hardReset=false) {
     const { editor, config } = QuillEditorRegistry.getEditor(id);
     const fullConfig = {
       ...config,
+      // B-all-569: overrides were previously stored under a configOverrides key nothing read,
+      // so a passed {placeholder} never applied; merge them for real since the bus is the only
+      // channel a mounted editor learns of config changes through
+      ...(configOverrides || {}),
       // Reseed value with the reset contents so a recreate can't fall back to a stale draft this editor
       // was originally opened with (e.g. "add and another" after editing a draft task).
       value: contents,
-      configOverrides,
     }
     if (editor != null) {
       createEditor(id, contents, fullConfig, true); // recreate the editor, because we need brand new state

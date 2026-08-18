@@ -1,6 +1,6 @@
 import React, { useContext, useLayoutEffect } from 'react';
 import Toolbar from '@material-ui/core/Toolbar';
-import { Button, Tooltip, makeStyles } from '@material-ui/core';
+import { Button, Tooltip, makeStyles, useMediaQuery, useTheme } from '@material-ui/core';
 import { ArrowBack, ArrowForward, ArrowUpward } from '@material-ui/icons';
 import {
   ASSIGNED_HASH,
@@ -80,6 +80,8 @@ export default function NavigationChevrons(props) {
   const classes = useStyles();
   const history = useHistory();
   const intl = useIntl();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const { action, pathInvestibleId, defaultMarket, pathMarketIdRaw, hashInvestibleId, isArchivedWorkspace,
     useLink, typeObjectId } = props;
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -315,7 +317,7 @@ export default function NavigationChevrons(props) {
   >
     {intl.formatMessage({ id: forwardLabelId })}
   </Button>;
-  const backButton = <Button
+  const backButton = mobileLayout ? null : <Button
     variant="outlined"
     disabled={backDisabled}
     id="backNavigation"
@@ -334,11 +336,11 @@ export default function NavigationChevrons(props) {
           {forwardButton}
         </Tooltip>
       )}
-      {backDisabled ? backButton : (
+      {!mobileLayout && (backDisabled ? backButton : (
         <Tooltip title={intl.formatMessage({ id: isMac ? 'previousNavigationMac' : 'previousNavigation' })}>
           {backButton}
         </Tooltip>
-      )}
+      ))}
     </Toolbar>
     {returnTop}
     </>

@@ -119,6 +119,12 @@ function withEnqueuedClears(state, additions) {
 function doUpdateMessages (state, action) {
   const { messages } = action;
   const { messages: existingMessages } = state;
+  // S-all-255: most syncs return an unchanged list; returning the identical state object
+  // lets React bail out of the dispatch, so none of the 70-plus consumers re-render and
+  // the reducer wrapper below skips the IndexedDB clone
+  if (_.isEqual(existingMessages, messages)) {
+    return state;
+  }
   const reEnqueued = [];
   if (!_.isEmpty(existingMessages)) {
     const deletedMessages = existingMessages.filter((message) => message.deleted);
@@ -322,6 +328,11 @@ function reducer (state, action) {
   // background flusher owns delivery and retry, so the UI never waits and a clear that fails
   // is retried instead of lost.
   const newState = computeNewState(state, action);
+  // S-all-255: an action that changed nothing needs no persistence and no clear flush
+  // (the flusher retries failures on its own timer)
+  if (newState === state) {
+    return state;
+  }
   setTimeout(() => {
     storeStatePromise(action, newState);
   }, 0);

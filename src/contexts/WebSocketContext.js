@@ -7,7 +7,7 @@ import { sendInfoPersistent, toastError } from '../utils/userMessage'
 import { pushMessage } from '../utils/MessageBusUtils'
 import { getLoginPersistentItem, setLoginPersistentItem } from '../components/localStorageUtils'
 import { isMobileDevice, isSignedOut, onSignOut } from '../utils/userFunctions'
-import { ensureRefreshRunner, refreshNotifications, refreshVersionsFromPush, VERSIONS_EVENT } from '../api/versionedFetchUtils';
+import { ensureRefreshRunner, refreshVersionsFromPush, VERSIONS_EVENT } from '../api/versionedFetchUtils';
 import { PUSH_ACCOUNT_CHANNEL, PUSH_HOME_USER_CHANNEL } from './AccountContext/accountContextMessages'
 import { getLogin } from '../api/homeAccount';
 import { getAppVersion } from '../api/sso';
@@ -145,9 +145,12 @@ function WebSocketProvider(props) {
             pushMessage(PUSH_ACCOUNT_CHANNEL, { event: VERSIONS_EVENT, version });
             break;
           case 'notification':
-            // Notifications are not market objects so there is nothing to verify in storage
+            // Notifications are not market objects so there is nothing to verify in storage.
+            // S-all-255: no direct refreshNotifications here - every path through
+            // refreshVersionsFromPush ends in a doVersionRefresh that refreshes
+            // notifications, so the direct call doubled the full getMessages fetch
+            // and reducer replacement on every push
             refreshVersionsFromPush().then(() => console.info('Refreshed versions from notifications push'));
-            refreshNotifications();
             break;
           default:
             // event_type is the object_type and object_id the market id (T-all-2259), so the

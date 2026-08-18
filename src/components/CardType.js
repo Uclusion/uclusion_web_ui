@@ -166,7 +166,8 @@ export default function CardType(props) {
     compressed = false,
     alwaysShowTypeChip = false,
     linker,
-    notificationMessage
+    notificationMessage,
+    notificationClearOnly
   } = props;
   const classes = useCardTypeStyles({ type, resolved, color });
   const intl = useIntl();
@@ -244,7 +245,7 @@ export default function CardType(props) {
       )}
       {linker}
       {notificationMessage && (
-        <NotificationMenuButton message={notificationMessage} />
+        <NotificationMenuButton message={notificationMessage} clearOnly={notificationClearOnly} />
       )}
       {createdAt && (
         <Typography className={classes.timeElapsed} variant="body2">

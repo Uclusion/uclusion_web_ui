@@ -195,8 +195,10 @@ function Voting(props) {
           const { name, email, id: userId, quantity, commentId, updatedAt } = voter;
           const isYourVote = userId === yourPresence.id;
           const myMessage = findMessageByInvestmentUserId(userId, investibleId, messagesState);
-          // T-all-2447: the bell offers go-to or clear via NotificationMenuButton
-          const notificationMessage = !isInbox && myMessage?.type_object_id ? myMessage : undefined;
+          // T-all-2447: the bell offers go-to or clear via NotificationMenuButton.
+          // C-all-1567: it shows in the inbox too, where go-to is meaningless because you are
+          // already there, so the menu is clear only.
+          const notificationMessage = myMessage?.type_object_id ? myMessage : undefined;
           const reason = investmentReasons.find((comment) => comment.id === commentId);
           const voteReplies = reason ? _.sortBy(marketComments.filter((comment) => comment.reply_id === reason.id),
             'created_at') : [];
@@ -231,6 +233,7 @@ function Voting(props) {
                     className={classes.cardType}
                     type={`certainty${Math.abs(quantity)}`}
                     notificationMessage={notificationMessage}
+                    notificationClearOnly={isInbox}
                     gravatar={<GravatarAndName email={email}
                                        name={name} typographyVariant="caption"
                                        typographyClassName={classes.createdBy}

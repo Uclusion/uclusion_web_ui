@@ -10,11 +10,12 @@ import { NotificationsContext } from '../../contexts/NotificationsContext/Notifi
 import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import { formInboxItemLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import { deleteOrDehilightMessages } from '../../api/users';
+import { NOT_FULLY_VOTED_TYPE } from '../../constants/notifications';
 
 // T-all-2447: the comment bell offers a choice - go to the notification or clear it -
 // following the All Done button's menu-before-action pattern
 function NotificationMenuButton(props) {
-  const { message, lightSurface, unhighlightedColor, iconStyle } = props;
+  const { message, lightSurface, unhighlightedColor, iconStyle, clearOnly } = props;
   const [anchorEl, setAnchorEl] = useState(null);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const history = useHistory();
@@ -43,18 +44,24 @@ function NotificationMenuButton(props) {
               preventDefaultAndProp(event);
               setAnchorEl(null);
             }}>
+        {!clearOnly && (
+          <MenuItem onClick={(event) => {
+            preventDefaultAndProp(event);
+            setAnchorEl(null);
+            dehighlightMessage(message, messagesDispatch);
+            navigate(history, formInboxItemLink(message));
+          }}>
+            {intl.formatMessage({ id: 'notificationGoTo' })}
+          </MenuItem>
+        )}
         <MenuItem onClick={(event) => {
           preventDefaultAndProp(event);
           setAnchorEl(null);
-          dehighlightMessage(message, messagesDispatch);
-          navigate(history, formInboxItemLink(message));
-        }}>
-          {intl.formatMessage({ id: 'notificationGoTo' })}
-        </MenuItem>
-        <MenuItem onClick={(event) => {
-          preventDefaultAndProp(event);
-          setAnchorEl(null);
-          deleteOrDehilightMessages([message], messagesDispatch, true, false, true);
+          // Q-all-471: a NOT_FULLY_VOTED is never hidden. Since votes fold into it, the bell can
+          // land on one, and dismissAIGenerated would force-delete it past the UNREAD-only rule
+          // and lose a vote still owed - dehighlight those instead so only the highlight goes.
+          const isVotePersistent = message?.type === NOT_FULLY_VOTED_TYPE;
+          deleteOrDehilightMessages([message], messagesDispatch, true, false, !isVotePersistent);
         }}>
           {intl.formatMessage({ id: 'notificationClear' })}
         </MenuItem>
@@ -65,6 +72,8 @@ function NotificationMenuButton(props) {
 
 NotificationMenuButton.propTypes = {
   message: PropTypes.object.isRequired,
+  // In the inbox you are already at the notification, so only clearing it makes sense
+  clearOnly: PropTypes.bool,
 };
 
 export default NotificationMenuButton;

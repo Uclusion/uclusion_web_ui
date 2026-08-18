@@ -3436,7 +3436,9 @@ def build_parser():
     )
     add_info_parser.add_argument(
         'question_short_code',
-        help='If the short code is an option or inside an option then the short code id of the question the option is for (e.g. Q-abc-123).',
+        nargs='?',
+        default=None,
+        help='Optional. If the short code is an option or inside an option then the short code id of the question the option is for (e.g. Q-abc-123).',
     )
     add_info_parser.set_defaults(func=cmd_add_info)
 

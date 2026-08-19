@@ -4,7 +4,7 @@ import LocalForageHelper from '../../utils/LocalForageHelper'
 import { commentsContextHack } from '../CommentsContext/CommentsContext';
 import { investibleContextHack } from '../InvestibesContext/InvestiblesContext';
 import { getComment } from '../CommentsContext/commentsContextHelper';
-import { timeSpan, timeSpanAsync } from '../../utils/renderProfiler';
+import { timeSpan } from '../../utils/renderProfiler';
 import { getInvestible } from '../InvestibesContext/investiblesContextHelper';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
@@ -118,10 +118,10 @@ function computeNewState(state, action) {
 }
 
 function reducer(state, action) {
-  const newState = timeSpan(`reducer:diff:${action.type}`, () => computeNewState(state, action));
+  const newState = computeNewState(state, action);
   if (action.type !== INITIALIZE_STATE) {
     const lfh = new LocalForageHelper(DIFF_CONTEXT_NAMESPACE);
-    timeSpanAsync('idb:diff', () => lfh.setState(newState));
+    lfh.setState(newState);
   }
   return newState;
 }

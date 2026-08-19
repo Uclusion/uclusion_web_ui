@@ -4,7 +4,6 @@ import { addByIdAndVersion } from '../ContextUtils'
 import { leaderContextHack } from '../LeaderContext/LeaderContext';
 import LocalForageHelper from '../../utils/LocalForageHelper';
 import { GROUP_MEMBERS_CONTEXT_NAMESPACE } from './GroupMembersContext';
-import { timeSpan, timeSpanAsync } from '../../utils/renderProfiler';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const ADD_GROUP_MEMBERS = 'ADD_GROUP_MEMBERS';
@@ -97,13 +96,13 @@ function computeNewState(state, action) {
 let presencesStoragePromiseChain = Promise.resolve(true);
 
 function reducer(state, action) {
-  const newState = timeSpan(`reducer:members:${action.type}`, () => computeNewState(state, action));
+  const newState = computeNewState(state, action);
   if (action.type !== INITIALIZE_STATE) {
     const lfh = new LocalForageHelper(GROUP_MEMBERS_CONTEXT_NAMESPACE);
     const { isLeader } = leaderContextHack;
     if (isLeader) {
       presencesStoragePromiseChain = presencesStoragePromiseChain.then(() => {
-        return timeSpanAsync('idb:members', () => lfh.setState(newState)).then(() => {
+        return lfh.setState(newState).then(() => {
           console.info('Updated members context storage.');
         });
       });

@@ -42,6 +42,43 @@ export function maxHoldMs() {
   return readOverrideMs('uclusionReleaseCapMs', MAX_HOLD_MS);
 }
 
+// Stage one policy (R-all-2334). Same shape and same reasoning as the release window, but its own
+// numbers so the two ends of the pipeline can be tuned independently.
+// Best-guess defaults. The quiet window sits above the T-all-2259 verifier's 2000ms base so its
+// retry does not split a storm, and above burst eight's 2.7s median gap between version changes so
+// a drip actually coalesces. The cap bounds worst-case staleness during sustained activity; an idle
+// client still syncs immediately on the leading edge, so a lone notification is never delayed.
+// Tuning past this buys fewer calls for proportional staleness and does not reduce client CPU
+// (R-all-2337), so these are deliberately modest.
+export const SYNC_QUIET_MS = 5000;
+export const SYNC_MAX_HOLD_MS = 15000;
+
+export function syncQuietMs() {
+  return readOverrideMs('uclusionSyncQuietMs', SYNC_QUIET_MS);
+}
+
+export function syncCapMs() {
+  return readOverrideMs('uclusionSyncCapMs', SYNC_MAX_HOLD_MS);
+}
+
+/**
+ * Trailing debounce with an idle leading edge. Measured from the last REQUEST, not the last cycle,
+ * which is the distinction that matters: burst eight's version checks arrived a median 2.7s apart
+ * across 65s, so a window measured from the last cycle expires between every pair and fires every
+ * time, pacing instead of collapsing. Resetting on each request lets a drip settle into one pass.
+ *
+ * An idle client still syncs immediately, so a lone notification is never delayed.
+ */
+export function msUntilSync(now, lastRequestMs, firstSuppressedMs, quietMs = SYNC_QUIET_MS,
+  capMs = SYNC_MAX_HOLD_MS) {
+  if (lastRequestMs === undefined || now - lastRequestMs >= quietMs) {
+    return 0;
+  }
+  const quietDueMs = now + quietMs;
+  const capDueMs = (firstSuppressedMs === undefined ? quietDueMs : firstSuppressedMs + capMs);
+  return Math.max(0, Math.min(quietDueMs, capDueMs) - now);
+}
+
 // Accrued entries go in under keys that cannot collide with stored ones, so the overlay only
 // ever adds candidates and never displaces what is already there. That matters for investibles,
 // where replacing a stored entry would drop the market_infos of markets this fetch did not

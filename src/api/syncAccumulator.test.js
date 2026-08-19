@@ -5,11 +5,14 @@ import {
   hasAccrued,
   MAX_HOLD_MS,
   msUntilRelease,
+  msUntilSync,
   overlayStorageStates,
   QUIET_WINDOW_MS,
+  SYNC_QUIET_MS,
   resetAccrued,
   takeAccrued
 } from './syncAccumulator';
+import { fetchableInvestibleSignatures } from './versionedFetchUtils';
 
 // T-all-2485 / Q-all-481 O-1: the fold and the debounce policy are the two pieces a later
 // refactor could silently break back into a per-cycle release, and both are pure.
@@ -154,3 +157,61 @@ describe('msUntilRelease', () => {
   });
 });
 
+describe('fetchableInvestibleSignatures', () => {
+  // T-all-2485: a signature with no market_infos is rejected by the endpoint's validator, and
+  // because the schema validates the whole body it takes every other entry down with it. This
+  // is the exact pair David captured from the failing request.
+  const good = { investible: { id: '9d50d9ac', version: 1 },
+    market_infos: [{ id: 'fe418995', version: 1 }] };
+  const unfetchable = { investible: { id: 'da0c8eda', version: 1 } };
+
+  it('keeps the well formed entry and drops the one that can never be served', () => {
+    expect(fetchableInvestibleSignatures([good, unfetchable])).toEqual([good]);
+  });
+
+  it('treats an empty market_infos the same as a missing one', () => {
+    // minItems 0 lets it past the schema, but get_market_investibles then KeyErrors on it
+    expect(fetchableInvestibleSignatures([{ investible: { id: 'x' }, market_infos: [] }])).toEqual([]);
+  });
+
+  it('returns nothing for an empty or missing list so the call can be skipped', () => {
+    expect(fetchableInvestibleSignatures([])).toEqual([]);
+    expect(fetchableInvestibleSignatures(undefined)).toEqual([]);
+  });
+});
+
+describe('msUntilSync', () => {
+  // T-all-2485: burst eight's version checks arrived a median 2.7s apart across 65s. A window
+  // measured from the last cycle expires between every pair and fires every time, which paced the
+  // cycles at exactly the window instead of collapsing them (R-all-2336). Resetting on each
+  // request is what makes this a debounce.
+  it('syncs immediately when the client is idle', () => {
+    expect(msUntilSync(100000, undefined, undefined)).toBe(0);
+    expect(msUntilSync(100000, 100000 - SYNC_QUIET_MS, undefined)).toBe(0);
+  });
+
+  it('defers a request that arrives inside the window, measured from that request', () => {
+    expect(msUntilSync(1000, 900, 900)).toBe(SYNC_QUIET_MS);
+  });
+
+  it('keeps deferring while a drip keeps arriving inside the window', () => {
+    // Requests 2.7s apart against a 5s window: every one pushes the due time out again, so the
+    // whole drip collapses into one pass rather than one pass per request.
+    let firstSuppressed = 1000;
+    for (const now of [1000, 3700, 6400, 9100]) {
+      expect(msUntilSync(now, now - 2700, firstSuppressed, 5000, 60000)).toBe(5000);
+    }
+  });
+
+  it('does not defer when the gap exceeds the window, so a real lull syncs at once', () => {
+    expect(msUntilSync(9000, 9000 - 5001, 1000, 5000, 60000)).toBe(0);
+  });
+
+  it('lets the cap bound a drip that never goes quiet', () => {
+    expect(msUntilSync(9000, 8900, 0, 5000, 10000)).toBe(1000);
+  });
+
+  it('never returns a negative delay once the cap has passed', () => {
+    expect(msUntilSync(30000, 29900, 0, 5000, 10000)).toBe(0);
+  });
+});

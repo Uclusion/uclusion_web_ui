@@ -58,7 +58,10 @@ import {
   hasAccrued,
   maxHoldMs,
   msUntilRelease,
+  msUntilSync,
   quietWindowMs,
+  syncCapMs,
+  syncQuietMs,
   overlayStorageStates,
   takeAccrued
 } from './syncAccumulator';
@@ -184,8 +187,65 @@ const matchErrorHandlingVersionRefresh = (dispatchers=undefined) => {
       return dirtyMarketCount;
     });
 };
+// Stage one (R-all-2334): a burst of pushes must produce one discovery pass rather than one per
+// push. refreshInProgress/refreshQueued only coalesce while a cycle is already running, which does
+// nothing for pushes arriving 2.4s apart - exactly what R-all-2331 measured, nineteen cycles each
+// asking versions about a single market id. This throttles the entry: leading edge so a lone
+// notification is never delayed, then one trailing pass for everything that arrived during the
+// window, so the dirty markets batch into one versions call and the existing chunking finally engages.
+let lastRequestMs = undefined;
+let syncThrottleTimer = undefined;
+let firstSuppressedMs = undefined;
+let suppressedDispatchers = undefined;
+
+function runCycleNow(dispatchers) {
+  firstSuppressedMs = undefined;
+  return matchErrorHandlingVersionRefresh(dispatchers);
+}
+
+function throttledRefresh(dispatchers) {
+  const now = Date.now();
+  // A cycle already running means this request must wait, whatever the window says. Calling
+  // through would hand it to matchErrorHandlingVersionRefresh's own refreshQueued path, which
+  // re-enters directly at the tail of that cycle and so skips the debounce entirely - the
+  // sub-second cluster of /versioned calls burst eleven recorded.
+  const delay = refreshInProgress ? syncQuietMs()
+    : msUntilSync(now, lastRequestMs, firstSuppressedMs, syncQuietMs(), syncCapMs());
+  lastRequestMs = now;
+  if (delay === 0) {
+    if (syncThrottleTimer) {
+      clearTimeout(syncThrottleTimer);
+      syncThrottleTimer = undefined;
+    }
+    return runCycleNow(dispatchers);
+  }
+  if (firstSuppressedMs === undefined) {
+    firstSuppressedMs = now;
+  }
+  if (dispatchers) {
+    suppressedDispatchers = dispatchers;
+  }
+  // Reset the wait on every request - that is what makes this a debounce rather than a rate
+  // limiter, and it is what lets a drip of version changes settle into a single discovery pass.
+  if (syncThrottleTimer) {
+    clearTimeout(syncThrottleTimer);
+  }
+  syncThrottleTimer = setTimeout(() => {
+    syncThrottleTimer = undefined;
+    if (refreshInProgress) {
+      // Still running - re-arm rather than queue behind it, for the same reason as above.
+      throttledRefresh(suppressedDispatchers);
+      return;
+    }
+    const trailingDispatchers = suppressedDispatchers;
+    suppressedDispatchers = undefined;
+    runCycleNow(trailingDispatchers).catch(() => console.warn('Error in throttled refresh'));
+  }, delay);
+  return Promise.resolve(false);
+}
+
 export function startRefreshRunner() {
-  runner = new RepeatingFunction(matchErrorHandlingVersionRefresh, MAX_DRIFT_TIME, MAX_RETRIES);
+  runner = new RepeatingFunction(throttledRefresh, MAX_DRIFT_TIME, MAX_RETRIES);
   return runner.start();
 }
 
@@ -220,7 +280,7 @@ export function refreshVersions (dispatchers=undefined, skipIfRefreshedWithinMs=
     console.info('Skipping speculative refresh - already fresh or in progress');
     return Promise.resolve(true);
   }
-  return matchErrorHandlingVersionRefresh(dispatchers).then((dirtyMarketCount) => {
+  return throttledRefresh(dispatchers).then((dirtyMarketCount) => {
     // If missing always start a runner so max drift is honored
     if (runner == null){
       return startRefreshRunner().then(() => dirtyMarketCount);
@@ -491,8 +551,13 @@ export async function doVersionRefresh(dispatchers) {
       }
     }
   }));
-  // These banned audits might be processed over and over but for now that's cheap so allow
-  pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, bannedList });
+  // T-all-2485: this fired every cycle regardless, and the presences listener answered it with a
+  // dispatch whose reducer correctly returned the same state - which the wrapper then persisted
+  // anyway. Burst eight measured nineteen whole-state presence writes for a storm in which nothing
+  // was banned. Nobody needs telling about an empty list.
+  if (!_.isEmpty(bannedList)) {
+    pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, bannedList });
+  }
   await Promise.all(bannedPromises);
   // Starting operation in progress just presents as a bug to the user because freezes all buttons so just log
   console.info('Beginning inline versions update');
@@ -584,8 +649,29 @@ function fetchMarketComments(marketClient, marketId, allComments, marketsStruct)
     });
 }
 
+/**
+ * The subset of investible fetch signatures the endpoint can actually serve. An entry with no
+ * market_infos is rejected by market_investible_get_request_validator, which requires the
+ * property, and the rejection takes down every other entry in the same body.
+ */
+export function fetchableInvestibleSignatures(unmatchedSignatures) {
+  return (unmatchedSignatures || []).filter((signature) => !_.isEmpty(signature.market_infos));
+}
+
 function fetchMarketInvestibles(marketClient, marketId, allInvestibles, marketsStruct) {
-  return fetchInvestibles(allInvestibles.unmatchedSignatures, marketClient)
+  // T-all-2485: investiblesSignatureGenerator emits {investible} with no market_infos when an
+  // investible version lands in the audit before its paired market_investible version does -
+  // a race the burst hits for freshly created options. The endpoint requires market_infos, so
+  // that entry is rejected, and because the schema validates the whole body every other
+  // investible batched with it dies too. Sending it can never succeed, so drop it here and let
+  // the market stay dirty: the signature is still unmatched, so the next cycle retries once the
+  // paired indicator lands. Filtering in the generator instead would make the market look clean
+  // and an investible whose own version changed alone would never be fetched at all.
+  const fetchable = fetchableInvestibleSignatures(allInvestibles.unmatchedSignatures);
+  if (_.isEmpty(fetchable)) {
+    return Promise.resolve(true);
+  }
+  return fetchInvestibles(fetchable, marketClient)
     .then((investibles) => {
       addMarketsStructInfo('investibles', marketsStruct, investibles);
     });

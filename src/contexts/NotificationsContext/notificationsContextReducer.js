@@ -3,6 +3,7 @@ import _ from 'lodash'
 import { findMessagesForInvestibleId } from '../../utils/messageUtils'
 import { leaderContextHack } from '../LeaderContext/LeaderContext';
 import { flushPendingClears, PENDING_CLEARS_ACKED } from './pendingClearsFlusher';
+import { timeSpan, timeSpanAsync } from '../../utils/renderProfiler';
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
@@ -311,12 +312,18 @@ function computeNewState (state, action) {
   }
 }
 
+// T-all-2485: every sibling context chains its writes, this one fired an unchained setTimeout
+// so two writes could land out of order. R-all-2306 makes that inconsistency load bearing,
+// because the release has to await each context's storage chain before telling other tabs to
+// reload, and a chain that does not exist cannot be awaited.
+let notificationsStoragePromiseChain = Promise.resolve(true);
+
 function storeStatePromise(action, newState) {
   if (action.type !== INITIALIZE_STATE) {
     const { isLeader } = leaderContextHack;
     if (isLeader) {
       const lfh = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
-      return lfh.setState(newState).then(() => {
+      return timeSpanAsync('idb:notifications', () => lfh.setState(newState)).then(() => {
         console.info('Updated notifications context storage.');
       });
     }
@@ -329,14 +336,15 @@ function reducer (state, action) {
   // enqueues them durably in state.pendingClears (persisted with the tombstone below) and the
   // background flusher owns delivery and retry, so the UI never waits and a clear that fails
   // is retried instead of lost.
-  const newState = computeNewState(state, action);
+  const newState = timeSpan(`reducer:notifications:${action.type}`, () => computeNewState(state, action));
   // S-all-255: an action that changed nothing needs no persistence and no clear flush
   // (the flusher retries failures on its own timer)
   if (newState === state) {
     return state;
   }
   setTimeout(() => {
-    storeStatePromise(action, newState);
+    notificationsStoragePromiseChain = notificationsStoragePromiseChain
+      .then(() => storeStatePromise(action, newState));
   }, 0);
   if (action.type !== PENDING_CLEARS_ACKED && !_.isEmpty(newState.pendingClears)) {
     setTimeout(() => flushPendingClears(newState.pendingClears), 0);

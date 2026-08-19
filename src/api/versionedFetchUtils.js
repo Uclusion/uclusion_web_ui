@@ -51,7 +51,17 @@ import { versionsUpdateMarketPresences } from '../contexts/MarketPresencesContex
 import { updateMarketStagesFromNetwork } from '../contexts/MarketStagesContext/marketStagesContextReducer';
 import { addGroupsToStorage } from '../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { versionsUpdateGroupMembers } from '../contexts/GroupMembersContext/groupMembersContextReducer';
-import { markSync } from '../utils/renderProfiler';
+import { markSync, timeSpan, timeSpanAsync } from '../utils/renderProfiler';
+import {
+  accrueMarketsStruct,
+  getFirstAccruedMs,
+  hasAccrued,
+  maxHoldMs,
+  msUntilRelease,
+  quietWindowMs,
+  overlayStorageStates,
+  takeAccrued
+} from './syncAccumulator';
 
 const MAX_RETRIES = 10;
 const MAX_DRIFT_TIME = 300000;
@@ -81,6 +91,46 @@ let queuedDispatchers = undefined;
 // When the last refresh completed without error - lets speculative (focus/visibility/online)
 // refreshes skip when the data is known fresh (C-all-1066).
 let lastSuccessfulRefreshMs = 0;
+// T-all-2485: a storm accrues instead of releasing per cycle, and one release feeds every
+// context when the debounce judges it over (R-all-2316). Because nothing dispatches until
+// then, the reducers also persist exactly once, which is what Q-all-478 O-2 settled.
+let releasePending = false;
+let lastCycleEndMs = 0;
+let releaseTimer = undefined;
+let releaseDispatchers = undefined;
+
+function doRelease() {
+  if (!releasePending) {
+    return;
+  }
+  const firstAccruedMs = getFirstAccruedMs();
+  const capExpired = firstAccruedMs !== undefined && Date.now() - firstAccruedMs >= maxHoldMs();
+  // A cycle running means the storm is not quiet, so let its completion re-arm the timer.
+  // The maximum hold overrides that - it exists precisely to fire mid-storm.
+  if (refreshInProgress && !capExpired) {
+    return;
+  }
+  releasePending = false;
+  if (hasAccrued()) {
+    timeSpan('release', () => sendMarketsStruct(takeAccrued(), releaseDispatchers));
+  }
+  // Q-all-479 O-1: notifications release with the market data and never ahead of it, because
+  // a row whose comment is not in state yet does not function. This fetch is asynchronous, so
+  // calling it after the dispatch above keeps that order.
+  refreshNotifications();
+}
+
+function scheduleRelease() {
+  if (releaseTimer) {
+    clearTimeout(releaseTimer);
+  }
+  const delay = msUntilRelease(Date.now(), lastCycleEndMs, getFirstAccruedMs(),
+    quietWindowMs(), maxHoldMs());
+  releaseTimer = setTimeout(() => {
+    releaseTimer = undefined;
+    doRelease();
+  }, delay);
+}
 const matchErrorHandlingVersionRefresh = (dispatchers=undefined) => {
   // A dead link burns 30s abort + retry per call and chains queued refreshes behind the
   // failures, so on bad internet the tab syncs back to back continuously. The browser
@@ -121,12 +171,15 @@ const matchErrorHandlingVersionRefresh = (dispatchers=undefined) => {
         recordInitialSyncCycle(dirtyMarketCount);
       }
       refreshInProgress = false;
+      lastCycleEndMs = Date.now();
+      releasePending = true;
       if (refreshQueued) {
         refreshQueued = false;
         const dispatchersForQueued = queuedDispatchers;
         queuedDispatchers = undefined;
         return matchErrorHandlingVersionRefresh(dispatchersForQueued);
       }
+      scheduleRelease();
       // undefined after an error (the catch above), a number after a clean run
       return dirtyMarketCount;
     });
@@ -402,7 +455,9 @@ export function getStorageStates() {
     return helper.getState(groupMembersContextHack);
   }).then((state) => {
     storageStates.groupMembersState = state ?? {};
-    return storageStates;
+    // R-all-2308: getState short-circuits to the in-memory context state, so without this
+    // overlay every accrued market would look dirty again on the next cycle and be refetched.
+    return overlayStorageStates(storageStates);
   });
 }
 
@@ -412,14 +467,15 @@ export function getStorageStates() {
  */
 export async function doVersionRefresh(dispatchers) {
   console.info('Checking for sync');
-  const storageStates = await getStorageStates();
-  const audits = await getChangedIds();
+  releaseDispatchers = dispatchers;
+  const storageStates = await timeSpanAsync('getStorageStates', () => getStorageStates());
+  const audits = await timeSpanAsync('getChangedIds', () => getChangedIds());
   const foregroundList = [];
   const backgroundList = [];
   const bannedList = [];
   const inlineList = [];
   const bannedPromises = [];
-  (audits || []).forEach((audit) => {
+  timeSpan('signatureDiff', () => (audits || []).forEach((audit) => {
     const { signature, inline, active, banned, id } = audit;
     if (banned) {
       bannedList.push(id);
@@ -434,7 +490,7 @@ export async function doVersionRefresh(dispatchers) {
         backgroundList.push(id);
       }
     }
-  });
+  }));
   // These banned audits might be processed over and over but for now that's cheap so allow
   pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, bannedList });
   await Promise.all(bannedPromises);
@@ -443,21 +499,23 @@ export async function doVersionRefresh(dispatchers) {
   console.info(inlineList);
   // TODO: this is evil. We're using the inlineMarketsStruct as an _output_ parameter that gets mutated
   const inlineMarketsStruct = {};
-  await updateMarkets(inlineList, inlineMarketsStruct, MAX_CONCURRENT_API_CALLS, storageStates, true)
-  sendMarketsStruct(inlineMarketsStruct, dispatchers);
+  await timeSpanAsync('updateMarkets:inline', () => updateMarkets(inlineList, inlineMarketsStruct,
+    MAX_CONCURRENT_API_CALLS, storageStates, true))
+  accrueMarketsStruct(inlineMarketsStruct);
   const foregroundMarketsStruct = {};
   console.info('Beginning foreground versions update');
   console.info(foregroundList);
   // TODO: Again, this is evil. ForegroundMarketsStruct is an _output_ parameter that gets mutated
-  await updateMarkets(foregroundList, foregroundMarketsStruct, MAX_CONCURRENT_API_CALLS, storageStates);
-  sendMarketsStruct(foregroundMarketsStruct, dispatchers);
+  await timeSpanAsync('updateMarkets:foreground', () => updateMarkets(foregroundList,
+    foregroundMarketsStruct, MAX_CONCURRENT_API_CALLS, storageStates));
+  accrueMarketsStruct(foregroundMarketsStruct);
   const backgroundMarketsStruct = {};
   console.info('Finished foreground update');
-  refreshNotifications();
   console.info('Beginning background versions update');
   console.info(backgroundList);
-  await updateMarkets(backgroundList, backgroundMarketsStruct, MAX_CONCURRENT_ARCHIVE_API_CALLS, storageStates);
-  sendMarketsStruct(backgroundMarketsStruct, dispatchers);
+  await timeSpanAsync('updateMarkets:background', () => updateMarkets(backgroundList,
+    backgroundMarketsStruct, MAX_CONCURRENT_ARCHIVE_API_CALLS, storageStates));
+  accrueMarketsStruct(backgroundMarketsStruct);
   console.info('Ending versions update');
   // How many markets were dirty - lets push-triggered callers detect a refresh that
   // raced the async version indicator write and found nothing (T-all-2252).

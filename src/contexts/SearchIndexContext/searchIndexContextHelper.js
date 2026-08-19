@@ -1,11 +1,16 @@
 import _ from 'lodash';
 import { transformItemsToIndexable } from './searchIndexContextMessages';
+import { timeSpan } from '../../utils/renderProfiler';
 
 export function getSearchResults(index, query) {
   return index.search(query);
 }
 
 export function addToIndex(index, itemType, items) {
+  return timeSpan('minisearchReindex', () => addToIndexTimed(index, itemType, items));
+}
+
+function addToIndexTimed(index, itemType, items) {
   const indexable = transformItemsToIndexable(itemType, items);
   const removedRaw = _.remove(indexable, (item) => item.type === 'DELETED');
   const toAdd = [];

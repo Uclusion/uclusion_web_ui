@@ -4,6 +4,7 @@ import LocalForageHelper from '../../utils/LocalForageHelper'
 import { commentsContextHack } from '../CommentsContext/CommentsContext';
 import { investibleContextHack } from '../InvestibesContext/InvestiblesContext';
 import { getComment } from '../CommentsContext/commentsContextHelper';
+import { timeSpan, timeSpanAsync } from '../../utils/renderProfiler';
 import { getInvestible } from '../InvestibesContext/investiblesContextHelper';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
@@ -86,7 +87,7 @@ function getContents(state, item, contentType) {
   const description = contentType === 'comment' ? item.body : item.description;
   // ok at this point, you've seen something, and this new stuff is genuinely new to you. Hence, calculate the diff
   try {
-    const diff = HtmlDiff.execute(lastSeenContent, description || '');
+    const diff = timeSpan('htmlDiff', () => HtmlDiff.execute(lastSeenContent, description || ''));
     return {
       version,
       diff
@@ -117,10 +118,10 @@ function computeNewState(state, action) {
 }
 
 function reducer(state, action) {
-  const newState = computeNewState(state, action);
+  const newState = timeSpan(`reducer:diff:${action.type}`, () => computeNewState(state, action));
   if (action.type !== INITIALIZE_STATE) {
     const lfh = new LocalForageHelper(DIFF_CONTEXT_NAMESPACE);
-    lfh.setState(newState);
+    timeSpanAsync('idb:diff', () => lfh.setState(newState));
   }
   return newState;
 }

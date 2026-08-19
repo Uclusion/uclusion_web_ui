@@ -84,6 +84,54 @@ export function RenderCensus(props) {
   return React.createElement(React.Profiler, { id, onRender }, children);
 }
 
+// T-all-2485: named timers for the non-render work on the push stack. The census only sees React,
+// and the long task API reports duration with no attribution, so these labels are the only way to
+// say which suspect owns the blocking time. Off, they cost one boolean check.
+const timers = typeof window !== 'undefined'
+  ? (window.__uclusionTimerData = window.__uclusionTimerData || {})
+  : {};
+
+function recordTimer(label, elapsed) {
+  const entry = timers[label] || (timers[label] = { calls: 0, totalMs: 0, worstMs: 0, duringSyncMs: 0 });
+  entry.calls += 1;
+  entry.totalMs += elapsed;
+  if (elapsed > entry.worstMs) {
+    entry.worstMs = elapsed;
+  }
+  if (syncDepth > 0) {
+    entry.duringSyncMs += elapsed;
+  }
+}
+
+/** Times a synchronous span. Returns fn()'s value untouched, and is a no-op when disarmed. */
+export function timeSpan(label, fn) {
+  if (!active) {
+    return fn();
+  }
+  const started = performance.now();
+  try {
+    return fn();
+  } finally {
+    recordTimer(label, performance.now() - started);
+  }
+}
+
+/** Times a promise-returning span, recording when it settles either way. */
+export function timeSpanAsync(label, fn) {
+  if (!active) {
+    return fn();
+  }
+  const started = performance.now();
+  const stop = () => recordTimer(label, performance.now() - started);
+  return Promise.resolve(fn()).then((value) => {
+    stop();
+    return value;
+  }, (error) => {
+    stop();
+    throw error;
+  });
+}
+
 export function markSync(edge) {
   if (!active) {
     return;
@@ -140,6 +188,7 @@ function arm() {
       try {
         if (window.localStorage.getItem('uclusionProfilerSink')) {
           emit('[renderProfiler] census ' + JSON.stringify(census));
+          emit('[renderProfiler] timers ' + JSON.stringify(timers));
         }
       } catch (ignored) {
         // best effort
@@ -199,5 +248,20 @@ if (typeof window !== 'undefined') {
   window.__renderCensusReset = () => {
     Object.keys(census).forEach((id) => delete census[id]);
     console.info('[renderProfiler] census reset');
+  };
+  window.__uclusionTimers = () => {
+    const rows = Object.keys(timers).map((label) => ({
+      span: label,
+      calls: timers[label].calls,
+      totalMs: Math.round(timers[label].totalMs),
+      worstMs: Math.round(timers[label].worstMs),
+      duringSyncMs: Math.round(timers[label].duringSyncMs),
+    })).sort((a, b) => b.totalMs - a.totalMs);
+    console.table(rows);
+    return rows;
+  };
+  window.__uclusionTimersReset = () => {
+    Object.keys(timers).forEach((label) => delete timers[label]);
+    console.info('[renderProfiler] timers reset');
   };
 }

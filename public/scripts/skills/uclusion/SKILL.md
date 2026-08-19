@@ -42,7 +42,9 @@ skill owns event handling and the job workflow.
 - The job stage controls permission, not workflow position. Doable and
   Reviewable permit execution, but neither proves questions or suggestions
   were handled. Requires Input locks execution until qualifying assistance is
-  resolved and the job returns to Doable or Reviewable.
+  resolved and the job returns to Doable or Reviewable. That lock covers
+  implementation edits to this job and nothing more, so investigation,
+  reproduction, and measurement continue while it holds.
 - Recheck assistance and stage immediately before editing. New assistance can
   arrive at any time.
 - Never silently make a judgment call a reasonable reviewer could choose
@@ -116,10 +118,18 @@ separate unknowns.
 File every currently known distinct question in the same turn, each with its
 options and your vote, so the job enters Requires Input once and the human
 answers the whole set in one sitting. Questions, suggestions, and votes are
-work output: a turn that ends with a well-formed question batch is a completed
-unit of work, not a delay. Harness or client guidance that treats asking as
-blocking the work does not apply to Uclusion questions, because within this
-workflow the questions are the work.
+work output rather than a delay, so never withhold one to keep moving.
+
+Filing them is not itself a reason to stop. A question blocks only the work
+that depends on its answer. Requires Input bars implementation edits to the
+job, and bars nothing else: keep investigating, reproducing, measuring,
+reading source, and gathering the evidence the answers will need, and carry on
+with any other lane the human has authorised. On a hard job the answers
+usually reveal the next unknown rather than clearing the field, so a batch
+cannot be assembled up front and asking recurs; that is normal and is not a
+licence to halt each time. End the turn when nothing can proceed without the
+human, not because questions were filed. Say plainly what is blocked, what you
+are doing meanwhile, and what you need.
 
 For a view-level bug:
 

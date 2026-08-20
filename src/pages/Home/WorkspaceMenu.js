@@ -16,7 +16,7 @@ import { changeBanStatus, getMarketPresences } from '../../contexts/MarketPresen
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
-import { doVersionRefresh } from '../../api/versionedFetchUtils';
+import { refreshVersionsNow } from '../../api/versionedFetchUtils';
 import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 import { DARK_ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants';
 
@@ -356,7 +356,7 @@ function WorkspaceMenu(props) {
                 key="sync" id="syncId"
                 onClick={() => {
                   setOperationRunning(true);
-                  return doVersionRefresh().then(() => {
+                  return refreshVersionsNow().then(() => {
                     setOperationRunning(false);
                     recordPositionToggle();
                   });

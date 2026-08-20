@@ -14,14 +14,23 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
-import { getStageNameForId } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import {
+  getFullStage,
+  getStageNameForId
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { useHistory } from 'react-router';
 import { formCommentLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { resolveComment, updateComment } from '../../../api/comments';
 import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
-import { getFormerStageId, handleAcceptSuggestion, isSingleAssisted } from '../../../utils/commentFunctions';
+import {
+  changeInvestibleStageOnCommentClose,
+  doesCommentResolutionRestoreStage,
+  getFormerStageId,
+  getWorkflowStageContext,
+  handleAcceptSuggestion
+} from '../../../utils/commentFunctions';
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
 import { pokeComment } from '../../../api/users';
@@ -53,15 +62,26 @@ function DecideAssistanceStep(props) {
   const classes = wizardStyles();
   const inv = getInvestible(investibleState, commentRoot.investible_id) || {};
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { former_stage_id: formerStageId, assigned } = marketInfo;
+  const { stage: currentStageId, former_stage_id: formerStageId, assigned } = marketInfo;
   const nextStageId = getFormerStageId(formerStageId, marketId, marketStagesState);
   const nextStageName = getStageNameForId(marketStagesState, marketId, nextStageId, intl);
-  const isSingle = commentRoot.investible_id ? isSingleAssisted(investibleComments, assigned) : false;
   const isSuggest = commentRoot.comment_type === SUGGEST_CHANGE_TYPE;
   const { useCompression, parentElementId } = formData;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const restoresFormerStage = commentRoot.investible_id ? doesCommentResolutionRestoreStage(
+    commentRoot,
+    investibleComments,
+    assigned,
+    marketPresences,
+    getWorkflowStageContext(
+      marketStagesState,
+      marketId,
+      getFullStage(marketStagesState, marketId, currentStageId),
+      formerStageId
+    )
+  ) : false;
   const pokeList = getCommentPokeList(commentRoot, marketId, marketPresences, groupPresencesState,
     marketPresencesState, marketComments);
 
@@ -76,7 +96,7 @@ function DecideAssistanceStep(props) {
 
   function accept() {
     return updateComment({marketId, commentId, commentType: TODO_TYPE}).then((comment) => {
-      handleAcceptSuggestion({ isMove: isSingle, comment, investible: inv, investiblesDispatch,
+      handleAcceptSuggestion({ isMove: restoresFormerStage, comment, investible: inv, investiblesDispatch,
         marketStagesState, commentsState, commentsDispatch, messagesState, messagesDispatch })
       setOperationRunning(false);
       navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
@@ -87,6 +107,10 @@ function DecideAssistanceStep(props) {
     return resolveComment(marketId, commentId)
       .then((comment) => {
         addCommentToMarket(comment, commentsState, commentsDispatch);
+        if (restoresFormerStage) {
+          changeInvestibleStageOnCommentClose(inv.market_infos, inv.investible, investiblesDispatch,
+            comment.updated_at, marketStagesState, marketId);
+        }
         setOperationRunning(false);
       });
   }
@@ -118,14 +142,14 @@ function DecideAssistanceStep(props) {
         {isQuestion ? ' question' : (isSuggest ? ' suggestion' : (commentRoot.investible_id ? ' blocking issue' :
           ' critical bug'))}?
       </Typography>
-      {isSingle && (
+      {restoresFormerStage && (
         <PokeReminder pokeList={pokeList} prefix={<>Resolving moves this job to {nextStageName}.</>} />
       )}
       {isBug && (
         <PokeReminder pokeList={pokeList}
                       prefix="Moving this bug to normal removes it from triage but sends a one time notification." />
       )}
-      {!isBug && !isSingle && (
+      {!isBug && !restoresFormerStage && (
         <PokeReminder pokeList={pokeList} />
       )}
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}

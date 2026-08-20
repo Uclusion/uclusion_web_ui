@@ -4,7 +4,7 @@ import {
   getAcceptedStage,
   getBlockedStage,
   getFullStage, getInCurrentVotingStage,
-  getRequiredInputStage, isFurtherWorkStage, isInReviewStage
+  getRequiredInputStage, getStages, isFurtherWorkStage, isInReviewStage
 } from '../contexts/MarketStagesContext/marketStagesContextHelper';
 import {
   ISSUE_TYPE,
@@ -27,7 +27,6 @@ import { addMarket } from '../contexts/MarketsContext/marketsContextHelper'
 import TokenStorageManager from '../authorization/TokenStorageManager'
 import { PUSH_INVESTIBLES_CHANNEL } from '../api/versionedFetchUtils'
 import { removeMessagesForCommentId } from './messageUtils';
-import { getMarketInfo } from './userFunctions';
 import { getMarketPresences } from '../contexts/MarketPresencesContext/marketPresencesHelper';
 import { TOKEN_TYPE_MARKET } from '../api/tokenConstants';
 import { BLUE_LEVEL } from '../constants/notifications';
@@ -153,17 +152,18 @@ export function handleAcceptSuggestion(info) {
   const { isMove, comment, investible, investiblesDispatch, marketStagesState, commentsState,
     commentsDispatch, messagesState, messagesDispatch } = info;
   if (isMove) {
-    const marketInfo = getMarketInfo(investible, comment.market_id);
-    changeInvestibleStageOnCommentClose([marketInfo], investible.investible, investiblesDispatch,
-      comment.updated_at, marketStagesState);
+    changeInvestibleStageOnCommentClose(investible.market_infos, investible.investible, investiblesDispatch,
+      comment.updated_at, marketStagesState, comment.market_id);
   }
   addCommentToMarket(comment, commentsState, commentsDispatch);
   removeMessagesForCommentId(comment.id, messagesState, messagesDispatch);
 }
 
 export function changeInvestibleStageOnCommentClose(market_infos, rootInvestible, investibleDispatch, updatedAt,
-  marketStagesState) {
-  const [info] = (market_infos || []);
+  marketStagesState, targetMarketId) {
+  const info = targetMarketId ?
+    (market_infos || []).find((marketInfo) => marketInfo.market_id === targetMarketId) :
+    (market_infos || [])[0];
   const { former_stage_id: formerStageId, assigned, market_id: marketId } = (info || {});
   const nextStageId = getFormerStageId(formerStageId, marketId, marketStagesState);
   const newStage = getFullStage(marketStagesState, marketId, nextStageId);
@@ -338,6 +338,59 @@ export function getFormerStageId(formerStageId, marketId, marketStagesState) {
   return (getInCurrentVotingStage(marketStagesState, marketId) || {}).id;
 }
 
+export function getWorkflowStageContext(marketStagesState, marketId, currentStage, formerStageId) {
+  return {
+    stages: getStages(marketStagesState, marketId),
+    currentStage: currentStage || {},
+    formerStageId,
+  };
+}
+
+function aiQuestionWasOpenedForExecution(comment, stageContext) {
+  if (!stageContext) {
+    return true;
+  }
+  const { stages = [], currentStage = {}, formerStageId } = stageContext;
+  const isExecutable = (stage) => ['Doable', 'Reviewable'].includes(stage?.name);
+  const isRequiresInput = (stage) => stage?.move_on_comment && !stage?.allows_issues;
+  if (!currentStage.id) {
+    // Stage definitions can arrive after comments. Conservatively keep the AI question as a
+    // blocker until sync supplies enough context to classify its creation lane.
+    return true;
+  }
+  const formerStage = stages.find((stage) => stage.id === formerStageId);
+  const laneIsExecutable = isExecutable(currentStage) ||
+    (currentStage.move_on_comment && isExecutable(formerStage));
+  if (!laneIsExecutable) {
+    return false;
+  }
+  const creationStageId = comment.creation_stage_id;
+  if (!creationStageId) {
+    return true;
+  }
+  if (creationStageId === currentStage.id) {
+    return isExecutable(currentStage) || isRequiresInput(currentStage);
+  }
+  if (creationStageId === formerStageId) {
+    return isExecutable(formerStage);
+  }
+  const creationStage = stages.find((stage) => stage.id === creationStageId);
+  return isExecutable(creationStage) || isRequiresInput(creationStage);
+}
+
+function getOpenWorkflowComments(comments, assigned, marketPresences, includeIssues = true, stageContext) {
+  const aiUserIds = new Set((marketPresences || [])
+    .filter((presence) => !presence.deleted && !presence.market_banned && _.isEmpty(presence.email))
+    .map((presence) => presence.id));
+  return (comments || []).filter((comment) => !comment.resolved && !comment.deleted && comment.is_sent !== false && (
+    (includeIssues && comment.comment_type === ISSUE_TYPE) ||
+    ([QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type) &&
+      (assigned || []).includes(comment.created_by)) ||
+    (comment.comment_type === QUESTION_TYPE && aiUserIds.has(comment.created_by) &&
+      aiQuestionWasOpenedForExecution(comment, stageContext))
+  ));
+}
+
 export function isSingleAssisted(comments, assigned) {
   if (_.isEmpty(assigned)) {
     return false;
@@ -346,4 +399,26 @@ export function isSingleAssisted(comments, assigned) {
     comment => (comment.comment_type === QUESTION_TYPE || comment.comment_type === SUGGEST_CHANGE_TYPE)
       && !comment.resolved && assigned.includes(comment.created_by))) +
     _.size(comments.filter(comment => comment.comment_type === ISSUE_TYPE && !comment.resolved)) === 1;
+}
+
+// The backend evaluates the comments left after a resolve. A question or suggestion only needs to
+// leave no other assistance; resolving a blocker must leave neither assistance nor another blocker.
+export function doesCommentResolutionRestoreStage(comment, comments, assigned, marketPresences, stageContext) {
+  const currentStage = stageContext?.currentStage;
+  if (currentStage?.id) {
+    const isBlocking = currentStage.move_on_comment && currentStage.allows_issues;
+    const isRequiresInput = currentStage.move_on_comment && !currentStage.allows_issues;
+    if ((comment.comment_type === ISSUE_TYPE && !isBlocking) ||
+        ([QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type) && !isRequiresInput)) {
+      return false;
+    }
+  }
+  const remainingComments = (comments || []).filter((candidate) => candidate.id !== comment.id);
+  return getOpenWorkflowComments(
+    remainingComments,
+    assigned,
+    marketPresences,
+    comment.comment_type === ISSUE_TYPE,
+    stageContext
+  ).length === 0;
 }

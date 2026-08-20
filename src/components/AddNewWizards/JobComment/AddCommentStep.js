@@ -10,7 +10,11 @@ import { useHistory } from 'react-router';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
-import { changeInvestibleStageOnCommentClose, isSingleAssisted } from '../../../utils/commentFunctions';
+import {
+  changeInvestibleStageOnCommentClose,
+  doesCommentResolutionRestoreStage,
+  getWorkflowStageContext
+} from '../../../utils/commentFunctions';
 import {
   ISSUE_TYPE,
   QUESTION_TYPE,
@@ -20,7 +24,7 @@ import {
   TODO_TYPE
 } from '../../../constants/comments';
 import {
-  getBlockedStage, getFurtherWorkStage,
+  getBlockedStage, getFurtherWorkStage, getFullStage,
   getRequiredInputStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
@@ -108,17 +112,27 @@ function AddCommentStep (props) {
 
   function onCreateTaskQuestionResolve() {
     const { parent_comment_id: parentCommentId } = fromDecisionMarket;
+    const question = getComment(commentState, marketId, parentCommentId);
+    const inv = getInvestible(investiblesState, investibleId);
+    const marketInfo = getMarketInfo(inv, marketId) || {};
+    const restoresFormerStage = !!inv && !!question && doesCommentResolutionRestoreStage(
+      question,
+      investibleComments,
+      marketInfo.assigned || assigned,
+      presences,
+      getWorkflowStageContext(
+        marketStagesState,
+        marketId,
+        getFullStage(marketStagesState, marketId, currentStageId),
+        marketInfo.former_stage_id
+      )
+    );
     return resolveComment(marketId, parentCommentId)
       .then((comment) => {
         addCommentToMarket(comment, commentState, commentDispatch);
-        // B-all-486: only unresolved assistance holds a job in Requires Input, and for
-        // questions and suggestions only when authored by an assignee - the same rules the
-        // resolve button path and the back end apply via isSingleAssisted
-        if (inAssistanceStage && isSingleAssisted(investibleComments, assigned)) {
-          const inv = getInvestible(investiblesState, investibleId);
-          const marketInfo = getMarketInfo(inv, marketId);
-          changeInvestibleStageOnCommentClose([marketInfo], inv.investible, investiblesDispatch,
-            comment.updated_at, marketStagesState);
+        if (restoresFormerStage) {
+          changeInvestibleStageOnCommentClose(inv.market_infos, inv.investible, investiblesDispatch,
+            comment.updated_at, marketStagesState, marketId);
         }
         removeMessagesForCommentId(parentCommentId, messagesState, messagesDispatch);
       });

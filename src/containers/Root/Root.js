@@ -30,7 +30,7 @@ import { TicketIndexContext } from '../../contexts/TicketContext/TicketIndexCont
 import { setOperationInProgress } from '../../components/ContextHacks/OperationInProgressGlobalProvider';
 import GroupEdit from '../../pages/DialogSettings/GroupEdit';
 import DialogArchives from '../../pages/DialogArchives/DialogArchives';
-import { doVersionRefresh, refreshVersions } from '../../api/versionedFetchUtils';
+import { refreshVersions, refreshVersionsNow } from '../../api/versionedFetchUtils';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
@@ -227,7 +227,7 @@ function Root(props) {
       }
       const startedAt = Date.now();
       const poll = () => {
-        doVersionRefresh().catch(() => console.warn('Error refreshing for missing data'));
+        refreshVersionsNow().catch(() => console.warn('Error refreshing for missing data'));
         const delay = Date.now() - startedAt > DATA_POLL_FAST_CUTOFF_MS ? DATA_POLL_SLOW_MS : DATA_POLL_FAST_MS;
         dataPollTimerRef.current = setTimeout(poll, delay);
       };

@@ -10,12 +10,11 @@ import {
   getMarketComments
 } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { addInvestible, getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import {
-  getFullStage, isInReviewStage,
-  isRequiredInputStage
+  getFullStage, isInReviewStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -26,7 +25,13 @@ import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/You
 import { reopenComment, resolveComment, updateComment } from '../../../api/comments';
 import _ from 'lodash';
 import { SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
-import { handleAcceptSuggestion, isSingleAssisted, onCommentOpen } from '../../../utils/commentFunctions';
+import {
+  changeInvestibleStageOnCommentClose,
+  doesCommentResolutionRestoreStage,
+  getWorkflowStageContext,
+  handleAcceptSuggestion,
+  onCommentOpen
+} from '../../../utils/commentFunctions';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import JobDescription from '../JobDescription';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -61,7 +66,13 @@ function DecideResolveStep(props) {
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const isSuggestion = commentRoot.comment_type === SUGGEST_CHANGE_TYPE;
   const isReopen = message.type === 'UNREAD_RESOLVED';
-  const isSingle = commentRoot.investible_id ? isSingleAssisted(investibleComments, assigned) : false;
+  const restoresFormerStage = !!inv && doesCommentResolutionRestoreStage(
+    commentRoot,
+    investibleComments,
+    assigned,
+    presences,
+    getWorkflowStageContext(marketStagesState, marketId, fullStage, formerStageId)
+  );
   const { useCompression } = formData;
 
   function myTerminate() {
@@ -87,7 +98,7 @@ function DecideResolveStep(props) {
 
   function acceptAndMove() {
     return updateComment({marketId, commentId, commentType: TODO_TYPE}).then((comment) => {
-      handleAcceptSuggestion({ isMove: isSingle, comment, investible: inv, investiblesDispatch,
+      handleAcceptSuggestion({ isMove: restoresFormerStage, comment, investible: inv, investiblesDispatch,
         marketStagesState, commentState, commentDispatch, messagesState, messagesDispatch })
       setOperationRunning(false);
       navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
@@ -98,18 +109,9 @@ function DecideResolveStep(props) {
     return resolveComment(marketId, commentId)
       .then((comment) => {
         addCommentToMarket(comment, commentState, commentDispatch);
-        if (formerStageId && fullStage && isRequiredInputStage(fullStage)) {
-          const newInfo = {
-            ...marketInfo,
-            stage: formerStageId,
-            last_stage_change_date: comment.updated_at,
-          };
-          const newInfos = _.unionBy([newInfo], inv.market_infos, 'id');
-          const newInvestible = {
-            investible: inv.investible,
-            market_infos: newInfos
-          };
-          addInvestible(investiblesDispatch, () => {}, newInvestible);
+        if (restoresFormerStage) {
+          changeInvestibleStageOnCommentClose(inv.market_infos, inv.investible, investiblesDispatch,
+            comment.updated_at, marketStagesState, marketId);
         }
         if (isGotoJob) {
           if (inv) {

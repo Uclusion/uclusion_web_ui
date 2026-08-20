@@ -10,8 +10,14 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import _ from 'lodash';
 import { editorEmpty } from '../TextEditors/Utilities/CoreUtils';
 import CommentBox from '../../containers/CommentBox/CommentBox';
-import { getFullStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
+import {
+  getFullStage,
+  isBlockedStage,
+  isRequiredInputStage
+} from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
+import { getInvestibleComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import { formInvestibleLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { usePlanningInvestibleStyles } from '../../pages/Investible/Planning/PlanningInvestible';
@@ -42,10 +48,17 @@ function JobDescription(props) {
   const classes = wizardStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [commentsState] = useContext(CommentsContext);
   const inv = getInvestible(investiblesState, investibleId);
-  const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { assigned, required_approvers:  requiredApproversIds, created_by: createdById } = marketInfo || {};
-  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const planningMarketId = commentMarketId || marketId;
+  const marketInfo = getMarketInfo(inv, planningMarketId) || {};
+  const {
+    assigned,
+    former_stage_id: formerStageId,
+    required_approvers: requiredApproversIds,
+    created_by: createdById
+  } = marketInfo || {};
+  const marketPresences = getMarketPresences(marketPresencesState, planningMarketId) || [];
   const createdBy = marketPresences.find((presence) => presence.id === createdById) || {};
   const assignedPresences = marketPresences.filter((presence) => (assigned || []).includes(presence.id));
   const requiredApprovers = marketPresences.filter((presence) => (requiredApproversIds || [])
@@ -58,7 +71,9 @@ function JobDescription(props) {
   const nonTodoCommentsRoots = nonTodoComments?.filter((comment) => comment.comment_type !== REPLY_TYPE);
   const normalDescriptionDisplay = showDiff || !isLargeDisplay(description);
   const fullDescription = <DescriptionOrDiff id={investibleId} description={description} showDiff={showDiff} darkModeNoBackground={isDark} isWhiteText={isDark} />;
-  const planningMarketId = commentMarketId || marketId;
+  const fullStage = getFullStage(marketStagesState, planningMarketId, marketInfo.stage) || {};
+  const investibleComments = investibleId ?
+    getInvestibleComments(investibleId, planningMarketId, commentsState) : comments;
 
   return (
     <>
@@ -123,9 +138,14 @@ function JobDescription(props) {
               preserveOrder={preserveOrder}
               marketId={planningMarketId}
               allowedTypes={[]}
-              fullStage={getFullStage(marketStagesState, marketId, marketInfo.stage) || {}}
+              fullStage={fullStage}
               investible={inv}
               marketInfo={marketInfo}
+              investibleComments={investibleComments}
+              assigned={assigned}
+              formerStageId={formerStageId}
+              isRequiresInput={isRequiredInputStage(fullStage)}
+              isInBlocking={isBlockedStage(fullStage)}
               isInbox
               compressAll
               usePadding={false}
@@ -139,7 +159,7 @@ function JobDescription(props) {
           </div>
         )}
         {!_.isEmpty(todoComments) && !isSingleTaskDisplay && (
-          <CondensedTodos comments={todoComments} investibleComments={comments} isInbox marketId={marketId} expandTasksNotSection={expandTasksNotSection}
+          <CondensedTodos comments={todoComments} investibleComments={comments} isInbox marketId={planningMarketId} expandTasksNotSection={expandTasksNotSection}
                           marketInfo={marketInfo} usePadding={false} isDefaultOpen={tasksDefaultOpen} hideTabs={hideTabs} sectionTitle={tasksSectionTitle}
                           removeActions={removeActions} />
         )}

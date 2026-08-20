@@ -7,10 +7,10 @@ import {
   getInvestibleComments, getMarketComments, getThreadAboveIds
 } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { addInvestible, getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
-import { getFullStage, isRequiredInputStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { dismissWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -18,7 +18,11 @@ import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { useHistory } from 'react-router';
 import { resolveComment } from '../../../api/comments';
 import { findMessageForCommentId, removeInlineMarketMessages } from '../../../utils/messageUtils';
-import { isSingleAssisted } from '../../../utils/commentFunctions';
+import {
+  changeInvestibleStageOnCommentClose,
+  doesCommentResolutionRestoreStage,
+  getWorkflowStageContext
+} from '../../../utils/commentFunctions';
 import _ from 'lodash';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { formCommentLink, formInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
@@ -100,6 +104,13 @@ function ReplyStep(props) {
   function resolve() {
     setOperationRunning(true);
     const commentRoot = getCommentRoot(commentState, marketId, commentId);
+    const restoresFormerStage = !!inv && doesCommentResolutionRestoreStage(
+      commentRoot,
+      investibleComments,
+      assigned,
+      presences,
+      getWorkflowStageContext(marketStagesState, marketId, fullStage, formerStageId)
+    );
     return resolveComment(marketId, commentRoot.id)
       .then((comment) => {
         addCommentToMarket(comment, commentState, commentDispatch);
@@ -107,19 +118,9 @@ function ReplyStep(props) {
         if (inlineMarketId) {
           removeInlineMarketMessages(inlineMarketId, investibleState, commentState, messagesState, messagesDispatch);
         }
-        if (formerStageId && fullStage && isRequiredInputStage(fullStage) &&
-          isSingleAssisted(investibleComments, assigned)) {
-          const newInfo = {
-            ...marketInfo,
-            stage: formerStageId,
-            last_stage_change_date: comment.updated_at,
-          };
-          const newInfos = _.unionBy([newInfo], inv.market_infos, 'id');
-          const newInvestible = {
-            investible: inv.investible,
-            market_infos: newInfos
-          };
-          addInvestible(investiblesDispatch, () => {}, newInvestible);
+        if (restoresFormerStage) {
+          changeInvestibleStageOnCommentClose(inv.market_infos, inv.investible, investiblesDispatch,
+            comment.updated_at, marketStagesState, marketId);
         }
         setOperationRunning(false);
         if (message) {

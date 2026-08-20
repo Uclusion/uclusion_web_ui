@@ -103,3 +103,90 @@ describe('CommentBox option Poke AI routing', () => {
     }));
   });
 });
+
+describe('CommentBox resolved stage prediction', () => {
+  const marketId = 'planning-market';
+  const aiUserId = 'ai-user';
+  const humanUserId = 'human-user';
+  const formerStageId = 'doable-stage';
+  const requiresInputStage = { id: 'requires-input-stage', name: 'Requires Input', move_on_comment: true };
+  const noOp = jest.fn();
+
+  function question(id, createdBy, creationStageId) {
+    return {
+      id,
+      comment_type: QUESTION_TYPE,
+      created_by: createdBy,
+      creation_stage_id: creationStageId,
+      updated_at: '2026-08-20T10:00:00Z',
+      resolved: false,
+    };
+  }
+
+  function renderCommentBox(comments, investibleComments = comments, aiIsBanned = false) {
+    const tree = (
+      <SearchResultsContext.Provider value={[{
+        search: '',
+        results: [],
+        parentResults: [],
+        }, noOp]}>
+          <MarketStagesContext.Provider value={[{
+          [marketId]: [
+            { id: formerStageId, name: 'Doable', allows_assignment: true },
+            requiresInputStage,
+          ],
+        }, noOp]}>
+          <CommentsContext.Provider value={[{}, noOp]}>
+            <InvestiblesContext.Provider value={[{}, noOp]}>
+              <MarketPresencesContext.Provider value={[{
+                [marketId]: [
+                  { id: aiUserId, email: '', market_banned: aiIsBanned },
+                  { id: humanUserId, email: 'human@example.com' },
+                ],
+              }, noOp]}>
+                <CommentBox
+                  comments={comments}
+                  investibleComments={investibleComments}
+                  marketId={marketId}
+                  isRequiresInput
+                  assigned={[humanUserId]}
+                  formerStageId={formerStageId}
+                  fullStage={requiresInputStage}
+                />
+              </MarketPresencesContext.Provider>
+            </InvestiblesContext.Provider>
+          </CommentsContext.Provider>
+        </MarketStagesContext.Provider>
+      </SearchResultsContext.Provider>
+    );
+
+    ReactDOMServer.renderToStaticMarkup(tree);
+  }
+
+  beforeEach(() => {
+    mockComment.mockClear();
+  });
+
+  it('predicts the former stage when resolving the last AI-authored question after its AI is banned', () => {
+    const aiQuestion = question('ai-question', aiUserId);
+
+    renderCommentBox([aiQuestion], [aiQuestion], true);
+
+    expect(mockComment).toHaveBeenCalledWith(expect.objectContaining({
+      comment: expect.objectContaining({ id: aiQuestion.id }),
+      resolvedStageId: formerStageId,
+    }));
+  });
+
+  it('uses all job comments when checking for another open question', () => {
+    const displayedQuestion = question('displayed-question', aiUserId);
+    const otherQuestion = question('other-question', aiUserId, formerStageId);
+
+    renderCommentBox([displayedQuestion], [displayedQuestion, otherQuestion]);
+
+    expect(mockComment).toHaveBeenCalledWith(expect.objectContaining({
+      comment: expect.objectContaining({ id: displayedQuestion.id }),
+      resolvedStageId: undefined,
+    }));
+  });
+});

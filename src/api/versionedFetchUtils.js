@@ -91,6 +91,7 @@ let runner;
 let refreshInProgress = false;
 let refreshQueued = false;
 let queuedDispatchers = undefined;
+let queuedImmediateRelease = false;
 // When the last refresh completed without error - lets speculative (focus/visibility/online)
 // refreshes skip when the data is known fresh (C-all-1066).
 let lastSuccessfulRefreshMs = 0;
@@ -134,7 +135,7 @@ function scheduleRelease() {
     doRelease();
   }, delay);
 }
-const matchErrorHandlingVersionRefresh = (dispatchers=undefined) => {
+const matchErrorHandlingVersionRefresh = (dispatchers=undefined, releaseImmediately=false) => {
   // A dead link burns 30s abort + retry per call and chains queued refreshes behind the
   // failures, so on bad internet the tab syncs back to back continuously. The browser
   // reliably knows definite offline - skip outright and let the 'online' listener or the
@@ -145,6 +146,7 @@ const matchErrorHandlingVersionRefresh = (dispatchers=undefined) => {
   }
   if (refreshInProgress) {
     refreshQueued = true;
+    queuedImmediateRelease = queuedImmediateRelease || releaseImmediately;
     if (dispatchers) {
       queuedDispatchers = dispatchers;
     }
@@ -179,10 +181,20 @@ const matchErrorHandlingVersionRefresh = (dispatchers=undefined) => {
       if (refreshQueued) {
         refreshQueued = false;
         const dispatchersForQueued = queuedDispatchers;
+        const releaseQueuedImmediately = releaseImmediately || queuedImmediateRelease;
         queuedDispatchers = undefined;
-        return matchErrorHandlingVersionRefresh(dispatchersForQueued);
+        queuedImmediateRelease = false;
+        return matchErrorHandlingVersionRefresh(dispatchersForQueued, releaseQueuedImmediately);
       }
-      scheduleRelease();
+      if (releaseImmediately) {
+        if (releaseTimer) {
+          clearTimeout(releaseTimer);
+          releaseTimer = undefined;
+        }
+        doRelease();
+      } else {
+        scheduleRelease();
+      }
       // undefined after an error (the catch above), a number after a clean run
       return dirtyMarketCount;
     });
@@ -260,6 +272,29 @@ export function ensureRefreshRunner() {
   }
 }
 
+function ensureRunnerAfter(refreshPromise) {
+  return refreshPromise.then((dirtyMarketCount) => {
+    if (runner == null) {
+      return startRefreshRunner().then(() => dirtyMarketCount);
+    }
+    return dirtyMarketCount;
+  });
+}
+
+/**
+ * Executes one refresh without the burst debounce, while retaining the shared
+ * in-progress/queued guard and release scheduling.
+ * @param dispatchers
+ * @returns {Promise<*>}
+ */
+export function refreshVersionsNow(dispatchers=undefined) {
+  if (isSignedOut()) {
+    console.info('Not refreshing when signed out')
+    return Promise.resolve(true);
+  }
+  return ensureRunnerAfter(matchErrorHandlingVersionRefresh(dispatchers, true));
+}
+
 /**
  * Executes a version refresh, coalescing with any refresh already running in this tab,
  * and makes sure a refreshRunner is started so max drift is honored
@@ -280,13 +315,7 @@ export function refreshVersions (dispatchers=undefined, skipIfRefreshedWithinMs=
     console.info('Skipping speculative refresh - already fresh or in progress');
     return Promise.resolve(true);
   }
-  return throttledRefresh(dispatchers).then((dirtyMarketCount) => {
-    // If missing always start a runner so max drift is honored
-    if (runner == null){
-      return startRefreshRunner().then(() => dirtyMarketCount);
-    }
-    return dirtyMarketCount;
-  });
+  return ensureRunnerAfter(throttledRefresh(dispatchers));
 }
 
 // Verified push sync (T-all-2259): a push names the exact object and version that caused
@@ -525,7 +554,7 @@ export function getStorageStates() {
  * Function that will make exactly one attempt to sync
  * @returns {Promise<*>}
  */
-export async function doVersionRefresh(dispatchers) {
+async function doVersionRefresh(dispatchers) {
   console.info('Checking for sync');
   releaseDispatchers = dispatchers;
   const storageStates = await timeSpanAsync('getStorageStates', () => getStorageStates());

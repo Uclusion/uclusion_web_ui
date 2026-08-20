@@ -16,16 +16,21 @@ import { dismissWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
 import { removeInlineMarketMessages } from '../../../utils/messageUtils';
-import _ from 'lodash';
 import { resolveComment, updateComment } from '../../../api/comments';
-import { getFullStage, isRequiredInputStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { addInvestible, getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { useHistory } from 'react-router';
-import { isSingleAssisted } from '../../../utils/commentFunctions';
+import {
+  changeInvestibleStageOnCommentClose,
+  doesCommentResolutionRestoreStage,
+  getWorkflowStageContext
+} from '../../../utils/commentFunctions';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { TODO_TYPE } from '../../../constants/comments';
 import {
   formCommentLink,
@@ -42,6 +47,7 @@ function OtherOptionsStep(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const { type: messageType, type_object_id: typeObjectId, inline_market_id: inlineMarketId } = message;
   const investibleComments = getInvestibleComments(commentRoot.investible_id, marketId, commentState);
@@ -56,6 +62,14 @@ function OtherOptionsStep(props) {
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage, former_stage_id: formerStageId, assigned } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const restoresFormerStage = !!inv && doesCommentResolutionRestoreStage(
+    commentRoot,
+    investibleComments,
+    assigned,
+    marketPresences,
+    getWorkflowStageContext(marketStagesState, marketId, fullStage, formerStageId)
+  );
   const { useCompression } = formData;
 
   function resolve() {
@@ -66,19 +80,9 @@ function OtherOptionsStep(props) {
         if (inlineMarketId) {
           removeInlineMarketMessages(inlineMarketId, investiblesState, commentState, messagesState, messagesDispatch);
         }
-        if (formerStageId && fullStage && isRequiredInputStage(fullStage) &&
-          isSingleAssisted(investibleComments, assigned)) {
-          const newInfo = {
-            ...marketInfo,
-            stage: formerStageId,
-            last_stage_change_date: comment.updated_at,
-          };
-          const newInfos = _.unionBy([newInfo], inv.market_infos, 'id');
-          const newInvestible = {
-            investible: inv.investible,
-            market_infos: newInfos
-          };
-          addInvestible(investiblesDispatch, () => {}, newInvestible);
+        if (restoresFormerStage) {
+          changeInvestibleStageOnCommentClose(inv.market_infos, inv.investible, investiblesDispatch,
+            comment.updated_at, marketStagesState, marketId);
         }
         setOperationRunning(false);
         dismissWorkListItem(message, messagesDispatch, history);

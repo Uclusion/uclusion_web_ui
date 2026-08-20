@@ -7,8 +7,16 @@ import { SearchResultsContext } from '../../contexts/SearchResultsContext/Search
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import { RenderCensus } from '../../utils/renderProfiler';
-import { getFullStage, getInReviewStage, isNotDoingStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { getFormerStageId, isSingleAssisted } from '../../utils/commentFunctions';
+import {
+  getFullStage,
+  getInReviewStage,
+  isNotDoingStage
+} from '../../contexts/MarketStagesContext/marketStagesContextHelper';
+import {
+  doesCommentResolutionRestoreStage,
+  getFormerStageId,
+  getWorkflowStageContext
+} from '../../utils/commentFunctions';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { getInvestibleComments, getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
@@ -154,8 +162,12 @@ function CommentBox(props) {
     sortedRoots = comments;
   }
   const useFullStage = _.isEmpty(fullStage) && stage ? getFullStage(marketStagesState, marketId, stage) : fullStage;
-  const resolvedStageId = isSingleAssisted(comments, assigned) ?
-    getFormerStageId(formerStageId, marketId, marketStagesState) : undefined;
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const jobComments = investibleComments || comments;
+  const formerStageOnResolve = getFormerStageId(formerStageId, marketId, marketStagesState);
+  const workflowStageContext = getWorkflowStageContext(
+    marketStagesState, marketId, useFullStage, formerStageId
+  );
 
   function toggleAnyCompressed() {
     if (rawUseCompression instanceof Function) {
@@ -190,13 +202,17 @@ function CommentBox(props) {
     return sortedRoots.map(comment => {
       const { id, comment_type: commmentType } = comment;
       const reallyNoAuthor = assigned?.length === 1 && assigned[0] === comment.created_by;
+      const restoresFormerStage = doesCommentResolutionRestoreStage(
+        comment, jobComments, assigned, marketPresences, workflowStageContext
+      );
       return (
         <Grid item key={id} xs={12}>
           <div id={`${isInbox ? 'inbox' : ''}c${id}`}
                style={{paddingBottom: (wizardProps || isInbox) ? undefined : '1.25rem', marginRight: isInbox ? '0.5rem' : undefined}}>
             <Comment
-              resolvedStageId={(isRequiresInput && [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commmentType))
-              || (isInBlocking && commmentType === ISSUE_TYPE) ? resolvedStageId : undefined}
+              resolvedStageId={((isRequiresInput && [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commmentType))
+              || (isInBlocking && commmentType === ISSUE_TYPE)) && restoresFormerStage ?
+                formerStageOnResolve : undefined}
               stagePreventsActions={isNotDoingStage(useFullStage) || getInReviewStage(useFullStage)}
               removeActions={removeActions}
               investibleComments={investibleComments}

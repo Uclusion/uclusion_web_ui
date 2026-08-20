@@ -6,26 +6,28 @@ export function addByIdAndVersion (addList, oldList, iteratee = (item) => item.i
   if (_.isEmpty(addList)) {
     return oldList
   }
-  if (_.isEmpty(oldList)) {
-    // Prevent undefined items from being added
-    const addListFiltered = addList.filter((item) => !_.isEmpty(item));
-    if (_.isEmpty(addListFiltered)) {
+  // Prevent undefined items from being added
+  const addListFiltered = addList.filter((item) => !_.isEmpty(item));
+  if (_.isEmpty(addListFiltered)) {
+    if (_.isEmpty(oldList)) {
       console.warn('Adding list with empty items');
-      return oldList;
     }
-    return addListFiltered;
+    return oldList;
   }
-  const newAddList = []
-  const oldListMap = _.keyBy(oldList, iteratee)
-  addList.forEach((item) => {
-    if (item) {
-      const oldItem = oldListMap[iteratee(item)]
-      if (!oldItem || comparator(item, oldItem)) {
-        newAddList.push(item)
-      }
+
+  // A sync release can contain several versions of one object. Fold each candidate against the
+  // newest one already seen so a lower comparable version cannot displace a newer batch winner.
+  const latestById = new Map((oldList || []).map((item) => [iteratee(item), item]));
+  const newAddById = new Map();
+  addListFiltered.forEach((item) => {
+    const id = iteratee(item);
+    const latest = latestById.get(id);
+    if (!latest || comparator(item, latest)) {
+      latestById.set(id, item);
+      newAddById.set(id, item);
     }
   })
-  return _.unionBy(newAddList, oldList, iteratee)
+  return _.unionBy([...newAddById.values()], oldList || [], iteratee)
 }
 
 export function removeDeletedObjects(newObjectList, oldObjects) {

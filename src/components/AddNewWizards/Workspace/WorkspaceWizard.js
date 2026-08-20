@@ -101,7 +101,8 @@ function WorkspaceWizard() {
           demos.forEach((demo) => changeBanStatus(presenceState, presenceDispatch, demo.id, user.id, true, commentsState));
           const { messages } = (messagesState || {});
           const demoMarketIds = demos.map((demo) => demo.id);
-          const demoMessages = messages?.filter((message) => demoMarketIds.includes(message.market_id));
+          const demoMessages = messages?.filter((message) => demoMarketIds.includes(message.market_id) ||
+            demoMarketIds.includes(message.comment_market_id));
           const typeObjectIds = demoMessages?.map((message) => message.type_object_id);
           if (!_.isEmpty(typeObjectIds)) {
             messagesDispatch(quickRemoveMessages(typeObjectIds));

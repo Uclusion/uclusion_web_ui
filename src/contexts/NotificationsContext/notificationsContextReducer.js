@@ -4,6 +4,7 @@ import { findMessagesForInvestibleId } from '../../utils/messageUtils'
 import { leaderContextHack } from '../LeaderContext/LeaderContext';
 import { flushPendingClears, PENDING_CLEARS_ACKED } from './pendingClearsFlusher';
 import { timeSpan, timeSpanAsync } from '../../utils/renderProfiler';
+import { getInboxTarget, getMessageId, isInboxNavigationUrl, isInInbox } from './notificationsContextHelper';
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
@@ -96,9 +97,25 @@ export function initializeState (newState) {
 function storeMessagesInState(state, messagesToStore, pendingClears) {
   return {
     messages: messagesToStore,
-    navigations: state.navigations,
+    navigations: pruneNavigationsForMessages(state.navigations, messagesToStore),
     pendingClears: pendingClears || state.pendingClears || []
   };
+}
+
+// T-all-2492: a Back entry pointing at a notification outlives the notification unless it is
+// dropped here. Every way one disappears - explicit remove, quick remove, the investible sweep,
+// or the server list no longer carrying the row - writes through storeMessagesInState, so this
+// is the one place that closes the whole class instead of one producer at a time. Returns the
+// same array when nothing goes, which is what keeps the S-all-255 no-change bail out below alive.
+function pruneNavigationsForMessages(navigations, messagesToStore) {
+  if (_.isEmpty(navigations) || !navigations.find((navigation) => isInboxNavigationUrl(navigation.url))) {
+    return navigations;
+  }
+  const liveUrls = new Set((messagesToStore || []).filter((message) => isInInbox(message))
+    .map((message) => `${getInboxTarget(message)}/${getMessageId(message)}`));
+  const kept = navigations.filter((navigation) => !isInboxNavigationUrl(navigation.url) ||
+    liveUrls.has(navigation.url));
+  return _.size(kept) === _.size(navigations) ? navigations : kept;
 }
 
 // B-all-544: clears are delivered by the background flusher, so they are enqueued durably

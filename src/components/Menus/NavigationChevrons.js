@@ -8,15 +8,15 @@ import {
   formCommentLink,
   formInboxItemLink,
   formInvestibleLink, formMarketLink,
-  getCanonicalNavigationUrl, getJobBackOrigin, clearJobBackOrigin, rememberSeenNavigationUrl,
-  navigate
+  getCanonicalNavigationUrl, getJobBackOrigin, clearJobBackOrigin, isReturnableNavigationUrl,
+  rememberSeenNavigationUrl, navigate
 } from '../../utils/marketIdPathFunctions';
 import { useIntl } from 'react-intl';
 import { useHistory, useLocation } from 'react-router';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import {
   dehighlightMessage, getInboxTarget,
-  isInInbox, messageIsSynced
+  isInboxNavigationUrl, isInInbox, messageIsSynced
 } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import { addNavigation, removeNavigation } from '../../contexts/NotificationsContext/notificationsContextReducer';
 import _ from 'lodash';
@@ -71,10 +71,6 @@ const useStyles = makeStyles((theme) => ({
     }
   }
 }));
-
-function isInboxNavigationUrl(url = '') {
-  return url.startsWith('/inbox') || url.startsWith('/outbox') || url.startsWith('outbox/');
-}
 
 export default function NavigationChevrons(props) {
   const classes = useStyles();
@@ -153,15 +149,27 @@ export default function NavigationChevrons(props) {
     });
   });
   const currentNavUrl = getCanonicalNavigationUrl(pathname, search);
-  const allExistingUrls = allMessages.map((message) => formInboxItemLink(message)).concat(backUrls);
+  const liveInboxUrls = allMessages.map((message) => formInboxItemLink(message));
+  const allExistingUrls = liveInboxUrls.concat(backUrls);
   if (currentNavUrl && !allExistingUrls.includes(currentNavUrl)) {
     allExistingUrls.push(currentNavUrl);
+  }
+  // T-all-2492: a page whose notification is gone is never a return point. Asked of liveInboxUrls
+  // rather than allExistingUrls because the latter carries the current page whether it exists or
+  // not, which would call the page you are standing on live while its notification is being cleared.
+  function isRemovedNotificationUrl(url) {
+    return isInboxNavigationUrl(url) && !liveInboxUrls.includes(url);
   }
   const previous = _.find(orderedNavigations, (navigation) => {
     if (navigation.url === currentNavUrl) {
       return false;
     }
-    if (isInboxNavigationUrl(navigation.url) && !allExistingUrls.includes(navigation.url)) {
+    if (isRemovedNotificationUrl(navigation.url)) {
+      return false;
+    }
+    // A stack persisted before T-all-2492 can still hold a wizard. Nothing puts one there now,
+    // and doAddNavigation's prune drops it on the next add, but until then it must not be offered.
+    if (!isReturnableNavigationUrl(navigation.url)) {
       return false;
     }
     return true;
@@ -248,8 +256,10 @@ export default function NavigationChevrons(props) {
 
   function doNextNavigation() {
     if (nextUrl.kind === 'message') {
-      // Record the streak origin only. Intermediate highlighted hops are not Back targets.
-      if (!isInboxNavigationUrl(currentNavUrl) || _.isEmpty(previous)) {
+      // Record the streak origin only. Intermediate highlighted hops are not Back targets, and a
+      // notification cleared while you stood on it is not one either (T-all-2492).
+      if ((!isInboxNavigationUrl(currentNavUrl) || _.isEmpty(previous))
+        && !isRemovedNotificationUrl(currentNavUrl)) {
         messagesDispatch(addNavigation(currentNavUrl, allExistingUrls));
       }
     } else {
@@ -269,11 +279,16 @@ export default function NavigationChevrons(props) {
     const fromUrl = getJobBackOrigin();
     const onJob = action === 'dialog' && !_.isEmpty(pathInvestibleId);
     if (onJob && fromUrl && fromUrl !== currentNavUrl) {
-      messagesDispatch(addNavigation(fromUrl, allExistingUrls.concat(fromUrl)));
+      // T-all-2492: the reducer drops a Back entry when its notification is removed, so this
+      // origin must not put it back. Coming into a job from a notification that has since gone
+      // leaves no return point at all, which is what disables Back.
+      if (!isInboxNavigationUrl(fromUrl) || liveInboxUrls.includes(fromUrl)) {
+        messagesDispatch(addNavigation(fromUrl, allExistingUrls.concat(fromUrl)));
+      }
       clearJobBackOrigin();
     }
     rememberSeenNavigationUrl(currentNavUrl);
-  }, [stillLoading, currentNavUrl, action, pathInvestibleId, allExistingUrls, messagesDispatch]);
+  }, [stillLoading, currentNavUrl, action, pathInvestibleId, allExistingUrls, liveInboxUrls, messagesDispatch]);
 
   useHotkeys(isMac ? 'ctrl+option+arrowRight' : 'ctrl+arrowRight', doNextNavigation, {enabled: !nextDisabled, enableOnContentEditable: true},
     [history, nextUrl.message, nextUrl.url, nextUrl.useUrl, nextUrl.kind, currentNavUrl, previous?.url]);

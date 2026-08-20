@@ -51,9 +51,23 @@ export function clearJobBackOrigin() {
 }
 
 export function rememberSeenNavigationUrl(url) {
-  if (url) {
+  if (isReturnableNavigationUrl(url)) {
     lastSeenNavigationUrl = url;
   }
+}
+
+// T-all-2492: these are flows, not places. A wizard keeps its whole identity in its hash, so a
+// remembered one is a bare `/wizard` that renders the shell and nothing else. `/demo` and an
+// invite are one shot loaders that fetch or join a market when they render, so returning to one
+// re-enters the flow instead of a page. None of them ever goes on the Back stack.
+const ONE_SHOT_ROUTES = ['/wizard', '/demo', '/invite'];
+
+export function isReturnableNavigationUrl(url) {
+  if (!url) {
+    return false;
+  }
+  const [pathname] = url.split(/[?#]/);
+  return !ONE_SHOT_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));
 }
 
 function navigationKey(pathname, search) {
@@ -66,6 +80,13 @@ function navigationKey(pathname, search) {
     if (groupId) {
       return `/dialog/${marketId}?groupId=${groupId}`;
     }
+  }
+  // T-all-2492: every other route keeps its query, because that is where some of them carry the
+  // thing that makes the page render at all. `/groupEdit/<marketId>` and `/groupManage/<marketId>`
+  // draw an empty body without their groupId. Only dialog is canonicalized, so its keys still
+  // match formInvestibleLink and formMarketLink for the existence checks that read them.
+  if (action !== 'dialog' && search) {
+    return `${pathname}${search}`;
   }
   return pathname;
 }
@@ -88,7 +109,7 @@ function rememberOriginIfEnteringJob(fromPathname, fromSearch, to) {
   }
   const fromUrl = navigationKey(fromPathname, fromSearch);
   const toUrl = navigationKey(toPathname, toSearch);
-  if (fromUrl && fromUrl !== toUrl) {
+  if (isReturnableNavigationUrl(fromUrl) && fromUrl !== toUrl) {
     jobBackOrigin = fromUrl;
   }
 }

@@ -154,6 +154,13 @@ export function getInboxTarget(message) {
   return '/inbox';
 }
 
+// The Back stack stores page urls, and a notification's page url is the only kind that can
+// stop existing while the stack still holds it (T-all-2492). Kept next to getInboxTarget so
+// the reducer's prune and NavigationChevrons cannot drift apart on what counts as one.
+export function isInboxNavigationUrl(url = '') {
+  return url.startsWith('/inbox') || url.startsWith('/outbox') || url.startsWith('outbox/');
+}
+
 export function getMessageId(message) {
   if (message?.type_object_id?.includes(message?.user_id)) {
     return `${message?.market_id_user_id}_${message?.type_object_id}`;

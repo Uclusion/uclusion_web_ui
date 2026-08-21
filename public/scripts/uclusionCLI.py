@@ -58,9 +58,8 @@ def resolve_consumer(explicit_consumer, is_listener):
     then for a listener a fresh generated identity - the listener process IS
     the session. A bare wait falls back to the shared default cursor because
     a per-invocation identity would start past the pending backlog on every
-    drain and deliver nothing; surfaces that can identify their session (the
-    Cursor stop hook's conversation id, or the human via UCLUSION_CONSUMER)
-    get their own lane.
+    drain and deliver nothing; surfaces with a persistent session identity,
+    or the human via UCLUSION_CONSUMER, get their own lane.
     """
     if explicit_consumer is not None:
         return explicit_consumer

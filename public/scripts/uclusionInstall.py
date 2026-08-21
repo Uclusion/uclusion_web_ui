@@ -26,13 +26,12 @@ Without ``--clients`` the installer asks whether to configure Uclusion globally
   the Uclusion MCP server in ``~/.cursor/mcp.json`` and ``~/.claude.json`` if
   those files already exist, and in ``~/.codex/config.toml`` if the ``~/.codex``
   directory exists (Codex treats ``config.toml`` as optional, so directory
-  presence — not file presence — is the install signal). Cursor also gets a
-  ``stop`` hook in ``~/.cursor/hooks.json`` that drains pending Pokes via
-  ``uclusionCursorPokeDrain.py`` (S-all-192).
+  presence — not file presence — is the install signal). A Cursor workflow
+  refresh also removes the obsolete Uclusion Poke drain stop hook.
 * Project level writes everything into a directory the user supplies: the
   workspace config (``uclusion.json``), project-scoped MCP registrations
-  (``.mcp.json`` for Claude Code, ``.cursor/mcp.json`` for Cursor), the
-  Cursor ``.cursor/hooks.json`` stop-hook entry, and the workflow docs
+  (``.mcp.json`` for Claude Code, ``.cursor/mcp.json`` for Cursor), and the
+  workflow docs
   (``CLAUDE.md``, ``.cursor/rules/uclusion.mdc``, ``AGENTS.md``) plus each
   client's native ``skills/uclusion`` package. Claude and Cursor use their
   client directories; Codex uses the cross-agent ``.agents/skills`` path.
@@ -96,7 +95,7 @@ RESERVED_RELEASE_NAMES = frozenset({
 # Symlinks land in ~/.local/bin (where Claude and Codex install too), so the
 # install is always user-writable and never needs root or sudo.
 SYMLINK_DIR = os.path.join(LOCAL_PREFIX, 'bin')
-# Cursor stop-hook drain binary name (S-all-192); also the hooks.json token.
+# Legacy Cursor stop-hook helper; the token identifies entries to remove.
 CURSOR_POKE_DRAIN_SYMLINK_NAME = 'uclusionCursorPokeDrain.py'
 CURSOR_POKE_DRAIN_HOOK_TOKEN = 'uclusionCursorPokeDrain'
 # Token-audit collection is a separate installed helper. Claude hooks invoke
@@ -119,7 +118,7 @@ SCRIPT_FILES = (
     ('uclusionMCPProxy.py', 'uclusionMCPProxy.py', 'uclusionMCPProxy.py'),
     ('uclusionCodexBridge.py', 'uclusionCodexBridge.py', 'uclusionCodexBridge.py'),
     ('uclusionTokenAudit.py', 'uclusionTokenAudit.py', TOKEN_AUDIT_SYMLINK_NAME),
-    # Cursor stop-hook drain (S-all-192): claimed by hooks.json, not PATH UX.
+    # Retained for compatibility while workflow refreshes remove old hooks.
     ('uclusionCursorPokeDrain.py', 'uclusionCursorPokeDrain.py',
      CURSOR_POKE_DRAIN_SYMLINK_NAME),
 )
@@ -246,7 +245,7 @@ WORKFLOW_ASSET_PATHS = {
 WORKFLOW_ASSET_SHA256 = {
     'claude_stub': 'b89451b4cf5dbba8199e2b2ac138e58250077415a1da6cac32e5e70ab03f425b',
     'codex_stub': '02ea82a01620a5909ea40ea33d0ed67a27f275b808d926e21f753cb51861135e',
-    'cursor_stub': 'd6cc373cd329b9302b9a2c9fd53e3ef01eedcfae8819682003435390f597ea21',
+    'cursor_stub': '2e4bf88903896ba312738f9a4ab7163582df99050b62f13e0e0324a6580a412f',
     'skill': '9ebfae1c4c49f37fcd182d3d7397c82a2ac2af1d5f20dea067706036dadd55da',
     'pokes_reference': 'dcba5ac9ad5be741841d6e85475b358186db31c857ac552fcbc009e3568257f7',
     'operations_reference': '2fe81054a9ad3e8803fc8d41674532766f8cebeda816acd92c46d791457ddf3e',
@@ -978,38 +977,34 @@ def register_mcp_json(path, label, workspace_id, env, require_existing,
     return True
 
 
-def cursor_poke_drain_hook_entry():
-    """Return the Cursor ``stop`` hook dict that drains pending Pokes."""
-    return {
-        # Absolute path through the installer symlink so project and global
-        # hooks.json both track `uclusion update` without copying the script.
-        # Computed from SYMLINK_DIR at call time so tests can patch the dir.
-        'command': os.path.join(SYMLINK_DIR, CURSOR_POKE_DRAIN_SYMLINK_NAME),
-        # Each follow-up is a real claimed Poke, not a retry of the same turn.
-        'loop_limit': None,
-    }
-
-
 def _is_cursor_poke_drain_hook(entry):
     if not isinstance(entry, dict):
         return False
     command = entry.get('command')
-    return isinstance(command, str) and CURSOR_POKE_DRAIN_HOOK_TOKEN in command
+    if not isinstance(command, str):
+        return False
+    expected = os.path.join(SYMLINK_DIR, CURSOR_POKE_DRAIN_SYMLINK_NAME)
+    return os.path.normcase(os.path.normpath(command)) == os.path.normcase(
+        os.path.normpath(expected)
+    )
 
 
-def install_cursor_poke_drain_hook(hooks_path=CURSOR_HOOKS_PATH):
-    """Merge the Uclusion Poke drain ``stop`` hook into a Cursor hooks.json.
+def remove_cursor_poke_drain_hook(hooks_path=CURSOR_HOOKS_PATH):
+    """Remove Uclusion Poke drain entries from a Cursor hooks.json.
 
-    ``hooks_path`` is ``~/.cursor/hooks.json`` for a global install and
-    ``<project>/.cursor/hooks.json`` for a project-level one. Existing non-Uclusion
-    hooks are preserved; a prior Uclusion stop entry is replaced in place.
+    Existing non-Uclusion hooks and all unrelated configuration are preserved.
+    A missing file or a file without a managed entry is left unchanged.
     """
-    print(f"🪝 Installing Cursor Poke drain stop hook in {hooks_path}")
-    config = {}
-    if os.path.exists(hooks_path):
+    logical_path = os.path.abspath(os.path.expanduser(hooks_path))
+    with install_lock():
+        target_path = _codex_config_write_target(logical_path)
+        existing, signature = _read_text_snapshot(target_path)
+        if signature is None:
+            return False
+        if CURSOR_POKE_DRAIN_HOOK_TOKEN not in existing:
+            return False
         try:
-            with open(hooks_path, 'r', encoding='utf-8') as src:
-                config = json.load(src)
+            config = json.loads(existing)
         except json.JSONDecodeError as err:
             raise RuntimeError(
                 f'{hooks_path} is not valid JSON: {err}'
@@ -1019,42 +1014,45 @@ def install_cursor_poke_drain_hook(hooks_path=CURSOR_HOOKS_PATH):
                 f'{hooks_path} top-level value must be a JSON object'
             )
 
-    if 'version' not in config:
-        config['version'] = 1
-    elif config.get('version') != 1:
-        raise RuntimeError(
-            f'{hooks_path} has unsupported hooks version '
-            f'{config.get("version")!r}; expected 1'
+        hooks = config.get('hooks')
+        if hooks is None:
+            return False
+        if not isinstance(hooks, dict):
+            raise RuntimeError(f"'hooks' in {hooks_path} must be a JSON object")
+        stop_hooks = hooks.get('stop')
+        if stop_hooks is None:
+            return False
+        if not isinstance(stop_hooks, list):
+            raise RuntimeError(
+                f"'hooks.stop' in {hooks_path} must be a JSON array"
+            )
+
+        retained = [
+            entry for entry in stop_hooks
+            if not _is_cursor_poke_drain_hook(entry)
+        ]
+        if len(retained) == len(stop_hooks):
+            return False
+        version = config.get('version')
+        if type(version) is not int or version != 1:
+            raise RuntimeError(
+                f'{hooks_path} has unsupported hooks version '
+                f'{version!r}; expected 1'
+            )
+        if retained:
+            hooks['stop'] = retained
+        else:
+            hooks.pop('stop')
+        updated = json.dumps(config, indent=2) + '\n'
+        atomic_write_text(
+            logical_path,
+            updated,
+            existing,
+            target_path,
+            signature,
         )
 
-    hooks = config.setdefault('hooks', {})
-    if not isinstance(hooks, dict):
-        raise RuntimeError(f"'hooks' in {hooks_path} must be a JSON object")
-    stop_hooks = hooks.get('stop')
-    if stop_hooks is None:
-        stop_hooks = []
-        hooks['stop'] = stop_hooks
-    if not isinstance(stop_hooks, list):
-        raise RuntimeError(
-            f"'hooks.stop' in {hooks_path} must be a JSON array"
-        )
-
-    entry = cursor_poke_drain_hook_entry()
-    replaced = False
-    for index, existing in enumerate(stop_hooks):
-        if _is_cursor_poke_drain_hook(existing):
-            stop_hooks[index] = entry
-            replaced = True
-            break
-    if not replaced:
-        stop_hooks.append(entry)
-
-    os.makedirs(os.path.dirname(hooks_path), exist_ok=True)
-    with open(hooks_path, 'w', encoding='utf-8') as out:
-        json.dump(config, out, indent=2)
-        out.write('\n')
-    action = 'Refreshed' if replaced else 'Added'
-    print(f"  ✅ {action} Uclusion stop hook in {hooks_path}")
+    print(f"  ✅ Removed Uclusion Poke drain stop hook from {hooks_path}")
     return True
 
 
@@ -2943,7 +2941,7 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                 )
                 workflow_results['cursor'] = installed
                 if installed:
-                    install_cursor_poke_drain_hook(CURSOR_HOOKS_PATH)
+                    remove_cursor_poke_drain_hook(CURSOR_HOOKS_PATH)
             except Exception as err:
                 workflow_results['cursor'] = False
                 workflow_errors.append(('cursor', err))
@@ -3113,7 +3111,7 @@ def install_project_level(
             )
             workflow_results['cursor'] = installed
             if installed:
-                install_cursor_poke_drain_hook(
+                remove_cursor_poke_drain_hook(
                     os.path.join(project_dir, '.cursor', 'hooks.json')
                 )
         except Exception as err:

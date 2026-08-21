@@ -111,10 +111,25 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             self.workflow,
         )
 
-    def test_cursor_stop_hook_drain_is_documented(self):
-        self.assertIn('installed Cursor stop hook', self.cursor_stub)
-        self.assertIn('returns them as a follow-up message', self.cursor_stub)
-        self.assertIn('does not wake a fully idle chat', self.cursor_stub)
+    def test_cursor_gui_poke_consumption_is_disabled(self):
+        self.assertIn(
+            'Cursor GUI does not consume Poke AI deliveries',
+            self.cursor_stub,
+        )
+        self.assertIn(
+            'Never run `uclusion wait` or `uclusion listen`',
+            self.cursor_stub,
+        )
+        self.assertIn(
+            "Cursor's IDE chat cannot be awakened automatically",
+            self.cursor_stub,
+        )
+        self.assertIn(
+            'The human must start the next turn by typing `Responded`',
+            self.cursor_stub,
+        )
+        self.assertIn('relevant short code', self.cursor_stub)
+        self.assertNotIn('wait --timeout 0', self.cursor_stub)
 
     def test_auto_take_starts_first_marked_item_and_persists_handoffs(self):
         self.assertIn('response has `auto_take_directions`', self.workflow)
@@ -1421,41 +1436,70 @@ class AtomicScriptInstallTests(unittest.TestCase):
             self.assert_public_links_use_current('second')
 
 
-class CursorPokeDrainHookInstallTests(unittest.TestCase):
-    def test_creates_hooks_json_with_stop_entry(self):
+class CursorPokeDrainHookRemovalTests(unittest.TestCase):
+    def test_missing_or_malformed_unrelated_hooks_json_is_unchanged(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             hooks_path = os.path.join(temp_dir, 'hooks.json')
-            bin_dir = os.path.join(temp_dir, 'bin')
-            with mock.patch.object(INSTALL, 'SYMLINK_DIR', bin_dir):
-                INSTALL.install_cursor_poke_drain_hook(hooks_path)
+            with mock.patch.object(
+                INSTALL,
+                'SCRIPT_INSTALL_PREFIX',
+                os.path.join(temp_dir, 'locks'),
+            ):
+                self.assertFalse(
+                    INSTALL.remove_cursor_poke_drain_hook(hooks_path)
+                )
+            self.assertFalse(os.path.exists(hooks_path))
 
+            malformed = '{not valid JSON\n'
+            with open(hooks_path, 'w', encoding='utf-8') as hooks_file:
+                hooks_file.write(malformed)
+            with mock.patch.object(
+                INSTALL,
+                'SCRIPT_INSTALL_PREFIX',
+                os.path.join(temp_dir, 'locks'),
+            ):
+                self.assertFalse(
+                    INSTALL.remove_cursor_poke_drain_hook(hooks_path)
+                )
             with open(hooks_path, encoding='utf-8') as hooks_file:
-                config = INSTALL.json.load(hooks_file)
+                self.assertEqual(malformed, hooks_file.read())
 
-            self.assertEqual(config['version'], 1)
-            stop_hooks = config['hooks']['stop']
-            self.assertEqual(len(stop_hooks), 1)
-            self.assertEqual(
-                stop_hooks[0]['command'],
-                os.path.join(bin_dir, INSTALL.CURSOR_POKE_DRAIN_SYMLINK_NAME),
-            )
-            self.assertIsNone(stop_hooks[0]['loop_limit'])
-
-    def test_preserves_other_hooks_and_refreshes_uclusion_entry(self):
+    def test_removes_all_uclusion_entries_and_preserves_other_hook_groups(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             hooks_path = os.path.join(temp_dir, 'hooks.json')
             bin_dir = os.path.join(temp_dir, 'bin')
-            stale = os.path.join(temp_dir, 'stale', 'uclusionCursorPokeDrain.py')
+            managed = os.path.join(
+                bin_dir, INSTALL.CURSOR_POKE_DRAIN_SYMLINK_NAME
+            )
+            with open(hooks_path, 'w', encoding='utf-8') as hooks_file:
+                INSTALL.json.dump(
+                    {
+                        'version': True,
+                        'hooks': {'stop': [{'command': managed}]},
+                    },
+                    hooks_file,
+                )
+            with mock.patch.object(
+                INSTALL,
+                'SCRIPT_INSTALL_PREFIX',
+                os.path.join(temp_dir, 'locks'),
+            ), mock.patch.object(
+                INSTALL, 'SYMLINK_DIR', bin_dir,
+            ), self.assertRaisesRegex(RuntimeError, 'expected 1'):
+                INSTALL.remove_cursor_poke_drain_hook(hooks_path)
+
             with open(hooks_path, 'w', encoding='utf-8') as hooks_file:
                 INSTALL.json.dump(
                     {
                         'version': 1,
                         'hooks': {
                             'stop': [
-                                {'command': './hooks/other.sh'},
                                 {
-                                    'command': stale,
+                                    'command': managed,
                                     'loop_limit': 5,
+                                },
+                                {
+                                    'command': managed,
                                 },
                             ],
                             'sessionStart': [
@@ -1465,9 +1509,19 @@ class CursorPokeDrainHookInstallTests(unittest.TestCase):
                     },
                     hooks_file,
                 )
-            with mock.patch.object(INSTALL, 'SYMLINK_DIR', bin_dir):
-                INSTALL.install_cursor_poke_drain_hook(hooks_path)
-                INSTALL.install_cursor_poke_drain_hook(hooks_path)
+            with mock.patch.object(
+                INSTALL,
+                'SCRIPT_INSTALL_PREFIX',
+                os.path.join(temp_dir, 'locks'),
+            ), mock.patch.object(
+                INSTALL, 'SYMLINK_DIR', bin_dir,
+            ):
+                self.assertTrue(
+                    INSTALL.remove_cursor_poke_drain_hook(hooks_path)
+                )
+                self.assertFalse(
+                    INSTALL.remove_cursor_poke_drain_hook(hooks_path)
+                )
 
             with open(hooks_path, encoding='utf-8') as hooks_file:
                 config = INSTALL.json.load(hooks_file)
@@ -1476,22 +1530,44 @@ class CursorPokeDrainHookInstallTests(unittest.TestCase):
                 config['hooks']['sessionStart'],
                 [{'command': './hooks/start.sh'}],
             )
-            stop_hooks = config['hooks']['stop']
-            self.assertEqual(len(stop_hooks), 2)
-            self.assertEqual(stop_hooks[0], {'command': './hooks/other.sh'})
-            self.assertEqual(
-                stop_hooks[1]['command'],
-                os.path.join(bin_dir, INSTALL.CURSOR_POKE_DRAIN_SYMLINK_NAME),
-            )
-            self.assertIsNone(stop_hooks[1]['loop_limit'])
+            self.assertNotIn('stop', config['hooks'])
 
-    def test_project_cursor_install_writes_hooks_json(self):
+    def test_project_cursor_install_removes_only_uclusion_stop_hook(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             project_dir = os.path.join(temp_dir, 'project')
             os.makedirs(project_dir)
             bin_dir = os.path.join(temp_dir, 'bin')
-            with mock.patch.object(INSTALL, 'SYMLINK_DIR', bin_dir), \
-                    mock.patch.object(INSTALL, 'register_mcp_json'), \
+            managed = os.path.join(
+                bin_dir, INSTALL.CURSOR_POKE_DRAIN_SYMLINK_NAME
+            )
+            hooks_path = os.path.join(project_dir, '.cursor', 'hooks.json')
+            os.makedirs(os.path.dirname(hooks_path))
+            with open(hooks_path, 'w', encoding='utf-8') as hooks_file:
+                INSTALL.json.dump(
+                    {
+                        'version': 1,
+                        'hooks': {
+                            'stop': [
+                                {'command': './hooks/other.sh'},
+                                {
+                                    'command': './hooks/'
+                                    'check-uclusionCursorPokeDrain-state.sh',
+                                },
+                                {
+                                    'command': managed,
+                                },
+                            ],
+                        },
+                    },
+                    hooks_file,
+                )
+            with mock.patch.object(
+                    INSTALL,
+                    'SCRIPT_INSTALL_PREFIX',
+                    os.path.join(temp_dir, 'locks'),
+            ), mock.patch.object(
+                    INSTALL, 'SYMLINK_DIR', bin_dir,
+            ), mock.patch.object(INSTALL, 'register_mcp_json'), \
                     mock.patch.object(INSTALL, 'install_skill_and_stub'), \
                     mock.patch.object(
                         INSTALL, 'write_uclusion_config',
@@ -1512,14 +1588,17 @@ class CursorPokeDrainHookInstallTests(unittest.TestCase):
                     clients={'cursor'},
                 )
 
-            hooks_path = os.path.join(project_dir, '.cursor', 'hooks.json')
             with open(hooks_path, encoding='utf-8') as hooks_file:
                 config = INSTALL.json.load(hooks_file)
-            self.assertTrue(
-                any(
-                    INSTALL._is_cursor_poke_drain_hook(entry)
-                    for entry in config['hooks']['stop']
-                )
+            self.assertEqual(
+                [
+                    {'command': './hooks/other.sh'},
+                    {
+                        'command': './hooks/'
+                        'check-uclusionCursorPokeDrain-state.sh',
+                    },
+                ],
+                config['hooks']['stop'],
             )
 
 

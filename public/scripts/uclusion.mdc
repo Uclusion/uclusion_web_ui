@@ -18,14 +18,12 @@ closing `<!-- ... -->` marker comment; a read that does not reach that marker
 is incomplete, so continue reading until it appears. Ignore and do not
 combine the user Uclusion skill.
 
-Never leave `uclusion wait` or `uclusion listen` running. At the beginning of
-every real user-triggered turn, synchronously run
-`{{UCLUSION_CLI}} wait --timeout 0` as its own tool call, wait for its result,
-and handle every returned line before issuing any command for the new request.
-The installed Cursor stop hook handles Pokes arriving during a
-turn and returns them as a follow-up message; it does not wake a fully idle
-chat. The turn-start drain uses the shared default cursor unless the human set
-`UCLUSION_CONSUMER`; never set a consumer yourself.
+Cursor GUI does not consume Poke AI deliveries. Never run `uclusion wait` or
+`uclusion listen`, and do not configure a stop hook that drains the Poke inbox.
+Cursor's IDE chat cannot be awakened automatically after a Uclusion change.
+The human must start the next turn by typing `Responded` or another message.
+Name the relevant short code when starting different work. Use `find_work`
+when no concrete work was named.
 
 On any `Start`, `Added`, `Updated`, or `Responded` line, or when a request
 names Uclusion, Poke AI, find_work, or a Uclusion short code beginning `J-`,

@@ -791,7 +791,7 @@ class NativeSkillRoutingTests(unittest.TestCase):
                 'configure_claude_token_audit',
                 return_value={'source': None, 'managedEnv': {}},
             ),
-            mock.patch.object(INSTALL, 'install_cursor_poke_drain_hook'),
+            mock.patch.object(INSTALL, 'remove_cursor_poke_drain_hook'),
             mock.patch.object(INSTALL, 'install_skill_and_stub'),
             mock.patch.object(INSTALL, 'persist_workflow_install_state'),
             mock.patch.object(INSTALL, 'update_token_audit_client_config'),
@@ -946,7 +946,7 @@ class InstallerWorkflowStateTests(unittest.TestCase):
             ), mock.patch.object(
                 INSTALL, 'install_skill_and_stub', return_value=False
             ), mock.patch.object(
-                INSTALL, 'install_cursor_poke_drain_hook'
+                INSTALL, 'remove_cursor_poke_drain_hook'
             ) as hook:
                 with self.assertRaisesRegex(
                     RuntimeError,
@@ -969,7 +969,7 @@ class InstallerWorkflowStateTests(unittest.TestCase):
                 INSTALL, 'SCRIPT_INSTALL_PREFIX', os.path.join(temp_dir, 'locks')
             ), patches[0], patches[1], patches[2], mock.patch.object(
                 INSTALL, 'install_skill_and_stub', return_value=True
-            ), mock.patch.object(INSTALL, 'install_cursor_poke_drain_hook'), \
+            ), mock.patch.object(INSTALL, 'remove_cursor_poke_drain_hook'), \
                     mock.patch.object(
                         INSTALL, 'remove_legacy_codex_hooks_config'
                     ):
@@ -985,7 +985,7 @@ class InstallerWorkflowStateTests(unittest.TestCase):
             self.assertEqual(['codex', 'cursor'], config['workflowClients'])
             self.assertNotIn('workflowInstallPending', config)
 
-    def test_cursor_hook_runs_only_after_workflow_success(self):
+    def test_cursor_hook_cleanup_runs_only_after_workflow_success(self):
         events = []
         with tempfile.TemporaryDirectory() as temp_dir:
             project_dir = os.path.join(temp_dir, 'project')
@@ -999,14 +999,14 @@ class InstallerWorkflowStateTests(unittest.TestCase):
                 side_effect=lambda *_args, **_kwargs: events.append('workflow') or True,
             ), mock.patch.object(
                 INSTALL,
-                'install_cursor_poke_drain_hook',
-                side_effect=lambda *_args, **_kwargs: events.append('hook') or True,
+                'remove_cursor_poke_drain_hook',
+                side_effect=lambda *_args, **_kwargs: events.append('cleanup') or True,
             ):
                 INSTALL.install_project_level(
                     'workspace', 'view', 'stage', mock.Mock(), project_dir,
                     clients={'cursor'}, script_version='release-new',
                 )
-        self.assertEqual(['workflow', 'hook'], events)
+        self.assertEqual(['workflow', 'cleanup'], events)
 
     def test_user_decline_is_a_skip_not_an_operational_failure(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -1056,7 +1056,7 @@ class InstallerWorkflowStateTests(unittest.TestCase):
             ), mock.patch.object(
                 INSTALL, 'install_skill_and_stub', return_value=False
             ), mock.patch.object(
-                INSTALL, 'install_cursor_poke_drain_hook'
+                INSTALL, 'remove_cursor_poke_drain_hook'
             ) as hook:
                 with self.assertRaisesRegex(
                     RuntimeError,

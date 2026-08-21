@@ -34,6 +34,8 @@ import IconButton from '@material-ui/core/IconButton';
 import { Visibility, VisibilityOff } from '@material-ui/icons';
 import { withSignupTestObject } from '../../utils/signupMarketUtils';
 
+const SIGNUP_EMAIL_MAX_LENGTH = 128;
+
 const useStyles = makeStyles(theme => ({
   root: {
     alignItems: "flex-start",
@@ -160,6 +162,16 @@ function reducer(state, action) {
   };
 }
 
+function getSignupEmailErrorMessageId(email) {
+  if (email.length > SIGNUP_EMAIL_MAX_LENGTH) {
+    return 'signupEmailLengthHelper';
+  }
+  const localPart = email.split('@')[0];
+  if (localPart.startsWith('.') || localPart.endsWith('.') || localPart.includes('..')) {
+    return 'signupEmailDotPlacementHelper';
+  }
+}
+
 function Signup(props) {
   const classes = useStyles();
   const { authState = '', marketToken = '', code, onStateChange = () => {} } = props;
@@ -280,6 +292,9 @@ function Signup(props) {
         setPostSignUp(response);
         setCallActive(false);
       }
+    }).catch(() => {
+      // signUp has already reported the error; restore the form so it can be corrected and retried.
+      setCallActive(false);
     });
   }
 
@@ -369,7 +384,9 @@ function Signup(props) {
   const hideNonEmailInput = _.isEmpty(userState.email) && !code;
   const noEmailInput = _.isEmpty(qryEmail) && _.isEmpty(email) && _.isEmpty(name);
   const hideNonNameInput = noEmailInput && code && _.isEmpty(name);
-  const formInvalid = _.isEmpty(name) || (_.isEmpty(email) && _.isEmpty(code)) || _.isEmpty(password) || _.isEmpty(repeat) || password !== repeat || password.length < 6;
+  const emailErrorMessageId = !code ? getSignupEmailErrorMessageId(email) : undefined;
+  const emailInvalid = !!emailErrorMessageId;
+  const formInvalid = _.isEmpty(name) || (_.isEmpty(email) && _.isEmpty(code)) || emailInvalid || _.isEmpty(password) || _.isEmpty(repeat) || password !== repeat || password.length < 6;
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline/>
@@ -517,6 +534,8 @@ function Signup(props) {
                       type="email"
                       autoComplete="email"
                       label={intl.formatMessage({ id: 'signupEmailLabel' })}
+                      error={emailInvalid}
+                      helperText={emailInvalid ? intl.formatMessage({ id: emailErrorMessageId }) : ''}
                       onChange={handleChange('email')}
                     />
                   </Grid>

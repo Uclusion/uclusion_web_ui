@@ -953,6 +953,8 @@ const messages = defineMessages({
   // Signup
   signupNameLabel: 'Name',
   signupEmailLabel: 'Email',
+  signupEmailDotPlacementHelper: 'Email cannot start or end with a period or contain consecutive periods',
+  signupEmailLengthHelper: 'Email must be 128 characters or fewer',
   signupPasswordLabel: 'Password',
   signupPasswordHelper: '6 Characters Minimum',
   signupPasswordRepeatLabel: 'Repeat Password',

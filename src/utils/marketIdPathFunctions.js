@@ -50,6 +50,11 @@ export function clearJobBackOrigin() {
   jobBackOrigin = undefined;
 }
 
+export function clearNavigationOrigins() {
+  jobBackOrigin = undefined;
+  lastSeenNavigationUrl = undefined;
+}
+
 export function rememberSeenNavigationUrl(url) {
   if (isReturnableNavigationUrl(url)) {
     lastSeenNavigationUrl = url;

@@ -9,6 +9,7 @@ import { useRowGutterStyles } from '@mui-treasury/styles/gutter/row';
 import PropTypes from 'prop-types';
 import {
   formInboxItemLinkFromId,
+  getCanonicalNavigationUrl,
   navigate,
   preventDefaultAndProp
 } from '../../../utils/marketIdPathFunctions';
@@ -23,7 +24,7 @@ import {
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import NotificationDeletion from './NotificationDeletion';
 import {
-  dehighlightMessages, quickRemoveMessages,
+  addNavigation, dehighlightMessages, quickRemoveMessages,
   removeMessages
 } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 import { useHistory } from 'react-router';
@@ -197,7 +198,7 @@ function WorkListItem(props) {
   const history = useHistory();
   const classes = workListStyles();
   const theme = useTheme();
-  const [, messagesDispatch] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const actionStyles = useSizedIconButtonStyles({ childSize: 22, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
@@ -242,6 +243,9 @@ function WorkListItem(props) {
             if (isHighlighted) {
               dehighlightMessage(message, messagesDispatch);
             }
+            const originUrl = getCanonicalNavigationUrl(history.location.pathname, history.location.search);
+            const existingUrls = (messagesState?.navigations || []).map((navigation) => navigation.url);
+            messagesDispatch(addNavigation(originUrl, existingUrls.concat(originUrl)));
             navigate(history, formInboxItemLinkFromId(id));
           }
         }>

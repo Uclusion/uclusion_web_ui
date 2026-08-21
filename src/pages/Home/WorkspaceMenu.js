@@ -107,7 +107,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function WorkspaceMenu(props) {
-  const { markets: unfilteredMarkets, defaultMarket, setChosenMarketId, inactiveGroups, chosenGroup } = props;
+  const { markets: unfilteredMarkets, defaultMarket, setChosenMarketId, inactiveGroups, chosenGroup,
+    navigateFromLeftNav } = props;
   const [themeMode] = useContext(ThemeModeContext);
   const isDark = themeMode === 'dark';
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
@@ -140,7 +141,7 @@ function WorkspaceMenu(props) {
   function goTo (to) {
     return () => {
       recordPositionToggle();
-      history.push(to);
+      navigateFromLeftNav(() => history.push(to));
     };
   }
 
@@ -150,7 +151,8 @@ function WorkspaceMenu(props) {
         <ProMenu>
           <MenuItem icon={<AddIcon htmlColor="black" />}
                     key="addWorkspace Key" id="addWorkspaceIconId"
-                    onClick={()=> navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`)}
+                    onClick={()=> navigateFromLeftNav(() =>
+                      navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`))}
           >
             {intl.formatMessage({ id: 'homeAddPlanning' })}
           </MenuItem>
@@ -239,7 +241,8 @@ function WorkspaceMenu(props) {
                               id={key}
                               key={key}
                               onClick={() => {
-                                navigate(history, formMarketLink(defaultMarket.id, group.id))
+                                navigateFromLeftNav(() =>
+                                  navigate(history, formMarketLink(defaultMarket.id, group.id)))
                               }}
                     >
                       {group.name}
@@ -272,7 +275,7 @@ function WorkspaceMenu(props) {
                               key={key}
                               onClick={() => {
                                 recordPositionToggle();
-                                setChosenMarketId(market.id);
+                                navigateFromLeftNav(() => setChosenMarketId(market.id));
                               }}
                     >
                       {market.name}
@@ -289,7 +292,7 @@ function WorkspaceMenu(props) {
                 key="userPreferencesKey" id="userPreferencesId"
                 onClick={() => {
                   recordPositionToggle();
-                  navigate(history,'/userPreferences');
+                  navigateFromLeftNav(() => navigate(history,'/userPreferences'));
                 }}
               >
                 <Tooltip title={intl.formatMessage({ id: 'userPreferencesHeader' })}>
@@ -312,12 +315,16 @@ function WorkspaceMenu(props) {
                       setOperationRunning(true);
                       // User already has a non demo market so don't ask him to create another one
                       return banUser(defaultMarket.id, myPresence.id).then(() => {
-                              setOperationRunning(false);
-                              changeBanStatus(marketPresencesState, marketPresencesDispatch, defaultMarket.id, myPresence.id, true, commentsState);
-                              // navigate to another market handled by code in Screen
-                            });
+                        setOperationRunning(false);
+                        navigateFromLeftNav(() => {
+                          changeBanStatus(marketPresencesState, marketPresencesDispatch, defaultMarket.id,
+                            myPresence.id, true, commentsState);
+                          // navigate to another market handled by code in Screen
+                        });
+                      });
                     }
-                    navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
+                    navigateFromLeftNav(() =>
+                      navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`));
                   }}
                 >
                   <Tooltip title={intl.formatMessage({ id: 'endDemoExplanation' })}>
@@ -337,7 +344,7 @@ function WorkspaceMenu(props) {
                   key="tryOtherDemoKey" id="tryOtherDemoId"
                   onClick={() => {
                     recordPositionToggle();
-                    navigate(history, '/demo');
+                    navigateFromLeftNav(() => navigate(history, '/demo'));
                   }}
                 >
                   <Tooltip title={intl.formatMessage({ id: 'otherDemoExplanation' })}>

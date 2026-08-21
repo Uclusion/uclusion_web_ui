@@ -16,7 +16,8 @@ import { useHistory, useLocation } from 'react-router';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import {
   dehighlightMessage, getInboxTarget,
-  isInboxNavigationUrl, isInInbox, messageIsSynced
+  isInboxItemNavigationUrl, isInboxNavigationUrl, isInboxTopLevelNavigationUrl,
+  isInInbox, messageIsSynced
 } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import { addNavigation, removeNavigation } from '../../contexts/NotificationsContext/notificationsContextReducer';
 import _ from 'lodash';
@@ -150,7 +151,9 @@ export default function NavigationChevrons(props) {
   });
   const currentNavUrl = getCanonicalNavigationUrl(pathname, search);
   const liveInboxUrls = allMessages.map((message) => formInboxItemLink(message));
-  const allExistingUrls = liveInboxUrls.concat(backUrls);
+  const rememberedInboxRoots = (navigations || []).map((navigation) => navigation.url)
+    .filter(isInboxTopLevelNavigationUrl);
+  const allExistingUrls = liveInboxUrls.concat(backUrls, rememberedInboxRoots);
   if (currentNavUrl && !allExistingUrls.includes(currentNavUrl)) {
     allExistingUrls.push(currentNavUrl);
   }
@@ -158,7 +161,7 @@ export default function NavigationChevrons(props) {
   // rather than allExistingUrls because the latter carries the current page whether it exists or
   // not, which would call the page you are standing on live while its notification is being cleared.
   function isRemovedNotificationUrl(url) {
-    return isInboxNavigationUrl(url) && !liveInboxUrls.includes(url);
+    return isInboxItemNavigationUrl(url) && !liveInboxUrls.includes(url);
   }
   const previous = _.find(orderedNavigations, (navigation) => {
     if (navigation.url === currentNavUrl) {
@@ -258,7 +261,9 @@ export default function NavigationChevrons(props) {
     if (nextUrl.kind === 'message') {
       // Record the streak origin only. Intermediate highlighted hops are not Back targets, and a
       // notification cleared while you stood on it is not one either (T-all-2492).
-      if ((!isInboxNavigationUrl(currentNavUrl) || _.isEmpty(previous))
+      // Q-all-493: list roots enter the stack only through a direct row click, never Forward.
+      if (!isInboxTopLevelNavigationUrl(currentNavUrl)
+        && (!isInboxNavigationUrl(currentNavUrl) || _.isEmpty(previous))
         && !isRemovedNotificationUrl(currentNavUrl)) {
         messagesDispatch(addNavigation(currentNavUrl, allExistingUrls));
       }
@@ -282,7 +287,7 @@ export default function NavigationChevrons(props) {
       // T-all-2492: the reducer drops a Back entry when its notification is removed, so this
       // origin must not put it back. Coming into a job from a notification that has since gone
       // leaves no return point at all, which is what disables Back.
-      if (!isInboxNavigationUrl(fromUrl) || liveInboxUrls.includes(fromUrl)) {
+      if (!isInboxItemNavigationUrl(fromUrl) || liveInboxUrls.includes(fromUrl)) {
         messagesDispatch(addNavigation(fromUrl, allExistingUrls.concat(fromUrl)));
       }
       clearJobBackOrigin();
@@ -302,11 +307,6 @@ export default function NavigationChevrons(props) {
   const returnTop = <ReturnTop action={action} pathInvestibleId={pathInvestibleId} market={defaultMarket} isMac={isMac}
             isArchivedWorkspace={isArchivedWorkspace} useLink={useLink} typeObjectId={typeObjectId} isSearch={!_.isEmpty(searchText)}
             groupId={viewGroupId} pathMarketIdRaw={pathMarketIdRaw} hashInvestibleId={hashInvestibleId}/>;
-
-  if (!_.isEmpty(searchText)) {
-    // Otherwise too confusing and think next goes to next item found or something
-    return returnTop;
-  }
 
   const forwardKind = nextUrl?.kind;
   const forwardIconColor = nextDisabled ? 'disabled' : (nextHighlighted ? WARNING_COLOR : 'black');
@@ -343,6 +343,23 @@ export default function NavigationChevrons(props) {
   >
     {intl.formatMessage({ id: 'navBack' })}
   </Button>;
+  const backControl = !mobileLayout && (backDisabled ? backButton : (
+    <Tooltip title={intl.formatMessage({ id: isMac ? 'previousNavigationMac' : 'previousNavigation' })}>
+      {backButton}
+    </Tooltip>
+  ));
+  if (!_.isEmpty(searchText)) {
+    const isInboxItem = ['inbox', 'outbox'].includes(action) && !_.isEmpty(pathMarketIdRaw);
+    // Forward stays hidden in search, but a row opened from its filtered list keeps its Back origin.
+    return isInboxItem && !mobileLayout ? (
+      <>
+        <Toolbar style={{ gap: '0.5rem', minHeight: '48px', flexShrink: 0, flexWrap: 'nowrap' }}>
+          {backControl}
+        </Toolbar>
+        {returnTop}
+      </>
+    ) : returnTop;
+  }
   return (
     <>
     <Toolbar style={{ gap: '0.5rem', minHeight: '48px', flexShrink: 0, flexWrap: 'nowrap' }}>
@@ -351,11 +368,7 @@ export default function NavigationChevrons(props) {
           {forwardButton}
         </Tooltip>
       )}
-      {!mobileLayout && (backDisabled ? backButton : (
-        <Tooltip title={intl.formatMessage({ id: isMac ? 'previousNavigationMac' : 'previousNavigation' })}>
-          {backButton}
-        </Tooltip>
-      ))}
+      {backControl}
     </Toolbar>
     {returnTop}
     </>

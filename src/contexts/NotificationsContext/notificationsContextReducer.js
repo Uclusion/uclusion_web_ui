@@ -4,13 +4,14 @@ import { findMessagesForInvestibleId } from '../../utils/messageUtils'
 import { leaderContextHack } from '../LeaderContext/LeaderContext';
 import { flushPendingClears, PENDING_CLEARS_ACKED } from './pendingClearsFlusher';
 import { timeSpan, timeSpanAsync } from '../../utils/renderProfiler';
-import { getInboxTarget, getMessageId, isInboxNavigationUrl, isInInbox } from './notificationsContextHelper';
+import { getInboxTarget, getMessageId, isInboxItemNavigationUrl, isInInbox } from './notificationsContextHelper';
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MESSAGES = 'REMOVE_MESSAGES';
 const REMOVE_NAVIGATION = 'REMOVE_NAVIGATION';
+const CLEAR_NAVIGATIONS = 'CLEAR_NAVIGATIONS';
 const ADD_NAVIGATION = 'ADD_NAVIGATION';
 const QUICK_REMOVE_MESSAGES = 'QUICK_REMOVE_MESSAGES';
 const ADD_MESSAGE = 'ADD_MESSAGE';
@@ -38,6 +39,12 @@ export function removeNavigation(url) {
   return {
     type: REMOVE_NAVIGATION,
     url
+  }
+}
+
+export function clearNavigations() {
+  return {
+    type: CLEAR_NAVIGATIONS
   }
 }
 
@@ -108,12 +115,12 @@ function storeMessagesInState(state, messagesToStore, pendingClears) {
 // is the one place that closes the whole class instead of one producer at a time. Returns the
 // same array when nothing goes, which is what keeps the S-all-255 no-change bail out below alive.
 function pruneNavigationsForMessages(navigations, messagesToStore) {
-  if (_.isEmpty(navigations) || !navigations.find((navigation) => isInboxNavigationUrl(navigation.url))) {
+  if (_.isEmpty(navigations) || !navigations.find((navigation) => isInboxItemNavigationUrl(navigation.url))) {
     return navigations;
   }
   const liveUrls = new Set((messagesToStore || []).filter((message) => isInInbox(message))
     .map((message) => `${getInboxTarget(message)}/${getMessageId(message)}`));
-  const kept = navigations.filter((navigation) => !isInboxNavigationUrl(navigation.url) ||
+  const kept = navigations.filter((navigation) => !isInboxItemNavigationUrl(navigation.url) ||
     liveUrls.has(navigation.url));
   return _.size(kept) === _.size(navigations) ? navigations : kept;
 }
@@ -273,6 +280,16 @@ function doRemoveNavigation (state, action) {
   };
 }
 
+function doClearNavigations(state) {
+  if (_.isEmpty(state.navigations)) {
+    return state;
+  }
+  return {
+    ...state,
+    navigations: []
+  };
+}
+
 function doAddNavigation(state, action) {
   const { url, allExistingUrls } = action;
   const { navigations } = state;
@@ -306,7 +323,11 @@ function computeNewState (state, action) {
     case UPDATE_MESSAGES:
       return doUpdateMessages(state, action);
     case INITIALIZE_STATE:
-      return { ...action.newState, pendingClears: action.newState.pendingClears || [] };
+      // T-all-2494: custom Back history belongs to this tab. Ignore legacy entries from the
+      // shared NotificationsContext store without overwriting navigation that happened while
+      // its asynchronous read was still in flight.
+      return { ...action.newState, navigations: state.navigations || [],
+        pendingClears: action.newState.pendingClears || [] };
     case PENDING_CLEARS_ACKED:
       return doClearsAcked(state, action);
     case REMOVE_MESSAGES:
@@ -320,6 +341,8 @@ function computeNewState (state, action) {
       return addSingleMessage(state, action);
     case REMOVE_NAVIGATION:
       return doRemoveNavigation(state, action);
+    case CLEAR_NAVIGATIONS:
+      return doClearNavigations(state);
     case ADD_NAVIGATION:
       return doAddNavigation(state, action);
     case REMOVE_FOR_INVESTIBLE:
@@ -340,7 +363,10 @@ function storeStatePromise(action, newState) {
     const { isLeader } = leaderContextHack;
     if (isLeader) {
       const lfh = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
-      return timeSpanAsync('idb:notifications', () => lfh.setState(newState)).then(() => {
+      // T-all-2494: LocalForage is shared by every tab. Keep the field for storage-schema and
+      // mixed-version compatibility, but never persist one tab's custom Back history.
+      const stateToStore = { ...newState, navigations: [] };
+      return timeSpanAsync('idb:notifications', () => lfh.setState(stateToStore)).then(() => {
         console.info('Updated notifications context storage.');
       });
     }

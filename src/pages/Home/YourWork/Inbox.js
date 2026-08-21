@@ -16,7 +16,7 @@ import InboxRow from './InboxRow';
 import { getPaginatedItems } from '../../../utils/messageUtils';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import { calculateTitleExpansionPanel, createDefaultInboxRow } from './InboxExpansionPanel';
-import { getUnpaginatedItems, PAGE_SIZE, setPage } from './InboxContext';
+import { getUnpaginatedItems, PAGE_SIZE, PENDING_INDEX, setPage } from './InboxContext';
 import { stripHTML } from '../../../utils/stringFunctions';
 import { getDeterminateReducer } from '../../../contexts/ContextUtils';
 import {
@@ -255,7 +255,7 @@ function Inbox(props) {
             {isOnWorkItem && mobileLayout && (
               <TooltipIconButton icon={<ArrowBack style={{marginLeft: '0.5rem'}} htmlColor={actionButtonColor} />}
                                 onClick={() => {
-                                  navigate(history, getInboxTarget());
+                                  navigate(history, tabIndex === PENDING_INDEX ? '/outbox' : getInboxTarget());
                                 }} translationId="backToInbox" />
             )}
             <div style={{flexGrow: 1}}/>

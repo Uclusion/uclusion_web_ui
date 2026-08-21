@@ -7,6 +7,7 @@ import { useHistory, useLocation } from 'react-router'
 import Header from '../Header'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import {
+  clearNavigationOrigins,
   decomposeMarketPath, formCommentLink,
   formMarketLink,
   navigate,
@@ -67,6 +68,7 @@ import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContext
 import { INDEX_COMMENT_TYPE, INDEX_INVESTIBLE_TYPE } from '../../contexts/SearchIndexContext/searchIndexContextMessages';
 import { DARK_ACTION_BUTTON_COLOR, DARK_SIDEBAR_COLOR, SIDEBAR_COLOR } from '../../components/Buttons/ButtonConstants';
 import { ThemeModeContext } from '../../contexts/ThemeModeContext';
+import { clearNavigations } from '../../contexts/NotificationsContext/notificationsContextReducer';
 
 export const screenStyles = makeStyles((theme) => ({
   hidden: {
@@ -222,7 +224,8 @@ export function getActiveGroupId(myPresence, groupsState, marketId, marketPresen
 
 export function getSidebarGroups(isDark, navListItemTextArray, groupsState, marketPresencesState, groupPresencesState,
   history, market, useGroupId, groupId, classes, useHoverFunctions, search, results, openMenuItems=[], inactiveGroups=[], pathname, resetFunction,
-  mobileLayout, messagesState, commentsState, investiblesState, investibleId, syncComplete = true) {
+  mobileLayout, messagesState, commentsState, investiblesState, investibleId, syncComplete = true,
+  navigateFromLeftNav = (navigation) => navigation()) {
   const marketId = market.id;
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const itemsSorted = _.sortBy(groupsState[marketId],
@@ -319,8 +322,10 @@ export function getSidebarGroups(isDark, navListItemTextArray, groupsState, mark
             dialogOutset.style.display = 'block';
           }
         } else {
-          setCurrentGroup(group.id);
-          navigate(history, formMarketLink(marketId, group.id));
+          navigateFromLeftNav(() => {
+            setCurrentGroup(group.id);
+            navigate(history, formMarketLink(marketId, group.id));
+          });
         }
       },
       onLeaveFunc: () => {
@@ -359,7 +364,7 @@ function Screen(props) {
   const hashValues = queryString.parse(hash);
   const { marketId: hashMarketId, investibleId: hashInvestibleId, type,
     groupId: hashGroupId, typeObjectId, commentId: hashCommentId } = hashValues || {};
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState] = useContext(InvestiblesContext);
@@ -391,6 +396,13 @@ function Screen(props) {
     isWizard = false,
     pageBackground
   } = props;
+
+  function navigateFromLeftNav(navigation) {
+    const result = navigation();
+    clearNavigationOrigins();
+    messagesDispatch(clearNavigations());
+    return result;
+  }
   // B-all-570: no per-tick counting over every message until the sync layer converges
   const initialSyncComplete = useInitialSyncComplete('screen');
   useEffect(() => {
@@ -481,15 +493,17 @@ function Screen(props) {
     getSidebarGroups(isDark, navListItemTextArray, groupsState, marketPresencesState, groupPresencesState,
       history, defaultMarket, useGroupId || pathGroupId || hashGroupId, groupId, classes, useHoverFunctions, search,
       results, openMenuItems, inactiveGroups, pathname, resetFunction, mobileLayout, messagesState, commentsState,
-      investiblesState, investibleId, initialSyncComplete);
+      investiblesState, investibleId, initialSyncComplete, navigateFromLeftNav);
   }
   const composeChosen = action === 'wizard' && type === COMPOSE_WIZARD_TYPE.toLowerCase();
   const navigationMenu = isDemoLoading ? {} :
     {
       navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setMarketIdFull}
-                              inactiveGroups={inactiveGroups} chosenGroup={useGroupId || hashGroupId} />,
+                              inactiveGroups={inactiveGroups} chosenGroup={useGroupId || hashGroupId}
+                              navigateFromLeftNav={navigateFromLeftNav} />,
       navLowerMenu: <OtherWorkspaceMenus markets={markets} defaultMarket={defaultMarket} mobileLayout={mobileLayout} 
-                      action={action} chosenGroup={useGroupId || hashGroupId} setChosenMarketId={setMarketIdFull} />,
+                      action={action} chosenGroup={useGroupId || hashGroupId} setChosenMarketId={setMarketIdFull}
+                      navigateFromLeftNav={navigateFromLeftNav} />,
       navLowerListItemTextArray: !_.isEmpty(defaultMarket) && !isArchivedWorkspace ? [
         {
           icon: EditOutlinedIcon, text: intl.formatMessage({ id: 'compose' }),
@@ -504,7 +518,8 @@ function Screen(props) {
   const contentClass = mobileLayout ? classes.contentNoStyle : classes.content;
   const sideNavigationContents = (
     <RenderCensus id="Sidebar">
-      <Sidebar navigationOptions={navigationMenu} marketId={defaultMarket?.id} />
+      <Sidebar navigationOptions={navigationMenu} marketId={defaultMarket?.id}
+               navigateFromLeftNav={navigateFromLeftNav} />
     </RenderCensus>
   );
   const renderBanner = showBanner && banner && !hidden;

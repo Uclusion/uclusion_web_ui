@@ -18,7 +18,7 @@ import { SearchResultsContext } from '../../contexts/SearchResultsContext/Search
 function processRegularItem(properties) {
   const {history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, isBlue, complexIcon,
     index, openMenuItems, isSubMenu, onEnterFunc, onLeaveFunc, endIcon: EndIcon, linkHref, resetFunction, tipText, idPrepend='',
-    numSuffix='', hasCritical, sidebarColor, sidebarSelectedColor, isDark} = properties;
+    numSuffix='', hasCritical, sidebarColor, sidebarSelectedColor, isDark, navigateFromLeftNav} = properties;
   if (!text) {
     return React.Fragment
   }
@@ -87,7 +87,7 @@ function processRegularItem(properties) {
                       if (onClickFunc) {
                         onClickFunc(event)
                       } else {
-                        navigate(history, target, false)
+                        navigateFromLeftNav(() => navigate(history, target, false))
                       }
                     }
                   }
@@ -114,7 +114,8 @@ function processRegularItem(properties) {
           {openMenuItems.map((subItem, index) => {
             const { text, target, num, icon: Icon, onClickFunc, isBold } = subItem
             return processRegularItem({history, text, target, num, Icon, onClickFunc,
-              isBold, index, isSubMenu: true, sidebarColor, sidebarSelectedColor, isDark})
+              isBold, index, isSubMenu: true, sidebarColor, sidebarSelectedColor, isDark,
+              navigateFromLeftNav})
           })}
         </div>
       )}
@@ -129,7 +130,7 @@ export default function Sidebar(props) {
   const isDark = themeMode === 'dark';
   const [searchResults] = useContext(SearchResultsContext);
   const isSearch = !_.isEmpty(searchResults?.search);
-  const { marketId, navigationOptions, idPrepend='' } = props;
+  const { marketId, navigationOptions, idPrepend='', navigateFromLeftNav } = props;
   const { actionButtonColor, sidebarColor, sidebarSelectedColor } = useButtonColors();
   // Single deeper teal for the whole sidebar panel so it reads as distinct
   // from the main area; sub-views use the same color (no banding). Colors are
@@ -154,7 +155,8 @@ export default function Sidebar(props) {
             renderExpandIcon={() => <div onClick={(event)=> {
               preventDefaultAndProp(event);
               if (marketId) {
-                navigate(history, `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${marketId}`);
+                navigateFromLeftNav(() =>
+                  navigate(history, `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${marketId}`));
               }
             }}><Tooltip placement='top' title={intl.formatMessage({ id: 'homeAddGroup' })}>
             <IconButton size="small" id="addViewId">
@@ -174,7 +176,8 @@ export default function Sidebar(props) {
                           onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref, iconColor } = navItem;
                         return processRegularItem({history, text, target, num, numSuffix, hasCritical, Icon, complexIcon, onClickFunc, isBold,
                           isBlue, linkHref, index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction,
-                          tipText, idPrepend, sidebarColor, sidebarSelectedColor, iconColor, isDark})
+                          tipText, idPrepend, sidebarColor, sidebarSelectedColor, iconColor, isDark,
+                          navigateFromLeftNav})
                       })}
                       {navListItemTextArray.length > 5 && (
                         <MenuItem
@@ -195,7 +198,8 @@ export default function Sidebar(props) {
                           onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref, iconColor } = navItem;
                         return processRegularItem({history, text, target, num, numSuffix, hasCritical, Icon, complexIcon, onClickFunc, isBold,
                           isBlue, linkHref, index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction,
-                          tipText, idPrepend, sidebarColor, sidebarSelectedColor, iconColor, isDark})
+                          tipText, idPrepend, sidebarColor, sidebarSelectedColor, iconColor, isDark,
+                          navigateFromLeftNav})
                       })}
               </SubMenu>
           </Menu>
@@ -213,7 +217,8 @@ export default function Sidebar(props) {
                 onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref, iconColor } = navItem;
               return processRegularItem({history, text, target, num, Icon, complexIcon, onClickFunc, isBold,
                 isBlue, linkHref, index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction,
-                tipText, idPrepend, sidebarColor, sidebarSelectedColor, iconColor, isDark})
+                tipText, idPrepend, sidebarColor, sidebarSelectedColor, iconColor, isDark,
+                navigateFromLeftNav})
             })}
           </Menu>
         )}

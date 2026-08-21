@@ -49,7 +49,8 @@ const useStyles = makeStyles(() => ({
 }));
 
 function OtherWorkspaceMenus(props) {
-  const { markets: unfilteredMarkets, defaultMarket, setChosenMarketId, chosenGroup, mobileLayout, action } = props;
+  const { markets: unfilteredMarkets, defaultMarket, setChosenMarketId, chosenGroup, mobileLayout, action,
+    navigateFromLeftNav } = props;
   const location = useLocation();
   const { search: querySearch, hash } = location;
   const values = queryString.parse(querySearch);
@@ -172,7 +173,8 @@ function OtherWorkspaceMenus(props) {
         renderExpandIcon={() => <div onClick={(event)=> {
           preventDefaultAndProp(event);
           if (defaultMarket) {
-            navigate(history, `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`);
+            navigateFromLeftNav(() =>
+              navigate(history, `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`));
           }
         }}><Tooltip placement='top' title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}>
         <IconButton size="small" id="Addcollaborators">
@@ -235,7 +237,8 @@ function OtherWorkspaceMenus(props) {
                                           }}
                                           onClick={()=> {
                                             recordPresenceToggle();
-                                            navigate(history, formMarketLink(defaultMarket.id, group.id));
+                                            navigateFromLeftNav(() =>
+                                              navigate(history, formMarketLink(defaultMarket.id, group.id)));
                                           }}>
                           {group.name}
                         </MenuItem>
@@ -282,7 +285,7 @@ function OtherWorkspaceMenus(props) {
                     : undefined}
                 onClick={(event) => {
                   preventDefaultAndProp(event);
-                  navigate(history,getInboxTarget());
+                  navigateFromLeftNav(() => navigate(history,getInboxTarget()));
                 }}
             >
               <Tooltip title={intl.formatMessage({ id: 'forYouToolTip' })}>
@@ -303,7 +306,7 @@ function OtherWorkspaceMenus(props) {
                       <NotificationCountChips num={outboxCount} numSuffix='total' /> : undefined}
                     onClick={(event) => {
                       preventDefaultAndProp(event);
-                      navigate(history, '/outbox');
+                      navigateFromLeftNav(() => navigate(history, '/outbox'));
                     }}
             >
               <Tooltip title={intl.formatMessage({ id: 'fromYouToolTip' })}>
@@ -341,7 +344,8 @@ function OtherWorkspaceMenus(props) {
                         borderRadius: 22}}
                       onClick={(event) => {
                         preventDefaultAndProp(event);
-                        navigate(history,`/integrationPreferences/${defaultMarket?.id}?integrationType=gravatar`);
+                        navigateFromLeftNav(() =>
+                          navigate(history,`/integrationPreferences/${defaultMarket?.id}?integrationType=gravatar`));
                       }}
               >
                 <Tooltip title={intl.formatMessage({ id: 'IdentityChangeAvatar' })}>
@@ -362,7 +366,8 @@ function OtherWorkspaceMenus(props) {
                       borderRadius: 22}}
                     onClick={(event) => {
                       preventDefaultAndProp(event);
-                      navigate(history,`/integrationPreferences/${defaultMarket?.id}?groupId=${chosenGroup}&integrationType=cli`);
+                      navigateFromLeftNav(() =>
+                        navigate(history,`/integrationPreferences/${defaultMarket?.id}?groupId=${chosenGroup}&integrationType=cli`));
                     }}
             >
               <Tooltip title={intl.formatMessage({ id: 'integrationPreferencesHeader' })}>
@@ -383,7 +388,7 @@ function OtherWorkspaceMenus(props) {
                         borderRadius: 22}}
                       onClick={(event) => {
                         preventDefaultAndProp(event);
-                        navigate(history,'/integrationPreferences?integrationType=slack');
+                        navigateFromLeftNav(() => navigate(history,'/integrationPreferences?integrationType=slack'));
                       }}
             >
               <Tooltip title={intl.formatMessage({ id: 'slackIntegrationExplanation' })}>
@@ -417,7 +422,8 @@ function OtherWorkspaceMenus(props) {
         }}
         renderExpandIcon={() => <div onClick={(event)=> {
           preventDefaultAndProp(event);
-          navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
+          navigateFromLeftNav(() =>
+            navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`));
         }}><Tooltip placement='top' title={intl.formatMessage({ id: 'homeAddPlanning' })}>
         <IconButton size="small" id="createWorkspaceId">
         <AddIcon htmlColor={defaultMarket ? actionButtonColor : 'disabled'} fontSize="small" />
@@ -457,7 +463,7 @@ function OtherWorkspaceMenus(props) {
               }}
               onClick={(event) => {
                 preventDefaultAndProp(event);
-                setChosenMarketId(market.id);
+                navigateFromLeftNav(() => setChosenMarketId(market.id));
               }}
             >
               {market.name}
@@ -494,7 +500,7 @@ function OtherWorkspaceMenus(props) {
               }}
               onClick={(event) => {
                 preventDefaultAndProp(event);
-                setChosenMarketId(market.id);
+                navigateFromLeftNav(() => setChosenMarketId(market.id));
               }}
             >
               {market.name}

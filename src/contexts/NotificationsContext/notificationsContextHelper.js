@@ -154,11 +154,21 @@ export function getInboxTarget(message) {
   return '/inbox';
 }
 
-// The Back stack stores page urls, and a notification's page url is the only kind that can
-// stop existing while the stack still holds it (T-all-2492). Kept next to getInboxTarget so
-// the reducer's prune and NavigationChevrons cannot drift apart on what counts as one.
+// The whole family is used by Forward to distinguish notification streaks from other origins.
 export function isInboxNavigationUrl(url = '') {
   return url.startsWith('/inbox') || url.startsWith('/outbox') || url.startsWith('outbox/');
+}
+
+// A notification item can stop existing while the Back stack still holds it (T-all-2492).
+// The stable list roots cannot, so keep this narrower predicate beside getInboxTarget for the
+// reducer's prune and NavigationChevrons' live-url check.
+export function isInboxItemNavigationUrl(url = '') {
+  return url.startsWith('/inbox/') || url.startsWith('/outbox/') || url.startsWith('outbox/');
+}
+
+export function isInboxTopLevelNavigationUrl(url = '') {
+  const [pathname] = url.split(/[?#]/);
+  return ['/inbox', '/outbox'].includes(pathname);
 }
 
 export function getMessageId(message) {

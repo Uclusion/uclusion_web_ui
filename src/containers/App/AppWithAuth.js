@@ -18,10 +18,11 @@ import { registerListener } from '../../utils/MessageBusUtils';
 import _ from 'lodash'
 import { decomposeMarketPath } from '../../utils/marketIdPathFunctions';
 import queryString from 'query-string'
-import { getAndClearEmail } from '../../utils/redirectUtils';
+import { getAndClearEmail, getRedirect } from '../../utils/redirectUtils';
 import { clearSignedOut } from '../../utils/userFunctions';
 import { AUTH_HUB_CHANNEL, poll } from '../../contexts/AccountContext/accountContextMessages';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
+import { getSetupRoute } from '../../pages/Setup/setupRoute';
 
 Amplify.configure(awsconfig);
 
@@ -68,8 +69,13 @@ function AppWithAuth() {
         // J-all-400 (C-all-1507): all post sign in routing lives in Root's redirect effect,
         // which consumes the stored redirect and utm once the user record arrives - this
         // handler only makes that record arrive quickly
-        console.log('Starting poll after sign in');
         clearSignedOut();
+        // A federated account is provisioned asynchronously. The setup page owns a bounded,
+        // visible retry loop instead of letting this eager account poll reject in the background.
+        if (getSetupRoute(history.location.pathname, getRedirect())) {
+          break;
+        }
+        console.log('Starting poll after sign in');
         await poll(dispatch);
         break;
       default:

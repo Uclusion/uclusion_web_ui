@@ -4,24 +4,33 @@
 #
 # Usage:
 #   install.sh <workspaceId> <viewId> [environment] [--project] [--clients claude,cursor,codex]
+#   install.sh setup [environment] --clients <claude|cursor|codex> [--project]
 #
 # Extra flags after the positional arguments are forwarded to uclusionInstall.py;
 # --clients makes the install non-interactive and --project configures the
 # current working directory instead of the home directory.
 #
-# Typical invocation (one-liner):
+# Typical invocations (one-liners):
 #   curl -fsSL https://production.uclusion.com/scripts/install.sh | bash -s -- <workspaceId> <viewId>
+#   curl -fsSL https://production.uclusion.com/scripts/install.sh | bash -s -- setup --clients codex
 set -euo pipefail
 
-if [ "$#" -lt 2 ]; then
+MODE="install"
+if [ "$#" -gt 0 ] && [ "$1" = "setup" ]; then
+  MODE="setup"
+  shift
+elif [ "$#" -lt 2 ]; then
   echo "Usage: $0 <workspaceId> <viewId> [environment] [--project] [--clients claude,cursor,codex]" >&2
+  echo "       $0 setup [environment] --clients <claude|cursor|codex> [--project]" >&2
   echo "  environment: dev | stage | production (default: production)" >&2
   exit 64
 fi
 
-WORKSPACE_ID="$1"
-VIEW_ID="$2"
-shift 2
+if [ "$MODE" = "install" ]; then
+  WORKSPACE_ID="$1"
+  VIEW_ID="$2"
+  shift 2
+fi
 
 ENVIRONMENT="production"
 if [ "$#" -gt 0 ]; then
@@ -54,6 +63,10 @@ elif command -v wget >/dev/null 2>&1; then
 else
   echo "Error: neither curl nor wget is available." >&2
   exit 1
+fi
+
+if [ "$MODE" = "setup" ]; then
+  exec python3 "$INSTALL_SCRIPT" "$ENVIRONMENT" setup "$@"
 fi
 
 exec python3 "$INSTALL_SCRIPT" "$ENVIRONMENT" "$WORKSPACE_ID" "$VIEW_ID" "$@"

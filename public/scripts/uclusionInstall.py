@@ -35,9 +35,16 @@ Without ``--clients`` the installer asks whether to configure Uclusion globally
   (``CLAUDE.md``, ``.cursor/rules/uclusion.mdc``, ``AGENTS.md``) plus each
   client's native ``skills/uclusion`` package. Claude and Cursor use their
   client directories; Codex uses the cross-agent ``.agents/skills`` path.
-  Codex receives its project-specific MCP table from ``uclusion codex`` at
-  launch. The CLI binaries themselves always stay user-global under
-  ``~/.local``.
+  Agent-led setup also writes Codex's trusted-project ``.codex/config.toml``
+  MCP table, while legacy project installs continue to use the equivalent
+  ``uclusion codex`` launch override. The CLI binaries themselves always stay
+  user-global under ``~/.local``.
+
+``setup`` mode needs no Uclusion credential, workspace ID, or view ID. It
+installs the same immutable script release and registers ``uclusionSetupMCP.py``
+under the existing ``Uclusion`` key for exactly one selected client and scope.
+The temporary MCP later invokes this installer without putting a secret on the
+command line, replacing its own registration with the normal runtime proxy.
 """
 import argparse
 import errno
@@ -114,14 +121,36 @@ HTTP_TIMEOUT = 15
 # symlink name in SYMLINK_DIR). The CLI is downloaded as ``uclusionCLI.py``,
 # installed as ``uclusion.py``, and exposed on ``PATH`` simply as ``uclusion``.
 SCRIPT_FILES = (
+    ('uclusionInstall.py', 'uclusionInstall.py', 'uclusionInstall.py'),
     ('uclusionCLI.py', 'uclusion.py', 'uclusion'),
     ('uclusionMCPProxy.py', 'uclusionMCPProxy.py', 'uclusionMCPProxy.py'),
+    ('uclusionSetupMCP.py', 'uclusionSetupMCP.py', 'uclusionSetupMCP.py'),
     ('uclusionCodexBridge.py', 'uclusionCodexBridge.py', 'uclusionCodexBridge.py'),
     ('uclusionTokenAudit.py', 'uclusionTokenAudit.py', TOKEN_AUDIT_SYMLINK_NAME),
     # Retained for compatibility while workflow refreshes remove old hooks.
     ('uclusionCursorPokeDrain.py', 'uclusionCursorPokeDrain.py',
      CURSOR_POKE_DRAIN_SYMLINK_NAME),
 )
+# Setup has no account credential with which to resolve
+# ``script_reinstall_version``. The downloaded installer is therefore its own
+# release manifest: setup copies that exact running installer into staging and
+# accepts the remaining scripts only when their bytes match these pins. The
+# deployment gate validates this table before publishing, so a sequential S3
+# deployment can fail a bootstrap safely but cannot install a mixed release.
+SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
+    'uclusionCLI.py':
+        '2f11ebfd32835758109e22430594bae72954425b2c82620c461e73467489bd34',
+    'uclusionMCPProxy.py':
+        '66f01fcd4aaec3750cb54d8fb8c0451dc3431534d0c39d264ea8bae68b18b0f8',
+    'uclusionSetupMCP.py':
+        '8e99e1c282bbcb5e606c22d393ae9cba707aaa87ae50cc16147f7e2d89935066',
+    'uclusionCodexBridge.py':
+        'a532788c8aa2845c41b3a2c041144766667cb3196a210b25fe7d859cb885455d',
+    'uclusionTokenAudit.py':
+        '371e49d36c8393048f8e500bace829c9031f59f504673bdc40b1c1af12453df8',
+    'uclusionCursorPokeDrain.py':
+        '89e1f0bbbb8caaf5cc43b7fb399a9f0557b8c89c13c5e6f0e38ef5330f1518ca',
+}
 
 USER_HOME = os.path.expanduser('~')
 UCLUSION_HOME = os.path.join(USER_HOME, '.uclusion')
@@ -203,6 +232,10 @@ CURSOR_MDC_FRONTMATTER = (
     '---\n'
 )
 MCP_PROXY_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionMCPProxy.py')
+SETUP_MCP_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionSetupMCP.py')
+INSTALLER_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionInstall.py')
+RUNTIME_PROXY_MODE = '--uclusion-runtime-after-setup'
+RUNTIME_CLEANUP_MODE = '--uclusion-cleanup-after-setup'
 TOKEN_AUDIT_SYMLINK_PATH = os.path.join(SYMLINK_DIR, TOKEN_AUDIT_SYMLINK_NAME)
 CODEX_BRIDGE_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionCodexBridge.py')
 CODEX_HOME = os.path.abspath(os.path.expanduser(
@@ -219,6 +252,9 @@ CODEX_SKILL_DIR = os.path.join(
 # reruns can replace it in place without disturbing the user's other settings.
 CODEX_CONFIG_MARKER = '# uclusion-mcp:v1'
 CODEX_CONFIG_END_MARKER = '# /uclusion-mcp:v1'
+MCP_SERVER_KEY = 'Uclusion'
+SUPPORTED_CLIENTS = frozenset({'claude', 'cursor', 'codex'})
+_UNCHECKED_MCP_DESCRIPTOR = object()
 # Releases before J-all-369 installed lifecycle hooks for root-thread
 # discovery. The inline relay now owns that authority directly, but these
 # marker names remain part of the installer so an update can remove only the
@@ -361,6 +397,42 @@ def download_to(url, dest_path):
             raise RuntimeError(f"Failed to download {url}: status {response.status}")
         with open(dest_path, 'wb') as out:
             shutil.copyfileobj(response, out)
+
+
+def _validate_setup_bootstrap_pin_table():
+    expected = {
+        source_name
+        for source_name, _installed_name, _symlink_name in SCRIPT_FILES
+        if source_name != 'uclusionInstall.py'
+    }
+    if set(SETUP_BOOTSTRAP_SCRIPT_SHA256) != expected:
+        raise RuntimeError(
+            'setup bootstrap script pins do not match the installer bundle'
+        )
+
+
+def _validate_setup_bootstrap_script(source_name, path):
+    try:
+        with open(path, 'rb') as source:
+            digest = hashlib.sha256(source.read()).hexdigest()
+    except OSError as error:
+        raise RuntimeError(
+            f'setup bootstrap script {source_name} could not be read'
+        ) from error
+    if digest != SETUP_BOOTSTRAP_SCRIPT_SHA256.get(source_name):
+        raise RuntimeError(
+            f'setup bootstrap script {source_name} does not match this '
+            'installer release'
+        )
+
+
+def validate_setup_script_bundle(scripts_dir):
+    """Validate the setup scripts beside an installer before deployment."""
+    _validate_setup_bootstrap_pin_table()
+    for source_name in SETUP_BOOTSTRAP_SCRIPT_SHA256:
+        _validate_setup_bootstrap_script(
+            source_name, os.path.join(scripts_dir, source_name)
+        )
 
 
 def make_executable(path):
@@ -688,10 +760,12 @@ def prune_old_install_dirs(keep_dir_name, retain_previous=1):
         print(f"  🧹 Removed old install {entry_path}")
 
 
-def install_scripts(env, script_version):
+def install_scripts(env, script_version, *, setup_bootstrap=False):
     """Publish a complete immutable release and atomically make it current."""
     base_url = get_scripts_base_url(env)
     with install_lock():
+        if setup_bootstrap:
+            _validate_setup_bootstrap_pin_table()
         version_dir_name = (
             _new_unversioned_release_name()
             if not script_version
@@ -714,7 +788,14 @@ def install_scripts(env, script_version):
             # Nothing outside staging changes until every script validates.
             for source_name, installed_name, _symlink_name in SCRIPT_FILES:
                 staging_path = os.path.join(staging_bin, installed_name)
-                download_to(base_url + source_name, staging_path)
+                if setup_bootstrap and source_name == 'uclusionInstall.py':
+                    shutil.copyfile(os.path.abspath(__file__), staging_path)
+                else:
+                    download_to(base_url + source_name, staging_path)
+                    if setup_bootstrap:
+                        _validate_setup_bootstrap_script(
+                            source_name, staging_path
+                        )
                 validate_python_script(staging_path)
                 make_executable(staging_path)
                 _fsync_file(staging_path)
@@ -816,21 +897,26 @@ def write_uclusion_config(workspace_id, view_id, config_path, script_version=Non
     settings so registration passes the proxy flag without rereading.
     """
     print(f"🗂  Writing workspace config to {config_path}")
-    os.makedirs(os.path.dirname(config_path), exist_ok=True)
+    logical_path = os.path.abspath(os.path.expanduser(config_path))
+    target_path = _config_write_target(logical_path)
+    target_text, target_signature = _read_text_snapshot(target_path)
     # Older installs wrote plain uclusion.json regardless of environment
     # (S-all-163); when the env-specific target does not exist yet, seed the
     # merge from that legacy file so user customizations migrate.
     merge_path = config_path
-    if not os.path.exists(config_path):
+    merge_text = target_text
+    merge_signature = target_signature
+    if target_signature is None:
         legacy_path = os.path.join(os.path.dirname(config_path), 'uclusion.json')
         if legacy_path != config_path and os.path.exists(legacy_path):
             merge_path = legacy_path
+            legacy_target = _config_write_target(legacy_path)
+            merge_text, merge_signature = _read_text_snapshot(legacy_target)
             print(f"  📎 Migrating settings from legacy {legacy_path}")
     config = {}
-    if os.path.exists(merge_path):
+    if merge_signature is not None:
         try:
-            with open(merge_path, 'r', encoding='utf-8') as src:
-                existing = json.load(src)
+            existing = json.loads(merge_text)
             if not isinstance(existing, dict):
                 raise RuntimeError(
                     f'{merge_path} top-level value must be a JSON object'
@@ -876,9 +962,15 @@ def write_uclusion_config(workspace_id, view_id, config_path, script_version=Non
         config['workClaims'] = bool(work_claims_enabled)
     elif not isinstance(config.get('workClaims'), bool):
         config['workClaims'] = False
-    with open(config_path, 'w', encoding='utf-8') as out:
-        json.dump(config, out, indent=2)
-        out.write('\n')
+    updated = json.dumps(config, indent=2) + '\n'
+    with config_file_lock(logical_path):
+        atomic_write_text(
+            logical_path,
+            updated,
+            target_text,
+            target_path,
+            target_signature,
+        )
     print(f"  ✅ Wrote {config_path}")
     return dict(token_audit), config['workClaims']
 
@@ -889,10 +981,12 @@ def update_token_audit_client_config(config_path, source=None, managed_env=None)
     Ownership metadata lets ``--no-token-audit`` remove only values previously
     written by Uclusion. A user-modified value is never removed.
     """
+    logical_path = os.path.abspath(os.path.expanduser(config_path))
+    target_path = _config_write_target(logical_path)
+    existing, signature = _read_text_snapshot(target_path)
     try:
-        with open(config_path, 'r', encoding='utf-8') as src:
-            config = json.load(src)
-    except (OSError, json.JSONDecodeError) as err:
+        config = json.loads(existing)
+    except json.JSONDecodeError as err:
         raise RuntimeError(
             f'could not record Claude token-audit settings in '
             f'{config_path}: {err}'
@@ -911,22 +1005,255 @@ def update_token_audit_client_config(config_path, source=None, managed_env=None)
         token_audit['claudeManagedEnv'] = dict(managed_env)
     else:
         token_audit.pop('claudeManagedEnv', None)
-    with open(config_path, 'w', encoding='utf-8') as out:
-        json.dump(config, out, indent=2)
-        out.write('\n')
+    updated = json.dumps(config, indent=2) + '\n'
+    with config_file_lock(logical_path):
+        atomic_write_text(
+            logical_path, updated, existing, target_path, signature
+        )
+
+
+def _setup_identifier(value):
+    return (
+        isinstance(value, str)
+        and 1 <= len(value) <= 128
+        and re.fullmatch(r'[A-Za-z0-9_-]+', value) is not None
+    )
+
+
+def _setup_receipt_location(path, environment):
+    if environment not in CONFIG_FILES or not isinstance(path, str):
+        raise ValueError('invalid setup receipt location')
+    candidate = os.path.abspath(os.path.expanduser(path))
+    expected_dir = os.path.abspath(os.path.join(
+        UCLUSION_HOME, 'setup-receipts', environment
+    ))
+    if (
+        candidate != path
+        or os.path.dirname(candidate) != expected_dir
+        or re.fullmatch(r'[0-9a-f]{32}\.json', os.path.basename(candidate)) is None
+    ):
+        raise ValueError('invalid setup receipt location')
+    return candidate
+
+
+def _expected_setup_receipt_path(environment, client, project_dir=None):
+    scope = 'project' if project_dir is not None else 'global'
+    target = '\0'.join((
+        environment,
+        client,
+        scope,
+        os.path.abspath(project_dir) if project_dir is not None else '',
+    ))
+    target_id = hashlib.sha256(target.encode('utf-8')).hexdigest()[:32]
+    return os.path.join(
+        UCLUSION_HOME, 'setup-receipts', environment, target_id + '.json'
+    )
+
+
+def _assert_setup_receipt_target(path, environment, client, project_dir=None):
+    candidate = _setup_receipt_location(path, environment)
+    if candidate != _expected_setup_receipt_path(
+        environment, client, project_dir
+    ):
+        raise ValueError('setup receipt does not match the selected target')
+    return candidate
+
+
+def cleanup_setup_receipt(path, environment, workspace_id, view_id):
+    """Best-effort removal of one exact, IDs-only setup receipt."""
+    try:
+        candidate = _setup_receipt_location(path, environment)
+        before = os.lstat(candidate)
+        if not stat.S_ISREG(before.st_mode):
+            return False
+        flags = os.O_RDONLY
+        if hasattr(os, 'O_NOFOLLOW'):
+            flags |= os.O_NOFOLLOW
+        descriptor = os.open(candidate, flags)
+        try:
+            opened = os.fstat(descriptor)
+            if not stat.S_ISREG(opened.st_mode):
+                return False
+            with os.fdopen(descriptor, 'r', encoding='utf-8') as source:
+                descriptor = None
+                content = source.read(4097)
+        finally:
+            if descriptor is not None:
+                os.close(descriptor)
+        if len(content) > 4096:
+            return False
+        receipt = json.loads(content)
+        if (
+            not isinstance(receipt, dict)
+            or set(receipt) != {'setup_id', 'workspace_id', 'view_id'}
+            or not all(_setup_identifier(receipt.get(key)) for key in receipt)
+            or receipt['workspace_id'] != workspace_id
+            or receipt['view_id'] != view_id
+        ):
+            return False
+        current = os.lstat(candidate)
+        if (
+            not stat.S_ISREG(current.st_mode)
+            or (current.st_dev, current.st_ino) != (opened.st_dev, opened.st_ino)
+        ):
+            return False
+        os.remove(candidate)
+        return True
+    except FileNotFoundError:
+        return True
+    except (OSError, UnicodeError, json.JSONDecodeError, ValueError):
+        return False
+
+
+def _runtime_launcher_values(arguments):
+    if len(arguments) < 5:
+        raise ValueError('invalid setup runtime launcher arguments')
+    environment, receipt_path, view_id = arguments[:3]
+    proxy_args = arguments[3:]
+    if (
+        environment not in CONFIG_FILES
+        or proxy_args[0] != MCP_PROXY_SYMLINK_PATH
+        or not _setup_identifier(proxy_args[1])
+        or not _setup_identifier(view_id)
+    ):
+        raise ValueError('invalid setup runtime launcher arguments')
+    proxy_tail = proxy_args[2:]
+    if environment == 'production':
+        if proxy_tail and not proxy_tail[0].startswith('--'):
+            raise ValueError('invalid setup runtime launcher environment')
+    elif not proxy_tail or proxy_tail[0] != environment:
+        raise ValueError('invalid setup runtime launcher environment')
+    return environment, receipt_path, view_id, proxy_args
+
+
+def cleanup_runtime_receipt(arguments):
+    """Consume one validated setup runtime launcher's recovery receipt."""
+    environment, receipt_path, view_id, proxy_args = (
+        _runtime_launcher_values(arguments)
+    )
+    cleanup_setup_receipt(
+        receipt_path, environment, proxy_args[1], view_id
+    )
+    return 0
+
+
+def launch_runtime_proxy(arguments):
+    """Clean setup recovery state, then become the ordinary MCP proxy."""
+    environment, receipt_path, view_id, proxy_args = (
+        _runtime_launcher_values(arguments)
+    )
+    cleanup_setup_receipt(
+        receipt_path, environment, proxy_args[1], view_id
+    )
+    os.execv(sys.executable, [sys.executable] + proxy_args)
+    return 0
+
+
+def runtime_mcp_descriptor(workspace_id, env, token_audit=None,
+                           token_audit_client=None, work_claims=False,
+                           setup_receipt_path=None, setup_view_id=None):
+    """Describe the existing credential-backed runtime MCP command."""
+    proxy_args = [MCP_PROXY_SYMLINK_PATH, workspace_id]
+    if env is not None:
+        proxy_args.append(env)
+    if token_audit and token_audit.get('enabled'):
+        proxy_args.extend([
+            '--token-audit',
+            '--token-audit-port', str(token_audit['port']),
+        ])
+        source = token_audit.get('claudeSource')
+        if source in ('otel', 'transcript'):
+            proxy_args.extend(['--token-audit-source', source])
+        if token_audit_client is not None:
+            proxy_args.extend(['--token-audit-client', token_audit_client])
+    if work_claims:
+        proxy_args.append('--work-claims')
+    if setup_receipt_path is None and setup_view_id is None:
+        return {'command': 'python3', 'args': proxy_args}
+    if setup_receipt_path is None or not _setup_identifier(setup_view_id):
+        raise ValueError('setup runtime descriptor requires receipt and view ID')
+    environment = env or 'production'
+    receipt_path = _setup_receipt_location(
+        setup_receipt_path, environment
+    )
+    return {
+        'command': 'python3',
+        'args': [
+            INSTALLER_SYMLINK_PATH,
+            RUNTIME_PROXY_MODE,
+            environment,
+            receipt_path,
+            setup_view_id,
+        ] + proxy_args,
+    }
+
+
+def setup_mcp_descriptor(env, client, project_dir=None):
+    """Describe one credential-free setup MCP registration."""
+    if client not in SUPPORTED_CLIENTS:
+        raise ValueError(f'unsupported setup client: {client}')
+    scope = 'project' if project_dir is not None else 'global'
+    args = [
+        SETUP_MCP_SYMLINK_PATH,
+        env or 'production',
+        '--client', client,
+        '--scope', scope,
+    ]
+    if project_dir is not None:
+        args.extend(['--project-dir', os.path.abspath(project_dir)])
+    return {'command': 'python3', 'args': args}
+
+
+def _validate_mcp_descriptor(descriptor):
+    if (
+        not isinstance(descriptor, dict)
+        or set(descriptor) != {'command', 'args'}
+        or not isinstance(descriptor.get('command'), str)
+        or not descriptor['command']
+        or not isinstance(descriptor.get('args'), list)
+        or not all(isinstance(arg, str) for arg in descriptor['args'])
+    ):
+        raise ValueError('invalid MCP command descriptor')
+    return {'command': descriptor['command'], 'args': list(descriptor['args'])}
+
+
+def _toml_basic_string(value):
+    """Render one validated MCP string with TOML-compatible JSON escaping."""
+    return json.dumps(value, ensure_ascii=False)
+
+
+def _assert_expected_json_descriptor(servers, expected_descriptor, path):
+    if expected_descriptor is _UNCHECKED_MCP_DESCRIPTOR:
+        return
+    if expected_descriptor is None:
+        if MCP_SERVER_KEY in servers:
+            raise RuntimeError(
+                f'{path} already defines a Uclusion MCP server; refusing setup bootstrap'
+            )
+        return
+    expected_descriptor = _validate_mcp_descriptor(expected_descriptor)
+    if (
+        MCP_SERVER_KEY not in servers
+        or servers[MCP_SERVER_KEY] != expected_descriptor
+    ):
+        raise RuntimeError(
+            f'{path} setup MCP descriptor changed or is missing; refusing replacement'
+        )
 
 
 def register_mcp_json(path, label, workspace_id, env, require_existing,
                       token_audit=None, token_audit_client=None,
-                      work_claims=False):
+                      work_claims=False, descriptor=None,
+                      expected_descriptor=_UNCHECKED_MCP_DESCRIPTOR):
     """Register the Uclusion MCP server in a JSON config at ``path``.
 
     Handles every ``{"mcpServers": {...}}`` surface: the global Cursor
     ``mcp.json`` and Claude Code ``~/.claude.json``, plus the project-scoped
     ``.mcp.json`` / ``.cursor/mcp.json`` written by a project-level install.
-    ``require_existing`` skips the file when it is absent — the global files are
-    owned by those tools, so we never create them from scratch — whereas project
-    files are ours to create and pass ``require_existing=False``.
+    ``require_existing`` skips an absent file. Interactive global installs use
+    that guard for clients that have not created their own config yet; explicit
+    client selection, setup bootstrap, and project installs may instead pass
+    ``require_existing=False`` and create the selected config.
     """
     exists = os.path.exists(path)
     if require_existing and not exists:
@@ -935,44 +1262,44 @@ def register_mcp_json(path, label, workspace_id, env, require_existing,
 
     print(f"🧩 Registering Uclusion MCP server in {path}")
     config = {}
+    target_path = _config_write_target(path)
+    existing_text, existing_signature = _read_text_snapshot(target_path)
     if exists:
         try:
-            with open(path, 'r', encoding='utf-8') as src:
-                config = json.load(src)
+            config = json.loads(existing_text)
         except json.JSONDecodeError as err:
             raise RuntimeError(f'{path} is not valid JSON: {err}') from err
         if not isinstance(config, dict):
             raise RuntimeError(f'{path} top-level value must be a JSON object')
 
-    args = [MCP_PROXY_SYMLINK_PATH, workspace_id]
-    if env is not None:
-        args.append(env)
-    if token_audit and token_audit.get('enabled'):
-        args.extend([
-            '--token-audit',
-            '--token-audit-port', str(token_audit['port']),
-        ])
-        source = token_audit.get('claudeSource')
-        if source in ('otel', 'transcript'):
-            args.extend(['--token-audit-source', source])
-        if token_audit_client is not None:
-            args.extend(['--token-audit-client', token_audit_client])
-    if work_claims:
-        args.append('--work-claims')
+    if descriptor is None:
+        descriptor = runtime_mcp_descriptor(
+            workspace_id,
+            env,
+            token_audit,
+            token_audit_client,
+            work_claims,
+        )
+    descriptor = _validate_mcp_descriptor(descriptor)
 
     servers = config.setdefault('mcpServers', {})
     if not isinstance(servers, dict):
         raise RuntimeError(f"'mcpServers' in {path} must be a JSON object")
 
-    servers['Uclusion'] = {
-        'command': 'python3',
-        'args': args,
-    }
+    _assert_expected_json_descriptor(servers, expected_descriptor, path)
 
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, 'w', encoding='utf-8') as out:
-        json.dump(config, out, indent=2)
-        out.write('\n')
+    servers[MCP_SERVER_KEY] = descriptor
+
+    updated = json.dumps(config, indent=2) + '\n'
+    if updated != existing_text:
+        with config_file_lock(path):
+            atomic_write_text(
+                path,
+                updated,
+                existing_text,
+                target_path,
+                existing_signature,
+            )
     print(f"  ✅ Updated {path}")
     return True
 
@@ -997,7 +1324,7 @@ def remove_cursor_poke_drain_hook(hooks_path=CURSOR_HOOKS_PATH):
     """
     logical_path = os.path.abspath(os.path.expanduser(hooks_path))
     with install_lock():
-        target_path = _codex_config_write_target(logical_path)
+        target_path = _config_write_target(logical_path)
         existing, signature = _read_text_snapshot(target_path)
         if signature is None:
             return False
@@ -1066,11 +1393,13 @@ def add_claude_permissions(settings_path):
     the installer rather than through a committed file.
     """
     print(f"🔓 Allowing Uclusion MCP tools in {settings_path}")
+    logical_path = os.path.abspath(os.path.expanduser(settings_path))
+    target_path = _config_write_target(logical_path)
+    existing, signature = _read_text_snapshot(target_path)
     config = {}
-    if os.path.exists(settings_path):
+    if signature is not None:
         try:
-            with open(settings_path, 'r', encoding='utf-8') as src:
-                config = json.load(src)
+            config = json.loads(existing)
         except json.JSONDecodeError as err:
             raise RuntimeError(
                 f'{settings_path} is not valid JSON: {err}'
@@ -1095,10 +1424,11 @@ def add_claude_permissions(settings_path):
         return True
     allow.insert(0, CLAUDE_ALLOW_RULE)
 
-    os.makedirs(os.path.dirname(settings_path), exist_ok=True)
-    with open(settings_path, 'w', encoding='utf-8') as out:
-        json.dump(config, out, indent=2)
-        out.write('\n')
+    updated = json.dumps(config, indent=2) + '\n'
+    with config_file_lock(logical_path):
+        atomic_write_text(
+            logical_path, updated, existing, target_path, signature
+        )
     print(f"  ✅ Added {CLAUDE_ALLOW_RULE} to {settings_path}")
     return True
 
@@ -1213,14 +1543,16 @@ def configure_claude_token_audit(settings_path, enabled, environment,
         f"📊 {'Configuring' if enabled else 'Disabling'} Claude token audit "
         f"in {settings_path}"
     )
-    exists = os.path.exists(settings_path)
+    logical_path = os.path.abspath(os.path.expanduser(settings_path))
+    target_path = _config_write_target(logical_path)
+    existing, signature = _read_text_snapshot(target_path)
+    exists = signature is not None
     if not exists and not enabled:
         return {'source': None, 'managedEnv': {}}
     config = {}
     if exists:
         try:
-            with open(settings_path, 'r', encoding='utf-8') as src:
-                config = json.load(src)
+            config = json.loads(existing)
         except json.JSONDecodeError as err:
             raise RuntimeError(
                 f'{settings_path} is not valid JSON: {err}'
@@ -1331,10 +1663,11 @@ def configure_claude_token_audit(settings_path, enabled, environment,
             config.pop('env', None)
     # A non-object user value is preserved exactly in transcript mode.
 
-    os.makedirs(os.path.dirname(settings_path), exist_ok=True)
-    with open(settings_path, 'w', encoding='utf-8') as out:
-        json.dump(config, out, indent=2)
-        out.write('\n')
+    updated = json.dumps(config, indent=2) + '\n'
+    with config_file_lock(logical_path):
+        atomic_write_text(
+            logical_path, updated, existing, target_path, signature
+        )
     if enabled and not available:
         print(f"  ℹ️  Left Claude token audit disabled in {settings_path}")
     else:
@@ -1348,7 +1681,8 @@ def configure_claude_token_audit(settings_path, enabled, environment,
     return result
 
 
-def build_codex_mcp_block(workspace_id, env, work_claims=False):
+def build_codex_mcp_block(workspace_id=None, env=None, work_claims=False,
+                          descriptor=None):
     """Return the marker-delimited ``[mcp_servers.Uclusion]`` table for config.toml.
 
     There is no TOML writer in the standard library (``tomllib`` only reads, and
@@ -1361,18 +1695,21 @@ def build_codex_mcp_block(workspace_id, env, work_claims=False):
     ``mcp__Uclusion__*`` allow rule. It covers all current and future tools exposed
     by the Uclusion server instead of requiring a per-tool approval entry.
     """
+    if descriptor is None:
+        descriptor = runtime_mcp_descriptor(
+            workspace_id, env, work_claims=work_claims
+        )
+    descriptor = _validate_mcp_descriptor(descriptor)
     lines = [
         CODEX_CONFIG_MARKER,
-        '[mcp_servers.Uclusion]',
-        'command = "python3"',
+        f'[mcp_servers.{MCP_SERVER_KEY}]',
+        f'command = {_toml_basic_string(descriptor["command"])}',
         'args = [',
-        f'    "{MCP_PROXY_SYMLINK_PATH}",',
-        f'    "{workspace_id}",',
     ]
-    if env is not None:
-        lines.append(f'    "{env}",')
-    if work_claims:
-        lines.append('    "--work-claims",')
+    lines.extend(
+        f'    {_toml_basic_string(arg)},'
+        for arg in descriptor['args']
+    )
     lines.append(']')
     lines.append('default_tools_approval_mode = "approve"')
     lines.append(CODEX_CONFIG_END_MARKER)
@@ -1380,16 +1717,27 @@ def build_codex_mcp_block(workspace_id, env, work_claims=False):
 
 
 @contextmanager
-def codex_config_lock():
-    """Serialize Uclusion's read/modify/replace cycle across installers."""
-    lock_path = f'{CODEX_CONFIG_PATH}.uclusion.lock'
+def config_file_lock(path):
+    """Serialize one config file's read/modify/replace cycle."""
+    lock_path = f'{path}.uclusion.lock'
     ensure_dir(os.path.dirname(lock_path))
     with open(lock_path, 'a+b') as lock_file, _exclusive_file_lock(lock_file):
         yield
 
 
-def replace_owned_block(existing, start_marker, end_marker, block, label):
+@contextmanager
+def codex_config_lock(config_path=None):
+    """Serialize Uclusion's Codex config updates across installers."""
+    with config_file_lock(config_path or CODEX_CONFIG_PATH):
+        yield
+
+
+def replace_owned_block(
+    existing, start_marker, end_marker, block, label, config_path=None
+):
     """Append or replace exactly one ordered marker-owned config block."""
+    config_path = config_path or CODEX_CONFIG_PATH
+
     def marker_matches(marker):
         return list(re.finditer(
             rf'(?m)^{re.escape(marker)}\r?$',
@@ -1405,7 +1753,7 @@ def replace_owned_block(existing, start_marker, end_marker, block, label):
         return block, False
     if len(starts) != 1 or len(ends) != 1 or starts[0].start() >= ends[0].start():
         raise RuntimeError(
-            f'{CODEX_CONFIG_PATH} has duplicate, orphaned, or reversed '
+            f'{config_path} has duplicate, orphaned, or reversed '
             f'Uclusion {label} markers; refusing to modify it'
         )
     end_index = ends[0].end()
@@ -1417,8 +1765,12 @@ def replace_owned_block(existing, start_marker, end_marker, block, label):
     return (remainder + '\n\n' + block) if remainder else block, True
 
 
-def remove_owned_block(existing, start_marker, end_marker, label):
+def remove_owned_block(
+    existing, start_marker, end_marker, label, config_path=None
+):
     """Remove exactly one marker-owned block, preserving all other config."""
+    config_path = config_path or CODEX_CONFIG_PATH
+
     def marker_matches(marker):
         return list(re.finditer(
             rf'(?m)^{re.escape(marker)}\r?$',
@@ -1431,7 +1783,7 @@ def remove_owned_block(existing, start_marker, end_marker, label):
         return existing, False
     if len(starts) != 1 or len(ends) != 1 or starts[0].start() >= ends[0].start():
         raise RuntimeError(
-            f'{CODEX_CONFIG_PATH} has duplicate, orphaned, or reversed '
+            f'{config_path} has duplicate, orphaned, or reversed '
             f'Uclusion {label} markers; refusing to modify it'
         )
     end_index = ends[0].end()
@@ -1459,6 +1811,59 @@ def validate_codex_config(text):
             ) from error
 
 
+def _codex_has_uclusion_descriptor(text):
+    if tomllib is not None:
+        parsed = tomllib.loads(text)
+        servers = parsed.get('mcp_servers')
+        if isinstance(servers, dict) and MCP_SERVER_KEY in servers:
+            return True
+    table_pattern = (
+        r'(?m)^\s*\[\s*["\']?mcp_servers["\']?\s*\.\s*'
+        r'["\']?Uclusion["\']?\s*\]'
+    )
+    return (
+        CODEX_CONFIG_MARKER in text
+        or CODEX_CONFIG_END_MARKER in text
+        or re.search(table_pattern, text) is not None
+    )
+
+
+def _assert_expected_codex_descriptor(text, expected_descriptor, config_path):
+    if expected_descriptor is None:
+        if _codex_has_uclusion_descriptor(text):
+            raise RuntimeError(
+                f'{config_path} already defines a Uclusion MCP server; '
+                'refusing setup bootstrap'
+            )
+        return
+
+    expected_block = build_codex_mcp_block(descriptor=expected_descriptor)
+    starts = list(re.finditer(
+        rf'(?m)^{re.escape(CODEX_CONFIG_MARKER)}\r?$', text
+    ))
+    ends = list(re.finditer(
+        rf'(?m)^{re.escape(CODEX_CONFIG_END_MARKER)}\r?$', text
+    ))
+    if len(starts) == 1 and len(ends) == 1 and starts[0].start() < ends[0].start():
+        end_index = ends[0].end()
+        if end_index < len(text) and text[end_index] == '\n':
+            end_index += 1
+        current_block = text[starts[0].start():end_index]
+    else:
+        current_block = None
+    if current_block != expected_block:
+        raise RuntimeError(
+            f'{config_path} setup MCP descriptor changed or is missing; '
+            'refusing replacement'
+        )
+    remainder = text[:starts[0].start()] + text[end_index:]
+    if _codex_has_uclusion_descriptor(remainder):
+        raise RuntimeError(
+            f'{config_path} has an additional Uclusion MCP descriptor; '
+            'refusing replacement'
+        )
+
+
 def _stat_signature(file_stat):
     """Return the identity and mutation fields relevant to an atomic rewrite."""
     return (
@@ -1479,7 +1884,7 @@ def _stat_signature(file_stat):
     )
 
 
-def _codex_config_write_target(path):
+def _config_write_target(path):
     """Resolve a live config symlink without replacing the symlink itself."""
     logical_path = os.path.abspath(os.path.expanduser(path))
     try:
@@ -1538,7 +1943,7 @@ def _assert_expected_text_snapshot(
     expected_signature,
 ):
     """Reject retargeting, replacement, or mutation since the caller's read."""
-    current_target = _codex_config_write_target(logical_path)
+    current_target = _config_write_target(logical_path)
     if current_target != target_path:
         raise RuntimeError(
             f'{logical_path} changed targets while Uclusion was updating it; '
@@ -1564,7 +1969,7 @@ def atomic_write_text(
 ):
     """Durably update a stable config target without replacing its symlink."""
     logical_path = os.path.abspath(os.path.expanduser(path))
-    target_path = _codex_config_write_target(logical_path)
+    target_path = _config_write_target(logical_path)
     if target_path != expected_target:
         raise RuntimeError(
             f'{logical_path} changed targets while Uclusion was updating it; '
@@ -1625,17 +2030,27 @@ def mutate_codex_config(
     include_mcp=False,
     force=False,
     work_claims=False,
+    descriptor=None,
+    config_path=None,
+    expected_descriptor=_UNCHECKED_MCP_DESCRIPTOR,
 ):
     """Apply Codex config changes and remove obsolete Uclusion bridge hooks."""
-    if not os.path.isdir(CODEX_HOME):
+    config_path = config_path or CODEX_CONFIG_PATH
+    config_home = os.path.dirname(config_path)
+    if not os.path.isdir(config_home):
         if not force or not include_mcp:
-            print(f"ℹ️  No {CODEX_HOME} found; skipping Codex configuration.")
+            print(f"ℹ️  No {config_home} found; skipping Codex configuration.")
             return False
-        ensure_dir(CODEX_HOME)
+        ensure_dir(config_home)
 
-    with codex_config_lock():
-        config_target = _codex_config_write_target(CODEX_CONFIG_PATH)
+    with codex_config_lock(config_path):
+        config_target = _config_write_target(config_path)
         existing, config_signature = _read_text_snapshot(config_target)
+        if expected_descriptor is not _UNCHECKED_MCP_DESCRIPTOR:
+            validate_codex_config(existing)
+            _assert_expected_codex_descriptor(
+                existing, expected_descriptor, config_path
+            )
         updated = existing
         mcp_refreshed = False
         legacy_hooks_removed = False
@@ -1655,19 +2070,26 @@ def mutate_codex_config(
                     updated,
                     CODEX_CONFIG_MARKER,
                     CODEX_CONFIG_END_MARKER,
-                    build_codex_mcp_block(workspace_id, env, work_claims),
+                    build_codex_mcp_block(
+                        workspace_id,
+                        env,
+                        work_claims,
+                        descriptor,
+                    ),
                     'MCP',
+                    config_path,
                 )
         updated, legacy_hooks_removed = remove_owned_block(
             updated,
             LEGACY_CODEX_HOOKS_MARKER,
             LEGACY_CODEX_HOOKS_END_MARKER,
             'legacy bridge-hook',
+            config_path,
         )
         validate_codex_config(updated)
         if updated != existing:
             atomic_write_text(
-                CODEX_CONFIG_PATH,
+                config_path,
                 updated,
                 existing,
                 config_target,
@@ -1676,17 +2098,17 @@ def mutate_codex_config(
 
     if mcp_skipped:
         print(
-            f"  ⏭  {CODEX_CONFIG_PATH} already defines "
+            f"  ⏭  {config_path} already defines "
             "[mcp_servers.Uclusion] outside Uclusion's markers; "
             "leaving that table untouched."
         )
     elif include_mcp:
         verb = 'Refreshed' if mcp_refreshed else 'Added'
-        print(f"  ✅ {verb} Uclusion MCP server in {CODEX_CONFIG_PATH}")
+        print(f"  ✅ {verb} Uclusion MCP server in {config_path}")
     if legacy_hooks_removed:
         print(
             "  ✅ Removed obsolete Uclusion Codex bridge hooks from "
-            f"{CODEX_CONFIG_PATH}"
+            f"{config_path}"
         )
     if include_mcp:
         print("  🔄 Restart Codex (or reload its IDE extension) to apply this configuration.")
@@ -1719,6 +2141,32 @@ def update_codex_integration_config(workspace_id, env, force=False,
         force=force,
         work_claims=work_claims,
     )
+
+
+def register_codex_descriptor(
+    descriptor,
+    config_path=None,
+    expected_descriptor=_UNCHECKED_MCP_DESCRIPTOR,
+):
+    """Register one setup or runtime descriptor in a Codex config scope."""
+    config_path = config_path or CODEX_CONFIG_PATH
+    result = mutate_codex_config(
+        include_mcp=True,
+        force=True,
+        descriptor=descriptor,
+        config_path=config_path,
+        expected_descriptor=expected_descriptor,
+    )
+    expected = build_codex_mcp_block(descriptor=descriptor)
+    current, _signature = _read_text_snapshot(
+        _config_write_target(config_path)
+    )
+    if expected not in current:
+        raise RuntimeError(
+            f'{config_path} has an unmanaged [mcp_servers.Uclusion] table; '
+            'refusing to report setup registration as complete'
+        )
+    return result
 
 
 def prompt_yes_no(question, default=False):
@@ -2449,7 +2897,7 @@ def install_skill_and_stub(
     with install_lock():
         _recover_skill_transaction(skill_dir)
         _validate_owned_skill(skill_dir)
-        resident_target = _codex_config_write_target(resident_path)
+        resident_target = _config_write_target(resident_path)
         existing, resident_signature = _read_text_snapshot(resident_target)
 
         has_managed_resident = (
@@ -2541,7 +2989,7 @@ def _codex_project_fallback_filenames():
     """Read safe project instruction fallback names from Codex config."""
     if tomllib is None:
         return ()
-    config_target = _codex_config_write_target(CODEX_CONFIG_PATH)
+    config_target = _config_write_target(CODEX_CONFIG_PATH)
     if not os.path.exists(config_target):
         return ()
     try:
@@ -2584,7 +3032,7 @@ def effective_codex_instruction_path(scope_dir, include_fallbacks=False):
         path = os.path.join(scope_dir, name)
         if not os.path.lexists(path):
             continue
-        target = _codex_config_write_target(path)
+        target = _config_write_target(path)
         existing, _signature = _read_text_snapshot(target)
         if existing.strip():
             return path
@@ -2608,7 +3056,7 @@ def persist_workflow_install_state(
     }
     with install_lock():
         logical_path = os.path.abspath(os.path.expanduser(config_path))
-        target_path = _codex_config_write_target(logical_path)
+        target_path = _config_write_target(logical_path)
         existing, signature = _read_text_snapshot(target_path)
         try:
             config = json.loads(existing)
@@ -2722,10 +3170,10 @@ def build_parser():
     )
     parser.add_argument(
         'workspace_id',
-        help='Uclusion workspaceId to configure.',
+        help='Uclusion workspaceId to configure, or "setup" to bootstrap setup.',
     )
     parser.add_argument(
-        'view_id',
+        'view_id', nargs='?',
         help='Uclusion viewId to configure.',
     )
     parser.add_argument(
@@ -2787,13 +3235,22 @@ def build_parser():
         '--script-version',
         help=argparse.SUPPRESS,
     )
+    parser.add_argument(
+        '--replace-setup',
+        action='store_true',
+        help=argparse.SUPPRESS,
+    )
+    parser.add_argument(
+        '--setup-receipt',
+        help=argparse.SUPPRESS,
+    )
     return parser
 
 
 def parse_clients(clients_arg):
     """Validate the ``--clients`` comma list; exits with an error on unknown names."""
     clients = {client.strip().lower() for client in clients_arg.split(',') if client.strip()}
-    unknown = clients - {'claude', 'cursor', 'codex'}
+    unknown = clients - SUPPORTED_CLIENTS
     if unknown:
         print(f"❌ Unknown --clients value(s): {', '.join(sorted(unknown))} "
               f"(expected claude, cursor, codex)")
@@ -2804,9 +3261,140 @@ def parse_clients(clients_arg):
     return clients
 
 
+def _setup_registration_target(client, project_dir=None):
+    if client == 'claude':
+        path = (
+            os.path.join(project_dir, '.mcp.json')
+            if project_dir is not None else CLAUDE_JSON_PATH
+        )
+        label = 'Claude Code' + (' (project)' if project_dir else '')
+        return path, label, False
+    if client == 'cursor':
+        path = (
+            os.path.join(project_dir, '.cursor', 'mcp.json')
+            if project_dir is not None else CURSOR_MCP_PATH
+        )
+        label = 'Cursor' + (' (project)' if project_dir else '')
+        return path, label, False
+    if client != 'codex':
+        raise ValueError(f'unsupported setup client: {client}')
+    path = (
+        os.path.join(project_dir, '.codex', 'config.toml')
+        if project_dir is not None else CODEX_CONFIG_PATH
+    )
+    return path, 'Codex' + (' (project)' if project_dir else ''), True
+
+
+def _assert_setup_registration_state(client, project_dir, expected):
+    path, _label, is_codex = _setup_registration_target(client, project_dir)
+    target_path = _config_write_target(path)
+    existing, signature = _read_text_snapshot(target_path)
+    if is_codex:
+        validate_codex_config(existing)
+        _assert_expected_codex_descriptor(existing, expected, path)
+        return
+    if signature is None:
+        config = {}
+    else:
+        try:
+            config = json.loads(existing)
+        except json.JSONDecodeError as error:
+            raise RuntimeError(f'{path} is not valid JSON: {error}') from error
+        if not isinstance(config, dict):
+            raise RuntimeError(f'{path} top-level value must be a JSON object')
+    servers = config.get('mcpServers', {})
+    if not isinstance(servers, dict):
+        raise RuntimeError(f"'mcpServers' in {path} must be a JSON object")
+    _assert_expected_json_descriptor(servers, expected, path)
+
+
+def assert_setup_registration(env, client, project_dir=None):
+    """Read-only preflight proving the selected setup descriptor is unchanged."""
+    _assert_setup_registration_state(
+        client,
+        project_dir,
+        setup_mcp_descriptor(env, client, project_dir),
+    )
+
+
+def assert_setup_registration_absent(client, project_dir=None):
+    """Read-only preflight proving the selected scope has no Uclusion server."""
+    _assert_setup_registration_state(client, project_dir, None)
+
+
+def install_setup_registration(env, client, project_dir=None):
+    """Register setup only when the selected scope has no Uclusion descriptor."""
+    descriptor = setup_mcp_descriptor(env, client, project_dir)
+    path, label, is_codex = _setup_registration_target(client, project_dir)
+    if is_codex:
+        return register_codex_descriptor(
+            descriptor,
+            config_path=path,
+            expected_descriptor=None,
+        )
+    return register_mcp_json(
+        path,
+        f'{label} setup',
+        None,
+        None,
+        require_existing=False,
+        descriptor=descriptor,
+        expected_descriptor=None,
+    )
+
+
+def replace_setup_registration(
+    env,
+    client,
+    workspace_id,
+    project_dir=None,
+    token_audit=None,
+    work_claims=False,
+    view_id=None,
+    setup_receipt_path=None,
+):
+    """Atomically replace only this installer's exact temporary descriptor."""
+    environment = env or 'production'
+    receipt_path = _assert_setup_receipt_target(
+        setup_receipt_path,
+        environment,
+        client,
+        project_dir,
+    )
+    if not _setup_identifier(view_id):
+        raise ValueError('setup replacement requires a valid view ID')
+    expected = setup_mcp_descriptor(env, client, project_dir)
+    descriptor = runtime_mcp_descriptor(
+        workspace_id,
+        env,
+        token_audit=token_audit if client == 'claude' else None,
+        token_audit_client='claude' if client == 'claude' else None,
+        work_claims=work_claims,
+        setup_receipt_path=receipt_path,
+        setup_view_id=view_id,
+    )
+    path, label, is_codex = _setup_registration_target(client, project_dir)
+    if is_codex:
+        return register_codex_descriptor(
+            descriptor,
+            config_path=path,
+            expected_descriptor=expected,
+        )
+    return register_mcp_json(
+        path,
+        label,
+        None,
+        None,
+        require_existing=False,
+        descriptor=descriptor,
+        expected_descriptor=expected,
+    )
+
+
 def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                    script_version=None, token_audit_enabled=None,
-                   work_claims_enabled=None):
+                   work_claims_enabled=None, replace_setup=False,
+                   setup_receipt_path=None):
     """Configure Uclusion in the user's home directory (the default).
 
     Without ``clients`` every detected client is offered interactively. With
@@ -2815,6 +3403,19 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
     the client is not detected on the machine. An empty ``clients`` set (the
     ``--scripts-only`` update path) writes just the workspace config.
     """
+    setup_client = None
+    if replace_setup:
+        if not clients or len(clients) != 1:
+            raise RuntimeError('setup replacement requires exactly one client')
+        setup_client = next(iter(clients))
+        _assert_setup_receipt_target(
+            setup_receipt_path,
+            mcp_env or 'production',
+            setup_client,
+        )
+        if not _setup_identifier(view_id):
+            raise ValueError('setup replacement requires a valid view ID')
+        assert_setup_registration(mcp_env, setup_client)
     interactive = clients is None
     config_path = os.path.join(UCLUSION_HOME, CONFIG_FILES[mcp_env or 'production'])
     token_audit, work_claims = write_uclusion_config(
@@ -2885,6 +3486,7 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
             )
     elif (
         clients
+        and not replace_setup
         and token_audit_enabled is False
         and os.path.exists(CLAUDE_SETTINGS_PATH)
     ):
@@ -2901,10 +3503,10 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                 f'failed to disable Claude token audit at '
                 f'{CLAUDE_SETTINGS_PATH}'
             )
-    if cursor_selected:
+    if cursor_selected and not replace_setup:
         register_mcp_json(CURSOR_MCP_PATH, 'Cursor', workspace_id, mcp_env,
                           require_existing=interactive, work_claims=work_claims)
-    if claude_selected:
+    if claude_selected and not replace_setup:
         register_mcp_json(
             CLAUDE_JSON_PATH, 'Claude Code', workspace_id, mcp_env,
             require_existing=interactive, token_audit=claude_registration_audit,
@@ -2963,7 +3565,7 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                     require_dir=CODEX_HOME if interactive else None,
                 )
                 workflow_results['codex'] = installed
-                if installed:
+                if installed and not replace_setup:
                     update_codex_integration_config(
                         workspace_id, mcp_env, force=not interactive,
                         work_claims=work_claims
@@ -2971,13 +3573,24 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
             except Exception as err:
                 workflow_results['codex'] = False
                 workflow_errors.append(('codex', err))
-    return finish_workflow_installs(
+    result = finish_workflow_installs(
         config_path,
         workflow_results,
         workflow_errors,
         script_version,
         allow_skips=interactive,
     )
+    if replace_setup:
+        replace_setup_registration(
+            mcp_env,
+            setup_client,
+            workspace_id,
+            token_audit=claude_registration_audit,
+            work_claims=work_claims,
+            view_id=view_id,
+            setup_receipt_path=setup_receipt_path,
+        )
+    return result
 
 
 def install_project_level(
@@ -2990,21 +3603,38 @@ def install_project_level(
     script_version=None,
     token_audit_enabled=None,
     work_claims_enabled=None,
+    replace_setup=False,
+    setup_receipt_path=None,
 ):
     """Configure Uclusion inside ``project_dir`` instead of the home directory.
 
     Writes the workspace config and the project-scoped MCP registrations and
     workflow docs into the project. The CLI binaries stay user-global under
-    ~/.local; only configuration becomes project-local. Codex has no persisted
-    per-project MCP table (its config.toml is global), so project mode installs
-    the project's AGENTS.md while ``uclusion codex`` supplies the selected
-    project's workspace and environment as private app-server config overrides
-    at launch. This keeps its MCP proxy and Poke companion on the same workspace.
+    ~/.local; only configuration becomes project-local. Legacy project installs
+    keep using ``uclusion codex`` launch overrides. An agent-led setup transition
+    also replaces its temporary Uclusion entry in the trusted project's
+    ``.codex/config.toml`` with the runtime proxy; ``uclusion codex`` can still
+    supply the same selected workspace and environment as private app-server
+    overrides at launch. This keeps its MCP proxy and Poke companion aligned.
     The installer also removes the obsolete marker-owned Uclusion lifecycle-hook
     block from global Codex config when one is present. With ``clients`` (an
     explicit ``--clients`` selection) only those clients are configured and
     nothing prompts.
     """
+    setup_client = None
+    if replace_setup:
+        if not clients or len(clients) != 1:
+            raise RuntimeError('setup replacement requires exactly one client')
+        setup_client = next(iter(clients))
+        _assert_setup_receipt_target(
+            setup_receipt_path,
+            mcp_env or 'production',
+            setup_client,
+            project_dir,
+        )
+        if not _setup_identifier(view_id):
+            raise ValueError('setup replacement requires a valid view ID')
+        assert_setup_registration(mcp_env, setup_client, project_dir)
     interactive = clients is None
     print(f"📁 Project-level install into {project_dir}")
     os.makedirs(project_dir, exist_ok=True)
@@ -3060,14 +3690,16 @@ def install_project_level(
                 f'failed to configure Claude settings at '
                 f'{claude_settings_path}'
             )
-        register_mcp_json(
-            os.path.join(project_dir, '.mcp.json'),
-            'Claude Code (project)', workspace_id, mcp_env,
-            require_existing=False, token_audit=claude_registration_audit,
-            token_audit_client='claude', work_claims=work_claims
-        )
+        if not replace_setup:
+            register_mcp_json(
+                os.path.join(project_dir, '.mcp.json'),
+                'Claude Code (project)', workspace_id, mcp_env,
+                require_existing=False, token_audit=claude_registration_audit,
+                token_audit_client='claude', work_claims=work_claims
+            )
     elif (
         clients
+        and not replace_setup
         and token_audit_enabled is False
         and os.path.exists(claude_settings_path)
     ):
@@ -3082,7 +3714,7 @@ def install_project_level(
                 f'failed to disable Claude token audit at '
                 f'{claude_settings_path}'
             )
-    if interactive or 'cursor' in clients:
+    if (interactive or 'cursor' in clients) and not replace_setup:
         register_mcp_json(os.path.join(project_dir, '.cursor', 'mcp.json'),
                           'Cursor (project)', workspace_id, mcp_env,
                           require_existing=False, work_claims=work_claims)
@@ -3131,34 +3763,120 @@ def install_project_level(
                 assume_yes=not interactive,
             )
             workflow_results['codex'] = installed
-            if installed:
+            if installed and not replace_setup:
                 # The relay-authoritative companion needs no lifecycle hooks.
                 remove_legacy_codex_hooks_config(force=not interactive)
         except Exception as err:
             workflow_results['codex'] = False
             workflow_errors.append(('codex', err))
-    return finish_workflow_installs(
+    result = finish_workflow_installs(
         config_path,
         workflow_results,
         workflow_errors,
         script_version,
         allow_skips=interactive,
     )
+    if replace_setup:
+        replace_setup_registration(
+            mcp_env,
+            setup_client,
+            workspace_id,
+            project_dir=project_dir,
+            token_audit=claude_registration_audit,
+            work_claims=work_claims,
+            view_id=view_id,
+            setup_receipt_path=setup_receipt_path,
+        )
+    return result
 
 
 def main():
-    args = build_parser().parse_args()
+    if len(sys.argv) > 1 and sys.argv[1] == RUNTIME_PROXY_MODE:
+        try:
+            return launch_runtime_proxy(sys.argv[2:])
+        except Exception:
+            sys.stderr.write('Uclusion MCP proxy could not start safely.\n')
+            return 1
+    if len(sys.argv) > 1 and sys.argv[1] == RUNTIME_CLEANUP_MODE:
+        try:
+            return cleanup_runtime_receipt(sys.argv[2:])
+        except Exception:
+            return 1
+    parser = build_parser()
+    args = parser.parse_args()
     env = args.environment
     workspace_id = args.workspace_id
     view_id = args.view_id
     mcp_env = None if env == 'production' else env
 
+    if workspace_id == 'setup':
+        if view_id is not None:
+            parser.error('setup mode takes no workspace or view ID')
+        if not args.clients:
+            parser.error(
+                'setup mode requires --clients <claude|cursor|codex>'
+            )
+        clients = parse_clients(args.clients)
+        if len(clients) != 1:
+            parser.error('setup mode requires exactly one --clients value')
+        if any((
+            args.scripts_only,
+            args.skip_scripts,
+            args.replace_setup,
+            args.setup_receipt is not None,
+            args.token_audit is not None,
+            args.work_claims is not None,
+            args.script_version is not None,
+        )):
+            parser.error(
+                'setup mode accepts only --clients and optional --project'
+            )
+        try:
+            project_dir = os.getcwd() if args.project else None
+            setup_client = next(iter(clients))
+            assert_setup_registration_absent(setup_client, project_dir)
+            install_scripts(env, None, setup_bootstrap=True)
+            install_setup_registration(env, setup_client, project_dir)
+        except Exception as err:
+            print(f"❌ Setup bootstrap failed: {err}")
+            return 1
+        print(
+            "🎉 Uclusion setup bootstrap complete. Restart or reconnect "
+            "the selected client to load create_workspace and complete_setup."
+        )
+        return 0
+
+    if view_id is None:
+        parser.error('a view ID is required for a normal install')
+    if args.replace_setup and (not args.clients or args.scripts_only):
+        parser.error('--replace-setup requires one client install')
+    if args.replace_setup and args.setup_receipt is None:
+        parser.error('--replace-setup requires setup recovery state')
+    if args.setup_receipt is not None and not args.replace_setup:
+        parser.error('--setup-receipt requires --replace-setup')
+
     if args.scripts_only:
         clients = set()
     else:
         clients = parse_clients(args.clients) if args.clients else None
+    if args.replace_setup and len(clients) != 1:
+        parser.error('--replace-setup requires exactly one --clients value')
 
     try:
+        if args.replace_setup:
+            setup_project_dir = os.getcwd() if args.project else None
+            setup_client = next(iter(clients))
+            _assert_setup_receipt_target(
+                args.setup_receipt,
+                env,
+                setup_client,
+                setup_project_dir,
+            )
+            assert_setup_registration(
+                mcp_env,
+                setup_client,
+                setup_project_dir,
+            )
         fetch_bundle = make_workflow_bundle_fetcher(env)
         # A web/update-selected workflow install must prove that every asset
         # belongs to this installer release before scripts or config change.
@@ -3186,6 +3904,8 @@ def main():
                 script_version,
                 args.token_audit,
                 args.work_claims,
+                args.replace_setup,
+                args.setup_receipt,
             )
         else:
             install_project_level(
@@ -3198,6 +3918,8 @@ def main():
                 script_version,
                 args.token_audit,
                 args.work_claims,
+                args.replace_setup,
+                args.setup_receipt,
             )
     except subprocess.CalledProcessError as err:
         print(f"❌ Command failed: {err}")

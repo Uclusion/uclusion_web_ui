@@ -1,4 +1,5 @@
 import importlib.util
+import hashlib
 import os
 import stat
 import tempfile
@@ -1331,6 +1332,111 @@ class AtomicScriptInstallTests(unittest.TestCase):
                 self.assertIn('VALUE = 1', first_script.read())
             with open(second_path, encoding='utf-8') as second_script:
                 self.assertIn('VALUE = 2', second_script.read())
+
+    def test_setup_bootstrap_copies_installer_and_accepts_one_pinned_bundle(self):
+        payload = b'#!/usr/bin/python3\nVALUE = 1\n'
+        pins = {
+            source_name: hashlib.sha256(payload).hexdigest()
+            for source_name, _installed_name, _symlink_name in INSTALL.SCRIPT_FILES
+            if source_name != 'uclusionInstall.py'
+        }
+
+        def pinned_download(_url, destination):
+            with open(destination, 'wb') as script:
+                script.write(payload)
+
+        with tempfile.TemporaryDirectory() as temp_dir, mock.patch.multiple(
+            INSTALL,
+            SCRIPT_INSTALL_PREFIX=os.path.join(temp_dir, 'releases'),
+            SYMLINK_DIR=os.path.join(temp_dir, 'bin'),
+            SETUP_BOOTSTRAP_SCRIPT_SHA256=pins,
+        ), mock.patch.object(
+            INSTALL,
+            '_new_unversioned_release_name',
+            return_value='unversioned-setup',
+        ), mock.patch.object(
+            INSTALL, 'download_to', side_effect=pinned_download
+        ) as download:
+            INSTALL.install_scripts('stage', None, setup_bootstrap=True)
+
+            downloaded = [call.args[0] for call in download.call_args_list]
+            self.assertNotIn(
+                INSTALL.get_scripts_base_url('stage') + 'uclusionInstall.py',
+                downloaded,
+            )
+            self.assertEqual(len(INSTALL.SCRIPT_FILES) - 1, len(downloaded))
+            installed_path = os.path.join(
+                INSTALL.SCRIPT_INSTALL_PREFIX,
+                'unversioned-setup',
+                'bin',
+                'uclusionInstall.py',
+            )
+            with open(INSTALL.__file__, 'rb') as running, open(
+                installed_path, 'rb'
+            ) as installed:
+                self.assertEqual(running.read(), installed.read())
+
+    def test_setup_bootstrap_rejects_mixed_bundle_before_activation(self):
+        payload = b'#!/usr/bin/python3\nVALUE = 1\n'
+        pins = {
+            source_name: hashlib.sha256(payload).hexdigest()
+            for source_name, _installed_name, _symlink_name in INSTALL.SCRIPT_FILES
+            if source_name != 'uclusionInstall.py'
+        }
+
+        def mixed_download(url, destination):
+            content = (
+                b'#!/usr/bin/python3\nVALUE = 2\n'
+                if url.endswith('/uclusionSetupMCP.py')
+                else payload
+            )
+            with open(destination, 'wb') as script:
+                script.write(content)
+
+        with tempfile.TemporaryDirectory() as temp_dir, mock.patch.multiple(
+            INSTALL,
+            SCRIPT_INSTALL_PREFIX=os.path.join(temp_dir, 'releases'),
+            SYMLINK_DIR=os.path.join(temp_dir, 'bin'),
+            SETUP_BOOTSTRAP_SCRIPT_SHA256=pins,
+        ), mock.patch.object(
+            INSTALL,
+            '_new_unversioned_release_name',
+            return_value='unversioned-mixed',
+        ), mock.patch.object(
+            INSTALL, 'download_to', side_effect=mixed_download
+        ):
+            with self.assertRaisesRegex(
+                RuntimeError,
+                'uclusionSetupMCP.py does not match this installer release',
+            ):
+                INSTALL.install_scripts('stage', None, setup_bootstrap=True)
+
+            self.assertFalse(os.path.lexists(os.path.join(
+                INSTALL.SCRIPT_INSTALL_PREFIX,
+                INSTALL.CURRENT_RELEASE_LINK,
+            )))
+            self.assertFalse(os.path.exists(os.path.join(
+                INSTALL.SCRIPT_INSTALL_PREFIX, 'unversioned-mixed'
+            )))
+
+    def test_setup_bootstrap_pins_match_the_current_source_bundle(self):
+        INSTALL.validate_setup_script_bundle(os.path.dirname(INSTALL.__file__))
+
+    def test_setup_bootstrap_rejects_incomplete_pins_before_download(self):
+        pins = dict(INSTALL.SETUP_BOOTSTRAP_SCRIPT_SHA256)
+        pins.pop('uclusionSetupMCP.py')
+        with tempfile.TemporaryDirectory() as temp_dir, mock.patch.multiple(
+            INSTALL,
+            SCRIPT_INSTALL_PREFIX=os.path.join(temp_dir, 'releases'),
+            SYMLINK_DIR=os.path.join(temp_dir, 'bin'),
+            SETUP_BOOTSTRAP_SCRIPT_SHA256=pins,
+        ), mock.patch.object(INSTALL, 'download_to') as download:
+            with self.assertRaisesRegex(
+                RuntimeError, 'pins do not match the installer bundle'
+            ):
+                INSTALL.install_scripts('stage', None, setup_bootstrap=True)
+
+        download.assert_not_called()
 
     def test_reserved_release_names_are_rejected_before_download(self):
         reserved = (

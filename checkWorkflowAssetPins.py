@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Deployment gate for the Uclusion workflow scripts.
+"""Deployment gate for the Uclusion workflow and setup script bundles.
 
 The deploy scripts publish ``build/`` verbatim, so the workflow assets a
 customer's installer downloads are the copies in ``build/scripts``. This gate
@@ -49,19 +49,22 @@ def main(argv):
                 f'{scripts_dir} does not exist; run `npm run build` first'
             )
         installer = load_installer(scripts_dir)
-        if not hasattr(installer, 'WORKFLOW_ASSET_PATHS') or not hasattr(
-            installer, 'validate_workflow_bundle'
+        if (
+            not hasattr(installer, 'WORKFLOW_ASSET_PATHS')
+            or not hasattr(installer, 'validate_workflow_bundle')
+            or not hasattr(installer, 'validate_setup_script_bundle')
         ):
             raise RuntimeError(
-                f'installer in {scripts_dir} predates the workflow pin table; '
+                f'installer in {scripts_dir} predates a release pin table; '
                 'the build is stale, run `npm run build` first'
             )
         bundle = read_bundle(scripts_dir, installer.WORKFLOW_ASSET_PATHS)
         installer.validate_workflow_bundle(bundle)
+        installer.validate_setup_script_bundle(scripts_dir)
     except RuntimeError as error:
         print(f'❌ Workflow release gate failed: {error}', file=sys.stderr)
         return 1
-    print(f'✅ Workflow release in {scripts_dir} matches its installer pins.')
+    print(f'✅ Release in {scripts_dir} matches its installer pins.')
     return 0
 
 

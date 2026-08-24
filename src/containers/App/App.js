@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import NoAccount from '../../pages/NoAccount/NoAccount'
 import Root from '../Root'
 import AppConfigProvider from '../../components/AppConfigProvider'
@@ -16,12 +16,36 @@ import { MarketPresencesProvider } from '../../contexts/MarketPresencesContext/M
 import { MarketsProvider } from '../../contexts/MarketsContext/MarketsContext'
 import { GroupMembersProvider } from '../../contexts/GroupMembersContext/GroupMembersContext'
 import { startEventTimingWatch } from '../../utils/renderProfiler'
+import { useHistory, useLocation } from 'react-router'
+import { clearRedirect, getRedirect, setRedirect } from '../../utils/redirectUtils'
+import SetupApproval from '../../pages/Setup/SetupApproval'
+import { parseSetupPath, switchSetupAccount } from '../../pages/Setup/setupRoute'
+import { AccountContext } from '../../contexts/AccountContext/AccountContext'
+import { poll } from '../../contexts/AccountContext/accountContextMessages'
+import { onSignOut } from '../../utils/userFunctions'
 
 
 function App(props) {
   const { authState } = props;
   const configs = { ...config };
   const [userAttributes, setUserAttributes] = useState({});
+  const [, accountDispatch] = useContext(AccountContext);
+  const history = useHistory();
+  const { pathname } = useLocation();
+  const directSetupRoute = parseSetupPath(pathname);
+  const savedSetupRoute = parseSetupPath(getRedirect());
+  const setupRoute = directSetupRoute || savedSetupRoute;
+  const directSetupPath = directSetupRoute?.pathname;
+  const savedSetupPath = savedSetupRoute?.pathname;
+  const setupPath = setupRoute?.pathname;
+  const onSetupAccountReady = useCallback(
+    () => poll(accountDispatch).catch(() => undefined),
+    [accountDispatch]
+  );
+  const onSetupSwitchAccount = useCallback(
+    () => switchSetupAccount(onSignOut, history, setupPath),
+    [history, setupPath]
+  );
 
   // B-all-569: arms the profiler's observers when window.__uclusionProfiler('on') was set
   useEffect(() => {
@@ -50,6 +74,23 @@ function App(props) {
     return () => {}
   }, [authState, userAttributes]);
 
+  useEffect(() => {
+    if (directSetupPath && authState !== 'signedIn') {
+      if (savedSetupPath !== directSetupPath) {
+        setRedirect(directSetupPath);
+      }
+      return;
+    }
+    if (authState === 'signedIn' && setupPath) {
+      if (savedSetupPath) {
+        clearRedirect();
+      }
+      if (pathname !== setupPath) {
+        history.replace(setupPath);
+      }
+    }
+  }, [authState, directSetupPath, history, pathname, savedSetupPath, setupPath]);
+
   if (!window.myErrorListenerMarker) {
     window.myErrorListenerMarker = true;
     window.onerror = function (message, source, lineno, colno,
@@ -64,6 +105,18 @@ function App(props) {
       console.error('Unhandled promise rejection:', event.reason?.stack || event.reason);
       event.preventDefault(); // Prevents the default error handling
     });
+  }
+
+  if (authState === 'signedIn' && setupRoute) {
+    return (
+      <ThemeModeProvider>
+        <SetupApproval
+          setupId={setupRoute.setupId}
+          onAccountReady={onSetupAccountReady}
+          onSwitchAccount={onSetupSwitchAccount}
+        />
+      </ThemeModeProvider>
+    );
   }
 
   const { userId, email } = userAttributes;

@@ -75,6 +75,19 @@ CODEX_BRIDGE_SYMLINK = os.path.join(
 UCLUSION_MCP_PROXY_SYMLINK = os.path.join(
     os.path.expanduser('~'), '.local', 'bin', 'uclusionMCPProxy.py'
 )
+UCLUSION_INSTALLER_SYMLINK = os.path.join(
+    os.path.expanduser('~'), '.local', 'bin', 'uclusionInstall.py'
+)
+UCLUSION_HOME = os.path.join(os.path.expanduser('~'), '.uclusion')
+CODEX_HOME = os.path.abspath(os.path.expanduser(
+    os.environ.get('CODEX_HOME', os.path.join(os.path.expanduser('~'), '.codex'))
+))
+CODEX_CONFIG_PATH = os.path.join(CODEX_HOME, 'config.toml')
+CODEX_MCP_CONFIG_MARKER = '# uclusion-mcp:v1'
+CODEX_MCP_CONFIG_END_MARKER = '# /uclusion-mcp:v1'
+SETUP_RUNTIME_PROXY_MODE = '--uclusion-runtime-after-setup'
+SETUP_RUNTIME_CLEANUP_MODE = '--uclusion-cleanup-after-setup'
+CODEX_SETUP_CLEANUP_TIMEOUT = 10
 CODEX_CHILD_SHUTDOWN_TIMEOUT = 5
 CODEX_CHILD_POLL_INTERVAL = 0.1
 CODEX_APP_SERVER_START_TIMEOUT = 10
@@ -1669,6 +1682,112 @@ def codex_token_audit_settings(config, workspace_id):
     return {'enabled': True, 'port': port}
 
 
+def codex_setup_cleanup_command(environment, config):
+    """Return the cleanup-only command for one exact setup-created MCP block."""
+    workspace_id = config.get('workspaceId') if isinstance(config, dict) else None
+    view_id = (
+        config.get('todoViewId') or workspace_id
+        if isinstance(config, dict)
+        else None
+    )
+    if not all(
+        isinstance(value, str)
+        and re.fullmatch(r'[A-Za-z0-9_-]{1,128}', value)
+        for value in (workspace_id, view_id)
+    ):
+        return None
+
+    project_config_path = get_project_config_path(environment)
+    project_dir = (
+        os.path.dirname(project_config_path)
+        if project_config_path is not None
+        else None
+    )
+    codex_config_path = (
+        os.path.join(project_dir, '.codex', 'config.toml')
+        if project_dir is not None
+        else CODEX_CONFIG_PATH
+    )
+    scope = 'project' if project_dir is not None else 'global'
+    target = '\0'.join((
+        environment,
+        'codex',
+        scope,
+        os.path.abspath(project_dir) if project_dir is not None else '',
+    ))
+    receipt_path = os.path.join(
+        UCLUSION_HOME,
+        'setup-receipts',
+        environment,
+        hashlib.sha256(target.encode('utf-8')).hexdigest()[:32] + '.json',
+    )
+    runtime_args = [
+        UCLUSION_INSTALLER_SYMLINK,
+        SETUP_RUNTIME_PROXY_MODE,
+        environment,
+        receipt_path,
+        view_id,
+        UCLUSION_MCP_PROXY_SYMLINK,
+        workspace_id,
+    ]
+    if environment != 'production':
+        runtime_args.append(environment)
+    if config.get('workClaims') is True:
+        runtime_args.append('--work-claims')
+    block_lines = [
+        CODEX_MCP_CONFIG_MARKER,
+        CODEX_UCLUSION_TABLE,
+        'command = "python3"',
+        'args = [',
+    ]
+    block_lines.extend(
+        '    {},'.format(json.dumps(argument, ensure_ascii=False))
+        for argument in runtime_args
+    )
+    block_lines.extend([
+        ']',
+        'default_tools_approval_mode = "approve"',
+        CODEX_MCP_CONFIG_END_MARKER,
+    ])
+    expected_block = '\n'.join(block_lines) + '\n'
+
+    # The standalone CLI supports Python versions without ``tomllib``. The
+    # installer owns this fixed-format block, so exact text plus strict marker
+    # and table counts is both narrower and more compatible than parsing TOML.
+    try:
+        with open(codex_config_path, 'r', encoding='utf-8') as source:
+            text = source.read()
+    except (OSError, UnicodeError):
+        return None
+    starts = list(re.finditer(
+        rf'(?m)^{re.escape(CODEX_MCP_CONFIG_MARKER)}\r?$', text
+    ))
+    ends = list(re.finditer(
+        rf'(?m)^{re.escape(CODEX_MCP_CONFIG_END_MARKER)}\r?$', text
+    ))
+    table_pattern = (
+        r'(?m)^\s*\[\s*["\']?mcp_servers["\']?\s*\.\s*'
+        r'["\']?Uclusion["\']?\s*\]'
+    )
+    if (
+        len(starts) != 1
+        or len(ends) != 1
+        or text.count(CODEX_MCP_CONFIG_MARKER) != 1
+        or text.count(CODEX_MCP_CONFIG_END_MARKER) != 1
+        or len(re.findall(table_pattern, text)) != 1
+        or text[
+            starts[0].start():starts[0].start() + len(expected_block)
+        ] != expected_block
+    ):
+        return None
+    return [
+        sys.executable,
+        UCLUSION_INSTALLER_SYMLINK,
+        SETUP_RUNTIME_CLEANUP_MODE,
+        *runtime_args[2:],
+    ]
+
+
 def build_codex_mcp_overrides(
     workspace_id,
     environment,
@@ -2004,6 +2123,21 @@ def cmd_codex(args):
                     file=sys.stderr,
                 )
                 return 1
+            setup_cleanup_command = codex_setup_cleanup_command(
+                environment, config
+            )
+            if setup_cleanup_command is not None:
+                try:
+                    subprocess.run(
+                        setup_cleanup_command,
+                        stdin=subprocess.DEVNULL,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                        timeout=CODEX_SETUP_CLEANUP_TIMEOUT,
+                        check=False,
+                    )
+                except (OSError, subprocess.SubprocessError):
+                    pass
             child_env = os.environ.copy()
             for managed_name in CODEX_LAUNCH_MANAGED_ENV:
                 child_env.pop(managed_name, None)

@@ -1,4 +1,5 @@
 import io
+import hashlib
 import json
 import os
 import socket
@@ -16,6 +17,7 @@ sys.path.insert(0, str(SCRIPTS_DIR))
 
 import uclusionCLI as cli
 import uclusionCodexBridge as codex_bridge
+import uclusionInstall as installer
 
 
 class FakeProcess:
@@ -157,6 +159,15 @@ class CodexLauncherTests(unittest.TestCase):
                 'get_installed_script_version',
                 return_value='release-123',
             )
+        )
+
+    @staticmethod
+    def setup_codex_block(runtime_args):
+        return installer.build_codex_mcp_block(
+            descriptor={
+                'command': 'python3',
+                'args': runtime_args,
+            },
         )
 
     def test_parser_accepts_environment_backlog_opt_in_and_codex_passthrough(self):
@@ -457,6 +468,147 @@ class CodexLauncherTests(unittest.TestCase):
             '/release/bin/uclusionMCPProxy.py',
             token_audit_required=False,
         )
+
+    def test_setup_cleanup_command_accepts_only_exact_selected_wrapper(self):
+        with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:
+            root = Path(directory)
+            uclusion_home = root / '.uclusion'
+            installer = root / 'bin' / 'uclusionInstall.py'
+            proxy = root / 'bin' / 'uclusionMCPProxy.py'
+            global_config = root / '.codex' / 'config.toml'
+            stack.enter_context(mock.patch.object(
+                cli, 'UCLUSION_HOME', str(uclusion_home)
+            ))
+            stack.enter_context(mock.patch.object(
+                cli, 'UCLUSION_INSTALLER_SYMLINK', str(installer)
+            ))
+            stack.enter_context(mock.patch.object(
+                cli, 'UCLUSION_MCP_PROXY_SYMLINK', str(proxy)
+            ))
+            stack.enter_context(mock.patch.object(
+                cli, 'CODEX_CONFIG_PATH', str(global_config)
+            ))
+            cases = (
+                ('stage', root / 'project', 'view-456', True),
+                ('production', None, None, False),
+            )
+            for environment, project_dir, todo_view_id, work_claims in cases:
+                scope = 'project' if project_dir else 'global'
+                selected_config = (
+                    project_dir / cli.STAGE_SOURCES_CONFIG_FILE
+                    if project_dir else None
+                )
+                codex_config = (
+                    project_dir / '.codex' / 'config.toml'
+                    if project_dir else global_config
+                )
+                view_id = todo_view_id or 'workspace-123'
+                target = '\0'.join((
+                    environment,
+                    'codex',
+                    scope,
+                    str(project_dir) if project_dir else '',
+                ))
+                receipt = uclusion_home / 'setup-receipts' / environment / (
+                    hashlib.sha256(target.encode()).hexdigest()[:32] + '.json'
+                )
+                runtime_args = [
+                    str(installer),
+                    '--uclusion-runtime-after-setup',
+                    environment,
+                    str(receipt),
+                    view_id,
+                    str(proxy),
+                    'workspace-123',
+                ]
+                if environment != 'production':
+                    runtime_args.append(environment)
+                if work_claims:
+                    runtime_args.append('--work-claims')
+                config = {
+                    'workspaceId': 'workspace-123',
+                    'workClaims': work_claims,
+                }
+                if todo_view_id:
+                    config['todoViewId'] = todo_view_id
+                codex_config.parent.mkdir(parents=True, exist_ok=True)
+                exact_block = self.setup_codex_block(runtime_args)
+                codex_config.write_text(exact_block, encoding='utf-8')
+                with mock.patch.object(
+                    cli,
+                    'get_project_config_path',
+                    return_value=(
+                        str(selected_config) if selected_config else None
+                    ),
+                ):
+                    command = cli.codex_setup_cleanup_command(
+                        environment, config
+                    )
+                    self.assertEqual([
+                        sys.executable,
+                        str(installer),
+                        '--uclusion-cleanup-after-setup',
+                        *runtime_args[2:],
+                    ], command)
+                    codex_config.write_text(
+                        exact_block.replace(str(receipt), str(receipt) + '.bad'),
+                        encoding='utf-8',
+                    )
+                    self.assertIsNone(
+                        cli.codex_setup_cleanup_command(environment, config)
+                    )
+                    codex_config.write_text(
+                        '[mcp_servers.Uclusion]\ncommand = "python3"\n',
+                        encoding='utf-8',
+                    )
+                    self.assertIsNone(
+                        cli.codex_setup_cleanup_command(environment, config)
+                    )
+
+    def test_setup_cleanup_is_ordered_and_availability_safe(self):
+        cleanup_command = ['/installer', '--cleanup']
+        outcomes = (
+            SimpleNamespace(returncode=9),
+            cli.subprocess.TimeoutExpired(cleanup_command, 10),
+        )
+        for outcome in outcomes:
+            with self.subTest(outcome=type(outcome).__name__), ExitStack() as stack:
+                self.launcher_prerequisites(stack)
+                stack.enter_context(mock.patch.object(
+                    cli,
+                    'codex_setup_cleanup_command',
+                    return_value=cleanup_command,
+                ))
+                version_result = SimpleNamespace(
+                    returncode=0,
+                    stdout='codex-cli 0.145.0\n',
+                    stderr='',
+                )
+                self.version_run.side_effect = [version_result, outcome]
+                popen = stack.enter_context(mock.patch.object(
+                    cli.subprocess,
+                    'Popen',
+                    side_effect=[
+                        FakeProcess([None]),
+                        FakeProcess([None]),
+                        FakeProcess([7]),
+                    ],
+                ))
+                lifecycle = mock.Mock()
+                lifecycle.attach_mock(self.version_run, 'run')
+                lifecycle.attach_mock(self.stage_companions, 'stage')
+                lifecycle.attach_mock(popen, 'popen')
+
+                result = cli.cmd_codex(self.launcher_args())
+
+            self.assertEqual(7, result)
+            self.assertEqual(3, popen.call_count)
+            events = [call[0] for call in lifecycle.mock_calls]
+            self.assertLess(events.index('stage'), events.index('run', 1))
+            self.assertLess(events.index('run', 1), events.index('popen'))
+            command = ' '.join(popen.call_args_list[0].args[0])
+            self.assertIn('/private/runtime/bin/uclusionMCPProxy.py', command)
+            self.assertNotIn('/installer', command)
 
     def test_explicit_backlog_opt_in_is_forwarded_only_to_bridge(self):
         app_server = FakeProcess([None])

@@ -668,7 +668,7 @@ class SkillAndStubInstallerTests(unittest.TestCase):
             normalized, staging, backup, transaction_path = (
                 INSTALL._skill_transaction_paths(skill_dir)
             )
-            resident_target = INSTALL._codex_config_write_target(resident_path)
+            resident_target = INSTALL._config_write_target(resident_path)
             existing, signature = INSTALL._read_text_snapshot(resident_target)
             resident_after = existing + '\n# crash committed resident\n'
             INSTALL._recover_skill_transaction(skill_dir)
@@ -714,7 +714,7 @@ class SkillAndStubInstallerTests(unittest.TestCase):
             normalized, staging, backup, transaction_path = (
                 INSTALL._skill_transaction_paths(skill_dir)
             )
-            resident_target = INSTALL._codex_config_write_target(resident_path)
+            resident_target = INSTALL._config_write_target(resident_path)
             resident, signature = INSTALL._read_text_snapshot(resident_target)
             digest = hashlib.sha256(resident.encode('utf-8')).hexdigest()
             INSTALL._write_skill_transaction(
@@ -753,7 +753,7 @@ class SkillAndStubInstallerTests(unittest.TestCase):
             normalized, staging, backup, transaction_path = (
                 INSTALL._skill_transaction_paths(skill_dir)
             )
-            resident_target = INSTALL._codex_config_write_target(resident_path)
+            resident_target = INSTALL._config_write_target(resident_path)
             existing, signature = INSTALL._read_text_snapshot(resident_target)
             INSTALL._write_skill_transaction(
                 transaction_path,

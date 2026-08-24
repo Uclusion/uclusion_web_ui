@@ -323,6 +323,25 @@ def _safe_identifier(value):
     )
 
 
+def _workspace_url(environment, workspace_id, view_id):
+    """Build a public workspace URL only from allowlisted setup values."""
+    if (
+        environment not in CREDENTIAL_FILES
+        or not _safe_identifier(workspace_id)
+        or not _safe_identifier(view_id)
+    ):
+        raise SafeSetupError(
+            'service_unavailable',
+            'Uclusion setup returned invalid workspace identifiers.',
+        )
+    workspace_path = urllib.parse.quote(workspace_id, safe='')
+    view_query = urllib.parse.quote(view_id, safe='')
+    return (
+        f'https://{environment}.uclusion.com/dialog/{workspace_path}'
+        f'?groupId={view_query}'
+    )
+
+
 def write_receipt(path, setup_id, workspace_id, view_id):
     if not all(_safe_identifier(value) for value in (
         setup_id, workspace_id, view_id
@@ -734,7 +753,7 @@ class SetupService:
                 'description': (
                     'Check the approved setup once, finish private local '
                     'credential/configuration work when ready, and return only '
-                    'safe status plus the final reconnect instruction.'
+                    'safe status plus the final full-session relaunch instruction.'
                 ),
                 'inputSchema': {
                     'type': 'object',
@@ -1099,6 +1118,9 @@ class SetupService:
         except SafeSetupError:
             cleanup_pending = True
         self._clear_enrollment()
+        workspace_url = _workspace_url(
+            self.context.environment, workspace_id, view_id
+        )
         return {
             'status': (
                 'completed_cleanup_pending'
@@ -1107,8 +1129,10 @@ class SetupService:
             'setup_id': setup_id,
             'workspace_id': workspace_id,
             'view_id': view_id,
+            'workspace_url': workspace_url,
             'next': (
-                self._reconnect_instruction()
+                f'Uclusion workspace {workspace_id} was created: {workspace_url}. '
+                + self._relaunch_instruction()
                 + (
                     ' Local recovery cleanup will finish when the normal '
                     'Uclusion MCP starts.'
@@ -1221,16 +1245,33 @@ class SetupService:
             proposal,
         )
 
-    def _reconnect_instruction(self):
+    def _relaunch_instruction(self):
+        scope = (
+            'from the configured project directory'
+            if self.context.scope == 'project'
+            else 'with the configured global scope'
+        )
         if self.context.client == 'codex':
-            return (
-                'Restart Codex from the configured scope using `uclusion codex`; '
-                'then confirm normal Uclusion tools are listed without calling find_work.'
+            cli = (
+                'uclusion codex'
+                if self.context.environment == 'production'
+                else f'uclusion -e {self.context.environment} codex'
             )
-        label = 'Claude Code' if self.context.client == 'claude' else 'Cursor'
+            relaunch = (
+                f'Fully exit this Codex session, then start a fresh client session '
+                f'{scope} with `{cli}`.'
+            )
+        else:
+            label = 'Claude Code' if self.context.client == 'claude' else 'Cursor'
+            relaunch = (
+                f'Fully exit {label} and relaunch it {scope} as a fresh client session.'
+            )
         return (
-            f'Restart or reconnect {label}; then confirm normal Uclusion tools '
-            'are listed without calling find_work.'
+            f'{relaunch} MCP reconnect alone is insufficient because it does not '
+            'load the newly installed resident instructions. Start the first normal '
+            'turn with `Go`; those instructions call find_work and immediately '
+            'follow its explicitly identified one-time first-session onboarding '
+            'directions before yielding.'
         )
 
 

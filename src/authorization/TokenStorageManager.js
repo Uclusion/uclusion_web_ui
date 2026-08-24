@@ -6,6 +6,19 @@ import { AllSequentialMap } from '../utils/PromiseUtils';
 import { pushMessage } from '../utils/MessageBusUtils'
 import { LOAD_EVENT, LOAD_TOKENS_CHANNEL } from '../contexts/MarketsContext/marketsContextMessages'
 import { TOKEN_STORAGE_KEYSPACE } from '../api/tokenConstants';
+import {
+  getLogoutGeneration,
+  isLogoutGenerationCurrent,
+  isSignedOut,
+} from '../utils/logoutState';
+
+export class TokenWriteCancelledError extends Error {
+  constructor () {
+    super('Token write is no longer active');
+    this.name = 'TokenWriteCancelledError';
+    this.cancelled = true;
+  }
+}
 
 export default class TokenStorageManager {
 
@@ -16,6 +29,22 @@ export default class TokenStorageManager {
   getItemIdFromKey (key) {
     const underscore = key.indexOf('_');
     return key.substring(underscore + 1);
+  }
+
+  getWriteLockName (key) {
+    return `token_write_${key}`;
+  }
+
+  requireActiveWrite (activityGuard, logoutGeneration) {
+    let active = false;
+    try {
+      active = !activityGuard || activityGuard();
+    } catch (_error) {
+      active = false;
+    }
+    if (isSignedOut() || !isLogoutGenerationCurrent(logoutGeneration) || !active) {
+      throw new TokenWriteCancelledError();
+    }
   }
 
   /**
@@ -58,10 +87,27 @@ export default class TokenStorageManager {
    * @param itemId the item id we're storing a token for
    * @param token the token we want to store.
    */
-  storeToken (tokenType, itemId, token) {
+  storeToken (
+    tokenType, itemId, token, activityGuard, logoutGeneration = getLogoutGeneration()
+  ) {
     const key = this.getKeyNamespace(tokenType, itemId);
-    pushMessage(LOAD_TOKENS_CHANNEL, { event: LOAD_EVENT, key, token });
-    return new LocalForageHelper(key, TOKEN_STORAGE_KEYSPACE).setState(token);
+    return navigator.locks.request(this.getWriteLockName(key), async () => {
+      const storage = new LocalForageHelper(key, TOKEN_STORAGE_KEYSPACE);
+      this.requireActiveWrite(activityGuard, logoutGeneration);
+      const storedToken = await storage.setState(token);
+      try {
+        this.requireActiveWrite(activityGuard, logoutGeneration);
+      } catch (error) {
+        try {
+          await storage.deleteState();
+        } catch (cleanupError) {
+          error.cleanupError = cleanupError;
+        }
+        throw error;
+      }
+      pushMessage(LOAD_TOKENS_CHANNEL, { event: LOAD_EVENT, key, token });
+      return storedToken;
+    });
   }
 
   /**
@@ -71,7 +117,9 @@ export default class TokenStorageManager {
    */
   deleteToken(tokenType, itemId) {
     const key = this.getKeyNamespace(tokenType, itemId);
-    return new LocalForageHelper(key, TOKEN_STORAGE_KEYSPACE).deleteState();
+    return navigator.locks.request(this.getWriteLockName(key), () => {
+      return new LocalForageHelper(key, TOKEN_STORAGE_KEYSPACE).deleteState();
+    });
   }
 
   /**
@@ -119,4 +167,3 @@ export default class TokenStorageManager {
       });
   }
 }
-

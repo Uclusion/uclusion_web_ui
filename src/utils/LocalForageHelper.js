@@ -1,5 +1,5 @@
 import localforage from 'localforage';
-import { isSignedOut } from './userFunctions';
+import { isSignedOut } from './logoutState';
 
 class LocalForageHelper {
   namespace;

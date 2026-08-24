@@ -5,6 +5,32 @@ import AmplifyIdentityTokenRefresher from '../authorization/AmplifyIdentityToken
 import { AMPLIFY_IDENTITY_SOURCE, SSO_CLIENT } from './singletons';
 import { TOKEN_TYPE_MARKET, TOKEN_TYPE_MARKET_INVITE } from './tokenConstants';
 import { toastErrorAndThrow } from '../utils/userMessage';
+import {
+  getLogoutGeneration,
+  isLogoutGenerationCurrent,
+  isSignedOut,
+} from '../utils/logoutState';
+
+
+function urlLoginGuard(activityGuard) {
+  const logoutGeneration = getLogoutGeneration();
+  return () => {
+    try {
+      return !isSignedOut() && isLogoutGenerationCurrent(logoutGeneration) &&
+        (!activityGuard || activityGuard());
+    } catch (_error) {
+      return false;
+    }
+  };
+}
+
+function requireActiveUrlLogin(activityGuard) {
+  if (!activityGuard()) {
+    const error = new Error('Market URL login is no longer active');
+    error.cancelled = true;
+    throw error;
+  }
+}
 
 
 export const getMarketClient = (marketId) => {
@@ -30,12 +56,22 @@ export const getMarketFromInvite = (marketToken) => {
   return tokenManager.getIdentityBasedTokenAndInfo();
 };
 
-export const getMarketFromUrl = (marketId) => {
+export const getMarketFromUrl = (marketId, activityGuard) => {
   console.info(`Attempting to load ${marketId}`);
+  const active = urlLoginGuard(activityGuard);
+  try {
+    requireActiveUrlLogin(active);
+  } catch (error) {
+    return Promise.reject(error);
+  }
   const ssoClient = client.constructSSOClient(config.api_configuration);
   return ssoClient.then((sso) => {
+    requireActiveUrlLogin(active);
     const identitySource = new AmplifyIdentityTokenRefresher();
     const tokenManager = new MarketTokenFetcher(identitySource, sso, TOKEN_TYPE_MARKET, marketId);
-    return tokenManager.getIdentityBasedTokenAndInfo();
+    return tokenManager.getIdentityBasedTokenAndInfo(active);
+  }).then((loginData) => {
+    requireActiveUrlLogin(active);
+    return loginData;
   });
 };

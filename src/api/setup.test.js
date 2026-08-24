@@ -11,6 +11,8 @@ jest.mock('../config', () => ({
   },
 }));
 
+const WORKSPACE_ID = '00000000-0000-4000-8000-000000000001';
+const VIEW_ID = '00000000-0000-4000-8000-000000000002';
 const pendingResponse = {
   setup_id: 'opaque-id',
   state: 'PENDING',
@@ -30,7 +32,13 @@ const pendingResponse = {
     account_id: 'account-id',
     shared_secret: 'must-not-escape',
   },
+  workspace_id: WORKSPACE_ID,
+  view_id: VIEW_ID,
   shared_secret: 'must-not-escape',
+};
+const consumedResponse = {
+  ...pendingResponse,
+  state: 'CONSUMED',
 };
 
 function response(status, data) {
@@ -90,6 +98,27 @@ describe('setup API', () => {
     expect(JSON.stringify(setup)).not.toContain('must-not-escape');
   });
 
+  it('accepts canonical workspace identifiers only for a consumed setup', async () => {
+    fetch.mockResolvedValue(response(200, consumedResponse));
+
+    await expect(getSetup('opaque-id')).resolves.toEqual(expect.objectContaining({
+      state: 'CONSUMED',
+      workspace_id: WORKSPACE_ID,
+      view_id: VIEW_ID,
+    }));
+  });
+
+  it.each([
+    { workspace_id: 'not-a-uuid' },
+    { view_id: 'not-a-uuid' },
+    { workspace_id: undefined },
+    { view_id: undefined },
+  ])('rejects consumed setup identifiers that are missing or malformed: %j', async (changed) => {
+    fetch.mockResolvedValue(response(200, { ...consumedResponse, ...changed }));
+
+    await expect(getSetup('opaque-id')).rejects.toMatchObject({ code: 'INVALID_RESPONSE' });
+  });
+
   it('posts only the explicit decision and maps wrong-account errors without exposing backend text', async () => {
     fetch.mockResolvedValue(response(403, {
       error_code: 'WRONG_ACCOUNT',
@@ -127,7 +156,7 @@ describe('setup API', () => {
         error_code: 'SETUP_TERMINAL',
         error_message: 'This setup decision can no longer be changed.',
       }))
-      .mockResolvedValueOnce(response(200, { ...pendingResponse, state: 'CONSUMED' }));
+      .mockResolvedValueOnce(response(200, consumedResponse));
 
     const setup = await decideSetup('opaque-id', 'APPROVE');
 

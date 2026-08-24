@@ -3,6 +3,7 @@ import { getLogin } from './homeAccount';
 
 const REQUEST_TIMEOUT_MS = 15000;
 const SETUP_STATES = new Set(['PENDING', 'APPROVED', 'DENIED', 'COMPLETING', 'CONSUMED']);
+const CANONICAL_UUID = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/;
 
 export class SetupApiError extends Error {
   constructor(code, retryable = false) {
@@ -48,12 +49,21 @@ function safeProposal(value) {
   };
 }
 
+function safeSetupIdentifier(value) {
+  return typeof value === 'string' && CANONICAL_UUID.test(value) ? value : undefined;
+}
+
 function safeSetupResponse(value) {
   const state = SETUP_STATES.has(value?.state) ? value.state : undefined;
   const proposal = safeProposal(value?.proposal);
   const approver = safeIdentity(value?.approver);
   if (!state || typeof value.setup_id !== 'string' || !proposal || !approver ||
     typeof value.expires_at !== 'string' || !Number.isFinite(Date.parse(value.expires_at))) {
+    throw new SetupApiError('INVALID_RESPONSE');
+  }
+  const workspaceId = safeSetupIdentifier(value.workspace_id);
+  const viewId = safeSetupIdentifier(value.view_id);
+  if (state === 'CONSUMED' && (!workspaceId || !viewId)) {
     throw new SetupApiError('INVALID_RESPONSE');
   }
   return {
@@ -63,6 +73,7 @@ function safeSetupResponse(value) {
     expires_at: value.expires_at,
     approver,
     reason: ['EXPIRED', 'DENIED'].includes(value.reason) ? value.reason : undefined,
+    ...(state === 'CONSUMED' ? { workspace_id: workspaceId, view_id: viewId } : {}),
   };
 }
 

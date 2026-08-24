@@ -93,6 +93,20 @@ class SetupMCPTests(unittest.TestCase):
         opened.assert_called_once()
         default_open.assert_not_called()
 
+    def test_workspace_url_uses_exact_created_view_and_safe_values(self):
+        self.assertEqual(
+            SETUP._workspace_url('stage', 'workspace_1', 'view-1'),
+            'https://stage.uclusion.com/dialog/workspace_1?groupId=view-1',
+        )
+        invalid_values = (
+            ('preview', 'workspace-1', 'view-1'),
+            ('stage', '../workspace-1', 'view-1'),
+            ('stage', 'workspace-1', 'view-1&next=attacker.invalid'),
+        )
+        for values in invalid_values:
+            with self.subTest(values=values), self.assertRaises(SETUP.SafeSetupError):
+                SETUP._workspace_url(*values)
+
     def test_tool_surface_is_exact_and_create_exposes_no_private_proof(self):
         requests = []
 
@@ -407,6 +421,11 @@ class SetupMCPTests(unittest.TestCase):
 
         self.assertFalse(is_error)
         self.assertEqual(result['status'], 'completed')
+        self.assertEqual(
+            result['workspace_url'],
+            'https://stage.uclusion.com/dialog/workspace-1?groupId=view-1',
+        )
+        self.assertIn(result['workspace_url'], result['next'])
         self.assertNotIn(secret, serialized)
         self.assertNotIn(secret_id, serialized)
         self.assertNotIn(verifier, serialized)
@@ -435,6 +454,56 @@ class SetupMCPTests(unittest.TestCase):
                 'credentials_written': True,
             },
         )
+
+    def test_completion_requires_fresh_client_session_in_configured_scope(self):
+        cases = (
+            ('claude', 'global', 'stage', 'Fully exit Claude Code', None),
+            ('claude', 'project', 'stage', 'Fully exit Claude Code', None),
+            ('cursor', 'global', 'stage', 'Fully exit Cursor', None),
+            ('cursor', 'project', 'stage', 'Fully exit Cursor', None),
+            (
+                'codex', 'global', 'production', 'Fully exit this Codex session',
+                '`uclusion codex`',
+            ),
+            (
+                'codex', 'project', 'stage', 'Fully exit this Codex session',
+                '`uclusion -e stage codex`',
+            ),
+            (
+                'codex', 'project', 'dev', 'Fully exit this Codex session',
+                '`uclusion -e dev codex`',
+            ),
+        )
+        for client, scope, environment, exit_text, command in cases:
+            with self.subTest(client=client, scope=scope, environment=environment):
+                context = SETUP.SetupContext(
+                    environment,
+                    client,
+                    scope,
+                    self.temp_dir.name if scope == 'project' else None,
+                )
+                service = SETUP.SetupService(context)
+                try:
+                    instruction = service._relaunch_instruction()
+                finally:
+                    service.close()
+
+                self.assertIn(exit_text, instruction)
+                self.assertIn('fresh client session', instruction)
+                self.assertIn('MCP reconnect alone is insufficient', instruction)
+                self.assertIn('Start the first normal turn with `Go`', instruction)
+                self.assertIn('call find_work', instruction)
+                self.assertIn('one-time first-session onboarding', instruction)
+                self.assertIn(
+                    (
+                        'configured project directory'
+                        if scope == 'project'
+                        else 'configured global scope'
+                    ),
+                    instruction,
+                )
+                if command is not None:
+                    self.assertIn(command, instruction)
 
     def _assert_existing_credentials_preserved(
         self, original, raced_content=None, race_after_write=False

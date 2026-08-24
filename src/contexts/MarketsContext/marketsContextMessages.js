@@ -5,8 +5,7 @@ import { getMarketFromUrl } from '../../api/marketLogin'
 import { toastError } from '../../utils/userMessage'
 import { ADD_PRESENCE } from '../MarketPresencesContext/marketPresencesMessages'
 import localforage from 'localforage'
-import TokenStorageManager from '../../authorization/TokenStorageManager'
-import { TOKEN_STORAGE_KEYSPACE, TOKEN_TYPE_MARKET }  from '../../api/tokenConstants';
+import { TOKEN_STORAGE_KEYSPACE }  from '../../api/tokenConstants';
 import {
   getStorageStates, NOTIFICATIONS_HUB_CHANNEL,
   PUSH_INVESTIBLES_CHANNEL,
@@ -24,13 +23,30 @@ export const GUEST_MARKET_EVENT = 'GuestMarketEvent';
 export const LOAD_TOKENS_CHANNEL = 'LoadTokensChannel';
 export const LOAD_EVENT = 'LoadEvent';
 
-let loadingMarketHack = [];
+const loadingMarkets = new Map();
 
-export function loadMarketFromPromise(loginPromise, dispatch) {
+function loadIsActive(activityGuard) {
+  try {
+    return !activityGuard || activityGuard();
+  } catch (_error) {
+    return false;
+  }
+}
+
+function requireActiveLoad(activityGuard) {
+  if (!loadIsActive(activityGuard)) {
+    const error = new Error('Market load is no longer active');
+    error.cancelled = true;
+    throw error;
+  }
+}
+
+export function loadMarketFromPromise(loginPromise, dispatch, activityGuard) {
   console.log('Logging into market');
   return loginPromise.then((result) => {
+    requireActiveLoad(activityGuard);
     console.log('Quick adding market after load');
-    const { market, user, stages, uclusion_token: token, investible, notifications } = result;
+    const { market, user, stages, investible, notifications } = result;
     const { id, parent_comment_market_id: parentMarketId } = market;
     if (notifications) {
       pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: ADD_EVENT, notifications });
@@ -45,19 +61,47 @@ export function loadMarketFromPromise(loginPromise, dispatch) {
     if (investible) {
       pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: LOAD_EVENT, investibles: [investible] });
     }
-    const tokenStorageManager = new TokenStorageManager();
-    return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, id, token).then(() => {
-      // We know the market we just logged into is dirty so skip normal call to check it first
-      const marketsStruct = {};
-      return getStorageStates().then((storageStates) => {
-        updateMarkets([id], marketsStruct, 1, storageStates, !_.isEmpty(parentMarketId))
-          .then(() => sendMarketsStruct(marketsStruct));
-      });
+    // We know the market we just logged into is dirty so skip normal call to check it first.
+    const marketsStruct = {};
+    return getStorageStates().then((storageStates) => {
+      requireActiveLoad(activityGuard);
+      return updateMarkets([id], marketsStruct, 1, storageStates, !_.isEmpty(parentMarketId));
+    }).then(() => {
+      requireActiveLoad(activityGuard);
+      sendMarketsStruct(marketsStruct);
+      return result;
     });
-  }).catch((error) => {
-    console.error(error);
-    toastError(error, 'errorMarketFetchFailed');
   });
+}
+
+export function loadMarketById(marketId, dispatch, activityGuard) {
+  const currentLoad = loadingMarkets.get(marketId);
+  if (currentLoad) {
+    if (currentLoad.activityGuard === activityGuard) {
+      return currentLoad.promise;
+    }
+    return currentLoad.promise.catch(() => {
+      requireActiveLoad(activityGuard);
+      return loadMarketById(marketId, dispatch, activityGuard);
+    });
+  }
+  const promise = loadMarketFromPromise(
+    getMarketFromUrl(marketId, activityGuard), dispatch, activityGuard
+  ).finally(() => {
+    if (loadingMarkets.get(marketId)?.promise === promise) {
+      loadingMarkets.delete(marketId);
+    }
+  });
+  loadingMarkets.set(marketId, { activityGuard, promise });
+  return promise;
+}
+
+function reportMarketLoadError(error) {
+  if (error?.cancelled) {
+    return;
+  }
+  console.error(error);
+  toastError(error, 'errorMarketFetchFailed');
 }
 
 function beginListening(dispatch, setTokensHash) {
@@ -102,11 +146,8 @@ function beginListening(dispatch, setTokensHash) {
     console.info(`Responding to event ${event}`);
     switch (event) {
       case GUEST_MARKET_EVENT:
-        if (!loadingMarketHack.includes(marketId)) {
-          loadingMarketHack.push(marketId);
-          // Login with market id to create subscribed capability if necessary
-          loadMarketFromPromise(getMarketFromUrl(marketId), dispatch);
-        }
+        // Login with market id to create subscribed capability if necessary.
+        loadMarketById(marketId, dispatch).catch(reportMarketLoadError);
         break;
       default:
       // console.debug(`Ignoring identity event ${event}`);

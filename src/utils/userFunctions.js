@@ -1,8 +1,6 @@
 import { PLANNING_TYPE, SUPPORT_SUB_TYPE, TEST_SUB_TYPE } from '../constants/markets';
 import {
   clearUclusionLocalStorage,
-  getLoginPersistentItem,
-  setLoginPersistentItem,
 } from '../components/localStorageUtils';
 import TokenStorageManager from '../authorization/TokenStorageManager';
 import { Auth } from 'aws-amplify';
@@ -10,8 +8,9 @@ import _ from 'lodash';
 import { getMarket } from '../contexts/MarketsContext/marketsContextHelper';
 import { PLACEHOLDER } from '../constants/global';
 import AccountStorageManager from '../authorization/AccountStorageManager';
+import { markSignedOut } from './logoutState';
 
-const LOGOUT_MARKER_KEY = 'logout_marker';
+export { clearSignedOut, isSignedOut } from './logoutState';
 
 export function fixName(name) {
   return (name || '').replace('@', ' ');
@@ -55,19 +54,11 @@ export function getMarketInfo(investible, marketId) {
   return investible.market_infos.find((info) => info.market_id === marketId);
 }
 
-export function isSignedOut() {
-  return !_.isEmpty(getLoginPersistentItem(LOGOUT_MARKER_KEY));
-}
-
-export function clearSignedOut() {
-  setLoginPersistentItem(LOGOUT_MARKER_KEY, '');
-}
-
 export function onSignOut() {
   console.info('Signing out');
   // Remove URL in case they log back in as someone else
   window.history.replaceState({}, "Reset", "/");
-  setLoginPersistentItem(LOGOUT_MARKER_KEY, 'logged_out');
+  markSignedOut();
   // See https://aws-amplify.github.io/docs/js/authentication
   return clearUclusionLocalStorage(false)
     .then(() => new TokenStorageManager().clearTokenStorage())

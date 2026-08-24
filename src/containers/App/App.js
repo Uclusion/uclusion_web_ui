@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import NoAccount from '../../pages/NoAccount/NoAccount'
 import Root from '../Root'
 import AppConfigProvider from '../../components/AppConfigProvider'
@@ -21,14 +21,26 @@ import { clearRedirect, getRedirect, setRedirect } from '../../utils/redirectUti
 import SetupApproval from '../../pages/Setup/SetupApproval'
 import { parseSetupPath, switchSetupAccount } from '../../pages/Setup/setupRoute'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
+import { accountUserJoinedMarket } from '../../contexts/AccountContext/accountContextReducer'
 import { poll } from '../../contexts/AccountContext/accountContextMessages'
+import { getMarketFromUrl } from '../../api/marketLogin'
+import { formMarketLink } from '../../utils/marketIdPathFunctions'
 import { onSignOut } from '../../utils/userFunctions'
+import {
+  getLogoutGeneration,
+  isLogoutGenerationCurrent,
+  isSignedOut,
+} from '../../utils/logoutState'
+import SetupWorkspaceLoad from '../../pages/Setup/SetupWorkspaceLoad'
 
 
 function App(props) {
   const { authState } = props;
+  const authStateRef = useRef(authState);
+  authStateRef.current = authState;
   const configs = { ...config };
   const [userAttributes, setUserAttributes] = useState({});
+  const userAttributesGeneration = useRef();
   const [, accountDispatch] = useContext(AccountContext);
   const history = useHistory();
   const { pathname } = useLocation();
@@ -46,6 +58,37 @@ function App(props) {
     () => switchSetupAccount(onSignOut, history, setupPath),
     [history, setupPath]
   );
+  const onSetupComplete = useCallback(
+    ({ setup_id: setupId, workspace_id: workspaceId, view_id: viewId }, setupPageActive) => {
+      const logoutGeneration = getLogoutGeneration();
+      const completionActive = () => {
+        try {
+          return (!setupPageActive || setupPageActive()) &&
+            authStateRef.current === 'signedIn' && !isSignedOut() &&
+            isLogoutGenerationCurrent(logoutGeneration) &&
+            parseSetupPath(history.location.pathname)?.setupId === setupId;
+        } catch (_error) {
+          return false;
+        }
+      };
+      const cancelled = () => {
+        const error = new Error('Setup completion is no longer active');
+        error.cancelled = true;
+        return error;
+      };
+      if (!completionActive()) {
+        return Promise.reject(cancelled());
+      }
+      return getMarketFromUrl(workspaceId, completionActive).then(() => {
+        if (!completionActive()) {
+          throw cancelled();
+        }
+        accountDispatch(accountUserJoinedMarket());
+        history.replace(formMarketLink(workspaceId, viewId), { setupWorkspaceId: workspaceId });
+      });
+    },
+    [accountDispatch, history]
+  );
 
   // B-all-569: arms the profiler's observers when window.__uclusionProfiler('on') was set
   useEffect(() => {
@@ -53,25 +96,46 @@ function App(props) {
   }, []);
 
   useEffect(() => {
+    let active = true;
     function completeLogin (loginInfo) {
       setUserAttributes(loginInfo)
       LogRocket.identify(loginInfo.userId, loginInfo)
     }
 
-    if (authState === 'signedIn' && !('userId' in userAttributes)) {
+    if (authState !== 'signedIn') {
+      userAttributesGeneration.current = undefined;
+      setUserAttributes((current) => Object.keys(current).length ? {} : current);
+    } else {
+      const logoutGeneration = getLogoutGeneration();
+      const attributesAreCurrent = userAttributesGeneration.current === logoutGeneration &&
+        isLogoutGenerationCurrent(logoutGeneration) && !isSignedOut() &&
+        'userId' in userAttributes;
+      if (attributesAreCurrent) {
+        return () => {
+          active = false;
+        };
+      }
+      userAttributesGeneration.current = undefined;
       console.info('Authenticating in App')
       Auth.currentAuthenticatedUser()
         .then((user) => {
+          if (!active || authStateRef.current !== 'signedIn' || isSignedOut() ||
+            !isLogoutGenerationCurrent(logoutGeneration)) {
+            return;
+          }
           const { attributes } = user
           const userId = attributes['custom:user_id']
           const loginInfo = {
             ...attributes,
             userId,
           }
+          userAttributesGeneration.current = logoutGeneration;
           completeLogin(loginInfo)
         })
     }
-    return () => {}
+    return () => {
+      active = false;
+    }
   }, [authState, userAttributes]);
 
   useEffect(() => {
@@ -113,13 +177,17 @@ function App(props) {
         <SetupApproval
           setupId={setupRoute.setupId}
           onAccountReady={onSetupAccountReady}
+          onSetupComplete={onSetupComplete}
           onSwitchAccount={onSetupSwitchAccount}
         />
       </ThemeModeProvider>
     );
   }
 
-  const { userId, email } = userAttributes;
+  const attributesAreCurrent = authState === 'signedIn' &&
+    'userId' in userAttributes &&
+    isLogoutGenerationCurrent(userAttributesGeneration.current) && !isSignedOut();
+  const { userId, email } = attributesAreCurrent ? userAttributes : {};
   if (!userId && email) {
     return (
       <OnlineStateProvider>
@@ -139,6 +207,7 @@ function App(props) {
             <InvestiblesProvider>
               <MarketPresencesProvider>
                 <GroupMembersProvider>
+                  <SetupWorkspaceLoad />
                   <LeaderProvider authState={authState} userId={userId}>
                     <OnlineStateProvider>
                       <WebSocketProvider config={config} userId={userId}>

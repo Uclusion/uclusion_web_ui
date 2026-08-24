@@ -24,9 +24,14 @@ suggestions, stage checks, execution, and material-handoff rule in the same
 turn. Never auto-start an unmarked item, interrupt active work, or override a
 human instruction.
 
-If the list is empty while a human is active, ask exactly: "Your find work list
-is empty—would you like instructions for adding and working on a job?" If yes,
-use the returned directions to explain job creation, find_work, selection,
+When an empty response's directions explicitly say this is the "first AI
+session" and the guidance is "served only once", follow those directions
+immediately in the same turn before yielding. This one-time onboarding takes
+precedence over the ordinary empty-list opt-in below.
+
+For any other empty list while a human is active, ask exactly: "Your find work
+list is empty—would you like instructions for adding and working on a job?" If
+yes, use the returned directions to explain job creation, find_work, selection,
 stage gating, Debatable assistance, and Poke AI. In an autonomous session or
 an auto-take view gone dry, call `request_work` once per dry spell instead.
 

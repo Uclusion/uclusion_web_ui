@@ -15,10 +15,24 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 import { useIntl } from 'react-intl';
 import { decideSetup, getSetup } from '../../api/setup';
+import {
+  getLogoutGeneration,
+  isLogoutGenerationCurrent,
+  isSignedOut,
+} from '../../utils/logoutState';
 
 const ACCOUNT_RETRY_MS = 2000;
 const MAX_ACCOUNT_RETRIES = 15;
+const SETUP_POLL_STATES = new Set(['APPROVED', 'COMPLETING']);
 const NOOP = () => {};
+
+function setupSessionIsCurrent(logoutGeneration) {
+  try {
+    return !isSignedOut() && isLogoutGenerationCurrent(logoutGeneration);
+  } catch (_error) {
+    return false;
+  }
+}
 
 const useStyles = makeStyles((theme) => ({
   page: {
@@ -161,31 +175,46 @@ function stateMessage(result) {
   }[result.state];
 }
 
-function SetupApproval({ setupId, onAccountReady = NOOP, onSwitchAccount = NOOP }) {
+function SetupApproval({
+  setupId,
+  onAccountReady = NOOP,
+  onSetupComplete = NOOP,
+  onSwitchAccount = NOOP,
+}) {
   const classes = useStyles();
   const intl = useIntl();
   const accountRetries = useRef(0);
   const accountReady = useRef(false);
+  const completedSetup = useRef();
+  const resultGeneration = useRef();
   const [reload, setReload] = useState(0);
   const [result, setResult] = useState({ state: 'LOADING' });
   const [decisionPending, setDecisionPending] = useState();
   const [switchingAccount, setSwitchingAccount] = useState(false);
+  const [workspaceOpenFailed, setWorkspaceOpenFailed] = useState(false);
 
   useEffect(() => {
     let active = true;
     let retryTimer;
-    setResult((current) => current.state === 'FINISHING_ACCOUNT' ? current : { state: 'LOADING' });
+    const logoutGeneration = getLogoutGeneration();
+    const requestActive = () => active && setupSessionIsCurrent(logoutGeneration);
+    setResult((current) => (
+      current.state === 'FINISHING_ACCOUNT' || SETUP_POLL_STATES.has(current.state)
+        ? current
+        : { state: 'LOADING' }
+    ));
     getSetup(setupId).then((setup) => {
-      if (active) {
+      if (requestActive()) {
         accountRetries.current = 0;
         if (!accountReady.current) {
           accountReady.current = true;
           onAccountReady();
         }
+        resultGeneration.current = logoutGeneration;
         setResult(setup);
       }
     }).catch((error) => {
-      if (!active) {
+      if (!requestActive()) {
         return;
       }
       if (error?.code === 'FINISHING_ACCOUNT' && accountRetries.current < MAX_ACCOUNT_RETRIES) {
@@ -202,19 +231,68 @@ function SetupApproval({ setupId, onAccountReady = NOOP, onSwitchAccount = NOOP 
     };
   }, [onAccountReady, reload, setupId]);
 
+  useEffect(() => {
+    if (!SETUP_POLL_STATES.has(result.state)) {
+      return undefined;
+    }
+    const pollTimer = setTimeout(() => setReload((value) => value + 1), ACCOUNT_RETRY_MS);
+    return () => clearTimeout(pollTimer);
+  }, [result]);
+
+  useEffect(() => {
+    if (result.state !== 'CONSUMED' || completedSetup.current === result.setup_id) {
+      return undefined;
+    }
+    const logoutGeneration = resultGeneration.current;
+    if (logoutGeneration === undefined || !setupSessionIsCurrent(logoutGeneration)) {
+      return undefined;
+    }
+    let active = true;
+    const completionActive = () => active && setupSessionIsCurrent(logoutGeneration);
+    completedSetup.current = result.setup_id;
+    setWorkspaceOpenFailed(false);
+    Promise.resolve().then(() => {
+      if (completionActive()) {
+        return onSetupComplete(result, completionActive);
+      }
+      return undefined;
+    }).catch((error) => {
+      if (completionActive() && !error?.cancelled) {
+        setWorkspaceOpenFailed(true);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [onSetupComplete, result]);
+
   function retry() {
     accountRetries.current = 0;
     setReload((value) => value + 1);
   }
 
   function decide(decision) {
+    const logoutGeneration = getLogoutGeneration();
+    const requestActive = () => setupSessionIsCurrent(logoutGeneration);
+    if (!requestActive()) {
+      return Promise.resolve();
+    }
     setDecisionPending(decision);
     return decideSetup(setupId, decision).then((setup) => {
+      if (!requestActive()) {
+        return undefined;
+      }
+      resultGeneration.current = logoutGeneration;
       setResult(setup);
       setDecisionPending();
+      return setup;
     }).catch((error) => {
+      if (!requestActive()) {
+        return undefined;
+      }
       setResult({ state: error?.retryable ? 'RETRYABLE' : 'UNAVAILABLE' });
       setDecisionPending();
+      return undefined;
     });
   }
 
@@ -291,7 +369,14 @@ function SetupApproval({ setupId, onAccountReady = NOOP, onSwitchAccount = NOOP 
         <Typography component="h2" variant="h5" className={classes.heading}>
           {intl.formatMessage({ id: titleId })}
         </Typography>
-        <Typography>{intl.formatMessage({ id: bodyId })}</Typography>
+        <Typography>{intl.formatMessage({ id: bodyId }, {
+          workspace: result.proposal?.workspace_name,
+        })}</Typography>
+        {workspaceOpenFailed && (
+          <Typography color="error" className={classes.section}>
+            {intl.formatMessage({ id: 'setupWorkspaceOpenFailed' })}
+          </Typography>
+        )}
         {result.proposal && <ProposalDetails proposal={result.proposal} />}
         <AccountIdentity approver={result.approver} />
       </div>
@@ -333,6 +418,7 @@ function SetupApproval({ setupId, onAccountReady = NOOP, onSwitchAccount = NOOP 
 SetupApproval.propTypes = {
   setupId: PropTypes.string.isRequired,
   onAccountReady: PropTypes.func,
+  onSetupComplete: PropTypes.func,
   onSwitchAccount: PropTypes.func,
 };
 

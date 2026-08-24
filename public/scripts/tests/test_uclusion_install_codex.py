@@ -151,6 +151,24 @@ class WorkflowProtocolContractTests(unittest.TestCase):
         )
         self.assertIn('Chat may mirror the artifact but never replace it', self.workflow)
 
+    def test_one_time_onboarding_precedes_ordinary_empty_opt_in(self):
+        self.assertIn('"first AI session"', self.workflow)
+        self.assertIn('"served only once"', self.workflow)
+        self.assertIn(
+            'follow those directions immediately in the same turn before yielding',
+            self.workflow,
+        )
+        self.assertIn(
+            'This one-time onboarding takes precedence over the ordinary '
+            'empty-list opt-in',
+            self.workflow,
+        )
+        self.assertIn(
+            'Your find work list is empty—would you like instructions for adding '
+            'and working on a job?',
+            self.workflow,
+        )
+
     def test_execution_is_allowed_in_doable_or_reviewable(self):
         self.assertIn('Doable and Reviewable permit execution', self.workflow)
         self.assertIn(

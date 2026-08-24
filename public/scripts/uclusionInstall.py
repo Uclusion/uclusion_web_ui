@@ -143,7 +143,7 @@ SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionMCPProxy.py':
         '66f01fcd4aaec3750cb54d8fb8c0451dc3431534d0c39d264ea8bae68b18b0f8',
     'uclusionSetupMCP.py':
-        '8e99e1c282bbcb5e606c22d393ae9cba707aaa87ae50cc16147f7e2d89935066',
+        'f91ea798847ec8f8cb3407dfcc8eb4ab36ffbaab0c9695fb6028b56b94549d51',
     'uclusionCodexBridge.py':
         'a532788c8aa2845c41b3a2c041144766667cb3196a210b25fe7d859cb885455d',
     'uclusionTokenAudit.py':
@@ -283,7 +283,7 @@ WORKFLOW_ASSET_SHA256 = {
     'codex_stub': '02ea82a01620a5909ea40ea33d0ed67a27f275b808d926e21f753cb51861135e',
     'cursor_stub': '2e4bf88903896ba312738f9a4ab7163582df99050b62f13e0e0324a6580a412f',
     'skill': '9ebfae1c4c49f37fcd182d3d7397c82a2ac2af1d5f20dea067706036dadd55da',
-    'pokes_reference': 'dcba5ac9ad5be741841d6e85475b358186db31c857ac552fcbc009e3568257f7',
+    'pokes_reference': '30117feafb0eca1c268d28b0e73f96b30769af2e5cb5fde408036905aab26ce0',
     'operations_reference': '2fe81054a9ad3e8803fc8d41674532766f8cebeda816acd92c46d791457ddf3e',
     'openai_metadata': 'ecf2759354ff3bbfd7178452a705650aff7a13352458bb20e1df122da7c30f40',
 }

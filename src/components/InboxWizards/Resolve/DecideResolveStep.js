@@ -30,6 +30,7 @@ import {
   doesCommentResolutionRestoreStage,
   getWorkflowStageContext,
   handleAcceptSuggestion,
+  isAIAuthoredQuestion,
   onCommentOpen
 } from '../../../utils/commentFunctions';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -53,6 +54,8 @@ function DecideResolveStep(props) {
   const presences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = presences?.find((presence) => presence.current_user) || {};
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
+  const resolveLabel = isAIAuthoredQuestion(commentRoot, marketPresencesState[marketId]) ?
+    'commentDelegateLabel' : 'commentResolveLabel';
   const marketComments = getMarketComments(commentState, marketId, commentRoot.group_id);
   const comments = marketComments.filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
@@ -201,7 +204,7 @@ function DecideResolveStep(props) {
             `${formMarketAddInvestibleLink(marketId, commentRoot.group_id, undefined,
               message.type_object_id)}&fromCommentId=${commentId}`)}
           showOtherNext
-          otherNextLabel="commentResolveLabel"
+          otherNextLabel={resolveLabel}
           onOtherNext={() => resolve(false)}
           otherSpinOnClick
           showTerminate={true}

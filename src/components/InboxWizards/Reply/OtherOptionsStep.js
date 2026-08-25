@@ -27,7 +27,8 @@ import { useHistory } from 'react-router';
 import {
   changeInvestibleStageOnCommentClose,
   doesCommentResolutionRestoreStage,
-  getWorkflowStageContext
+  getWorkflowStageContext,
+  isAIAuthoredQuestion
 } from '../../../utils/commentFunctions';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
@@ -49,6 +50,8 @@ function OtherOptionsStep(props) {
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
+  const resolveLabel = isAIAuthoredQuestion(commentRoot, marketPresencesState[marketId]) ?
+    'commentDelegateLabel' : 'issueResolveLabel';
   const { type: messageType, type_object_id: typeObjectId, inline_market_id: inlineMarketId } = message;
   const investibleComments = getInvestibleComments(commentRoot.investible_id, marketId, commentState);
   const marketComments = getMarketComments(commentState, marketId, commentRoot.group_id);
@@ -130,7 +133,7 @@ function OtherOptionsStep(props) {
           navigate(history, formWizardLink(JOB_COMMENT_CONFIGURE_WIZARD_TYPE, marketId,
           undefined, undefined, commentRoot.id, typeObjectId))}
         showTerminate
-        terminateLabel="issueResolveLabel"
+        terminateLabel={resolveLabel}
         onFinish={resolve}
       />
     </WizardStepContainer>

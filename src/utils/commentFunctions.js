@@ -261,6 +261,13 @@ export function isAssistanceRespondedByHuman(rootComment, investibleComments, ma
   return humanLatest !== undefined && humanLatest > aiLatest;
 }
 
+// The AI user is the only presence without an email. Use the supplied presence rows as-is so a
+// question keeps its historical authorship after its author is deleted or banned.
+export function isAIAuthoredQuestion(comment, presences) {
+  return comment?.comment_type === QUESTION_TYPE && !!comment.created_by && (presences || []).some((presence) =>
+    presence.id === comment.created_by && _.isEmpty(presence.email));
+}
+
 export function changeInvestibleStageOnCommentOpen(investibleBlocks, investibleRequiresInput, marketStagesState,
   market_infos, rootInvestible, investibleDispatch, comment, myPresence) {
   const [info] = (market_infos || []);

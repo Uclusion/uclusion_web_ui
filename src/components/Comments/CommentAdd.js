@@ -31,7 +31,11 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { changeInvestibleStage, changeInvestibleStageOnCommentOpen } from '../../utils/commentFunctions';
+import {
+  changeInvestibleStage,
+  changeInvestibleStageOnCommentOpen,
+  isAIAuthoredQuestion
+} from '../../utils/commentFunctions';
 import { findMessageOfType, findMessageOfTypeAndId, findMessagesForInvestibleId } from '../../utils/messageUtils';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { useEditor } from '../TextEditors/quillHooks'
@@ -308,6 +312,10 @@ function CommentAdd(props) {
   const classes = useStyles();
   const usedParent = parent || {};
   const rootComment = getCommentRoot(commentsState, marketId, usedParent.id);
+  const decisionMarket = getMarket(marketsState, wizardProps.decisionMarketId);
+  const resolveTarget = fromDecisionInvestibleId ?
+    getComment(commentsState, marketId, decisionMarket?.parent_comment_id) : rootComment;
+  const isDelegate = isAIAuthoredQuestion(resolveTarget, marketPresencesState[marketId]);
   const { investible_id: parentInvestible, id: parentId } = usedParent;
   const investibleId = fromInvestibleId || parentInvestible;
   const inv = getInvestible(investibleState, investibleId) || {};
@@ -468,7 +476,8 @@ function CommentAdd(props) {
                 : undefined)}
               showOtherNext={rootComment?.comment_type !== REPORT_TYPE && wizardProps.parentIsTopLevel &&
                 (ourMarket.market_type !== DECISION_TYPE || rootComment?.comment_type !== TODO_TYPE)}
-              otherNextLabel={wizardProps.showSubTask ? 'addAnother' : 'commentAddSendResolve'}
+              otherNextLabel={wizardProps.showSubTask ? 'addAnother' :
+                (isDelegate ? 'commentAddSendDelegate' : 'commentAddSendResolve')}
               onOtherNext={() => handleSave( true, wizardProps.showSubTask || wizardProps.isNoteReply ? BLUE_LEVEL
                 : undefined, undefined, true).then(() => {
                 wizardProps.onResolve();
@@ -513,7 +522,8 @@ function CommentAdd(props) {
               } : (wizardProps.onTerminate ? wizardProps.onTerminate :
                 () => navigate(history, formInvestibleLink(marketId, investibleId)))}
               showOtherNext={(type === TODO_TYPE && !wizardProps.questionResolved) || wizardProps.isResolve}
-              otherNextLabel={type === TODO_TYPE ? (fromDecisionInvestibleId ? 'addResolve' : 'addAnother') : 'commentResolveLabelOnly'}
+              otherNextLabel={type === TODO_TYPE ? (fromDecisionInvestibleId ?
+                (isDelegate ? 'addDelegate' : 'addResolve') : 'addAnother') : 'commentResolveLabelOnly'}
               isOtherFinal={!_.isEmpty(fromDecisionInvestibleId)}
               otherNextValid={wizardProps.isResolve ? true : undefined}
               onOtherNext={wizardProps.isResolve ? wizardProps.onResolve : (fromDecisionInvestibleId ? 

@@ -34,7 +34,8 @@ import { useHistory } from 'react-router';
 import {
   changeInvestibleStageOnCommentClose,
   doesCommentResolutionRestoreStage,
-  getWorkflowStageContext
+  getWorkflowStageContext,
+  isAIAuthoredQuestion
 } from '../../../utils/commentFunctions';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -56,6 +57,8 @@ function DecideReplyStep(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
+  const resolveLabel = isAIAuthoredQuestion(commentRoot, marketPresencesState[marketId]) ?
+    'commentDelegateLabel' : 'issueResolveLabel';
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const myPresence = marketPresences.find((presence) => presence.current_user);
   const userId = myPresence?.id;
@@ -177,14 +180,14 @@ function DecideReplyStep(props) {
         onNextDoAdvance={false}
         showOtherNext
         otherNextLabel={isMySuggestion ? 'otherOptionsLabel' :
-          (showResolve ? 'issueResolveLabel' : (rootResolved ? 'makeTask' : 'moveToTaskLabel'))}
+          (showResolve ? resolveLabel : (rootResolved ? 'makeTask' : 'moveToTaskLabel'))}
         onOtherNext={isMySuggestion ? undefined : (showResolve ? resolve : (rootResolved ? makeTask : moveToTask))}
         otherSpinOnClick={!isMySuggestion && (showResolve || rootResolved)}
         isOtherFinal={!isMySuggestion}
         onOtherNextDoAdvance={isMySuggestion}
         showTerminate={showTerminate || (!isMySuggestion && canResolve)}
         terminateLabel={showTerminate ?
-          (hasThreadMessages ? 'notificationDismissThread' : getLabelForTerminate(message)) : 'issueResolveLabel'}
+          (hasThreadMessages ? 'notificationDismissThread' : getLabelForTerminate(message)) : resolveLabel}
         onFinish={showTerminate ? (hasThreadMessages ? dismissAll : myOnFinish) : resolve}
       />
     </WizardStepContainer>

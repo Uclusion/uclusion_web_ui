@@ -29,7 +29,8 @@ import {
   doesCommentResolutionRestoreStage,
   getFormerStageId,
   getWorkflowStageContext,
-  handleAcceptSuggestion
+  handleAcceptSuggestion,
+  isAIAuthoredQuestion
 } from '../../../utils/commentFunctions';
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
@@ -70,6 +71,8 @@ function DecideAssistanceStep(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const resolveLabel = isAIAuthoredQuestion(commentRoot, marketPresencesState[marketId]) ?
+    'commentDelegateLabel' : 'commentResolveLabel';
   const restoresFormerStage = commentRoot.investible_id ? doesCommentResolutionRestoreStage(
     commentRoot,
     investibleComments,
@@ -166,7 +169,7 @@ function DecideAssistanceStep(props) {
           {...props}
           focus
           finish={myOnFinish}
-          nextLabel={isSuggest ? 'wizardAcceptLabel' : 'commentResolveLabel'}
+          nextLabel={isSuggest ? 'wizardAcceptLabel' : resolveLabel}
           onNext={() => {
             if (isSuggest) {
               return accept();
@@ -193,7 +196,7 @@ function DecideAssistanceStep(props) {
             `${formMarketAddInvestibleLink(marketId, commentRoot.group_id, undefined,
               parentElementId)}&fromCommentId=${commentId}`)}
           showOtherNext
-          otherNextLabel="commentResolveLabel"
+          otherNextLabel={resolveLabel}
           onOtherNext={resolve}
           showTerminate
           terminateLabel="poke"

@@ -70,13 +70,13 @@ function getInlineActivityTime(rootComment, investiblesState, marketPresencesSta
 }
 
 export function getSortedRoots(allComments, searchResults, preserveOrder, isInboxExpansion, simpleOrdering,
-  inlineActivityTime) {
+  inlineActivityTime, ignoreSearch = false) {
   const { results, parentResults, search } = searchResults;
   if (_.isEmpty(allComments)) {
     return [];
   }
   let comments = allComments;
-  if (!_.isEmpty(search) && !isInboxExpansion) {
+  if (!ignoreSearch && !_.isEmpty(search) && !isInboxExpansion) {
     comments = allComments.filter((comment) => {
       return results.find((item) => item.id === comment.id) ||
         parentResults.find((id) => id === comment.id);
@@ -145,14 +145,15 @@ function CommentBox(props) {
     fullStage = {}, stage, replyEditId, usePadding, issueWarningId, marketInfo, investible, removeActions, inboxMessageId,
     showVoting, selectedInvestibleIdParent, preserveOrder, isMove, toggleCompression, useCompression: rawUseCompression,
     useInProgressSorting, displayRepliesAsTop=false, compressAll=false, showNotes=false,
-    inNotesTab=false, investibleComments, simpleOrdering, pokeAIMarketId, pokeAIParentTicketCode } = props;
+    inNotesTab=false, investibleComments, simpleOrdering, pokeAIMarketId, pokeAIParentTicketCode,
+    ignoreSearch=false } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [commentsState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   let sortedRoots = getSortedRoots(comments, searchResults, preserveOrder, isInbox, simpleOrdering,
-    (root) => getInlineActivityTime(root, investiblesState, marketPresencesState, commentsState));
+    (root) => getInlineActivityTime(root, investiblesState, marketPresencesState, commentsState), ignoreSearch);
   if (useInProgressSorting) {
     const investibleComments = getInvestibleComments(marketInfo?.investible_id, marketId, commentsState);
     sortedRoots = sortInProgress(sortedRoots, investibleComments);
@@ -262,6 +263,7 @@ CommentBox.propTypes = {
   comments: PropTypes.arrayOf(PropTypes.object).isRequired,
   marketId: PropTypes.string.isRequired,
   fullStage: PropTypes.object,
+  ignoreSearch: PropTypes.bool,
   pokeAIMarketId: PropTypes.string,
   pokeAIParentTicketCode: PropTypes.string
 };

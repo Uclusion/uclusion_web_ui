@@ -99,8 +99,10 @@ hands off for human input, review, or completion.
 - A deferred Start never auto-starts after the lane ends. It may belong to
   another session; find_work will surface anything still actionable.
 - While idle, live Start, Responded, and Added events load and activate their
-  targets subject to normal stage/workflow checks. Updated alone is noted but
-  does not start work.
+  targets subject to normal stage/workflow checks. Updated alone is normally
+  noted without starting work. A current intent/design capsule update is the
+  exception: activate its enclosing job only for capsule reload and obsolete
+  review cleanup, then return idle unless that lane was already active.
 
 A new chat instruction does not stop a valid listener. Handle it while delivery
 continues.
@@ -114,7 +116,10 @@ The first word is contractual:
 - `Added <target>` reports a created task, grouped task, question, suggestion,
   blocker, or other item.
 - `Updated <target>` reports an edit, move, deletion, assignment/description
-  change, or explicit stage change.
+  change, or explicit stage change. When the target is the current
+  intent/design capsule, its body replaces the cached contract. Reload that
+  capsule and Reports, then resolve your open review naming its R-code before
+  further affected implementation.
 - `Responded <target>` hands an AI-authored assistance turn back after any
   semantic human reply, vote, or Resolve. Advisory responses also send it, so
   reload and inspect answerability; perform every action actually unblocked and
@@ -133,8 +138,10 @@ parent, instead of pulling the whole job again. Never globally load an inline
 option/local code by itself.
 
 Added and Updated are additive, not instructions to abandon active work. Reload
-and incorporate in-lane state, then obey the current stage. Soft-deleted direct
-items reload as the enclosing job with the item absent.
+and incorporate in-lane state, then obey the current stage. A capsule body
+update is different because it replaces the selected target's authoritative
+contract; perform its reload and review cleanup before continuing. Soft-deleted
+direct items reload as the enclosing job with the item absent.
 
 Use `sections` (`tasks`, `assistance`, `reports`, `notes`, `resolved`) or
 `thread_only` for economical reloads. Direct lookup already retries five times

@@ -1,6 +1,38 @@
 import _ from 'lodash';
 import { getLocalDayKey } from '../../../utils/timezoneUtils';
 
+// Pinned REPORT/BLUE comments are intent/design capsules. There can normally be
+// only one per target, but a concurrent create can briefly leave several pins.
+// Keep that race legible in the UI with the same deterministic winner used by
+// the backend, without mutating the comment objects stored in context.
+export function groupCapsulesByTarget(capsules, tasks) {
+  const tasksById = _.keyBy(tasks || [], 'id');
+  const byTarget = _.groupBy(capsules || [], (capsule) => capsule.associated_comment_id || 'job');
+
+  function orderAndLabel(targetCapsules) {
+    return _.orderBy(
+      targetCapsules,
+      ['updated_at', (capsule) => Number(capsule.version) || 0, 'id'],
+      ['desc', 'desc', 'desc']
+    ).map((capsule, index) => ({
+      ...capsule,
+      capsule_status: index === 0 ? 'current' : 'superseded'
+    }));
+  }
+
+  const jobCapsules = orderAndLabel(byTarget.job || []);
+  const taskGroups = Object.entries(_.omit(byTarget, 'job')).map(([targetId, targetCapsules]) => ({
+    targetId,
+    task: tasksById[targetId],
+    capsules: orderAndLabel(targetCapsules)
+  }));
+
+  return {
+    jobCapsules,
+    taskGroups: _.orderBy(taskGroups, [(group) => group.task?.ticket_code || group.targetId], ['asc'])
+  };
+}
+
 // Group notes (and any resolved-on-that-day tasks) by calendar day for the
 // Notes tab. The returned shape is:
 //   [{

@@ -1,16 +1,18 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import { FormattedMessage } from 'react-intl';
 import { Typography, useTheme } from '@material-ui/core';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import CondensedTodos from './CondensedTodos';
-import { groupNotesByDay } from './notesGrouping';
+import { groupCapsulesByTarget, groupNotesByDay } from './notesGrouping';
 import { getBrowserTz, formatDayLabel } from '../../../utils/timezoneUtils';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 
 function NotesTab(props) {
   const {
     notes,
+    capsules,
     investibleComments,
     replies,
     marketId,
@@ -33,8 +35,10 @@ function NotesTab(props) {
     : new Set(tasks.filter((task) => results.find((item) => item.id === task.id)
         || parentResults.find((id) => id === task.id)).map((task) => task.id));
   const days = groupNotesByDay(notes, tasks, viewerTz, resolvedTaskMatchIds);
+  const capsuleGroups = groupCapsulesByTarget(capsules, tasks);
+  const hasCapsules = !_.isEmpty(capsuleGroups.jobCapsules) || !_.isEmpty(capsuleGroups.taskGroups);
 
-  if (_.isEmpty(days)) {
+  if (_.isEmpty(days) && !hasCapsules) {
     return null;
   }
 
@@ -55,6 +59,63 @@ function NotesTab(props) {
 
   return (
     <div>
+      {hasCapsules && (
+        <div style={{ marginBottom: '2rem' }}>
+          <Typography
+            variant="h6"
+            style={{
+              marginTop: '1rem',
+              marginBottom: '0.5rem',
+              paddingBottom: '0.25rem',
+              borderBottom: `1px solid ${theme.palette.divider}`
+            }}
+          >
+            <FormattedMessage id="intentDesignCapsules" />
+          </Typography>
+          {!_.isEmpty(capsuleGroups.jobCapsules) && (
+            <div style={{ marginBottom: '1rem' }}>
+              <Typography variant="subtitle1">
+                <FormattedMessage id="capsuleJobTarget" values={{ target: marketInfo?.ticket_code || '' }} />
+              </Typography>
+              <CommentBox
+                {...commentBoxCommonProps}
+                comments={capsuleGroups.jobCapsules.concat(replies || [])}
+                ignoreSearch
+              />
+            </div>
+          )}
+          {capsuleGroups.taskGroups.map((group) => (
+            <div key={`capsule-${group.targetId}`} style={{ marginBottom: '1.5rem' }}>
+              {group.task ? (
+                <CondensedTodos
+                  comments={[group.task]}
+                  investibleComments={investibleComments}
+                  marketInfo={marketInfo}
+                  marketId={marketId}
+                  hideTabs
+                  hideTitle
+                  isDefaultOpen
+                  showChecked={false}
+                  usePadding={false}
+                  maxWidth="98%"
+                  inNotesTab
+                />
+              ) : (
+                <Typography variant="subtitle1">
+                  <FormattedMessage id="capsuleTaskTarget" values={{ target: group.targetId }} />
+                </Typography>
+              )}
+              <div style={{ marginLeft: '1rem', marginTop: '0.5rem' }}>
+                <CommentBox
+                  {...commentBoxCommonProps}
+                  comments={group.capsules.concat(replies || [])}
+                  ignoreSearch
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
       {days.map((day) => (
         <div key={day.dayKey} style={{ marginBottom: '2rem' }}>
           <Typography
@@ -110,6 +171,7 @@ function NotesTab(props) {
 
 NotesTab.propTypes = {
   notes: PropTypes.array.isRequired,
+  capsules: PropTypes.array.isRequired,
   investibleComments: PropTypes.array.isRequired,
   replies: PropTypes.array,
   marketId: PropTypes.string.isRequired,

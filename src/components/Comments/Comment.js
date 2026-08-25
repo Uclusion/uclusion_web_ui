@@ -594,6 +594,7 @@ function Comment(props) {
     resolved, notification_type: myNotificationType, body, is_sent: isSent, group_id: groupId,
     in_progress: inProgress, is_visible: isVisible } = comment;
   const isNote = commentType === REPORT_TYPE && (_.isEmpty(investibleId) || myNotificationType === 'BLUE');
+  const isCapsule = comment.pinned === true;
   const { pathname } = location;
   const { marketId: typeObjectIdRaw, action } = decomposeMarketPath(pathname);
   const typeObjectId = action === 'inbox' ? typeObjectIdRaw : undefined;
@@ -851,7 +852,10 @@ function Comment(props) {
   // are the exception (sub-header expansions) and should make their type explicit with a "Task"
   // label so users can tell the sub-header apart from the notes below it. Symmetric to how the
   // Tasks tab today shows "Note" labels on associated notes but no label on the tasks themselves.
-  const overrideLabel = commentType === REPLY_TYPE ? (isDisplayOfSubTask ?
+  const overrideLabel = isCapsule ? (
+    <FormattedMessage id={comment.capsule_status === 'superseded' ?
+      'supersededIntentDesignCapsule' : 'intentDesignCapsule'} />
+  ) : (commentType === REPLY_TYPE ? (isDisplayOfSubTask ?
         <FormattedMessage id="commentGroupedTaskLabel" /> :
         <FormattedMessage id="issueReplyLabel" />) : (isInfo ? <FormattedMessage id="todoInfo" /> :
       (inNotesTab && isNote ? undefined :
@@ -859,7 +863,7 @@ function Comment(props) {
           (isNote ? <FormattedMessage id="reportNote" /> :
             // A progress report in a wizard row otherwise falls through to the type chip's default
             // "Note" text - label it correctly (T-all-2249).
-            (commentType === REPORT_TYPE && compressAll ? <FormattedMessage id="reportPresent" /> : undefined)))));
+            (commentType === REPORT_TYPE && compressAll ? <FormattedMessage id="reportPresent" /> : undefined))))));
   const color = isMarketTodo ? myNotificationType : undefined;
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
   const showActions = (!replyBeingEdited || replies.length > 0) && !removeActions;
@@ -983,12 +987,12 @@ function Comment(props) {
     && !inArchives && !removeActions && enableActions && marketType === PLANNING_TYPE;
   // Market-level bugs and notes/discussion can change view (T-all-2285) - jobs have their own switcher in the nav
   const marketGroups = _.sortBy(groupsState[marketId], 'name');
-  const showViewSelect = isSent !== false && enableEditing && !removeActions && !investibleId && groupId
+  const showViewSelect = !isCapsule && isSent !== false && enableEditing && !removeActions && !investibleId && groupId
     && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE].includes(commentType)
     && marketType === PLANNING_TYPE && _.size(marketGroups) > 1;
   // J-all-392 / S-all-227 / T-all-2455: Make task and Make bug on suggestions folded into the
   // Move drop down; a note keeps its own Make task button since notes have no Move.
-  const showMakeTaskButton = isNote;
+  const showMakeTaskButton = isNote && !isCapsule;
   // T-all-2453: the Move button carries the choices of the wizard first step it
   // would have gone to, so the wizard opens past that step (or the final
   // choices run directly, exactly as the step's terminate buttons would).
@@ -1102,8 +1106,8 @@ function Comment(props) {
   const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId);
   const showConfigureVotingButton = commentType === QUESTION_TYPE && !inArchives &&
     !_.isEmpty(inlineInvestibles) && !resolved && !removeActions && (myPresence === createdBy || isAiAuthored);
-  const showResolve = isSent !== false && !inArchives && !removeActions && !resolved && !isInfo && (!isNote || !investibleId);
-  const showReopen = resolved && !inArchives && !removeActions && (commentType !== REPORT_TYPE || !investibleId);
+  const showResolve = !isCapsule && isSent !== false && !inArchives && !removeActions && !resolved && !isInfo && (!isNote || !investibleId);
+  const showReopen = !isCapsule && resolved && !inArchives && !removeActions && (commentType !== REPORT_TYPE || !investibleId);
   const showAddVoting = commentType === SUGGEST_CHANGE_TYPE && !inArchives && !resolved && !inlineMarketId
     && marketType === PLANNING_TYPE && !removeActions && !isSingleUser;
   const yourVote = myInlinePresence && myInlinePresence.investments &&
@@ -1111,13 +1115,13 @@ function Comment(props) {
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&
     !myInlinePresence.abstain && !yourVote && myMessage?.type === NOT_FULLY_VOTED_TYPE;
   const showUnmute = myInlinePresence.abstain && !resolved && enableActions && ([QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType));
-  const showPokeAI = enableEditing && isSent !== false && !beingEdited && !!comment.ticket_code &&
+  const showPokeAI = !isCapsule && enableEditing && isSent !== false && !beingEdited && !!comment.ticket_code &&
     isPokeAICommentType(commentType) && (!pokeAIMarketId || !!pokeAIParentTicketCode);
   const showSubTask = isTask && myPresence === createdBy;
   // On a task authored by someone else the single button stays a plain "Reply"; offer a separate
   // "Grouped" button beside it so a non-author can still open a grouped subtask or note.
   const showSubTaskButton = isTask && myPresence !== createdBy;
-  const isDeletable = !isInbox && !beingEdited;
+  const isDeletable = !isCapsule && !isInbox && !beingEdited;
   const linker =
     <div style={{marginRight: '1rem'}}>
       <InvesibleCommentLinker commentId={id} investibleId={investibleId} marketId={marketId} flushBottom
@@ -1296,7 +1300,7 @@ function Comment(props) {
           />
         )}
         {showLinker && !linkerShouldBeFirst && !reallyNoAuthor && !isMarketTodo && linker}
-        {isMyPokableComment(comment, presences, groupPresencesState, marketId) && enableActions && isEditable && !beingEdited && (
+        {!isCapsule && isMyPokableComment(comment, presences, groupPresencesState, marketId) && enableActions && isEditable && !beingEdited && (
           <TooltipIconButton
             lightSurface
             disabled={operationRunning !== false}
@@ -1498,7 +1502,7 @@ function Comment(props) {
             )}
             {/* On someone else's note the single button stays a plain "Reply"; offer a separate
                 "Note" button beside it so a non-author can create a sub note the way AI does. */}
-            {isSent !== false && enableEditing && !removeActions && isNote && !thisIsMyNote && (
+            {isSent !== false && enableEditing && !removeActions && isNote && !isCapsule && !thisIsMyNote && (
               <SpinningIconLabelButton
                 onClick={() => navigate(history, `${formWizardLink(REPLY_WIZARD_TYPE, marketId,
                   undefined, undefined, id, typeObjectId)}&isNote=true`)}
@@ -1522,7 +1526,7 @@ function Comment(props) {
                 {!mobileLayout && intl.formatMessage({ id: 'addNote' })}
               </SpinningIconLabelButton>
             )}
-            {(!investibleId || isNote) && !removeActions && !mobileLayout && (
+            {!isCapsule && (!investibleId || isNote) && !removeActions && !mobileLayout && (
               <FormControlLabel
                 id='isVisibleCheckbox'
                 className={classes.formControlLabel}

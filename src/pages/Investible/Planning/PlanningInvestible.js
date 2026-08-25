@@ -668,12 +668,18 @@ function PlanningInvestible(props) {
     !respondedAssistanceComments.includes(comment));
   const assistanceTabComments = [unrespondedAssistanceComments, respondedAssistanceComments,
     resolvedAssistanceComments];
-  const notesCommentsSearched = investibleCommentsSearched.filter(
-    comment => comment.comment_type === REPORT_TYPE && comment.notification_type === 'BLUE'
+  const capsuleNotes = investibleComments.filter(
+    comment => !comment.reply_id && comment.comment_type === REPORT_TYPE &&
+      comment.notification_type === 'BLUE' && comment.pinned === true
   );
+  const notesCommentsSearched = investibleCommentsSearched.filter(
+    comment => comment.comment_type === REPORT_TYPE && comment.notification_type === 'BLUE' &&
+      comment.pinned !== true
+  );
+  const displayedNoteRoots = notesCommentsSearched.concat(capsuleNotes);
   const notesCommentsRepliesSearched = investibleComments.filter((comment) => comment.comment_type === REPLY_TYPE &&
-    notesCommentsSearched.some((parent) => parent.id === comment.root_comment_id));
-  const notesCommentsAllSearched = notesCommentsSearched.concat(notesCommentsRepliesSearched);
+    displayedNoteRoots.some((parent) => parent.id === comment.root_comment_id));
+  const notesCommentsAllSearched = displayedNoteRoots.concat(notesCommentsRepliesSearched);
   const assistanceCommentsRepliesSearched = investibleComments.filter((comment) => comment.comment_type === REPLY_TYPE &&
     assistanceCommentsSearched.some((parent) => parent.id === comment.root_comment_id));
   const assistanceCommentsSearchedAll = assistanceCommentsSearched.concat(assistanceCommentsRepliesSearched);
@@ -1253,6 +1259,7 @@ function PlanningInvestible(props) {
             )}
             <DismissableText textId="investibleCommentHelp"
                              display={_.isEmpty(sectionComments) && _.isEmpty(search) &&
+                               !(sectionOpen === 'notesSection' && !_.isEmpty(capsuleNotes)) &&
                                (sectionOpen !== 'assistanceSection' || assistanceTab === 0)} noPad isLeft
                              text={
                                sectionOpen === 'assistanceSection' ? (
@@ -1267,6 +1274,7 @@ function PlanningInvestible(props) {
             {sectionOpen === 'notesSection' ? (
               <NotesTab
                 notes={notesCommentsSearched}
+                capsules={capsuleNotes}
                 investibleComments={investibleComments}
                 replies={replies}
                 marketId={marketId}

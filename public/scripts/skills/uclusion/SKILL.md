@@ -29,8 +29,8 @@ skill owns event handling and the job workflow.
   not solely by completion but also by whether your human partner understands
   and approves of what you do. A choice that feels internal, where state
   lives, data keying, formats, or lifecycles, still needs that understanding;
-  internal does not mean settled. The disclosed design note and your filed
-  questions are how that understanding is built, so neither is optional.
+  internal does not mean settled. The current intent/design capsule and your
+  filed questions are how that understanding is built, so neither is optional.
 - Keep one active job or bug lane at a time. Incorporate in-lane events and
   defer unrelated ones unless the human explicitly switches work.
 - Put every question, suggestion, approval, vote, progress note, resolution,
@@ -49,13 +49,14 @@ skill owns event handling and the job workflow.
   arrive at any time.
 - Never silently make a judgment call a reasonable reviewer could choose
   differently. Ask one Uclusion question per decision.
-- An executable stage alone never authorizes edits. Before a job's first
-  implementation edit, persist the full design with `add_info` on the job and
-  file every question it produces in the same turn. Full means every choice a
-  reviewer would otherwise first meet in the diff. This applies to every job,
-  sized to the job: a trivial fix may disclose in a sentence naming the
-  approach and stating that no reviewer-divergent choices exist, which is
-  itself a claim the review checks.
+- An executable stage alone never authorizes edits. Before the first affected
+  source or test edit, load the selected executable target's current
+  intent/design capsule. Create it with `set_design_capsule` when absent, and
+  full-replace it before further affected edits whenever a known material
+  intent or design change occurs. The capsule must stand alone and preserve the
+  actor-visible outcome, not merely list decisions or components.
+- A capsule is a contract, not permission. Stage, testing and build, security,
+  deployment, commit, and push gates remain independent.
 - Use the exact short code returned by Uclusion in tool calls, chat, commit
   messages, and durable notes.
 
@@ -218,28 +219,60 @@ Execute only in Doable or Reviewable. On Reviewable, the latest Reports comment
 still controls review direction; stage alone is not an instruction to change
 or re-review work.
 
-Execution also requires the disclosure gate from the invariants: the job's
-full design persisted as a durable note, each decision citing its settled
-premise inline (an answered question's short code, the job or task text, a
-prior durable artifact, or a hard constraint in code). A decision with no
-premise becomes a question in the same turn, before any edit. A decision first
-appearing at review is a workflow violation.
+### Current intent/design capsule
 
-The disclosure walks a fixed checklist so no decision category relies on
-recall; each heading resolves to a cited settled premise, a question filed
-this turn, or an explicit not applicable:
+Execution also requires the capsule gate from the invariants. Select exactly
+one executable target for the implementation pass:
 
-- interfaces and observable behavior
-- data and state: where it lives, how it is keyed, and its lifecycle
-- formats and contracts
-- operational characteristics under failure and concurrency
+- A job-level pass uses the job capsule.
+- An independently executing top-level task uses its task capsule. A grouped
+  task normalizes to its top-level parent.
+- A task capsule is complete and solely authoritative for that task pass.
+  Never merge it with, inherit from, or fall back to the job capsule.
 
-The questions alone are never the disclosure: a resolved question compresses
-to a single line in the job render, so the durable note is the only design
-surface that survives for the human and for later sessions. After resolving
-answered questions, reload the job and confirm the settled design still reads
-from the note alone; the compressed questions make a missing or stale note
-visible in that reload, and it must be fixed before execution continues.
+Load the selected target with `get_job` before affected edits. If its capsule
+is absent, continue read-only investigation, settle every reviewer-divergent
+choice, then call `set_design_capsule` in create mode with `job_or_task_id` and
+the complete capsule. Existing work is not backfilled. Historical work that
+needs no more implementation may finish its existing review, but the next
+resumed or changed implementation pass needs a capsule before affected edits.
+
+Capsule Markdown is freeform and sized to the work. It must be a concise,
+stand-alone system story rather than a question or component ledger. Cover the
+relevant actor scenarios and terminal outcome, responsibilities and handoffs,
+state and lifecycle, formats and interfaces, failure and concurrency behavior,
+implementation map, exclusions, and approved testing or security work. State a
+genuinely inapplicable subject as such. Every material claim cites the human
+job or task text, a qualifying resolved answer, an approved test or security
+plan, a prior authoritative artifact, or a hard source constraint. A claim
+without such a premise becomes a typed question before the affected edit.
+
+After creating or replacing the capsule, reload the selected target and review
+that capsule as a cold handoff with no remembered questions or chat. If an
+implementer could still miss an actor's terminal outcome, a responsibility
+boundary, state transition, failure case, exclusion, or approved verification
+limit, replace the capsule again before editing. A capsule that merely
+summarizes the questions fails this gate even when every answer is accurate.
+
+Known material changes belong in the capsule, not the review. Reload the
+current R-code and version, then call `set_design_capsule` in update mode with
+`update_capsule_short_code_id`, `update_capsule_version`, and the complete
+replacement body. Never patch fragments or blindly retry a version conflict.
+Replies remain discussion until a settled change is folded into the body. A
+real replacement keeps the capsule R-code; its former body appears
+asynchronously as an ordinary unpinned note. Do not wait for that archive or
+treat it as current implementation context.
+
+Capsule writes are human-facing, not scratch storage. A create or replacement
+puts an inbox item in front of the current human assignees without email or
+Slack; explicit mentions keep their ordinary delivery behavior.
+
+After an AI replacement, reload Reports and resolve your still-open review
+whose body names that capsule R-code before further affected edits. A human
+body edit arrives as `Updated <capsule R-code> of <job short code>`. Reload the
+exact capsule and Reports, resolve the matching review first, then reconcile
+in-progress work with the new authoritative body. Review cleanup is agent
+workflow, not backend review parsing or linkage.
 
 If initial work is ready but the job is not executable, offer to move it to
 Doable or ask the human to do so. When the human instructs a move to Doable,
@@ -279,7 +312,8 @@ durable thread.
 
 Before review, turn unfinished or deferred actionable work into suggestions and
 reference those suggestions in the report. Once output is testable, call
-`ask_for_review` with a concise report.
+`ask_for_review` with a concise capsule-delta report. Only one AI review may be
+open per job, so job and task capsule reviews are sequential.
 
 In Reviewable, inspect the author of the latest Reports comment:
 
@@ -287,11 +321,18 @@ In Reviewable, inspect the author of the latest Reports comment:
   on explicit feedback or a stage change.
 - From a human: review the human's work and reply through Uclusion.
 
-A Poke only triggers reload; it does not change that direction. The report must
-stand without the diff: name the approach, important files/functions, shaping
-decisions, finished work, and intentionally skipped work. Put missing durable
-detail in `add_info` first. Never hide a remaining choice in the review; ask it
-as a question. End with the AI product, exact model/version, and effort level.
+A Poke only triggers reload; it does not change that direction, except that a
+current capsule's `Updated` event also requires the obsolete-review cleanup in
+the capsule section above.
+
+The report names the exact current capsule R-code. It does not restate
+unchanged capsule content. Under `Deltas`, say `No implementation deltas` or
+give one concise bullet for each actual omission, changed behavior, addition,
+scope expansion, or newly introduced decision. Name its observable effect and
+verification or approval status. A known change that can still guide work
+belongs in an updated capsule instead. Never hide a remaining choice in review
+prose; ask it as a question. End with the AI product, exact model/version, and
+effort level.
 
 ## Material handoffs
 

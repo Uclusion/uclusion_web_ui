@@ -31,7 +31,7 @@ import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
 import BlockIcon from '@material-ui/icons/Block';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import { allImagesLoaded } from '../../utils/windowUtils';
-import { sendInfoPersistent } from '../../utils/userMessage';
+import { ERROR, sendInfoPersistent, sendIntlMessage } from '../../utils/userMessage';
 import WizardStepContainer from '../AddNewWizards/WizardStepContainer';
 import WizardStepButtons from '../AddNewWizards/WizardStepButtons';
 import { WizardStylesContext } from '../AddNewWizards/WizardStylesContext';
@@ -259,6 +259,7 @@ function CommentEdit(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { id, uploaded_files: initialUploadedFiles, comment_type: commentType, investible_id: investibleId,
     body: initialBody, group_id: groupId, version, notification_type: commentNotificationType } = comment;
+  const initiallySent = comment.is_sent !== false;
   const classes = useStyles();
   const wizardClasses = useContext(WizardStylesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -294,7 +295,20 @@ function CommentEdit(props) {
   const [Editor] = useEditor(editorName, editorSpec);
 
   function handleSave(isSent) {
-    const body = getQuillStoredState(editorName) !== null ? getQuillStoredState(editorName) : initialBody;
+    const storedBody = getQuillStoredState(editorName);
+    const body = storedBody !== null ? storedBody : initialBody;
+    const currentUploadedFiles = uploadedFiles || [];
+    const existingUploadedFiles = initialUploadedFiles || [];
+    const newUploadedFiles = _.uniqBy([...existingUploadedFiles, ...currentUploadedFiles], 'path');
+    const {
+      uploadedFiles: filteredUploads,
+      text: tokensRemoved,
+    } = processTextAndFilesForSave(newUploadedFiles, body);
+    if (tokensRemoved === initialBody && isSent === initiallySent) {
+      sendIntlMessage(ERROR, 'errorCommentUpdateUnchanged');
+      setOperationRunning(false);
+      return Promise.resolve(false);
+    }
     // Only images the body still references must be loaded - a path absent from the
     // body was removed by the user, not a load failure. Deriving removal from the
     // body instead of session state survives the remounts and refreshes that used
@@ -305,13 +319,6 @@ function CommentEdit(props) {
       sendInfoPersistent({ id: 'loadImageError' }, {});
       return Promise.resolve(false);
     }
-    const currentUploadedFiles = uploadedFiles || [];
-    const existingUploadedFiles = initialUploadedFiles || [];
-    const newUploadedFiles = _.uniqBy([...existingUploadedFiles, ...currentUploadedFiles], 'path');
-    const {
-      uploadedFiles: filteredUploads,
-      text: tokensRemoved,
-    } = processTextAndFilesForSave(newUploadedFiles, body);
     const mentions = getMentionsFromText(tokensRemoved);
     const myActualNotificationType = commentType === TODO_TYPE && !investibleId ? myNotificationType :
       (commentType === REPORT_TYPE ? notificationType : undefined);

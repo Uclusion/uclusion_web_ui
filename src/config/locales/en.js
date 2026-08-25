@@ -1086,6 +1086,7 @@ const messages = defineMessages({
   // Spinning
   spinVersionCheckError: 'There was an error. Please retry your operation.',
   loadImageError: 'Issue saving image. Refresh this page so you can retry.',
+  errorCommentUpdateUnchanged: 'The comment has not changed. Make an edit before updating.',
 
   // subscription page
   BillingHomeTitle: 'Billing Plan',

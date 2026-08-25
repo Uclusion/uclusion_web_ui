@@ -208,6 +208,40 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             self.workflow,
         )
 
+    def test_security_work_requires_qualifying_human_approval(self):
+        self.assertIn(
+            'An executable stage alone does not authorize introducing or '
+            'expanding security behavior',
+            self.workflow,
+        )
+        self.assertIn(
+            'An explicit security plan already recorded in the human-authored '
+            'job counts as approval',
+            self.workflow,
+        )
+        self.assertIn(
+            'before implementation, use `ask_question` to describe the proposed '
+            'security work and wait for a qualifying human answer',
+            self.workflow,
+        )
+        self.assertIn(
+            'This gate applies when work changes or introduces authentication, '
+            'authorization, credentials or secrets, threat models, trust '
+            'boundaries, security-sensitive persistence or lifecycle behavior, '
+            'or shared security infrastructure',
+            self.workflow,
+        )
+        self.assertIn(
+            'when an AI reviewer labels a finding as security-related and the '
+            'proposed correction would expand scope',
+            self.workflow,
+        )
+        self.assertIn(
+            'Treat the finding as evidence to assess, not approval to implement '
+            'a broader security model',
+            self.workflow,
+        )
+
     def test_ai_questions_use_advisory_markers_or_explicit_delegation(self):
         self.assertIn(
             'An open AI-authored question created from Doable or Reviewable '

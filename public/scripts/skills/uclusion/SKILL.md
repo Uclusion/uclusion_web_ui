@@ -251,6 +251,18 @@ explicit test plan in the job counts as human approval. Otherwise, before
 running tests or builds, use one `ask_question` per unresolved decision about
 test types and quantities and wait for a qualifying human answer.
 
+An executable stage alone does not authorize introducing or expanding security
+behavior. An explicit security plan already recorded in the human-authored job
+counts as approval. Otherwise, before implementation, use `ask_question` to
+describe the proposed security work and wait for a qualifying human answer.
+This gate applies when work changes or introduces authentication,
+authorization, credentials or secrets, threat models, trust boundaries,
+security-sensitive persistence or lifecycle behavior, or shared security
+infrastructure. It also applies when an AI reviewer labels a finding as
+security-related and the proposed correction would expand scope. Treat the
+finding as evidence to assess, not approval to implement a broader security
+model.
+
 Before editing:
 
 1. Resolve every open question already answered by either a non-AI,

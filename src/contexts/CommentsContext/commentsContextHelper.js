@@ -9,7 +9,13 @@ import {
 import { TICKET_INDEX_CHANNEL } from '../TicketContext/ticketIndexContextMessages';
 import { alterComment } from '../../api/comments';
 import { formCommentLink, navigate } from '../../utils/marketIdPathFunctions';
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments';
+import { BLUE_LEVEL } from '../../constants/notifications';
+
+export function isDesignCapsule(comment) {
+  return comment?.comment_type === REPORT_TYPE && comment.notification_type === BLUE_LEVEL &&
+    comment.pinned === true;
+}
 
 export function getComment(state, marketId, commentId) {
   const marketComments = state[marketId] || [];

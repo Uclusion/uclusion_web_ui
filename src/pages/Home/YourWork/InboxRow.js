@@ -2,7 +2,11 @@ import { findMessagesForInvestibleId, titleText } from '../../../utils/messageUt
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
-import { getComment, getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
+import {
+  getComment,
+  getCommentRoot,
+  isDesignCapsule
+} from '../../../contexts/CommentsContext/commentsContextHelper';
 import { stripHTML, transformTicketCode } from '../../../utils/stringFunctions';
 import { formCommentLink, formWizardLink, navigate,
   preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
@@ -119,6 +123,9 @@ function getPriorityIcon(message, isAssigned, isMentioned, originalComment) {
 
   if (alertType === POKED || !_.isEmpty(pokedList) || isMentioned) {
     Icon = ReportOutlined;
+  }
+  if (isDesignCapsule(originalComment)) {
+    Icon = RateReviewIcon;
   }
 
   if (!isHighlighted) {

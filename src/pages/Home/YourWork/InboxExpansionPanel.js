@@ -14,7 +14,11 @@ import {
   getNotDoingStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { getUserInvestibles, getUserPendingAcceptanceInvestibles } from '../../Dialog/Planning/userUtils';
-import { getComment, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import {
+  getComment,
+  getMarketComments,
+  isDesignCapsule
+} from '../../../contexts/CommentsContext/commentsContextHelper';
 import {
   ISSUE_TYPE,
   QUESTION_TYPE,
@@ -118,9 +122,14 @@ export function calculateTitleExpansionPanel(props) {
     setItem(item, openExpansion, <StatusWizard investibleId={investibleId} marketId={marketId} message={message} />,
       messageType === 'REPORT_REQUIRED' ? 'JobStatusTitle' : 'JobMovedTitle', intl);
   } else if (['ISSUE', 'UNREAD_COMMENT'].includes(messageType)) {
+    if (isDesignCapsule(rootComment)) {
+      setItem(item, openExpansion, <BlockedWizard marketId={commentMarketId || marketId} commentId={commentId}
+                                                  message={message} />,
+        'ReviewDesignTitle', intl);
     // B-all-559: AI-authored view notes share MARKET_COMMENT with view issues, so use the loaded
     // root's REPORT semantics before the generic blocker fallback.
-    if (messageType === 'UNREAD_COMMENT' && linkType === 'MARKET_COMMENT' && message.alert_type === 'AI_GENERATED' &&
+    } else if (messageType === 'UNREAD_COMMENT' && linkType === 'MARKET_COMMENT' &&
+      message.alert_type === 'AI_GENERATED' &&
       rootComment?.comment_type === REPORT_TYPE && !rootComment.investible_id) {
       setItem(item, openExpansion, <NoteReviewWizard marketId={commentMarketId || marketId} commentId={commentId}
                                                           message={message} />,

@@ -1251,9 +1251,13 @@ const messages = defineMessages({
   DecideStartTitle: 'Can you start this bug?',
   CriticalBugTitle: 'Can you assign?',
   DecideReviewTitle: 'Will you review?',
+  ReviewDesignTitle: 'Review design?',
+  ReviewDesignStage: 'The job is in stage {stage}.',
   ReviewAINoteTitle: 'Review AI note?',
   ReviewAINoteExplanation: 'Edit the AI-maintained note if it needs changes, or dismiss it when the guidance is ready.',
   editNote: 'Edit note',
+  pauseImplementation: 'Pause implementation',
+  startImplementation: 'Start implementation',
   DecideAssignmentTitle: 'Take this job?',
 
   // Comments

@@ -4,12 +4,22 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import { getComment, getCommentRoot, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import {
+  getComment,
+  getCommentRoot,
+  getMarketComments,
+  isDesignCapsule
+} from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
-import { getFullStage, getFurtherWorkStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import {
+  getAcceptedStage,
+  getFullStage,
+  getFurtherWorkStage,
+  getInCurrentVotingStage
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
@@ -43,15 +53,23 @@ function DecideUnblockStep(props) {
   const inv = commentRoot.investible_id ? getInvestible(investibleState, commentRoot.investible_id) : undefined;
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage } = marketInfo;
+  const currentStage = getFullStage(marketStagesState, marketId, stage) || {};
+  const doableStage = getAcceptedStage(marketStagesState, marketId);
+  const approvableStage = getInCurrentVotingStage(marketStagesState, marketId);
+  const isCapsule = isDesignCapsule(commentRoot);
+  const isDoable = stage && stage === doableStage?.id;
+  const isApprovable = stage && stage === approvableStage?.id;
+  const implementationTargetStage = isCapsule && (isDoable || isApprovable) ?
+    (isDoable ? approvableStage : doableStage) : undefined;
   const { useCompression } = formData;
 
   function myTerminate() {
     removeWorkListItem(message, messagesDispatch, history);
   }
 
-  function moveToBacklog() {
+  function changeStage(targetStage) {
     const investibleId = commentRoot.investible_id;
-    const targetStageId = getFurtherWorkStage(marketStagesState, marketId).id;
+    const targetStageId = targetStage.id;
     const moveInfo = {
       marketId,
       investibleId,
@@ -61,11 +79,16 @@ function DecideUnblockStep(props) {
       },
     };
     return stageChangeInvestible(moveInfo).then((investible) => {
-      const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
       onInvestibleStageChange(targetStageId, investible, investibleId, marketId, commentState, commentDispatch,
-        investiblesDispatch, () => {}, marketStagesState, undefined, fullStage,
+        investiblesDispatch, () => {}, marketStagesState, undefined, currentStage,
         marketPresencesDispatch);
       setOperationRunning(false);
+    });
+  }
+
+  function moveToBacklog() {
+    return changeStage(getFurtherWorkStage(marketStagesState, marketId)).then(() => {
+      const investibleId = commentRoot.investible_id;
       dismissWorkListItem(message, messagesDispatch);
       navigate(history, formInvestibleLink(marketId, investibleId));
     });
@@ -76,10 +99,11 @@ function DecideUnblockStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        {intl.formatMessage({ id: 'DecideUnblockTitle' })}
+        {intl.formatMessage({ id: isCapsule ? 'ReviewDesignTitle' : 'DecideUnblockTitle' })}
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        Choosing reply also gives you the option to resolve.
+        {isCapsule ? intl.formatMessage({ id: 'ReviewDesignStage' }, { stage: currentStage.name }) :
+          'Choosing reply also gives you the option to resolve.'}
       </Typography>
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
                       useCompression={useCompression} inboxMessageId={commentId}
@@ -94,9 +118,11 @@ function DecideUnblockStep(props) {
           undefined, undefined, commentId, message.type_object_id))}
         nextShowEdit={hasReply(getComment(commentState, marketId, commentId))}
         spinOnClick={false}
-        showOtherNext
-        otherNextLabel="DecideMoveToBacklog"
-        onOtherNext={moveToBacklog}
+        showOtherNext={!isCapsule || !!implementationTargetStage}
+        otherNextLabel={isCapsule ? (isDoable ? 'pauseImplementation' : 'startImplementation') :
+          'DecideMoveToBacklog'}
+        onOtherNext={isCapsule ? () => changeStage(implementationTargetStage) : moveToBacklog}
+        onOtherNextDoAdvance={!isCapsule}
         isOtherFinal
         onFinish={myTerminate}
         showTerminate={getShowTerminate(message)}

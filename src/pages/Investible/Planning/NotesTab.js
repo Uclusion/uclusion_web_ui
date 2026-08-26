@@ -61,22 +61,8 @@ function NotesTab(props) {
     <div>
       {hasCapsules && (
         <div style={{ marginBottom: '2rem' }}>
-          <Typography
-            variant="h6"
-            style={{
-              marginTop: '1rem',
-              marginBottom: '0.5rem',
-              paddingBottom: '0.25rem',
-              borderBottom: `1px solid ${theme.palette.divider}`
-            }}
-          >
-            <FormattedMessage id="intentDesignCapsules" />
-          </Typography>
           {!_.isEmpty(capsuleGroups.jobCapsules) && (
             <div style={{ marginBottom: '1rem' }}>
-              <Typography variant="subtitle1">
-                <FormattedMessage id="capsuleJobTarget" values={{ target: marketInfo?.ticket_code || '' }} />
-              </Typography>
               <CommentBox
                 {...commentBoxCommonProps}
                 comments={capsuleGroups.jobCapsules.concat(replies || [])}

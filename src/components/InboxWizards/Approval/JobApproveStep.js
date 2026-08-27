@@ -49,7 +49,8 @@ export function getJobApproveEditorName(investibleId) {
   return `jobapproveeditor${investibleId}`;
 }
 function JobApproveStep(props) {
-  const { marketId, updateFormData = () => {}, formData = {}, message, investibleId, yourVote, isAssigned } = props;
+  const { marketId, updateFormData = () => {}, formData = {}, message, investibleId, yourVote,
+    isPendingAcceptance } = props;
   const intl = useIntl();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
@@ -147,7 +148,9 @@ function JobApproveStep(props) {
       {...props}
     >
       <Typography className={classes.introText} variant="h6">
-        {intl.formatMessage({ id: isAssigned ? 'ApproveOwnAssignmentFullTitle' : 'AssignmentApprovalTitle' })}
+        {intl.formatMessage({
+          id: isPendingAcceptance ? 'ApproveOwnAssignmentFullTitle' : 'AssignmentApprovalTitle'
+        })}
       </Typography>
       {wasDeleted && (
         <Typography className={classes.introSubText} variant="subtitle1">
@@ -159,7 +162,7 @@ function JobApproveStep(props) {
           You are the first approver and approvals expire in {market.investment_expiration} days.
         </Typography>
       )}
-      {!wasDeleted && !_.isEmpty(voters) && !isAssigned && (
+      {!wasDeleted && !_.isEmpty(voters) && !isPendingAcceptance && (
         <Typography className={classes.introSubText} variant="subtitle1">
           There are <b>{_.size(voters)}</b> <Link href={pathToApprovals} onClick={(event) => {
           preventDefaultAndProp(event);
@@ -167,7 +170,7 @@ function JobApproveStep(props) {
         }}>existing approvals</Link>. Approvals expire in {market.investment_expiration} days.
         </Typography>
       )}
-      {!wasDeleted && !_.isEmpty(voters) && isAssigned && (
+      {!wasDeleted && !_.isEmpty(voters) && isPendingAcceptance && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Approve to mark your acceptance. There are <b>{_.size(voters)}</b> <Link href={pathToApprovals} onClick={(event) => {
           preventDefaultAndProp(event);
@@ -193,7 +196,7 @@ function JobApproveStep(props) {
         {...props}
         onFinish={onFinish}
         validForm={validForm}
-        nextLabel={isAssigned ? 'ApprovalWizardAccept' : 'ApprovalWizardApprove'}
+        nextLabel={isPendingAcceptance ? 'ApprovalWizardAccept' : 'ApprovalWizardApprove'}
         onNext={onNext}
         onNextDoAdvance={false}
         showOtherNext

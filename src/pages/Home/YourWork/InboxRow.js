@@ -162,11 +162,12 @@ function InboxRow(props) {
     comment_market_id: commentMarketId, is_highlighted: isHighlighted, type: messageType } = message;
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { assigned, stage } = marketInfo;
+  const { accepted, assigned, stage } = marketInfo;
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const myPresence = marketPresences.find((presence) => presence.current_user);
   const userId = myPresence?.id;
   const isAssigned = (assigned || []).includes(userId);
+  const isPendingAcceptance = isAssigned && !(accepted || []).includes(userId);
   const market = getMarket(marketsState, marketId) || {};
   const item = {
     market: market.name || marketName,
@@ -175,6 +176,7 @@ function InboxRow(props) {
     date: intl.formatDate(updatedAt),
     isDeletable,
     isAssigned,
+    isPendingAcceptance,
     message,
     isNotSynced: !messageIsSynced(message, marketsState, marketPresencesState, commentState, investiblesState,
       groupState)

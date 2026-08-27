@@ -8,7 +8,7 @@ import ChooseCommentTypeStep from '../ChooseCommentTypeStep';
 import { getMessageId } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 function ApprovalWizard(props) {
-  const { marketId, investibleId, message, isAssigned } = props;
+  const { marketId, investibleId, message, isPendingAcceptance } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const yourPresence = marketPresences.find((presence) => presence.current_user);
@@ -19,7 +19,7 @@ function ApprovalWizard(props) {
     <FormdataWizard name={`approval_wizard${investibleId}`}
                     defaultFormData={{parentElementId, approveQuantity: yourVote?.quantity}}>
       <JobApproveStep marketId={marketId} investibleId={investibleId} message={message} yourVote={yourVote}
-                      isAssigned={isAssigned}/>
+                      isPendingAcceptance={isPendingAcceptance}/>
       <ChooseCommentTypeStep investibleId={investibleId} marketId={marketId} message={message} />
     </FormdataWizard>
   );
@@ -31,4 +31,3 @@ ApprovalWizard.propTypes = {
 };
 
 export default ApprovalWizard;
-

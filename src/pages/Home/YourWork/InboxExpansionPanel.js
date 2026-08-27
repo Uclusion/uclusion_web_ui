@@ -72,7 +72,7 @@ function setItem(item, isOpen, panel, titleId, intl) {
 
 export function calculateTitleExpansionPanel(props) {
   const { item, openExpansion, intl, rootComment } = props;
-  const { message, isAssigned } = item;
+  const { message, isAssigned, isPendingAcceptance } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId, market_type: marketType, isOutboxAccepted,
     decision_investible_id: decisionInvestibleId, comment_list: commentList } = message;
@@ -109,8 +109,8 @@ export function calculateTitleExpansionPanel(props) {
         'DecideAnswerTitle', intl);
     } else if (marketType === PLANNING_TYPE) {
       setItem(item, openExpansion, <ApprovalWizard investibleId={investibleId} marketId={marketId} message={message}
-                                                   isAssigned={isAssigned}/>,
-        isAssigned ? 'ApproveOwnAssignmentTitle' : 'AssignmentApprovalRowTitle', intl);
+                                                   isPendingAcceptance={isPendingAcceptance}/>,
+        isPendingAcceptance ? 'ApproveOwnAssignmentTitle' : 'AssignmentApprovalRowTitle', intl);
     }
   } else if (messageType === 'INVESTIBLE_SUBMITTED') {
     setItem(item, openExpansion, <OptionSubmittedWizard marketId={marketId}

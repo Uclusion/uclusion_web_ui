@@ -43,14 +43,18 @@ function JobNameStep(props) {
         addInfo.todos = todos;
       }
     }
-    if (jobStage === 'READY') {
-      addInfo.openForInvestment = true;
-    }
-    if (isSingleUser) {
-      if (!useApprovals) {
-        addInfo.stageId = getAcceptedStage(marketStagesState, marketId).id;
-      }
+    if (jobStage === 'APPROVABLE') {
       addInfo.assignments = [myPresenceId];
+    } else {
+      if (jobStage === 'READY') {
+        addInfo.openForInvestment = true;
+      }
+      if (isSingleUser) {
+        if (!useApprovals) {
+          addInfo.stageId = getAcceptedStage(marketStagesState, marketId).id;
+        }
+        addInfo.assignments = [myPresenceId];
+      }
     }
     return addPlanningInvestible(addInfo)
       .then((result) => {

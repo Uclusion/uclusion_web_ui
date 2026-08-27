@@ -51,7 +51,7 @@ function JobDescriptionStep (props) {
   const isMovingTasks = !_.isEmpty(roots);
   const editorName = isMovingTasks ? `addJobWizard${roots[0].id}` : `addJobWizard${groupId}`;
   const { newQuantity } = formData;
-  const jobTypes = ['READY', 'NOT_READY'];
+  const jobTypes = ['APPROVABLE', 'READY', 'NOT_READY'];
   const showImmediate = !_.isEmpty(myGroupPresence)||!isSingleUser;
   const marketHasOthers = _.size(presences) > 1;
   if (showImmediate) {
@@ -143,7 +143,9 @@ function JobDescriptionStep (props) {
   const currentValue = newQuantity || defaultFromPage || '';
 
   function createJob(useApprovals) {
-    const readyToStart = currentValue === 'IMMEDIATE' ? undefined : (currentValue === 'READY');
+    const isApprovable = currentValue === 'APPROVABLE';
+    const readyToStart = currentValue === 'READY' ? true :
+      (currentValue === 'NOT_READY' ? false : undefined);
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
@@ -172,7 +174,10 @@ function JobDescriptionStep (props) {
       const newDescription = removeTodosFromDescription(description);
       addInfo.description = newDescription;
     }
-    if (readyToStart !== undefined) {
+    if (isApprovable) {
+      addInfo.assignments = [myPresenceId];
+    }
+    else if (readyToStart !== undefined) {
       addInfo.openForInvestment = readyToStart;
     }
     else if (isSingleUser) {
@@ -199,9 +204,10 @@ function JobDescriptionStep (props) {
           investibleId,
           link
         });
+        const shouldFinish = currentValue !== 'IMMEDIATE' || (isSingleUser && !useApprovals);
         if (moveFromComments) {
           return moveFromComments(inv, formData, updateFormData).then(() => {
-            if (readyToStart !== undefined || (isSingleUser && !useApprovals)) {
+            if (shouldFinish) {
               return onFinish({
                 link
               });
@@ -209,7 +215,7 @@ function JobDescriptionStep (props) {
             return {link, useApprovals};
           });
         }
-        if (readyToStart !== undefined || (isSingleUser && !useApprovals)) {
+        if (shouldFinish) {
           return onFinish({
             link
           });
@@ -226,9 +232,11 @@ function JobDescriptionStep (props) {
   }
   useHotkeys('ctrl+alt+1', simulatePriority('IMMEDIATE'), {enabled: showImmediate,
       enableOnContentEditable: true}, []);
-  useHotkeys('ctrl+alt+2', simulatePriority('READY'), {enableOnContentEditable: true},
+  useHotkeys('ctrl+alt+2', simulatePriority('APPROVABLE'), {enableOnContentEditable: true},
     []);
-  useHotkeys('ctrl+alt+3', simulatePriority('NOT_READY'), {enableOnContentEditable: true},
+  useHotkeys('ctrl+alt+3', simulatePriority('READY'), {enableOnContentEditable: true},
+    []);
+  useHotkeys('ctrl+alt+4', simulatePriority('NOT_READY'), {enableOnContentEditable: true},
     []);
 
   return (
@@ -270,7 +278,7 @@ function JobDescriptionStep (props) {
         validForm={hasValue}
         nextLabel='jobCreate'
         onNext={createJob}
-        showOtherNext={isSingleUser && marketHasOthers}
+        showOtherNext={currentValue !== 'APPROVABLE' && isSingleUser && marketHasOthers}
         otherNextLabel='useApprovals'
         onOtherNext={() => createJob(true)}
         onIncrement={doIncrement}

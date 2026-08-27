@@ -8,15 +8,21 @@ import TooltipIconButton from './TooltipIconButton';
 import { DARK_INFO_COLOR, useButtonColors } from './ButtonConstants';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
-import { formInboxItemLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
+import {
+  formInboxItemLink,
+  getCanonicalNavigationUrl,
+  navigate,
+  preventDefaultAndProp
+} from '../../utils/marketIdPathFunctions';
 import { deleteOrDehilightMessages } from '../../api/users';
+import { addNavigation } from '../../contexts/NotificationsContext/notificationsContextReducer';
 
-// T-all-2447: the comment bell offers a choice - go to the notification or clear it -
+// T-all-2447 / B-all-582: every notification bell offers a choice - go to the notification or clear it -
 // following the All Done button's menu-before-action pattern
 function NotificationMenuButton(props) {
   const { message, lightSurface, unhighlightedColor, iconStyle, clearOnly } = props;
   const [anchorEl, setAnchorEl] = useState(null);
-  const [, messagesDispatch] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const history = useHistory();
   const intl = useIntl();
   const theme = useTheme();
@@ -48,6 +54,10 @@ function NotificationMenuButton(props) {
             preventDefaultAndProp(event);
             setAnchorEl(null);
             dehighlightMessage(message, messagesDispatch);
+            // Preserve the page containing the bell as Back's return point.
+            const originUrl = getCanonicalNavigationUrl(history.location.pathname, history.location.search);
+            const existingUrls = (messagesState?.navigations || []).map((navigation) => navigation.url);
+            messagesDispatch(addNavigation(originUrl, existingUrls.concat(originUrl)));
             navigate(history, formInboxItemLink(message));
           }}>
             {intl.formatMessage({ id: 'notificationGoTo' })}

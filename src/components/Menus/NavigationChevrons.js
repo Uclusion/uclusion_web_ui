@@ -8,7 +8,7 @@ import {
   formCommentLink,
   formInboxItemLink,
   formInvestibleLink, formMarketLink,
-  getCanonicalNavigationUrl, getJobBackOrigin, clearJobBackOrigin, isReturnableNavigationUrl,
+  getCanonicalNavigationUrl, getJobBackOrigin, clearJobBackOrigin, clearNavigationOrigins, isReturnableNavigationUrl,
   rememberSeenNavigationUrl, navigate
 } from '../../utils/marketIdPathFunctions';
 import { useIntl } from 'react-intl';
@@ -254,6 +254,8 @@ export default function NavigationChevrons(props) {
       }
       messagesDispatch(removeNavigation(url));
       navigate(history, url);
+      // Back consumes its origin; do not let entering a job re-add the page that was just left.
+      clearNavigationOrigins();
     }
   }
 

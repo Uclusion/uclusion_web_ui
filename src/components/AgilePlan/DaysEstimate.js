@@ -8,23 +8,17 @@ import _ from 'lodash';
 import DatePicker from 'react-datepicker';
 import { usePlanFormStyles } from './index';
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
-import { formInboxItemLink, navigate } from '../../utils/marketIdPathFunctions';
-import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
-import TooltipIconButton from '../Buttons/TooltipIconButton';
-import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
-import { Notifications } from '@material-ui/icons';
-import { DARK_ACTION_BUTTON_COLOR, useButtonColors } from '../Buttons/ButtonConstants';
+import { DARK_ACTION_BUTTON_COLOR } from '../Buttons/ButtonConstants';
 import { ThemeModeContext } from '../../contexts/ThemeModeContext';
+import NotificationMenuButton from '../Buttons/NotificationMenuButton';
 
 export function DaysEstimate(props) {
-  const { value, onChange, isAssigned, estimateMessage, messagesDispatch } = props;
+  const { value, onChange, isAssigned, estimateMessage } = props;
   const classes = usePlanFormStyles();
   const intl = useIntl();
-  const history = useHistory();
   const [themeMode] = React.useContext(ThemeModeContext);
   const isDark = themeMode === 'dark';
   const [anchorEl, setAnchorEl] = useState(null);
-  const { warningColor } = useButtonColors();
 
   function handleDateChange (date) {
     setAnchorEl(null);
@@ -42,18 +36,10 @@ export function DaysEstimate(props) {
   function getDueText () {
     if (estimateMessage) {
       return (
-        <TooltipIconButton
-          marginRight='1rem'
-          marginTop='0.15rem'
-          onClick={() => {
-            dehighlightMessage(estimateMessage, messagesDispatch);
-            navigate(history, formInboxItemLink(estimateMessage));
-          }}
-          icon={<Notifications fontSize='small' 
-            htmlColor={estimateMessage.is_highlighted ? warningColor : (isDark ? DARK_ACTION_BUTTON_COLOR : undefined)} />}
-          size='small'
-          translationId='messagePresentComment'
-        />
+        <div style={{marginRight: '1rem'}}>
+          <NotificationMenuButton message={estimateMessage}
+                                  unhighlightedColor={isDark ? DARK_ACTION_BUTTON_COLOR : undefined} />
+        </div>
       );
     }
     if (_.isEmpty(value)) {

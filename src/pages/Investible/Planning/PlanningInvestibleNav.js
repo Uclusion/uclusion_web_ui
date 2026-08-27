@@ -295,7 +295,7 @@ export default function PlanningInvestibleNav(props) {
       )}
       {isInAccepted && (
         <DaysEstimate marketId={marketId} onChange={handleDateChange} value={marketDaysEstimate}
-                      isAssigned={isAssigned} estimateMessage={estimateMessage} messagesDispatch={messagesDispatch} />
+                      isAssigned={isAssigned} estimateMessage={estimateMessage} />
       )}
       <MarketMetaData
         stagesInfo={stagesInfo}
@@ -319,7 +319,6 @@ export default function PlanningInvestibleNav(props) {
               marketPresences={marketPresences}
               assigned={assigned}
               unaccceptedMessage={unaccceptedMessage}
-              messagesDispatch={messagesDispatch}
               unaccceptedList={isInVoting ? assignedNotAccepted : undefined}
               toggleIconButton={isSingleUser ? (_.isEmpty(assigned) ? assignToSingleUser : undefined) :
                 () => navigate(history, formWizardLink(JOB_ASSIGNEE_WIZARD_TYPE, marketId, investibleId))}

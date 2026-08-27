@@ -51,7 +51,6 @@ import {
 } from '../../../contexts/OperationInProgressContext/operationInProgressMessages';
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import {
-  formInboxItemLink,
   formInvestibleLink, formMarketLink,
   formWizardLink,
   navigate,
@@ -69,7 +68,7 @@ import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesCont
 import AddIcon from '@material-ui/icons/Add';
 import CondensedTodos from './CondensedTodos';
 import NotesTab from './NotesTab';
-import { DoneAll, ExpandLess, Notifications } from '@material-ui/icons';
+import { DoneAll, ExpandLess } from '@material-ui/icons';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
 import { useInvestibleEditStyles } from '../InvestibleBodyEdit';
@@ -94,10 +93,11 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { findMessagesForCommentIds, findMessagesForInvestibleId,
   findMessagesForInvestibleIds } from '../../../utils/messageUtils';
 import { deleteOrDehilightMessages } from '../../../api/users';
-import { dehighlightMessage, isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { DARK_ACTION_BUTTON_COLOR, DARK_TEXT_BACKGROUND_COLOR, useButtonColors } from '../../../components/Buttons/ButtonConstants';
 import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
 import { countAssistanceRootsWithNewMessages } from './assistanceNotificationCounts';
+import NotificationMenuButton from '../../../components/Buttons/NotificationMenuButton';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -1348,13 +1348,11 @@ export function rejectInvestible (marketId, investibleId, marketInvestible, comm
 
 export function Assignments(props) {
   const { marketPresences, classes, assigned, toolTipId, toggleIconButton, assignmentColumnMessageId,
-    unaccceptedList, isLarge, unaccceptedMessage, messagesDispatch } = props;
+    unaccceptedList, isLarge, unaccceptedMessage } = props;
   const intl = useIntl();
-  const history = useHistory();
   const [themeMode] = React.useContext(ThemeModeContext);
   const isDark = themeMode === 'dark';
   const metaClasses = useMetaDataStyles();
-  const { warningColor } = useButtonColors();
   const safeAssigned = assigned || [];
   const presences = safeAssigned.map((userId) => {
     const presence = marketPresences.find(presence => presence.id === userId)
@@ -1423,16 +1421,7 @@ export function Assignments(props) {
                   )}
                 </div>
                 {unaccceptedMessage && (
-                  <TooltipIconButton
-                    onClick={() => {
-                      dehighlightMessage(unaccceptedMessage, messagesDispatch);
-                      navigate(history, formInboxItemLink(unaccceptedMessage));
-                    }}
-                    icon={<Notifications fontSize='small' 
-                      htmlColor={unaccceptedMessage.is_highlighted ? warningColor : undefined} />}
-                    size='small'
-                    translationId='messagePresentComment'
-                  />
+                  <NotificationMenuButton message={unaccceptedMessage} />
                 )}
               </div>
             </div>

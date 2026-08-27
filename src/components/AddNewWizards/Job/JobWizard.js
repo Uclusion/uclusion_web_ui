@@ -111,7 +111,7 @@ function JobWizard(props) {
         if (isAssistanceMove && fromInv) {
           // Leave the source job in assistance if it still has other open assistance comments
           const sourceOpenComments = getOpenInvestibleComments(roots[0]?.investible_id, comments);
-          const otherAssistance = sourceOpenComments.find((comment) => comment.id !== roots[0]?.id &&
+          const otherAssistance = sourceOpenComments.find((comment) => !fromCommentIds.includes(comment.id) &&
             [SUGGEST_CHANGE_TYPE, QUESTION_TYPE, ISSUE_TYPE].includes(comment.comment_type));
           if (_.isEmpty(otherAssistance)) {
             const marketInfo = getMarketInfo(fromInv, marketId);

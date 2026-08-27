@@ -34,7 +34,7 @@ import { findMessagesForInvestibleId } from '../../utils/messageUtils';
 import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import PlanningJobMenu from '../Dialog/Planning/PlanningJobMenu';
 import PersonSearch from '../../components/CustomChip/PersonSearch';
-import { getTicketCodeNumber, getTicketNumber, stripHTML } from '../../utils/stringFunctions';
+import { getJobCardCode, getTicketNumber, stripHTML } from '../../utils/stringFunctions';
 import { DECISION_TYPE, INITIATIVE_TYPE } from '../../constants/markets';
 import { getGroupPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
@@ -106,7 +106,7 @@ const myArchiveClasses = makeStyles(
 
 function ArchiveInvestible(props) {
   const { name, id, stageId, marketId, allowDragDrop, onDragStart, enteredStageAt, TypeIconList, assignedNames, inAssistanceComments,
-    classes, openForInvestment, viewIndicator='', jobNumber, isBlocked, needsAssist, groupId, marketPresences, isSingleUser,
+    classes, openForInvestment, viewIndicator='', jobQualifier, jobNumber, isBlocked, needsAssist, groupId, marketPresences, isSingleUser,
     assigned } = props;
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -150,8 +150,14 @@ function ArchiveInvestible(props) {
                   {viewIndicator}
                 </div>
                 {jobNumber && (
-                  <div style={{whiteSpace: 'nowrap', marginLeft: 'auto', paddingLeft: '0.5rem', flexShrink: 0}}>
-                    {jobNumber}
+                  <div style={{display: 'flex', minWidth: 0, maxWidth: '100%', whiteSpace: 'nowrap', marginLeft: 'auto',
+                    paddingLeft: '0.5rem', flexShrink: jobQualifier ? 1 : 0}}>
+                    {jobQualifier ? (
+                      <React.Fragment>
+                        <span style={{overflow: 'hidden', textOverflow: 'ellipsis'}}>{jobQualifier}</span>
+                        <span style={{flexShrink: 0}}>-{jobNumber}</span>
+                      </React.Fragment>
+                    ) : jobNumber}
                   </div>
                 )}
               </div>
@@ -359,8 +365,10 @@ function ArchiveInvestbiles(props) {
         }
       }
       const inAssistanceComments = blockedComments.concat(questionComments).concat(suggestionComments);
-      const ticketNumber = getTicketNumber(groupId, marketId, groupsState, isAutonomous, groupId === viewGroupId);
-      const jobNumber = getTicketCodeNumber(info.ticket_code);
+      const { qualifier: jobQualifier, number: jobNumber, isQualified: isJobCodeQualified } =
+        getJobCardCode(info.ticket_code, groupId, marketId, groupsState);
+      const ticketNumber = isJobCodeQualified ? undefined :
+        getTicketNumber(groupId, marketId, groupsState, isAutonomous, groupId === viewGroupId);
       return <ArchiveInvestible key={id} name={name} id={id} stageId={stageId} marketId={marketId} isSingleUser={isSingleUser}
                                 isBlocked={!_.isEmpty(blockedComments)} groupId={groupId} inAssistanceComments={inAssistanceComments}
                                 needsAssist={!_.isEmpty(suggestionComments)||!_.isEmpty(questionComments)}
@@ -368,7 +376,7 @@ function ArchiveInvestbiles(props) {
                                 enteredStageAt={enteredStageAt} marketPresences={marketPresences}
                                 TypeIconList={TypeIconList} assignedNames={assignedNames} assigned={assigned}
                                 classes={classes} openForInvestment={openForInvestment} viewIndicator={ticketNumber}
-                                jobNumber={jobNumber} />;
+                                jobQualifier={jobQualifier} jobNumber={jobNumber} />;
     });
   }
 

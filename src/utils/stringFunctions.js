@@ -14,8 +14,25 @@ export function transformTicketCode(inputString) {
   return `${allMatches[0]}-${allMatches[2]}`;
 }
 
-export function getTicketCodeNumber(ticketCode) {
-  return ticketCode?.match(/-(\d+)$/)?.[1];
+export function getJobCardCode(ticketCode, groupId, marketId, groupsState) {
+  const match = ticketCode?.match(/^J-(.+)-(\d+)$/);
+  if (!match) {
+    return {};
+  }
+  const [, ticketSubCode, number] = match;
+  let readableTicketSubCode;
+  try {
+    readableTicketSubCode = decodeURIComponent(ticketSubCode);
+  } catch {
+    return {};
+  }
+  const currentTicketSubCode = getGroup(groupsState, marketId, groupId)?.ticket_sub_code;
+  const isQualified = Boolean(currentTicketSubCode && currentTicketSubCode !== ticketSubCode);
+  return {
+    qualifier: isQualified ? readableTicketSubCode : undefined,
+    number,
+    isQualified,
+  };
 }
 
 export function getTicketNumber(groupId, marketId, groupsState, isAutonomous=false, isSameGroup = true) {

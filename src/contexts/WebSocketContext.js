@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import useWebSocket from 'react-use-websocket';
+import useWebSocket, { ReadyState } from 'react-use-websocket';
 import config from '../config'
 import { sendInfoPersistent, toastError } from '../utils/userMessage'
 import { pushMessage } from '../utils/MessageBusUtils'
@@ -13,6 +13,7 @@ import { getLogin } from '../api/homeAccount';
 import { getAppVersion } from '../api/sso';
 import { MarketsContext } from './MarketsContext/MarketsContext'
 import { MarketPresencesContext } from './MarketPresencesContext/MarketPresencesContext'
+import { OnlineStateContext } from './OnlineStateContext'
 import {
   getMarketDetailsForType,
   getNotHiddenMarketDetailsForUser,
@@ -27,6 +28,7 @@ const WebSocketContext = React.createContext({
 
 export const LAST_LOGIN_APP_VERSION = 'login_version';
 export const LAST_SCRIPT_REINSTALL_VERSION = 'script_reinstall_version';
+const MAX_RECONNECT_INTERVAL = 30000;
 
 // J-all-314 the AI integration install must be re-run when scripts or rules change.
 // The backend persists the version that last required a reinstall so users who skip
@@ -99,13 +101,16 @@ function subscribe(sendMessage) {
   }).catch((error) => console.error('Error subscribing', error));
 }
 
-export function sendPokeAI(sendMessage, marketId, message) {
+export function sendPokeAI(sendMessage, getWebSocket, marketId, message) {
   return getMarketToken(marketId).then((marketToken) => {
+    if (getWebSocket()?.readyState !== ReadyState.OPEN) {
+      throw new Error('WebSocket is not connected');
+    }
     return sendMessage(JSON.stringify({
       action: 'poke_ai',
       identity: marketToken,
       message,
-    }));
+    }), false);
   });
 }
 
@@ -113,12 +118,13 @@ function WebSocketProvider(props) {
   const { children, config } = props;
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [online] = useContext(OnlineStateContext);
   // Ref so the websocket and interval callbacks see the latest value instead of a stale closure
   const hasNonDemoRef = useRef(false);
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
   hasNonDemoRef.current = !_.isEmpty((planningDetails || []).filter((market) => !marketIsDemo(market)));
-  const { sendMessage } = useWebSocket(
+  const { sendMessage, getWebSocket } = useWebSocket(
     config.webSockets.wsUrl,
     {
       onOpen: () => {
@@ -161,7 +167,11 @@ function WebSocketProvider(props) {
         }
       },
       // The refresh done on sign out should mean this socket will be gone
-      reconnectInterval: config.webSockets.reconnectInterval,
+      reconnectInterval: (attemptNumber) => Math.min(
+        config.webSockets.reconnectInterval * (2 ** attemptNumber),
+        MAX_RECONNECT_INTERVAL
+      ),
+      reconnectAttempts: Infinity,
       shouldReconnect: () => true,
       heartbeat: {
         message: 'ping',
@@ -169,9 +179,13 @@ function WebSocketProvider(props) {
         timeout: 60000, // 1 minute, if no response is received, the connection will be closed
         interval: 25000, // every 25 seconds, a ping message will be sent
       },
-    }
+    },
+    online
   );
-  const pokeAI = useCallback((marketId, message) => sendPokeAI(sendMessage, marketId, message), [sendMessage]);
+  const pokeAI = useCallback(
+    (marketId, message) => sendPokeAI(sendMessage, getWebSocket, marketId, message),
+    [getWebSocket, sendMessage]
+  );
 
   // The toast notices do not survive a refresh or page close so check on load instead of
   // leaving a gap until the first interval tick. Runs again when the user's workspaces finish

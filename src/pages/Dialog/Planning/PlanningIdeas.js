@@ -49,7 +49,7 @@ import { getOptimisticInvestibleMove, onInvestibleStageChange } from '../../../u
 import { useButtonColors } from '../../../components/Buttons/ButtonConstants'
 import { outlinedChipStyle } from '../../../components/CustomChip/chipStyles'
 import TintedIconBadge from '../../../components/CustomChip/TintedIconBadge'
-import { getTicketNumber, stripHTML } from '../../../utils/stringFunctions';
+import { getTicketCodeNumber, getTicketNumber, stripHTML } from '../../../utils/stringFunctions';
 import { Schedule } from '@material-ui/icons';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import {
@@ -745,6 +745,7 @@ function StageInvestible(props) {
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId);
   const otherVoter = groupPresences.find((presence) => !assigned.includes(presence.id));
   const ticketNumber = getTicketNumber(groupId, marketId, groupsState, isAutonomous, isSameGroup);
+  const jobNumber = getTicketCodeNumber(marketInfo.ticket_code);
   const inProgressComments = comments.filter((comment) => comment.investible_id === investible.id && !comment.deleted
     && !comment.resolved && (comment.in_progress || comment.comment_type === QUESTION_TYPE) && 
     (!comment.root_comment_id || comments.find((c) => c.id === comment.root_comment_id)?.resolved !== true));
@@ -776,6 +777,7 @@ function StageInvestible(props) {
            }}
       >
         <div style={{display: 'flex', alignItems: 'center', marginTop: '0.35rem', marginBottom: '0.35rem'}}>
+          <div style={{display: 'flex', alignItems: 'center', minWidth: 0, overflow: 'hidden', flex: '1 1 auto'}}>
           {!unaccepted && (isVoting || isReview) &&
             !_.isEmpty(collaboratorsForInvestible.filter((collaborator) => !assigned?.includes(collaborator.id))) && (
               <div style={{marginRight: '0.5rem'}}>
@@ -856,6 +858,13 @@ function StageInvestible(props) {
           {ticketNumber && (
             <div style={{whiteSpace: 'nowrap', fontSize: '.75rem', marginRight: '0.5rem', paddingTop: '1.5px'}}>
               {ticketNumber}
+            </div>
+          )}
+          </div>
+          {jobNumber && (
+            <div style={{whiteSpace: 'nowrap', fontSize: '.75rem', marginLeft: 'auto', paddingLeft: '0.5rem',
+              flexShrink: 0}}>
+              {jobNumber}
             </div>
           )}
         </div>

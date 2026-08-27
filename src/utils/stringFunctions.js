@@ -14,6 +14,10 @@ export function transformTicketCode(inputString) {
   return `${allMatches[0]}-${allMatches[2]}`;
 }
 
+export function getTicketCodeNumber(ticketCode) {
+  return ticketCode?.match(/-(\d+)$/)?.[1];
+}
+
 export function getTicketNumber(groupId, marketId, groupsState, isAutonomous=false, isSameGroup = true) {
   if (isAutonomous && !isSameGroup) {
       const group = getGroup(groupsState, marketId, groupId);

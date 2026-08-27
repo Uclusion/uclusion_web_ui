@@ -508,7 +508,7 @@ function PlanningDialog(props) {
 
   const tabTitle = `${groupName} ${intl.formatMessage({id: 'tabGroupAppend'})}`;
   const swimlaneEmptyPreText = 'There are no assigned jobs.';
-  // Set inside getTabCount(2) so getTagLabel can tell whether the autonomous Bugs badge is the
+  // Set inside getTabCount(2) so getTagLabel can tell whether the Bugs badge is the
   // "immediate" (red open bug) count or an unread-notification count (T-all-2237 / Q-all-175).
   let bugTabCountIsImmediate = false;
   // Same pattern for the autonomous Discussion badge: open question/suggestion count vs unread (B-all-508).
@@ -555,7 +555,7 @@ function PlanningDialog(props) {
         bugTabCountIsImmediate = false;
         return `${_.size(numNewMessages)}`;
       }
-      if (isAutonomous && !_.isEmpty(criticalTodoGroupComments)) {
+      if (!_.isEmpty(criticalTodoGroupComments)) {
         bugTabCountIsImmediate = true;
         return `${_.size(criticalTodoGroupComments)}`;
       }
@@ -585,7 +585,7 @@ function PlanningDialog(props) {
       if (!_.isEmpty(search)) {
         return intl.formatMessage({ id: 'match' });
       }
-      if (isAutonomous && tabIndex === 2) {
+      if (tabIndex === 2) {
         return intl.formatMessage({ id: bugTabCountIsImmediate ? 'immediateLower' : 'new' });
       }
       if (isAutonomous && tabIndex === 3) {

@@ -182,10 +182,10 @@ step-two question.
 Visuals only depict canonical Uclusion options. Create every choice with
 `ask_question` or `add_options`, and label each panel with its stable Uclusion
 option code/name—never a parallel A/B/C scheme. Keep the artifact and options
-in sync in the same turn. A changed meaning requires a new option or question;
-never silently reuse an existing label. When an accepted, durably recorded
-human suggestion explicitly revises the canonical option, use `update_option`
-to preserve that option's identity instead.
+in sync in the same turn. Never silently reuse an existing label for a changed
+meaning; create a new option or question. An accepted, durably recorded human
+suggestion explicitly authorizes `update_option` on that canonical option
+while preserving its identity.
 
 ## 3. Address suggestions
 
@@ -200,9 +200,9 @@ accepted plan change, act on it, then resolve the suggestion. When accepting a
 human suggestion that revises an existing option, call `update_option` on that
 canonical option; never use `add_options` or create a replacement option.
 Reply to, vote on, and resolve the suggestion normally. Updating the option
-does not handle the suggestion. A human Resolve
-on an AI-authored suggestion without reply or vote declines the mitigation and
-accepts the described risk; do not recreate it.
+does not handle the suggestion. A human Resolve on an AI-authored suggestion
+without reply or vote declines the mitigation and accepts the described risk;
+do not recreate it.
 
 Do not offer execution or approve the job while an unanswered question remains.
 You may ask whether to begin completely independent tasks first.

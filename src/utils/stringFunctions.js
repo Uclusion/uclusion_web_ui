@@ -14,7 +14,7 @@ export function transformTicketCode(inputString) {
   return `${allMatches[0]}-${allMatches[2]}`;
 }
 
-export function getJobCardCode(ticketCode, groupId, marketId, groupsState) {
+export function getJobCardCode(ticketCode, viewGroupId, marketId, groupsState) {
   const match = ticketCode?.match(/^J-(.+)-(\d+)$/);
   if (!match) {
     return {};
@@ -26,12 +26,10 @@ export function getJobCardCode(ticketCode, groupId, marketId, groupsState) {
   } catch {
     return {};
   }
-  const currentTicketSubCode = getGroup(groupsState, marketId, groupId)?.ticket_sub_code;
-  const isQualified = Boolean(currentTicketSubCode && currentTicketSubCode !== ticketSubCode);
+  const viewTicketSubCode = getGroup(groupsState, marketId, viewGroupId)?.ticket_sub_code;
   return {
-    qualifier: isQualified ? readableTicketSubCode : undefined,
+    qualifier: viewTicketSubCode && viewTicketSubCode !== ticketSubCode ? readableTicketSubCode : undefined,
     number,
-    isQualified,
   };
 }
 

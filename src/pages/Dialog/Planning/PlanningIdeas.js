@@ -744,9 +744,9 @@ function StageInvestible(props) {
   const isSameGroup = groupId === viewGroupId;
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId);
   const otherVoter = groupPresences.find((presence) => !assigned.includes(presence.id));
-  const { qualifier: jobQualifier, number: jobNumber, isQualified: isJobCodeQualified } =
-    getJobCardCode(marketInfo.ticket_code, groupId, marketId, groupsState);
-  const ticketNumber = isJobCodeQualified ? undefined :
+  const { qualifier: jobQualifier, number: jobNumber } =
+    getJobCardCode(marketInfo.ticket_code, viewGroupId, marketId, groupsState);
+  const ticketNumber = jobNumber ? undefined :
     getTicketNumber(groupId, marketId, groupsState, isAutonomous, isSameGroup);
   const inProgressComments = comments.filter((comment) => comment.investible_id === investible.id && !comment.deleted
     && !comment.resolved && (comment.in_progress || comment.comment_type === QUESTION_TYPE) && 

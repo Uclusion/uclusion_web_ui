@@ -145,22 +145,12 @@ function ArchiveInvestible(props) {
         <div draggable={allowDragDrop} onDragStart={onDragStart}>
           <Link href={formInvestibleLink(marketId, id)} color="inherit" style={{cursor: inArchives ? 'pointer' : 'grab'}}>
             <div className={classes.outlined}>
-              <div style={{display: 'flex', alignItems: 'center', fontSize: '.75rem'}}>
-                <div style={{whiteSpace: 'nowrap', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis'}}>
+              {viewIndicator && (
+                <div style={{whiteSpace: 'nowrap', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis',
+                  fontSize: '.75rem'}}>
                   {viewIndicator}
                 </div>
-                {jobNumber && (
-                  <div style={{display: 'flex', minWidth: 0, maxWidth: '100%', whiteSpace: 'nowrap', marginLeft: 'auto',
-                    paddingLeft: '0.5rem', flexShrink: jobQualifier ? 1 : 0}}>
-                    {jobQualifier ? (
-                      <React.Fragment>
-                        <span style={{overflow: 'hidden', textOverflow: 'ellipsis'}}>{jobQualifier}</span>
-                        <span style={{flexShrink: 0}}>-{jobNumber}</span>
-                      </React.Fragment>
-                    ) : jobNumber}
-                  </div>
-                )}
-              </div>
+              )}
               <div style={{display: 'flex', alignItems: 'center', gap: '6px', marginTop: '0.35rem'}}>
                 {TypeIconList.map((item, index) => {
                   const { assistanceType, typeExplanation, myMessage, myLink } = item;
@@ -197,6 +187,17 @@ function ArchiveInvestible(props) {
                 {inAssist && (
                   <div id={`showEdit0${id}`} style={{pointerEvents: 'none', visibility: 'hidden'}}>
                     <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
+                  </div>
+                )}
+                {jobNumber && (
+                  <div style={{display: 'flex', minWidth: 0, maxWidth: '100%', whiteSpace: 'nowrap', marginLeft: 'auto',
+                    paddingLeft: '0.5rem', flexShrink: jobQualifier ? 1 : 0, fontSize: '.75rem'}}>
+                    {jobQualifier ? (
+                      <React.Fragment>
+                        <span style={{overflow: 'hidden', textOverflow: 'ellipsis'}}>{jobQualifier}</span>
+                        <span style={{flexShrink: 0}}>-{jobNumber}</span>
+                      </React.Fragment>
+                    ) : jobNumber}
                   </div>
                 )}
               </div>
@@ -365,9 +366,9 @@ function ArchiveInvestbiles(props) {
         }
       }
       const inAssistanceComments = blockedComments.concat(questionComments).concat(suggestionComments);
-      const { qualifier: jobQualifier, number: jobNumber, isQualified: isJobCodeQualified } =
-        getJobCardCode(info.ticket_code, groupId, marketId, groupsState);
-      const ticketNumber = isJobCodeQualified ? undefined :
+      const { qualifier: jobQualifier, number: jobNumber } =
+        getJobCardCode(info.ticket_code, viewGroupId, marketId, groupsState);
+      const ticketNumber = jobNumber ? undefined :
         getTicketNumber(groupId, marketId, groupsState, isAutonomous, groupId === viewGroupId);
       return <ArchiveInvestible key={id} name={name} id={id} stageId={stageId} marketId={marketId} isSingleUser={isSingleUser}
                                 isBlocked={!_.isEmpty(blockedComments)} groupId={groupId} inAssistanceComments={inAssistanceComments}

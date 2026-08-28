@@ -161,7 +161,7 @@ function SearchBox(props) {
          style={{maxWidth: mobileLayout ? undefined : '50rem', display: 'flex', alignItems: 'center'}}>
       <TextField
         variant="outlined"
-        style={{width: '100%', minWidth: mobileLayout ? '10rem' : '30rem'}}
+        style={{width: '100%', minWidth: mobileLayout ? '5rem' : '30rem'}}
         onChange={onSearchChange}
         onKeyDown={(ev) => {
           if (ev.key === 'Enter') {

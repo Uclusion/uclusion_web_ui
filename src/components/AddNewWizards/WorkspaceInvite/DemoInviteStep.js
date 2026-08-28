@@ -48,13 +48,16 @@ function DemoInviteStep (props) {
       isLarge
     >
       <Typography className={classes.introText}>
-        <p>Welcome! See Uclusion in action in this</p>
-        <Link href={link} onClick={
+        Work should be more than chat.
+      </Typography>
+      <Typography className={classes.introSubText} variant="subtitle1">
+        Uclusion gives developers and AI agents a shared place to plan work. Jobs, questions, suggestions,
+        and approvals stay structured and visible instead of disappearing into a chat log. Explore <Link href={link} onClick={
           (event) => {
             preventDefaultAndProp(event);
             navigate(history, link);
           }
-        }>{market.name}</Link>
+        }>{market.name}</Link> to see it in action.
       </Typography>
       <h2 style={{marginTop: '1.75rem', marginBottom: 0}}>
         Navigation

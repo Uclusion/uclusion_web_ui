@@ -569,12 +569,14 @@ class RunBridgeTests(BridgeTestCase):
 
             def start(self):
                 self.listener = object()
-                self.authority.gate_mcp_startup = False
                 self.authority.claim_primary(1)
                 gate = self.authority.begin_tui_request(
                     1,
                     "thread/start",
                     {"cwd": "/workspace/project"},
+                )
+                self.authority.connection_root_subscribed(
+                    1, "root-live", primary_witness_only=True
                 )
                 self.authority.finish_tui_request(
                     gate,
@@ -640,6 +642,87 @@ class RunBridgeTests(BridgeTestCase):
         self.assertEqual(1, control_clients[1].close_count)
         self.assertIsNone(relay_holder["relay"].fatal_error)
         self.assertIsNone(relay_holder["relay"].authority.fatal_error)
+
+    def test_pending_poke_blocker_diagnostic_is_deduplicated(self):
+        sequence = self.add_poke(
+            "message-1", "Start regression-target"
+        )
+
+        class StopAfterPolls(threading.Event):
+            def __init__(self):
+                super().__init__()
+                self.polls = 0
+
+            def wait(self, timeout=None):
+                self.polls += 1
+                if self.polls == 4:
+                    self.set()
+                return self.is_set()
+
+        class Client:
+            def __init__(self):
+                self.response_lock = threading.Lock()
+                self.reader_failure = None
+                self.notification_handler = None
+                self.disconnect_handler = None
+
+            def start(self):
+                pass
+
+            def subscribe_thread(self, _thread_id, _on_subscribed):
+                raise AssertionError("no primary root should be subscribed")
+
+            def fence_thread(self, _thread_id):
+                raise AssertionError("no primary root should be fenced")
+
+            def close(self):
+                pass
+
+        class Relay:
+            def __init__(self, _frontend, _backend, authority):
+                self.authority = authority
+                self.fatal_event = threading.Event()
+                self.fatal_error = None
+                self.listener = None
+                self.driver_thread_pinner = None
+                self.driver_thread_fencer = None
+
+            def start(self):
+                self.listener = object()
+
+            def close(self):
+                pass
+
+        config = dataclass_replace(
+            self.config,
+            frontend_socket=os.path.join(
+                self.temporary.name, "frontend.sock"
+            ),
+        )
+        stopping = StopAfterPolls()
+        stderr = io.StringIO()
+        with mock.patch.object(bridge.sys, "stderr", stderr):
+            result = bridge.run_bridge(
+                config,
+                poll_interval=0.001,
+                stop_event=stopping,
+                client_factory=lambda _path: Client(),
+                relay_factory=Relay,
+                update_notice_source=lambda _environment: None,
+                deliver_existing_pokes=True,
+            )
+
+        self.assertEqual(bridge.EXIT_OK, result)
+        self.assertEqual(4, stopping.polls)
+        self.assertEqual(
+            "Uclusion Codex bridge waiting to deliver a pending Poke: "
+            "primary TUI is not live\n",
+            stderr.getvalue(),
+        )
+        self.assertIsNone(self.store.consumer_cursor(self.config))
+        self.assertIsNone(
+            self.store.delivery_state(self.config, sequence)
+        )
 
     def test_token_audit_load_is_lazy_and_uses_expected_api(self):
         disabled = dataclass_replace(self.config, token_audit=False)
@@ -885,7 +968,7 @@ class RunBridgeTests(BridgeTestCase):
 class PrimaryAuditRoutingTests(BridgeTestCase):
     def _fresh_primary(self, observer):
         authority = bridge.RootAuthority(
-            self.config.cwd, gate_mcp_startup=True
+            self.config.cwd, enforce_root_handoff=True
         )
         authority.driver_connected(
             bridge.INITIAL_DRIVER_CONNECTION_ID
@@ -2867,108 +2950,6 @@ class DeliveryTests(BridgeTestCase):
         self.assertEqual(sequence, self.store.consumer_cursor(self.config))
         self.assertEqual(1, len(app_server.start_calls))
 
-    def test_poke_waits_for_primary_uclusion_startup_before_delivery(self):
-        sequence = self.add_poke("message-1", "Start J-all-373")
-        authority = bridge.RootAuthority(
-            self.config.cwd, gate_mcp_startup=True
-        )
-        authority.driver_connected(
-            bridge.INITIAL_DRIVER_CONNECTION_ID
-        )
-        self.assertTrue(authority.claim_primary(1))
-        gate = authority.begin_tui_request(
-            1, "thread/start", {"cwd": self.config.cwd}
-        )
-        lifecycle_epoch = authority.connection_root_subscribed(
-            1, "root-live"
-        )
-        authority.driver_thread_pinned(
-            "root-live", lifecycle_epoch
-        )
-        driver_sequence_cut = authority.driver_handoff_cut("root-live")
-        authority.handoff_origin_startup_to_driver(
-            1,
-            "root-live",
-            driver_sequence_cut,
-            lifecycle_epoch,
-        )
-        authority.record_root_handoff_complete(
-            gate, "root-live", lifecycle_epoch
-        )
-        authority.finish_tui_request(
-            gate,
-            {
-                "id": "root",
-                "result": {
-                    "thread": {
-                        "id": "root-live",
-                        "sessionId": "root-live",
-                        "parentThreadId": None,
-                        "cwd": self.config.cwd,
-                    },
-                    "cwd": self.config.cwd,
-                },
-            },
-        )
-        app_server = FakeAppServer(thread_id="root-live")
-        engine = self.committed_start_engine(app_server)
-
-        def assert_waiting_for_startup():
-            with authority.delivery_lease(lambda: True) as snapshot:
-                self.assertIsNone(snapshot)
-            self.assertIsNone(self.store.consumer_cursor(self.config))
-            self.assertIsNone(
-                self.store.delivery_state(self.config, sequence)
-            )
-            self.assertEqual([], app_server.start_calls)
-
-        assert_waiting_for_startup()
-
-        authority.observe_notification(
-            1,
-            {
-                "method": "mcpServer/startupStatus/updated",
-                "params": {
-                    "threadId": "root-live",
-                    "name": "codex_apps",
-                    "status": "ready",
-                    "error": None,
-                    "failureReason": None,
-                },
-            },
-        )
-        assert_waiting_for_startup()
-
-        authority.observe_notification(
-            1,
-            {
-                "method": "mcpServer/startupStatus/updated",
-                "params": {
-                    "threadId": "root-live",
-                    "name": "Uclusion",
-                    "status": "ready",
-                    "error": None,
-                    "failureReason": None,
-                },
-            },
-        )
-
-        with authority.delivery_lease(lambda: True) as snapshot:
-            self.assertIsNotNone(snapshot)
-            result = engine.step(snapshot)
-
-        self.assertEqual("accepted", result.action)
-        self.assertEqual(sequence, self.store.consumer_cursor(self.config))
-        self.assertEqual(
-            [("root-live", "Start J-all-373", "message-1")],
-            app_server.start_calls,
-        )
-        with authority.delivery_lease(lambda: True) as snapshot:
-            self.assertIsNotNone(snapshot)
-            duplicate = engine.step(snapshot)
-        self.assertEqual("empty", duplicate.action)
-        self.assertEqual(1, len(app_server.start_calls))
-
     def test_authority_commit_serializes_ack_with_root_invalidation(self):
         authority = bridge.RootAuthority(self.config.cwd)
         self.assertTrue(authority.claim_primary(1))
@@ -3001,13 +2982,13 @@ class DeliveryTests(BridgeTestCase):
             release_commit.wait(1)
             committed.append(True)
 
-        with authority.delivery_lease(lambda: True) as snapshot:
-            self.assertIsNotNone(snapshot)
+        with authority.delivery_lease(lambda: True) as lease:
+            self.assertIsNotNone(lease.snapshot)
             result = {}
 
             def run_commit():
                 result["value"] = authority.commit_if_current(
-                    snapshot, lambda: True, commit
+                    lease.snapshot, lambda: True, commit
                 )
 
             commit_thread = threading.Thread(target=run_commit)
@@ -3122,7 +3103,7 @@ class DeliveryTests(BridgeTestCase):
             },
         )
         committed = []
-        with authority.delivery_lease(lambda: True) as snapshot:
+        with authority.delivery_lease(lambda: True) as lease:
             authority.observe_notification(
                 1,
                 {
@@ -3132,7 +3113,9 @@ class DeliveryTests(BridgeTestCase):
             )
             self.assertFalse(
                 authority.commit_if_current(
-                    snapshot, lambda: True, lambda: committed.append(True)
+                    lease.snapshot,
+                    lambda: True,
+                    lambda: committed.append(True),
                 )
             )
         self.assertEqual([], committed)
@@ -3539,12 +3522,8 @@ class FakeProxyProcess:
 class AppServerTransportTests(unittest.TestCase):
     def test_driver_forwards_notifications_and_reports_stream_loss(self):
         notification = {
-            "method": "mcpServer/startupStatus/updated",
-            "params": {
-                "threadId": "root",
-                "name": "Uclusion",
-                "status": "ready",
-            },
+            "method": "rawResponse/completed",
+            "params": {"threadId": "root", "response": "done"},
         }
         client = bridge.AppServerClient("/tmp/not-used")
         client.process = types.SimpleNamespace(
@@ -3683,21 +3662,13 @@ class AppServerTransportTests(unittest.TestCase):
             reader.join(1)
 
     def test_driver_thread_fence_drains_prior_listener_notifications(self):
-        ready = {
-            "method": "mcpServer/startupStatus/updated",
-            "params": {
-                "threadId": "root",
-                "name": "Uclusion",
-                "status": "ready",
-            },
+        first = {
+            "method": "rawResponse/completed",
+            "params": {"threadId": "root", "response": "first"},
         }
-        starting = {
-            "method": "mcpServer/startupStatus/updated",
-            "params": {
-                "threadId": "root",
-                "name": "Uclusion",
-                "status": "starting",
-            },
+        second = {
+            "method": "rawResponse/completed",
+            "params": {"threadId": "root", "response": "second"},
         }
         response = {
             "id": 1,
@@ -3706,8 +3677,8 @@ class AppServerTransportTests(unittest.TestCase):
         client = bridge.AppServerClient("/tmp/not-used")
         client.process = types.SimpleNamespace(
             stdout=io.BytesIO(
-                server_text_frame(ready)
-                + server_text_frame(starting)
+                server_text_frame(first)
+                + server_text_frame(second)
                 + server_text_frame(response)
             )
         )
@@ -3724,7 +3695,7 @@ class AppServerTransportTests(unittest.TestCase):
         client.fence_thread("root")
         reader.join(1)
 
-        self.assertEqual([ready, starting], observed)
+        self.assertEqual([first, second], observed)
         self.assertEqual("thread/resume", sent[0]["method"])
         self.assertEqual(
             {"threadId": "root", "excludeTurns": True},

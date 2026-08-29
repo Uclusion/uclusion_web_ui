@@ -145,134 +145,53 @@ another authoritative primary mutation is rejected or fails closed. Auxiliary
 `thread/start`, `thread/resume`, and `thread/fork` picker traffic may load or
 create a different thread, but it must never create two input owners.
 
-## MCP startup readiness
+## Root witness, lifecycle fencing, and audit continuity
 
-Establishing the authoritative root is necessary but not sufficient for Poke
-delivery. Delivery requires three facts: a live companion driver, a driver pin
-for that exact root, and authoritative thread-scoped `Uclusion` status
-`ready`, `failed`, or `cancelled`. Only the primary TUI stream and the
-companion driver participate in that delivery status. Raw picker observations
-are handoff input, never evidence that can open the gate by themselves.
-Before the relay accepts any TUI, the companion initializes its separate
-driver connection. That connection is the continuous notification witness and
-is used only for subscription acknowledgements and listener fences. A second,
-disposable control connection owns delivery and history RPCs. A slow or failed
-control request can therefore be closed and retried without falsely declaring
-that the continuously subscribed witness disappeared. Codex's automatic
-attachment of initialized connections to a newly created runtime is
-asynchronous and best-effort, so initialization alone is not a pin guarantee.
+A successful Codex root response can receive Pokes without any historical MCP
+startup notification. That status describes Codex's tool-server initialization,
+not app-server turn admission. The companion verifies only that the selected
+root still has a live lifecycle witness.
 
-Every successful root-shaped `thread/start`, `thread/resume`, or
-`thread/fork` response on any relayed connection is held before it is
-forwarded and, for the authoritative frontend, before its primary switch is
-committed. A valid thread-scoped startup event already seen on the driver
-proves the pin directly. Otherwise the companion synchronously issues
-`thread/resume(threadId, excludeTurns=true)` on the driver and requires the
-response's `thread.id` to match. The originating TUI subscription remains
-live throughout that handoff. A primary handoff stays under its existing root
-gate; an auxiliary handoff takes the driver-subscription lease, serialized
-against primary mutation and Poke admission through driver acknowledgment,
-origin fencing, and buffered-notification pre-observation.
+Every committed primary root records the lifecycle epoch proven by its own
+correlated response. An auxiliary event that advances that epoch makes the
+current primary stale. A later auxiliary handoff may re-pin the driver, but it
+cannot advance the primary's recorded epoch or reopen delivery.
 
-Driver attachment alone does not prove that the bridge has consumed every
-earlier origin-only status. After the driver acknowledgment, the relay sends
-an internal `thread/read(threadId, includeTurns=false)` on the originating
-backend and keeps the original root response withheld while it drains through
-that marker response. An MCP event handled before the driver subscribe command
-was already routed into the origin's FIFO before the driver acknowledgment,
-so it precedes the post-acknowledgment marker. An event handled afterward
-includes the driver. Buffered notifications update authority before a primary
-gate is released, then are forwarded after the original root response in
-their original wire order.
+A fresh `thread/start` has no rollout that another app-server connection can
+resume before the first turn. The exact primary relay connection therefore
+witnesses that root until a later resumable handoff. Delivery requires the same
+live primary and lifecycle epoch. Losing either blocks delivery and the
+authoritative lifecycle event revokes the root.
 
-After the origin marker returns, the companion issues a second
-`thread/resume(threadId, excludeTurns=true)` on the already-subscribed driver.
-This is deliberately a listener command rather than `thread/read`: Codex's
-per-thread listener processes it only after earlier event handling and fan-out
-have completed. Its response therefore fences the driver's copies of every
-event included in the origin cut, even if the driver reader lagged the origin
-reader. This second response is validation-only and never repins the thread;
-a lifecycle received during the handoff remains authoritative. Only then does
-the relay copy the origin's latest startup state onto driver provenance when
-no post-cut driver state supersedes it. Thus a picker status cannot release
-delivery before its own successful two-stream handoff.
-Frontend Close waits for the handoff before retiring the origin stream. The
-origin-marker deadline starts before its write so that proxy write is bounded
-too. A clean primary Close abandons every remaining handoff phase, including
-the ordered driver-subscription callback itself, so a late acknowledgment
-cannot turn normal TUI exit into a driver failure.
+A resumed or forked root is subscribed on the companion driver before its
+response commits to the TUI. The handoff remains serialized with root changes
+and Poke admission. It performs these ordered steps:
 
-The companion retains the latest thread-scoped status separately for each
-observing backend connection for correlation, but delivery aggregation reads
-only the primary and driver. Codex stamps a notification with `emittedAtMs`
-before fanning copies out to those connections, so the companion selects the
-newest authoritative emission rather than whichever reader thread happens to
-run last. Conflicting statuses with the same timestamp, or with legacy missing
-timestamps, fail closed on `starting`. The post-attachment origin cut replaces
-driver evidence at or before the per-handoff driver cut, so an origin-only
-`starting` also closes the gate when its wall-clock timestamp regresses. A
-driver event processed after that cut supersedes the origin only after the
-post-origin listener fence has proved the driver's complete fan-out state.
+1. Subscribe the driver and confirm the root pin at the expected lifecycle
+   epoch.
+2. Fence the originating connection with a thread read, observing every
+   lifecycle and token-audit notification that preceded driver attachment.
+3. Fence the driver's listener so delayed fan-out copies cannot overtake the
+   handoff.
+4. Recheck the lifecycle epoch and driver pin, then commit the root response.
 
-The explicit driver pin covers both a status that arrives before the
-correlated root response and a thread that a picker connection already
-loaded. Codex can resume an already-running thread without restarting MCP or
-replaying its startup events, so a terminal status seen only by the
-originating connection is copied onto the driver at the fence. Once the driver
-subscription is confirmed, it keeps that loaded runtime from reaching the
-zero-subscriber unload/cold-resume branch and receives later startup
-transitions directly. Picker close or successful unsubscribe can therefore
-retire or compact its raw event stream without changing delivery: only the
-already-copied driver state remains eligible. Unpinned picker observations are
-discarded and never release Pokes. A successful primary resume may copy pinned
-proof onto the primary stream.
+A lifecycle copy arriving first on an auxiliary connection clears the driver
+pin immediately and leaves the current primary bound to its old epoch.
+Delivery remains blocked even if another auxiliary handoff re-pins the driver.
+Only a later authoritative primary root response can establish the new epoch.
+Closing or unsubscribing an auxiliary connection does not remove an otherwise
+current independent driver pin.
 
-Driver subscription confirmation is processed inside the driver's ordered
-reader loop before any later lifecycle notification on that stream. This
-prevents a delayed subscription callback from resurrecting a pin after a
-`thread/closed`, `thread/archived`, or `thread/deleted` notification has
-already invalidated it. At the successful origin root response, the bridge
-atomically snapshots that thread's lifecycle epoch. It passes that exact epoch
-through driver subscription, both stream fences, and the origin-to-driver
-copy, then atomically rechecks the same epoch and pin at primary commit. A
-lifecycle followed immediately by a terminal driver status therefore cannot
-fast-repin an older root response into authority. If the driver stream is
-lost, the bridge fails the session closed; it does not reconnect and pretend a
-newly initialized driver was retroactively subscribed to existing runtimes.
-When another stream observes a lifecycle first, driver startup copies remain
-ineligible until the driver's ordered lifecycle copy establishes its own
-cutoff; a delayed pre-lifecycle terminal cannot fast-repin merely because its
-wall-clock timestamp is greater. A later successful driver resume
-acknowledgment establishes a new driver cutoff even when that connection never
-received the old lifecycle copy. Likewise, each successful root response marks
-the origin's new subscription cut before the origin fence is drained, so fresh
-post-response statuses remain valid if their timestamps regress.
-Malformed driver startup or lifecycle events likewise fail closed. Driver
-resume or origin-fence error, timeout, malformed or mismatched response, or
-invalidation before confirmation also fails the bridge closed.
+The same two-fence handoff preserves token-audit order. Notifications from a
+fresh primary remain the audit prefix while driver copies are buffered. After
+both streams are fenced, the companion drains the buffered driver suffix and
+makes the driver the sole audit witness. The driver connection fails the live
+session closed if it disconnects because a replacement connection is not
+retroactively subscribed to loaded roots.
 
-The retained status is readiness evidence only; it cannot establish authority
-and is consulted only if that exact thread later becomes the authoritative
-primary. A definitive `thread/closed`, `thread/archived`, or `thread/deleted`
-notification invalidates prior evidence. Its `emittedAtMs` is retained as a
-tombstone so a delayed pre-lifecycle terminal copy cannot repopulate the
-cache. A fresh lifecycle on the authoritative driver also revokes an
-already-committed matching primary root, including when an auxiliary stream
-installed the same fan-out tombstone first. A later startup status may prove
-the driver is subscribed to a new runtime, but it cannot restore primary
-authority; that requires a new correlated TUI root response and handoff. A
-newer driver/primary `starting` event likewise begins a new observed startup
-epoch and closes the gate. App-scoped statuses and statuses for other threads
-cannot release the current gate.
-
-Only `Uclusion` gates Pokes. Other MCP servers may still be starting when a
-Poke is admitted, matching the behavior of a person typing and pressing Enter
-at that point. This deliberately avoids querying `mcpServerStatus/list`,
-whose inventory includes configured-but-disabled servers that never emit
-startup statuses and whose implementation creates a separate temporary MCP
-connection set. Startup-status messages are readiness evidence only: they
-never establish, replace, or restore primary authority. If the primary
-`Uclusion` status never becomes terminal, Pokes remain durably pending.
+MCP startup-status notifications are not root-authority input. Missing,
+`starting`, `ready`, `failed`, and `cancelled` statuses neither block nor
+release Pokes.
 
 ## Switch-versus-Poke serialization
 
@@ -293,17 +212,21 @@ sequenceDiagram
     C->>G: acquire
     C->>A: forward TUI request
     A-->>C: successful response with result.thread = R2
-    C->>W: thread/resume(R2, excludeTurns=true)
-    W->>A: subscribe driver to R2
-    A-->>W: successful subscription response
-    W-->>C: record R2 pinned in ordered reader
-    C->>A: origin thread/read(R2, includeTurns=false)
-    A-->>C: drain origin notifications, then marker response
-    C->>W: post-origin thread/resume(R2, excludeTurns=true)
-    W->>A: fence driver through per-thread listener
-    A-->>W: successful listener response
-    W-->>C: driver fan-out through origin cut is drained
-    C->>C: copy origin cut if driver has no newer state
+    alt fresh thread/start
+        C->>C: record exact primary stream and lifecycle epoch
+    else resumable thread/resume or thread/fork
+        C->>W: thread/resume(R2, excludeTurns=true)
+        W->>A: subscribe driver to R2
+        A-->>W: successful subscription response
+        W-->>C: record R2 pinned in ordered reader
+        C->>A: origin thread/read(R2, includeTurns=false)
+        A-->>C: drain origin notifications, then marker response
+        C->>W: post-origin thread/resume(R2, excludeTurns=true)
+        W->>A: fence driver through per-thread listener
+        A-->>W: successful listener response
+        W-->>C: driver fan-out through origin cut is drained
+        C->>C: drain audit prefix and validate lifecycle pin
+    end
     C->>C: validate and set primary = R2
     C->>G: release
     C-->>T: forward response
@@ -376,8 +299,8 @@ sequenceDiagram
 ```
 
 The companion does not peek, reserve, reconcile, or advance the cursor while
-there is no live authoritative primary or while that primary's MCP startup
-readiness gate is incomplete. It tracks the primary's active turn from
+there is no live authoritative primary or while that primary lacks its current
+primary or driver lifecycle witness. It tracks the primary's active turn from
 authoritative lifecycle responses plus `turn/started` and matching
 `turn/completed` notifications. A regular active turn receives the Poke
 through `turn/steer`, exactly like pressing Enter in Codex; an idle primary
@@ -474,24 +397,23 @@ connection use a separate pending-id map; only the matching TUI response is
 returned, even while a root or admission request is gated. Codex duplicates
 thread-scoped server requests to subscribed connections; the noninteractive
 driver deliberately leaves its copy unanswered so only the relayed TUI's
-human response resolves it. The driver processes MCP startup and lifecycle
-notifications in place while discarding unrelated high-volume turn/item
-broadcasts, so they cannot create a memory backlog or establish primary
-authority.
+human response resolves it. The driver processes lifecycle and token-audit
+notifications in place while discarding unrelated broadcasts, so they cannot
+create a memory backlog or establish primary authority.
 
 ## Failure and recovery
 
 | Failure or state | Required behavior |
 | --- | --- |
 | No authoritative TUI connection or no authoritative primary | Leave inbox and delivery rows untouched. |
-| Authoritative primary exists but its `Uclusion` MCP startup status is absent or `starting` | Keep the delivery gate closed and leave inbox and delivery rows untouched. Statuses from other MCP servers do not release it. |
+| The current primary's recorded lifecycle epoch becomes stale, a fresh primary loses its exact primary witness, or a resumed primary loses its driver pin | Keep the delivery gate closed and leave inbox and delivery rows untouched until a new authoritative primary response establishes the current epoch or authoritative lifecycle handling revokes the root. |
 | Primary has a regular active turn | Steer the next Poke into that turn with its durable message id and the tracked `expectedTurnId`. |
 | Primary has an active review or manual compaction | Keep the Poke pending and deliver after the non-steerable turn changes or ends. |
 | Primary is active but its turn id is untracked after a response/event ordering conflict | Resolve the sole in-progress turn from complete history, then steer with `expectedTurnId`; defer or fail closed if it cannot be proved. |
 | A successful human admission response precedes `turn/started` and thread status still reads idle | Treat the primary as provisionally busy; do not reserve or send another `turn/start`. |
 | Authoritative TUI sends a normal frontend WebSocket close during `/quit` | Revoke delivery authority immediately and nonfatally, make a best-effort Close echo, and preserve the clean classification if the TUI exits before reading that echo. |
 | Authoritative TUI/frontend connection ends abruptly, sends an error Close code, or violates the WebSocket/JSON-RPC protocol | Revoke delivery authority immediately, send a bounded best-effort Close 1011, and fail closed. |
-| Auxiliary picker/pass-through connection opens, unsubscribes, or closes | Allow and isolate it; never change authority. Complete any in-flight origin fence before retirement. Raw picker observations never open delivery; a successful fence has already copied its ordered cut onto the live driver. |
+| Auxiliary picker/pass-through connection opens, unsubscribes, or closes | Allow and isolate it; never change authority. Complete any in-flight origin fence before retirement. The independent driver pin remains current. |
 | A second connection attempts primary turn admission, control, or current-primary invalidation | Reject that request on the auxiliary connection; never let it bypass a Poke lease. |
 | A primary message is queued before its FIFO worker runs | Its synchronous reservation blocks new Poke leases; interrupt, steer, and correlated server responses remain immediate. |
 | Root-switch request returns an error | Keep the previous primary. |
@@ -502,8 +424,8 @@ authority.
 | The recorded bridge owner PID is dead | Permit takeover, then recover or reconcile durable pending/sending state before new delivery. A stale heartbeat alone never permits takeover. |
 | Disposable control connection fails or times out | Preserve any `sending` row, keep the continuous driver witness intact, reconnect control to the still-running backend, then reconcile by the stored message and thread ids. |
 | Relayed backend connection fails | Clear authority and close or fail the frontend; never reconstruct visibility from broadcasts or loaded-thread lists. |
-| Malformed recognized thread-scoped MCP-startup or thread-lifecycle witness notification on the primary or driver | Fail the bridge session closed; never use partial readiness evidence. App-scoped startup updates remain non-correlatable and are ignored. |
-| Companion driver/witness connection fails after initialization | Fail the bridge session closed. A replacement driver is not retroactively subscribed to already-loaded runtimes and cannot safely inherit cached readiness. |
+| Malformed recognized thread-lifecycle witness notification on the primary or driver | Fail the bridge session closed; never use partial lifecycle evidence. |
+| Companion driver/witness connection fails after initialization | Fail the bridge session closed. A replacement driver is not retroactively subscribed to already-loaded roots and cannot safely inherit their lifecycle or audit stream. |
 | Companion exits | Launcher stops the TUI and app-server. Unacknowledged inbox state remains for a later launch. |
 | App-server exits | Launcher stops the companion and TUI. A later launch may reconcile persisted non-ephemeral history; it cannot prove an ephemeral turn survived. |
 | Launcher parent exits or the authoritative TUI dies | Stop delivery before the next peek/send and reap launcher-owned children. |
@@ -542,15 +464,14 @@ very narrow limitation of atomic temp-file replacement. Poke delivery has no
    disposable control connection, then bind the private frontend Unix socket.
    The driver is therefore available for an explicit subscription before any
    TUI root response can be released, while control recovery cannot revoke
-   that subscription proof.
+   that root witness.
 6. Start the TUI with `--remote` pointing to the frontend, never the backend.
 7. Select the first successfully initialized `codex-tui` connection as
-   authoritative. Hold every successful root lifecycle response, including
-   auxiliary picker responses, until the driver has explicitly subscribed to
-   its returned thread. Auxiliary picker connections may come and go
-   afterward without unloading a pinned runtime.
-8. Keep delivery gated until the authoritative primary thread's `Uclusion`
-   startup status is `ready`, `failed`, or `cancelled`.
+   authoritative. Its fresh `thread/start` stream witnesses that root directly.
+   Hold every successful resumable `thread/resume` or `thread/fork` response,
+   including auxiliary picker responses, until the driver has explicitly
+   subscribed to and fenced its returned thread. Auxiliary picker connections
+   may then come and go without unloading that pinned runtime.
 
 Global config and feature passthrough flags (`-c`/`--config`, `--enable`,
 `--disable`, and `--strict-config`) are copied to the backend as well as the
@@ -591,36 +512,22 @@ At minimum, tests must cover:
   barrier race against a Poke;
 - authority update before the TUI receives a successful switch response;
 - disconnect and ambiguous-switch authority revocation;
-- primary-thread `Uclusion` startup status cached across root-response ordering
-  races and explicitly driver-pinned loaded-thread resumes, with
-  per-connection provenance, primary and auxiliary root responses held until
-  a driver pin and same-origin post-acknowledgment fence, exact
-  `excludeTurns=true`, subscribe/fence error, timeout, and mismatched-thread
-  failure, root-response lifecycle-epoch validation across acknowledgment and
-  both fences, atomic epoch/pin recheck at primary commit, lifecycle followed
-  by terminal fast-repin unable to commit an old response, picker Close
-  waiting for fence completion,
-  auxiliary handoff serialization through origin pre-observation,
-  nested-fence wire ordering, unfenced picker observations unable to release
-  delivery, origin-cut state copied onto driver provenance, a regressed-clock
-  origin-only `starting` overriding pre-handoff terminal proof, a post-origin
-  driver listener fence draining cross-socket fan-out, driver-fence failure
-  closing the relay, the origin-fence timeout including a blocked marker
-  write, clean Close during the initial pin or either held fence remaining
-  nonfatal,
-  `emittedAtMs` fan-out ordering,
-  equal-time conflict handling, stale driver statuses unable to resurrect a
-  cleared pin, an authoritative driver lifecycle revoking an established root
-  even if a later terminal status repins the driver, and lifecycle tombstones
-  rejecting delayed terminal copies;
-- driver notifications participating in the gate, loss of the continuous
-  driver witness and malformed driver startup/lifecycle events failing the
-  session closed, duplicate thread-scoped server requests left for the TUI to
-  answer, and a newer driver `starting` event closing the gate even after
-  clock regression;
-- other-thread/app-scoped statuses unable to release the current gate, other
-  MCP names unable to release it, and each terminal Uclusion status releasing
-  it;
+- an actual proxy-persisted Poke reaching a resumed primary through the bridge
+  and relay without any MCP startup-status notification, plus an unchanged
+  root-witness blocker being reported once without reserving or advancing it;
+- fresh-primary audit routing until a rollout exists, followed by ordered
+  driver cutover with the origin fence, driver listener fence, and buffered
+  audit suffix;
+- resumed-root driver subscription, exact `excludeTurns=true`, origin and
+  driver fence failure/timeout, lifecycle-epoch validation, atomic pin recheck
+  at primary commit, and clean Close during a held handoff remaining nonfatal;
+- an auxiliary-first lifecycle copy clearing the driver pin and blocking Poke
+  delivery, an auxiliary re-pin remaining unable to reopen a stale resumed
+  primary, lifecycle tombstone ordering across subscribers and clock
+  regression, and auxiliary unsubscribe/close preserving an independent
+  driver pin;
+- driver loss and malformed driver lifecycle events failing the session closed,
+  while duplicate thread-scoped server requests remain unanswered for the TUI;
 - archive/delete success and ambiguity clearing authority, with definitive
   errors restoring the prior primary;
 - unsubscribe success, definitive error, malformed response, and ambiguous

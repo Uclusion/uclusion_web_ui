@@ -3,19 +3,18 @@
 
 A launcher starts one private app-server. This process exposes a second Unix
 WebSocket to the TUI, proxies every TUI connection to the private server, and
-uses the first initialized ``codex-tui`` connection as the sole primary-root
-authority. A separate app-server connection drives Pokes under the same
-serialized authority.
+elects the eligible ``codex-tui`` connection which first establishes a root as
+the sole primary-root authority. A separate app-server connection drives Pokes
+under the same serialized authority.
 
 Inbox delivery is reserve/ack rather than destructive:
 
 * the bridge peeks past its dedicated consumer cursor;
 * it records a ``sending`` row before asking Codex to start or steer a turn;
-* start and steer responses record only provisional admission targets;
-* either path advances the cursor only after Codex commits the exact user
-  message; and
+* a valid start or steer response acknowledges Codex admission and advances
+  the cursor; and
 * after an ambiguous transport failure it searches persisted thread turns for
-  the exact ``clientUserMessageId`` before deciding whether to retry.
+  the exact ``clientUserMessageId`` before promptly retrying the same id.
 
 Only Python's standard library is used so the installed script has no runtime
 dependency beyond Codex itself.
@@ -60,6 +59,7 @@ INBOX_FILE = "poke_inbox.sqlite3"
 BRIDGE_CONSUMER = "codex-bridge"
 POLL_INTERVAL_SECONDS = 0.25
 REQUEST_TIMEOUT_SECONDS = 10.0
+POKE_RETRY_DELAYS_SECONDS = (1.0, 2.0, 4.0, 5.0)
 PRIMARY_STALE_SECONDS = 30.0
 UPDATE_CHECK_INTERVAL_SECONDS = 15 * 60
 WEBSOCKET_GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
@@ -185,6 +185,7 @@ class Delivery:
     admission_method: Optional[str]
     attempt_instance: Optional[str]
     attempt_count: int
+    attempt_started_at: Optional[float]
 
 
 @dataclasses.dataclass(frozen=True)
@@ -205,6 +206,7 @@ class StepResult:
     turn_id: Optional[str] = None
     reconnect: bool = False
     error: Optional[str] = None
+    warning: Optional[str] = None
 
 
 @dataclasses.dataclass(frozen=True)
@@ -216,6 +218,7 @@ class RootSnapshot:
     connection_id: int
     active_turn_id: Optional[str] = None
     admission_pending: bool = False
+    turn_event_serial: int = 0
 
 
 @dataclasses.dataclass(frozen=True)
@@ -514,6 +517,7 @@ class InboxStore:
                     admission_method TEXT,
                     attempt_instance TEXT,
                     attempt_count INTEGER NOT NULL,
+                    attempt_started_at REAL,
                     last_error TEXT,
                     created_at REAL NOT NULL,
                     updated_at REAL NOT NULL,
@@ -541,6 +545,13 @@ class InboxStore:
                     """
                     ALTER TABLE codex_bridge_deliveries
                     ADD COLUMN attempt_instance TEXT
+                    """
+                )
+            if "attempt_started_at" not in delivery_columns:
+                connection.execute(
+                    """
+                    ALTER TABLE codex_bridge_deliveries
+                    ADD COLUMN attempt_started_at REAL
                     """
                 )
             connection.execute(
@@ -1014,7 +1025,7 @@ class InboxStore:
             row = connection.execute(
                 """
                 SELECT state, turn_id, admission_method, attempt_instance,
-                       attempt_count
+                       attempt_count, attempt_started_at
                 FROM codex_bridge_deliveries
                 WHERE environment = ? AND workspace_id = ? AND consumer = ?
                   AND sequence = ?
@@ -1034,10 +1045,11 @@ class InboxStore:
                         (environment, workspace_id, consumer, sequence,
                          message_id, message, thread_id, state, turn_id,
                          admission_method, attempt_instance, attempt_count,
-                         last_error, created_at, updated_at)
+                         attempt_started_at, last_error, created_at,
+                         updated_at)
                     VALUES (
                         ?, ?, ?, ?, ?, ?, ?, 'sending', NULL, NULL, NULL,
-                        ?, NULL, ?, ?
+                        ?, ?, NULL, ?, ?
                     )
                     """,
                     (
@@ -1051,12 +1063,14 @@ class InboxStore:
                         attempt_count,
                         now,
                         now,
+                        now,
                     ),
                 )
                 state = "sending"
                 turn_id = None
                 admission_method = None
                 attempt_instance = None
+                attempt_started_at = now
             elif row["state"] == "pending":
                 attempt_count = int(row["attempt_count"]) + 1
                 connection.execute(
@@ -1065,13 +1079,14 @@ class InboxStore:
                     SET state = 'sending', thread_id = ?, attempt_count = ?,
                         turn_id = NULL, admission_method = NULL,
                         attempt_instance = NULL, last_error = NULL,
-                        updated_at = ?
+                        attempt_started_at = ?, updated_at = ?
                     WHERE environment = ? AND workspace_id = ?
                       AND consumer = ? AND sequence = ?
                     """,
                     (
                         thread_id,
                         attempt_count,
+                        now,
                         now,
                         config.environment,
                         config.workspace_id,
@@ -1083,12 +1098,14 @@ class InboxStore:
                 turn_id = None
                 admission_method = None
                 attempt_instance = None
+                attempt_started_at = now
             else:
                 attempt_count = int(row["attempt_count"])
                 state = row["state"]
                 turn_id = row["turn_id"]
                 admission_method = row["admission_method"]
                 attempt_instance = row["attempt_instance"]
+                attempt_started_at = row["attempt_started_at"]
             connection.commit()
         return Delivery(
             sequence=poke.sequence,
@@ -1100,6 +1117,7 @@ class InboxStore:
             admission_method=admission_method,
             attempt_instance=attempt_instance,
             attempt_count=attempt_count,
+            attempt_started_at=attempt_started_at,
         )
 
     def get_sending(
@@ -1112,7 +1130,7 @@ class InboxStore:
                 """
                 SELECT sequence, message_id, message, thread_id, state,
                        turn_id, admission_method, attempt_instance,
-                       attempt_count
+                       attempt_count, attempt_started_at
                 FROM codex_bridge_deliveries
                 WHERE environment = ? AND workspace_id = ? AND consumer = ?
                   AND state = 'sending'
@@ -1133,6 +1151,81 @@ class InboxStore:
             admission_method=row["admission_method"],
             attempt_instance=row["attempt_instance"],
             attempt_count=int(row["attempt_count"]),
+            attempt_started_at=(
+                None
+                if row["attempt_started_at"] is None
+                else float(row["attempt_started_at"])
+            ),
+        )
+
+    def begin_sending_retry(
+        self,
+        config: BridgeConfig,
+        delivery: Delivery,
+        thread_id: str,
+        admission_method: str,
+        turn_id: Optional[str],
+        consumer: str = BRIDGE_CONSUMER,
+    ) -> Delivery:
+        """Atomically replace one reconciled ambiguity with its next attempt."""
+        if admission_method not in ("turn/start", "turn/steer"):
+            raise BridgeError("invalid Codex admission method")
+        if turn_id is not None and (
+            not isinstance(turn_id, str) or not turn_id
+        ):
+            raise BridgeError("invalid Codex admission turn id")
+        attempt_count = delivery.attempt_count + 1
+        with closing(self.connect()) as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            now = self.clock()
+            cursor = connection.execute(
+                """
+                UPDATE codex_bridge_deliveries
+                SET thread_id = ?, turn_id = ?, admission_method = ?,
+                    attempt_instance = ?, attempt_count = ?,
+                    attempt_started_at = ?, last_error = NULL,
+                    updated_at = ?
+                WHERE environment = ? AND workspace_id = ? AND consumer = ?
+                  AND sequence = ? AND message_id = ? AND thread_id = ?
+                  AND state = 'sending' AND attempt_count = ?
+                  AND turn_id IS ? AND admission_method IS ?
+                  AND attempt_instance IS ? AND attempt_started_at IS ?
+                """,
+                (
+                    thread_id,
+                    turn_id,
+                    admission_method,
+                    config.instance,
+                    attempt_count,
+                    now,
+                    now,
+                    config.environment,
+                    config.workspace_id,
+                    consumer,
+                    delivery.sequence,
+                    delivery.message_id,
+                    delivery.thread_id,
+                    delivery.attempt_count,
+                    delivery.turn_id,
+                    delivery.admission_method,
+                    delivery.attempt_instance,
+                    delivery.attempt_started_at,
+                ),
+            )
+            if cursor.rowcount != 1:
+                connection.rollback()
+                raise BridgeError(
+                    "ambiguous delivery changed before retry admission"
+                )
+            connection.commit()
+        return dataclasses.replace(
+            delivery,
+            thread_id=thread_id,
+            turn_id=turn_id,
+            admission_method=admission_method,
+            attempt_instance=config.instance,
+            attempt_count=attempt_count,
+            attempt_started_at=now,
         )
 
     def record_sending_attempt(
@@ -1147,8 +1240,8 @@ class InboxStore:
     ) -> None:
         """Persist how and where the current process attempted admission.
 
-        This is recovery evidence, not an acknowledgement. The cursor remains
-        unchanged until the exact client message is observed as committed.
+        This is ambiguity-recovery evidence. A valid RPC response is
+        acknowledged separately without waiting for a committed item.
         """
         if admission_method not in ("turn/start", "turn/steer"):
             raise BridgeError("invalid Codex admission method")
@@ -1156,14 +1249,15 @@ class InboxStore:
             not isinstance(turn_id, str) or not turn_id
         ):
             raise BridgeError("invalid Codex admission turn id")
-        now = self.clock()
         with closing(self.connect()) as connection:
             connection.execute("BEGIN IMMEDIATE")
+            now = self.clock()
             cursor = connection.execute(
                 """
                 UPDATE codex_bridge_deliveries
                 SET turn_id = ?, admission_method = ?,
-                    attempt_instance = ?, updated_at = ?
+                    attempt_instance = ?, attempt_started_at = ?,
+                    updated_at = ?
                 WHERE environment = ? AND workspace_id = ? AND consumer = ?
                   AND sequence = ? AND thread_id = ? AND message_id = ?
                   AND state = 'sending'
@@ -1172,6 +1266,7 @@ class InboxStore:
                     turn_id,
                     admission_method,
                     config.instance,
+                    now,
                     now,
                     config.environment,
                     config.workspace_id,
@@ -1185,6 +1280,47 @@ class InboxStore:
                 connection.rollback()
                 raise BridgeError(
                     "cannot record a turn for a non-sending delivery"
+                )
+            connection.commit()
+
+    def record_sending_response(
+        self,
+        config: BridgeConfig,
+        sequence: int,
+        thread_id: str,
+        message_id: str,
+        turn_id: str,
+        consumer: str = BRIDGE_CONSUMER,
+    ) -> None:
+        """Persist a successful response target without moving its deadline."""
+        if not isinstance(turn_id, str) or not turn_id:
+            raise BridgeError("invalid Codex admission turn id")
+        now = self.clock()
+        with closing(self.connect()) as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            cursor = connection.execute(
+                """
+                UPDATE codex_bridge_deliveries
+                SET turn_id = ?, updated_at = ?
+                WHERE environment = ? AND workspace_id = ? AND consumer = ?
+                  AND sequence = ? AND thread_id = ? AND message_id = ?
+                  AND state = 'sending'
+                """,
+                (
+                    turn_id,
+                    now,
+                    config.environment,
+                    config.workspace_id,
+                    consumer,
+                    sequence,
+                    thread_id,
+                    message_id,
+                ),
+            )
+            if cursor.rowcount != 1:
+                connection.rollback()
+                raise BridgeError(
+                    "cannot record a response for a non-sending delivery"
                 )
             connection.commit()
 
@@ -1690,14 +1826,16 @@ def in_progress_turn_id(thread: Dict[str, Any]) -> Optional[str]:
     return active_turn_id
 
 
-def correlated_turn_id(thread: Dict[str, Any], message_id: str) -> Optional[str]:
-    """Find an exact client id, or fail if absence cannot be proven safely."""
+def correlated_turn_ids(
+    thread: Dict[str, Any], message_id: str
+) -> Tuple[str, ...]:
+    """Return every exact client-id match after validating full history."""
     turns = thread.get("turns")
     if not isinstance(turns, list):
         raise RelayProtocolError(
             "thread/read reconciliation response has no turns list"
         )
-    matched_turn_id: Optional[str] = None
+    matched_turn_ids = []
     for turn_index, turn in enumerate(turns):
         if not isinstance(turn, dict):
             raise RelayProtocolError(
@@ -1745,13 +1883,19 @@ def correlated_turn_id(thread: Dict[str, Any], message_id: str) -> Optional[str]
                 item_type == "userMessage"
                 and client_id == message_id
             ):
-                if matched_turn_id is not None:
-                    raise RelayProtocolError(
-                        "thread history contains duplicate user messages "
-                        "for one client id"
-                    )
-                matched_turn_id = turn_id
-    return matched_turn_id
+                matched_turn_ids.append(turn_id)
+    return tuple(matched_turn_ids)
+
+
+def correlated_turn_id(thread: Dict[str, Any], message_id: str) -> Optional[str]:
+    """Find one exact client id for commit-confirmed non-Poke messages."""
+    matched_turn_ids = correlated_turn_ids(thread, message_id)
+    if len(matched_turn_ids) > 1:
+        raise RelayProtocolError(
+            "thread history contains duplicate user messages for one "
+            "client id"
+        )
+    return matched_turn_ids[0] if matched_turn_ids else None
 
 
 def terminal_turn_in_history(
@@ -1955,6 +2099,16 @@ def _side_fork(params: Dict[str, Any]) -> bool:
     ) is True
 
 
+def _auxiliary_root_request(
+    method: str, params: Dict[str, Any]
+) -> bool:
+    return (
+        method == "thread/start"
+        and params.get("ephemeral") is True
+        and params.get("threadSource") == "system"
+    ) or (method == "thread/fork" and _side_fork(params))
+
+
 def _non_root_thread(thread: Dict[str, Any]) -> bool:
     thread_id = thread.get("id")
     session_id = thread.get("sessionId")
@@ -1986,6 +2140,7 @@ class RootAuthority:
         self.condition = threading.Condition()
         self.primary_connection_id: Optional[int] = None
         self.primary_live = False
+        self.primary_owner_committed = False
         self.thread_id: Optional[str] = None
         self.root_lifecycle_epoch: Optional[int] = None
         self.active_turn_id: Optional[str] = None
@@ -2032,7 +2187,7 @@ class RootAuthority:
         self.fatal_error: Optional[str] = None
 
     def claim_primary(self, connection_id: int) -> bool:
-        """Claim the first successfully initialized codex-tui connection."""
+        """Claim a provisional primary for direct legacy callers."""
         with self.condition:
             self._raise_if_fatal()
             if self.primary_connection_id is None:
@@ -2041,6 +2196,43 @@ class RootAuthority:
                 self.condition.notify_all()
                 return True
             return self.primary_connection_id == connection_id
+
+    def reserve_root_request(self, connection_id: int) -> bool:
+        """Atomically elect and reserve an eligible root-request owner.
+
+        Before the first root commits, a later request may replace a
+        provisional owner only after that owner's queued/gated request has
+        unwound. After commit, auxiliary root traffic remains pass-through
+        and can never replace the input-owning connection.
+        """
+        with self.condition:
+            self._raise_if_fatal()
+            while (
+                not self.primary_owner_committed
+                and self.primary_connection_id not in (
+                    None,
+                    connection_id,
+                )
+                and (
+                    self.tui_gate is not None
+                    or self.tui_waiters > 0
+                )
+            ):
+                self.condition.wait()
+                self._raise_if_fatal()
+            if (
+                self.primary_owner_committed
+                and self.primary_connection_id != connection_id
+            ):
+                return False
+            if not self.primary_owner_committed:
+                self.primary_connection_id = connection_id
+                self.primary_live = True
+            if self.primary_connection_id != connection_id:
+                return False
+            self.tui_waiters += 1
+            self.condition.notify_all()
+            return True
 
     def is_primary(self, connection_id: int) -> bool:
         with self.condition:
@@ -2522,6 +2714,7 @@ class RootAuthority:
                 self.primary_connection_id,
                 self.active_turn_id,
                 self.admission_pending,
+                self.turn_event_serial,
             )
 
     def snapshot_is_current(self, snapshot: RootSnapshot) -> bool:
@@ -2568,6 +2761,30 @@ class RootAuthority:
             commit()
             return True
 
+    def record_companion_turn_start(
+        self, snapshot: RootSnapshot, turn_id: str
+    ) -> None:
+        """Publish the response-to-event gap for an accepted Poke start."""
+        if not isinstance(turn_id, str) or not turn_id:
+            raise RelayProtocolError(
+                "accepted companion turn/start has no valid turn id"
+            )
+        with self.condition:
+            if (
+                self.fatal_error is not None
+                or not self.primary_live
+                or not self.driver_active
+                or self._root_witness_blocker() is not None
+                or self.thread_id != snapshot.thread_id
+                or self.generation != snapshot.generation
+                or self.primary_connection_id != snapshot.connection_id
+            ):
+                return
+            if self.turn_event_serial == snapshot.turn_event_serial:
+                self.active_turn_id = turn_id
+                self.admission_pending = True
+            self.condition.notify_all()
+
     def reserve_primary_work(self, connection_id: int) -> None:
         """Block a Poke lease as soon as primary traffic enters the FIFO."""
         with self.condition:
@@ -2579,6 +2796,16 @@ class RootAuthority:
             self.tui_waiters += 1
             self.condition.notify_all()
 
+    def _release_provisional_owner_if_idle(self) -> None:
+        if (
+            self.tui_waiters == 0
+            and not self.primary_owner_committed
+            and self.thread_id is None
+            and self.tui_gate is None
+        ):
+            self.primary_connection_id = None
+            self.primary_live = False
+
     def release_primary_work(self, connection_id: int) -> None:
         with self.condition:
             if self.primary_connection_id != connection_id:
@@ -2587,6 +2814,7 @@ class RootAuthority:
                 self.fail("primary TUI FIFO reservation underflow")
                 return
             self.tui_waiters -= 1
+            self._release_provisional_owner_if_idle()
             self.condition.notify_all()
 
     def validate_auxiliary_request(
@@ -2630,7 +2858,7 @@ class RootAuthority:
         A None result means the request is safe to proxy without holding the
         authority gate (for example a non-current unsubscribe).
         """
-        if method == "thread/fork" and _side_fork(params):
+        if _auxiliary_root_request(method, params):
             return None
         is_root = method in ROOT_SWITCH_METHODS
         is_invalidation = method in ROOT_INVALIDATION_METHODS
@@ -2861,6 +3089,7 @@ class RootAuthority:
                                     )
                                 )
                             self.thread_id = new_root
+                            self.primary_owner_committed = True
                             self.root_lifecycle_epoch = (
                                 self.tui_gate_root_lifecycle_epoch
                             )
@@ -3070,6 +3299,7 @@ class RootAuthority:
                 self.tui_gate_previous_active_turn_id = None
                 self.tui_gate_previous_admission_pending = False
                 self.tui_gate_turn_events = []
+                self._release_provisional_owner_if_idle()
                 self.condition.notify_all()
 
     def abort_tui_request(self, gate: RelayGate, reason: str) -> None:
@@ -3384,6 +3614,7 @@ class RootAuthority:
                     self.primary_connection_id,
                     self.active_turn_id,
                     self.admission_pending,
+                    self.turn_event_serial,
                 )
         try:
             yield DeliveryLeaseResult(snapshot, blocked_by)
@@ -3680,77 +3911,68 @@ class BridgeEngine:
         self,
         delivery: Delivery,
         thread: Optional[Dict[str, Any]] = None,
-    ) -> Tuple[Optional[str], Optional[StepResult]]:
+    ) -> Tuple[Optional[str], int, Optional[StepResult]]:
         """Find and validate exact live or persisted commit evidence."""
-        candidate = self.observed_turn_id(
+        live_candidate = self.observed_turn_id(
             delivery.thread_id, delivery.message_id
         )
-        if candidate is not None and (
-            not isinstance(candidate, str) or not candidate
+        candidate = live_candidate
+        match_count = 1 if live_candidate is not None else 0
+        if live_candidate is not None and (
+            not isinstance(live_candidate, str) or not live_candidate
         ):
-            return None, StepResult(
+            return None, 0, StepResult(
                 "unhealthy",
                 sequence=delivery.sequence,
                 error="observed user message has no valid turn id",
             )
-        if candidate is None and thread is not None:
+        if thread is not None:
             try:
-                candidate = correlated_turn_id(
+                matched_turn_ids = correlated_turn_ids(
                     thread, delivery.message_id
                 )
             except RelayProtocolError as exc:
-                return None, StepResult(
+                return None, 0, StepResult(
                     "unhealthy",
                     sequence=delivery.sequence,
                     error=str(exc),
                 )
-        if (
-            candidate is not None
-            and delivery.admission_method == "turn/steer"
-            and delivery.turn_id is not None
-            and candidate != delivery.turn_id
-        ):
-            return None, StepResult(
-                "unhealthy",
-                sequence=delivery.sequence,
-                error=(
-                    "committed user message turn does not match the "
-                    "persisted turn/steer response"
-                ),
-            )
-        return candidate, None
+            match_count = len(matched_turn_ids)
+            if (
+                live_candidate is not None
+                and live_candidate not in matched_turn_ids
+            ):
+                # The notification can race a just-completed history read.
+                # It is then one additional exact match beyond that snapshot.
+                match_count += 1
+            if matched_turn_ids:
+                candidate = (
+                    delivery.turn_id
+                    if delivery.turn_id in matched_turn_ids
+                    else live_candidate or matched_turn_ids[0]
+                )
+        return candidate, match_count, None
 
-    def _delivery_absence_is_final(
-        self,
-        delivery: Delivery,
-        thread: Dict[str, Any],
-    ) -> Tuple[bool, Optional[StepResult]]:
-        """Prove a queued admission can no longer commit later.
-
-        An idle status alone is insufficient: turn/start can sit in Codex's
-        submission channel before the session loop marks the thread active.
-        A terminal persisted target turn is causal proof within one process.
-        A different launcher instance proves the old private app-server (and
-        its in-memory submission queue) no longer exists.
-        """
-        if delivery.attempt_instance != self.config.instance:
-            return True, None
-        if delivery.turn_id is None:
-            return False, None
-        try:
-            return terminal_turn_in_history(thread, delivery.turn_id), None
-        except RelayProtocolError as exc:
-            return False, StepResult(
-                "unhealthy",
-                sequence=delivery.sequence,
-                error=str(exc),
+    def _delivery_retry_due(self, delivery: Delivery) -> bool:
+        """Whether an ambiguous attempt has reached its retry floor."""
+        started_at = delivery.attempt_started_at
+        now = self.store.clock()
+        if started_at is None or started_at > now:
+            return True
+        delay = POKE_RETRY_DELAYS_SECONDS[
+            min(
+                max(delivery.attempt_count - 1, 0),
+                len(POKE_RETRY_DELAYS_SECONDS) - 1,
             )
+        ]
+        return now - started_at >= delay
 
     def _acknowledge_reconciled_delivery(
         self,
         delivery: Delivery,
         turn_id: str,
         binding: Optional[Binding],
+        match_count: int = 1,
     ) -> StepResult:
         if binding is not None and not self._binding_is_current(binding):
             return StepResult(
@@ -3769,6 +3991,14 @@ class BridgeEngine:
             "reconciled",
             sequence=delivery.sequence,
             turn_id=turn_id,
+            warning=(
+                None
+                if match_count <= 1
+                else (
+                    "thread history contains {} exact user-message "
+                    "matches for Poke {}; treating it as delivered"
+                ).format(match_count, delivery.message_id)
+            ),
         )
 
     def _notice_commit_candidate(
@@ -3943,54 +4173,50 @@ class BridgeEngine:
         if not self.may_deliver():
             return StepResult("orphaned")
 
+        retrying_delivery: Optional[Delivery] = None
         sending = self.store.get_sending(self.config, self.consumer)
         if sending is not None:
-            accepted_turn_id, failure = self._delivery_commit_candidate(
-                sending
-            )
+            (
+                accepted_turn_id,
+                match_count,
+                failure,
+            ) = self._delivery_commit_candidate(sending)
             if failure is not None:
                 return failure
-            if (
-                accepted_turn_id is None
-                and sending.turn_id is not None
-                and snapshot is not None
-                and sending.thread_id == snapshot.thread_id
-                and snapshot.active_turn_id == sending.turn_id
-            ):
-                # A successful admission response only queued the input.
-                # While its exact target remains active, rely on the primary's
-                # item/completed event instead of rebuilding full history on
-                # every 250 ms poll. History is the fallback once the target
-                # changes or ends.
+            if accepted_turn_id:
+                return self._acknowledge_reconciled_delivery(
+                    sending, accepted_turn_id, binding, match_count
+                )
+            if not self._delivery_retry_due(sending):
                 return StepResult(
-                    "busy",
+                    "awaiting_retry",
                     sequence=sending.sequence,
                     turn_id=sending.turn_id,
                 )
-            previous_thread: Optional[Dict[str, Any]] = None
-            if accepted_turn_id is None:
-                previous_thread, failure = self._read_thread(
-                    sending.thread_id,
-                    include_turns=True,
-                    expected_turn_id=sending.turn_id,
-                )
-                if failure is not None:
-                    return failure
-                assert previous_thread is not None
-                # The primary notification can race the history request, so
-                # consult it again before treating that history as absent.
-                accepted_turn_id, failure = (
-                    self._delivery_commit_candidate(
-                        sending, previous_thread
-                    )
-                )
-                if failure is not None:
-                    return failure
+
+            previous_thread, failure = self._read_thread(
+                sending.thread_id,
+                include_turns=True,
+                expected_turn_id=sending.turn_id,
+            )
+            if failure is not None:
+                return failure
+            assert previous_thread is not None
+            # The primary notification can race the history request, so
+            # consult it again before treating that history as absent.
+            (
+                accepted_turn_id,
+                match_count,
+                failure,
+            ) = self._delivery_commit_candidate(
+                sending, previous_thread
+            )
+            if failure is not None:
+                return failure
             if accepted_turn_id:
                 return self._acknowledge_reconciled_delivery(
-                    sending, accepted_turn_id, binding
+                    sending, accepted_turn_id, binding, match_count
                 )
-            assert previous_thread is not None
             previous_status = thread_status_type(previous_thread)
             if previous_status not in ("active", "idle", "notLoaded"):
                 return StepResult(
@@ -3998,33 +4224,18 @@ class BridgeEngine:
                     sequence=sending.sequence,
                     error="ambiguous delivery thread is not safely retryable",
                 )
-            absence_is_final, failure = self._delivery_absence_is_final(
-                sending, previous_thread
-            )
-            if failure is not None:
-                return failure
-            if not absence_is_final:
-                return StepResult(
-                    (
-                        "busy"
-                        if previous_status == "active"
-                        else "awaiting_commit"
-                    ),
-                    sequence=sending.sequence,
-                    turn_id=sending.turn_id,
-                )
-
             # Recheck the live primary cache immediately before transitioning
-            # to pending. The terminal target/new-process proof above means
-            # the old admission cannot newly commit after this point.
-            accepted_turn_id, failure = self._delivery_commit_candidate(
-                sending
-            )
+            # to a same-pass retry.
+            (
+                accepted_turn_id,
+                match_count,
+                failure,
+            ) = self._delivery_commit_candidate(sending)
             if failure is not None:
                 return failure
             if accepted_turn_id:
                 return self._acknowledge_reconciled_delivery(
-                    sending, accepted_turn_id, binding
+                    sending, accepted_turn_id, binding, match_count
                 )
             if (
                 binding is not None
@@ -4033,17 +4244,13 @@ class BridgeEngine:
                 return StepResult(
                     "binding_changed", sequence=sending.sequence
                 )
-            self.store.mark_pending(
-                self.config,
-                sending.sequence,
-                "no correlated user message in persisted thread",
-                self.consumer,
-            )
-            return StepResult(
-                "retry_pending", sequence=sending.sequence
-            )
+            retrying_delivery = sending
 
-        sending_notice = self.store.get_sending_update_notice(self.config)
+        sending_notice = (
+            None
+            if retrying_delivery is not None
+            else self.store.get_sending_update_notice(self.config)
+        )
         if sending_notice is not None:
             accepted_turn_id, failure = self._notice_commit_candidate(
                 sending_notice
@@ -4189,6 +4396,12 @@ class BridgeEngine:
                 self.config
             )
         if poke is None:
+            if retrying_delivery is not None:
+                return StepResult(
+                    "unhealthy",
+                    sequence=retrying_delivery.sequence,
+                    error="retrying Poke disappeared from the inbox",
+                )
             # Update notices are operational messages, not user Pokes. Keep
             # them out of an active turn and deliver them once it is idle.
             if status == "active":
@@ -4244,6 +4457,38 @@ class BridgeEngine:
                     sequence=poke.sequence,
                     turn_id=expected_turn_id,
                 )
+        if retrying_delivery is not None:
+            if (
+                poke.sequence != retrying_delivery.sequence
+                or poke.message_id != retrying_delivery.message_id
+            ):
+                return StepResult(
+                    "unhealthy",
+                    sequence=retrying_delivery.sequence,
+                    error="retrying Poke no longer matches the inbox head",
+                )
+            current_root_delivery = dataclasses.replace(
+                retrying_delivery, thread_id=target_thread_id
+            )
+            (
+                accepted_turn_id,
+                match_count,
+                failure,
+            ) = self._delivery_commit_candidate(current_root_delivery)
+            if failure is not None:
+                return failure
+            if accepted_turn_id:
+                return self._acknowledge_reconciled_delivery(
+                    retrying_delivery,
+                    accepted_turn_id,
+                    binding,
+                    match_count,
+                )
+        admission_method = (
+            "turn/start"
+            if expected_turn_id is None
+            else "turn/steer"
+        )
         if not self.may_deliver():
             return StepResult("orphaned", sequence=poke.sequence)
         if (
@@ -4253,61 +4498,67 @@ class BridgeEngine:
             return StepResult(
                 "binding_changed", sequence=poke.sequence
             )
-        delivery = self.store.begin_delivery(
-            self.config, poke, target_thread_id, self.consumer
-        )
-        if delivery.state == "accepted":
-            return StepResult(
-                "already_accepted",
-                sequence=delivery.sequence,
-                turn_id=delivery.turn_id,
+        if retrying_delivery is None:
+            delivery = self.store.begin_delivery(
+                self.config, poke, target_thread_id, self.consumer
             )
-        if delivery.state != "sending":
-            return StepResult(
-                "unhealthy",
-                sequence=delivery.sequence,
-                error="delivery could not enter sending state",
-            )
-
-        if not self.may_deliver():
-            self.store.mark_pending(
+            if delivery.state == "accepted":
+                return StepResult(
+                    "already_accepted",
+                    sequence=delivery.sequence,
+                    turn_id=delivery.turn_id,
+                )
+            if delivery.state != "sending":
+                return StepResult(
+                    "unhealthy",
+                    sequence=delivery.sequence,
+                    error="delivery could not enter sending state",
+                )
+            if not self.may_deliver():
+                self.store.mark_pending(
+                    self.config,
+                    delivery.sequence,
+                    "visible Codex receiver is unavailable",
+                    self.consumer,
+                )
+                return StepResult(
+                    "orphaned", sequence=delivery.sequence
+                )
+            if (
+                binding is not None
+                and not self._binding_is_current(binding)
+            ):
+                self.store.mark_pending(
+                    self.config,
+                    delivery.sequence,
+                    "root binding changed before Poke admission",
+                    self.consumer,
+                )
+                return StepResult(
+                    "binding_changed", sequence=delivery.sequence
+                )
+            # Persist the process, target, and attempt-start time before the
+            # first RPC. Ambiguous retries replace this evidence atomically.
+            self.store.record_sending_attempt(
                 self.config,
                 delivery.sequence,
-                "visible Codex receiver is unavailable",
+                target_thread_id,
+                delivery.message_id,
+                admission_method,
+                expected_turn_id,
                 self.consumer,
             )
-            return StepResult("orphaned", sequence=delivery.sequence)
-        if (
-            binding is not None
-            and not self._binding_is_current(binding)
-        ):
-            self.store.mark_pending(
+        else:
+            # Keep the prior attempt intact until the last deliverability
+            # checks pass, then replace it immediately before the RPC.
+            delivery = self.store.begin_sending_retry(
                 self.config,
-                delivery.sequence,
-                "root binding changed before Poke admission",
+                retrying_delivery,
+                target_thread_id,
+                admission_method,
+                expected_turn_id,
                 self.consumer,
             )
-            return StepResult(
-                "binding_changed", sequence=delivery.sequence
-            )
-        admission_method = (
-            "turn/start"
-            if expected_turn_id is None
-            else "turn/steer"
-        )
-        # Persist the process and attempted target before the request. A
-        # turn/start without a response has no target id, so it cannot be
-        # retried during this app-server lifetime merely because the thread
-        # still looks idle.
-        self.store.record_sending_attempt(
-            self.config,
-            delivery.sequence,
-            target_thread_id,
-            delivery.message_id,
-            admission_method,
-            expected_turn_id,
-            self.consumer,
-        )
 
         result: Optional[Dict[str, Any]] = None
         request_error: Optional[AppServerRequestError] = None
@@ -4429,67 +4680,28 @@ class BridgeEngine:
                 ),
             )
 
-        # Both RPCs enqueue a submission before their response is returned.
-        # Persist the provisional target, but do not retire the Poke until the
-        # corresponding userMessage item has completed. For turn/start Codex
-        # may internally steer the queued submission into a turn that became
-        # active first, so the exact client id (rather than the response turn)
-        # is the authoritative committed target.
-        self.store.record_sending_attempt(
+        # Both RPCs enqueue the submission before returning. Their validated
+        # response is the admission acknowledgement; exact user-message
+        # correlation is reserved for ambiguous recovery.
+        self.store.record_sending_response(
             self.config,
             delivery.sequence,
             target_thread_id,
             delivery.message_id,
-            admission_method,
             turn_id,
             self.consumer,
         )
-        observed_turn_id = self.observed_turn_id(
-            target_thread_id, delivery.message_id
-        )
-        if observed_turn_id is None:
-            return StepResult(
-                (
-                    "start_queued"
-                    if expected_turn_id is None
-                    else "steer_queued"
-                ),
-                sequence=delivery.sequence,
-                turn_id=turn_id,
-            )
-        if (
-            not isinstance(observed_turn_id, str)
-            or not observed_turn_id
-        ):
-            return StepResult(
-                "ambiguous",
-                sequence=delivery.sequence,
-                error="observed committed user message has no valid turn id",
-            )
-        if (
-            expected_turn_id is not None
-            and observed_turn_id != turn_id
-        ):
-            return StepResult(
-                "ambiguous",
-                sequence=delivery.sequence,
-                error=(
-                    "observed steered user message did not match "
-                    "turn/steer response"
-                ),
-            )
-
         if not self._commit_durable(
             lambda: self.store.acknowledge(
                 self.config,
                 delivery.sequence,
-                observed_turn_id,
+                turn_id,
                 self.consumer,
             )
         ):
-            # A committed server item is not enough to consume the Poke after
-            # authority was revoked. Leave the row in ``sending`` for exact
-            # old-thread reconciliation.
+            # The admission reached Codex, but authority was revoked before
+            # the local acknowledgement linearized. Leave ``sending`` for
+            # exact old-thread reconciliation.
             return StepResult(
                 (
                     "orphaned_after_accept"
@@ -4497,12 +4709,12 @@ class BridgeEngine:
                     else "orphaned_after_steer"
                 ),
                 sequence=delivery.sequence,
-                turn_id=observed_turn_id,
+                turn_id=turn_id,
             )
         return StepResult(
             "accepted" if expected_turn_id is None else "steered",
             sequence=delivery.sequence,
-            turn_id=observed_turn_id,
+            turn_id=turn_id,
         )
 
 
@@ -5602,6 +5814,7 @@ class _RelayConnection:
         self.frontend: Optional[FrontendWebSocket] = None
         self.upstream: Optional[AppServerClient] = None
         self.role = "pending"
+        self.primary_eligible = False
         self.initialize_seen = False
         self.client_version: Optional[str] = None
         self.pending: Dict[Tuple[str, Any], _RelayPending] = {}
@@ -5618,9 +5831,7 @@ class _RelayConnection:
         self.gated_worker: Optional[threading.Thread] = None
 
     def _is_authoritative(self) -> bool:
-        return self.role == "primary" or self.relay.authority.is_primary(
-            self.connection_id
-        )
+        return self.relay.authority.is_primary(self.connection_id)
 
     def _fatal_or_close(self, reason: str) -> None:
         if self._is_authoritative():
@@ -5919,6 +6130,20 @@ class _RelayConnection:
                 if isinstance(version, str) and version:
                     self.client_version = version
 
+        is_request = "id" in message
+        root_request_reserved = False
+        if (
+            is_request
+            and self.primary_eligible
+            and method in ROOT_SWITCH_METHODS
+            and not _auxiliary_root_request(method, params)
+        ):
+            root_request_reserved = (
+                self.relay.authority.reserve_root_request(
+                    self.connection_id
+                )
+            )
+
         if self.relay.token_audit_enabled:
             audit_params: Optional[Dict[str, Any]] = None
             if (
@@ -5935,7 +6160,7 @@ class _RelayConnection:
                     )
                     audit_capabilities["experimentalApi"] = True
                     audit_params["capabilities"] = audit_capabilities
-            elif method == "thread/start" and self.role == "primary":
+            elif method == "thread/start" and self._is_authoritative():
                 audit_params = dict(params)
                 audit_params["experimentalRawEvents"] = True
             if audit_params is not None:
@@ -5946,7 +6171,6 @@ class _RelayConnection:
                 message["params"] = audit_params
                 params = audit_params
 
-        is_request = "id" in message
         if not is_request:
             if (
                 method in ROOT_SWITCH_METHODS
@@ -5958,7 +6182,7 @@ class _RelayConnection:
                     "{} must be a JSON-RPC request".format(method)
                 )
             if (
-                self.role == "primary"
+                self._is_authoritative()
                 and method not in PRIMARY_CONTROL_BYPASS_METHODS
             ):
                 self.relay.authority.reserve_primary_work(
@@ -5970,23 +6194,35 @@ class _RelayConnection:
             self.upstream.send_json_message(message)
             return
 
-        if self.role == "auxiliary":
+        if not self._is_authoritative():
             self.relay.authority.validate_auxiliary_request(
                 self.connection_id, method, params
             )
-        key, pending = self._reserve_request(
-            message, method, params, initialize_name
-        )
+        try:
+            key, pending = self._reserve_request(
+                message, method, params, initialize_name
+            )
+        except Exception:
+            if root_request_reserved:
+                self.relay.authority.release_primary_work(
+                    self.connection_id
+                )
+            raise
         if (
-            self.role == "primary"
+            self._is_authoritative()
             and method not in PRIMARY_CONTROL_BYPASS_METHODS
         ):
             try:
-                self.relay.authority.reserve_primary_work(
-                    self.connection_id
-                )
+                if not root_request_reserved:
+                    self.relay.authority.reserve_primary_work(
+                        self.connection_id
+                    )
             except Exception:
                 self._discard_pending(key)
+                if root_request_reserved:
+                    self.relay.authority.release_primary_work(
+                        self.connection_id
+                    )
                 raise
             self.gated_queue.put((key, pending, message))
             return
@@ -6002,18 +6238,18 @@ class _RelayConnection:
     ) -> None:
         if "error" in response:
             self.role = "auxiliary"
+            self.primary_eligible = False
             return
         if not isinstance(response.get("result"), dict):
             raise RelayProtocolError(
                 "initialize response has no result object"
             )
-        if pending.initialize_client_name == TUI_CLIENT_NAME:
-            if self.relay.authority.claim_primary(self.connection_id):
-                self.role = "primary"
-            else:
-                self.role = "auxiliary"
-        else:
-            self.role = "auxiliary"
+        self.primary_eligible = (
+            pending.initialize_client_name == TUI_CLIENT_NAME
+        )
+        self.role = (
+            "eligible" if self.primary_eligible else "auxiliary"
+        )
 
     def _handle_upstream_message(
         self,
@@ -7308,6 +7544,10 @@ def run_bridge(
                 )
                 try:
                     result = engine.step(snapshot)
+                    if result.action == "accepted":
+                        authority.record_companion_turn_start(
+                            snapshot, result.turn_id
+                        )
                 except (sqlite3.Error, BridgeError) as exc:
                     result = StepResult(
                         "retry", error=str(exc)
@@ -7317,6 +7557,12 @@ def run_bridge(
             if result.reconnect:
                 control_client.close()
                 control_client = None
+            if result.warning:
+                print(
+                    "Uclusion Codex bridge: {}".format(result.warning),
+                    file=sys.stderr,
+                    flush=True,
+                )
             if result.error:
                 message = "Uclusion Codex bridge: {}".format(result.error)
                 if message != last_error:

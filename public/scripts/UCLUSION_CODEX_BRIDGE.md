@@ -106,19 +106,27 @@ switches and all Poke admissions pass through one companion-owned barrier.
 
 ## Primary authority
 
-Primary authority belongs only to the first frontend connection which
-successfully initializes with `clientInfo.name = "codex-tui"`, never to a
-broadcast notification or a persisted guess. It is memory-only and starts as
-unknown when that authoritative connection is established. Later frontend
-connections are auxiliary pass-through connections, including pickers opened
-by commands such as `/resume`; they may coexist but cannot mutate authority.
+Primary authority belongs only to an eligible frontend connection which
+actually establishes the input-owning root, never to initialization order, a
+broadcast notification, or a persisted guess. Successful initialization with
+`clientInfo.name = "codex-tui"` records eligibility only. The first eligible
+non-auxiliary root request is provisionally elected and serialized. A validated
+root response freezes that connection as the owner for the rest of the bridge
+session.
+
+Codex also creates ephemeral `threadSource = "system"` threads for internal
+task-state work on the primary frontend connection. Those starts and their
+later unsubscribes are auxiliary traffic: they must not replace or clear the
+human input root.
 
 | Observation | Authority transition |
 | --- | --- |
-| First successful frontend `initialize` with `clientInfo.name = "codex-tui"` | Designate that connection authoritative but keep primary unknown. Initialization alone does not identify its input-owning root. |
-| Later frontend initialization, including a picker/pass-through connection | Allow it as auxiliary. Its requests and responses never establish, replace, or clear primary authority. |
-| Successful, correlated, authoritative-connection `thread/start`, `thread/resume`, or `thread/fork` response | Validate `result.thread`, then atomically replace the primary with its id. |
-| Definitive error response to one of those authoritative requests | Keep the prior primary; Codex rejected the switch. |
+| Successful frontend `initialize` with `clientInfo.name = "codex-tui"` | Mark only that connection as eligible. Initialization does not elect an owner or identify a root. |
+| First eligible non-auxiliary `thread/start`, `thread/resume`, or `thread/fork` request before any root commits | Atomically elect that connection provisionally and reserve its root gate before forwarding. |
+| Definitive error or validated non-root response to a provisional request | Release its gate without freezing ownership. A later eligible root request may be elected. |
+| Successful, correlated, provisionally authoritative root response | Validate `result.thread`, commit its id, and freeze that connection as the primary owner. |
+| Later frontend initialization or root request after ownership commits | Allow auxiliary picker/pass-through traffic, but never replace or clear the committed owner. |
+| Definitive error response to a committed owner's later root request | Keep the prior primary; Codex rejected the switch. |
 | Normal authoritative frontend WebSocket close during `/quit` | Clear authority immediately, stop all new delivery, and make a best-effort Close echo. Preserve the clean classification if the TUI exits before reading that echo. |
 | Abrupt authoritative connection loss or an ambiguous/malformed response to one of its primary-changing requests | Clear authority and fail closed. Do not infer which root owns main input. |
 | Authoritative `thread/archive` or `thread/delete` for the current primary is in flight | Temporarily enter NoRoot under the barrier so no Poke can target a root being invalidated. |
@@ -136,14 +144,16 @@ non-ephemeral primaries. An ephemeral thread has no persisted rollout, so an
 app-server process crash cannot be reconciled from history; it must not be
 described as crash-recoverable.
 
-Auxiliary frontend connections can relay picker, read, and other pass-through
-traffic with their own matching backend connections. Even if one observes or
-loads a thread, its response cannot alter the authoritative binding. Any
-attempt by a second connection to admit a turn on the primary, invalidate the
-primary, interrupt or steer the primary's turn, claim authority, or perform
-another authoritative primary mutation is rejected or fails closed. Auxiliary
-`thread/start`, `thread/resume`, and `thread/fork` picker traffic may load or
-create a different thread, but it must never create two input owners.
+Before ownership commits, any successfully initialized `codex-tui` connection
+may become the provisional owner through its serialized non-auxiliary root
+request. After commit, auxiliary frontend connections can relay picker, read,
+and other pass-through traffic with their own matching backend connections.
+Even if one observes or loads a thread, its response cannot alter the authoritative
+binding. Any attempt by a second connection to admit a turn on the primary,
+invalidate the primary, interrupt or steer the primary's turn, claim
+authority, or perform another authoritative primary mutation is rejected or
+fails closed. Auxiliary root traffic may load or create a different thread,
+but it must never create two input owners.
 
 ## Root witness, lifecycle fencing, and audit continuity
 
@@ -293,9 +303,9 @@ sequenceDiagram
         C->>A: turn/start(primary, clientUserMessageId)
         A-->>C: result.turn.id
     end
-    A-->>C: item/completed userMessage(clientId)
-    C-->>T: relay turn/item notifications
     C->>Q: acknowledge delivery and advance codex-bridge cursor
+    A-->>C: later item/completed userMessage(clientId)
+    C-->>T: relay turn/item notifications
 ```
 
 The companion does not peek, reserve, reconcile, or advance the cursor while
@@ -315,15 +325,21 @@ delivery cannot enqueue a competing `turn/start` in the gap. A shell command
 is either auxiliary to an active turn or a regular standalone turn; a queued
 start may safely join the latter, so it does not leave a provisional barrier.
 
-`turn/start` and `turn/steer` responses are provisional admission evidence,
-not a cursor acknowledgement. The cursor advances only after the authoritative
-subscription observes `item/completed` for a `userMessage` with the exact
-`clientUserMessageId`, or complete persisted thread history proves that exact
-item already committed. The event may arrive before the auxiliary RPC
-response, so the relay keeps a bounded exact-correlation cache. A steered item
-must commit in its expected/response turn. A queued `turn/start` can internally
-join a regular turn that became active first, so its exact client id—not its
-provisional response turn—is authoritative.
+A valid `turn/start` or `turn/steer` response is the cursor acknowledgement.
+Codex returns it only after accepting or queueing the submission, so normal
+delivery does not wait for the model turn or a later `item/completed`. The
+authoritative subscription still keeps a bounded exact-correlation cache, and
+complete persisted history remains the recovery evidence when an RPC outcome
+is missing, timed out, malformed, mismatched, or loses authority before the
+local acknowledgement commits.
+
+After acknowledging a companion `turn/start`, the bridge records its returned
+turn as provisionally active before releasing the delivery lease. It does so
+only when the root snapshot is still current and no `turn/started` or
+`turn/completed` event advanced the snapshot's event serial during the RPC. A
+racing event therefore wins and cannot be overwritten. Until Codex exposes the
+new turn as active, a following Poke waits instead of issuing a competing
+`turn/start`; it then uses `turn/steer` on the established active turn.
 
 When there is no pending Poke, update notice, or ambiguous send to reconcile,
 the companion does not poll `thread/read`. Authoritative relay state already
@@ -348,22 +364,26 @@ delivered in arrival order before the bridge continues with later Pokes.
 
 If the disposable control transport fails after a send, the outcome is
 ambiguous. The `sending` record retains the message id, thread id, admission
-method, provisional target when known, and launcher/app-server instance used
-for that attempt. After reconnecting, the companion reads that stored thread's
-complete history, using full-item pagination through EOF when required, even
-if the TUI has since selected another primary:
+method, provisional target when known, launcher/app-server instance, attempt
+count, and dedicated attempt-start time. The attempt-start floors are 1, 2, 4,
+then 5 seconds capped. Time already spent in the ten-second RPC timeout counts
+toward the floor. A legacy row without the timestamp is immediately due after
+reconciliation. When due, the companion reads that stored thread's complete
+history, using full-item pagination through EOF when required, even if the TUI
+has since selected another primary:
 
-- If a persisted user item has the same client id, acknowledge the old attempt.
-  Requiring the old thread to remain current here would risk duplicating the
-  Poke on the new primary.
-- Within the same app-server lifetime, absence is retryable only after the
-  exact provisional target turn is terminal. An idle thread by itself is not
-  enough: `turn/start` may still be waiting in Codex's submission channel.
-- If no provisional target was returned, keep waiting in the same app-server
-  lifetime. A new launcher instance proves the old private app-server and its
-  in-memory submission queue are gone, making an absent attempt retryable.
-- If turns are missing, duplicate client ids appear, or root/status/turn/item
-  shape is malformed, keep the row `sending` and fail closed.
+- If one or more persisted user items have the same client id, acknowledge the
+  old attempt. Multiple matches emit one diagnostic but never wedge delivery.
+  Requiring the old thread to remain current here would risk another copy on
+  the new primary.
+- If complete history has no match, resolve the current leased root and turn,
+  then recheck the live exact-id cache. Atomically replace the same `sending`
+  row with its incremented attempt, current target, and new start time before
+  resending the same sequence and message id in that delivery pass. There is
+  no intermediate pending state. Do this even while the old provisional
+  target remains active and without waiting for process turnover.
+- If turns are unavailable or root/status/turn/item shape is malformed, keep
+  the row `sending` and fail closed.
 
 The final cursor acknowledgement is a conditional commit under the same
 authority lock used by disconnect and lifecycle invalidation. Either the
@@ -376,8 +396,9 @@ global exactly-once delivery. Other named consumers have independent cursors,
 and the same Poke may intentionally be delivered to Claude, Cursor, or another
 Codex consumer. Inbox rows age out after seven days.
 
-Update notices use the same primary authority, serialization barrier, exact
-commit gate, and causal ambiguous-send recovery as ordinary Pokes, but wait
+Update notices use the same primary authority and serialization barrier, but
+retain their existing exact-item commit gate and causal ambiguous-send
+recovery. They wait
 for idle rather than steering an active user turn.
 
 ## Interactive requests and auxiliary connections
@@ -413,7 +434,8 @@ create a memory backlog or establish primary authority.
 | A successful human admission response precedes `turn/started` and thread status still reads idle | Treat the primary as provisionally busy; do not reserve or send another `turn/start`. |
 | Authoritative TUI sends a normal frontend WebSocket close during `/quit` | Revoke delivery authority immediately and nonfatally, make a best-effort Close echo, and preserve the clean classification if the TUI exits before reading that echo. |
 | Authoritative TUI/frontend connection ends abruptly, sends an error Close code, or violates the WebSocket/JSON-RPC protocol | Revoke delivery authority immediately, send a bounded best-effort Close 1011, and fail closed. |
-| Auxiliary picker/pass-through connection opens, unsubscribes, or closes | Allow and isolate it; never change authority. Complete any in-flight origin fence before retirement. The independent driver pin remains current. |
+| Eligible picker/pass-through connection opens before a root commits | Initialization alone changes nothing. Its first serialized root request may be provisionally elected; a validated root response freezes ownership. |
+| Auxiliary picker/pass-through connection opens, unsubscribes, or closes after ownership commits | Allow and isolate it; never change authority. Complete any in-flight origin fence before retirement. The independent driver pin remains current. |
 | A second connection attempts primary turn admission, control, or current-primary invalidation | Reject that request on the auxiliary connection; never let it bypass a Poke lease. |
 | A primary message is queued before its FIFO worker runs | Its synchronous reservation blocks new Poke leases; interrupt, steer, and correlated server responses remain immediate. |
 | Root-switch request returns an error | Keep the previous primary. |
@@ -430,8 +452,10 @@ create a memory backlog or establish primary authority.
 | App-server exits | Launcher stops the companion and TUI. A later launch may reconcile persisted non-ephemeral history; it cannot prove an ephemeral turn survived. |
 | Launcher parent exits or the authoritative TUI dies | Stop delivery before the next peek/send and reap launcher-owned children. |
 | Duplicate cloud notification | Inbox uniqueness suppresses the duplicate for the same environment, workspace, and message id. |
-| Admission RPC succeeds but no matching user item is committed yet | Keep the row `sending`; do not advance the cursor or duplicate the submission. |
-| Provisional target becomes terminal without the matching user item | Return the Poke to pending; the queued input can no longer commit in that target. |
+| Admission RPC returns a valid successful response | Acknowledge immediately and advance the cursor under the current root lease; do not wait for a user item or model-turn completion. |
+| A second Poke arrives between a successful `turn/start` response and its turn event | Preserve the response turn as provisional under the unchanged event serial, wait through any still-idle read, then steer into the established turn. |
+| Admission outcome remains ambiguous and its retry floor expires | Reconcile complete exact-id history. A match acknowledges; absence retries the same id immediately on the current leased root. |
+| Complete history contains multiple exact client-id matches | Acknowledge once, advance the cursor, and emit a duplicate diagnostic instead of wedging. |
 | SQLite, app-server history, response correlation, or authority at commit cannot be proved | Fail closed and keep the delivery unacknowledged; do not advance the cursor. |
 
 Authority is never restored from a persisted binding after a transport or
@@ -466,12 +490,14 @@ very narrow limitation of atomic temp-file replacement. Poke delivery has no
    TUI root response can be released, while control recovery cannot revoke
    that root witness.
 6. Start the TUI with `--remote` pointing to the frontend, never the backend.
-7. Select the first successfully initialized `codex-tui` connection as
-   authoritative. Its fresh `thread/start` stream witnesses that root directly.
-   Hold every successful resumable `thread/resume` or `thread/fork` response,
-   including auxiliary picker responses, until the driver has explicitly
-   subscribed to and fenced its returned thread. Auxiliary picker connections
-   may then come and go without unloading that pinned runtime.
+7. Record successfully initialized `codex-tui` connections as eligible. Elect
+   and reserve the first eligible non-auxiliary root request, then freeze its
+   connection only after the validated root commits. Its fresh `thread/start`
+   stream witnesses that root directly. Hold every successful resumable
+   `thread/resume` or `thread/fork` response, including auxiliary picker
+   responses, until the driver has explicitly subscribed to and fenced its
+   returned thread. Auxiliary picker connections may then come and go without
+   unloading that pinned runtime.
 
 Global config and feature passthrough flags (`-c`/`--config`, `--enable`,
 `--disable`, and `--strict-config`) are copied to the backend as well as the
@@ -508,6 +534,9 @@ closed, and compatibility tests should be rerun when Codex changes.
 
 At minimum, tests must cover:
 
+- initialization remaining eligibility-only, competing eligible root requests
+  being elected and reserved atomically, and the first validated root freezing
+  ownership even through a later NoRoot state;
 - `thread/start`, `thread/resume`, and `thread/fork` winning and losing the
   barrier race against a Poke;
 - authority update before the TUI receives a successful switch response;
@@ -546,12 +575,15 @@ At minimum, tests must cover:
 - response-before-lifecycle gaps for ordinary turns, inline reviews, and
   manual compactions remaining provisionally busy, without an active shell
   command leaving a stale barrier;
-- exact user-item commit ordering before/after admission responses,
-  interrupt-before-commit retry, idle queue-delay suppression, and a queued
+- immediate cursor acknowledgement from valid start and steer responses,
+  response-to-event provisional state preventing a second start, authority
+  revocation before that local commit leaving an ambiguous row, and a queued
   start joining a racing regular turn;
 - ambiguous `turn/start` and `turn/steer` recovery against the stored old
   thread after a later primary switch, including complete paginated history
-  and duplicate-client-id rejection;
+  plus 1/2/4/5-second capped attempt spacing, same-id retry while the old target
+  remains active, late-match suppression, and duplicate-client-id
+  acknowledgement with a diagnostic;
 - idle delivery steps issuing no app-server metadata read, and a disposable
   control timeout reconnecting without replacing or invalidating the
   continuous driver witness;

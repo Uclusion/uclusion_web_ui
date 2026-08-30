@@ -7,6 +7,7 @@ import {
 } from './notificationsContextReducer';
 import { registerListener } from '../../utils/MessageBusUtils';
 import {
+  isRefreshLifecycleCurrent,
   NOTIFICATIONS_HUB_CHANNEL,
   VERSIONS_EVENT
 } from '../../api/versionedFetchUtils';
@@ -22,10 +23,13 @@ export const STAGE_CHANGE_EVENT = 'stage_change_event';
 
 function beginListening(dispatch, setInitialized) {
   registerListener(NOTIFICATIONS_HUB_CHANNEL, 'notificationsStart', (data) => {
-    const { payload: { event, notifications } } = data;
+    const { payload: { event, notifications, refreshLifecycle } } = data;
     switch (event) {
       case VERSIONS_EVENT:
         getMessages().then((messages) => {
+          if (!isRefreshLifecycleCurrent(refreshLifecycle)) {
+            return;
+          }
           setInitialized(true);
           dispatch(updateMessages(messages));
         }).catch(() => console.warn('Error getting messages'));

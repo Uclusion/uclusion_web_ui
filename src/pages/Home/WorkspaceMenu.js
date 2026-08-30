@@ -16,7 +16,7 @@ import { changeBanStatus, getMarketPresences } from '../../contexts/MarketPresen
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
-import { refreshVersionsNow } from '../../api/versionedFetchUtils';
+import { LeaderContext } from '../../contexts/LeaderContext/LeaderContext';
 import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 import { DARK_ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants';
 
@@ -114,6 +114,7 @@ function WorkspaceMenu(props) {
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState] = useContext(CommentsContext);
+  const [, , { requestFreshness }] = useContext(LeaderContext);
   const marketPresences = getMarketPresences(marketPresencesState, defaultMarket?.id) || [];
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const markets = unfilteredMarkets.filter((market) => !market.is_banned);
@@ -363,10 +364,12 @@ function WorkspaceMenu(props) {
                 key="sync" id="syncId"
                 onClick={() => {
                   setOperationRunning(true);
-                  return refreshVersionsNow().then(() => {
-                    setOperationRunning(false);
-                    recordPositionToggle();
-                  });
+                  return requestFreshness({ reason: 'manual' })
+                    .catch(() => console.warn('Error refreshing manually'))
+                    .finally(() => {
+                      setOperationRunning(false);
+                      recordPositionToggle();
+                    });
                 }}
               >
                 <Tooltip title={intl.formatMessage({ id: 'manualSyncExplanation' })}>

@@ -30,7 +30,6 @@ import { TicketIndexContext } from '../../contexts/TicketContext/TicketIndexCont
 import { setOperationInProgress } from '../../components/ContextHacks/OperationInProgressGlobalProvider';
 import GroupEdit from '../../pages/DialogSettings/GroupEdit';
 import DialogArchives from '../../pages/DialogArchives/DialogArchives';
-import { refreshVersions, refreshVersionsNow } from '../../api/versionedFetchUtils';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
@@ -55,6 +54,7 @@ import { getInvestible } from '../../contexts/InvestibesContext/investiblesConte
 import { getComment } from '../../contexts/CommentsContext/commentsContextHelper';
 import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { RenderCensus } from '../../utils/renderProfiler';
+import { LeaderContext } from '../../contexts/LeaderContext/LeaderContext';
 
 // T-all-2154 poll fast while a URL references data not yet local, then back off so a tab
 // parked on a dead link does not hit the API every two seconds indefinitely
@@ -80,6 +80,7 @@ function Root(props) {
   const [commentsState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [groupsState] = useContext(MarketGroupsContext);
+  const [, , { requestFreshness }] = useContext(LeaderContext);
   // A ref, not state: the window listeners below are registered exactly once, so they
   // must read the current timer through a stable ref. When this was state, the 'online'
   // listener's stale closure forced re-registering all listeners while the timer was set
@@ -216,22 +217,35 @@ function Root(props) {
 
   useEffect(() => {
     function clearDataPoll() {
-      if (dataPollTimerRef.current) {
-        clearTimeout(dataPollTimerRef.current);
-        dataPollTimerRef.current = null;
+      const pendingPoll = dataPollTimerRef.current;
+      if (pendingPoll?.timer) {
+        clearTimeout(pendingPoll.timer);
       }
+      dataPollTimerRef.current = null;
     }
     function startDataPoll() {
       if (dataPollTimerRef.current) {
         return;
       }
       const startedAt = Date.now();
+      let firstPoll = true;
       const poll = () => {
-        refreshVersionsNow().catch(() => console.warn('Error refreshing for missing data'));
-        const delay = Date.now() - startedAt > DATA_POLL_FAST_CUTOFF_MS ? DATA_POLL_SLOW_MS : DATA_POLL_FAST_MS;
-        dataPollTimerRef.current = setTimeout(poll, delay);
+        const pendingPoll = {};
+        dataPollTimerRef.current = pendingPoll;
+        requestFreshness({ reason: firstPoll ? 'missingData' : 'missingDataPoll' })
+          .catch(() => console.warn('Error refreshing for missing data'))
+          .finally(() => {
+            if (dataPollTimerRef.current !== pendingPoll) {
+              return;
+            }
+            const delay = Date.now() - startedAt > DATA_POLL_FAST_CUTOFF_MS
+              ? DATA_POLL_SLOW_MS
+              : DATA_POLL_FAST_MS;
+            pendingPoll.timer = setTimeout(poll, delay);
+          });
+        firstPoll = false;
       };
-      dataPollTimerRef.current = setTimeout(poll, DATA_POLL_FAST_MS);
+      poll();
     }
     function isMissingDialogData() {
       if (action !== 'dialog' || _.isEmpty(marketId)) {
@@ -271,11 +285,11 @@ function Root(props) {
       clearDataPoll();
     }
   },  [pathname, hash, action, marketId, investibleId, history, ticketState, marketsState, commentsState,
-    investiblesState, groupsState]);
+    investiblesState, groupsState, requestFreshness]);
 
   useEffect(() => {
     if (authState !== 'signedIn' && dataPollTimerRef.current) {
-      clearTimeout(dataPollTimerRef.current);
+      clearTimeout(dataPollTimerRef.current.timer);
       dataPollTimerRef.current = null;
     }
   },  [authState]);
@@ -352,7 +366,7 @@ function Root(props) {
         // Speculative refresh: skip when a refresh is in flight or one succeeded recently,
         // so focus + visibilitychange both firing on a tab return costs one cycle, not two,
         // and rapid tab flipping on bad internet does not queue endless syncs (C-all-1066).
-        refreshVersions(undefined, VIEW_CHANGE_REFRESH_STALENESS_MS)
+        requestFreshness({ reason: 'viewChange', skipIfRefreshedWithinMs: VIEW_CHANGE_REFRESH_STALENESS_MS })
           .catch(() => console.warn('Error refreshing'));
       }
     }
@@ -380,7 +394,7 @@ function Root(props) {
         setOperationInProgress(false);
         // Connectivity is back - sync now instead of waiting for the next interval tick,
         // with the same staleness guard so a flapping connection cannot cause churn.
-        refreshVersions(undefined, VIEW_CHANGE_REFRESH_STALENESS_MS)
+        requestFreshness({ reason: 'online', skipIfRefreshedWithinMs: VIEW_CHANGE_REFRESH_STALENESS_MS })
           .catch(() => console.warn('Error refreshing'));
       }, { passive: true })
       window.addEventListener('offline', () => {
@@ -399,7 +413,7 @@ function Root(props) {
     //  window.onanimationiteration = console.debug;
       registerMarketTokenListeners();
     }
-  },  [history, setOnline, isUserLoaded, setShowOfflineMessage]);
+  },  [history, setOnline, isUserLoaded, setShowOfflineMessage, requestFreshness]);
 
   if (authState !== 'signedIn' || action === 'supportWorkspace' || (action === 'demo' && marketsState.initializing) || 
     (isRootPath && marketJoinedUser && _.isEmpty(defaultMarketLink))||(isTicketPath(pathname)&&!getTicket(ticketState, pathname.substring(1)))) {

@@ -4,6 +4,7 @@ import { addByIdAndVersion } from '../ContextUtils';
 import { leaderContextHack } from '../LeaderContext/LeaderContext';
 import LocalForageHelper from '../../utils/LocalForageHelper';
 import { MARKET_STAGES_CONTEXT_NAMESPACE } from './MarketStagesContext';
+import { queuePersistenceWrite } from '../../api/crossTabFreshness';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_MARKET_STAGES = 'UPDATE_MARKET_STAGES';
@@ -80,15 +81,13 @@ function computeNewState(state, action) {
   }
 }
 
-let marketStagesStoragePromiseChain = Promise.resolve(true);
-
 function reducer(state, action) {
   const newState = computeNewState(state, action);
-  if (action.type !== INITIALIZE_STATE) {
+  if (action.type !== INITIALIZE_STATE && newState !== state) {
     const { isLeader } = leaderContextHack;
     if (isLeader) {
       const lfh = new LocalForageHelper(MARKET_STAGES_CONTEXT_NAMESPACE);
-      marketStagesStoragePromiseChain = marketStagesStoragePromiseChain.then(() => {
+      queuePersistenceWrite('stages', () => {
         return lfh.setState(newState).then(() => {
           console.info('Updated stages context storage.');
         });

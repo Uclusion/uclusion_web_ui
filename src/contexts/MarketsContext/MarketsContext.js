@@ -1,8 +1,9 @@
-import React, { useEffect, useReducer, useState } from 'react'
+import React, { useCallback, useEffect, useReducer, useState } from 'react'
 import beginListening from './marketsContextMessages'
 import reducer, { initializeState } from './marketsContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import localforage from 'localforage'
+import { flushSync } from 'react-dom';
 import { TOKEN_STORAGE_KEYSPACE } from '../../api/tokenConstants';
 
 const MARKET_CONTEXT_NAMESPACE = 'market_context';
@@ -23,6 +24,26 @@ function MarketsProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const [tokensHash, setTokensHash] = useState({});
 
+  const hydrateTokensFromDisk = useCallback(() => {
+    const store = localforage.createInstance({ storeName: TOKEN_STORAGE_KEYSPACE });
+    const localTokenHash = {};
+    return store.iterate((value, key) => {
+      localTokenHash[key] = value;
+    }).then(() => {
+      flushSync(() => setTokensHash(localTokenHash));
+      return localTokenHash;
+    });
+  }, []);
+
+  const hydrateMarketsFromDisk = useCallback(() => {
+    const lfg = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
+    return lfg.getStoredState().then((diskState) => {
+      const hydratedState = diskState || { marketDetails: [] };
+      flushSync(() => dispatch(initializeState(hydratedState)));
+      return hydratedState;
+    });
+  }, []);
+
   useEffect(() => {
     beginListening(dispatch, setTokensHash);
     return () => {};
@@ -30,30 +51,15 @@ function MarketsProvider(props) {
 
   useEffect(() => {
     // load market tokens for use by Quill img url re-writing
-    const store = localforage.createInstance({ storeName: TOKEN_STORAGE_KEYSPACE });
-    const localTokenHash = {};
-    store.iterate((value, key) => {
-      localTokenHash[key] = value;
-    }).then(() => {
-      setTokensHash(localTokenHash);
-      // load state from storage
-      const lfg = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
-      return lfg.getState().then((diskState) => {
-        if (diskState) {
-          dispatch(initializeState(diskState));
-        } else {
-          dispatch(initializeState({
-            marketDetails: [],
-          }));
-        }
-      });
-    });
+    hydrateTokensFromDisk()
+      .then(hydrateMarketsFromDisk)
+      .catch((error) => console.warn('Unable to load markets from disk', error));
     return () => {};
-  }, []);
+  }, [hydrateMarketsFromDisk, hydrateTokensFromDisk]);
   tokensHashHack = tokensHash;
   marketsContextHack = state;
   return (
-    <MarketsContext.Provider value={[state, dispatch, tokensHash]}>
+    <MarketsContext.Provider value={[state, dispatch, tokensHash, hydrateMarketsFromDisk, hydrateTokensFromDisk]}>
       {props.children}
     </MarketsContext.Provider>
   );

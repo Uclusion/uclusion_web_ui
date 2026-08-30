@@ -6,6 +6,7 @@ import _ from 'lodash'
 import { removeInitializing } from '../../components/localStorageUtils'
 import { addByIdAndVersion } from '../ContextUtils'
 import { leaderContextHack } from '../LeaderContext/LeaderContext';
+import { queuePersistenceWrite } from '../../api/crossTabFreshness';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_INVESTIBLES = 'UPDATE_INVESTIBLES';
@@ -72,16 +73,14 @@ function computeNewState(state, action) {
   }
 }
 
-let investiblesStoragePromiseChain = Promise.resolve(true);
-
 function reducer(state, action) {
   const newState = computeNewState(state, action);
-  if (action.type !== INITIALIZE_STATE) {
+  if (action.type !== INITIALIZE_STATE && newState !== state) {
     const { isLeader } = leaderContextHack;
     if (isLeader) {
       // Initialize state comes from the disk so do not write it back and risk wiping out another tab
       const lfh = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
-      investiblesStoragePromiseChain = investiblesStoragePromiseChain.then(() => {
+      queuePersistenceWrite('investibles', () => {
         return lfh.setState(newState).then(() => {
           console.info('Updated investibles context storage.');
         });

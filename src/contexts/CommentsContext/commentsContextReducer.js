@@ -5,6 +5,7 @@ import { removeInitializing } from '../../components/localStorageUtils'
 import { addByIdAndVersion, fixupItemsForStorage } from '../ContextUtils'
 import { leaderContextHack } from '../LeaderContext/LeaderContext';
 import { timeSpan, timeSpanAsync } from '../../utils/renderProfiler';
+import { queuePersistenceWrite } from '../../api/crossTabFreshness';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MARKETS_COMMENT = 'REMOVE_MARKETS_COMMENT';
@@ -85,8 +86,6 @@ function computeNewState(state, action) {
   }
 }
 
-let commentsStoragePromiseChain = Promise.resolve(true);
-
 // Comments lazily fetched for archived jobs are marked doNotPersist so they stay in memory
 // for the session but do not regrow disk storage the archive screening reclaimed (J-all-331)
 export function screenOutDoNotPersist(state) {
@@ -106,11 +105,11 @@ export function screenOutDoNotPersist(state) {
 
 function reducer(state, action) {
   const newState = timeSpan(`reducer:comments:${action.type}`, () => computeNewState(state, action));
-  if (action.type !== INITIALIZE_STATE) {
+  if (action.type !== INITIALIZE_STATE && newState !== state) {
     const { isLeader } = leaderContextHack;
     if (isLeader) {
       const lfh = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
-      commentsStoragePromiseChain = commentsStoragePromiseChain.then(() => {
+      queuePersistenceWrite('comments', () => {
         return timeSpanAsync('idb:comments', () => lfh.setState(screenOutDoNotPersist(newState))).then(() => {
           console.info('Updated comment context storage.')
         });

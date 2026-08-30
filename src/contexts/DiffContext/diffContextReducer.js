@@ -6,14 +6,24 @@ import { investibleContextHack } from '../InvestibesContext/InvestiblesContext';
 import { getComment } from '../CommentsContext/commentsContextHelper';
 import { timeSpan } from '../../utils/renderProfiler';
 import { getInvestible } from '../InvestibesContext/investiblesContextHelper';
+import { leaderContextHack } from '../LeaderContext/LeaderContext';
+import { queuePersistenceWrite } from '../../api/crossTabFreshness';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
+const HYDRATE_STATE = 'HYDRATE_STATE';
 const REMOVE_CONTENTS = 'REMOVE_CONTENTS';
 const ADD_CONTENTS = 'ADD_CONTENTS';
 
 export function initializeState(newState) {
   return {
     type: INITIALIZE_STATE,
+    newState,
+  };
+}
+
+export function hydrateState(newState) {
+  return {
+    type: HYDRATE_STATE,
     newState,
   };
 }
@@ -103,6 +113,8 @@ function getContents(state, item, contentType) {
 function computeNewState(state, action) {
   const { type } = action;
   switch (type) {
+    case HYDRATE_STATE:
+      return action.newState;
     case INITIALIZE_STATE:
       if (state.initializing) {
         return action.newState;
@@ -119,9 +131,10 @@ function computeNewState(state, action) {
 
 function reducer(state, action) {
   const newState = computeNewState(state, action);
-  if (action.type !== INITIALIZE_STATE) {
+  if (![INITIALIZE_STATE, HYDRATE_STATE].includes(action.type) && newState !== state &&
+      leaderContextHack.isLeader) {
     const lfh = new LocalForageHelper(DIFF_CONTEXT_NAMESPACE);
-    lfh.setState(newState);
+    queuePersistenceWrite('diff', () => lfh.setState(newState));
   }
   return newState;
 }

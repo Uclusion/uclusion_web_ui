@@ -4,6 +4,7 @@ import { addByIdAndVersion } from '../ContextUtils'
 import { leaderContextHack } from '../LeaderContext/LeaderContext';
 import LocalForageHelper from '../../utils/LocalForageHelper';
 import { GROUP_MEMBERS_CONTEXT_NAMESPACE } from './GroupMembersContext';
+import { queuePersistenceWrite } from '../../api/crossTabFreshness';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const ADD_GROUP_MEMBERS = 'ADD_GROUP_MEMBERS';
@@ -93,15 +94,13 @@ function computeNewState(state, action) {
   }
 }
 
-let presencesStoragePromiseChain = Promise.resolve(true);
-
 function reducer(state, action) {
   const newState = computeNewState(state, action);
-  if (action.type !== INITIALIZE_STATE) {
+  if (action.type !== INITIALIZE_STATE && newState !== state) {
     const lfh = new LocalForageHelper(GROUP_MEMBERS_CONTEXT_NAMESPACE);
     const { isLeader } = leaderContextHack;
     if (isLeader) {
-      presencesStoragePromiseChain = presencesStoragePromiseChain.then(() => {
+      queuePersistenceWrite('members', () => {
         return lfh.setState(newState).then(() => {
           console.info('Updated members context storage.');
         });

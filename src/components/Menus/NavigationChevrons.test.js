@@ -8,6 +8,7 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
+import { LeaderContext } from '../../contexts/LeaderContext/LeaderContext';
 import NavigationChevrons from './NavigationChevrons';
 
 jest.mock('../../contexts/CommentsContext/CommentsContext', () => {
@@ -42,9 +43,19 @@ jest.mock('../../contexts/SearchResultsContext/SearchResultsContext', () => {
   const React = require('react');
   return { SearchResultsContext: React.createContext() };
 });
+jest.mock('../../contexts/LeaderContext/LeaderContext', () => {
+  const React = require('react');
+  return {
+    LeaderContext: React.createContext([{}, jest.fn(), {
+      requestFreshness: () => Promise.resolve()
+    }])
+  };
+});
 jest.mock('@material-ui/core/Toolbar', () => ({ children }) => <div>{children}</div>);
 jest.mock('@material-ui/core', () => ({
-  Button: ({ children, disabled, id }) => <button disabled={disabled} id={id}>{children}</button>,
+  Button: ({ children, disabled, id, onClick, 'aria-disabled': ariaDisabled }) => (
+    <button disabled={disabled} id={id} onClick={onClick} aria-disabled={ariaDisabled}>{children}</button>
+  ),
   Tooltip: ({ children }) => <>{children}</>,
   makeStyles: () => () => ({ magicButton: 'magicButton' }),
   useMediaQuery: () => false,
@@ -118,16 +129,19 @@ jest.mock('../../utils/redirectUtils', () => ({
 }));
 jest.mock('../../pages/Home/ReturnTop', () => () => null);
 
-function navigationChevronsTree() {
+function navigationChevronsTree({
+  tokensHash = { 'market-a': 'token-a' },
+  navigations = [{ url: '/previous', time: 1 }],
+  requestFreshness = () => Promise.resolve()
+} = {}) {
   const marketsState = {
     initializing: false,
     marketDetails: [{ id: 'market-a' }, { id: 'market-b' }]
   };
-  const tokensHash = { 'market-a': 'token-a' };
   return (
     <NotificationsContext.Provider value={[{
       messages: [],
-      navigations: [{ url: '/previous', time: 1 }]
+      navigations
     }, jest.fn()]}>
       <MarketsContext.Provider value={[marketsState, jest.fn(), tokensHash]}>
         <MarketPresencesContext.Provider value={[{}]}>
@@ -136,7 +150,11 @@ function navigationChevronsTree() {
               <MarketStagesContext.Provider value={[{}]}>
                 <MarketGroupsContext.Provider value={[{}]}>
                   <SearchResultsContext.Provider value={[{ search: '' }]}>
-                    <NavigationChevrons action="dialog" />
+                    <LeaderContext.Provider value={[{}, jest.fn(), {
+                      requestFreshness
+                    }]}>
+                      <NavigationChevrons action="dialog" />
+                    </LeaderContext.Provider>
                   </SearchResultsContext.Provider>
                 </MarketGroupsContext.Provider>
               </MarketStagesContext.Provider>
@@ -170,14 +188,36 @@ describe('NavigationChevrons', () => {
     act(() => root.unmount());
   });
 
-  it('keeps navigation visible and disabled while this tab is missing a workspace token', () => {
-    act(() => root.render(navigationChevronsTree()));
+  it('keeps one navigation request pending while a workspace token is missing', () => {
+    const requestFreshness = jest.fn(() => Promise.resolve());
+    act(() => root.render(navigationChevronsTree({ requestFreshness })));
 
     const next = container.querySelector('#nextNavigation');
     const back = container.querySelector('#backNavigation');
     expect(next).not.toBeNull();
     expect(back).not.toBeNull();
-    expect(next.disabled).toBe(true);
-    expect(back.disabled).toBe(true);
+    expect(next.disabled).toBe(false);
+    expect(back.disabled).toBe(false);
+    expect(next.getAttribute('aria-disabled')).toBe('true');
+    expect(back.getAttribute('aria-disabled')).toBe('true');
+    act(() => back.click());
+    act(() => next.click());
+    expect(requestFreshness).toHaveBeenCalledTimes(1);
+    expect(requestFreshness).toHaveBeenCalledWith({ reason: 'navigation' });
+  });
+
+  it('requests recovery when loaded memory has no navigation target', () => {
+    const requestFreshness = jest.fn(() => Promise.resolve());
+    act(() => root.render(navigationChevronsTree({
+      tokensHash: { 'market-a': 'token-a', 'market-b': 'token-b' },
+      navigations: [],
+      requestFreshness
+    })));
+
+    const back = container.querySelector('#backNavigation');
+    expect(back.disabled).toBe(false);
+    expect(back.getAttribute('aria-disabled')).toBe('true');
+    act(() => back.click());
+    expect(requestFreshness).toHaveBeenCalledWith({ reason: 'navigation' });
   });
 });

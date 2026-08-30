@@ -1,16 +1,14 @@
-import React, { useContext, useEffect, useReducer } from 'react'
+import React, { useCallback, useContext, useEffect, useReducer } from 'react'
 import _ from 'lodash'
 import reducer, { initializeState } from './commentsContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import beginListening from './commentsContextMessages'
-import { pushMessage } from '../../utils/MessageBusUtils'
-import {
-  INDEX_COMMENT_TYPE,
-  INDEX_UPDATE,
-  SEARCH_INDEX_CHANNEL
-} from '../SearchIndexContext/searchIndexContextMessages'
+import { INDEX_COMMENT_TYPE } from '../SearchIndexContext/searchIndexContextMessages'
 import { DiffContext } from '../DiffContext/DiffContext'
-import { TICKET_INDEX_CHANNEL } from '../TicketContext/ticketIndexContextMessages'
+import { SearchIndexContext } from '../SearchIndexContext/SearchIndexContext'
+import { replaceIndexItems } from '../SearchIndexContext/searchIndexContextHelper'
+import { replaceTicketItems, TicketIndexContext } from '../TicketContext/TicketIndexContext'
+import { flushSync } from 'react-dom';
 
 const COMMENTS_CHANNEL = 'comments';
 const COMMENTS_CONTEXT_NAMESPACE = 'comments_context';
@@ -18,21 +16,20 @@ const EMPTY_STATE = {initializing: true};
 
 const CommentsContext = React.createContext(EMPTY_STATE);
 
-function pushIndexItems(diskState) {
-  const indexItems = _.flatten(Object.values(diskState));
-  const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: indexItems };
-  pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
+function replaceDerivedState(diskState, index, ticketsDispatch) {
+  const comments = _.flatten(Object.values(diskState).filter(Array.isArray));
+  if (index) {
+    replaceIndexItems(index, INDEX_COMMENT_TYPE, comments);
+  }
   const ticketCodeItems = [];
-  (indexItems || []).forEach((comment) => {
+  comments.forEach((comment) => {
     const { market_id: marketId, id: commentId, group_id: groupId, investible_id: investibleId,
       ticket_code: ticketCode } = comment;
-    if (ticketCode) {
+    if (ticketCode && !comment.deleted) {
       ticketCodeItems.push({ ticketCode, marketId, commentId, groupId, investibleId });
     }
   });
-  if (!_.isEmpty(ticketCodeItems)) {
-    pushMessage(TICKET_INDEX_CHANNEL, ticketCodeItems);
-  }
+  ticketsDispatch(replaceTicketItems(ticketCodeItems, 'commentId'));
 }
 
 let commentsContextHack;
@@ -41,6 +38,20 @@ export { commentsContextHack };
 function CommentsProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE, undefined);
   const [, diffDispatch] = useContext(DiffContext);
+  const [index] = useContext(SearchIndexContext);
+  const [, ticketsDispatch] = useContext(TicketIndexContext);
+
+  const hydrateCommentsFromDisk = useCallback(() => {
+    const lfg = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
+    return lfg.getStoredState().then((diskState) => {
+      const hydratedState = diskState || {};
+      flushSync(() => {
+        replaceDerivedState(hydratedState, index, ticketsDispatch);
+        dispatch(initializeState(hydratedState));
+      });
+      return hydratedState;
+    });
+  }, [index, ticketsDispatch]);
 
   useEffect(() => {
     beginListening(dispatch, diffDispatch);
@@ -49,22 +60,14 @@ function CommentsProvider(props) {
 
   useEffect(() => {
     // load state from storage
-    const lfg = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
-    lfg.getState()
-      .then((state) => {
-        if (state) {
-          pushIndexItems(state);
-          dispatch(initializeState(state));
-        } else {
-          dispatch(initializeState({}));
-        }
-      });
+    hydrateCommentsFromDisk()
+      .catch((error) => console.warn('Unable to load comments from disk', error));
     return () => {};
-  }, []);
+  }, [hydrateCommentsFromDisk]);
 
   commentsContextHack = state;
   return (
-    <CommentsContext.Provider value={[state, dispatch]} >
+    <CommentsContext.Provider value={[state, dispatch, hydrateCommentsFromDisk]} >
       {props.children}
     </CommentsContext.Provider>
   );

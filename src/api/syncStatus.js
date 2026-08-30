@@ -17,23 +17,32 @@ export function isInitialSyncComplete() {
   return initialSyncComplete;
 }
 
+function markInitialSyncComplete() {
+  if (initialSyncComplete) {
+    return;
+  }
+  initialSyncComplete = true;
+  pushMessage(SYNC_STATUS_CHANNEL, { event: INITIAL_SYNC_COMPLETE });
+}
+
+export function markDiskAdoptionComplete() {
+  markInitialSyncComplete();
+}
+
 export function recordInitialSyncCycle(dirtyMarketCount) {
   if (initialSyncComplete || dirtyMarketCount === undefined || dirtyMarketCount === true) {
     return;
   }
   if (dirtyMarketCount === 0) {
-    initialSyncComplete = true;
+    markInitialSyncComplete();
   } else if (dirtyMarketCount === lastDirtyCount) {
     stableDirtyCycles += 1;
     if (stableDirtyCycles >= 3) {
       console.warn(`Initial sync stuck at ${dirtyMarketCount} dirty markets - declaring complete`);
-      initialSyncComplete = true;
+      markInitialSyncComplete();
     }
   } else {
     lastDirtyCount = dirtyMarketCount;
     stableDirtyCycles = 0;
-  }
-  if (initialSyncComplete) {
-    pushMessage(SYNC_STATUS_CHANNEL, { event: INITIAL_SYNC_COMPLETE });
   }
 }

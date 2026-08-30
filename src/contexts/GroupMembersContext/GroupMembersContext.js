@@ -1,7 +1,8 @@
-import React, { useEffect, useReducer } from 'react'
+import React, { useCallback, useEffect, useReducer } from 'react'
 import beginListening from './groupMembersMessages'
 import reducer, { initializeState } from './groupMembersContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
+import { flushSync } from 'react-dom';
 
 const MEMBERS_CHANNEL = 'members';
 const GROUP_MEMBERS_CONTEXT_NAMESPACE = 'group_members';
@@ -14,22 +15,24 @@ export { groupMembersContextHack };
 function GroupMembersProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
 
-  useEffect(() => {
+  const hydrateGroupMembersFromDisk = useCallback(() => {
     const lfh = new LocalForageHelper(GROUP_MEMBERS_CONTEXT_NAMESPACE);
-    lfh.getState()
-      .then((diskState) => {
-        if (diskState) {
-          dispatch(initializeState(diskState));
-        } else {
-          dispatch(initializeState({}));
-        }
-      });
+    return lfh.getStoredState().then((diskState) => {
+      const hydratedState = diskState || {};
+      flushSync(() => dispatch(initializeState(hydratedState)));
+      return hydratedState;
+    });
+  }, []);
+
+  useEffect(() => {
+    hydrateGroupMembersFromDisk()
+      .catch((error) => console.warn('Unable to load members from disk', error));
     beginListening(dispatch);
     return () => {};
-  }, []);
+  }, [hydrateGroupMembersFromDisk]);
   groupMembersContextHack = state;
   return (
-    <GroupMembersContext.Provider value={[state, dispatch]}>
+    <GroupMembersContext.Provider value={[state, dispatch, hydrateGroupMembersFromDisk]}>
       {props.children}
     </GroupMembersContext.Provider>
   );

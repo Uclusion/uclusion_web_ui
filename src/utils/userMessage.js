@@ -4,7 +4,7 @@
 import { toast } from 'react-toastify'
 import { intl } from '../components/ContextHacks/IntlGlobalProvider'
 import { setOperationInProgress } from '../components/ContextHacks/OperationInProgressGlobalProvider'
-import { refreshVersions } from '../api/versionedFetchUtils'
+import { requestFreshness } from '../api/crossTabFreshness'
 import LogRocket from 'logrocket';
 
 export const DEBUG = 'debug';
@@ -79,7 +79,7 @@ export function toastErrorAndThrow(error, messageKey) {
   }
   if (error?.status === 208) {
     console.info('Api gateway duplicate 208 received');
-    return refreshVersions().then(() => {
+    return requestFreshness({ reason: 'serverResponse' }).then(() => {
       console.warn(error);
       throw error;
     }).catch(() => console.warn('Error refreshing'));

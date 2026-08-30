@@ -11,6 +11,7 @@ import {
   isLogoutGenerationCurrent,
   isSignedOut,
 } from '../utils/logoutState';
+import { FRESHNESS_NAMESPACES, publishReloadNotice } from '../api/crossTabFreshness';
 
 export class TokenWriteCancelledError extends Error {
   constructor () {
@@ -105,6 +106,7 @@ export default class TokenStorageManager {
         }
         throw error;
       }
+      publishReloadNotice(FRESHNESS_NAMESPACES.TOKENS);
       pushMessage(LOAD_TOKENS_CHANNEL, { event: LOAD_EVENT, key, token });
       return storedToken;
     });
@@ -115,10 +117,15 @@ export default class TokenStorageManager {
    * @param tokenType the type of token we're deleting
    * @param itemId the item id we're deleting a token for
    */
-  deleteToken(tokenType, itemId) {
+  deleteToken(tokenType, itemId, shouldDelete=() => true) {
     const key = this.getKeyNamespace(tokenType, itemId);
-    return navigator.locks.request(this.getWriteLockName(key), () => {
-      return new LocalForageHelper(key, TOKEN_STORAGE_KEYSPACE).deleteState();
+    return navigator.locks.request(this.getWriteLockName(key), async () => {
+      if (!shouldDelete()) {
+        return false;
+      }
+      const result = await new LocalForageHelper(key, TOKEN_STORAGE_KEYSPACE).deleteState();
+      publishReloadNotice(FRESHNESS_NAMESPACES.TOKENS);
+      return result;
     });
   }
 

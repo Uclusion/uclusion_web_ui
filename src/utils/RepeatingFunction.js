@@ -43,4 +43,11 @@ export class RepeatingFunction {
     await this.runner();
   }
 
+  stop() {
+    if (this.intervalID !== null) {
+      clearInterval(this.intervalID);
+      this.intervalID = null;
+    }
+  }
+
 }

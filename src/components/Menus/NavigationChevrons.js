@@ -1,4 +1,4 @@
-import React, { useContext, useLayoutEffect } from 'react';
+import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
 import Toolbar from '@material-ui/core/Toolbar';
 import { Button, Tooltip, makeStyles, useMediaQuery, useTheme } from '@material-ui/core';
 import { ArrowBack, ArrowForward, ArrowUpward } from '@material-ui/icons';
@@ -43,6 +43,7 @@ import ReturnTop from '../../pages/Home/ReturnTop';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { WARNING_COLOR } from '../Buttons/ButtonConstants';
 import { getCurrentWorkspace, getGroupForInvestibleId } from '../../utils/redirectUtils';
+import { LeaderContext } from '../../contexts/LeaderContext/LeaderContext';
 
 const useStyles = makeStyles((theme) => ({
   magicButton: {
@@ -88,7 +89,9 @@ export default function NavigationChevrons(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [groupsState] = useContext(MarketGroupsContext);
+  const [, , { requestFreshness }] = useContext(LeaderContext);
   const [searchResults] = useContext(SearchResultsContext);
+  const [pendingIntent, setPendingIntent] = useState(undefined);
   const location = useLocation();
   const { search: searchText } = searchResults;
   const { pathname, search, hash } = location;
@@ -279,6 +282,49 @@ export default function NavigationChevrons(props) {
     navigate(history, nextUrl.useUrl || nextUrl.url);
   }
 
+  function requestNavigation(direction) {
+    const destinationAvailable = direction === 'back' ? previous?.url : nextUrl?.url;
+    if (!stillLoading && destinationAvailable) {
+      if (direction === 'back') {
+        doPreviousNavigation();
+      } else {
+        doNextNavigation();
+      }
+      return;
+    }
+    if (pendingIntent) {
+      return;
+    }
+    setPendingIntent({ direction, resource });
+    requestFreshness({ reason: 'navigation' })
+      .catch(() => console.warn('Error refreshing navigation state'));
+  }
+
+  useLayoutEffect(() => {
+    if (!pendingIntent || pendingIntent.resource !== resource || stillLoading) {
+      return;
+    }
+    if (pendingIntent.direction === 'back' && previous?.url) {
+      setPendingIntent(undefined);
+      doPreviousNavigation();
+    } else if (pendingIntent.direction === 'next' && nextUrl?.url) {
+      setPendingIntent(undefined);
+      doNextNavigation();
+    }
+  }, [pendingIntent, resource, stillLoading, previous?.url, nextUrl?.url]);
+
+  useEffect(() => {
+    setPendingIntent((intent) => intent?.resource === resource ? intent : undefined);
+  }, [resource]);
+
+  useEffect(() => {
+    if (!pendingIntent) {
+      return undefined;
+    }
+    const timeout = setTimeout(() => setPendingIntent(undefined), 30000);
+    return () => clearTimeout(timeout);
+  }, [pendingIntent]);
+
   useLayoutEffect(() => {
     if (stillLoading) {
       return;
@@ -297,10 +343,12 @@ export default function NavigationChevrons(props) {
     rememberSeenNavigationUrl(currentNavUrl);
   }, [stillLoading, currentNavUrl, action, pathInvestibleId, allExistingUrls, liveInboxUrls, messagesDispatch]);
 
-  useHotkeys(isMac ? 'ctrl+option+arrowRight' : 'ctrl+arrowRight', doNextNavigation, {enabled: !nextDisabled, enableOnContentEditable: true},
+  useHotkeys(isMac ? 'ctrl+option+arrowRight' : 'ctrl+arrowRight', doNextNavigation,
+    {enabled: !stillLoading && !pendingIntent && !nextDisabled, enableOnContentEditable: true},
     [history, nextUrl.message, nextUrl.url, nextUrl.useUrl, nextUrl.kind, currentNavUrl, previous?.url]);
   useHotkeys(isMac ? 'ctrl+option+arrowLeft' : 'ctrl+arrowLeft', doPreviousNavigation,
-    {enabled: !backDisabled, enableOnContentEditable: true}, [history, previous?.url, currentNavUrl]);
+    {enabled: !stillLoading && !pendingIntent && !backDisabled, enableOnContentEditable: true},
+    [history, previous?.url, currentNavUrl]);
   // To make up arrow navigation work
   const returnTop = <ReturnTop action={action} pathInvestibleId={pathInvestibleId} market={defaultMarket} isMac={isMac}
             isArchivedWorkspace={isArchivedWorkspace} useLink={useLink} typeObjectId={typeObjectId} isSearch={!_.isEmpty(searchText)}
@@ -321,22 +369,24 @@ export default function NavigationChevrons(props) {
   </div>;
   const forwardButton = <Button
     variant="outlined"
-    disabled={nextDisabled}
+    disabled={!!pendingIntent}
+    aria-disabled={stillLoading || nextDisabled || !!pendingIntent}
     id={action === 'demo' || action === 'invite' ? 'nextDisplayNavigation' : 'nextNavigation'}
-    onClick={doNextNavigation}
+    onClick={() => requestNavigation('next')}
     className={classes.magicButton}
-    style={{ flexShrink: 0 }}
+    style={{ flexShrink: 0, opacity: stillLoading || nextDisabled ? 0.45 : undefined }}
     endIcon={forwardIcon}
   >
     {intl.formatMessage({ id: forwardLabelId })}
   </Button>;
   const backButton = mobileLayout ? null : <Button
     variant="outlined"
-    disabled={backDisabled}
+    disabled={!!pendingIntent}
+    aria-disabled={backDisabled || !!pendingIntent}
     id="backNavigation"
-    onClick={doPreviousNavigation}
+    onClick={() => requestNavigation('back')}
     className={classes.magicButton}
-    style={{ flexShrink: 0 }}
+    style={{ flexShrink: 0, opacity: backDisabled ? 0.45 : undefined }}
     startIcon={<ArrowBack htmlColor={backDisabled ? 'rgba(0, 0, 0, 0.38)' : 'black'} />}
   >
     {intl.formatMessage({ id: 'navBack' })}

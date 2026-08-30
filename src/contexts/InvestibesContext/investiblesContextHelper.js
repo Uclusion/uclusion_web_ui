@@ -104,4 +104,3 @@ export function refreshInvestibles(dispatch, diffDispatch, investibles, fromNetw
     dispatch(updateStorableInvestibles(fixed));
   }
 }
-

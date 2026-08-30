@@ -85,9 +85,8 @@ export const BANNED_LIST = 'banned_list';
 export class MatchError extends Error {}
 
 let runner;
-// Q-all-111 refresh state is per tab - every tab must do its own fetch to update its own
-// memory, so the old cross tab REFRESH_LOCK only discarded refreshes other tabs needed.
-// Coalesce within the tab instead: a refresh requested mid-refresh runs exactly once after.
+// Refresh state is local to the elected leader. Coalesce requests within that tab so a
+// refresh requested mid-refresh runs exactly once afterward.
 let refreshInProgress = false;
 let refreshQueued = false;
 let queuedDispatchers = undefined;
@@ -102,6 +101,9 @@ let releasePending = false;
 let lastCycleEndMs = 0;
 let releaseTimer = undefined;
 let releaseDispatchers = undefined;
+// Incremented when this tab gives up leadership. Work started under an older value may
+// finish its network calls, but it must not release data or restart the recurring runner.
+let refreshLifecycle = 0;
 
 function doRelease() {
   if (!releasePending) {
@@ -152,11 +154,12 @@ const matchErrorHandlingVersionRefresh = (dispatchers=undefined, releaseImmediat
     }
     return Promise.resolve(false);
   }
+  const lifecycle = refreshLifecycle;
   refreshInProgress = true;
   let refreshSucceeded = true;
   // B-all-569: permanent sync-window marker, inert until window.__uclusionProfiler('on')
   markSync('start');
-  return doVersionRefresh(dispatchers)
+  return doVersionRefresh(dispatchers, () => lifecycle === refreshLifecycle)
     .catch((error) => {
       refreshSucceeded = false;
       if (error instanceof MatchError) {
@@ -171,6 +174,23 @@ const matchErrorHandlingVersionRefresh = (dispatchers=undefined, releaseImmediat
     })
     .then((dirtyMarketCount) => {
       markSync('end');
+      if (lifecycle !== refreshLifecycle) {
+        refreshInProgress = false;
+        releasePending = false;
+        releaseDispatchers = undefined;
+        if (hasAccrued()) {
+          takeAccrued();
+        }
+        if (refreshQueued) {
+          refreshQueued = false;
+          const dispatchersForQueued = queuedDispatchers;
+          const releaseQueuedImmediately = queuedImmediateRelease;
+          queuedDispatchers = undefined;
+          queuedImmediateRelease = false;
+          return matchErrorHandlingVersionRefresh(dispatchersForQueued, releaseQueuedImmediately);
+        }
+        return dirtyMarketCount;
+      }
       if (refreshSucceeded) {
         lastSuccessfulRefreshMs = Date.now();
         recordInitialSyncCycle(dirtyMarketCount);
@@ -272,9 +292,42 @@ export function ensureRefreshRunner() {
   }
 }
 
+export function stopRefreshRunner() {
+  refreshLifecycle += 1;
+  if (runner) {
+    runner.stop();
+    runner = undefined;
+  }
+  if (syncThrottleTimer) {
+    clearTimeout(syncThrottleTimer);
+    syncThrottleTimer = undefined;
+  }
+  if (releaseTimer) {
+    clearTimeout(releaseTimer);
+    releaseTimer = undefined;
+  }
+  releasePending = false;
+  releaseDispatchers = undefined;
+  if (hasAccrued()) {
+    takeAccrued();
+  }
+  lastRequestMs = undefined;
+  firstSuppressedMs = undefined;
+  suppressedDispatchers = undefined;
+  refreshQueued = false;
+  queuedDispatchers = undefined;
+  queuedImmediateRelease = false;
+  if (pushVerifyTimer) {
+    clearTimeout(pushVerifyTimer);
+    pushVerifyTimer = undefined;
+  }
+  pendingPushChecks.splice(0, pendingPushChecks.length);
+}
+
 function ensureRunnerAfter(refreshPromise) {
+  const lifecycle = refreshLifecycle;
   return refreshPromise.then((dirtyMarketCount) => {
-    if (runner == null) {
+    if (lifecycle === refreshLifecycle && runner == null) {
       return startRefreshRunner().then(() => dirtyMarketCount);
     }
     return dirtyMarketCount;
@@ -296,6 +349,18 @@ export function refreshVersionsNow(dispatchers=undefined) {
 }
 
 /**
+ * Executes one immediate refresh without starting this tab's drift runner. Followers use this
+ * only as the bounded B-all-446 liveness fallback when leadership cannot be established.
+ */
+export function refreshVersionsOnce(dispatchers=undefined) {
+  if (isSignedOut()) {
+    console.info('Not refreshing when signed out')
+    return Promise.resolve(true);
+  }
+  return matchErrorHandlingVersionRefresh(dispatchers, true);
+}
+
+/**
  * Executes a version refresh, coalescing with any refresh already running in this tab,
  * and makes sure a refreshRunner is started so max drift is honored
  * @param dispatchers
@@ -305,7 +370,6 @@ export function refreshVersionsNow(dispatchers=undefined) {
  * @returns {Promise<*>}
  */
 export function refreshVersions (dispatchers=undefined, skipIfRefreshedWithinMs=undefined) {
-  // Unless leader this refresh will only update memory and not disk - so safe
   if (isSignedOut()) {
     console.info('Not refreshing when signed out')
     return Promise.resolve(true); // also do nothing when signed out
@@ -392,8 +456,12 @@ export function refreshVersionsFromPush(push=undefined) {
 export function refreshNotifications () {
   if (!isSignedOut()) {
     // check if new notifications
-    pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: VERSIONS_EVENT });
+    pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: VERSIONS_EVENT, refreshLifecycle });
   }
+}
+
+export function isRefreshLifecycleCurrent(lifecycle) {
+  return lifecycle === undefined || lifecycle === refreshLifecycle;
 }
 
 /**
@@ -403,20 +471,29 @@ export function refreshNotifications () {
  * @param maxConcurrentCount the maximum number of api calls to make at once
  * @param storageStates
  * @param isInline whether the markets are inline or not
+ * @param refreshIsCurrent whether this refresh still belongs to the active leadership lifecycle
  * @returns {Promise<*>}
  */
-export function updateMarkets(marketIds, marketsStruct, maxConcurrentCount, storageStates, isInline=false) {
-  if (_.isEmpty(marketIds)) {
+export function updateMarkets(marketIds, marketsStruct, maxConcurrentCount, storageStates,
+  isInline=false, refreshIsCurrent=() => true) {
+  if (_.isEmpty(marketIds) || !refreshIsCurrent()) {
     return Promise.resolve(true);
   }
   return getVersions(marketIds, isInline)
     .then((marketSignatures) => {
+      if (!refreshIsCurrent()) {
+        return [];
+      }
       //console.error(marketSignatures);
       return new LimitedParallelMap(marketSignatures, (marketSignature) => {
+        if (!refreshIsCurrent()) {
+          return Promise.resolve(false);
+        }
         //console.error("MarketSignature")
         //console.error(marketSignature);
         const { market_id: marketId, signatures: componentSignatures } = marketSignature;
-        return doRefreshMarket(marketId, componentSignatures, marketsStruct, storageStates);
+        return doRefreshMarket(marketId, componentSignatures, marketsStruct, storageStates,
+          refreshIsCurrent);
       }, maxConcurrentCount);
     });
 }
@@ -554,11 +631,17 @@ export function getStorageStates() {
  * Function that will make exactly one attempt to sync
  * @returns {Promise<*>}
  */
-async function doVersionRefresh(dispatchers) {
+async function doVersionRefresh(dispatchers, refreshIsCurrent) {
   console.info('Checking for sync');
   releaseDispatchers = dispatchers;
   const storageStates = await timeSpanAsync('getStorageStates', () => getStorageStates());
+  if (!refreshIsCurrent()) {
+    return 0;
+  }
   const audits = await timeSpanAsync('getChangedIds', () => getChangedIds());
+  if (!refreshIsCurrent()) {
+    return 0;
+  }
   const foregroundList = [];
   const backgroundList = [];
   const bannedList = [];
@@ -569,7 +652,7 @@ async function doVersionRefresh(dispatchers) {
     if (banned) {
       bannedList.push(id);
       const tokenStorageManager = new TokenStorageManager();
-      bannedPromises.push(tokenStorageManager.deleteToken(TOKEN_TYPE_MARKET, id));
+      bannedPromises.push(tokenStorageManager.deleteToken(TOKEN_TYPE_MARKET, id, refreshIsCurrent));
     } else if (!checkSignatureInStorage(id, signature, storageStates, true)) {
       if (inline) {
         inlineList.push(id);
@@ -584,31 +667,43 @@ async function doVersionRefresh(dispatchers) {
   // dispatch whose reducer correctly returned the same state - which the wrapper then persisted
   // anyway. Burst eight measured nineteen whole-state presence writes for a storm in which nothing
   // was banned. Nobody needs telling about an empty list.
-  if (!_.isEmpty(bannedList)) {
+  if (!_.isEmpty(bannedList) && refreshIsCurrent()) {
     pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, bannedList });
   }
   await Promise.all(bannedPromises);
+  if (!refreshIsCurrent()) {
+    return 0;
+  }
   // Starting operation in progress just presents as a bug to the user because freezes all buttons so just log
   console.info('Beginning inline versions update');
   console.info(inlineList);
   // TODO: this is evil. We're using the inlineMarketsStruct as an _output_ parameter that gets mutated
   const inlineMarketsStruct = {};
   await timeSpanAsync('updateMarkets:inline', () => updateMarkets(inlineList, inlineMarketsStruct,
-    MAX_CONCURRENT_API_CALLS, storageStates, true))
+    MAX_CONCURRENT_API_CALLS, storageStates, true, refreshIsCurrent))
+  if (!refreshIsCurrent()) {
+    return 0;
+  }
   accrueMarketsStruct(inlineMarketsStruct);
   const foregroundMarketsStruct = {};
   console.info('Beginning foreground versions update');
   console.info(foregroundList);
   // TODO: Again, this is evil. ForegroundMarketsStruct is an _output_ parameter that gets mutated
   await timeSpanAsync('updateMarkets:foreground', () => updateMarkets(foregroundList,
-    foregroundMarketsStruct, MAX_CONCURRENT_API_CALLS, storageStates));
+    foregroundMarketsStruct, MAX_CONCURRENT_API_CALLS, storageStates, false, refreshIsCurrent));
+  if (!refreshIsCurrent()) {
+    return 0;
+  }
   accrueMarketsStruct(foregroundMarketsStruct);
   const backgroundMarketsStruct = {};
   console.info('Finished foreground update');
   console.info('Beginning background versions update');
   console.info(backgroundList);
   await timeSpanAsync('updateMarkets:background', () => updateMarkets(backgroundList,
-    backgroundMarketsStruct, MAX_CONCURRENT_ARCHIVE_API_CALLS, storageStates));
+    backgroundMarketsStruct, MAX_CONCURRENT_ARCHIVE_API_CALLS, storageStates, false, refreshIsCurrent));
+  if (!refreshIsCurrent()) {
+    return 0;
+  }
   accrueMarketsStruct(backgroundMarketsStruct);
   console.info('Ending versions update');
   // How many markets were dirty - lets push-triggered callers detect a refresh that
@@ -622,15 +717,17 @@ async function doVersionRefresh(dispatchers) {
  * @param componentSignatures the component signatures telling us what we're looking for
  * @param marketsStruct
  * @param storageStates
+ * @param refreshIsCurrent whether this refresh still belongs to the active leadership lifecycle
  * @returns {null}
  */
-async function doRefreshMarket(marketId, componentSignatures, marketsStruct, storageStates) {
+async function doRefreshMarket(marketId, componentSignatures, marketsStruct, storageStates,
+  refreshIsCurrent) {
   const serverFetchSignatures = getFetchSignaturesForMarket(componentSignatures);
   const fromStorage = checkInStorage(marketId, serverFetchSignatures, storageStates);
   const { markets, comments, marketPresences, marketStages, investibles, marketGroups, groupMembers } = fromStorage;
   const promises = [];
   const marketClient = await getMarketClient(marketId);
-  if (!marketClient) {
+  if (!marketClient || !refreshIsCurrent()) {
     return promises;
   }
   if (!_.isEmpty(markets.unmatchedSignatures)) {

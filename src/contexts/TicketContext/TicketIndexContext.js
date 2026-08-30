@@ -4,12 +4,21 @@ import _ from 'lodash'
 
 const EMPTY_STATE = {};
 const TicketIndexContext = React.createContext(EMPTY_STATE);
+const REPLACE_ITEMS = 'replace_items';
+
+export function replaceTicketItems(items, itemIdKey, excludedIdKey) {
+  return { type: REPLACE_ITEMS, items, itemIdKey, excludedIdKey };
+}
 
 const reducer = (state, action) => {
-  const { items } = action;
+  const { items, itemIdKey, excludedIdKey, type } = action;
   if (items) {
     const ticketHash = _.keyBy(items, (item) => `${item.marketId}/${decodeURI(item.ticketCode)}`);
-    return { ...state, ...ticketHash };
+    const existing = type === REPLACE_ITEMS
+      ? _.omitBy(state, (item) => item?.[itemIdKey] !== undefined &&
+        (!excludedIdKey || item?.[excludedIdKey] === undefined))
+      : state;
+    return { ...existing, ...ticketHash };
   }
   return state;
 };

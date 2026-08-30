@@ -5,6 +5,7 @@ import { leaderContextHack } from '../LeaderContext/LeaderContext';
 import { flushPendingClears, PENDING_CLEARS_ACKED } from './pendingClearsFlusher';
 import { timeSpan, timeSpanAsync } from '../../utils/renderProfiler';
 import { getInboxTarget, getMessageId, isInboxItemNavigationUrl, isInInbox } from './notificationsContextHelper';
+import { queuePersistenceWrite } from '../../api/crossTabFreshness';
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
@@ -319,8 +320,10 @@ function computeNewState (state, action) {
     case INITIALIZE_STATE:
       // T-all-2494: custom Back history belongs to this tab. Ignore legacy entries from the
       // shared NotificationsContext store without overwriting navigation that happened while
-      // its asynchronous read was still in flight.
-      return { ...action.newState, navigations: state.navigations || [],
+      // its asynchronous read was still in flight. A later disk reload also drops local
+      // notification destinations that no longer exist in the shared message set.
+      return { ...action.newState,
+        navigations: pruneNavigationsForMessages(state.navigations || [], action.newState.messages || []),
         pendingClears: action.newState.pendingClears || [] };
     case PENDING_CLEARS_ACKED:
       return doClearsAcked(state, action);
@@ -346,26 +349,14 @@ function computeNewState (state, action) {
   }
 }
 
-// T-all-2485: every sibling context chains its writes, this one fired an unchained setTimeout
-// so two writes could land out of order. R-all-2306 makes that inconsistency load bearing,
-// because the release has to await each context's storage chain before telling other tabs to
-// reload, and a chain that does not exist cannot be awaited.
-let notificationsStoragePromiseChain = Promise.resolve(true);
-
-function storeStatePromise(action, newState) {
-  if (action.type !== INITIALIZE_STATE) {
-    const { isLeader } = leaderContextHack;
-    if (isLeader) {
-      const lfh = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
-      // T-all-2494: LocalForage is shared by every tab. Keep the field for storage-schema and
-      // mixed-version compatibility, but never persist one tab's custom Back history.
-      const stateToStore = { ...newState, navigations: [] };
-      return timeSpanAsync('idb:notifications', () => lfh.setState(stateToStore)).then(() => {
-        console.info('Updated notifications context storage.');
-      });
-    }
-  }
-  return Promise.resolve(true);
+function storeSharedState(newState) {
+  const lfh = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
+  // T-all-2494: LocalForage is shared by every tab. Keep the field for storage-schema and
+  // mixed-version compatibility, but never persist one tab's custom Back history.
+  const stateToStore = { ...newState, navigations: [] };
+  return timeSpanAsync('idb:notifications', () => lfh.setState(stateToStore)).then(() => {
+    console.info('Updated notifications context storage.');
+  });
 }
 
 function reducer (state, action) {
@@ -379,10 +370,11 @@ function reducer (state, action) {
   if (newState === state) {
     return state;
   }
-  setTimeout(() => {
-    notificationsStoragePromiseChain = notificationsStoragePromiseChain
-      .then(() => storeStatePromise(action, newState));
-  }, 0);
+  const sharedStateChanged = newState.messages !== state.messages ||
+    newState.pendingClears !== state.pendingClears;
+  if (action.type !== INITIALIZE_STATE && sharedStateChanged && leaderContextHack.isLeader) {
+    queuePersistenceWrite('notifications', () => storeSharedState(newState));
+  }
   if (action.type !== PENDING_CLEARS_ACKED && !_.isEmpty(newState.pendingClears)) {
     setTimeout(() => flushPendingClears(newState.pendingClears), 0);
   }

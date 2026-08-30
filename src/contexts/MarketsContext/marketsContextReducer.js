@@ -3,6 +3,7 @@ import { addByIdAndVersion } from '../ContextUtils'
 import { leaderContextHack } from '../LeaderContext/LeaderContext';
 import LocalForageHelper from '../../utils/LocalForageHelper';
 import { MARKET_CONTEXT_NAMESPACE } from './MarketsContext';
+import { queuePersistenceWrite } from '../../api/crossTabFreshness';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_MARKET_DETAILS = 'UPDATE_MARKET_DETAILS';
@@ -87,15 +88,13 @@ function computeNewState(state, action) {
   }
 }
 
-let marketsStoragePromiseChain = Promise.resolve(true);
-
 function reducer(state, action) {
   const newState = computeNewState(state, action);
-  if (action.type !== INITIALIZE_STATE) {
+  if (action.type !== INITIALIZE_STATE && newState !== state) {
     const { isLeader } = leaderContextHack;
     if (isLeader) {
       const lfh = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
-      marketsStoragePromiseChain = marketsStoragePromiseChain.then(() => {
+      queuePersistenceWrite('markets', () => {
         return lfh.setState(newState).then(() => {
           console.info('Updated market context storage.');
         });

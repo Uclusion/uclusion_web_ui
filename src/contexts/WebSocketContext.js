@@ -7,7 +7,7 @@ import { sendInfoPersistent, toastError } from '../utils/userMessage'
 import { pushMessage } from '../utils/MessageBusUtils'
 import { getLoginPersistentItem, setLoginPersistentItem } from '../components/localStorageUtils'
 import { isMobileDevice, isSignedOut, onSignOut } from '../utils/userFunctions'
-import { ensureRefreshRunner, refreshVersionsFromPush, VERSIONS_EVENT } from '../api/versionedFetchUtils';
+import { ensureRefreshRunner, VERSIONS_EVENT } from '../api/versionedFetchUtils';
 import { PUSH_ACCOUNT_CHANNEL, PUSH_HOME_USER_CHANNEL } from './AccountContext/accountContextMessages'
 import { getLogin } from '../api/homeAccount';
 import { getAppVersion } from '../api/sso';
@@ -21,6 +21,7 @@ import {
 } from './MarketsContext/marketsContextHelper'
 import { PLANNING_TYPE } from '../constants/markets'
 import { getMarketToken } from '../api/marketLogin';
+import { LeaderContext } from './LeaderContext/LeaderContext';
 
 const WebSocketContext = React.createContext({
   pokeAI: () => Promise.resolve(),
@@ -119,8 +120,11 @@ function WebSocketProvider(props) {
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [online] = useContext(OnlineStateContext);
+  const [leaderState, , { requestFreshness }] = useContext(LeaderContext);
   // Ref so the websocket and interval callbacks see the latest value instead of a stale closure
   const hasNonDemoRef = useRef(false);
+  const isLeaderRef = useRef(false);
+  isLeaderRef.current = !!leaderState.isLeader;
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
   hasNonDemoRef.current = !_.isEmpty((planningDetails || []).filter((market) => !marketIsDemo(market)));
@@ -156,13 +160,19 @@ function WebSocketProvider(props) {
             // refreshVersionsFromPush ends in a doVersionRefresh that refreshes
             // notifications, so the direct call doubled the full getMessages fetch
             // and reducer replacement on every push
-            refreshVersionsFromPush().then(() => console.info('Refreshed versions from notifications push'));
+            requestFreshness({ reason: 'push' })
+              .then(() => console.info('Refreshed versions from notifications push'))
+              .catch(() => console.warn('Error refreshing from notifications push'));
             break;
           default:
             // event_type is the object_type and object_id the market id (T-all-2259), so the
             // refresh can verify the pushed object landed and retry with backoff if not
-            refreshVersionsFromPush({ objectType: event, marketId: objectId, version, objectIdOneTwo })
-              .then(() => console.info('Refreshed versions from push'));
+            requestFreshness({
+              reason: 'push',
+              push: { objectType: event, marketId: objectId, version, objectIdOneTwo }
+            })
+              .then(() => console.info('Refreshed versions from push'))
+              .catch(() => console.warn('Error refreshing from push'));
             break;
         }
       },
@@ -204,7 +214,9 @@ function WebSocketProvider(props) {
         // The drift runner in versionedFetchUtils already refreshes every MAX_DRIFT_TIME;
         // calling refreshVersions here too stacked a second full sync every five minutes
         // (C-all-1066). Just guarantee the runner exists (it also restarts a dead one).
-        ensureRefreshRunner();
+        if (isLeaderRef.current) {
+          ensureRefreshRunner();
+        }
         checkAppVersion(hasNonDemoRef);
       }
     }, 300000);

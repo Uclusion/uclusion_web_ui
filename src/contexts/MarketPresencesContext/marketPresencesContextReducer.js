@@ -4,6 +4,7 @@ import { addByIdAndVersion } from '../ContextUtils'
 import { leaderContextHack } from '../LeaderContext/LeaderContext';
 import LocalForageHelper from '../../utils/LocalForageHelper';
 import { MARKET_PRESENCES_CONTEXT_NAMESPACE } from './MarketPresencesContext';
+import { queuePersistenceWrite } from '../../api/crossTabFreshness';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const ADD_MARKET_PRESENCE = 'ADD_MARKET_PRESENCE';
@@ -221,15 +222,13 @@ function computeNewState(state, action) {
   }
 }
 
-let presencesStoragePromiseChain = Promise.resolve(true);
-
 function reducer(state, action) {
   const newState = computeNewState(state, action);
-  if (action.type !== INITIALIZE_STATE) {
+  if (action.type !== INITIALIZE_STATE && newState !== state) {
     const { isLeader } = leaderContextHack;
     if (isLeader) {
       const lfh = new LocalForageHelper(MARKET_PRESENCES_CONTEXT_NAMESPACE);
-      presencesStoragePromiseChain = presencesStoragePromiseChain.then(() => {
+      queuePersistenceWrite('presences', () => {
         return lfh.setState(newState).then(() => {
           console.info('Updated presence context storage.');
         });

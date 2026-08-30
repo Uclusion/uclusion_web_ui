@@ -1,15 +1,13 @@
-import React, { useContext, useEffect, useReducer } from 'react'
+import React, { useCallback, useContext, useEffect, useReducer } from 'react'
 import reducer, { initializeState } from './investiblesContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import beginListening from './investiblesContextMessages'
 import { DiffContext } from '../DiffContext/DiffContext'
-import { pushMessage } from '../../utils/MessageBusUtils'
-import {
-  INDEX_INVESTIBLE_TYPE,
-  INDEX_UPDATE,
-  SEARCH_INDEX_CHANNEL
-} from '../SearchIndexContext/searchIndexContextMessages'
-import { TICKET_INDEX_CHANNEL } from '../TicketContext/ticketIndexContextMessages'
+import { INDEX_INVESTIBLE_TYPE } from '../SearchIndexContext/searchIndexContextMessages'
+import { SearchIndexContext } from '../SearchIndexContext/SearchIndexContext'
+import { replaceIndexItems } from '../SearchIndexContext/searchIndexContextHelper'
+import { replaceTicketItems, TicketIndexContext } from '../TicketContext/TicketIndexContext'
+import { flushSync } from 'react-dom';
 
 const INVESTIBLES_CHANNEL = 'investibles';
 const INVESTIBLES_CONTEXT_NAMESPACE = 'investibles';
@@ -20,10 +18,12 @@ const InvestiblesContext = React.createContext(EMPTY_STATE);
 // we don't use a provider, because we have one defined below
 let investibleContextHack, attachmentPathHack = {};
 
-function pushIndexItems(diskState) {
-  const investibles = Object.values(diskState) || [];
-  const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_INVESTIBLE_TYPE, items: investibles };
-  pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
+function replaceDerivedState(diskState, index, ticketsDispatch) {
+  const investibles = Object.values(diskState).filter((item) => item?.investible);
+  if (index) {
+    replaceIndexItems(index, INDEX_INVESTIBLE_TYPE, investibles);
+  }
+  Object.keys(attachmentPathHack).forEach((path) => delete attachmentPathHack[path]);
   const ticketCodeItems = []
   investibles.forEach((inv) => {
     const { market_infos: marketInfos, investible } = inv;
@@ -34,12 +34,13 @@ function pushIndexItems(diskState) {
     }
     marketInfos.forEach((item) => {
       const { market_id: marketId, ticket_code: ticketCode } = item;
-      if (ticketCode) {
+      if (ticketCode && !item.deleted) {
         ticketCodeItems.push({ ticketCode, marketId, investibleId: investible.id });
       }
     });
   });
-  pushMessage(TICKET_INDEX_CHANNEL, ticketCodeItems);
+  // Comment ticket rows also have an investibleId, so exclude those from this source replacement.
+  ticketsDispatch(replaceTicketItems(ticketCodeItems, 'investibleId', 'commentId'));
 }
 
 export { investibleContextHack, attachmentPathHack };
@@ -47,6 +48,20 @@ export { investibleContextHack, attachmentPathHack };
 function InvestiblesProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const [, diffDispatch] = useContext(DiffContext);
+  const [index] = useContext(SearchIndexContext);
+  const [, ticketsDispatch] = useContext(TicketIndexContext);
+
+  const hydrateInvestiblesFromDisk = useCallback(() => {
+    const lfg = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
+    return lfg.getStoredState().then((diskState) => {
+      const hydratedState = diskState || {};
+      flushSync(() => {
+        replaceDerivedState(hydratedState, index, ticketsDispatch);
+        dispatch(initializeState(hydratedState));
+      });
+      return hydratedState;
+    });
+  }, [index, ticketsDispatch]);
 
   useEffect(() => {
     beginListening(dispatch, diffDispatch);
@@ -55,22 +70,14 @@ function InvestiblesProvider(props) {
 
   useEffect(() => {
     // load state from storage
-    const lfg = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
-    lfg.getState()
-      .then((state) => {
-        if (state) {
-          pushIndexItems(state);
-          dispatch(initializeState(state));
-        } else {
-          dispatch(initializeState({}));
-        }
-      });
+    hydrateInvestiblesFromDisk()
+      .catch((error) => console.warn('Unable to load investibles from disk', error));
     return () => {};
-  }, []);
+  }, [hydrateInvestiblesFromDisk]);
 
   investibleContextHack = state;
   return (
-    <InvestiblesContext.Provider value={[state, dispatch]}>
+    <InvestiblesContext.Provider value={[state, dispatch, hydrateInvestiblesFromDisk]}>
       {props.children}
     </InvestiblesContext.Provider>
   );

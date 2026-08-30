@@ -241,7 +241,7 @@ export default function NavigationChevrons(props) {
   }
 
   const nextUrl = stillLoading ? {} : computeForward();
-  const backDisabled = _.isEmpty(previous);
+  const backDisabled = stillLoading || _.isEmpty(previous);
   const nextDisabled = _.isEmpty(nextUrl?.url);
   const nextHighlighted = nextUrl?.kind === 'message';
 
@@ -301,10 +301,6 @@ export default function NavigationChevrons(props) {
     [history, nextUrl.message, nextUrl.url, nextUrl.useUrl, nextUrl.kind, currentNavUrl, previous?.url]);
   useHotkeys(isMac ? 'ctrl+option+arrowLeft' : 'ctrl+arrowLeft', doPreviousNavigation,
     {enabled: !backDisabled, enableOnContentEditable: true}, [history, previous?.url, currentNavUrl]);
-  // B-all-570: invisible during loading (after all hooks so their order is stable)
-  if (stillLoading) {
-    return React.Fragment;
-  }
   // To make up arrow navigation work
   const returnTop = <ReturnTop action={action} pathInvestibleId={pathInvestibleId} market={defaultMarket} isMac={isMac}
             isArchivedWorkspace={isArchivedWorkspace} useLink={useLink} typeObjectId={typeObjectId} isSearch={!_.isEmpty(searchText)}

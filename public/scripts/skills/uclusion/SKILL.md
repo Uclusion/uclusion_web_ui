@@ -238,10 +238,15 @@ one executable target for the implementation pass:
 
 Load the selected target with `get_job` before affected edits. If its capsule
 is absent, continue read-only investigation, settle every reviewer-divergent
-choice, then call `set_design_capsule` in create mode with `job_or_task_id` and
-the complete capsule. Existing work is not backfilled. Historical work that
-needs no more implementation may finish its existing review, but the next
-resumed or changed implementation pass needs a capsule before affected edits.
+choice, then call `set_design_capsule` in target mode. For a job, send `job_id`
+and the complete `capsule`. For a top-level or grouped task, send its current
+`job_id`, `task_id`, and the complete `capsule`; a grouped `task_id` normalizes
+to its top-level parent. Uclusion strongly validates that the task still
+belongs to the stated job and refuses a missing or stale job/task pairing.
+Reload the task and use its current job before retrying. Existing work is not
+backfilled. Historical work that needs no more implementation may finish its
+existing review, but the next resumed or changed implementation pass needs a
+capsule before affected edits.
 
 Capsule Markdown is freeform and sized to the work. It must be a concise,
 stand-alone system story rather than a question or component ledger. Cover the

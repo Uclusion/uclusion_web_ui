@@ -7,22 +7,31 @@
 - Work claim lock
 - Resident-stub delivery contract
 - Backlog and session lifecycle
+- Assignment ownership
 - Single-lane triage
 - Poke grammar and lookup routing
 - Connection updates
 
 ## Finding work and auto-take
 
-When there is no specific work, call `find_work` without waiting to be asked and
-present the full result as a numbered list. This applies at an idle session
-start and immediately after finishing or handing off work. A deferred Poke does
-not count as concrete work; find_work is the current state.
+When there is no assigned work, call `find_work` without waiting to be asked and
+present the full result as a numbered list. Do this at an idle session start and
+immediately after finishing or handing off work. A deferred Poke does not count
+as concrete work; find_work is the current state. A human-guided assignment
+retained through an input or review handoff is still assigned work, so the list
+is informational until the human explicitly switches that session.
 
-If the response has `auto_take_directions`, present the list and immediately
-load the first item marked `auto_take`. Continue its normal questions,
-suggestions, stage checks, execution, and material-handoff rule in the same
-turn. Never auto-start an unmarked item, interrupt active work, or override a
-human instruction.
+If the response has `auto_take_directions`, present the list and follow the work
+claim lock before loading any marked item. Pass the marked candidates in list
+order and load only the one returned by a successful claim. Continue its normal
+questions, suggestions, stage checks, execution, and material-handoff rule in
+the same turn. Never auto-start an unmarked or unclaimed item, interrupt active
+work, or override a human instruction.
+
+Auto-take applies only while the session has no human-guided assignment. That
+assignment survives a handoff for input or review, so a find-work result may be
+presented but must not switch the session automatically. Only the human can
+select different work for that session.
 
 When an empty response's directions explicitly say this is the "first AI
 session" and the guidance is "served only once", follow those directions
@@ -38,19 +47,23 @@ an auto-take view gone dry, call `request_work` once per dry spell instead.
 ## Work claim lock
 
 When the user opted into work claims, a `claim_work` tool is exposed. It stops
-idle agents on any machine from starting the same work; when it is absent this
-section does not apply.
+idle agents on any machine from starting the same work. Every auto-take
+activation is claim-gated. If auto-take directions arrive without the tool,
+present the list but do not load or start an item; tell the human that auto-take
+requires work claims. Human-guided selections do not require the tool.
 
-- Call `claim_work` with operation `claim` right before starting a lane. Pass
-  every candidate you would be willing to start, in preference order, as
+- Call `claim_work` with operation `claim` before loading or starting an
+  auto-take lane. Pass every candidate you would be willing to start, in
+  preference order, as
   `short_code_ids` (a specifically requested item is a one-element list). The
   result names the single code you now hold; start that item, even when it is
   not your first preference.
 - A denied claim means every listed item is already held by other agents. Do
   not start a lane; return to idle delivery, or re-run find_work when new work
   may have arrived.
-- An error result means the lock service is unreachable. Proceed without the
-  lock; the claim is a coordination aid, not a permission gate.
+- A timeout or error result means the lock service is unreachable. No claim was
+  granted, so do not start auto-take work; remain idle and report the failure.
+  A later direct human selection may use the human-guided path without a claim.
 - At every lane handoff (blocked, review requested, or complete), call
   `claim_work` with operation `release` for the held short code. Claims a
   crashed agent leaves behind expire on their own, so never wait for another
@@ -76,33 +89,56 @@ Delivering existing Pokes emits retained history as an unmarked private copy,
 without changing other consumers; handle that copy exactly as the human's ask
 directs, never as an automatic live Start. Neither flag deletes inbox rows.
 
-Delivery is broadcast per session; another active session may handle the same
-state first. Incorporate the loaded current state and never race or coordinate
-through the inbox. Never read, edit, or delete the inbox database.
+Delivery is broadcast per session; every live session may receive the same
+line. Broadcast is transport, not assignment. Incorporate state only under the
+assignment rules below and never race or coordinate through the inbox. Never
+read, edit, or delete the inbox database.
 
 When exiting with a listener/wait running, choose the plain exit. Do not move a
 poller outside its harness; it could claim work no agent will see. Arm or
 relaunch delivery before the final chat message because some clients hide text
 written before a tool call.
 
+## Assignment ownership
+
+A default session has at most one assigned job or bug. Reading, classifying, or
+reloading an object does not assign it. Assignment begins only when the human
+selects work in that session, including a numbered find-work selection, when a
+live `Start` arrives, or when an auto-take claim succeeds.
+
+A human-guided assignment remains with that session while it waits for human
+input or review. It ends on completion or when the human explicitly switches
+the session to another assignment. Auto-take ownership follows the work claim
+lock and its release lifecycle. Explicit human-configured roles may
+deliberately assign multiple agents to the same work; that is outside the
+default one-agent rule.
+
+`Start` is an untargeted broadcast. The human must not use it while more than
+one default agent is idle and able to accept it. In that situation, select the
+work directly in one agent's chat instead. An agent that receives a valid live
+`Start` follows it; agents do not invent inbox coordination to elect a winner.
+
 ## Single-lane triage
 
-The active lane begins when you start reading a job or bug and ends when it
-hands off for human input, review, or completion.
+The active lane is the assigned job or bug while the session is working on it.
+An execution or audit interval can hand off while its human-guided assignment
+remains available for a matching continuation event.
 
-- Handle an event for the active item or anything nested under it immediately.
-- Defer an unrelated event without loading it. Briefly name the deferral and
-  continue. In a compound event, the parent after `of` identifies the lane.
-- For a bare direct code not visible in current context, make one classification
-  `get_job` call. Handle it if it belongs to the lane; otherwise name its parent
-  and defer without further action.
+- Handle a continuation event for the assigned item or anything known to be
+  nested under it immediately.
+- Ignore an unrelated continuation event without loading it. Briefly name the
+  deferral and continue. In a compound event, the parent after `of` identifies
+  the assignment. Merely receiving `Added`, `Updated`, or `Responded` never
+  creates or switches an assignment.
+- When a bare direct continuation code is not already known to belong to the
+  assigned lane, defer it without lookup. Current Uclusion state remains the
+  authority for later work discovery.
 - A deferred Start never auto-starts after the lane ends. It may belong to
   another session; find_work will surface anything still actionable.
-- While idle, live Start, Responded, and Added events load and activate their
-  targets subject to normal stage/workflow checks. Updated alone is normally
-  noted without starting work. A current intent/design capsule update is the
-  exception: activate its enclosing job only for capsule reload and obsolete
-  review cleanup, then return idle unless that lane was already active.
+- While unassigned, only a valid live `Start`, a direct human selection, or a
+  successful auto-take claim activates work. `Added`, `Updated`, and
+  `Responded` do not load or activate a target while the session is unassigned.
+  They also never switch a session from a different assignment.
 
 A new chat instruction does not stop a valid listener. Handle it while delivery
 continues.
@@ -119,29 +155,36 @@ The first word is contractual:
   change, or explicit stage change. When the target is the current
   intent/design capsule, its body replaces the cached contract. Reload that
   capsule and Reports, then resolve your open review naming its R-code before
-  further affected implementation.
+  further affected implementation. This urgency never bypasses the assignment
+  gate; a capsule update does not assign a session.
 - `Responded <target>` hands an AI-authored assistance turn back after any
   semantic human reply, vote, or Resolve. Advisory responses also send it, so
   reload and inspect answerability; perform every action actually unblocked and
   keep waiting if the response is advisory or another dependency remains.
 
-A legacy bare `Responded.` has no target. While idle, reload every outstanding
-Uclusion dependency; mid-lane, reload only the active item.
+A job moving into Doable is an `Updated` state transition, never a `Start`.
+Reload and resume it only when that job is already the session's assignment.
+An idle session or a session assigned elsewhere does not activate because the
+job became executable.
 
-Direct targets are globally resolvable. Call `get_job` with their exact short
-code. Compound targets have the form `<verb> <local-code> of <parent-code>`;
-call `get_job` with the parent after `of`, then locate the local item. The
-first load of a parent not yet read this session takes its whole scope. When
-that parent was already loaded, reload only the poked item, with
-`thread_only` for a comment parent or the covering `sections` for a job
-parent, instead of pulling the whole job again. Never globally load an inline
-option/local code by itself.
+A legacy bare `Responded.` has no target. Reload only the outstanding
+dependency of the assigned lane. With no assignment, ignore it.
 
-Added and Updated are additive, not instructions to abandon active work. Reload
-and incorporate in-lane state, then obey the current stage. A capsule body
-update is different because it replaces the selected target's authoritative
-contract; perform its reload and review cleanup before continuing. Soft-deleted
-direct items reload as the enclosing job with the item absent.
+Apply the assignment gate before lookup. For an accepted event, direct targets
+are globally resolvable. Call `get_job` with their exact short code. Compound
+targets have the form `<verb> <local-code> of <parent-code>`; call `get_job`
+with the parent after `of`, then locate the local item. The first load of a
+parent not yet read this session takes its whole scope. When that parent was
+already loaded, reload only the poked item, with `thread_only` for a comment
+parent or the covering `sections` for a job parent, instead of pulling the
+whole job again. Never globally load an inline option/local code by itself.
+
+Added, Updated, and Responded are continuation events, not instructions to
+abandon or acquire work. Reload and incorporate matching assigned-lane state,
+then obey the current stage. A matching capsule body update replaces the
+selected target's authoritative contract; perform its reload and review cleanup
+before continuing. Soft-deleted direct items reload as the enclosing job with
+the item absent.
 
 Use `sections` (`tasks`, `assistance`, `reports`, `notes`, `resolved`) or
 `thread_only` for economical reloads. Direct lookup already retries five times

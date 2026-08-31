@@ -37,12 +37,13 @@ WORK_CLAIM_TOOL = {
     'description': (
         'Attempts to take, or releases, the opt-in work claim lock for job '
         'or bug short codes so idle agents do not start the same work. Claim '
-        'right before starting work, passing every candidate you would start '
-        'in preference order via short_code_ids; the result names the one '
+        'before starting auto-take work, passing every candidate you would '
+        'start in preference order via short_code_ids; the result names the one '
         'code you now hold, and you start that item. A denied claim means '
-        'every listed item is already held by other agents. Release the held '
-        'code at lane handoff. An error result means the lock service is '
-        'unreachable and work should proceed without the lock.'
+        'every listed item is already held by other agents and grants no '
+        'ownership. Release the held code at lane handoff. Human-guided '
+        'selections do not require a claim. An error result means the lock '
+        'service is unreachable and auto-take work must not start.'
     ),
     'inputSchema': {
         'type': 'object',
@@ -479,7 +480,7 @@ class WorkClaimsManager:
         short_code_id names the single code granted from it.
 
         :return: the claim_result payload, or None when the lock service is
-                 unreachable so the caller can proceed without the lock
+                 unreachable
         """
         message_id = str(uuid4())
         entry = {'event': threading.Event(), 'result': None}
@@ -523,7 +524,7 @@ class WorkClaimsManager:
         """Free every held claim during graceful shutdown, fire and forget.
 
         A crash skips this on purpose; the server lets unrefreshed claims
-        lapse so the lock always fails open.
+        lapse so a crashed agent cannot hold the lock indefinitely.
         """
         with self._lock:
             connection = self._connection
@@ -766,7 +767,8 @@ def handle_claim_tool_call(work_claims, request_id, params):
     )
     if result is None:
         text = json.dumps({
-            'error': 'The work claim service is unreachable; proceed without the lock.'
+            'error': 'The work claim service is unreachable; no claim was '
+                     'granted, so do not start auto-take work.'
         })
         write_message({'jsonrpc': '2.0', 'id': request_id,
                        'result': {'content': [{'type': 'text', 'text': text}],

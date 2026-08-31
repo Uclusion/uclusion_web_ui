@@ -42,6 +42,11 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             os.path.join(SCRIPT_DIR, 'uclusion.mdc'), encoding='utf-8'
         ) as cursor_stub:
             cls.cursor_stub = ' '.join(cursor_stub.read().split())
+        with open(
+            os.path.join(SCRIPT_DIR, 'UCLUSION_CODEX_BRIDGE.md'),
+            encoding='utf-8',
+        ) as bridge_doc:
+            cls.bridge_doc = ' '.join(bridge_doc.read().split())
 
     def test_protocol_reserves_start_for_explicit_ui_poke(self):
         self.assertIn(
@@ -52,6 +57,11 @@ class WorkflowProtocolContractTests(unittest.TestCase):
         self.assertIn('Replayed Start is history', self.workflow)
         self.assertIn('fresh per-session cursor starts at arm time', self.workflow)
         self.assertIn('--deliver-existing-pokes', self.workflow)
+        self.assertIn('`Start` is an untargeted broadcast', self.workflow)
+        self.assertIn(
+            'must not use it while more than one default agent is idle',
+            self.workflow,
+        )
 
     def test_codex_bridge_skips_startup_backlog_by_default(self):
         self.assertIn(
@@ -65,23 +75,84 @@ class WorkflowProtocolContractTests(unittest.TestCase):
         self.assertIn('Never add `--deliver-existing-pokes` yourself', self.codex_stub)
         self.assertIn('unmarked private copy', self.codex_stub)
 
-    def test_added_and_updated_preserve_active_scope_and_stage_lock(self):
+    def test_default_workflows_assign_one_agent(self):
         self.assertIn(
-            'Added and Updated are additive, not instructions to abandon active work',
-            self.workflow,
-        )
-        self.assertIn('Defer an unrelated event without loading it', self.workflow)
-        self.assertIn(
-            'live Start, Responded, and Added events load and activate their '
-            'targets subject to normal stage/workflow checks',
+            'one agent owns a job or bug assignment at a time',
             self.workflow,
         )
         self.assertIn(
-            'Soft-deleted direct items reload as the enclosing job with the '
-            'item absent',
+            'Reading, classifying, or reloading an object does not assign it',
             self.workflow,
         )
-        self.assertIn('then obey the current stage', self.workflow)
+        self.assertIn(
+            'A human-guided assignment remains with that session while it '
+            'waits for human input or review',
+            self.workflow,
+        )
+        self.assertIn(
+            'Ending an audit or execution interval does not clear a retained '
+            'human-guided assignment',
+            self.workflow,
+        )
+        self.assertIn(
+            'Explicit human-configured roles may deliberately assign multiple '
+            'agents to the same work',
+            self.workflow,
+        )
+
+    def test_continuation_events_resume_only_the_assigned_lane(self):
+        self.assertIn(
+            'Merely receiving `Added`, `Updated`, or `Responded` never creates '
+            'or switches an assignment',
+            self.workflow,
+        )
+        self.assertIn(
+            '`Added`, `Updated`, and `Responded` do not load or activate a '
+            'target while the session is unassigned',
+            self.workflow,
+        )
+        self.assertIn(
+            'stops there without `get_job`, audit startup, or activation',
+            self.workflow,
+        )
+        self.assertIn(
+            'A job moving into Doable is an `Updated` state transition, never '
+            'a `Start`',
+            self.workflow,
+        )
+        self.assertIn(
+            'An idle session or a session assigned elsewhere does not activate '
+            'because the job became executable',
+            self.workflow,
+        )
+        self.assertIn(
+            'With no assignment, ignore it',
+            self.workflow,
+        )
+        self.assertIn(
+            'a capsule update does not assign a session',
+            self.workflow,
+        )
+        self.assertNotIn(
+            'live Start, Responded, and Added events load and activate',
+            self.workflow,
+        )
+
+    def test_bridge_broadcast_is_not_assignment_ownership(self):
+        self.assertIn(
+            'every live Codex session receives its own copy of Pokes',
+            self.bridge_doc,
+        )
+        self.assertIn(
+            'Per-session delivery is transport, not assignment',
+            self.bridge_doc,
+        )
+        self.assertIn(
+            'a job becoming Doable is an update and does not assign an idle '
+            'session',
+            self.bridge_doc,
+        )
+        self.assertIn('`Start` has no destination session', self.bridge_doc)
 
     def test_direct_and_compound_targets_have_explicit_lookup_rules(self):
         self.assertIn(
@@ -132,21 +203,57 @@ class WorkflowProtocolContractTests(unittest.TestCase):
         self.assertIn('relevant short code', self.cursor_stub)
         self.assertNotIn('wait --timeout 0', self.cursor_stub)
 
-    def test_auto_take_starts_first_marked_item_and_persists_handoffs(self):
+    def test_auto_take_claims_before_loading_and_persists_checkpoints(self):
         self.assertIn('response has `auto_take_directions`', self.workflow)
         self.assertIn(
-            'immediately load the first item marked `auto_take`',
+            'follow the work claim lock before loading any marked item',
+            self.workflow,
+        )
+        self.assertIn(
+            'load only the one returned by a successful claim',
+            self.workflow,
+        )
+        self.assertIn('Every auto-take activation is claim-gated', self.workflow)
+        self.assertIn(
+            'auto-take directions arrive without the tool, present the list '
+            'but do not load or start an item',
+            self.workflow,
+        )
+        self.assertIn(
+            'No claim was granted, so do not start auto-take work; remain idle '
+            'and report the failure',
+            self.workflow,
+        )
+        self.assertIn('A timeout or error result', self.workflow)
+        self.assertIn(
+            'Auto-take applies only while the session has no human-guided '
+            'assignment',
+            self.workflow,
+        )
+        self.assertIn(
+            'must not switch the session automatically',
             self.workflow,
         )
         self.assertIn('in the same turn', self.workflow)
         self.assertIn(
-            'An auto-taken lane always gets a durable handoff before a turn ends',
+            'An auto-taken lane always gets a durable progress checkpoint '
+            'before a turn ends',
             self.workflow,
         )
+        self.assertNotIn('durable handoff before a turn ends', self.workflow)
         self.assertIn('This rule lasts for every turn in that lane', self.workflow)
         self.assertIn(
             'Use the specialized Uclusion tool when one applies, otherwise '
             '`add_info` on the active item',
+            self.workflow,
+        )
+        self.assertIn('A progress checkpoint is not a lane handoff', self.workflow)
+        self.assertIn(
+            'continue every authorized investigation, planning, and execution step',
+            self.workflow,
+        )
+        self.assertIn(
+            'surface or create the actual next actionable item before final output',
             self.workflow,
         )
         self.assertIn('Chat may mirror the artifact but never replace it', self.workflow)
@@ -334,6 +441,17 @@ class WorkflowProtocolContractTests(unittest.TestCase):
         self.assertIn('Every request belongs to one bucket', self.workflow)
         self.assertIn('Switch to `testing` before tests or builds', self.workflow)
         self.assertIn('lookup used only to classify a Poke starts no audit', self.workflow)
+        self.assertIn('Keep the audit active across ordinary model/chat turns', self.workflow)
+        self.assertIn(
+            '`end_job_audit` only when the lane genuinely hands off for a '
+            'blocking human dependency, review, completion, pause, or interruption',
+            self.workflow,
+        )
+        self.assertIn(
+            'returning an ordinary model/chat turn is not a lane handoff and '
+            'must not end the audit',
+            self.workflow,
+        )
         self.assertIn('Collection finishes asynchronously', self.workflow)
         self.assertIn('partial telemetry never block', self.workflow)
 

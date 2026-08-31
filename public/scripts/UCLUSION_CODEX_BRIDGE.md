@@ -72,6 +72,15 @@ Codex session receives its own copy of Pokes arriving after that session's
 startup cutoff. Its reserve, reconciliation, and acknowledgement rows use the
 same consumer identity and cannot be handled by another launch.
 
+Per-session delivery is transport, not assignment. The installed workflow lets
+`Added`, `Updated`, and `Responded` continue only the matching assignment that
+the session already owns. In particular, a job becoming Doable is an update and
+does not assign an idle session. `Start` has no destination session, so in the
+human-guided workflow the human must not send it while more than one default
+agent is idle and able to accept it. The human selects one chat directly in
+that situation. Explicit role-based duplicate assignments are intentional and
+outside this default rule. Auto-take uses the cross-machine work claim lock.
+
 Multiple companions may run for the same `(environment, workspace)` pair.
 Their app-servers, relays, receiver markers, root authorities, and Poke
 consumers are all launch-private. One of those companions also holds the
@@ -445,7 +454,7 @@ create a memory backlog or establish primary authority.
 | Root-switch outcome is ambiguous | Clear primary and wait for a fresh correlated TUI start/resume/fork. |
 | Current-primary archive/delete returns a definitive error | Restore the prior primary. Success or an ambiguous outcome leaves NoRoot. |
 | Current-primary unsubscribe succeeds, errors, or has an ambiguous outcome | Leave NoRoot because the TUI abandons its listener after awaiting the call regardless of the RPC result. |
-| A second launcher targets the same environment and workspace | Start it with a private runtime and `codex-bridge:<instance>` cursor; both sessions receive post-cutoff Pokes independently. |
+| A second launcher targets the same environment and workspace | Start it with a private runtime and `codex-bridge:<instance>` cursor; both sessions receive post-cutoff Pokes independently, but delivery alone grants no assignment ownership. |
 | The update-notice leader PID is live | Followers continue their own Poke delivery but never read or mutate the global notice stream. |
 | The update-notice leader PID is dead | Permit a follower to take leadership and recover or reconcile global notice state. A stale heartbeat alone never permits takeover. |
 | Disposable control connection fails or times out | Preserve any `sending` row, keep the continuous driver witness intact, reconnect control to the still-running backend, then reconcile by the stored message and thread ids. |

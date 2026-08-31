@@ -17,10 +17,10 @@ skill owns event handling and the job workflow.
 - For notifications, exports, creating artifacts, uploads, dependencies,
   view notes, commits, or context-clear boundaries, read
   [references/operations.md](references/operations.md).
-- Before every lane handoff, read `pokes.md` and perform its immediate work
-  discovery rules. Also read `operations.md` when resolving a bug/job, opening
-  review, or receiving sign-off and committing. On full completion, apply its
-  dependency and context-boundary rules too.
+- Before every lane handoff, read `pokes.md` and perform its assignment-aware
+  immediate work discovery rules. Also read `operations.md` when resolving a
+  bug/job, opening review, or receiving sign-off and committing. On full
+  completion, apply its dependency and context-boundary rules too.
 
 ## Non-negotiable invariants
 
@@ -33,6 +33,12 @@ skill owns event handling and the job workflow.
   filed questions are how that understanding is built, so neither is optional.
 - Keep one active job or bug lane at a time. Incorporate in-lane events and
   defer unrelated ones unless the human explicitly switches work.
+- In the default workflow, one agent owns a job or bug assignment at a time.
+  Assignment comes from a session-local human selection, a valid live `Start`,
+  or a successful auto-take claim. Reading or receiving `Added`, `Updated`, or
+  `Responded` never grants ownership; this includes an update that moves a job
+  into Doable. Explicit human-configured multi-agent roles are exempt. Apply
+  the complete assignment and delivery rules in `references/pokes.md`.
 - Put every question, suggestion, approval, vote, progress note, resolution,
   and review request in Uclusion through its MCP tools. Chat may mirror the
   artifact but never replace it. Questions about the job—including redo
@@ -68,9 +74,10 @@ If `start_job_audit`, `set_job_audit_phase`, and `end_job_audit` are exposed:
    to jobs: a standalone view-level comment lane (a single-comment result with
    no Job header) has no J- job, so never call `start_job_audit` for it — the
    call fails. If that comment later converts into a Bugs job, audit the
-   returned job. Once a lookup makes a job the active lane, call
-   `start_job_audit` before substantive planning or execution and retain the
-   run identifier. The initial bucket is `planning`.
+   returned job. Once an authorized activation establishes a job as the
+   assigned lane and its lookup begins, call `start_job_audit` before
+   substantive planning or execution and retain the run identifier. The
+   initial bucket is `planning`.
 2. Before the kind of work changes, call `set_job_audit_phase`. Include the
    active job, run identifier, a `marker_sequence` starting at 1 and increasing
    strictly, and a concise bucket label. A replay reuses its original sequence.
@@ -78,8 +85,12 @@ If `start_job_audit`, `set_job_audit_phase`, and `end_job_audit` are exposed:
    `testing`, and `other`; use a custom label only when it is materially more
    informative. Switch to `testing` before tests or builds. A marker applies to
    the next model request and cannot relabel earlier tokens.
-3. Call `end_job_audit` when the lane hands off for human input, review, or
-   completion. Collection finishes asynchronously; do not poll for it.
+3. Keep the audit active across ordinary model/chat turns. Call
+   `end_job_audit` only when the lane genuinely hands off for a blocking human
+   dependency, review, completion, pause, or interruption. Adding or updating
+   a durable artifact, showing its link, or returning an ordinary model/chat
+   turn is not a lane handoff and must not end the audit. Collection finishes
+   asynchronously; do not poll for it.
 
 Keep at most 32 labels, each 1–80 safe characters. Re-entering a bucket adds to
 its total; do not create separate standard/custom dimensions or a new run when
@@ -94,6 +105,11 @@ mode, persist the plan with `add_info` and show its returned link; a plan that
 exists only in chat or a local file is unfinished.
 
 ## 1. Read
+
+For a Poke, apply the assignment gate in `references/pokes.md` before this
+section. An unassigned or cross-lane `Added`, `Updated`, or `Responded` event
+stops there without `get_job`, audit startup, or activation. A job becoming
+Doable does not bypass that gate.
 
 Call `get_job` with the named short code. It loads the enclosing job and its
 tasks, grouped tasks, assistance, blockers, and reports. Use
@@ -345,16 +361,26 @@ belongs in an updated capsule instead. Never hide a remaining choice in review
 prose; ask it as a question. End with the AI product, exact model/version, and
 effort level.
 
-## Material handoffs
+## Durable progress checkpoints and material handoffs
 
-An auto-taken lane always gets a durable handoff before a turn ends, recording
-every substantive result, decision, blocker, and next step. Use the specialized
-Uclusion tool when one applies, otherwise `add_info` on the active item. This
-rule lasts for every turn in that lane, not only the first.
+An auto-taken lane always gets a durable progress checkpoint before a turn
+ends, recording every substantive result, decision, blocker, and next step.
+Use the specialized Uclusion tool when one applies, otherwise `add_info` on the
+active item. This rule lasts for every turn in that lane, not only the first.
 
-At any lane handoff:
+A progress checkpoint is not a lane handoff. After writing or updating an
+artifact or showing its link, continue every authorized investigation,
+planning, and execution step, and surface or create the actual next actionable
+item before final output. Returning an ordinary model/chat turn is not a lane
+handoff either and must not end the active audit.
 
-- First read `pokes.md` so the handoff includes current work discovery.
+At a genuine lane handoff for a blocking human dependency, review, completion,
+pause, or interruption:
+
+- Ending an audit or execution interval does not clear a retained human-guided
+  assignment. It remains available for matching continuation events until
+  completion or an explicit human switch.
+- First read `pokes.md` so the handoff includes assignment-aware work discovery.
 - If `claim_work` is exposed and the lane's short code is claimed, release it
   per the work claim lock rules in `pokes.md`.
 - If blocked on a human, leave the exact dependency in Uclusion.

@@ -1607,6 +1607,67 @@ class StorageConcurrencyTests(TokenAuditTestCase):
 
 
 class CodexAuditTests(TokenAuditTestCase):
+    def test_ordinary_turns_keep_one_audit_active_until_explicit_handoff(self):
+        observer = audit.CodexTokenAudit("stage", "workspace-1")
+        thread_id = "multi-turn-active"
+        observer.set_primary_thread({"id": thread_id})
+        run_id = str(uuid.uuid4())
+        observer.observe_notification(mcp_item(
+            thread_id, "turn-1", "start", "start_job_audit",
+            {"job_id": "J-all-561"},
+            {"schema_version": 1, "state": "active",
+             "audit_run_id": run_id, "canonical_job_id": "J-all-561"},
+        ))
+
+        for turn_id, total in (("turn-1", 3), ("turn-2", 5)):
+            observer.observe_notification(raw_response(
+                thread_id, turn_id, "response-" + turn_id, usage(total)
+            ))
+            if turn_id == "turn-1":
+                observer.observe_notification(mcp_item(
+                    thread_id, turn_id, "progress-note", "add_info",
+                    {"short_code_id": "T-all-2551", "info": "checkpoint"},
+                    {},
+                ))
+            observer.observe_notification({
+                "method": "turn/completed",
+                "params": {"threadId": thread_id,
+                           "turn": {"id": turn_id, "status": "completed"}},
+            })
+            self.assertIsNone(self.store().claim_outbox())
+            active = self.store().session_run(
+                "codex", observer.primary_session_fp
+            )
+            self.assertEqual(run_id, active["audit_run_id"])
+            self.assertEqual("active", active["state"])
+
+        observer.observe_notification(raw_response(
+            thread_id, "turn-3", "response-turn-3", usage(7)
+        ))
+        observer.observe_notification(mcp_item(
+            thread_id, "turn-3", "end", "end_job_audit",
+            {"job_id": "J-all-561", "audit_run_id": run_id,
+             "handoff_type": "review_requested"},
+            {"schema_version": 1, "state": "pending_finalization",
+             "audit_run_id": run_id, "canonical_job_id": "J-all-561",
+             "handoff_type": "review_requested"},
+        ))
+        self.assertIsNone(self.store().claim_outbox())
+        observer.observe_notification({
+            "method": "turn/completed",
+            "params": {"threadId": thread_id,
+                       "turn": {"id": "turn-3", "status": "completed"}},
+        })
+
+        row = self.store().claim_outbox()
+        self.assertEqual(run_id, row["audit_run_id"])
+        self.assertEqual("review_requested", row["handoff_type"])
+        self.assertEqual(
+            15,
+            row["finalization"]["measurement"]["normalized_total_tokens"],
+        )
+        self.assertEqual(3, row["finalization"]["activity"]["tool_calls"])
+
     def test_unknown_or_invalid_raw_usage_is_never_exact_zero(self):
         for index, invalid in enumerate(({}, {"totalTokens": "bad"})):
             with self.subTest(invalid=invalid):
@@ -4378,6 +4439,41 @@ class ProxyContractTests(TokenAuditTestCase):
             [tool["name"] for tool in disabled["result"]["tools"]],
         )
         self.assertIs(response, proxy.filter_token_audit_tools(response, True))
+
+    def test_unreachable_work_claim_keeps_auto_take_idle(self):
+        class UnreachableClaims:
+            @staticmethod
+            def request(*_args, **_kwargs):
+                return None
+
+        with mock.patch.object(proxy, "write_message") as write_message:
+            proxy.handle_claim_tool_call(
+                UnreachableClaims(),
+                "request-1",
+                {
+                    "arguments": {
+                        "operation": "claim",
+                        "short_code_ids": ["J-all-1"],
+                    }
+                },
+            )
+
+        response = write_message.call_args.args[0]
+        self.assertTrue(response["result"]["isError"])
+        content = json.loads(response["result"]["content"][0]["text"])
+        self.assertEqual(
+            "The work claim service is unreachable; no claim was granted, "
+            "so do not start auto-take work.",
+            content["error"],
+        )
+        self.assertIn(
+            "auto-take work must not start",
+            proxy.WORK_CLAIM_TOOL["description"],
+        )
+        self.assertIn(
+            "Human-guided selections do not require a claim",
+            proxy.WORK_CLAIM_TOOL["description"],
+        )
 
     def test_proxy_parser_handles_production_flags_without_positional_env(self):
         parsed = proxy.parse_args([

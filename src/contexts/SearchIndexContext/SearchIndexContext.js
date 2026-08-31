@@ -3,6 +3,7 @@ import MiniSearch from 'minisearch'
 import { beginListening } from './searchIndexContextMessages'
 
 const EMPTY_STATE = null;
+const SEARCH_INDEX_AUTO_VACUUM = { batchSize: Number.MAX_SAFE_INTEGER };
 
 const SearchIndexContext = React.createContext(EMPTY_STATE);
 
@@ -14,6 +15,10 @@ function SearchIndexProvider(props) {
     const index = new MiniSearch({
       fields: ['title', 'body'],
       storeFields: ['marketId', 'groupId', 'type'],
+      // MiniSearch's batched vacuum can race a search that cleans the same
+      // radix tree (upstream issue #306). Finish traversal in the current task
+      // so searches cannot invalidate its iterator between batches.
+      autoVacuum: SEARCH_INDEX_AUTO_VACUUM,
       searchOptions: {
         boost: { title: 2 },
         fuzzy: 1,
@@ -32,4 +37,4 @@ function SearchIndexProvider(props) {
   );
 }
 
-export { SearchIndexProvider, SearchIndexContext };
+export { SearchIndexProvider, SearchIndexContext, SEARCH_INDEX_AUTO_VACUUM };

@@ -38,6 +38,8 @@ import { GroupMembersContext } from '../../../contexts/GroupMembersContext/Group
 import { TODO_TYPE } from '../../../constants/comments';
 import NamePreviewBar, { useNamePreview } from '../../TextFields/NamePreviewBar';
 
+const JOB_TYPE_HOTKEYS = ['ctrl+alt+1', 'ctrl+alt+2', 'ctrl+alt+3', 'ctrl+alt+4'];
+
 function JobDescriptionStep (props) {
   const { marketId, groupId, updateFormData = () => {}, onFinish, roots, formData = {}, jobType, startOver, nextStep,
     moveFromComments, isSingleUser, myPresenceId, presences } = props;
@@ -51,12 +53,9 @@ function JobDescriptionStep (props) {
   const isMovingTasks = !_.isEmpty(roots);
   const editorName = isMovingTasks ? `addJobWizard${roots[0].id}` : `addJobWizard${groupId}`;
   const { newQuantity } = formData;
-  const jobTypes = ['APPROVABLE', 'READY', 'NOT_READY'];
   const showImmediate = !_.isEmpty(myGroupPresence)||!isSingleUser;
+  const jobTypes = ['APPROVABLE', ...(showImmediate ? ['IMMEDIATE'] : []), 'READY', 'NOT_READY'];
   const marketHasOthers = _.size(presences) > 1;
-  if (showImmediate) {
-    jobTypes.unshift('IMMEDIATE');
-  }
 
   function getDefaultDescription() {
     let defaultDescription = undefined;
@@ -139,7 +138,7 @@ function JobDescriptionStep (props) {
 
   // T-all-2191 (same class): the open backlog section preselects the matching pill. Coerce to a string so
   // this works whether the index arrives as a number (inline launch) or a string (full-screen /wizard URL).
-  const defaultFromPage = jobType === undefined ? 'IMMEDIATE' : (`${jobType}` === '0' ? 'READY' : 'NOT_READY');
+  const defaultFromPage = jobType === undefined ? 'APPROVABLE' : (`${jobType}` === '0' ? 'READY' : 'NOT_READY');
   const currentValue = newQuantity || defaultFromPage || '';
 
   function createJob(useApprovals) {
@@ -230,14 +229,14 @@ function JobDescriptionStep (props) {
       onChange({target});
     };
   }
-  useHotkeys('ctrl+alt+1', simulatePriority('IMMEDIATE'), {enabled: showImmediate,
-      enableOnContentEditable: true}, []);
-  useHotkeys('ctrl+alt+2', simulatePriority('APPROVABLE'), {enableOnContentEditable: true},
-    []);
-  useHotkeys('ctrl+alt+3', simulatePriority('READY'), {enableOnContentEditable: true},
-    []);
-  useHotkeys('ctrl+alt+4', simulatePriority('NOT_READY'), {enableOnContentEditable: true},
-    []);
+  useHotkeys(JOB_TYPE_HOTKEYS[0], simulatePriority(jobTypes[0]), {enableOnContentEditable: true},
+    [showImmediate]);
+  useHotkeys(JOB_TYPE_HOTKEYS[1], simulatePriority(jobTypes[1]), {enableOnContentEditable: true},
+    [showImmediate]);
+  useHotkeys(JOB_TYPE_HOTKEYS[2], simulatePriority(jobTypes[2]), {enableOnContentEditable: true},
+    [showImmediate]);
+  useHotkeys(JOB_TYPE_HOTKEYS[3], simulatePriority(jobTypes[3]), {enabled: showImmediate,
+      enableOnContentEditable: true}, [showImmediate]);
 
   return (
     <WizardStepContainer
@@ -261,7 +260,7 @@ function JobDescriptionStep (props) {
           const full = intl.formatMessage({ id: `jobTypeLabel${certainty}` });
           const sep = full.indexOf(' - ');
           const remainder = sep >= 0 ? full.slice(sep + 3) : '';
-          const keys = intl.formatMessage({ id: `certaintyTip${certainty}` });
+          const keys = JOB_TYPE_HOTKEYS[jobTypes.indexOf(certainty)];
           return {
             value: certainty,
             id: `${certainty}`,

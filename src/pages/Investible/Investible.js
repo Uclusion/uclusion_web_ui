@@ -120,6 +120,7 @@ function Investible(props) {
 
   return (
     <PlanningInvestible
+      key={`${marketId}:${investibleId}`}
       userId={userId}
       investibleId={investibleId}
       marketId={marketId}

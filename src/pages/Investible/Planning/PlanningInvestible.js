@@ -413,9 +413,23 @@ function PlanningInvestible(props) {
   const { investible } = marketInvestible;
   const { name, description, locked_by: lockedBy, created_at: createdAt, labels } = investible;
   const [marketStagesState] = useContext(MarketStagesContext);
+  const inCurrentVotingStage = getInCurrentVotingStage(marketStagesState, marketId);
+  const isInVoting = Boolean(inCurrentVotingStage && stage === inCurrentVotingStage.id);
   const [detailsOpen, setDetailsOpen] = useState(mobileLayout);
-  const [approvalsOpen, setApprovalsOpen] = useState(!_.isEmpty(calculateInvestibleVoters(investibleId, marketId, marketsState, 
-    investiblesState, marketPresences, false)));
+  const approvalVoters = calculateInvestibleVoters(investibleId, marketId, marketsState,
+    investiblesState, marketPresences, false);
+  const [approvalsOpen, setApprovalsOpen] = useState(isInVoting || !_.isEmpty(approvalVoters));
+  // Reapply the Approvable default when this job enters that stage without making it permanently forced.
+  useEffect(() => {
+    if (isInVoting) {
+      setApprovalsOpen(true);
+    }
+  }, [isInVoting]);
+  // B-all-600: a highlighted notification attached to a rendered vote keeps Approvals visible.
+  const approvalsForcedOpen = (messagesState.messages || []).some((message) => message.is_highlighted &&
+    !message.deleted && message.voted_list?.some((vote) => vote.investible_id === investibleId &&
+      approvalVoters.some((voter) => voter.id === vote.id)));
+  const approvalsDisplayOpen = approvalsOpen || approvalsForcedOpen;
   const reportsCommentsSearched = investibleCommentsSearched.filter(
     comment => comment.comment_type === REPORT_TYPE && comment.notification_type !== 'BLUE'
   );
@@ -475,11 +489,6 @@ function PlanningInvestible(props) {
   const showJobHeaderAboveWizard = !!inlineWizard && (inlineWizard.wizardType === APPROVAL_WIZARD_TYPE ||
     (inlineWizard.wizardType === JOB_COMMENT_WIZARD_TYPE && inlineWizard.commentType === REPORT_TYPE &&
       inlineWizard.notificationType !== 'BLUE'));
-  const inCurrentVotingStage = getInCurrentVotingStage(
-    marketStagesState,
-    marketId
-  ) || {}
-  const isInVoting = inCurrentVotingStage && stage === inCurrentVotingStage.id;
   const canVote = isInVoting && !inArchives;
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const createdBy = marketPresences.find((presence) => presence.id === createdById) || {};
@@ -873,7 +882,7 @@ function PlanningInvestible(props) {
   }
 
   function toggleApprovals() {
-    setApprovalsOpen(!approvalsOpen);
+    setApprovalsOpen(!approvalsDisplayOpen);
   }
 
   function toggleReports() {
@@ -1069,13 +1078,13 @@ function PlanningInvestible(props) {
                   }}>
                     <Tooltip key="toggleApprovals"
                              title={<FormattedMessage
-                               id={`${approvalsOpen ? 'closeApprovals' : 'openApprovals'}Tip`}/>}>
-                      {approvalsOpen ? <ExpandLess fontSize="small" /> :
+                               id={`${approvalsDisplayOpen ? 'closeApprovals' : 'openApprovals'}Tip`}/>}>
+                      {approvalsDisplayOpen ? <ExpandLess fontSize="small" /> :
                         <ExpandMoreIcon fontSize="small" />}
                     </Tooltip>
                   </IconButton>
                 </div>
-                {(_.isEmpty(search) || displayApprovalsBySearch > 0) && approvalsOpen && (
+                {(_.isEmpty(search) || displayApprovalsBySearch > 0) && approvalsDisplayOpen && (
                   <Voting
                     investibleId={investibleId}
                     marketPresences={marketPresences}

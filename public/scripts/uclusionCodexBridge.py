@@ -57,11 +57,14 @@ from typing import (
 
 INBOX_FILE = "poke_inbox.sqlite3"
 BRIDGE_CONSUMER = "codex-bridge"
+BRIDGE_CONSUMER_PREFIX = BRIDGE_CONSUMER + ":"
+BRIDGE_CONSUMER_RETENTION_SECONDS = 7 * 24 * 60 * 60
+BRIDGE_CONSUMER_HEARTBEAT_SECONDS = 60.0
 POLL_INTERVAL_SECONDS = 0.25
 REQUEST_TIMEOUT_SECONDS = 10.0
 POKE_RETRY_DELAYS_SECONDS = (1.0, 2.0, 4.0, 5.0)
-PRIMARY_STALE_SECONDS = 30.0
 UPDATE_CHECK_INTERVAL_SECONDS = 15 * 60
+UPDATE_NOTICE_LEADER_MAINTENANCE_SECONDS = 5.0
 WEBSOCKET_GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 MAX_WEBSOCKET_MESSAGE_BYTES = 16 * 1024 * 1024
 MAX_WEBSOCKET_HEADERS_BYTES = 64 * 1024
@@ -103,7 +106,6 @@ PRIMARY_CONTROL_BYPASS_METHODS = frozenset(
 
 EXIT_OK = 0
 EXIT_CONFIG = 2
-EXIT_PRIMARY_HELD = 3
 EXIT_RELAY_FAILED = 5
 
 _ANY_BINDING = object()
@@ -257,6 +259,11 @@ class _RelayPending:
 
 def _now() -> float:
     return time.time()
+
+
+def bridge_consumer(config: BridgeConfig) -> str:
+    """Return the private inbox cursor for one launcher instance."""
+    return BRIDGE_CONSUMER_PREFIX + config.instance
 
 
 def _pid_is_alive(pid: int) -> bool:
@@ -467,10 +474,24 @@ class InboxStore:
                     consumer TEXT NOT NULL,
                     last_sequence INTEGER NOT NULL,
                     updated_at REAL NOT NULL,
+                    owner_pid INTEGER,
                     PRIMARY KEY (environment, workspace_id, consumer)
                 )
                 """
             )
+            consumer_columns = {
+                row[1]
+                for row in connection.execute(
+                    "PRAGMA table_info(poke_consumers)"
+                )
+            }
+            if "owner_pid" not in consumer_columns:
+                connection.execute(
+                    """
+                    ALTER TABLE poke_consumers
+                    ADD COLUMN owner_pid INTEGER
+                    """
+                )
             connection.execute(
                 """
                 CREATE TABLE IF NOT EXISTS codex_bridge_bindings (
@@ -798,6 +819,10 @@ class InboxStore:
         consumer: str = BRIDGE_CONSUMER,
     ) -> int:
         """Initialize this independent consumer at the retained backlog."""
+        if consumer.startswith(BRIDGE_CONSUMER_PREFIX):
+            raise BridgeError(
+                "private bridge consumers must be prepared by their owner"
+            )
         now = self.clock()
         with closing(self.connect()) as connection:
             connection.execute("BEGIN IMMEDIATE")
@@ -825,6 +850,207 @@ class InboxStore:
             ).fetchone()
             connection.commit()
         return int(row["last_sequence"])
+
+    def _advance_consumer(
+        self,
+        connection: sqlite3.Connection,
+        config: BridgeConfig,
+        consumer: str,
+        last_sequence: int,
+        now: float,
+    ) -> None:
+        cursor = connection.execute(
+            """
+            UPDATE poke_consumers
+            SET last_sequence =
+                    CASE
+                        WHEN ? > last_sequence THEN ?
+                        ELSE last_sequence
+                    END,
+                updated_at = ?
+            WHERE environment = ? AND workspace_id = ? AND consumer = ?
+            """,
+            (
+                last_sequence,
+                last_sequence,
+                now,
+                config.environment,
+                config.workspace_id,
+                consumer,
+            ),
+        )
+        if cursor.rowcount == 1:
+            return
+        if consumer.startswith(BRIDGE_CONSUMER_PREFIX):
+            raise BridgeError("bridge consumer cursor disappeared")
+        connection.execute(
+            """
+            INSERT INTO poke_consumers
+                (environment, workspace_id, consumer, last_sequence,
+                 updated_at)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (
+                config.environment,
+                config.workspace_id,
+                consumer,
+                last_sequence,
+                now,
+            ),
+        )
+
+    def prepare_bridge_consumer(
+        self, config: BridgeConfig, pid: int
+    ) -> None:
+        """Create this launch's cursor and prune abandoned launch state."""
+        consumer = bridge_consumer(config)
+        now = self.clock()
+        stale_before = now - BRIDGE_CONSUMER_RETENTION_SECONDS
+        consumer_pattern = BRIDGE_CONSUMER_PREFIX + "%"
+        with closing(self.connect()) as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            stale_rows = connection.execute(
+                """
+                SELECT consumer, owner_pid
+                FROM poke_consumers
+                WHERE environment = ? AND workspace_id = ?
+                  AND consumer LIKE ? AND updated_at < ?
+                """,
+                (
+                    config.environment,
+                    config.workspace_id,
+                    consumer_pattern,
+                    stale_before,
+                ),
+            ).fetchall()
+            for row in stale_rows:
+                owner_pid = row["owner_pid"]
+                if owner_pid is not None and self.pid_is_alive(
+                    int(owner_pid)
+                ):
+                    continue
+                connection.execute(
+                    """
+                    DELETE FROM poke_consumers
+                    WHERE environment = ? AND workspace_id = ?
+                      AND consumer = ? AND updated_at < ?
+                    """,
+                    (
+                        config.environment,
+                        config.workspace_id,
+                        row["consumer"],
+                        stale_before,
+                    ),
+                )
+            connection.execute(
+                """
+                DELETE FROM codex_bridge_deliveries
+                WHERE environment = ? AND workspace_id = ?
+                  AND consumer LIKE ?
+                  AND NOT EXISTS (
+                      SELECT 1
+                      FROM poke_consumers
+                      WHERE environment = ? AND workspace_id = ?
+                        AND consumer = codex_bridge_deliveries.consumer
+                  )
+                """,
+                (
+                    config.environment,
+                    config.workspace_id,
+                    consumer_pattern,
+                    config.environment,
+                    config.workspace_id,
+                ),
+            )
+            connection.execute(
+                """
+                INSERT INTO poke_consumers
+                    (environment, workspace_id, consumer, last_sequence,
+                     updated_at, owner_pid)
+                VALUES (?, ?, ?, 0, ?, ?)
+                ON CONFLICT (environment, workspace_id, consumer)
+                DO UPDATE SET
+                    updated_at = excluded.updated_at,
+                    owner_pid = excluded.owner_pid
+                """,
+                (
+                    config.environment,
+                    config.workspace_id,
+                    consumer,
+                    now,
+                    int(pid),
+                ),
+            )
+            connection.commit()
+
+    def heartbeat_bridge_consumer(
+        self, config: BridgeConfig, pid: int
+    ) -> None:
+        """Keep a live, idle launch cursor out of retention cleanup."""
+        with closing(self.connect()) as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            cursor = connection.execute(
+                """
+                UPDATE poke_consumers
+                SET updated_at = ?
+                WHERE environment = ? AND workspace_id = ? AND consumer = ?
+                  AND owner_pid = ?
+                """,
+                (
+                    self.clock(),
+                    config.environment,
+                    config.workspace_id,
+                    bridge_consumer(config),
+                    int(pid),
+                ),
+            )
+            if cursor.rowcount != 1:
+                connection.rollback()
+                raise BridgeError("bridge consumer cursor disappeared")
+            connection.commit()
+
+    def release_bridge_consumer(
+        self, config: BridgeConfig, pid: int
+    ) -> None:
+        """Delete state for an instance identity that will not be reused."""
+        consumer = bridge_consumer(config)
+        with closing(self.connect()) as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            connection.execute(
+                """
+                DELETE FROM codex_bridge_deliveries
+                WHERE environment = ? AND workspace_id = ? AND consumer = ?
+                  AND EXISTS (
+                      SELECT 1
+                      FROM poke_consumers
+                      WHERE environment = ? AND workspace_id = ?
+                        AND consumer = ? AND owner_pid = ?
+                  )
+                """,
+                (
+                    config.environment,
+                    config.workspace_id,
+                    consumer,
+                    config.environment,
+                    config.workspace_id,
+                    consumer,
+                    int(pid),
+                ),
+            )
+            connection.execute(
+                """
+                DELETE FROM poke_consumers
+                WHERE environment = ? AND workspace_id = ? AND consumer = ?
+                  AND owner_pid = ?
+                """,
+                (
+                    config.environment,
+                    config.workspace_id,
+                    consumer,
+                    int(pid),
+                ),
+            )
+            connection.commit()
 
     def ignore_existing_pokes(
         self,
@@ -877,6 +1103,13 @@ class InboxStore:
                 int(row["last_sequence"]),
                 0 if cursor_row is None else int(cursor_row["last_sequence"]),
             )
+            self._advance_consumer(
+                connection,
+                config,
+                consumer,
+                high_water,
+                now,
+            )
             connection.execute(
                 """
                 UPDATE codex_bridge_deliveries
@@ -894,31 +1127,6 @@ class InboxStore:
                     config.workspace_id,
                     consumer,
                     high_water,
-                ),
-            )
-            connection.execute(
-                """
-                INSERT INTO poke_consumers
-                    (environment, workspace_id, consumer, last_sequence,
-                     updated_at)
-                VALUES (?, ?, ?, ?, ?)
-                ON CONFLICT (environment, workspace_id, consumer)
-                DO UPDATE SET
-                    last_sequence =
-                        CASE
-                            WHEN excluded.last_sequence >
-                                 poke_consumers.last_sequence
-                            THEN excluded.last_sequence
-                            ELSE poke_consumers.last_sequence
-                        END,
-                    updated_at = excluded.updated_at
-                """,
-                (
-                    config.environment,
-                    config.workspace_id,
-                    consumer,
-                    high_water,
-                    now,
                 ),
             )
             connection.commit()
@@ -979,8 +1187,26 @@ class InboxStore:
         config: BridgeConfig,
         consumer: str = BRIDGE_CONSUMER,
     ) -> Optional[Poke]:
-        self.initialize_consumer(config, consumer)
+        private_consumer = consumer.startswith(BRIDGE_CONSUMER_PREFIX)
+        if not private_consumer:
+            self.initialize_consumer(config, consumer)
         with closing(self.connect()) as connection:
+            if private_consumer:
+                cursor = connection.execute(
+                    """
+                    SELECT 1
+                    FROM poke_consumers
+                    WHERE environment = ? AND workspace_id = ?
+                      AND consumer = ?
+                    """,
+                    (
+                        config.environment,
+                        config.workspace_id,
+                        consumer,
+                    ),
+                ).fetchone()
+                if cursor is None:
+                    raise BridgeError("bridge consumer cursor disappeared")
             row = connection.execute(
                 """
                 SELECT sequence, message_id, message
@@ -1400,6 +1626,13 @@ class InboxStore:
             if row is None:
                 connection.rollback()
                 raise BridgeError("cannot acknowledge an unknown delivery")
+            self._advance_consumer(
+                connection,
+                config,
+                consumer,
+                sequence,
+                now,
+            )
             connection.execute(
                 """
                 UPDATE codex_bridge_deliveries
@@ -1415,31 +1648,6 @@ class InboxStore:
                     config.workspace_id,
                     consumer,
                     sequence,
-                ),
-            )
-            connection.execute(
-                """
-                INSERT INTO poke_consumers
-                    (environment, workspace_id, consumer, last_sequence,
-                     updated_at)
-                VALUES (?, ?, ?, ?, ?)
-                ON CONFLICT (environment, workspace_id, consumer)
-                DO UPDATE SET
-                    last_sequence =
-                        CASE
-                            WHEN excluded.last_sequence >
-                                 poke_consumers.last_sequence
-                            THEN excluded.last_sequence
-                            ELSE poke_consumers.last_sequence
-                        END,
-                    updated_at = excluded.updated_at
-                """,
-                (
-                    config.environment,
-                    config.workspace_id,
-                    consumer,
-                    sequence,
-                    now,
                 ),
             )
             connection.commit()
@@ -1689,12 +1897,10 @@ class InboxStore:
             ).fetchone()
         return None if row is None else row["state"]
 
-    def acquire_primary(
-        self,
-        config: BridgeConfig,
-        pid: int,
-        stale_after: float = PRIMARY_STALE_SECONDS,
+    def acquire_update_notice_leader(
+        self, config: BridgeConfig, pid: int
     ) -> bool:
+        """Elect one live bridge to handle workspace-global notices."""
         now = self.clock()
         with closing(self.connect()) as connection:
             connection.execute("BEGIN IMMEDIATE")
@@ -1712,10 +1918,10 @@ class InboxStore:
                     and int(row["pid"]) == int(pid)
                 )
                 # Heartbeat age is diagnostic, not permission to steal from a
-                # live process.  A blocked old bridge could wake after a
-                # time-based takeover and race the new primary into duplicate
-                # turn/start calls.  POSIX pid liveness is the fail-closed
-                # ownership boundary; normal exits remove their own row.
+                # live process. A blocked old leader could wake after a
+                # time-based takeover and race the replacement into duplicate
+                # update-notice turn/start calls. POSIX pid liveness is the
+                # fail-closed boundary; normal exits remove their own row.
                 if not same_owner and self.pid_is_alive(int(row["pid"])):
                     connection.rollback()
                     return False
@@ -1744,7 +1950,9 @@ class InboxStore:
             connection.commit()
             return True
 
-    def refresh_primary(self, config: BridgeConfig, pid: int) -> bool:
+    def refresh_update_notice_leader(
+        self, config: BridgeConfig, pid: int
+    ) -> bool:
         now = self.clock()
         with closing(self.connect()) as connection:
             connection.execute("BEGIN IMMEDIATE")
@@ -1766,7 +1974,9 @@ class InboxStore:
             connection.commit()
             return cursor.rowcount == 1
 
-    def release_primary(self, config: BridgeConfig, pid: int) -> None:
+    def release_update_notice_leader(
+        self, config: BridgeConfig, pid: int
+    ) -> None:
         with closing(self.connect()) as connection:
             connection.execute("BEGIN IMMEDIATE")
             connection.execute(
@@ -3667,6 +3877,7 @@ class BridgeEngine:
         observed_turn_id: Callable[
             [str, str], Optional[str]
         ] = lambda _thread_id, _message_id: None,
+        include_update_notices: bool = True,
     ):
         self.store = store
         self.app_server = app_server
@@ -3676,6 +3887,7 @@ class BridgeEngine:
         self.commit_if_deliverable = commit_if_deliverable
         self.deferred_steer_turn_id = deferred_steer_turn_id
         self.observed_turn_id = observed_turn_id
+        self.include_update_notices = include_update_notices
 
     def _commit_durable(self, commit: Callable[[], None]) -> bool:
         if self.commit_if_deliverable is not None:
@@ -4248,7 +4460,7 @@ class BridgeEngine:
 
         sending_notice = (
             None
-            if retrying_delivery is not None
+            if retrying_delivery is not None or not self.include_update_notices
             else self.store.get_sending_update_notice(self.config)
         )
         if sending_notice is not None:
@@ -4344,9 +4556,10 @@ class BridgeEngine:
             has_pending_poke = self.store.has_pending_poke(
                 self.config, self.consumer
             )
-            pending_notice = self.store.get_pending_update_notice(
-                self.config
-            )
+            if self.include_update_notices:
+                pending_notice = self.store.get_pending_update_notice(
+                    self.config
+                )
             if not has_pending_poke and pending_notice is None:
                 return StepResult("empty")
 
@@ -4391,7 +4604,7 @@ class BridgeEngine:
         if not self.may_deliver():
             return StepResult("orphaned")
         poke = self.store.peek_next(self.config, self.consumer)
-        if pending_notice is None:
+        if pending_notice is None and self.include_update_notices:
             pending_notice = self.store.get_pending_update_notice(
                 self.config
             )
@@ -7230,8 +7443,6 @@ def run_bridge(
     parent_pid = os.getppid()
     if parent_pid <= 1:
         return EXIT_OK
-    if not store.acquire_primary(config, pid):
-        return EXIT_PRIMARY_HELD
 
     stopping = stop_event or threading.Event()
     previous_handlers = _install_signal_handlers(stopping)
@@ -7274,9 +7485,18 @@ def run_bridge(
     pending_poke_wait_prefix = (
         "Uclusion Codex bridge waiting to deliver a pending Poke: "
     )
+    consumer_heartbeat_retry_prefix = (
+        "Uclusion Codex bridge consumer heartbeat retry: "
+    )
     deferred_steer_turn_id: Optional[str] = None
     next_driver_connection_id = INITIAL_DRIVER_CONNECTION_ID
     audit_subscribed_thread_ids = set()
+    consumer = bridge_consumer(config)
+    consumer_prepared = False
+    owns_update_notice_leadership = False
+    update_notice_leadership_confirmed = False
+    next_update_notice_leader_maintenance = 0.0
+    next_consumer_heartbeat = 0.0
 
     def receiver_live() -> bool:
         return (
@@ -7287,8 +7507,31 @@ def run_bridge(
         )
 
     try:
+        store.prepare_bridge_consumer(config, pid)
+        consumer_prepared = True
         if not deliver_existing_pokes:
-            store.ignore_existing_pokes(config)
+            store.ignore_existing_pokes(config, consumer)
+        now = time.monotonic()
+        try:
+            owns_update_notice_leadership = (
+                store.acquire_update_notice_leader(config, pid)
+            )
+            update_notice_leadership_confirmed = (
+                owns_update_notice_leadership
+            )
+        except sqlite3.Error as exc:
+            message = (
+                "Uclusion Codex update-notice leadership retry: {}"
+                .format(exc)
+            )
+            print(message, file=sys.stderr, flush=True)
+            last_error = message
+        next_update_notice_leader_maintenance = (
+            now + UPDATE_NOTICE_LEADER_MAINTENANCE_SECONDS
+        )
+        next_consumer_heartbeat = (
+            now + BRIDGE_CONSUMER_HEARTBEAT_SECONDS
+        )
         while not stopping.is_set():
             if os.getppid() != parent_pid:
                 return EXIT_OK
@@ -7303,19 +7546,70 @@ def run_bridge(
                         flush=True,
                     )
                 return EXIT_RELAY_FAILED
-            try:
-                owns_primary = store.refresh_primary(config, pid)
-            except sqlite3.Error as exc:
-                message = "Uclusion Codex bridge database retry: {}".format(
-                    exc
+            now = time.monotonic()
+            if now >= next_update_notice_leader_maintenance:
+                update_notice_leadership_confirmed = False
+                try:
+                    if owns_update_notice_leadership:
+                        owns_update_notice_leadership = (
+                            store.refresh_update_notice_leader(
+                                config, pid
+                            )
+                        )
+                    else:
+                        owns_update_notice_leadership = (
+                            store.acquire_update_notice_leader(
+                                config, pid
+                            )
+                        )
+                    update_notice_leadership_confirmed = (
+                        owns_update_notice_leadership
+                    )
+                except sqlite3.Error as exc:
+                    message = (
+                        "Uclusion Codex update-notice leadership retry: {}"
+                        .format(exc)
+                    )
+                    if message != last_error:
+                        print(message, file=sys.stderr, flush=True)
+                        last_error = message
+                next_update_notice_leader_maintenance = (
+                    now + UPDATE_NOTICE_LEADER_MAINTENANCE_SECONDS
                 )
-                if message != last_error:
-                    print(message, file=sys.stderr, flush=True)
-                    last_error = message
-                stopping.wait(max(1.0, poll_interval))
-                continue
-            if not owns_primary:
-                return EXIT_PRIMARY_HELD
+            if (
+                update_worker is not None
+                and not update_notice_leadership_confirmed
+            ):
+                update_worker.close()
+                update_worker = None
+            if now >= next_consumer_heartbeat:
+                try:
+                    store.heartbeat_bridge_consumer(config, pid)
+                except sqlite3.Error as exc:
+                    message = consumer_heartbeat_retry_prefix + str(exc)
+                    if message != last_error:
+                        print(message, file=sys.stderr, flush=True)
+                        last_error = message
+                    stopping.wait(max(1.0, poll_interval))
+                    continue
+                except BridgeError as exc:
+                    print(
+                        "Uclusion Codex bridge lost its session cursor: {}"
+                        .format(exc),
+                        file=sys.stderr,
+                        flush=True,
+                    )
+                    return EXIT_RELAY_FAILED
+                if (
+                    last_error is not None
+                    and last_error.startswith(
+                        consumer_heartbeat_retry_prefix
+                    )
+                ):
+                    last_error = None
+                next_consumer_heartbeat = (
+                    now + BRIDGE_CONSUMER_HEARTBEAT_SECONDS
+                )
             if token_audit is not None:
                 token_audit.refresh_ready()
 
@@ -7440,7 +7734,10 @@ def run_bridge(
                         config.ready_file, config.instance
                     )
                     ready_published = True
-                if update_worker is None:
+                if (
+                    update_worker is None
+                    and update_notice_leadership_confirmed
+                ):
                     update_worker = UpdateNoticeWorker(
                         config.environment,
                         update_notice_source,
@@ -7474,7 +7771,10 @@ def run_bridge(
                         continue
                     audit_subscribed_thread_ids.add(thread_id)
 
-            if update_worker is not None:
+            if (
+                update_worker is not None
+                and update_notice_leadership_confirmed
+            ):
                 for notice in update_worker.drain():
                     try:
                         store.enqueue_update_notice(config, notice)
@@ -7495,7 +7795,9 @@ def run_bridge(
                 if lease.snapshot is None:
                     assert lease.blocked_by is not None
                     try:
-                        pending_poke = store.has_pending_poke(config)
+                        pending_poke = store.has_pending_poke(
+                            config, consumer
+                        )
                     except sqlite3.Error as exc:
                         message = (
                             "Uclusion Codex bridge database retry: {}"
@@ -7528,6 +7830,7 @@ def run_bridge(
                     store,
                     control_client,
                     config,
+                    consumer=consumer,
                     may_deliver=lambda: (
                         receiver_live()
                         and authority.snapshot_is_current(snapshot)
@@ -7540,6 +7843,9 @@ def run_bridge(
                     deferred_steer_turn_id=deferred_steer_turn_id,
                     observed_turn_id=(
                         authority.observed_user_message_turn
+                    ),
+                    include_update_notices=(
+                        update_notice_leadership_confirmed
                     ),
                 )
                 try:
@@ -7582,12 +7888,22 @@ def run_bridge(
             driver_client.close()
         if token_audit is not None:
             token_audit.close()
+        if consumer_prepared:
+            try:
+                store.release_bridge_consumer(config, pid)
+            except sqlite3.Error as exc:
+                print(
+                    "Uclusion Codex bridge could not release its session "
+                    "cursor: {}".format(exc),
+                    file=sys.stderr,
+                    flush=True,
+                )
         try:
-            store.release_primary(config, pid)
+            store.release_update_notice_leader(config, pid)
         except sqlite3.Error as exc:
             print(
-                "Uclusion Codex bridge could not release its primary "
-                "record: {}".format(exc),
+                "Uclusion Codex bridge could not release update-notice "
+                "leadership: {}".format(exc),
                 file=sys.stderr,
                 flush=True,
             )

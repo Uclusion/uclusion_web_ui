@@ -1206,7 +1206,7 @@ class CodexLauncherTests(unittest.TestCase):
             healthy.wait_calls, [cli.CODEX_CHILD_SHUTDOWN_TIMEOUT]
         )
 
-    def test_bridge_exit_before_tui_is_reported_and_reaped(self):
+    def test_generic_bridge_exit_before_tui_is_reported_and_reaped(self):
         app_server = FakeProcess([None])
         bridge = FakeProcess([3])
         with ExitStack() as stack:
@@ -1225,7 +1225,9 @@ class CodexLauncherTests(unittest.TestCase):
 
         self.assertEqual(result, 1)
         self.assertEqual(popen.call_count, 2)
-        self.assertIn('another launcher already owns', stderr.getvalue())
+        self.assertIn(
+            'exited unexpectedly with status 3', stderr.getvalue()
+        )
         self.assertFalse(bridge.terminate_called)
         self.assertEqual(bridge.wait_calls, [None])
         self.assertTrue(app_server.terminate_called)

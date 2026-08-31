@@ -353,7 +353,105 @@ class RunBridgeTests(BridgeTestCase):
         self.assertEqual(bridge.EXIT_OK, result)
         cutoff.assert_called_once()
         self.assertEqual(config, cutoff.call_args.args[1])
+        self.assertEqual(
+            bridge.bridge_consumer(config), cutoff.call_args.args[2]
+        )
         self.assertEqual("codex-bridge", bridge.BRIDGE_CONSUMER)
+        relay.close.assert_called_once_with()
+
+    def test_notice_leadership_conflict_does_not_block_bridge_start(self):
+        stopping = threading.Event()
+        stopping.set()
+        relay = mock.Mock()
+        config = dataclass_replace(
+            self.config,
+            frontend_socket=os.path.join(
+                self.temporary.name, "frontend.sock"
+            ),
+        )
+        with mock.patch.object(
+            bridge.InboxStore,
+            "acquire_update_notice_leader",
+            autospec=True,
+            return_value=False,
+        ) as acquire:
+            result = bridge.run_bridge(
+                config,
+                stop_event=stopping,
+                relay_factory=lambda *_args: relay,
+                update_notice_source=lambda _environment: None,
+            )
+
+        self.assertEqual(bridge.EXIT_OK, result)
+        acquire.assert_called_once()
+        relay.close.assert_called_once_with()
+
+    def test_transient_consumer_heartbeat_error_retries(self):
+        class RetryEvent(threading.Event):
+            def wait(self, _timeout=None):
+                return self.is_set()
+
+        class DriverClient:
+            def __init__(self):
+                self.response_lock = threading.Lock()
+                self.reader_failure = None
+                self.notification_handler = None
+                self.disconnect_handler = None
+
+            def start(self):
+                pass
+
+            def subscribe_thread(self, _thread_id, _on_subscribed):
+                pass
+
+            def fence_thread(self, _thread_id):
+                pass
+
+            def close(self):
+                pass
+
+        stopping = RetryEvent()
+        relay = mock.Mock()
+        relay.fatal_event = threading.Event()
+        relay.fatal_error = None
+        relay.listener = None
+        attempts = []
+
+        def heartbeat(_store, _config, _pid):
+            attempts.append(None)
+            if len(attempts) == 1:
+                raise sqlite3.OperationalError("database busy")
+            stopping.set()
+
+        config = dataclass_replace(
+            self.config,
+            frontend_socket=os.path.join(
+                self.temporary.name, "frontend.sock"
+            ),
+        )
+        stderr = io.StringIO()
+        with mock.patch.object(
+            bridge,
+            "BRIDGE_CONSUMER_HEARTBEAT_SECONDS",
+            0.0,
+        ), mock.patch.object(
+            bridge.InboxStore,
+            "heartbeat_bridge_consumer",
+            autospec=True,
+            side_effect=heartbeat,
+        ), mock.patch.object(bridge.sys, "stderr", stderr):
+            result = bridge.run_bridge(
+                config,
+                poll_interval=0.001,
+                stop_event=stopping,
+                client_factory=lambda _path: DriverClient(),
+                relay_factory=lambda *_args: relay,
+                update_notice_source=lambda _environment: None,
+            )
+
+        self.assertEqual(bridge.EXIT_OK, result)
+        self.assertEqual(2, len(attempts))
+        self.assertIn("consumer heartbeat retry: database busy", stderr.getvalue())
         relay.close.assert_called_once_with()
 
     def test_deliver_existing_opt_in_disables_startup_cutoff(self):
@@ -3256,26 +3354,389 @@ class DeliveryTests(BridgeTestCase):
         self.assertEqual(1, len(app_server.start_calls))
 
 
-class PrimaryLockTests(BridgeTestCase):
-    def test_one_fresh_primary_per_environment_and_workspace(self):
+class MultiInstanceDeliveryTests(BridgeTestCase):
+    def config_for(self, instance):
+        return dataclass_replace(self.config, instance=instance)
+
+    def prepare_consumer(self, config, pid=None):
+        self.store.prepare_bridge_consumer(
+            config, os.getpid() if pid is None else pid
+        )
+        return bridge.bridge_consumer(config)
+
+    def accepted_engine(
+        self,
+        app_server,
+        config,
+        consumer,
+        include_update_notices=False,
+    ):
+        return bridge.BridgeEngine(
+            self.store,
+            app_server,
+            config,
+            consumer=consumer,
+            observed_turn_id=(
+                lambda thread_id, message_id: (
+                    app_server.committed_starts.get(
+                        (thread_id, message_id)
+                    )
+                )
+            ),
+            include_update_notices=include_update_notices,
+        )
+
+    def test_launch_cutoffs_are_scoped_to_each_instance(self):
+        first = self.config_for("first")
+        second = self.config_for("second")
+        first_consumer = self.prepare_consumer(first)
+        self.store.ignore_existing_pokes(first, first_consumer)
+
+        between = self.add_poke("between", "Start B-all-between")
+        second_consumer = self.prepare_consumer(second)
+        self.store.ignore_existing_pokes(second, second_consumer)
+        after = self.add_poke("after", "Start B-all-after")
+
+        first_poke = self.store.peek_next(first, first_consumer)
+        second_poke = self.store.peek_next(second, second_consumer)
+        self.assertEqual(between, first_poke.sequence)
+        self.assertEqual(after, second_poke.sequence)
+
+        self.store.begin_delivery(
+            first, first_poke, "root-first", first_consumer
+        )
+        self.store.acknowledge(
+            first, between, "turn-between", first_consumer
+        )
+        self.assertEqual(
+            after,
+            self.store.peek_next(first, first_consumer).sequence,
+        )
+        self.assertEqual(
+            between,
+            self.store.consumer_cursor(first, first_consumer),
+        )
+        self.assertEqual(
+            between,
+            self.store.consumer_cursor(second, second_consumer),
+        )
+
+    def test_same_workspace_instances_each_accept_post_cutoff_poke(self):
+        first = self.config_for("first")
+        second = self.config_for("second")
+        first_consumer = self.prepare_consumer(first)
+        second_consumer = self.prepare_consumer(second)
+        self.store.ignore_existing_pokes(first, first_consumer)
+        self.store.ignore_existing_pokes(second, second_consumer)
+        self.store.bind(first, "root-first", first.cwd, promoted=False)
+        self.store.bind(second, "root-second", second.cwd, promoted=False)
+        sequence = self.add_poke("shared", "Start B-all-shared")
+        first_app_server = FakeAppServer(thread_id="root-first")
+        second_app_server = FakeAppServer(thread_id="root-second")
+
+        first_result = self.accepted_engine(
+            first_app_server, first, first_consumer
+        ).step()
+        second_result = self.accepted_engine(
+            second_app_server, second, second_consumer
+        ).step()
+
+        self.assertEqual("accepted", first_result.action)
+        self.assertEqual("accepted", second_result.action)
+        self.assertEqual(
+            [("root-first", "Start B-all-shared", "shared")],
+            first_app_server.start_calls,
+        )
+        self.assertEqual(
+            [("root-second", "Start B-all-shared", "shared")],
+            second_app_server.start_calls,
+        )
+        with self.store.connect() as connection:
+            deliveries = connection.execute(
+                """
+                SELECT consumer, thread_id, state
+                FROM codex_bridge_deliveries
+                WHERE environment = ? AND workspace_id = ? AND sequence = ?
+                ORDER BY consumer
+                """,
+                (first.environment, first.workspace_id, sequence),
+            ).fetchall()
+        self.assertEqual(
+            {
+                (first_consumer, "root-first", "accepted"),
+                (second_consumer, "root-second", "accepted"),
+            },
+            {
+                (row["consumer"], row["thread_id"], row["state"])
+                for row in deliveries
+            },
+        )
+
+    def test_ambiguous_delivery_is_reconciled_only_by_its_instance(self):
+        first = self.config_for("first")
+        second = self.config_for("second")
+        first_consumer = self.prepare_consumer(first)
+        second_consumer = self.prepare_consumer(second)
+        self.store.ignore_existing_pokes(first, first_consumer)
+        self.store.ignore_existing_pokes(second, second_consumer)
+        self.store.bind(first, "root-first", first.cwd, promoted=False)
+        self.store.bind(second, "root-second", second.cwd, promoted=False)
+        sequence = self.add_poke("ambiguous", "Start B-all-ambiguous")
+        first_app_server = FakeAppServer(thread_id="root-first")
+        first_app_server.outcomes.append(
+            bridge.AppServerTransportError("reset after write")
+        )
+        second_app_server = FakeAppServer(thread_id="root-second")
+        first_engine = self.accepted_engine(
+            first_app_server, first, first_consumer
+        )
+
+        queued = first_engine.step()
+        second_result = self.accepted_engine(
+            second_app_server, second, second_consumer
+        ).step()
+
+        self.assertEqual("ambiguous", queued.action)
+        self.assertEqual("accepted", second_result.action)
+        first_sending = self.store.get_sending(first, first_consumer)
+        self.assertEqual("root-first", first_sending.thread_id)
+        self.assertEqual("first", first_sending.attempt_instance)
+        self.assertEqual(
+            0, self.store.consumer_cursor(first, first_consumer)
+        )
+        self.assertEqual(
+            sequence,
+            self.store.consumer_cursor(second, second_consumer),
+        )
+        self.assertTrue(all(
+            thread_id == "root-second"
+            for thread_id, _include_turns in second_app_server.read_calls
+        ))
+
+        first_app_server.thread["turns"] = [
+            {
+                "id": "turn-1",
+                "status": "completed",
+                "items": [
+                    {
+                        "type": "userMessage",
+                        "clientId": "ambiguous",
+                    }
+                ],
+            }
+        ]
+        self.clock.advance(bridge.POKE_RETRY_DELAYS_SECONDS[0])
+        reconciled = first_engine.step()
+
+        self.assertEqual("reconciled", reconciled.action)
+        self.assertEqual(
+            sequence,
+            self.store.consumer_cursor(first, first_consumer),
+        )
+
+    def test_fresh_replay_consumer_does_not_mutate_old_ambiguity(self):
+        previous = self.config_for("previous")
+        replay = self.config_for("replay")
+        previous_consumer = self.prepare_consumer(previous)
+        self.store.ignore_existing_pokes(previous, previous_consumer)
+        sequence = self.add_poke("retained", "Start B-all-retained")
+        poke = self.store.peek_next(previous, previous_consumer)
+        self.store.begin_delivery(
+            previous, poke, "root-previous", previous_consumer
+        )
+        self.store.record_sending_attempt(
+            previous,
+            sequence,
+            "root-previous",
+            "retained",
+            "turn/start",
+            None,
+            previous_consumer,
+        )
+
+        replay_consumer = self.prepare_consumer(replay)
+        replay_poke = self.store.peek_next(replay, replay_consumer)
+
+        self.assertEqual(sequence, replay_poke.sequence)
+        previous_sending = self.store.get_sending(
+            previous, previous_consumer
+        )
+        self.assertEqual("sending", previous_sending.state)
+        self.assertEqual("previous", previous_sending.attempt_instance)
+        self.assertEqual(
+            0,
+            self.store.consumer_cursor(previous, previous_consumer),
+        )
+        self.assertEqual(
+            0, self.store.consumer_cursor(replay, replay_consumer)
+        )
+
+    def test_notice_follower_ignores_notice_and_delivers_own_poke(self):
+        follower = self.config_for("follower")
+        consumer = self.prepare_consumer(follower)
+        self.store.ignore_existing_pokes(follower, consumer)
+        self.store.bind(
+            follower, "root-follower", follower.cwd, promoted=False
+        )
+        notice_id = self.store.enqueue_update_notice(
+            follower, "[Uclusion update notice] restart required"
+        )
+        sequence = self.add_poke("follower-poke", "Start B-all-follower")
+        app_server = FakeAppServer(thread_id="root-follower")
+
+        follower_result = self.accepted_engine(
+            app_server,
+            follower,
+            consumer,
+            include_update_notices=False,
+        ).step()
+
+        self.assertEqual("accepted", follower_result.action)
+        self.assertEqual(
+            sequence, self.store.consumer_cursor(follower, consumer)
+        )
+        self.assertEqual(
+            "pending",
+            self.store.update_notice_state(follower, notice_id),
+        )
+
+        leader_result = self.accepted_engine(
+            app_server,
+            follower,
+            consumer,
+            include_update_notices=True,
+        ).step()
+
+        self.assertEqual("accepted_update_notice", leader_result.action)
+        self.assertEqual(
+            "accepted",
+            self.store.update_notice_state(follower, notice_id),
+        )
+
+    def test_bridge_consumer_lifecycle_is_instance_scoped(self):
+        first = self.config_for("first")
+        stale = self.config_for("stale")
+        orphan = self.config_for("orphan")
+        fresh = self.config_for("fresh")
+        first_consumer = self.prepare_consumer(first, pid=101)
+        stale_consumer = self.prepare_consumer(stale, pid=202)
+        orphan_consumer = self.prepare_consumer(orphan, pid=303)
+        stale_poke = bridge.Poke(1, "stale-message", "Start stale")
+        orphan_poke = bridge.Poke(2, "orphan-message", "Start orphan")
+        self.store.begin_delivery(
+            stale, stale_poke, "root-stale", stale_consumer
+        )
+        self.store.begin_delivery(
+            orphan, orphan_poke, "root-orphan", orphan_consumer
+        )
+        with self.store.connect() as connection:
+            connection.executemany(
+                """
+                INSERT INTO poke_consumers
+                    (environment, workspace_id, consumer, last_sequence,
+                     updated_at)
+                VALUES (?, ?, ?, 0, ?)
+                """,
+                [
+                    (first.environment, first.workspace_id, "codex-bridge", 0),
+                    (first.environment, first.workspace_id, "default", 0),
+                    (first.environment, first.workspace_id, "session-other", 0),
+                ],
+            )
+            connection.execute(
+                """
+                DELETE FROM poke_consumers
+                WHERE environment = ? AND workspace_id = ? AND consumer = ?
+                """,
+                (orphan.environment, orphan.workspace_id, orphan_consumer),
+            )
+        self.clock.advance(
+            bridge.BRIDGE_CONSUMER_RETENTION_SECONDS + 1
+        )
+        self.store.pid_is_alive = lambda pid: pid == 101
+
+        fresh_consumer = self.prepare_consumer(fresh, pid=404)
+
+        self.assertEqual(
+            0, self.store.consumer_cursor(first, first_consumer)
+        )
+        self.assertIsNone(
+            self.store.consumer_cursor(stale, stale_consumer)
+        )
+        self.assertIsNone(
+            self.store.delivery_state(stale, 1, stale_consumer)
+        )
+        self.assertIsNone(
+            self.store.delivery_state(orphan, 2, orphan_consumer)
+        )
+        for preserved in ("codex-bridge", "default", "session-other"):
+            self.assertEqual(
+                0, self.store.consumer_cursor(first, preserved)
+            )
+
+        self.store.heartbeat_bridge_consumer(first, pid=101)
+        self.store.release_bridge_consumer(first, pid=101)
+
+        self.assertIsNone(
+            self.store.consumer_cursor(first, first_consumer)
+        )
+        self.assertEqual(
+            0, self.store.consumer_cursor(fresh, fresh_consumer)
+        )
+
+    def test_missing_private_cursor_is_not_recreated(self):
+        config = self.config_for("missing")
+        consumer = self.prepare_consumer(config)
+        self.add_poke("missing-cursor", "Start B-all-missing")
+        with self.store.connect() as connection:
+            connection.execute(
+                """
+                DELETE FROM poke_consumers
+                WHERE environment = ? AND workspace_id = ? AND consumer = ?
+                """,
+                (config.environment, config.workspace_id, consumer),
+            )
+
+        with self.assertRaisesRegex(
+            bridge.BridgeError, "consumer cursor disappeared"
+        ):
+            self.store.peek_next(config, consumer)
+
+        self.assertIsNone(self.store.consumer_cursor(config, consumer))
+
+
+class UpdateNoticeLeaderTests(BridgeTestCase):
+    def test_one_live_leader_per_environment_and_workspace(self):
         first = dataclass_replace(self.config, instance="first")
         second = dataclass_replace(self.config, instance="second")
         self.store.pid_is_alive = lambda _pid: True
 
-        self.assertTrue(self.store.acquire_primary(first, pid=101))
-        self.assertFalse(self.store.acquire_primary(second, pid=202))
-        self.store.release_primary(first, pid=101)
-        self.assertTrue(self.store.acquire_primary(second, pid=202))
+        self.assertTrue(
+            self.store.acquire_update_notice_leader(first, pid=101)
+        )
+        self.assertFalse(
+            self.store.acquire_update_notice_leader(second, pid=202)
+        )
+        self.store.release_update_notice_leader(first, pid=101)
+        self.assertTrue(
+            self.store.acquire_update_notice_leader(second, pid=202)
+        )
 
-    def test_stale_live_primary_is_not_stolen_but_dead_pid_recovers(self):
+    def test_stale_live_leader_is_not_stolen_but_dead_pid_recovers(self):
         first = dataclass_replace(self.config, instance="first")
         second = dataclass_replace(self.config, instance="second")
         self.store.pid_is_alive = lambda _pid: True
-        self.assertTrue(self.store.acquire_primary(first, pid=101))
-        self.clock.advance(bridge.PRIMARY_STALE_SECONDS + 1)
-        self.assertFalse(self.store.acquire_primary(second, pid=202))
+        self.assertTrue(
+            self.store.acquire_update_notice_leader(first, pid=101)
+        )
+        self.clock.advance(60)
+        self.assertFalse(
+            self.store.acquire_update_notice_leader(second, pid=202)
+        )
         self.store.pid_is_alive = lambda _pid: False
-        self.assertTrue(self.store.acquire_primary(second, pid=202))
+        self.assertTrue(
+            self.store.acquire_update_notice_leader(second, pid=202)
+        )
 
 
 class UpdateNoticeWorkerGateTests(unittest.TestCase):

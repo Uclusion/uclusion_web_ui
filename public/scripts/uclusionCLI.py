@@ -39,6 +39,7 @@ DEFAULT_EXPORT_FOLDER = os.path.join(os.path.expanduser('~'), '.uclusion', 'expo
 INBOX_FILE = 'poke_inbox.sqlite3'
 MESSAGE_RETENTION_SECONDS = 7 * 24 * 60 * 60
 DEFAULT_CONSUMER = 'default'
+CODEX_BRIDGE_CONSUMER_PREFIX = 'codex-bridge:'
 SESSION_CONSUMER_PREFIX = 'session-'
 CONSUMER_ENV_VAR = 'UCLUSION_CONSUMER'
 
@@ -266,10 +267,17 @@ def next_prompt(environment, workspace_id, consumer):
         # J-all-379: session cursors idle past the retention window are garbage.
         # Deleting one is semantically safe - every row it claimed has aged out,
         # and a returning consumer counts as brand-new, starting at the current
-        # high-water mark (S-all-205).
+        # high-water mark (S-all-205). Private Codex bridge cursors are exempt:
+        # the bridge owns their PID-aware cleanup and must survive clock jumps.
         connection.execute(
-            'DELETE FROM poke_consumers WHERE updated_at < ?',
-            (now - MESSAGE_RETENTION_SECONDS,)
+            '''
+            DELETE FROM poke_consumers
+            WHERE updated_at < ? AND consumer NOT LIKE ?
+            ''',
+            (
+                now - MESSAGE_RETENTION_SECONDS,
+                CODEX_BRIDGE_CONSUMER_PREFIX + '%',
+            )
         )
         row = connection.execute(
             '''
@@ -1514,13 +1522,7 @@ def codex_signal_exit_code(shutdown_state):
 
 
 def print_bridge_exit_error(returncode):
-    if returncode == 3:
-        print(
-            "❌ The Uclusion Codex bridge exited before the Codex TUI because "
-            "another launcher already owns this environment and workspace.",
-            file=sys.stderr,
-        )
-    elif returncode == CODEX_BRIDGE_RELAY_FAILED_EXIT:
+    if returncode == CODEX_BRIDGE_RELAY_FAILED_EXIT:
         print(
             "❌ The Uclusion Codex relay could not establish a safe private "
             "Codex connection. Run `uclusion update`, then retry "

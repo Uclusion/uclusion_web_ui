@@ -66,26 +66,26 @@ flowchart LR
 
 There can be more than one Uclusion MCP proxy process. They can receive the
 same cloud broadcast; the inbox's environment/workspace/message-id uniqueness
-constraint performs local deduplication. The companion has its own
-`codex-bridge` consumer cursor. Other consumers intentionally receive their own
-copy of a Poke.
+constraint performs local deduplication. Each companion derives a private
+`codex-bridge:<instance>` consumer cursor from its launch UUID, so every live
+Codex session receives its own copy of Pokes arriving after that session's
+startup cutoff. Its reserve, reconciliation, and acknowledgement rows use the
+same consumer identity and cannot be handled by another launch.
 
-Exactly one live companion may own a given `(environment, workspace)` pair.
-It acquires a durable SQLite ownership row before enabling its frontend or
-delivery worker and refreshes that row while alive. A second launcher for the
-same pair is rejected while the recorded owner PID is live. Heartbeat age is
-diagnostic rather than permission to steal: a stalled old owner could otherwise
-wake and race the replacement. A dead PID can be replaced, and a normal exit
-releases its own row. Launchers for different environments or workspaces may
-coexist.
+Multiple companions may run for the same `(environment, workspace)` pair.
+Their app-servers, relays, receiver markers, root authorities, and Poke
+consumers are all launch-private. One of those companions also holds the
+durable SQLite leader row for the workspace-global update-notice stream.
+Failure to acquire that row never blocks the frontend or Poke delivery; a
+follower simply leaves update notices to the leader and retries leadership on
+a five-second cadence. Heartbeat age is diagnostic rather than permission to
+steal from a live PID. A dead leader can be replaced, and normal exit releases
+its own row.
 
-This launcher lock is separate from frontend-connection authority: one live
+Update-notice leadership is separate from frontend-connection authority. Each
 companion can accept its authoritative TUI connection plus auxiliary picker
-connections. The process-level lock is needed because all companions for the
-same pair would share the `codex-bridge` cursor. Allowing two live companions
-to map that stream to different input-owning roots could produce competing
-`turn/start` attempts, duplicate a Poke before either owner acknowledges it, or
-make ambiguous-send reconciliation race the wrong primary.
+connections, while the singleton notice lease prevents two private
+app-servers from racing the same global notice's send or reconciliation state.
 
 The runtime directory and its sockets are private against ordinary accidental
 access. They are not an authentication boundary against a malicious process
@@ -294,7 +294,7 @@ sequenceDiagram
 
     P->>Q: INSERT OR IGNORE Poke by message id
     C->>C: require live TUI and authoritative primary
-    C->>Q: peek next codex-bridge sequence
+    C->>Q: peek next codex-bridge:&lt;instance&gt; sequence
     C->>Q: record delivery state = sending
     alt primary has a regular active turn
         C->>A: turn/steer(primary, expectedTurnId, clientUserMessageId)
@@ -303,7 +303,7 @@ sequenceDiagram
         C->>A: turn/start(primary, clientUserMessageId)
         A-->>C: result.turn.id
     end
-    C->>Q: acknowledge delivery and advance codex-bridge cursor
+    C->>Q: acknowledge and advance this instance's cursor
     A-->>C: later item/completed userMessage(clientId)
     C-->>T: relay turn/item notifications
 ```
@@ -346,21 +346,23 @@ the companion does not poll `thread/read`. Authoritative relay state already
 identifies the current root and active turn, while a read-only inbox preflight
 determines whether a control RPC is needed.
 
-Every ordinary `uclusion codex` launch applies an atomic startup cutoff. After
-the companion acquires exclusive ownership and before it publishes readiness,
-it advances only the `codex-bridge` cursor through the highest Poke already
-present and terminalizes any older pending/sending bridge delivery as skipped.
-An enqueue serialized after that transaction remains pending and is delivered
-normally. Stored Pokes, update notices, and all other consumer cursors are
-untouched. A Poke that Codex accepted before an ambiguous bridge failure may
-already exist in thread history and cannot be canceled; skipping prevents its
-reconciliation or retry. The cutoff is committed once, so a later frontend or
-TUI startup failure does not restore the skipped backlog.
+Every ordinary `uclusion codex` launch creates its private consumer and applies
+an atomic startup cutoff before publishing readiness. It advances only that
+`codex-bridge:<instance>` cursor through the highest Poke already present. An
+enqueue serialized after the transaction remains pending and is delivered to
+that launch normally. Stored Pokes, update notices, and all other consumer
+cursors are untouched. The cursor is heartbeat-refreshed while its companion
+is live, removed with its delivery rows on normal exit, and pruned with those
+rows after the seven-day retention window only when its recorded owner PID is
+no longer live. The cutoff is committed once, so a later frontend or TUI
+startup failure does not turn its pre-launch backlog into live work.
 
 The explicit launcher option `uclusion codex --deliver-existing-pokes` is the
-sole exception. It omits the startup cutoff, leaving the persistent bridge
-cursor and delivery records intact so the retained backlog is reconciled or
-delivered in arrival order before the bridge continues with later Pokes.
+sole exception. It omits the startup cutoff for the new launch consumer, so
+that session receives retained rows as a private copy before later Pokes. A
+prior launch's cursor and ambiguous delivery records remain isolated; this
+explicit replay can therefore duplicate a Poke that the prior session accepted
+without durably acknowledging before it died.
 
 If the disposable control transport fails after a send, the outcome is
 ambiguous. The `sending` record retains the message id, thread id, admission
@@ -391,10 +393,11 @@ snapshot and visible receiver are still current and SQLite commits first, or
 revocation wins and the `sending` row remains for reconciliation. There is no
 check-then-commit window in which a stale root can advance the cursor.
 
-This is duplicate suppression for the `codex-bridge` consumer, not a claim of
-global exactly-once delivery. Other named consumers have independent cursors,
-and the same Poke may intentionally be delivered to Claude, Cursor, or another
-Codex consumer. Inbox rows age out after seven days.
+This is duplicate suppression within one `codex-bridge:<instance>` consumer,
+not a claim of global exactly-once delivery. Other named consumers have
+independent cursors, and the same Poke is intentionally delivered to Claude,
+Cursor, and every other active Codex session. Inbox rows age out after seven
+days.
 
 Update notices use the same primary authority and serialization barrier, but
 retain their existing exact-item commit gate and causal ambiguous-send
@@ -442,8 +445,9 @@ create a memory backlog or establish primary authority.
 | Root-switch outcome is ambiguous | Clear primary and wait for a fresh correlated TUI start/resume/fork. |
 | Current-primary archive/delete returns a definitive error | Restore the prior primary. Success or an ambiguous outcome leaves NoRoot. |
 | Current-primary unsubscribe succeeds, errors, or has an ambiguous outcome | Leave NoRoot because the TUI abandons its listener after awaiting the call regardless of the RPC result. |
-| A second launcher targets the same environment and workspace while its owner PID is live | Reject the second companion; do not let two processes consume the shared `codex-bridge` cursor. |
-| The recorded bridge owner PID is dead | Permit takeover, then recover or reconcile durable pending/sending state before new delivery. A stale heartbeat alone never permits takeover. |
+| A second launcher targets the same environment and workspace | Start it with a private runtime and `codex-bridge:<instance>` cursor; both sessions receive post-cutoff Pokes independently. |
+| The update-notice leader PID is live | Followers continue their own Poke delivery but never read or mutate the global notice stream. |
+| The update-notice leader PID is dead | Permit a follower to take leadership and recover or reconcile global notice state. A stale heartbeat alone never permits takeover. |
 | Disposable control connection fails or times out | Preserve any `sending` row, keep the continuous driver witness intact, reconnect control to the still-running backend, then reconcile by the stored message and thread ids. |
 | Relayed backend connection fails | Clear authority and close or fail the frontend; never reconstruct visibility from broadcasts or loaded-thread lists. |
 | Malformed recognized thread-lifecycle witness notification on the primary or driver | Fail the bridge session closed; never use partial lifecycle evidence. |
@@ -568,8 +572,9 @@ At minimum, tests must cover:
   turn admission or current-primary invalidation;
 - enqueue-to-worker FIFO races, ordinary-message ordering, and explicit
   interrupt/steer/server-response bypass;
-- one live companion per environment/workspace, including live-owner
-  rejection, dead-owner takeover, and no heartbeat-only ownership theft;
+- same-workspace companions becoming ready together, independent launch
+  cutoffs and Poke delivery/reconciliation, plus singleton update-notice
+  leadership with dead-owner takeover and no heartbeat-only ownership theft;
 - active-turn Poke steering, authoritative active-turn tracking, expected-turn
   races, non-steerable deferral, and ordered stacked Pokes;
 - response-before-lifecycle gaps for ordinary turns, inline reviews, and
@@ -597,9 +602,10 @@ At minimum, tests must cover:
 - malformed reconciliation history remaining `sending`, plus cursor
   acknowledgement serialized against lifecycle and disconnect revocation;
 - duplicate cloud notifications and independent consumer cursors;
-- default atomic startup cutoff, `--deliver-existing-pokes` backlog opt-in,
-  stale sending-delivery terminalization, and isolation from later Pokes plus
-  other consumers;
+- per-launch atomic startup cutoff, `--deliver-existing-pokes` private-copy
+  opt-in, heartbeat retry, PID-gated stale cleanup, fail-closed cursor loss,
+  graceful consumer cleanup, and isolation from later Pokes plus other
+  consumers;
 - launcher cleanup for TUI, companion, and app-server failure; and
 - a real end-to-end Poke plus `/new` interleaving against a supported
   Codex release.

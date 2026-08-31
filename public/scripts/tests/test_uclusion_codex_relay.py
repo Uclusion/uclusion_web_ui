@@ -1270,6 +1270,7 @@ def send_client_json(stream, message):
 
 def connect_frontend(path):
     stream = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    stream.settimeout(2)
     stream.connect(path)
     key = base64.b64encode(b"0123456789abcdef").decode("ascii")
     stream.sendall(
@@ -1285,7 +1286,10 @@ def connect_frontend(path):
     )
     response = bytearray()
     while b"\r\n\r\n" not in response:
-        response.extend(stream.recv(4096))
+        chunk = stream.recv(4096)
+        if not chunk:
+            raise AssertionError("relay closed during WebSocket handshake")
+        response.extend(chunk)
     expected = base64.b64encode(
         hashlib.sha1(
             (key + bridge.WEBSOCKET_GUID).encode("ascii")
@@ -1328,6 +1332,7 @@ class RunBridgeRelayIntegrationTests(unittest.TestCase):
             encoding="utf-8",
         )
         store = bridge.InboxStore(inbox_path)
+        consumer = bridge.bridge_consumer(config)
         upstreams = FakeUpstreamFactory()
         stopping = threading.Event()
         start_calls = []
@@ -1528,8 +1533,10 @@ class RunBridgeRelayIntegrationTests(unittest.TestCase):
                     self.fail(
                         "bridge did not call turn/start; delivery_state={!r}, "
                         "cursor={!r}, sequence={!r}".format(
-                            store.delivery_state(config, sequence),
-                            store.consumer_cursor(config),
+                            store.delivery_state(
+                                config, sequence, consumer
+                            ),
+                            store.consumer_cursor(config, consumer),
                             sequence,
                         )
                     )
@@ -1552,11 +1559,14 @@ class RunBridgeRelayIntegrationTests(unittest.TestCase):
                 primary_upstream.respond(committed)
                 self.assertEqual(committed, read_server_json(frontend))
                 wait_for(
-                    lambda: store.consumer_cursor(config) == sequence,
+                    lambda: (
+                        store.consumer_cursor(config, consumer) == sequence
+                    ),
                     "bridge did not advance the Poke cursor",
                 )
                 self.assertEqual(
-                    "accepted", store.delivery_state(config, sequence)
+                    "accepted",
+                    store.delivery_state(config, sequence, consumer),
                 )
                 with store.connect() as connection:
                     deliveries = connection.execute(
@@ -1569,7 +1579,7 @@ class RunBridgeRelayIntegrationTests(unittest.TestCase):
                         (
                             config.environment,
                             config.workspace_id,
-                            bridge.BRIDGE_CONSUMER,
+                            consumer,
                             sequence,
                         ),
                     ).fetchall()
@@ -1578,7 +1588,7 @@ class RunBridgeRelayIntegrationTests(unittest.TestCase):
                 self.assertEqual("root-resumed", deliveries[0]["thread_id"])
                 self.assertEqual("accepted", deliveries[0]["state"])
                 self.assertEqual(1, deliveries[0]["attempt_count"])
-                self.assertIsNone(store.peek_next(config))
+                self.assertIsNone(store.peek_next(config, consumer))
                 self.assertEqual([expected_call], start_calls)
                 self.assertEqual(["root-resumed"], driver.subscribe_calls)
                 self.assertEqual(["root-resumed"], driver.fence_calls)
@@ -1592,6 +1602,329 @@ class RunBridgeRelayIntegrationTests(unittest.TestCase):
         self.assertFalse(worker.is_alive())
         self.assertEqual([], failures)
         self.assertEqual([bridge.EXIT_OK], result)
+        self.assertEqual("", stderr.getvalue())
+
+    def test_same_workspace_bridges_each_receive_post_cutoff_poke(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        inbox_path = os.path.join(
+            temporary.name, ".uclusion", proxy.INBOX_FILE
+        )
+        store = bridge.InboxStore(inbox_path)
+        test_case = self
+
+        class DriverClient:
+            def __init__(self):
+                self.response_lock = threading.Lock()
+                self.reader_failure = None
+                self.notification_handler = None
+                self.disconnect_handler = None
+
+            def start(self):
+                pass
+
+            def subscribe_thread(self, _thread_id, on_subscribed):
+                on_subscribed()
+
+            def fence_thread(self, _thread_id):
+                pass
+
+            def close(self):
+                pass
+
+        class ControlClient:
+            def __init__(self, runtime):
+                self.runtime = runtime
+
+            def start(self):
+                pass
+
+            def thread_read(self, thread_id, include_turns):
+                thread = {
+                    "id": thread_id,
+                    "sessionId": thread_id,
+                    "parentThreadId": None,
+                    "cwd": self.runtime.config.cwd,
+                    "status": {"type": "idle"},
+                }
+                if include_turns:
+                    thread["turns"] = []
+                return thread
+
+            def turn_start(self, thread_id, text, message_id):
+                call = (thread_id, text, message_id)
+                self.runtime.start_calls.append(call)
+                self.runtime.turn_started.put(call)
+                return {
+                    "turn": {
+                        "id": "turn-{}".format(self.runtime.name),
+                        "status": "inProgress",
+                        "items": [],
+                    }
+                }
+
+            def turn_steer(self, *_args):
+                raise AssertionError("idle root must use turn/start")
+
+            def close(self):
+                pass
+
+        class Runtime:
+            def __init__(self, name):
+                self.name = name
+                self.root = "root-{}".format(name)
+                runtime_dir = Path(temporary.name) / name
+                runtime_dir.mkdir()
+                self.config = bridge.BridgeConfig(
+                    environment="stage",
+                    workspace_id="workspace-test",
+                    instance="instance-{}".format(name),
+                    cwd="/workspace/project",
+                    app_server_socket=str(runtime_dir / "backend.sock"),
+                    inbox_path=inbox_path,
+                    ready_file=str(runtime_dir / "bridge.ready"),
+                    receiver_pid_file=str(runtime_dir / "receiver.pid"),
+                    frontend_socket=str(runtime_dir / "tui.sock"),
+                )
+                Path(self.config.receiver_pid_file).write_text(
+                    "{} {}\n".format(self.config.instance, os.getpid()),
+                    encoding="utf-8",
+                )
+                self.consumer = bridge.bridge_consumer(self.config)
+                self.upstreams = FakeUpstreamFactory()
+                self.stopping = threading.Event()
+                self.start_calls = []
+                self.turn_started = queue.Queue()
+                self.driver = DriverClient()
+                self.control = ControlClient(self)
+                self.frontend = None
+                self.result = None
+                self.failure = None
+                self.worker = threading.Thread(
+                    target=self.run, daemon=True
+                )
+
+            def relay_factory(self, frontend, backend, authority):
+                return bridge.UnixWebSocketRelay(
+                    frontend,
+                    backend,
+                    authority,
+                    upstream_factory=self.upstreams,
+                    request_timeout=1,
+                )
+
+            def run(self):
+                try:
+                    self.result = bridge.run_bridge(
+                        self.config,
+                        poll_interval=0.005,
+                        stop_event=self.stopping,
+                        client_factory=lambda _path: self.driver,
+                        control_client_factory=lambda _path: self.control,
+                        relay_factory=self.relay_factory,
+                        update_notice_source=lambda _environment: None,
+                    )
+                except BaseException as exc:
+                    self.failure = exc
+
+            def establish_primary(self):
+                wait_for(
+                    lambda: (
+                        os.path.exists(self.config.ready_file)
+                        and os.path.exists(self.config.frontend_socket)
+                    ),
+                    "{} bridge did not become ready".format(self.name),
+                )
+                self.frontend = connect_frontend(
+                    self.config.frontend_socket
+                )
+                self.frontend.settimeout(2)
+                primary_upstream = self.upstreams.get(0)
+                send_client_json(
+                    self.frontend,
+                    {
+                        "id": "initialize-{}".format(self.name),
+                        "method": "initialize",
+                        "params": {
+                            "clientInfo": {
+                                "name": "codex-tui",
+                                "version": "test",
+                            },
+                            "capabilities": {"experimentalApi": True},
+                        },
+                    },
+                )
+                initialize = primary_upstream.sent.get(timeout=1)
+                test_case.assertEqual("initialize", initialize["method"])
+                primary_upstream.respond(
+                    {
+                        "id": initialize["id"],
+                        "result": {"userAgent": "test"},
+                    }
+                )
+                test_case.assertEqual(
+                    initialize["id"], read_server_json(self.frontend)["id"]
+                )
+                send_client_json(
+                    self.frontend,
+                    {
+                        "id": "resume-{}".format(self.name),
+                        "method": "thread/resume",
+                        "params": {"threadId": self.root},
+                    },
+                )
+                resume = primary_upstream.sent.get(timeout=1)
+                test_case.assertEqual("thread/resume", resume["method"])
+                primary_upstream.respond(
+                    {
+                        "id": resume["id"],
+                        "result": root_result(
+                            self.root, self.config.cwd
+                        ),
+                    }
+                )
+                test_case.assertEqual(
+                    resume["id"], read_server_json(self.frontend)["id"]
+                )
+
+        runtimes = [Runtime("first"), Runtime("second")]
+        self.assertEqual(2, len({runtime.consumer for runtime in runtimes}))
+        stderr = io.StringIO()
+        with mock.patch.object(bridge.sys, "stderr", stderr):
+            for runtime in runtimes:
+                runtime.worker.start()
+            try:
+                for runtime in runtimes:
+                    runtime.establish_primary()
+
+                message_id = "poke-two-bridges"
+                message = "Start shared-regression-target"
+                with mock.patch.object(
+                    proxy, "get_inbox_path", return_value=inbox_path
+                ):
+                    self.assertTrue(
+                        proxy.enqueue_prompt(
+                            "stage",
+                            "workspace-test",
+                            {
+                                "message_id": message_id,
+                                "message": message,
+                            },
+                        )
+                    )
+                with store.connect() as connection:
+                    row = connection.execute(
+                        """
+                        SELECT sequence
+                        FROM poke_messages
+                        WHERE environment = ? AND workspace_id = ?
+                          AND message_id = ?
+                        """,
+                        ("stage", "workspace-test", message_id),
+                    ).fetchone()
+                self.assertIsNotNone(row)
+                sequence = int(row["sequence"])
+
+                for runtime in runtimes:
+                    expected_call = (
+                        runtime.root,
+                        message,
+                        message_id,
+                    )
+                    try:
+                        actual_call = runtime.turn_started.get(timeout=2)
+                    except queue.Empty:
+                        self.fail(
+                            "{} bridge did not call turn/start; "
+                            "delivery_state={!r}, cursor={!r}".format(
+                                runtime.name,
+                                store.delivery_state(
+                                    runtime.config,
+                                    sequence,
+                                    runtime.consumer,
+                                ),
+                                store.consumer_cursor(
+                                    runtime.config, runtime.consumer
+                                ),
+                            )
+                        )
+                    self.assertEqual(expected_call, actual_call)
+
+                wait_for(
+                    lambda: all(
+                        store.consumer_cursor(
+                            runtime.config, runtime.consumer
+                        ) == sequence
+                        for runtime in runtimes
+                    ),
+                    "both bridges did not advance their private cursors",
+                )
+                with store.connect() as connection:
+                    deliveries = connection.execute(
+                        """
+                        SELECT consumer, thread_id, state, attempt_instance,
+                               attempt_count
+                        FROM codex_bridge_deliveries
+                        WHERE environment = ? AND workspace_id = ?
+                          AND sequence = ?
+                        ORDER BY consumer
+                        """,
+                        ("stage", "workspace-test", sequence),
+                    ).fetchall()
+                self.assertEqual(2, len(deliveries))
+                self.assertEqual(
+                    {
+                        runtime.consumer: (
+                            runtime.root,
+                            "accepted",
+                            runtime.config.instance,
+                            1,
+                        )
+                        for runtime in runtimes
+                    },
+                    {
+                        delivery["consumer"]: (
+                            delivery["thread_id"],
+                            delivery["state"],
+                            delivery["attempt_instance"],
+                            delivery["attempt_count"],
+                        )
+                        for delivery in deliveries
+                    },
+                )
+                for runtime in runtimes:
+                    self.assertEqual(
+                        [
+                            (
+                                runtime.root,
+                                message,
+                                message_id,
+                            )
+                        ],
+                        runtime.start_calls,
+                    )
+            finally:
+                for runtime in runtimes:
+                    runtime.stopping.set()
+                for runtime in runtimes:
+                    runtime.worker.join(6)
+                for runtime in runtimes:
+                    if (
+                        runtime.worker.is_alive()
+                        and runtime.frontend is not None
+                    ):
+                        runtime.frontend.close()
+                        runtime.frontend = None
+                        runtime.worker.join(3)
+                for runtime in runtimes:
+                    if runtime.frontend is not None:
+                        runtime.frontend.close()
+                        runtime.frontend = None
+
+        for runtime in runtimes:
+            self.assertFalse(runtime.worker.is_alive())
+            self.assertIsNone(runtime.failure)
+            self.assertEqual(bridge.EXIT_OK, runtime.result)
         self.assertEqual("", stderr.getvalue())
 
 

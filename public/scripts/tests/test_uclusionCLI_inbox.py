@@ -376,9 +376,30 @@ class BroadcastDeliveryTests(InboxTestCase):
                 ('stage', 'w1', 'stale-session', 5, stale_age,
                  'stage', 'w1', 'live-session', 5, now),
             )
+            connection.execute(
+                '''
+                INSERT INTO poke_consumers
+                    (environment, workspace_id, consumer, last_sequence,
+                     updated_at)
+                VALUES (?, ?, ?, ?, ?)
+                ''',
+                (
+                    'stage',
+                    'w1',
+                    cli.CODEX_BRIDGE_CONSUMER_PREFIX + 'private',
+                    5,
+                    stale_age,
+                ),
+            )
         cli.next_prompt('stage', 'w1', 'anyone')
         self.assertIsNone(self.cursor_for('stale-session'))
         self.assertEqual(5, self.cursor_for('live-session'))
+        self.assertEqual(
+            5,
+            self.cursor_for(
+                cli.CODEX_BRIDGE_CONSUMER_PREFIX + 'private'
+            ),
+        )
 
 
 if __name__ == '__main__':

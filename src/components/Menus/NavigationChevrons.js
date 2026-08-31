@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
+import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Toolbar from '@material-ui/core/Toolbar';
 import { Button, Tooltip, makeStyles, useMediaQuery, useTheme } from '@material-ui/core';
 import { ArrowBack, ArrowForward, ArrowUpward } from '@material-ui/icons';
@@ -282,6 +282,14 @@ export default function NavigationChevrons(props) {
     navigate(history, nextUrl.useUrl || nextUrl.url);
   }
 
+  const navigationActionsRef = useRef();
+  useLayoutEffect(() => {
+    navigationActionsRef.current = {
+      back: doPreviousNavigation,
+      next: doNextNavigation
+    };
+  });
+
   function requestNavigation(direction) {
     const destinationAvailable = direction === 'back' ? previous?.url : nextUrl?.url;
     if (!stillLoading && destinationAvailable) {
@@ -306,10 +314,10 @@ export default function NavigationChevrons(props) {
     }
     if (pendingIntent.direction === 'back' && previous?.url) {
       setPendingIntent(undefined);
-      doPreviousNavigation();
+      navigationActionsRef.current.back();
     } else if (pendingIntent.direction === 'next' && nextUrl?.url) {
       setPendingIntent(undefined);
-      doNextNavigation();
+      navigationActionsRef.current.next();
     }
   }, [pendingIntent, resource, stillLoading, previous?.url, nextUrl?.url]);
 

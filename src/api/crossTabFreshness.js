@@ -155,11 +155,11 @@ async function runReloads() {
           ? reload()
           : Promise.reject(new Error(`No disk reloader registered for ${namespace}`));
       }));
-      results.forEach((result) => {
+      for (const result of results) {
         if (result.status === 'rejected' && !firstError) {
           firstError = result.reason;
         }
-      });
+      }
       didReload = didReload || results.some((result) => result.status === 'fulfilled');
     }
     if (firstError) {

@@ -264,22 +264,24 @@ backfilled. Historical work that needs no more implementation may finish its
 existing review, but the next resumed or changed implementation pass needs a
 capsule before affected edits.
 
-Capsule Markdown is freeform and sized to the work. It must be a concise,
-stand-alone system story rather than a question or component ledger. Cover the
-relevant actor scenarios and terminal outcome, responsibilities and handoffs,
-state and lifecycle, formats and interfaces, failure and concurrency behavior,
-implementation map, exclusions, and approved testing or security work. State a
-genuinely inapplicable subject as such. Every material claim cites the human
-job or task text, a qualifying resolved answer, an approved test or security
-plan, a prior authoritative artifact, or a hard source constraint. A claim
-without such a premise becomes a typed question before the affected edit.
+Delegate capsule composition, revision, and cold review to the sibling
+`$uclusion-design` skill. Before its first use, read
+`../uclusion-design/SKILL.md` completely and read every reference it routes for
+the current task. If either the sibling or a required reference is absent or
+unreadable, report a broken Uclusion install, suggest an environment-correct
+`uclusion update`, and require a client restart or MCP reconnect after a
+successful update. Do not improvise or fall back to an embedded writing
+workflow.
 
-After creating or replacing the capsule, reload the selected target and review
-that capsule as a cold handoff with no remembered questions or chat. If an
-implementer could still miss an actor's terminal outcome, a responsibility
-boundary, state transition, failure case, exclusion, or approved verification
-limit, replace the capsule again before editing. A capsule that merely
-summarizes the questions fails this gate even when every answer is accurate.
+Give `$uclusion-design` the selected target, its current capsule when present,
+and all relevant evidence. It returns either the complete replacement Markdown
+body or the unsupported reviewer-divergent choices as typed questions. This
+core skill alone files and resolves those questions and calls
+`set_design_capsule`. After each create or replacement, reload the selected
+target and have `$uclusion-design` cold-review the authoritative body before
+affected edits. Persist its complete revision when the existing evidence
+supports one; otherwise file its typed questions and wait for qualifying human
+answers where required.
 
 Known material changes belong in the capsule, not the review. Reload the
 current R-code and version, then call `set_design_capsule` in update mode with

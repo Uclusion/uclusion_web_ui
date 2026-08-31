@@ -1,0 +1,6 @@
+interface:
+  display_name: "Uclusion Design"
+  short_description: "Write evidence-backed Uclusion design capsules"
+  default_prompt: "Use $uclusion-design to compose the current Uclusion intent/design capsule from the selected target and its evidence."
+policy:
+  allow_implicit_invocation: true

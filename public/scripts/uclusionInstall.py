@@ -33,8 +33,9 @@ Without ``--clients`` the installer asks whether to configure Uclusion globally
   (``.mcp.json`` for Claude Code, ``.cursor/mcp.json`` for Cursor), and the
   workflow docs
   (``CLAUDE.md``, ``.cursor/rules/uclusion.mdc``, ``AGENTS.md``) plus each
-  client's native ``skills/uclusion`` package. Claude and Cursor use their
-  client directories; Codex uses the cross-agent ``.agents/skills`` path.
+  client's native ``skills/uclusion`` and ``skills/uclusion-design`` packages.
+  Claude and Cursor use their client directories; Codex uses the cross-agent
+  ``.agents/skills`` path.
   Agent-led setup also writes Codex's trusted-project ``.codex/config.toml``
   MCP table, while legacy project installs continue to use the equivalent
   ``uclusion codex`` launch override. The CLI binaries themselves always stay
@@ -266,6 +267,11 @@ SKILL_MARKER = '<!-- uclusion-skill:v1 -->'
 SKILL_END_MARKER = '<!-- /uclusion-skill:v1 -->'
 SKILL_REFERENCE_MARKER = '<!-- uclusion-skill-reference:v1 -->'
 SKILL_REFERENCE_END_MARKER = '<!-- /uclusion-skill-reference:v1 -->'
+DESIGN_SKILL_NAME = 'uclusion-design'
+DESIGN_SKILL_MARKER = '<!-- uclusion-design-skill:v1 -->'
+DESIGN_SKILL_END_MARKER = '<!-- /uclusion-design-skill:v1 -->'
+DESIGN_SKILL_REFERENCE_MARKER = '<!-- uclusion-design-reference:v1 -->'
+DESIGN_SKILL_REFERENCE_END_MARKER = '<!-- /uclusion-design-reference:v1 -->'
 WORKFLOW_ENV_PLACEHOLDER = '{{UCLUSION_CLI}}'
 WORKFLOW_ASSET_PATHS = {
     'claude_stub': 'CLAUDE.md',
@@ -275,6 +281,9 @@ WORKFLOW_ASSET_PATHS = {
     'pokes_reference': 'skills/uclusion/references/pokes.md',
     'operations_reference': 'skills/uclusion/references/operations.md',
     'openai_metadata': 'skills/uclusion/agents/openai.yaml',
+    'design_skill': 'skills/uclusion-design/SKILL.md',
+    'design_examples': 'skills/uclusion-design/references/examples.md',
+    'design_openai_metadata': 'skills/uclusion-design/agents/openai.yaml',
 }
 # These digests bind the installer to one coherent workflow release. A host
 # serving a partially-deployed asset set fails before any client mutation.
@@ -282,10 +291,13 @@ WORKFLOW_ASSET_SHA256 = {
     'claude_stub': 'b89451b4cf5dbba8199e2b2ac138e58250077415a1da6cac32e5e70ab03f425b',
     'codex_stub': '02ea82a01620a5909ea40ea33d0ed67a27f275b808d926e21f753cb51861135e',
     'cursor_stub': '2e4bf88903896ba312738f9a4ab7163582df99050b62f13e0e0324a6580a412f',
-    'skill': '1947180b299644c204ab8a35916e694f3a0fe1600478456e1cd0941e2a5a3f4c',
+    'skill': '13e986616e829b9bf7770d30216f4762fde8bccb7b69d1c107a29c593ec86dfa',
     'pokes_reference': '65ba2ef8185d435a9725fd22d64f89e869735202fe741bfa8be9fff74c181761',
     'operations_reference': '2fe81054a9ad3e8803fc8d41674532766f8cebeda816acd92c46d791457ddf3e',
     'openai_metadata': 'ecf2759354ff3bbfd7178452a705650aff7a13352458bb20e1df122da7c30f40',
+    'design_skill': '06280e77c24a8819d975435c1c678ac42ed372bbfbf4b2fedded60097fd89df9',
+    'design_examples': '49978a3c50b40a676379511a289cef860a70875eb18e8bed8898076192bf4aad',
+    'design_openai_metadata': 'f31f258d8b76d5fcfa724b7e7468481ef18a863c9afbdd78b81b873641f9c7ba',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',
@@ -299,6 +311,11 @@ SKILL_PACKAGE_ASSETS = (
     # Publish the entrypoint last so an interrupted refresh never exposes a
     # new SKILL.md before all files it routes to are durable.
     ('skill', 'SKILL.md'),
+)
+DESIGN_SKILL_PACKAGE_ASSETS = (
+    ('design_examples', os.path.join('references', 'examples.md')),
+    ('design_openai_metadata', os.path.join('agents', 'openai.yaml')),
+    ('design_skill', 'SKILL.md'),
 )
 
 
@@ -2275,7 +2292,7 @@ def prompt_install_scope():
 
 
 def validate_workflow_bundle(bundle):
-    """Validate every resident stub and portable-skill asset as one unit."""
+    """Validate every resident stub and both portable skills as one unit."""
     if not isinstance(bundle, dict) or set(bundle) != set(WORKFLOW_ASSET_PATHS):
         raise RuntimeError('workflow bundle has an unexpected asset set')
     for key, content in bundle.items():
@@ -2303,18 +2320,30 @@ def validate_workflow_bundle(bundle):
         if len(content.encode('utf-8')) > 4096:
             raise RuntimeError(f'workflow asset {key} exceeds 4 KiB')
 
-    skill = bundle['skill']
-    if (
-        not skill.startswith('---\n')
-        or '\nname: uclusion\n' not in skill
-        or '\ndescription:' not in skill
-        or skill.count(SKILL_MARKER) != 1
-        or skill.count(SKILL_END_MARKER) != 1
-        or not skill.rstrip().endswith(SKILL_END_MARKER)
+    for key, name, marker, end_marker in (
+        ('skill', 'uclusion', SKILL_MARKER, SKILL_END_MARKER),
+        (
+            'design_skill', DESIGN_SKILL_NAME,
+            DESIGN_SKILL_MARKER, DESIGN_SKILL_END_MARKER,
+        ),
     ):
-        raise RuntimeError('SKILL.md has invalid frontmatter or ownership markers')
-    if len(skill.splitlines()) > 500:
-        raise RuntimeError('SKILL.md exceeds the 500-line entrypoint budget')
+        skill = bundle[key]
+        if (
+            not skill.startswith('---\n')
+            or f'\nname: {name}\n' not in skill
+            or '\ndescription:' not in skill
+            or skill.count(marker) != 1
+            or skill.count(end_marker) != 1
+            or skill.find(marker) > skill.find(end_marker)
+            or not skill.rstrip().endswith(end_marker)
+        ):
+            raise RuntimeError(
+                f'workflow asset {key} has invalid frontmatter or markers'
+            )
+        if len(skill.splitlines()) > 500:
+            raise RuntimeError(
+                f'workflow asset {key} exceeds the 500-line entrypoint budget'
+            )
 
     for key in ('pokes_reference', 'operations_reference'):
         reference = bundle[key]
@@ -2327,6 +2356,20 @@ def validate_workflow_bundle(bundle):
                 f'workflow asset {key} has invalid reference markers'
             )
 
+    design_examples = bundle['design_examples']
+    if (
+        design_examples.count(DESIGN_SKILL_REFERENCE_MARKER) != 1
+        or design_examples.count(DESIGN_SKILL_REFERENCE_END_MARKER) != 1
+        or design_examples.find(DESIGN_SKILL_REFERENCE_MARKER)
+        > design_examples.find(DESIGN_SKILL_REFERENCE_END_MARKER)
+        or not design_examples.rstrip().endswith(
+            DESIGN_SKILL_REFERENCE_END_MARKER
+        )
+    ):
+        raise RuntimeError(
+            'workflow asset design_examples has invalid reference markers'
+        )
+
     metadata = bundle['openai_metadata']
     if (
         'display_name: "Uclusion"' not in metadata
@@ -2334,6 +2377,16 @@ def validate_workflow_bundle(bundle):
         or 'allow_implicit_invocation: true' not in metadata
     ):
         raise RuntimeError('agents/openai.yaml has invalid Uclusion metadata')
+
+    design_metadata = bundle['design_openai_metadata']
+    if (
+        'display_name: "Uclusion Design"' not in design_metadata
+        or '$uclusion-design' not in design_metadata
+        or 'allow_implicit_invocation: true' not in design_metadata
+    ):
+        raise RuntimeError(
+            'agents/openai.yaml has invalid Uclusion Design metadata'
+        )
 
 
 def make_workflow_bundle_fetcher(env):
@@ -2430,8 +2483,21 @@ def _validate_regular_tree(root):
                     )
 
 
-def _validate_owned_skill(skill_dir):
+def _skill_package_definition(package):
+    if package == 'uclusion':
+        return SKILL_PACKAGE_ASSETS, SKILL_MARKER, SKILL_END_MARKER
+    if package == DESIGN_SKILL_NAME:
+        return (
+            DESIGN_SKILL_PACKAGE_ASSETS,
+            DESIGN_SKILL_MARKER,
+            DESIGN_SKILL_END_MARKER,
+        )
+    raise ValueError(f'unsupported Uclusion skill package: {package}')
+
+
+def _validate_owned_skill(skill_dir, package='uclusion'):
     """Validate a managed package while permitting safe extra files."""
+    package_assets, marker, end_marker = _skill_package_definition(package)
     if not os.path.lexists(skill_dir):
         return False
     _validate_regular_tree(skill_dir)
@@ -2449,16 +2515,16 @@ def _validate_owned_skill(skill_dir):
         )
     content, _signature = _read_text_snapshot(skill_path)
     if (
-        content.count(SKILL_MARKER) != 1
-        or content.count(SKILL_END_MARKER) != 1
-        or content.find(SKILL_MARKER) > content.find(SKILL_END_MARKER)
+        content.count(marker) != 1
+        or content.count(end_marker) != 1
+        or content.find(marker) > content.find(end_marker)
     ):
         raise RuntimeError(
             f'{skill_path} is not a Uclusion-managed skill; '
             'refusing to overwrite it'
         )
 
-    for _asset_key, relative_path in SKILL_PACKAGE_ASSETS:
+    for _asset_key, relative_path in package_assets:
         managed_path = os.path.join(skill_dir, relative_path)
         if os.path.lexists(managed_path) and not stat.S_ISREG(
             os.lstat(managed_path).st_mode
@@ -2600,7 +2666,9 @@ def _transaction_resident_state(transaction):
     )
 
 
-def _rollback_skill_transaction(skill_dir, transaction=None):
+def _rollback_skill_transaction(
+    skill_dir, transaction=None, package='uclusion'
+):
     """Restore the pre-transaction package without changing the resident."""
     skill_dir, staging_dir, backup_dir, transaction_path = (
         _skill_transaction_paths(skill_dir)
@@ -2613,9 +2681,9 @@ def _rollback_skill_transaction(skill_dir, transaction=None):
             raise RuntimeError(
                 f'unexpected workflow backup for new package {skill_dir}'
             )
-        _validate_owned_skill(backup_dir)
+        _validate_owned_skill(backup_dir, package)
         if os.path.lexists(skill_dir):
-            _validate_owned_skill(skill_dir)
+            _validate_owned_skill(skill_dir, package)
             _remove_installer_tree(skill_dir)
         os.replace(backup_dir, skill_dir)
         _fsync_directory(os.path.dirname(skill_dir))
@@ -2624,9 +2692,9 @@ def _rollback_skill_transaction(skill_dir, transaction=None):
             raise RuntimeError(
                 f'workflow transaction lost both {skill_dir} and its backup'
             )
-        _validate_owned_skill(skill_dir)
+        _validate_owned_skill(skill_dir, package)
     elif os.path.lexists(skill_dir):
-        _validate_owned_skill(skill_dir)
+        _validate_owned_skill(skill_dir, package)
         _remove_installer_tree(skill_dir)
 
     if os.path.lexists(staging_dir):
@@ -2635,7 +2703,7 @@ def _rollback_skill_transaction(skill_dir, transaction=None):
     _fsync_directory(os.path.dirname(skill_dir))
 
 
-def _recover_skill_transaction(skill_dir):
+def _recover_skill_transaction(skill_dir, package='uclusion'):
     """Roll back an interrupted package swap identified by its owned record."""
     skill_dir, staging_dir, backup_dir, transaction_path = (
         _skill_transaction_paths(skill_dir)
@@ -2662,7 +2730,7 @@ def _recover_skill_transaction(skill_dir):
             )
         if not os.path.lexists(skill_dir):
             if os.path.lexists(staging_dir):
-                _validate_owned_skill(staging_dir)
+                _validate_owned_skill(staging_dir, package)
                 os.replace(staging_dir, skill_dir)
                 _fsync_directory(os.path.dirname(skill_dir))
             else:
@@ -2670,7 +2738,7 @@ def _recover_skill_transaction(skill_dir):
                     f'interrupted workflow transaction published its resident '
                     f'but has no new package at {skill_dir}'
                 )
-        _validate_owned_skill(skill_dir)
+        _validate_owned_skill(skill_dir, package)
         if os.path.lexists(staging_dir):
             _remove_installer_tree(staging_dir)
         if os.path.lexists(backup_dir):
@@ -2679,7 +2747,7 @@ def _recover_skill_transaction(skill_dir):
         _fsync_directory(os.path.dirname(skill_dir))
         return
 
-    _rollback_skill_transaction(skill_dir, transaction)
+    _rollback_skill_transaction(skill_dir, transaction, package)
 
 
 def _ensure_staging_parent(directory):
@@ -2738,16 +2806,19 @@ def _fsync_skill_tree(skill_dir):
         _fsync_directory(directory)
 
 
-def _stage_skill_package(skill_dir, staging_dir, bundle):
+def _stage_skill_package(
+    skill_dir, staging_dir, bundle, package='uclusion'
+):
+    package_assets = _skill_package_definition(package)[0]
     if os.path.lexists(skill_dir):
         # Preserve a raced-in link as a link so validation rejects it; never
         # follow it and copy data from outside the managed package.
         shutil.copytree(skill_dir, staging_dir, symlinks=True)
     else:
         os.mkdir(staging_dir, 0o700)
-    for asset_key, relative_path in SKILL_PACKAGE_ASSETS:
+    for asset_key, relative_path in package_assets:
         _write_staged_asset(staging_dir, relative_path, bundle[asset_key])
-    _validate_owned_skill(staging_dir)
+    _validate_owned_skill(staging_dir, package)
     _fsync_skill_tree(staging_dir)
     _fsync_directory(os.path.dirname(staging_dir))
 
@@ -2759,12 +2830,13 @@ def _begin_skill_transaction(
     resident_before_digest,
     resident_after_digest,
     resident_before_signature,
+    package='uclusion',
 ):
     skill_dir, staging_dir, backup_dir, transaction_path = (
         _skill_transaction_paths(skill_dir)
     )
-    _recover_skill_transaction(skill_dir)
-    had_existing = _validate_owned_skill(skill_dir)
+    _recover_skill_transaction(skill_dir, package)
+    had_existing = _validate_owned_skill(skill_dir, package)
     ensure_dir(os.path.dirname(skill_dir))
     for path in (staging_dir, backup_dir, transaction_path):
         if os.path.lexists(path):
@@ -2779,9 +2851,9 @@ def _begin_skill_transaction(
         resident_before_signature,
     )
     try:
-        _stage_skill_package(skill_dir, staging_dir, bundle)
+        _stage_skill_package(skill_dir, staging_dir, bundle, package)
     except Exception:
-        _rollback_skill_transaction(skill_dir)
+        _rollback_skill_transaction(skill_dir, package=package)
         raise
     return skill_dir, staging_dir, backup_dir, transaction_path, had_existing
 
@@ -2882,20 +2954,27 @@ def install_skill_and_stub(
     assume_yes=False,
     require_dir=None,
 ):
-    """Install one native skill package, then shrink its resident instructions.
+    """Install both native skills, then shrink the resident instructions.
 
     The complete bundle is fetched and validated before the first write. The
-    complete managed package is staged and durably swapped as one directory;
-    a resident-write failure rolls that swap back. Existing unmarked packages,
-    links, special files, and resident Cursor rules are user-owned collisions.
+    two managed packages are staged before either is published. Both directory
+    swaps and the resident write form one recoverable release transaction.
+    Existing unmarked packages, links, special files, and resident Cursor rules
+    are user-owned collisions.
     """
     if client not in CLIENT_STUB_ASSET:
         raise ValueError(f'unsupported workflow client: {client}')
     if require_dir is not None and not os.path.isdir(require_dir):
         print(f"ℹ️  No {require_dir} found; skipping {client_label} workflow.")
         return False
+    design_skill_dir = os.path.join(
+        os.path.dirname(os.path.abspath(os.path.expanduser(skill_dir))),
+        DESIGN_SKILL_NAME,
+    )
     with install_lock():
         _recover_skill_transaction(skill_dir)
+        _recover_skill_transaction(design_skill_dir, DESIGN_SKILL_NAME)
+        _validate_owned_skill(design_skill_dir, DESIGN_SKILL_NAME)
         _validate_owned_skill(skill_dir)
         resident_target = _config_write_target(resident_path)
         existing, resident_signature = _read_text_snapshot(resident_target)
@@ -2916,7 +2995,7 @@ def install_skill_and_stub(
         if not assume_yes:
             default_yes = action == 'refresh'
             prompt = (
-                f"  Install Uclusion skill and {action} its {client_label} "
+                f"  Install Uclusion skills and {action} the {client_label} "
                 f"bootstrap at {resident_path}?"
             )
             if not prompt_yes_no(prompt, default=default_yes):
@@ -2945,17 +3024,49 @@ def install_skill_and_stub(
             existing, rendered_stub, client, resident_path
         )
 
-        transaction = _begin_skill_transaction(
-            skill_dir,
+        resident_before_digest = _resident_state_digest(
+            existing, resident_signature
+        )
+        resident_after_digest = hashlib.sha256(
+            resident_content.encode('utf-8')
+        ).hexdigest()
+        design_transaction = _begin_skill_transaction(
+            design_skill_dir,
             bundle,
             resident_target,
-            _resident_state_digest(existing, resident_signature),
-            hashlib.sha256(resident_content.encode('utf-8')).hexdigest(),
+            resident_before_digest,
+            resident_after_digest,
             resident_signature,
+            DESIGN_SKILL_NAME,
         )
-        normalized_skill_dir, staging_dir, backup_dir = transaction[:3]
-        had_existing = transaction[4]
         try:
+            core_transaction = _begin_skill_transaction(
+                skill_dir,
+                bundle,
+                resident_target,
+                resident_before_digest,
+                resident_after_digest,
+                resident_signature,
+            )
+        except Exception:
+            _rollback_skill_transaction(
+                design_skill_dir, package=DESIGN_SKILL_NAME
+            )
+            raise
+
+        normalized_design_dir, design_staging, design_backup = (
+            design_transaction[:3]
+        )
+        design_had_existing = design_transaction[4]
+        normalized_skill_dir, staging_dir, backup_dir = core_transaction[:3]
+        had_existing = core_transaction[4]
+        try:
+            _swap_staged_skill(
+                normalized_design_dir,
+                design_staging,
+                design_backup,
+                design_had_existing,
+            )
             _swap_staged_skill(
                 normalized_skill_dir, staging_dir, backup_dir, had_existing
             )
@@ -2969,13 +3080,32 @@ def install_skill_and_stub(
         except Exception:
             # atomic_write_text never raises after its os.replace commit. Any
             # caught error therefore leaves the resident uncommitted, so the
-            # package must be restored even if an editor concurrently changed
+            # packages must be restored even if an editor concurrently changed
             # unrelated resident text to a third journal hash.
-            _rollback_skill_transaction(normalized_skill_dir)
+            try:
+                _rollback_skill_transaction(normalized_skill_dir)
+            except Exception as rollback_error:
+                raise RuntimeError(
+                    'failed to restore the prior core Uclusion skill; the '
+                    'matching design skill was retained for safe recovery'
+                ) from rollback_error
+            try:
+                _rollback_skill_transaction(
+                    normalized_design_dir, package=DESIGN_SKILL_NAME
+                )
+            except Exception as rollback_error:
+                raise RuntimeError(
+                    'restored the prior core Uclusion skill but could not '
+                    'restore its design sibling'
+                ) from rollback_error
             raise
         _commit_skill_transaction(normalized_skill_dir)
+        _commit_skill_transaction(normalized_design_dir)
 
-    print(f"  ✅ Installed Uclusion skill for {client_label} at {skill_dir}")
+    print(
+        f"  ✅ Installed Uclusion skills for {client_label} at "
+        f"{skill_dir} and {design_skill_dir}"
+    )
     action_past_tense = {
         'refresh': 'Refreshed',
         'append': 'Appended',

@@ -51,6 +51,17 @@ skill owns event handling and the job workflow.
   resolved and the job returns to Doable or Reviewable. That lock covers
   implementation edits to this job and nothing more, so investigation,
   reproduction, and measurement continue while it holds.
+- Treat every `change_job_stage` call as a separate authorization boundary. A
+  non-advisory human authorizes it only by directly instructing a transition
+  that names the exact job and destination stage, or by affirmatively answering
+  a question that names that exact job and destination transition. A `Start`
+  event and general work language such as "analyze this," "take this up,"
+  "proceed," "go," or "fix it" never authorize a stage change. Planning
+  outcomes, replies or resolutions on other questions, approvals or votes
+  unrelated to that exact transition, recommendations, and capsule changes do
+  not authorize one. Never infer stage authorization from surrounding work
+  language. If a needed transition lacks exact authorization, leave the stage
+  unchanged and ask the human about that exact job and destination transition.
 - Recheck assistance and stage immediately before editing. New assistance can
   arrive at any time.
 - Never silently make a judgment call a reasonable reviewer could choose
@@ -303,10 +314,12 @@ exact capsule and Reports, resolve the matching review first, then reconcile
 in-progress work with the new authoritative body. Review cleanup is agent
 workflow, not backend review parsing or linkage.
 
-If initial work is ready but the job is not executable, offer to move it to
-Doable or ask the human to do so. When the human instructs a move to Doable,
-change the stage, reload, sweep, and begin work in the same turn unless they
-explicitly request a stage-only change.
+If initial work is ready but the job is not executable, leave its stage
+unchanged and ask the human whether to move the exact job to Doable. Only
+authorization satisfying the separate stage boundary above permits the
+`change_job_stage` call. After that authorization, change the stage, reload,
+sweep, and begin work in the same turn unless the human explicitly requested a
+stage-only change.
 
 An executable stage authorizes implementation, not the form of testing. An
 explicit test plan in the job counts as human approval. Otherwise, before

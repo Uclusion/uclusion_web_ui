@@ -36,6 +36,13 @@ a[target="_blank"]::after {
     background-color: #efefef; /* <== change this color */
     color: #1d1c1d;
 }
+.ql-snow .ql-editor code {
+    color: #1d1c1d;
+}
+.ql-editor > * + h1,
+.ql-editor > * + h2 {
+    margin-top: 1rem;
+}
 ._loading_overlay_wrapper {
     position: relative;
 }

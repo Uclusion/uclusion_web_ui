@@ -1311,6 +1311,7 @@ function PlanningInvestible(props) {
                 toggleCompression={sectionOpen === 'assistanceSection' ? toggleUseCompression : undefined}
                 useCompression={sectionOpen === 'assistanceSection' ? getUseCompression : undefined}
                 useInProgressSorting={sectionOpen === 'tasksSection'}
+                oldestFirst={sectionOpen === 'assistanceSection' && assistanceTab === 0}
                 simpleOrdering={sectionOpen === 'assistanceSection' && assistanceTab === 1}
               />
             )}

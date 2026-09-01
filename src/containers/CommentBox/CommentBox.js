@@ -70,7 +70,7 @@ function getInlineActivityTime(rootComment, investiblesState, marketPresencesSta
 }
 
 export function getSortedRoots(allComments, searchResults, preserveOrder, isInboxExpansion, simpleOrdering,
-  inlineActivityTime, ignoreSearch = false) {
+  inlineActivityTime, ignoreSearch = false, oldestFirst = false) {
   const { results, parentResults, search } = searchResults;
   if (_.isEmpty(allComments)) {
     return [];
@@ -85,6 +85,9 @@ export function getSortedRoots(allComments, searchResults, preserveOrder, isInbo
   const threadRoots = comments.filter(comment => !comment.reply_id) || [];
   if (preserveOrder) {
     return threadRoots;
+  }
+  if (oldestFirst) {
+    return _.sortBy(threadRoots, [(root) => new Date(root.created_at).getTime(), 'id']);
   }
   const withRootUpdatedAt = threadRoots.map((root) => {
     return { ...root, rootUpdatedAt: findGreatestUpdatedAt([root], comments) };
@@ -146,14 +149,15 @@ function CommentBox(props) {
     showVoting, selectedInvestibleIdParent, preserveOrder, isMove, toggleCompression, useCompression: rawUseCompression,
     useInProgressSorting, displayRepliesAsTop=false, compressAll=false, showNotes=false,
     inNotesTab=false, investibleComments, simpleOrdering, pokeAIMarketId, pokeAIParentTicketCode,
-    ignoreSearch=false } = props;
+    ignoreSearch=false, oldestFirst=false } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [commentsState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   let sortedRoots = getSortedRoots(comments, searchResults, preserveOrder, isInbox, simpleOrdering,
-    (root) => getInlineActivityTime(root, investiblesState, marketPresencesState, commentsState), ignoreSearch);
+    (root) => getInlineActivityTime(root, investiblesState, marketPresencesState, commentsState), ignoreSearch,
+    oldestFirst);
   if (useInProgressSorting) {
     const investibleComments = getInvestibleComments(marketInfo?.investible_id, marketId, commentsState);
     sortedRoots = sortInProgress(sortedRoots, investibleComments);
@@ -264,6 +268,7 @@ CommentBox.propTypes = {
   marketId: PropTypes.string.isRequired,
   fullStage: PropTypes.object,
   ignoreSearch: PropTypes.bool,
+  oldestFirst: PropTypes.bool,
   pokeAIMarketId: PropTypes.string,
   pokeAIParentTicketCode: PropTypes.string
 };

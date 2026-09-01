@@ -5,7 +5,6 @@ import { IconButton, makeStyles, Menu, MenuItem, Tooltip, Typography, useMediaQu
 import { useHistory, useLocation } from 'react-router';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { FormattedMessage, useIntl } from 'react-intl';
-import Voting from '../Decision/Voting';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import {
   ISSUE_TYPE,
@@ -17,7 +16,7 @@ import {
   TODO_TYPE
 } from '../../../constants/comments';
 import Screen from '../../../containers/Screen/Screen';
-import { fixName, getMarketInfo, getVotesForInvestible } from '../../../utils/userFunctions';
+import { fixName, getMarketInfo } from '../../../utils/userFunctions';
 import {
   getFullStage,
   getFurtherWorkStage,
@@ -30,7 +29,7 @@ import { PLACEHOLDER } from '../../../constants/global';
 import { stageChangeInvestible } from '../../../api/investibles';
 import { allImagesLoaded, invalidEditEvent } from '../../../utils/windowUtils';
 import Gravatar from '../../../components/Avatars/Gravatar';
-import { calculateInvestibleVoters, useInvestibleVoters } from '../../../utils/votingUtils';
+import { useInvestibleVoters } from '../../../utils/votingUtils';
 import { getCommenterPresences } from '../../Dialog/Planning/userUtils';
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks';
 import { pushMessage } from '../../../utils/MessageBusUtils';
@@ -87,7 +86,6 @@ import ContactSupportOutlined from '@material-ui/icons/ContactSupportOutlined';
 import NoteOutlined from '@material-ui/icons/NoteOutlined';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { findMessagesForCommentIds, findMessagesForInvestibleId,
@@ -98,6 +96,7 @@ import { DARK_ACTION_BUTTON_COLOR, DARK_TEXT_BACKGROUND_COLOR, useButtonColors }
 import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
 import { countAssistanceRootsWithNewMessages } from './assistanceNotificationCounts';
 import NotificationMenuButton from '../../../components/Buttons/NotificationMenuButton';
+import Approvals from './Approvals';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -394,7 +393,6 @@ function PlanningInvestible(props) {
   const [commentsState] = useContext(CommentsContext);
   const [allDoneAnchorEl, setAllDoneAnchorEl] = useState(null);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const { results, parentResults, search } = searchResults;
   const investibleCommentsSearched = investibleComments.filter((comment) => {
@@ -416,20 +414,6 @@ function PlanningInvestible(props) {
   const inCurrentVotingStage = getInCurrentVotingStage(marketStagesState, marketId);
   const isInVoting = Boolean(inCurrentVotingStage && stage === inCurrentVotingStage.id);
   const [detailsOpen, setDetailsOpen] = useState(mobileLayout);
-  const approvalVoters = calculateInvestibleVoters(investibleId, marketId, marketsState,
-    investiblesState, marketPresences, false);
-  const [approvalsOpen, setApprovalsOpen] = useState(isInVoting || !_.isEmpty(approvalVoters));
-  // Reapply the Approvable default when this job enters that stage without making it permanently forced.
-  useEffect(() => {
-    if (isInVoting) {
-      setApprovalsOpen(true);
-    }
-  }, [isInVoting]);
-  // B-all-600: a highlighted notification attached to a rendered vote keeps Approvals visible.
-  const approvalsForcedOpen = (messagesState.messages || []).some((message) => message.is_highlighted &&
-    !message.deleted && message.voted_list?.some((vote) => vote.investible_id === investibleId &&
-      approvalVoters.some((voter) => voter.id === vote.id)));
-  const approvalsDisplayOpen = approvalsOpen || approvalsForcedOpen;
   const reportsCommentsSearched = investibleCommentsSearched.filter(
     comment => comment.comment_type === REPORT_TYPE && comment.notification_type !== 'BLUE'
   );
@@ -529,9 +513,7 @@ function PlanningInvestible(props) {
       // Check if already on the right tab and only change tab if not
       if (!element) {
         if (hash.startsWith('#cv') || hash.startsWith('#approve')) {
-          setApprovalsOpen(true);
           updatePageState({ sectionOpen: 'descriptionVotingSection' });
-          history.replace(window.location.pathname + window.location.search);
         } else if (hash.startsWith('#start')) {
           updatePageState({ sectionOpen: 'tasksSection' });
           history.replace(window.location.pathname + window.location.search);
@@ -796,8 +778,6 @@ function PlanningInvestible(props) {
     sectionComments = notesCommentsSearched;
   }
 
-  const invested = getVotesForInvestible(marketPresences, investibleId);
-
   function isEditableByUser() {
     const imagesLoaded = allImagesLoaded(editorBox?.current)
     return imagesLoaded && !inArchives;
@@ -816,8 +796,6 @@ function PlanningInvestible(props) {
     // T-all-2215: open the job edit wizard inline instead of on the full-screen /wizard route.
     openInlineWizard({ wizardType: JOB_EDIT_WIZARD_TYPE, marketId, investibleId });
   }
-
-  const displayApprovalsBySearch = _.isEmpty(search) ? _.size(invested) : _.size(investmentReasonsSearched);
 
   function openSubSection(subSection) {
     updatePageState({sectionOpen: subSection});
@@ -881,10 +859,6 @@ function PlanningInvestible(props) {
     setDetailsOpen(!detailsOpen);
   }
 
-  function toggleApprovals() {
-    setApprovalsOpen(!approvalsDisplayOpen);
-  }
-
   function toggleReports() {
     updatePageState({reportsOpenRaw: !reportsOpenRaw});
   }
@@ -896,6 +870,7 @@ function PlanningInvestible(props) {
   const hasNewAssistanceMessages = numNewAssistanceMessages > 0 && _.isEmpty(search);
   const hasNewOverviewMessages = numNewOverviewMessages > 0 && _.isEmpty(search);
   const hasNewNotesMessages = numNewNotesMessages > 0 && _.isEmpty(search);
+  const showOverview = !inlineWizard && sectionOpen === 'descriptionVotingSection';
   return (
     <Screen
       title={title}
@@ -973,7 +948,7 @@ function PlanningInvestible(props) {
             <InlineWizardHost inlineWizard={inlineWizard} onClose={closeInlineWizard} />
           </>
         )}
-        {!inlineWizard && sectionOpen === 'descriptionVotingSection' && (
+        {showOverview && (
           <>
             <div style={{display: 'flex', marginRight: mobileLayout ? undefined : '2rem'}}>
               <CardType
@@ -1055,49 +1030,35 @@ function PlanningInvestible(props) {
             <CondensedTodos comments={todoCommentsSearched} investibleComments={investibleComments} showCommentAdd={showCommentAdd}
                             usePadding={!mobileLayout} hidden={hidden} hash={hash} maxWidth='95%' isSearch={!_.isEmpty(search)}
                             marketId={marketId} marketInfo={marketInfo} groupId={groupId} isDefaultOpen={!_.isEmpty(todoCommentsSearched)}/>
-              <div style={{
+          </>
+        )}
+        <div style={showOverview ? {
                 marginTop: '3rem',
                 paddingBottom: mobileLayout ? undefined : '15vh',
                 paddingLeft: mobileLayout ? undefined : '1rem',
                 paddingRight: mobileLayout ? undefined : '1rem'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <h2 id="approvals" style={{ marginBottom: 0, paddingBottom: 0, marginTop: 0, paddingTop: 0 }}>
-                    <FormattedMessage id="decisionInvestibleOthersVoting"/> {displayVotingInput && investibleId
-                     && <TooltipIconButton id="newApproval"
-                        marginLeft='1rem'
-                        onClick={() => openInlineWizard({ wizardType: APPROVAL_WIZARD_TYPE, marketId, investibleId,
-                          groupId })}
-                        icon={<AddIcon fontSize='small' />}
-                        translationId="createNewApproval"
-                      />}
-                  </h2>
-                  <IconButton id='approvalsToggleId' onClick={() => toggleApprovals()} style={{
-                    marginBottom: 0,
-                    paddingBottom: 0, marginTop: 0, paddingTop: '5px'
-                  }}>
-                    <Tooltip key="toggleApprovals"
-                             title={<FormattedMessage
-                               id={`${approvalsDisplayOpen ? 'closeApprovals' : 'openApprovals'}Tip`}/>}>
-                      {approvalsDisplayOpen ? <ExpandLess fontSize="small" /> :
-                        <ExpandMoreIcon fontSize="small" />}
-                    </Tooltip>
-                  </IconButton>
-                </div>
-                {(_.isEmpty(search) || displayApprovalsBySearch > 0) && approvalsDisplayOpen && (
-                  <Voting
-                    investibleId={investibleId}
-                    marketPresences={marketPresences}
-                    investmentReasons={investmentReasonsSearched}
-                    showExpiration={fullStage.has_expiration}
-                    expirationMinutes={market.investment_expiration * 1440}
-                    yourPresence={yourPresence}
-                    showEmptyText
-                    market={market}
-                    groupId={groupId}
-                    isAssigned={isAssigned}
-                  />
-                )}
+              } : { display: 'none' }}>
+                <Approvals
+                  key={investibleId}
+                  displayVotingInput={displayVotingInput}
+                  groupId={groupId}
+                  hash={hash}
+                  hidden={hidden}
+                  investmentReasons={investmentReasonsSearched}
+                  investibleId={investibleId}
+                  isAssigned={isAssigned}
+                  isInVoting={isInVoting}
+                  market={market}
+                  marketId={marketId}
+                  marketPresences={marketPresences}
+                  openInlineWizard={openInlineWizard}
+                  search={search}
+                  showExpiration={fullStage.has_expiration}
+                  visible={showOverview}
+                  yourPresence={yourPresence}
+                />
+              {showOverview && (
+                <>
                 <div style={{ display: 'flex', alignItems: 'center', marginTop: '3rem', marginBottom: '0.75rem' }}>
                   <h2 id="progress" style={{ marginBottom: 0, paddingBottom: 0, marginTop: 0, paddingTop: 0 }}>
                     <FormattedMessage id="reportsSectionLabel"/> {showCommentAdd && isAssigned && <TooltipIconButton id="newReport"
@@ -1148,9 +1109,9 @@ function PlanningInvestible(props) {
                     usePadding={false}
                   />
                 )}
-              </div>
-          </>
-        )}
+                </>
+              )}
+        </div>
         {!inlineWizard && sectionOpen !== 'descriptionVotingSection' && (
           <>
             {/* Vertical spacing lives on the wrapper so buttons and tabs space the same way as the

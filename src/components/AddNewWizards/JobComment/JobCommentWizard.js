@@ -16,7 +16,6 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getInCurrentVotingStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import _ from 'lodash';
-import DoneWithApprovalStep from './DoneWithApprovalStep';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { calculateInvestibleVoters } from '../../../utils/votingUtils';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
@@ -30,11 +29,9 @@ function JobCommentWizard(props) {
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [marketsState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
-  const [wasMovedToApproval, setWasMovedToApproval] = useState(false);
   const [wasJustCreated, setWasJustCreated] = useState(false);
   const presences = usePresences(marketId);
   const isQuestion = commentType === QUESTION_TYPE;
-  const isReport = commentType === REPORT_TYPE && notificationType !== 'BLUE';
   const isNote = commentType === REPORT_TYPE && notificationType === 'BLUE';
   const investibleComments = (commentsState[marketId]||[]).filter(comment =>
     comment.investible_id === investibleId) || [];
@@ -70,10 +67,6 @@ function JobCommentWizard(props) {
     <WizardStylesProvider>
       <FormdataWizard name={`job_comment_wizard${investibleId}`} useLocalStorage={false}
                       defaultFormData={hasDraft ? draftData : {useCompression: true}}>
-        {((isReport && assignedStage.id === stage)||wasMovedToApproval) && (
-          <DoneWithApprovalStep investibleId={investibleId} marketId={marketId} currentStageId={stage}
-                                onFinishMove={() => setWasMovedToApproval(true)} />
-        )}
         {(!hasDraft || wasJustCreated) && (
           <AddCommentStep investibleId={investibleId} marketId={marketId} useType={commentType} resolveId={resolveId} decisionMarketId={decisionMarketId}
                           onFinishCreation={() => setWasJustCreated(true)} subscribed={subscribed} decisionInvestibleId={decisionInvestibleId}
@@ -105,4 +98,3 @@ JobCommentWizard.propTypes = {
   investibleId: PropTypes.string.isRequired
 };
 export default JobCommentWizard;
-

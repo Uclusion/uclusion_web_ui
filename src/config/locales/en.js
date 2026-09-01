@@ -647,7 +647,6 @@ const messages = defineMessages({
   // stages
   marketStageFollowTooltip: 'Subscribe',
   marketStageUnFollowTooltip: 'Unsubscribe',
-  approvedChangeStage: 'Move to Approved',
 
   // markets
   signupInvite: 'invites you to collaborate in',

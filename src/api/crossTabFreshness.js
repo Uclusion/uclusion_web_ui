@@ -251,7 +251,8 @@ export async function requestFreshness(request={}) {
   if (canUseLocalLeaderRefresh(tab)) {
     return localLeaderRefresh(request);
   }
-  if (request.reason !== 'push' && request.reason !== 'missingDataPoll') {
+  const isNotificationHeartbeat = request.reason === 'notificationDependencies' && request.heartbeat;
+  if (request.reason !== 'push' && request.reason !== 'missingDataPoll' && !isNotificationHeartbeat) {
     await reloadAllFromDisk()
       .catch((error) => console.warn('Unable to reload follower state before refresh', error));
   }

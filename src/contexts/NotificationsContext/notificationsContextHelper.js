@@ -147,6 +147,41 @@ export function isInInbox(message) {
   return !(!message.type || message.type === 'UNREAD_REPORT' || message.deleted);
 }
 
+/**
+ * Classifies all inbox notifications once using the live-context predicate. The returned
+ * dependency ids do not second-guess that result; they only tell the version refresher which
+ * unsynced comment markets it must treat as known dirty.
+ */
+export function getNotificationSyncState(messages, marketState, marketPresencesState,
+  commentsState, investiblesState, groupState) {
+  const byComment = new Map();
+  const syncedMessages = [];
+  (messages || []).forEach((message) => {
+    if (!isInInbox(message)) {
+      return;
+    }
+    const synced = messageIsSynced(message, marketState, marketPresencesState, commentsState,
+      investiblesState, groupState);
+    if (synced) {
+      syncedMessages.push(message);
+      return;
+    }
+    const marketId = message.comment_market_id || message.market_id;
+    const { comment_id: commentId, comment_version: version } = message;
+    if (!marketId || !commentId) {
+      return;
+    }
+    const key = `${marketId}|${commentId}`;
+    const existing = byComment.get(key);
+    if (!existing || (version ?? -1) > (existing.version ?? -1)) {
+      byComment.set(key, { marketId, commentId, version });
+    }
+  });
+  const dependencies = [...byComment.values()].sort((left, right) =>
+    `${left.marketId}|${left.commentId}`.localeCompare(`${right.marketId}|${right.commentId}`));
+  return { syncedMessages, dependencies };
+}
+
 export function getInboxTarget(message) {
   if (message && !message.type_object_id) {
     return 'outbox';

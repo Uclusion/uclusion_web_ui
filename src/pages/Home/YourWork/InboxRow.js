@@ -181,6 +181,9 @@ function InboxRow(props) {
     isNotSynced: !messageIsSynced(message, marketsState, marketPresencesState, commentState, investiblesState,
       groupState)
   }
+  // A direct inbox URL can request expansion before its named comment arrives. Keep it in the
+  // ordinary grey row branch until the same sync predicate says the wizard can be classified.
+  const safeExpansionOpen = expansionOpen && !item.isNotSynced;
   // T-all-2445: rows associated with a job carry its condensed code; hovering it reveals the job name
   if (marketInfo.ticket_code) {
     item.ticketCode = transformTicketCode(decodeURI(marketInfo.ticket_code));
@@ -266,7 +269,7 @@ function InboxRow(props) {
   // because the backend only removes them for the resolver, and one level deep for the creator
   const isStaleResolved = !!rootComment?.resolved && rootComment?.id === commentId &&
     !typeObjectId?.includes('UNREAD_RESOLVED');
-  if (isStaleResolved && !expansionOpen) {
+  if (isStaleResolved && !safeExpansionOpen) {
     // Per Q-all-105 notifications out of date with a resolved comment stay hidden in the list view
     console.warn('Notification out of date with a resolved comment')
     console.warn(message);
@@ -282,16 +285,16 @@ function InboxRow(props) {
     // Per Q-all-104 a blocked wizard must explain why and offer dismiss plus a link to the resolved comment
     item.expansionPanel = <BlockedNotificationPanel message={message} explanationId="blockedNotificationResolved"
                                                     commentLink={rootCommentLink}/>;
-  } else {
-    calculateTitleExpansionPanel({ item, openExpansion: expansionOpen, intl, rootComment });
-    if (expansionOpen && !item.expansionPanel) {
+  } else if (!item.isNotSynced) {
+    calculateTitleExpansionPanel({ item, openExpansion: safeExpansionOpen, intl, rootComment });
+    if (safeExpansionOpen && !item.expansionPanel) {
       item.expansionPanel = <BlockedNotificationPanel message={message}
                                                       explanationId="blockedNotificationGeneric"/>;
     }
   }
   return <WorkListItem key={`inboxRow${getMessageId(message)}`} id={getMessageId(message)} checked={checked}
                        determinateDispatch={determinateDispatch} useSelect={isDeletable} read={!message.is_highlighted}
-                       expansionOpen={expansionOpen} {...item} />;
+                       expansionOpen={safeExpansionOpen} {...item} />;
 }
 
 export default React.memo(InboxRow);

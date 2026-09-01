@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useEffect, useMemo, useReducer, useRef,
 import reducer, { updateLeader } from './leaderContextReducer'
 import {
   refreshVersions,
+  refreshVersionsForNotificationDependencies,
   refreshVersionsFromPush,
   refreshVersionsNow,
   refreshVersionsOnce,
@@ -108,13 +109,19 @@ function LeaderProvider(props) {
     if (request.reason === 'push') {
       return refreshVersionsFromPush(request.push);
     }
+    if (request.reason === 'notificationDependencies') {
+      // Remote calls expose their originating tab only while this API function is entered.
+      // Scope full dependency snapshots by that id so one tab cannot clear another's marker.
+      const sourceId = myTab.getCurrentCallerId() || myTab.id;
+      return refreshVersionsForNotificationDependencies(request.dependencies, dispatchers, sourceId);
+    }
     if (request.reason === 'missingData' || request.reason === 'missingDataPoll' ||
         request.reason === 'navigation' ||
         request.reason === 'manual' || request.reason === 'serverResponse') {
       return refreshVersionsNow(dispatchers);
     }
     return refreshVersions(dispatchers, request.skipIfRefreshedWithinMs);
-  }, [dispatchers]);
+  }, [dispatchers, myTab]);
   refreshAsLeaderRef.current = refreshAsLeader;
 
   const runForLeadership = useCallback(() => {

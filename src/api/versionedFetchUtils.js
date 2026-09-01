@@ -321,7 +321,12 @@ export function stopRefreshRunner() {
     clearTimeout(pushVerifyTimer);
     pushVerifyTimer = undefined;
   }
+  if (notificationVerifyTimer) {
+    clearTimeout(notificationVerifyTimer);
+    notificationVerifyTimer = undefined;
+  }
   pendingPushChecks.splice(0, pendingPushChecks.length);
+  pendingNotificationChecks.splice(0, pendingNotificationChecks.length);
 }
 
 function ensureRunnerAfter(refreshPromise) {
@@ -451,6 +456,101 @@ export function refreshVersionsFromPush(push=undefined) {
     verifyPendingPushes();
     return dirtyMarketCount;
   });
+}
+
+// Unlike a pushed object, a notification marker is satisfied only when the reporting tab's
+// messageIsSynced pass removes it. Keeping this retry state separate preserves push timing.
+const pendingNotificationChecks = [];
+let notificationVerifyTimer = undefined;
+const NOTIFICATION_DEPENDENCY_LEASE_MS = MAX_DRIFT_TIME * 2;
+
+function notificationCheckKey(check) {
+  return [check.marketId, check.commentId, check.version ?? ''].join('|');
+}
+
+function pruneExpiredNotificationChecks(now=Date.now()) {
+  _.remove(pendingNotificationChecks, (check) => check.expiresAt <= now);
+  if (_.isEmpty(pendingNotificationChecks) && notificationVerifyTimer) {
+    clearTimeout(notificationVerifyTimer);
+    notificationVerifyTimer = undefined;
+  }
+}
+
+function scheduleNotificationVerification(resetTimer=false) {
+  pruneExpiredNotificationChecks();
+  if (resetTimer && notificationVerifyTimer) {
+    clearTimeout(notificationVerifyTimer);
+    notificationVerifyTimer = undefined;
+  }
+  const retryableChecks = pendingNotificationChecks.filter((check) => !check.exhausted);
+  if (_.isEmpty(retryableChecks) || notificationVerifyTimer) {
+    return;
+  }
+  const attempts = Math.min(...retryableChecks.map((check) => check.attempts));
+  const delay = PUSH_VERIFY_BASE_DELAY_MS * Math.pow(2, attempts);
+  console.info(`Notification dependency still missing - retrying sync in ${delay}ms`);
+  notificationVerifyTimer = setTimeout(() => {
+    notificationVerifyTimer = undefined;
+    const pendingRetries = pendingNotificationChecks.filter((check) => !check.exhausted);
+    if (_.isEmpty(pendingRetries)) {
+      return;
+    }
+    pendingRetries.forEach((check) => { check.attempts += 1; });
+    refreshVersions().then(() => {
+      pendingRetries.filter((check) => pendingNotificationChecks.includes(check) &&
+        check.attempts >= PUSH_VERIFY_MAX_ATTEMPTS)
+        .forEach((check) => {
+          check.exhausted = true;
+          console.warn('Giving up automatic retries for notification dependency - later syncs will still force it');
+          console.warn({ marketId: check.marketId, commentId: check.commentId, version: check.version });
+        });
+      scheduleNotificationVerification();
+    }).catch(() => console.warn('Error in notification dependency refresh'));
+  }, delay);
+}
+
+/**
+ * messageIsSynced has already identified these notification dependencies as absent. Hold their
+ * markets known dirty independently of the latest audit signature, then use the normal market
+ * version path to reconcile them. Snapshots are scoped to the reporting tab so a lagging tab
+ * cannot clear another tab's marker; a later synced snapshot from that tab retires its markers.
+ */
+export async function refreshVersionsForNotificationDependencies(dependencies=[], dispatchers=undefined,
+  sourceId='local') {
+  pruneExpiredNotificationChecks();
+  const expiresAt = Date.now() + NOTIFICATION_DEPENDENCY_LEASE_MS;
+  const checks = dependencies.filter((dependency) => dependency?.marketId && dependency?.commentId)
+    .map((dependency) => ({
+      marketId: dependency.marketId,
+      commentId: dependency.commentId,
+      version: dependency.version,
+      sourceId,
+      expiresAt
+    }));
+  const desiredKeys = new Set(checks.map(notificationCheckKey));
+  _.remove(pendingNotificationChecks, (check) => check.sourceId === sourceId &&
+    !desiredKeys.has(notificationCheckKey(check)));
+  let added = false;
+  checks.forEach((check) => {
+    const existing = pendingNotificationChecks.find((candidate) => candidate.sourceId === sourceId &&
+      notificationCheckKey(candidate) === notificationCheckKey(check));
+    if (existing) {
+      existing.expiresAt = expiresAt;
+    } else {
+      pendingNotificationChecks.push({ ...check, attempts: 0 });
+      added = true;
+    }
+  });
+  if (_.isEmpty(pendingNotificationChecks) && notificationVerifyTimer) {
+    clearTimeout(notificationVerifyTimer);
+    notificationVerifyTimer = undefined;
+  }
+  if (!added) {
+    return false;
+  }
+  const dirtyMarketCount = await refreshVersionsNow(dispatchers);
+  scheduleNotificationVerification(true);
+  return dirtyMarketCount;
 }
 
 export function refreshNotifications () {
@@ -647,13 +747,18 @@ async function doVersionRefresh(dispatchers, refreshIsCurrent) {
   const bannedList = [];
   const inlineList = [];
   const bannedPromises = [];
+  const forcedMarketIds = new Set();
+  pruneExpiredNotificationChecks();
+  pendingNotificationChecks.forEach((check) => forcedMarketIds.add(check.marketId));
   timeSpan('signatureDiff', () => (audits || []).forEach((audit) => {
     const { signature, inline, active, banned, id } = audit;
     if (banned) {
+      forcedMarketIds.delete(id);
       bannedList.push(id);
       const tokenStorageManager = new TokenStorageManager();
       bannedPromises.push(tokenStorageManager.deleteToken(TOKEN_TYPE_MARKET, id, refreshIsCurrent));
-    } else if (!checkSignatureInStorage(id, signature, storageStates, true)) {
+    } else if (forcedMarketIds.has(id) || !checkSignatureInStorage(id, signature, storageStates, true)) {
+      forcedMarketIds.delete(id);
       if (inline) {
         inlineList.push(id);
       } else if (active) {
@@ -663,6 +768,10 @@ async function doVersionRefresh(dispatchers, refreshIsCurrent) {
       }
     }
   }));
+  // A notification dependency remains authoritative even when the audit row is absent. It stays
+  // pending, so an object-version row that is not visible yet is retried through this same normal
+  // market refresh path.
+  forcedMarketIds.forEach((marketId) => foregroundList.push(marketId));
   // T-all-2485: this fired every cycle regardless, and the presences listener answered it with a
   // dispatch whose reducer correctly returned the same state - which the wrapper then persisted
   // anyway. Burst eight measured nineteen whole-state presence writes for a storm in which nothing

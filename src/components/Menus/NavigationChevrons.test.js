@@ -86,11 +86,17 @@ jest.mock('../../contexts/MarketsContext/marketsContextHelper', () => ({
 jest.mock('../../contexts/NotificationsContext/notificationsContextHelper', () => ({
   dehighlightMessage: () => undefined,
   getInboxTarget: () => '',
+  getNotificationSyncState: (messages) => ({
+    syncedMessages: [],
+    dependencies: (messages || []).map((message) => ({
+      marketId: message.comment_market_id || message.market_id,
+      commentId: message.comment_id,
+      version: message.comment_version
+    }))
+  }),
   isInboxItemNavigationUrl: () => false,
   isInboxNavigationUrl: () => false,
-  isInboxTopLevelNavigationUrl: () => false,
-  isInInbox: () => false,
-  messageIsSynced: () => true
+  isInboxTopLevelNavigationUrl: () => false
 }));
 jest.mock('../../contexts/NotificationsContext/notificationsContextReducer', () => ({
   addNavigation: () => ({}),
@@ -132,6 +138,7 @@ jest.mock('../../pages/Home/ReturnTop', () => () => null);
 function navigationChevronsTree({
   tokensHash = { 'market-a': 'token-a' },
   navigations = [{ url: '/previous', time: 1 }],
+  messages = [],
   requestFreshness = () => Promise.resolve()
 } = {}) {
   const marketsState = {
@@ -140,9 +147,9 @@ function navigationChevronsTree({
   };
   return (
     <NotificationsContext.Provider value={[{
-      messages: [],
+      messages,
       navigations
-    }, jest.fn()]}>
+    }, jest.fn(), true]}>
       <MarketsContext.Provider value={[marketsState, jest.fn(), tokensHash]}>
         <MarketPresencesContext.Provider value={[{}]}>
           <CommentsContext.Provider value={[{}]}>
@@ -219,5 +226,66 @@ describe('NavigationChevrons', () => {
     expect(back.getAttribute('aria-disabled')).toBe('true');
     act(() => back.click());
     expect(requestFreshness).toHaveBeenCalledWith({ reason: 'navigation' });
+  });
+
+  it('registers and retires an unsynced notification dependency', () => {
+    const requestFreshness = jest.fn(() => Promise.resolve());
+    const loadedTokens = { 'market-a': 'token-a', 'market-b': 'token-b' };
+    const message = {
+      type: 'UNREAD_COMMENT',
+      market_id: 'market-a',
+      comment_id: 'comment-a',
+      comment_version: 2
+    };
+    act(() => root.render(navigationChevronsTree({
+      tokensHash: loadedTokens,
+      messages: [message],
+      requestFreshness
+    })));
+
+    expect(requestFreshness).toHaveBeenLastCalledWith({
+      reason: 'notificationDependencies',
+      dependencies: [{ marketId: 'market-a', commentId: 'comment-a', version: 2 }]
+    });
+
+    act(() => root.render(navigationChevronsTree({
+      tokensHash: loadedTokens,
+      messages: [],
+      requestFreshness
+    })));
+
+    expect(requestFreshness).toHaveBeenLastCalledWith({
+      reason: 'notificationDependencies',
+      dependencies: []
+    });
+  });
+
+  it('renews an unsynced dependency while its tab remains mounted', () => {
+    jest.useFakeTimers();
+    try {
+      const requestFreshness = jest.fn(() => Promise.resolve());
+      const message = {
+        type: 'UNREAD_COMMENT',
+        market_id: 'market-a',
+        comment_id: 'comment-a',
+        comment_version: 2
+      };
+      act(() => root.render(navigationChevronsTree({
+        tokensHash: { 'market-a': 'token-a', 'market-b': 'token-b' },
+        messages: [message],
+        requestFreshness
+      })));
+      requestFreshness.mockClear();
+
+      act(() => jest.advanceTimersByTime(60000));
+
+      expect(requestFreshness).toHaveBeenCalledWith({
+        reason: 'notificationDependencies',
+        dependencies: [{ marketId: 'market-a', commentId: 'comment-a', version: 2 }],
+        heartbeat: true
+      });
+    } finally {
+      jest.useRealTimers();
+    }
   });
 });

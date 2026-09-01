@@ -51,6 +51,23 @@ function routeAIComment(rootComment, messageOverrides = {}) {
 }
 
 describe('inbox comment wizard routing', () => {
+  it('routes a current intent/design capsule to design review', () => {
+    const item = routeAIComment({
+      id: 'capsule-id',
+      comment_type: REPORT_TYPE,
+      notification_type: 'BLUE',
+      pinned: true
+    }, { link_type: 'INVESTIBLE_COMMENT' });
+
+    expect(item.title).toBe('ReviewDesignTitle');
+    expect(item.expansionPanel.type).toBe(BlockedWizard);
+    expect(item.expansionPanel.props).toEqual(expect.objectContaining({
+      marketId: 'market-id',
+      commentId: 'capsule-id',
+      message: item.message
+    }));
+  });
+
   it('routes an AI-authored view note to note review', () => {
     const item = routeAIComment({ id: 'note-id', comment_type: REPORT_TYPE });
 

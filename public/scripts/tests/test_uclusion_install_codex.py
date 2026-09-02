@@ -63,6 +63,25 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             self.workflow,
         )
 
+    def test_poke_shaped_start_never_counts_as_a_direct_switch(self):
+        self.assertIn(
+            'A complete trimmed input of the form `Start <target>` keeps its '
+            'Poke event meaning even when the client presents it in the '
+            'ordinary user/chat channel',
+            self.workflow,
+        )
+        self.assertIn(
+            'Never reinterpret a bare `Start <target>` as a direct human '
+            'selection or an explicit switch',
+            self.workflow,
+        )
+        self.assertIn(
+            'Only unambiguous non-event human instruction language, such as '
+            '`switch from <current> to <target>`, may replace an active lane',
+            self.workflow,
+        )
+        self.assertIn('Mid-lane, defer an outside target', self.workflow)
+
     def test_codex_bridge_skips_startup_backlog_by_default(self):
         self.assertIn(
             'bridge starts after the retained backlog by default',

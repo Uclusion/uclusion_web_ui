@@ -145,6 +145,12 @@ continues.
 
 ## Poke grammar and lookup routing
 
+A complete trimmed input of the form `Start <target>` keeps its Poke event
+meaning even when the client presents it in the ordinary user/chat channel.
+Never reinterpret a bare `Start <target>` as a direct human selection or an
+explicit switch. Only unambiguous non-event human instruction language, such
+as `switch from <current> to <target>`, may replace an active lane.
+
 The first word is contractual:
 
 - `Start <target>` comes only from an explicit human Poke AI click. While idle,

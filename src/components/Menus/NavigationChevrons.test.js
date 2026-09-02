@@ -9,6 +9,7 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
 import { LeaderContext } from '../../contexts/LeaderContext/LeaderContext';
+import { navigate } from '../../utils/marketIdPathFunctions';
 import NavigationChevrons from './NavigationChevrons';
 
 jest.mock('../../contexts/CommentsContext/CommentsContext', () => {
@@ -94,13 +95,13 @@ jest.mock('../../contexts/NotificationsContext/notificationsContextHelper', () =
       version: message.comment_version
     }))
   }),
-  isInboxItemNavigationUrl: () => false,
+  isInboxItemNavigationUrl: (url = '') => url.startsWith('/inbox/'),
   isInboxNavigationUrl: () => false,
   isInboxTopLevelNavigationUrl: () => false
 }));
 jest.mock('../../contexts/NotificationsContext/notificationsContextReducer', () => ({
   addNavigation: () => ({}),
-  removeNavigation: () => ({})
+  removeNavigation: (url) => ({ type: 'REMOVE_NAVIGATION', url })
 }));
 jest.mock('../../contexts/CommentsContext/commentsContextHelper', () => ({
   getOpenInvestibleComments: () => []
@@ -123,7 +124,7 @@ jest.mock('../../utils/marketIdPathFunctions', () => ({
   getCanonicalNavigationUrl: () => '/market-a/job-a',
   getJobBackOrigin: () => undefined,
   isReturnableNavigationUrl: () => true,
-  navigate: () => undefined,
+  navigate: jest.fn(),
   rememberSeenNavigationUrl: () => undefined
 }));
 jest.mock('../../utils/messageUtils', () => ({
@@ -139,6 +140,7 @@ function navigationChevronsTree({
   tokensHash = { 'market-a': 'token-a' },
   navigations = [{ url: '/previous', time: 1 }],
   messages = [],
+  messagesDispatch = jest.fn(),
   requestFreshness = () => Promise.resolve()
 } = {}) {
   const marketsState = {
@@ -149,7 +151,7 @@ function navigationChevronsTree({
     <NotificationsContext.Provider value={[{
       messages,
       navigations
-    }, jest.fn(), true]}>
+    }, messagesDispatch, true]}>
       <MarketsContext.Provider value={[marketsState, jest.fn(), tokensHash]}>
         <MarketPresencesContext.Provider value={[{}]}>
           <CommentsContext.Provider value={[{}]}>
@@ -195,25 +197,25 @@ describe('NavigationChevrons', () => {
     act(() => root.unmount());
   });
 
-  it('keeps one navigation request pending while a workspace token is missing', () => {
+  it('disables navigation while a workspace token is missing', () => {
     const requestFreshness = jest.fn(() => Promise.resolve());
     act(() => root.render(navigationChevronsTree({ requestFreshness })));
 
+    requestFreshness.mockClear();
     const next = container.querySelector('#nextNavigation');
     const back = container.querySelector('#backNavigation');
     expect(next).not.toBeNull();
     expect(back).not.toBeNull();
-    expect(next.disabled).toBe(false);
-    expect(back.disabled).toBe(false);
+    expect(next.disabled).toBe(true);
+    expect(back.disabled).toBe(true);
     expect(next.getAttribute('aria-disabled')).toBe('true');
     expect(back.getAttribute('aria-disabled')).toBe('true');
     act(() => back.click());
     act(() => next.click());
-    expect(requestFreshness).toHaveBeenCalledTimes(1);
-    expect(requestFreshness).toHaveBeenCalledWith({ reason: 'navigation' });
+    expect(requestFreshness).not.toHaveBeenCalled();
   });
 
-  it('requests recovery when loaded memory has no navigation target', () => {
+  it('disables Forward when loaded state has no navigation target', () => {
     const requestFreshness = jest.fn(() => Promise.resolve());
     act(() => root.render(navigationChevronsTree({
       tokensHash: { 'market-a': 'token-a', 'market-b': 'token-b' },
@@ -221,11 +223,59 @@ describe('NavigationChevrons', () => {
       requestFreshness
     })));
 
+    requestFreshness.mockClear();
+    const next = container.querySelector('#nextNavigation');
+    expect(next.disabled).toBe(true);
+    expect(next.getAttribute('aria-disabled')).toBe('true');
+    act(() => next.click());
+    expect(requestFreshness).not.toHaveBeenCalled();
+  });
+
+  it('disables Back after its last navigation target is consumed', () => {
+    const messagesDispatch = jest.fn();
+    const requestFreshness = jest.fn(() => Promise.resolve());
+    act(() => root.render(navigationChevronsTree({
+      tokensHash: { 'market-a': 'token-a', 'market-b': 'token-b' },
+      messagesDispatch,
+      requestFreshness
+    })));
+
+    requestFreshness.mockClear();
+    navigate.mockClear();
+    const enabledBack = container.querySelector('#backNavigation');
+    expect(enabledBack.disabled).toBe(false);
+    act(() => enabledBack.click());
+    expect(messagesDispatch).toHaveBeenCalledWith({ type: 'REMOVE_NAVIGATION', url: '/previous' });
+    expect(navigate).toHaveBeenCalledWith(expect.any(Object), '/previous');
+
+    act(() => root.render(navigationChevronsTree({
+      tokensHash: { 'market-a': 'token-a', 'market-b': 'token-b' },
+      navigations: [],
+      messagesDispatch,
+      requestFreshness
+    })));
+
     const back = container.querySelector('#backNavigation');
-    expect(back.disabled).toBe(false);
+    expect(back.disabled).toBe(true);
     expect(back.getAttribute('aria-disabled')).toBe('true');
     act(() => back.click());
-    expect(requestFreshness).toHaveBeenCalledWith({ reason: 'navigation' });
+    expect(requestFreshness).not.toHaveBeenCalled();
+  });
+
+  it('disables Back while a remembered inbox target is not synced', () => {
+    const requestFreshness = jest.fn(() => Promise.resolve());
+    act(() => root.render(navigationChevronsTree({
+      tokensHash: { 'market-a': 'token-a', 'market-b': 'token-b' },
+      navigations: [{ url: '/inbox/stale', time: 1 }],
+      requestFreshness
+    })));
+
+    requestFreshness.mockClear();
+    const back = container.querySelector('#backNavigation');
+    expect(back.disabled).toBe(true);
+    expect(back.getAttribute('aria-disabled')).toBe('true');
+    act(() => back.click());
+    expect(requestFreshness).not.toHaveBeenCalled();
   });
 
   it('registers and retires an unsynced notification dependency', () => {

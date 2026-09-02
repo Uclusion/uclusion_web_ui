@@ -292,7 +292,7 @@ WORKFLOW_ASSET_SHA256 = {
     'codex_stub': '02ea82a01620a5909ea40ea33d0ed67a27f275b808d926e21f753cb51861135e',
     'cursor_stub': '2e4bf88903896ba312738f9a4ab7163582df99050b62f13e0e0324a6580a412f',
     'skill': '7519075326cef3a8f5084d40167f796894d8594ad846f735d093f23f65de13ec',
-    'pokes_reference': 'd8153ee0d5edfae727570671f235a9e0fbbb9e1ec422829e242b6457bd0c715e',
+    'pokes_reference': 'a00bc9f2b827e2c0c68d961d6e5507d9fcb9f3470fc6ae3eba5ba149c604ebd3',
     'operations_reference': '2fe81054a9ad3e8803fc8d41674532766f8cebeda816acd92c46d791457ddf3e',
     'openai_metadata': 'ecf2759354ff3bbfd7178452a705650aff7a13352458bb20e1df122da7c30f40',
     'design_skill': '06280e77c24a8819d975435c1c678ac42ed372bbfbf4b2fedded60097fd89df9',

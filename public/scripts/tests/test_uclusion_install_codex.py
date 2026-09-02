@@ -94,6 +94,28 @@ class WorkflowProtocolContractTests(unittest.TestCase):
         self.assertIn('Never add `--deliver-existing-pokes` yourself', self.codex_stub)
         self.assertIn('unmarked private copy', self.codex_stub)
 
+    def test_current_work_lists_are_numbered_and_descriptive(self):
+        self.assertIn(
+            'Whenever presenting `find_work` results or any equivalent '
+            'current-work list, render the complete result as a numbered list',
+            self.workflow,
+        )
+        self.assertIn(
+            'Every numbered entry must include both its exact `short_code_id` '
+            'and returned `name` (its short description)',
+            self.workflow,
+        )
+        self.assertIn(
+            'never present an entry as only a bug, job, suggestion, or other '
+            'short code',
+            self.workflow,
+        )
+        self.assertIn(
+            'at an idle session start, immediately after finishing or handing '
+            'off work, and anywhere else current work is shown',
+            self.workflow,
+        )
+
     def test_default_workflows_assign_one_agent(self):
         self.assertIn(
             'one agent owns a job or bug assignment at a time',

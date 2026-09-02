@@ -5,6 +5,7 @@ ask the identity source for new identities when needed
  */
 
 import { AllSequentialMap } from '../utils/PromiseUtils';
+import { shouldReportApiError } from '../utils/apiErrorReporting';
 import { getTokenStorageManager } from '../api/singletons';
 import { TOKEN_TYPE_MARKET, TOKEN_TYPE_MARKET_INVITE } from '../api/tokenConstants';
 import {
@@ -13,12 +14,21 @@ import {
   isSignedOut,
 } from '../utils/logoutState';
 
+const PERIODIC_REFRESH_FAILED = Symbol('periodicRefreshFailed');
+
 function requireCurrentGeneration(logoutGeneration) {
   if (isSignedOut() || !isLogoutGenerationCurrent(logoutGeneration)) {
     const error = new Error('Market token acquisition is no longer active');
     error.cancelled = true;
     throw error;
   }
+}
+
+function handlePeriodicRefreshError(error) {
+  if (shouldReportApiError()) {
+    console.error(error);
+  }
+  return PERIODIC_REFRESH_FAILED;
 }
 
 class MarketTokenFetcher {
@@ -66,10 +76,15 @@ class MarketTokenFetcher {
       requireCurrentGeneration(logoutGeneration);
       const expiring = (expiringRaw || []).filter((anItem) => anItem !== 'undefined');
       return AllSequentialMap(expiring, (itemId) => {
-        requireCurrentGeneration(logoutGeneration);
-        return this.getAndStoreRefreshedToken(itemId, logoutGeneration);
+        return Promise.resolve()
+          .then(() => {
+            requireCurrentGeneration(logoutGeneration);
+            return this.getAndStoreRefreshedToken(itemId, logoutGeneration);
+          })
+          .catch(handlePeriodicRefreshError);
       },
-        false);
+        false)
+        .then((results) => results.filter((result) => result !== PERIODIC_REFRESH_FAILED));
     });
   }
 

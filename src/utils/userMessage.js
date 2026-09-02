@@ -5,6 +5,7 @@ import { toast } from 'react-toastify'
 import { intl } from '../components/ContextHacks/IntlGlobalProvider'
 import { setOperationInProgress } from '../components/ContextHacks/OperationInProgressGlobalProvider'
 import { requestFreshness } from '../api/crossTabFreshness'
+import { shouldReportApiError } from './apiErrorReporting'
 import LogRocket from 'logrocket';
 
 export const DEBUG = 'debug';
@@ -49,44 +50,15 @@ export function sendIntlMessageBase(intl, level, i18nMessageId, ii18nMessageValu
 }
 
 export function errorAndThrow(error, messageKey) {
-  sendIntlMessage(DEBUG, messageKey);
-  console.error(error);
+  const shouldReport = shouldReportApiError();
+  if (shouldReport) {
+    sendIntlMessage(DEBUG, messageKey);
+    console.error(error);
+  }
   if (setOperationInProgress) {
     setOperationInProgress(false);
   }
-  // Throwing the error below won't reach LogRocket so must use this API
-  LogRocket.captureException(error, {
-    tags: {
-      // additional data to be grouped as "tags"
-      type: 'api',
-    },
-    extra: {
-      // additional arbitrary data associated with the event
-      messageKey,
-    },
-  });
-  throw error;
-}
-
-/**
- * Pops an error toast and rethrows the error, halting any operation in progress
- * @param error the error we need to rethrow
- * @param messageKey the id in the translation bundles to display
- */
-export function toastErrorAndThrow(error, messageKey) {
-  if (setOperationInProgress) {
-    setOperationInProgress(false);
-  }
-  if (error?.status === 208) {
-    console.info('Api gateway duplicate 208 received');
-    return requestFreshness({ reason: 'serverResponse' }).then(() => {
-      console.warn(error);
-      throw error;
-    }).catch(() => console.warn('Error refreshing'));
-  } else if (error?.status === 410) {
-    // This is a no op as they might already be on a different page and refreshing something old
-    console.info('Accessing banned market');
-  } else {
+  if (shouldReport) {
     // Throwing the error below won't reach LogRocket so must use this API
     LogRocket.captureException(error, {
       tags: {
@@ -98,8 +70,55 @@ export function toastErrorAndThrow(error, messageKey) {
         messageKey,
       },
     });
-    sendIntlMessage(ERROR, messageKey);
-    console.error(error);
+  }
+  throw error;
+}
+
+/**
+ * Pops an error toast and rethrows the error, halting any operation in progress
+ * @param error the error we need to rethrow
+ * @param messageKey the id in the translation bundles to display
+ */
+export function toastErrorAndThrow(error, messageKey) {
+  const shouldReport = shouldReportApiError();
+  if (setOperationInProgress) {
+    setOperationInProgress(false);
+  }
+  if (error?.status === 208) {
+    if (shouldReport) {
+      console.info('Api gateway duplicate 208 received');
+    }
+    return requestFreshness({ reason: 'serverResponse' }).then(() => {
+      if (shouldReportApiError()) {
+        console.warn(error);
+      }
+      throw error;
+    }).catch(() => {
+      if (shouldReportApiError()) {
+        console.warn('Error refreshing');
+      }
+    });
+  } else if (error?.status === 410) {
+    // This is a no op as they might already be on a different page and refreshing something old
+    if (shouldReport) {
+      console.info('Accessing banned market');
+    }
+  } else {
+    if (shouldReport) {
+      // Throwing the error below won't reach LogRocket so must use this API
+      LogRocket.captureException(error, {
+        tags: {
+          // additional data to be grouped as "tags"
+          type: 'api',
+        },
+        extra: {
+          // additional arbitrary data associated with the event
+          messageKey,
+        },
+      });
+      sendIntlMessage(ERROR, messageKey);
+      console.error(error);
+    }
     throw error;
   }
 }
@@ -110,21 +129,26 @@ export function toastErrorAndThrow(error, messageKey) {
  * @param messageKey
  */
 export function toastError(error, messageKey) {
-  sendIntlMessage(ERROR, messageKey);
+  const shouldReport = shouldReportApiError();
+  if (shouldReport) {
+    sendIntlMessage(ERROR, messageKey);
+  }
   if (setOperationInProgress) {
     setOperationInProgress(false);
   }
-  // Throwing the error below won't reach LogRocket so must use this API
-  LogRocket.captureException(error, {
-    tags: {
-      // additional data to be grouped as "tags"
-      type: 'api',
-    },
-    extra: {
-      // additional arbitrary data associated with the event
-      messageKey,
-    },
-  });
+  if (shouldReport) {
+    // Throwing the error below won't reach LogRocket so must use this API
+    LogRocket.captureException(error, {
+      tags: {
+        // additional data to be grouped as "tags"
+        type: 'api',
+      },
+      extra: {
+        // additional arbitrary data associated with the event
+        messageKey,
+      },
+    });
+  }
 }
 
 /**

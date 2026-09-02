@@ -2,6 +2,7 @@ import jwt_decode from 'jwt-decode';
 import { registerListener } from '../utils/MessageBusUtils';
 import { VIEW_EVENT, VISIT_CHANNEL } from '../utils/marketIdPathFunctions'
 import { getAllMarketTokenFetcher } from '../api/singletons';
+import { shouldReportApiError } from '../utils/apiErrorReporting';
 
 
 
@@ -23,6 +24,12 @@ export function getTokenSecondsRemaining (tokenString) {
 const TOKEN_LISTENER_MIN_RUN_INTERVAL_MILLIS = 1800000; // 30 mins
 const lastMarketTokenCheck = {};
 
+function handlePeriodicRefreshError(error) {
+  if (shouldReportApiError()) {
+    console.error(error);
+  }
+}
+
 export function registerMarketTokenListeners () {
   const myListener = (data) => {
     if (!data) {
@@ -36,7 +43,9 @@ export function registerMarketTokenListeners () {
         const { isEntry } = message;
         if (isEntry && shouldRun) {
           lastMarketTokenCheck.time = Date.now();
-          return getAllMarketTokenFetcher().refreshExpiringTokens(72);
+          return Promise.resolve()
+            .then(() => getAllMarketTokenFetcher().refreshExpiringTokens(72))
+            .catch(handlePeriodicRefreshError);
         }
         break;
       }

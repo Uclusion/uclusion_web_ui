@@ -28,6 +28,10 @@ describe('MarketTokenFetcher guarded login', () => {
     });
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('does not return login data when its guarded token write is declined', async () => {
     const cancellation = Object.assign(new Error('cancelled'), { cancelled: true });
     const storeToken = jest.fn().mockRejectedValue(cancellation);
@@ -168,5 +172,100 @@ describe('MarketTokenFetcher guarded login', () => {
 
     await expect(refreshPromise).rejects.toMatchObject({ cancelled: true });
     expect(tokenRefresher.getIdentity).not.toHaveBeenCalled();
+  });
+
+  it('silences and consumes a logout that starts during periodic refresh', async () => {
+    let resolveIdentity;
+    let markIdentityStarted;
+    const identity = new Promise((resolve) => {
+      resolveIdentity = resolve;
+    });
+    const identityStarted = new Promise((resolve) => {
+      markIdentityStarted = resolve;
+    });
+    const tokenStorageManager = {
+      getExpiringTokens: jest.fn().mockResolvedValue(['market-a', 'market-b']),
+      storeToken: jest.fn(),
+    };
+    const tokenRefresher = {
+      getIdentity: jest.fn(() => {
+        markIdentityStarted();
+        return identity;
+      }),
+    };
+    const ssoClient = { marketCognitoLogin: jest.fn() };
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+    getTokenStorageManager.mockReturnValue(tokenStorageManager);
+    const fetcher = new MarketTokenFetcher(
+      tokenRefresher, ssoClient, TOKEN_TYPE_MARKET
+    );
+
+    const refreshPromise = fetcher.refreshExpiringTokens(72);
+    await identityStarted;
+    isSignedOut.mockReturnValue(true);
+    resolveIdentity('identity');
+
+    await expect(refreshPromise).resolves.toEqual([]);
+    expect(consoleError).not.toHaveBeenCalled();
+    expect(tokenRefresher.getIdentity).toHaveBeenCalledTimes(1);
+    expect(ssoClient.marketCognitoLogin).not.toHaveBeenCalled();
+    expect(tokenStorageManager.storeToken).not.toHaveBeenCalled();
+  });
+
+  it('reports and omits a signed-in periodic failure before continuing', async () => {
+    const error = new Error('identity failed');
+    const tokenStorageManager = {
+      getExpiringTokens: jest.fn().mockResolvedValue(['market-a', 'market-b']),
+      storeToken: jest.fn().mockResolvedValue(),
+    };
+    const tokenRefresher = {
+      getIdentity: jest.fn()
+        .mockRejectedValueOnce(error)
+        .mockResolvedValueOnce('identity'),
+    };
+    const ssoClient = {
+      marketCognitoLogin: jest.fn().mockResolvedValue({ uclusion_token: 'market-token' }),
+    };
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+    getTokenStorageManager.mockReturnValue(tokenStorageManager);
+    const fetcher = new MarketTokenFetcher(
+      tokenRefresher, ssoClient, TOKEN_TYPE_MARKET
+    );
+
+    await expect(fetcher.refreshExpiringTokens(72)).resolves.toEqual(['market-token']);
+
+    expect(consoleError).toHaveBeenCalledWith(error);
+    expect(tokenRefresher.getIdentity).toHaveBeenCalledTimes(2);
+    expect(ssoClient.marketCognitoLogin).toHaveBeenCalledWith('identity', 'market-b');
+  });
+
+  it('keeps a marker-read failure from escaping the periodic error boundary', async () => {
+    const markerError = new Error('invalid marker storage');
+    const refreshError = new Error('identity failed');
+    let markerReadFails = false;
+    isSignedOut.mockImplementation(() => {
+      if (markerReadFails) {
+        throw markerError;
+      }
+      return false;
+    });
+    const tokenStorageManager = {
+      getExpiringTokens: jest.fn().mockResolvedValue(['market-a']),
+    };
+    const tokenRefresher = {
+      getIdentity: jest.fn(() => {
+        markerReadFails = true;
+        return Promise.reject(refreshError);
+      }),
+    };
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+    getTokenStorageManager.mockReturnValue(tokenStorageManager);
+    const fetcher = new MarketTokenFetcher(
+      tokenRefresher, {}, TOKEN_TYPE_MARKET
+    );
+
+    await expect(fetcher.refreshExpiringTokens(72)).resolves.toEqual([]);
+
+    expect(consoleError).toHaveBeenCalledWith(refreshError);
   });
 });

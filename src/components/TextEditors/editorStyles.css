@@ -39,10 +39,6 @@ a[target="_blank"]::after {
 .ql-snow .ql-editor code {
     color: #1d1c1d;
 }
-.ql-editor > * + h1,
-.ql-editor > * + h2 {
-    margin-top: 1rem;
-}
 ._loading_overlay_wrapper {
     position: relative;
 }

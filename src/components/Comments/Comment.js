@@ -30,7 +30,7 @@ import { alterComment, reopenComment, resolveComment, updateComment } from '../.
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import {
-  changeMyPresence, usePresences
+  changeMyPresence, getGroupPresences, usePresences
 } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import CommentEdit from './CommentEdit';
 import { useInlineWizardLaunch } from '../InlineWizard/InlineWizardContext';
@@ -986,7 +986,10 @@ function Comment(props) {
     && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(commentType)
     && !inArchives && !removeActions && enableActions && marketType === PLANNING_TYPE;
   // Market-level bugs and notes/discussion can change view (T-all-2285) - jobs have their own switcher in the nav
-  const marketGroups = _.sortBy(groupsState[marketId], 'name');
+  const marketGroups = _.sortBy((groupsState[marketId] || []).filter((group) => {
+    const groupPresences = getGroupPresences(presences, groupPresencesState, marketId, group.id);
+    return group.id === groupId || !_.isEmpty(groupPresences);
+  }), 'name');
   const showViewSelect = !isCapsule && isSent !== false && enableEditing && !removeActions && !investibleId && groupId
     && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE].includes(commentType)
     && marketType === PLANNING_TYPE && _.size(marketGroups) > 1;

@@ -1159,8 +1159,9 @@ function Comment(props) {
   );
   const commentTypeChip = <CommentTypeChip type={commentType} subtype={bugSubtype} resolved={resolved}
                                            mobileLayout={mobileLayout}
-                                           label={commentType === REPORT_TYPE && !isNote ?
-                                             <FormattedMessage id="reportPresent" /> : undefined} />;
+                                           label={isCapsule ? overrideLabel :
+                                             (commentType === REPORT_TYPE && !isNote ?
+                                               <FormattedMessage id="reportPresent" /> : undefined)} />;
   const deleteWizardBaseLink = formWizardLink(DELETE_COMMENT_TYPE, marketId, undefined,
     undefined, id);
   const dateInfo = <>

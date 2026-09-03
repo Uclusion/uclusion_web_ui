@@ -665,119 +665,215 @@ def get_ticket_code_from_line(line, ticket_type):
     return f"{ticket_type}{line_split[0]}"
 
 
-def approve_job(credentials, job_short_code, certainty, reason):
-    approve_api_url = 'https://investibles.' + credentials['api_url'] + '/cli/' + job_short_code
-    data = {
-        'certainty': certainty
+class CLIArgumentError(ValueError):
+    """A workflow command could not form one unambiguous MCP argument object."""
+
+
+class MCPCallError(RuntimeError):
+    """The MCP transport or JSON-RPC envelope failed before a tool result existed."""
+
+
+def read_json_source(source, label, allow_stdin=True):
+    """Read JSON inline, from @FILE, or (when allowed) from standard input."""
+    try:
+        if source == '-' and allow_stdin:
+            raw = sys.stdin.read()
+        elif source.startswith('@'):
+            path = source[1:]
+            if not path:
+                raise CLIArgumentError(f'{label} needs a path after @')
+            with open(path, 'r', encoding='utf-8') as source_file:
+                raw = source_file.read()
+        else:
+            raw = source
+        return json.loads(raw)
+    except CLIArgumentError:
+        raise
+    except OSError as error:
+        raise CLIArgumentError(f'could not read {label}: {error}') from None
+    except json.JSONDecodeError as error:
+        raise CLIArgumentError(f'could not parse {label} as JSON: {error}') from None
+
+
+def json_object_value(raw):
+    """argparse type for one uploaded-file metadata object."""
+    try:
+        value = read_json_source(raw, 'uploaded-file metadata', allow_stdin=False)
+    except CLIArgumentError as error:
+        raise argparse.ArgumentTypeError(str(error)) from None
+    if not isinstance(value, dict):
+        raise argparse.ArgumentTypeError('uploaded-file metadata must be a JSON object')
+    return value
+
+
+def read_mcp_response(response):
+    """Decode the JSON response used by both MCP HTTP response formats."""
+    content_type = response.headers.get('Content-Type', '')
+    if 'text/event-stream' in content_type:
+        message = None
+        for raw_line in response:
+            line = raw_line.decode('utf-8').rstrip('\r\n')
+            if line.startswith('data: '):
+                payload = line[6:].strip()
+                if payload and payload != '[DONE]':
+                    message = json.loads(payload)
+        return message
+    body = response.read().decode('utf-8')
+    return json.loads(body) if body.strip() else None
+
+
+def call_mcp_tool(credentials, tool_name, arguments):
+    """Call one authenticated MCP tool and return its exact CallToolResult."""
+    request_id = 'uclusion-cli-' + uuid.uuid4().hex
+    request = {
+        'jsonrpc': '2.0',
+        'id': request_id,
+        'method': 'tools/call',
+        'params': {
+            'name': tool_name,
+            'arguments': arguments,
+        },
     }
-    if reason is not None:
-        data['reason'] = reason
-    return send(data, 'PATCH', approve_api_url, credentials['api_token'])
+    url = 'https://investibles.' + credentials['api_url'] + '/mcp'
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(request, separators=(',', ':')).encode('utf-8'),
+        headers={
+            'Content-Type': 'application/json',
+            'Accept': 'application/json, text/event-stream',
+            'Authorization': credentials['api_token'],
+        },
+        method='POST',
+    )
+    try:
+        with urllib.request.urlopen(req) as response:
+            if response.status != 200:
+                raise MCPCallError(f'HTTP {response.status}')
+            rpc_response = read_mcp_response(response)
+    except urllib.request.HTTPError as error:
+        body = error.read().decode('utf-8', errors='replace').strip()
+        detail = f': {body}' if body else ''
+        raise MCPCallError(f'HTTP {error.code} {error.reason}{detail}') from None
+    except MCPCallError:
+        raise
+    except Exception as error:
+        raise MCPCallError(str(error)) from None
+
+    if not isinstance(rpc_response, dict):
+        raise MCPCallError('MCP returned no JSON-RPC response')
+    if rpc_response.get('jsonrpc') != '2.0' or rpc_response.get('id') != request_id:
+        raise MCPCallError('MCP returned a mismatched JSON-RPC response')
+    rpc_error = rpc_response.get('error')
+    if rpc_error is not None:
+        if isinstance(rpc_error, dict):
+            code = rpc_error.get('code')
+            message = rpc_error.get('message', 'unknown JSON-RPC error')
+            raise MCPCallError(f'JSON-RPC {code}: {message}')
+        raise MCPCallError(f'JSON-RPC error: {rpc_error}')
+    result = rpc_response.get('result')
+    if not isinstance(result, dict):
+        raise MCPCallError('MCP returned an invalid tool result')
+    return result
 
 
-def add_info(credentials, short_code, info, question_short_code=None):
-    info_api_url = 'https://investibles.' + credentials['api_url'] + '/cli/' + short_code
-    local_tz = datetime.now().astimezone().tzinfo
-    data = {
-        'body': info,
-        'tz': local_tz.tzname(None)
-    }
-    if question_short_code is not None:
-        data['parent_question_short_code_id'] = question_short_code
-    return send(data, 'POST', info_api_url, credentials['api_token'])
+def render_mcp_result(result, exact_json=False):
+    """Render all MCP text content, or preserve the complete result as JSON."""
+    if exact_json:
+        return json.dumps(result, indent=2, ensure_ascii=False)
+    content = result.get('content')
+    if not isinstance(content, list):
+        return json.dumps(result, indent=2, ensure_ascii=False)
+    rendered = []
+    for item in content:
+        if isinstance(item, dict) and item.get('type') == 'text' and isinstance(item.get('text'), str):
+            rendered.append(item['text'])
+        else:
+            rendered.append(json.dumps(item, ensure_ascii=False))
+    return '\n'.join(rendered)
 
 
-def resolve(credentials, short_code, stage_id):
-    resolve_api_url = 'https://investibles.' + credentials['api_url'] + '/cli/' + short_code
-    data = {
-        'stage_id': stage_id
-    }
-    return send(data, 'PATCH', resolve_api_url, credentials['api_token'])
+def output_mcp_result(result, exact_json=False, output_path=None):
+    rendered = render_mcp_result(result, exact_json)
+    if output_path is not None:
+        try:
+            with open(output_path, 'w', encoding='utf-8') as output_file:
+                output_file.write(rendered)
+        except OSError as error:
+            raise MCPCallError(f"could not write '{output_path}': {error}") from None
+        return
+    if rendered:
+        sys.stdout.write(rendered)
+        if not rendered.endswith('\n'):
+            sys.stdout.write('\n')
 
 
-def add_question(credentials, job_short_code, question, options):
-    question_api_url = 'https://investibles.' + credentials['api_url'] + '/cli/' + job_short_code
-    data = {
-        'body': question,
-        'is_question': True
-    }
-    if len(options) > 0:
-        processed_options = []
-        for option in options:
-            processed_options.append({
-                'name': option[0],
-                'description': option[1]
-            })
-        data['options'] = processed_options
-    return send(data, 'POST', question_api_url, credentials['api_token'])
+def argument_value(args, *destinations):
+    """Return one supplied spelling of an argument, rejecting conflicting aliases."""
+    supplied = [
+        (destination, getattr(args, destination, None))
+        for destination in destinations
+        if getattr(args, destination, None) is not None
+    ]
+    if not supplied:
+        return None
+    value = supplied[0][1]
+    if any(other != value for _destination, other in supplied[1:]):
+        names = ', '.join('--' + destination.replace('_', '-') for destination, _value in supplied)
+        raise CLIArgumentError(f'conflicting values supplied for {names}')
+    return value
 
 
-def add_options(credentials, question_short_code, options):
-    question_api_url = 'https://investibles.' + credentials['api_url'] + '/cli/' + question_short_code
-    processed_options = []
-    for option in options:
-        processed_options.append({
-            'name': option[0],
-            'description': option[1]
-        })
-    data = {
-        'options': processed_options
-    } 
-    return send(data, 'POST', question_api_url, credentials['api_token'])
+def supplied_destinations(args, fields, extra_destinations=()):
+    destinations = list(extra_destinations)
+    for _key, aliases, _transform in fields:
+        destinations.extend(aliases)
+    return [destination for destination in destinations if getattr(args, destination, None) is not None]
 
 
-def add_report(credentials, job_short_code, report):
-    report_api_url = 'https://investibles.' + credentials['api_url'] + '/cli/' + job_short_code
-    data = {
-        'body': report,
-        'is_review': True
-    }
-    return send(data, 'POST', report_api_url, credentials['api_token'])
+def declared_mcp_arguments(args, fields=None, required=None, validator=None,
+                           extra_destinations=()):
+    """Build a method argument object from flags or one complete JSON source."""
+    fields = fields if fields is not None else args.mcp_fields
+    required = required if required is not None else args.mcp_required
+    validator = validator if validator is not None else getattr(args, 'mcp_validator', None)
+    if args.arguments_json is not None:
+        if supplied_destinations(args, fields, extra_destinations):
+            raise CLIArgumentError('--arguments-json cannot be combined with method arguments')
+        arguments = read_json_source(args.arguments_json, '--arguments-json')
+        if not isinstance(arguments, dict):
+            raise CLIArgumentError('--arguments-json must contain a JSON object')
+        return arguments
+
+    arguments = {}
+    for key, aliases, transform in fields:
+        value = argument_value(args, *aliases)
+        if value is not None:
+            arguments[key] = transform(value) if transform is not None else value
+    missing = [key for key in required if key not in arguments]
+    if missing:
+        raise CLIArgumentError('missing required argument(s): ' + ', '.join(missing))
+    if validator is not None:
+        validator(arguments)
+    return arguments
 
 
-def add_suggestion(credentials, job_short_code, suggestion):
-    suggestion_api_url = 'https://investibles.' + credentials['api_url'] + '/cli/' + job_short_code
-    data = {
-        'body': suggestion,
-        'is_question': False
-    }
-    return send(data, 'POST', suggestion_api_url, credentials['api_token'])
+def option_pairs(value):
+    return [
+        {'name': name, 'description': description}
+        for name, description in value
+    ]
 
 
-def add_task(credentials, job_short_code, task):
-    # T-all-2342: created as the human running the CLI, unlike AI-authored assistance
-    task_api_url = 'https://investibles.' + credentials['api_url'] + '/cli/' + job_short_code
-    data = {
-        'body': task,
-        'is_task': True
-    }
-    return send(data, 'POST', task_api_url, credentials['api_token'])
+def severity_code(value):
+    return {
+        'critical': 'RED',
+        'normal': 'YELLOW',
+        'minor': 'BLUE',
+    }.get(value.lower(), value.upper())
 
 
-def get_upload(credentials, content_type, content_length, original_name=None):
-    # Q-all-394 O-4: mint the presigned S3 form; the caller does the multipart POST itself
-    upload_api_url = 'https://investibles.' + credentials['api_url'] + '/upload'
-    data = {
-        'content_type': content_type,
-        'content_length': content_length
-    }
-    if original_name:
-        data['original_name'] = original_name
-    response = send(data, 'POST', upload_api_url, credentials['api_token'])
-    if isinstance(response, dict) and 'metadata' in response:
-        response['file_url'] = (credentials['ui_url'].replace('.uclusion.com', '.imagecdn.uclusion.com') +
-                                '/' + response['metadata']['path'])
-    return response
-
-
-def add_blocker(credentials, job_short_code, blocker):
-    # Q-all-392: created as the human running the CLI - a job is not blocked until a human confirms
-    blocker_api_url = 'https://investibles.' + credentials['api_url'] + '/cli/' + job_short_code
-    data = {
-        'body': blocker,
-        'is_blocker': True
-    }
-    return send(data, 'POST', blocker_api_url, credentials['api_token'])
+def local_timezone_name():
+    return datetime.now().astimezone().tzname() or 'UTC'
 
 
 EXPORT_SEPARATOR = '<br/><br/>\n***\n'
@@ -3192,134 +3288,199 @@ def cmd_update(args):
     return 0
 
 
-def cmd_report(args):
-    result = initialize(args.env)
-    if result is None:
+def cmd_mcp(args):
+    """Run one CLI command through the shared authenticated MCP adapter."""
+    try:
+        builder = getattr(args, 'mcp_builder', declared_mcp_arguments)
+        arguments = builder(args)
+    except CLIArgumentError as error:
+        print(f'Error: {error}', file=sys.stderr)
+        return 2
+
+    # Keep automation stdout reserved for the tool result, including when
+    # authentication or local configuration fails before the MCP request.
+    with redirect_stdout(sys.stderr):
+        initialized = initialize(args.env)
+    if initialized is None:
         return 1
-    credentials, config, _stages = result
-    write_uclusion_md(config, credentials, args.short_code, args.output)
-    return 0
-
-
-def cmd_approve(args):
-    result = initialize(args.env)
-    if result is None:
+    credentials, _config, _stages = initialized
+    try:
+        result = call_mcp_tool(credentials, args.mcp_name, arguments)
+        output_mcp_result(
+            result,
+            exact_json=args.json,
+            output_path=getattr(args, 'output', None),
+        )
+    except MCPCallError as error:
+        print(f'Error: {error}', file=sys.stderr)
         return 1
-    credentials, _config, _stages = result
-    approve_job(credentials, args.job_short_code, args.certainty, args.reason)
-    return 0
+    return 1 if result.get('isError') else 0
 
 
-def cmd_add_info(args):
-    result = initialize(args.env)
-    if result is None:
-        return 1
-    credentials, _config, _stages = result
-    response = add_info(credentials, args.short_code, args.info, args.question_short_code)
-    print(response)
-    return 0
+def validate_options(arguments, required):
+    options = arguments.get('options')
+    count = len(options) if isinstance(options, list) else 0
+    if required and count == 0:
+        raise CLIArgumentError('at least one option is required')
+    if count > 50:
+        raise CLIArgumentError('at most 50 options may be supplied')
 
 
-def cmd_add_question(args):
-    result = initialize(args.env)
-    if result is None:
-        return 1
-    credentials, _config, _stages = result
-    response = add_question(credentials, args.job_short_code, args.question, args.options)
-    print(response)
-    return 0
+def validate_question(arguments):
+    job_id = arguments['job_id']
+    validate_options(arguments, job_id.upper().startswith('B-'))
 
 
-def cmd_add_options(args):
-    result = initialize(args.env)
-    if result is None:
-        return 1
-    credentials, _config, _stages = result
-    response = add_options(credentials, args.question_short_code, args.options)
-    print(response)
-    return 0
+def validate_required_options(arguments):
+    validate_options(arguments, True)
 
 
-def cmd_add_suggestion(args):
-    result = initialize(args.env)
-    if result is None:
-        return 1
-    credentials, _config, _stages = result
-    response = add_suggestion(credentials, args.job_short_code, args.suggestion)
-    print(response)
-    return 0
+def validate_suggestion(arguments):
+    if 'job_id' in arguments and 'view_short_code_id' in arguments:
+        raise CLIArgumentError('job_id and view_short_code_id are mutually exclusive')
 
 
-def cmd_add_report(args):
-    result = initialize(args.env)
-    if result is None:
-        return 1
-    credentials, _config, _stages = result
-    response = add_report(credentials, args.job_short_code, args.report)
-    print(response)
-    return 0
+def validate_review(arguments):
+    create_mode = 'job_id' in arguments
+    update_mode = 'update_review_short_code_id' in arguments
+    if create_mode == update_mode:
+        raise CLIArgumentError(
+            'provide exactly one of job_id or update_review_short_code_id'
+        )
+    if update_mode and 'uploaded_files' in arguments:
+        raise CLIArgumentError('uploaded_files are supported only when creating a review')
 
 
-def cmd_add_task(args):
-    result = initialize(args.env)
-    if result is None:
-        return 1
-    credentials, _config, _stages = result
-    response = add_task(credentials, args.job_short_code, args.task)
-    print(response)
-    return 0
+def validate_view_note(arguments):
+    if 'view_short_code_id' in arguments and 'update_note_short_code_id' in arguments:
+        raise CLIArgumentError(
+            'view_short_code_id and update_note_short_code_id are mutually exclusive'
+        )
 
 
-def cmd_get_upload(args):
-    result = initialize(args.env)
-    if result is None:
-        return 1
-    credentials, _config, _stages = result
-    file_size = os.path.getsize(args.file)
-    response = get_upload(credentials, args.content_type, file_size, os.path.basename(args.file))
-    print(json.dumps(response, indent=2))
-    return 0
+def validate_view(arguments):
+    group_type = arguments.get('group_type', 'TEAM')
+    if group_type != 'AUTONOMOUS' and 'name' not in arguments:
+        raise CLIArgumentError('name is required for TEAM and EVERYONE views')
 
 
-def cmd_add_blocker(args):
-    result = initialize(args.env)
-    if result is None:
-        return 1
-    credentials, _config, _stages = result
-    response = add_blocker(credentials, args.job_short_code, args.blocker)
-    print(response)
-    return 0
+def validate_collaborators(arguments):
+    emails = arguments['emails']
+    if len(emails) > 50:
+        raise CLIArgumentError('at most 50 email addresses may be supplied')
+    normalized = [email.strip().lower() for email in emails]
+    if len(set(normalized)) != len(normalized):
+        raise CLIArgumentError('email addresses must be unique')
 
 
-BUG_SEVERITY_BY_NAME = {'critical': 'RED', 'normal': 'YELLOW', 'minor': 'BLUE'}
+def build_add_info_arguments(args):
+    arguments = declared_mcp_arguments(args)
+    if args.arguments_json is None and 'tz' not in arguments:
+        arguments['tz'] = local_timezone_name()
+    return arguments
 
 
-def cmd_add_bug(args):
-    result = initialize(args.env)
-    if result is None:
-        return 1
-    credentials, _config, _stages = result
-    response = send_bug(BUG_SEVERITY_BY_NAME[args.severity], args.bug, credentials)
-    print(response)
-    return 0
+def build_get_upload_arguments(args):
+    destinations = (
+        'legacy_file', 'input_file', 'legacy_content_type', 'content_type',
+        'content_length', 'original_name',
+    )
+    if args.arguments_json is not None:
+        return declared_mcp_arguments(
+            args,
+            fields=(),
+            required=(),
+            extra_destinations=destinations,
+        )
+
+    input_file = argument_value(args, 'input_file', 'legacy_file')
+    content_type = argument_value(args, 'content_type', 'legacy_content_type')
+    content_length = args.content_length
+    original_name = args.original_name
+    if input_file is not None:
+        try:
+            actual_size = os.path.getsize(input_file)
+        except OSError as error:
+            raise CLIArgumentError(f"could not inspect '{input_file}': {error}") from None
+        if content_length is not None and content_length != actual_size:
+            raise CLIArgumentError(
+                f'content_length {content_length} does not match local file size {actual_size}'
+            )
+        content_length = actual_size
+        if original_name is None:
+            original_name = os.path.basename(input_file)
+
+    missing = [
+        name for name, value in (
+            ('content_type', content_type),
+            ('content_length', content_length),
+        ) if value is None
+    ]
+    if missing:
+        raise CLIArgumentError('missing required argument(s): ' + ', '.join(missing))
+    arguments = {
+        'content_type': content_type,
+        'content_length': content_length,
+    }
+    if original_name is not None:
+        arguments['original_name'] = original_name
+    return arguments
 
 
-def cmd_resolve(args):
-    result = initialize(args.env)
-    if result is None:
-        return 1
-    credentials, _config, stages = result
-    stage_id = None
-    for stage in stages:
-        if not stage.get('allows_tasks', True): 
-            stage_id = stage['id']
-            break
-    if stage_id is None:
-        print("   -> ❌ Error: No stage found that allows tasks.")
-        return 1
-    response = resolve(credentials, args.short_code, stage_id)
-    print(response)
-    return 0
+def read_capsule(args):
+    sources = [
+        ('--capsule', args.capsule),
+        ('--capsule-file', args.capsule_file),
+        ('--capsule-stdin', args.capsule_stdin),
+    ]
+    supplied = [(name, value) for name, value in sources if value is not None]
+    if len(supplied) != 1:
+        raise CLIArgumentError(
+            'provide exactly one of --capsule, --capsule-file, or --capsule-stdin'
+        )
+    name, value = supplied[0]
+    try:
+        if name == '--capsule-file':
+            with open(value, 'r', encoding='utf-8') as capsule_file:
+                return capsule_file.read()
+        if name == '--capsule-stdin':
+            return sys.stdin.read()
+        return value
+    except OSError as error:
+        raise CLIArgumentError(f'could not read capsule: {error}') from None
+
+
+def build_design_capsule_arguments(args):
+    fields = args.mcp_fields
+    capsule_destinations = ('capsule', 'capsule_file', 'capsule_stdin')
+    if args.arguments_json is not None:
+        return declared_mcp_arguments(
+            args,
+            fields=fields,
+            required=(),
+            extra_destinations=capsule_destinations,
+        )
+
+    arguments = declared_mcp_arguments(args, fields=fields, required=())
+    arguments['capsule'] = read_capsule(args)
+    target_mode = 'job_id' in arguments
+    update_code = 'update_capsule_short_code_id' in arguments
+    update_version = 'update_capsule_version' in arguments
+    if target_mode:
+        if update_code or update_version:
+            raise CLIArgumentError(
+                'job_id cannot be combined with capsule update arguments'
+            )
+    elif not (update_code and update_version):
+        raise CLIArgumentError(
+            'provide job_id, or both update_capsule_short_code_id and '
+            'update_capsule_version'
+        )
+    if 'task_id' in arguments and not target_mode:
+        raise CLIArgumentError('task_id requires job_id')
+    if not arguments['capsule'].strip():
+        raise CLIArgumentError('capsule must not be blank')
+    return arguments
 
 def certainty_value(raw):
     try:
@@ -3339,6 +3500,89 @@ def timeout_value(raw):
     if not math.isfinite(value) or value < 0:
         raise argparse.ArgumentTypeError(f'timeout must be a finite non-negative number, got {raw!r}')
     return value
+
+
+def nonnegative_int(raw):
+    try:
+        value = int(raw)
+    except (TypeError, ValueError):
+        raise argparse.ArgumentTypeError(
+            f'value must be a non-negative integer, got {raw!r}'
+        ) from None
+    if value < 0:
+        raise argparse.ArgumentTypeError(
+            f'value must be a non-negative integer, got {value}'
+        )
+    return value
+
+
+def positive_int(raw):
+    value = nonnegative_int(raw)
+    if value == 0:
+        raise argparse.ArgumentTypeError('value must be at least 1')
+    return value
+
+
+def severity_value(raw):
+    normalized = severity_code(raw)
+    if normalized not in ('RED', 'YELLOW', 'BLUE'):
+        raise argparse.ArgumentTypeError(
+            'severity must be critical, normal, minor, RED, YELLOW, or BLUE'
+        )
+    return normalized
+
+
+def mcp_field(key, *aliases, transform=None):
+    return key, aliases, transform
+
+
+def add_mcp_common_arguments(command_parser):
+    command_parser.add_argument(
+        '--json',
+        action='store_true',
+        help='Print the exact MCP CallToolResult as JSON instead of readable text.',
+    )
+    command_parser.add_argument(
+        '--arguments-json',
+        metavar='JSON|@FILE|-',
+        help='Supply the complete MCP arguments object inline, from @FILE, or from stdin (-). '
+             'This cannot be combined with method-specific arguments.',
+    )
+
+
+def configure_mcp_parser(command_parser, tool_name, fields=(), required=(),
+                         validator=None, builder=None):
+    add_mcp_common_arguments(command_parser)
+    command_parser.set_defaults(
+        func=cmd_mcp,
+        mcp_name=tool_name,
+        mcp_fields=fields,
+        mcp_required=required,
+        mcp_validator=validator,
+        mcp_builder=builder or declared_mcp_arguments,
+    )
+
+
+def add_uploaded_file_argument(command_parser):
+    command_parser.add_argument(
+        '--uploaded-file',
+        action='append',
+        type=json_object_value,
+        dest='uploaded_files',
+        metavar='JSON|@FILE',
+        help='One metadata object returned by get_upload. Repeat for multiple files.',
+    )
+
+
+def add_option_argument(command_parser):
+    command_parser.add_argument(
+        '-o', '--option',
+        action='append',
+        nargs=2,
+        metavar=('NAME', 'DESCRIPTION'),
+        dest='options',
+        help='An option as NAME DESCRIPTION. Repeat for multiple options.',
+    )
 
 
 def build_parser():
@@ -3519,211 +3763,586 @@ def build_parser():
     )
     update_parser.set_defaults(func=cmd_update, token_audit=None, work_claims=None)
 
+    get_job_parser = subparsers.add_parser(
+        'get_job',
+        help='Return MCP Markdown for a job or one of its items.',
+    )
+    get_job_parser.add_argument('--short-code-id', help='Job or comment short code.')
+    get_job_parser.add_argument(
+        '--include-all-resolved', action='store_true', default=None,
+        help='Include full resolved threads and notes.',
+    )
+    get_job_parser.add_argument(
+        '--section', action='append', dest='sections',
+        choices=['tasks', 'assistance', 'reports', 'notes', 'resolved'],
+        help='Return only this comment section. Repeat for multiple sections.',
+    )
+    get_job_parser.add_argument(
+        '--thread-only', action='store_true', default=None,
+        help='For a nested short code, return only that comment thread.',
+    )
+    get_job_parser.add_argument('-o', '--output', help='Write output to this file.')
+    get_job_fields = (
+        mcp_field('short_code_id', 'short_code_id'),
+        mcp_field('include_all_resolved', 'include_all_resolved'),
+        mcp_field('sections', 'sections'),
+        mcp_field('thread_only', 'thread_only'),
+    )
+    configure_mcp_parser(
+        get_job_parser, 'get_job', get_job_fields, ('short_code_id',)
+    )
+
     report_parser = subparsers.add_parser(
         'report',
-        help='Fetch a job report for a single short code.',
+        help='Compatibility form of get_job that writes job_report.md by default.',
+    )
+    report_parser.add_argument('legacy_short_code_id', nargs='?', help='Job or comment short code.')
+    report_parser.add_argument('--short-code-id', help='Job or comment short code.')
+    report_parser.add_argument(
+        '--include-all-resolved', action='store_true', default=None,
+        help='Include full resolved threads and notes.',
     )
     report_parser.add_argument(
-        'short_code',
-        help='The short code id of the job to fetch (e.g. J-abc-123).',
+        '--section', action='append', dest='sections',
+        choices=['tasks', 'assistance', 'reports', 'notes', 'resolved'],
+        help='Return only this comment section. Repeat for multiple sections.',
     )
     report_parser.add_argument(
-        '-o', '--output',
-        default='job_report.md',
-        help='Path to write the job report to (default: job_report.md).',
+        '--thread-only', action='store_true', default=None,
+        help='For a nested short code, return only that comment thread.',
+    )
+    report_parser.add_argument(
+        '-o', '--output', default='job_report.md',
+        help='Path to write the result (default: job_report.md).',
+    )
+    report_fields = (
+        mcp_field('short_code_id', 'short_code_id', 'legacy_short_code_id'),
+        mcp_field('include_all_resolved', 'include_all_resolved'),
+        mcp_field('sections', 'sections'),
+        mcp_field('thread_only', 'thread_only'),
+    )
+    configure_mcp_parser(report_parser, 'get_job', report_fields, ('short_code_id',))
+
+    add_job_parser = subparsers.add_parser('add_job', help='Create a human-authored job.')
+    add_job_parser.add_argument('--name', help='Job title, at most 80 characters.')
+    add_job_parser.add_argument('--description', help='Markdown job description.')
+    add_job_parser.add_argument(
+        '--task', action='append', dest='tasks',
+        help='Initial task Markdown. Repeat for multiple tasks.',
+    )
+    add_job_parser.add_argument(
+        '--view-short-code-id', help='Existing job or bug whose view receives the job.',
+    )
+    configure_mcp_parser(
+        add_job_parser,
+        'add_job',
+        (
+            mcp_field('name', 'name'),
+            mcp_field('description', 'description'),
+            mcp_field('tasks', 'tasks'),
+            mcp_field('view_short_code_id', 'view_short_code_id'),
+        ),
+        ('name', 'description'),
     )
 
-    report_parser.set_defaults(func=cmd_report)
-
-    approve_parser = subparsers.add_parser(
-        'approve',
-        help='Approve a job with a job short code, certainty, and optional reason.',
-    )
-    approve_parser.add_argument(
-        'job_short_code',
-        help='The short code id of the job to approve (e.g. J-abc-123).',
-    )
-
-    approve_parser.add_argument(
-        'certainty',
-        type=certainty_value,
-        help='Certainty level to approve the job with (integer 1-5).',
-    )
-
-    approve_parser.add_argument(
-        'reason',
-        help='Reason for the approval certainty.',
-    )
-
-    approve_parser.set_defaults(func=cmd_approve)
-
-    add_info_parser = subparsers.add_parser(
-        'add_info',
-        help='Add info a job, option or comment with its short code and the info to add. Returns the created object.',
-    )
-    add_info_parser.add_argument(
-        'short_code',
-        help='The short code id of the job, option, or comment to add info to (e.g. J-abc-123).',
-    )
-    add_info_parser.add_argument(
-        'info',
-        help='Info to add.',
-    )
-    add_info_parser.add_argument(
-        'question_short_code',
-        nargs='?',
-        default=None,
-        help='Optional. If the short code is an option or inside an option then the short code id of the question the option is for (e.g. Q-abc-123).',
-    )
-    add_info_parser.set_defaults(func=cmd_add_info)
-
-    resolve_parser = subparsers.add_parser(
-        'resolve',
-        help='Resolves a job by sending to stage Tasks Complete or a comment by marking resolved. Returns the created object.',
-    )
-    resolve_parser.add_argument(
-        'short_code',
-        help='The short code id of the job or comment to resolve (e.g. J-abc-123).',
-    )
-    resolve_parser.set_defaults(func=cmd_resolve)
-
-    add_question_parser = subparsers.add_parser(
-        'add_question',
-        help='Add a question and optionally options to a job by job short code. Returns the created question.',
-    )
-    add_question_parser.add_argument(
-        'job_short_code',
-        help='The short code id of the job to add the question to (e.g. J-abc-123).',
-    )
-    add_question_parser.add_argument(
-        'question',
-        help='Question text.',
-    )
-    add_question_parser.add_argument(
-        '-o', '--option',
-        action='append',
-        nargs=2,
-        metavar=('NAME', 'DESCRIPTION'),
-        dest='options',
-        default=[],
-        help='An option for the question as NAME DESCRIPTION. Repeat the flag to add multiple options.',
-    )
-
-    add_question_parser.set_defaults(func=cmd_add_question)
-
-    add_options_parser = subparsers.add_parser(
-        'add_options',
-        help='Add options to a question by question short code.',
-    )
-    add_options_parser.add_argument(
-        'question_short_code',
-        help='The short code id of the question to add the options to (e.g. Q-abc-123).',
-    )
-    add_options_parser.add_argument(
-        '-o', '--option',
-        action='append',
-        nargs=2,
-        metavar=('NAME', 'DESCRIPTION'),
-        dest='options',
-        default=[],
-        help='An option for the question as NAME DESCRIPTION. Repeat the flag to add multiple options.',
-    )
-
-    add_options_parser.set_defaults(func=cmd_add_options)
-
-    add_suggestion_parser = subparsers.add_parser(
-        'add_suggestion',
-        help='Add a suggestion to a job by job short code. Returns the created suggestion.',
-    )
-    add_suggestion_parser.add_argument(
-        'job_short_code',
-        help='The short code id of the job to add the question to (e.g. J-abc-123).',
-    )
-    add_suggestion_parser.add_argument(
-        'suggestion',
-        help='Suggestion text.',
-    )
-
-    add_suggestion_parser.set_defaults(func=cmd_add_suggestion)
-
-
-    add_report_parser = subparsers.add_parser(
-        'add_report',
-        help='Add a report to a job by job short code. Returns the created report.',
-    )
-    add_report_parser.add_argument(
-        'job_short_code',
-        help='The short code id of the job to add the question to (e.g. J-abc-123).',
-    )
-    add_report_parser.add_argument(
-        'report',
-        help='Report text.',
-    )
-
-    add_report_parser.set_defaults(func=cmd_add_report)
-
-    add_task_parser = subparsers.add_parser(
+    add_task_parser = subparsers.add_parser('add_task', help='Create a human-authored task.')
+    add_task_parser.add_argument('legacy_job_id', nargs='?', help='Compatibility job short code.')
+    add_task_parser.add_argument('legacy_task', nargs='?', help='Compatibility task Markdown.')
+    add_task_parser.add_argument('--job-id', help='Job short code.')
+    add_task_parser.add_argument('--task', help='Task Markdown.')
+    configure_mcp_parser(
+        add_task_parser,
         'add_task',
-        help='Add a task to a job by job short code, created as you. Returns the created task.',
-    )
-    add_task_parser.add_argument(
-        'job_short_code',
-        help='The short code id of the job to add the task to (e.g. J-abc-123).',
-    )
-    add_task_parser.add_argument(
-        'task',
-        help='Task text.',
+        (
+            mcp_field('job_id', 'job_id', 'legacy_job_id'),
+            mcp_field('task', 'task', 'legacy_task'),
+        ),
+        ('job_id', 'task'),
     )
 
-    add_task_parser.set_defaults(func=cmd_add_task)
-
-    add_bug_parser = subparsers.add_parser(
-        'add_bug',
-        help='Add a view level bug with a severity, created as you. Returns the created bug.',
+    request_work_parser = subparsers.add_parser(
+        'request_work', help='Notify workspace humans that this agent is idle.'
     )
-    add_bug_parser.add_argument(
-        'severity',
-        choices=['critical', 'normal', 'minor'],
-        help='Bug severity: critical shows red, normal yellow, minor blue.',
-    )
-    add_bug_parser.add_argument(
-        'bug',
-        help='Bug text.',
-    )
-
-    add_bug_parser.set_defaults(func=cmd_add_bug)
-
-    add_blocker_parser = subparsers.add_parser(
-        'add_blocker',
-        help='Add a blocker issue to a job by job short code, created as you. Returns the created blocker.',
-    )
-    add_blocker_parser.add_argument(
-        'job_short_code',
-        help='The short code id of the blocked job (e.g. J-abc-123).',
-    )
-    add_blocker_parser.add_argument(
-        'blocker',
-        help='Blocker text; name any dependency short code so completion sweeps find it.',
-    )
-
-    add_blocker_parser.set_defaults(func=cmd_add_blocker)
+    configure_mcp_parser(request_work_parser, 'request_work')
 
     get_upload_parser = subparsers.add_parser(
         'get_upload',
-        help='Return a presigned S3 post for a local file plus its file_url. POST the fields then '
-             'the file as multipart to presigned_post.url, reference file_url in the body, and pass '
-             'metadata in uploaded_files on the creating call.',
+        help='Return a presigned upload form from a local file or explicit metadata.',
     )
+    get_upload_parser.add_argument('legacy_file', nargs='?', help='Compatibility local file path.')
     get_upload_parser.add_argument(
-        'file',
-        help='Path of the local file to size and name the upload for.',
+        'legacy_content_type', nargs='?', help='Compatibility MIME type.'
     )
+    get_upload_parser.add_argument('--file', dest='input_file', help='Local file to size and name.')
+    get_upload_parser.add_argument('--content-type', help='MIME type, for example image/png.')
     get_upload_parser.add_argument(
-        'content_type',
-        help='MIME type of the file, for example image/png.',
+        '--content-length', type=nonnegative_int, help='Exact byte length.'
+    )
+    get_upload_parser.add_argument('--original-name', help='Optional download file name.')
+    configure_mcp_parser(get_upload_parser, 'get_upload', builder=build_get_upload_arguments)
+
+    add_blocker_parser = subparsers.add_parser(
+        'add_blocker', help='Create a human-authored blocker on a job.'
+    )
+    add_blocker_parser.add_argument('legacy_job_id', nargs='?', help='Compatibility job short code.')
+    add_blocker_parser.add_argument('legacy_blocker', nargs='?', help='Compatibility blocker Markdown.')
+    add_blocker_parser.add_argument('--job-id', help='Blocked job short code.')
+    add_blocker_parser.add_argument('--blocker', help='Blocker Markdown.')
+    configure_mcp_parser(
+        add_blocker_parser,
+        'add_blocker',
+        (
+            mcp_field('job_id', 'job_id', 'legacy_job_id'),
+            mcp_field('blocker', 'blocker', 'legacy_blocker'),
+        ),
+        ('job_id', 'blocker'),
     )
 
-    get_upload_parser.set_defaults(func=cmd_get_upload)
+    add_bug_parser = subparsers.add_parser(
+        'add_bug', help='Create a human-authored view-level bug.'
+    )
+    add_bug_parser.add_argument(
+        'legacy_severity', nargs='?', type=severity_value,
+        help='Compatibility severity: critical, normal, or minor.',
+    )
+    add_bug_parser.add_argument('legacy_bug', nargs='?', help='Compatibility bug Markdown.')
+    add_bug_parser.add_argument('--severity', type=severity_value, help='RED, YELLOW, or BLUE severity.')
+    add_bug_parser.add_argument('--bug', help='Bug Markdown.')
+    add_bug_parser.add_argument(
+        '--view-short-code-id', help='Existing job or bug whose view receives the bug.',
+    )
+    configure_mcp_parser(
+        add_bug_parser,
+        'add_bug',
+        (
+            mcp_field('severity', 'severity', 'legacy_severity', transform=severity_code),
+            mcp_field('bug', 'bug', 'legacy_bug'),
+            mcp_field('view_short_code_id', 'view_short_code_id'),
+        ),
+        ('severity', 'bug'),
+    )
+
+    resolve_parser = subparsers.add_parser(
+        'resolve', help='Resolve a job, task, question, option, or other comment through MCP.'
+    )
+    resolve_parser.add_argument('legacy_short_code_id', nargs='?', help='Compatibility target short code.')
+    resolve_parser.add_argument('--short-code-id', help='Target short code.')
+    resolve_parser.add_argument(
+        '--parent-question-short-code-id',
+        help='Enclosing question short code for a local option or nested item.',
+    )
+    configure_mcp_parser(
+        resolve_parser,
+        'resolve',
+        (
+            mcp_field('short_code_id', 'short_code_id', 'legacy_short_code_id'),
+            mcp_field('parent_question_short_code_id', 'parent_question_short_code_id'),
+        ),
+        ('short_code_id',),
+    )
+
+    notifications_parser = subparsers.add_parser(
+        'get_notifications', help='Return urgency-ordered workspace notifications.'
+    )
+    configure_mcp_parser(notifications_parser, 'get_notifications')
+
+    clear_notifications_parser = subparsers.add_parser(
+        'clear_notifications', help='Clear notifications for one explicitly authorized object.'
+    )
+    clear_notifications_parser.add_argument('--short-code-id', help='Job or comment short code.')
+    configure_mcp_parser(
+        clear_notifications_parser,
+        'clear_notifications',
+        (mcp_field('short_code_id', 'short_code_id'),),
+        ('short_code_id',),
+    )
+
+    approve_canonical_parser = subparsers.add_parser(
+        'approve_job_or_option', help='Approve a job or local option.'
+    )
+    approve_canonical_parser.add_argument('--job-or-option-id', help='Job or option short code.')
+    approve_canonical_parser.add_argument('--certainty', type=certainty_value, help='Integer certainty 1-5.')
+    approve_canonical_parser.add_argument('--reason', help='Optional reason for the certainty.')
+    approve_canonical_parser.add_argument(
+        '--parent-question-short-code-id', help='Enclosing question for a local option.'
+    )
+    approval_fields = (
+        mcp_field('job_or_option_id', 'job_or_option_id'),
+        mcp_field('certainty', 'certainty'),
+        mcp_field('reason', 'reason'),
+        mcp_field('parent_question_short_code_id', 'parent_question_short_code_id'),
+    )
+    configure_mcp_parser(
+        approve_canonical_parser,
+        'approve_job_or_option',
+        approval_fields,
+        ('job_or_option_id', 'certainty'),
+    )
+
+    approve_parser = subparsers.add_parser(
+        'approve', help='Compatibility positional form of approve_job_or_option.'
+    )
+    approve_parser.add_argument('legacy_job_or_option_id', nargs='?', help='Job or option short code.')
+    approve_parser.add_argument(
+        'legacy_certainty', nargs='?', type=certainty_value, help='Integer certainty 1-5.'
+    )
+    approve_parser.add_argument('legacy_reason', nargs='?', help='Optional certainty reason.')
+    approve_parser.add_argument('--job-or-option-id', help='Job or option short code.')
+    approve_parser.add_argument('--certainty', type=certainty_value, help='Integer certainty 1-5.')
+    approve_parser.add_argument('--reason', help='Optional certainty reason.')
+    approve_parser.add_argument(
+        '--parent-question-short-code-id', help='Enclosing question for a local option.'
+    )
+    configure_mcp_parser(
+        approve_parser,
+        'approve_job_or_option',
+        (
+            mcp_field('job_or_option_id', 'job_or_option_id', 'legacy_job_or_option_id'),
+            mcp_field('certainty', 'certainty', 'legacy_certainty'),
+            mcp_field('reason', 'reason', 'legacy_reason'),
+            mcp_field('parent_question_short_code_id', 'parent_question_short_code_id'),
+        ),
+        ('job_or_option_id', 'certainty'),
+    )
+
+    vote_parser = subparsers.add_parser(
+        'vote_on_suggestion', help='Vote for or against a suggestion.'
+    )
+    vote_parser.add_argument('--suggestion-short-code', help='Suggestion short code.')
+    vote_direction = vote_parser.add_mutually_exclusive_group()
+    vote_direction.add_argument('--for', dest='is_for', action='store_const', const=True)
+    vote_direction.add_argument('--against', dest='is_for', action='store_const', const=False)
+    vote_parser.add_argument('--certainty', type=certainty_value, help='Integer certainty 1-5.')
+    vote_parser.add_argument('--reason', help='Optional certainty reason.')
+    configure_mcp_parser(
+        vote_parser,
+        'vote_on_suggestion',
+        (
+            mcp_field('suggestion_short_code', 'suggestion_short_code'),
+            mcp_field('is_for', 'is_for'),
+            mcp_field('certainty', 'certainty'),
+            mcp_field('reason', 'reason'),
+        ),
+        ('suggestion_short_code', 'is_for', 'certainty'),
+    )
+
+    add_info_parser = subparsers.add_parser(
+        'add_info', help='Add AI-authored information to a job, option, or comment.'
+    )
+    add_info_parser.add_argument('legacy_short_code_id', nargs='?', help='Compatibility target short code.')
+    add_info_parser.add_argument('legacy_info', nargs='?', help='Compatibility information Markdown.')
+    add_info_parser.add_argument(
+        'legacy_parent_question_short_code_id', nargs='?',
+        help='Compatibility enclosing question short code.',
+    )
+    add_info_parser.add_argument('--short-code-id', help='Target short code.')
+    add_info_parser.add_argument('--info', help='Information Markdown.')
+    add_info_parser.add_argument(
+        '--parent-question-short-code-id', help='Enclosing question for a nested target.'
+    )
+    add_info_parser.add_argument('--tz', help='Timezone override (defaults to the local timezone).')
+    add_uploaded_file_argument(add_info_parser)
+    configure_mcp_parser(
+        add_info_parser,
+        'add_info',
+        (
+            mcp_field('short_code_id', 'short_code_id', 'legacy_short_code_id'),
+            mcp_field('info', 'info', 'legacy_info'),
+            mcp_field(
+                'parent_question_short_code_id',
+                'parent_question_short_code_id',
+                'legacy_parent_question_short_code_id',
+            ),
+            mcp_field('tz', 'tz'),
+            mcp_field('uploaded_files', 'uploaded_files'),
+        ),
+        ('short_code_id', 'info'),
+        builder=build_add_info_arguments,
+    )
+
+    ask_question_parser = subparsers.add_parser(
+        'ask_question', help='Ask a question on a job or convert a view-level bug atomically.'
+    )
+    ask_question_parser.add_argument('--job-id', help='Job or view-level bug short code.')
+    ask_question_parser.add_argument('--question', help='Question Markdown.')
+    ask_question_parser.add_argument('--name', help='Optional converted bug job name.')
+    add_option_argument(ask_question_parser)
+    add_uploaded_file_argument(ask_question_parser)
+    question_fields = (
+        mcp_field('job_id', 'job_id'),
+        mcp_field('question', 'question'),
+        mcp_field('name', 'name'),
+        mcp_field('options', 'options', transform=option_pairs),
+        mcp_field('uploaded_files', 'uploaded_files'),
+    )
+    configure_mcp_parser(
+        ask_question_parser,
+        'ask_question',
+        question_fields,
+        ('job_id', 'question'),
+        validator=validate_question,
+    )
+
+    add_question_parser = subparsers.add_parser(
+        'add_question', help='Compatibility positional form of ask_question.'
+    )
+    add_question_parser.add_argument('legacy_job_id', nargs='?', help='Job or view-level bug short code.')
+    add_question_parser.add_argument('legacy_question', nargs='?', help='Question Markdown.')
+    add_question_parser.add_argument('--job-id', help='Job or view-level bug short code.')
+    add_question_parser.add_argument('--question', help='Question Markdown.')
+    add_question_parser.add_argument('--name', help='Optional converted bug job name.')
+    add_option_argument(add_question_parser)
+    add_uploaded_file_argument(add_question_parser)
+    configure_mcp_parser(
+        add_question_parser,
+        'ask_question',
+        (
+            mcp_field('job_id', 'job_id', 'legacy_job_id'),
+            mcp_field('question', 'question', 'legacy_question'),
+            mcp_field('name', 'name'),
+            mcp_field('options', 'options', transform=option_pairs),
+            mcp_field('uploaded_files', 'uploaded_files'),
+        ),
+        ('job_id', 'question'),
+        validator=validate_question,
+    )
+
+    add_options_parser = subparsers.add_parser('add_options', help='Add options to a question.')
+    add_options_parser.add_argument(
+        'legacy_question_id', nargs='?', help='Compatibility question short code.'
+    )
+    add_options_parser.add_argument('--question-id', help='Question short code.')
+    add_option_argument(add_options_parser)
+    configure_mcp_parser(
+        add_options_parser,
+        'add_options',
+        (
+            mcp_field('question_id', 'question_id', 'legacy_question_id'),
+            mcp_field('options', 'options', transform=option_pairs),
+        ),
+        ('question_id', 'options'),
+        validator=validate_required_options,
+    )
+
+    update_option_parser = subparsers.add_parser(
+        'update_option', help='Replace an option while preserving its identity.'
+    )
+    update_option_parser.add_argument(
+        '--parent-question-short-code-id', help='Enclosing question short code.'
+    )
+    update_option_parser.add_argument('--option-id', help='Local option short code.')
+    update_option_parser.add_argument('--name', help='Complete replacement option name.')
+    update_option_parser.add_argument('--description', help='Complete replacement Markdown description.')
+    configure_mcp_parser(
+        update_option_parser,
+        'update_option',
+        (
+            mcp_field('parent_question_short_code_id', 'parent_question_short_code_id'),
+            mcp_field('option_id', 'option_id'),
+            mcp_field('name', 'name'),
+            mcp_field('description', 'description'),
+        ),
+        ('parent_question_short_code_id', 'option_id', 'name', 'description'),
+    )
+
+    find_work_parser = subparsers.add_parser('find_work', help='Return ordered available work.')
+    configure_mcp_parser(find_work_parser, 'find_work')
+
+    make_suggestion_parser = subparsers.add_parser(
+        'make_suggestion', help='Create an AI-authored suggestion on a job or in a view.'
+    )
+    make_suggestion_parser.add_argument('--job-id', help='Optional job short code.')
+    make_suggestion_parser.add_argument('--suggestion', help='Suggestion Markdown.')
+    make_suggestion_parser.add_argument(
+        '--view-short-code-id', help='Derived view target when no job is supplied.'
+    )
+    add_uploaded_file_argument(make_suggestion_parser)
+    suggestion_fields = (
+        mcp_field('job_id', 'job_id'),
+        mcp_field('suggestion', 'suggestion'),
+        mcp_field('view_short_code_id', 'view_short_code_id'),
+        mcp_field('uploaded_files', 'uploaded_files'),
+    )
+    configure_mcp_parser(
+        make_suggestion_parser,
+        'make_suggestion',
+        suggestion_fields,
+        ('suggestion',),
+        validator=validate_suggestion,
+    )
+
+    add_suggestion_parser = subparsers.add_parser(
+        'add_suggestion', help='Compatibility positional form of make_suggestion.'
+    )
+    add_suggestion_parser.add_argument('legacy_job_id', nargs='?', help='Compatibility job short code.')
+    add_suggestion_parser.add_argument('legacy_suggestion', nargs='?', help='Compatibility suggestion Markdown.')
+    add_suggestion_parser.add_argument('--job-id', help='Optional job short code.')
+    add_suggestion_parser.add_argument('--suggestion', help='Suggestion Markdown.')
+    add_suggestion_parser.add_argument(
+        '--view-short-code-id', help='Derived view target when no job is supplied.'
+    )
+    add_uploaded_file_argument(add_suggestion_parser)
+    configure_mcp_parser(
+        add_suggestion_parser,
+        'make_suggestion',
+        (
+            mcp_field('job_id', 'job_id', 'legacy_job_id'),
+            mcp_field('suggestion', 'suggestion', 'legacy_suggestion'),
+            mcp_field('view_short_code_id', 'view_short_code_id'),
+            mcp_field('uploaded_files', 'uploaded_files'),
+        ),
+        ('suggestion',),
+        validator=validate_suggestion,
+    )
+
+    change_stage_parser = subparsers.add_parser(
+        'change_job_stage', help='Move a job to an explicitly authorized stage.'
+    )
+    change_stage_parser.add_argument('--job-id', help='Job short code.')
+    change_stage_parser.add_argument(
+        '--stage', choices=['Approvable', 'Doable', 'Backlog', 'Reviewable', 'Skippable']
+    )
+    configure_mcp_parser(
+        change_stage_parser,
+        'change_job_stage',
+        (mcp_field('job_id', 'job_id'), mcp_field('stage', 'stage')),
+        ('job_id', 'stage'),
+    )
+
+    ask_review_parser = subparsers.add_parser(
+        'ask_for_review', help='Create or update an AI-authored progress review.'
+    )
+    ask_review_parser.add_argument('--job-id', help='Job short code for create mode.')
+    ask_review_parser.add_argument(
+        '--update-review-short-code-id', help='Existing review short code for update mode.'
+    )
+    ask_review_parser.add_argument('--report', help='Complete report Markdown.')
+    add_uploaded_file_argument(ask_review_parser)
+    review_fields = (
+        mcp_field('job_id', 'job_id'),
+        mcp_field('update_review_short_code_id', 'update_review_short_code_id'),
+        mcp_field('report', 'report'),
+        mcp_field('uploaded_files', 'uploaded_files'),
+    )
+    configure_mcp_parser(
+        ask_review_parser,
+        'ask_for_review',
+        review_fields,
+        ('report',),
+        validator=validate_review,
+    )
+
+    add_report_parser = subparsers.add_parser(
+        'add_report', help='Compatibility positional form of ask_for_review create mode.'
+    )
+    add_report_parser.add_argument('legacy_job_id', nargs='?', help='Compatibility job short code.')
+    add_report_parser.add_argument('legacy_report', nargs='?', help='Compatibility report Markdown.')
+    add_report_parser.add_argument('--job-id', help='Job short code for create mode.')
+    add_report_parser.add_argument(
+        '--update-review-short-code-id', help='Existing review short code for update mode.'
+    )
+    add_report_parser.add_argument('--report', help='Complete report Markdown.')
+    add_uploaded_file_argument(add_report_parser)
+    configure_mcp_parser(
+        add_report_parser,
+        'ask_for_review',
+        (
+            mcp_field('job_id', 'job_id', 'legacy_job_id'),
+            mcp_field('update_review_short_code_id', 'update_review_short_code_id'),
+            mcp_field('report', 'report', 'legacy_report'),
+            mcp_field('uploaded_files', 'uploaded_files'),
+        ),
+        ('report',),
+        validator=validate_review,
+    )
+
+    capsule_parser = subparsers.add_parser(
+        'set_design_capsule', help='Create or conflict-safely replace an intent/design capsule.'
+    )
+    capsule_parser.add_argument('--job-id', help='Job short code for target mode.')
+    capsule_parser.add_argument('--task-id', help='Optional task short code in target mode.')
+    capsule_parser.add_argument(
+        '--update-capsule-short-code-id', help='Current capsule short code for update mode.'
+    )
+    capsule_parser.add_argument(
+        '--update-capsule-version', type=positive_int,
+        help='Expected current capsule version for update mode.',
+    )
+    capsule_source = capsule_parser.add_mutually_exclusive_group()
+    capsule_source.add_argument('--capsule', help='Complete capsule Markdown.')
+    capsule_source.add_argument('--capsule-file', help='Read complete capsule Markdown from a file.')
+    capsule_source.add_argument(
+        '--capsule-stdin', action='store_const', const=True, default=None,
+        help='Read complete capsule Markdown from stdin.',
+    )
+    configure_mcp_parser(
+        capsule_parser,
+        'set_design_capsule',
+        (
+            mcp_field('job_id', 'job_id'),
+            mcp_field('task_id', 'task_id'),
+            mcp_field('update_capsule_short_code_id', 'update_capsule_short_code_id'),
+            mcp_field('update_capsule_version', 'update_capsule_version'),
+        ),
+        builder=build_design_capsule_arguments,
+    )
+
+    view_note_parser = subparsers.add_parser(
+        'add_view_note', help='Create or update an AI-authored standing view note.'
+    )
+    view_note_parser.add_argument(
+        '--view-short-code-id', help='Existing job or bug whose view receives a new note.'
+    )
+    view_note_parser.add_argument(
+        '--update-note-short-code-id', help='Existing AI-authored note to update.'
+    )
+    view_note_parser.add_argument('--note', help='Complete note Markdown.')
+    add_uploaded_file_argument(view_note_parser)
+    configure_mcp_parser(
+        view_note_parser,
+        'add_view_note',
+        (
+            mcp_field('view_short_code_id', 'view_short_code_id'),
+            mcp_field('update_note_short_code_id', 'update_note_short_code_id'),
+            mcp_field('note', 'note'),
+            mcp_field('uploaded_files', 'uploaded_files'),
+        ),
+        ('note',),
+        validator=validate_view_note,
+    )
+
+    add_view_parser = subparsers.add_parser('add_view', help='Create a human-authored workspace view.')
+    add_view_parser.add_argument('--name', help='View name, except AUTONOMOUS may omit it.')
+    add_view_parser.add_argument(
+        '--group-type', choices=['TEAM', 'EVERYONE', 'AUTONOMOUS'],
+        help='View type (default behavior is TEAM).',
+    )
+    configure_mcp_parser(
+        add_view_parser,
+        'add_view',
+        (mcp_field('name', 'name'), mcp_field('group_type', 'group_type')),
+        validator=validate_view,
+    )
+
+    invite_parser = subparsers.add_parser(
+        'get_invite_link', help='Return the workspace invite link.'
+    )
+    configure_mcp_parser(invite_parser, 'get_invite_link')
+
+    collaborators_parser = subparsers.add_parser(
+        'add_collaborators', help='Invite collaborators and optionally place them in a view.'
+    )
+    collaborators_parser.add_argument(
+        '--email', action='append', dest='emails', help='Email address. Repeat for multiple people.'
+    )
+    collaborators_parser.add_argument('--view', help='Optional existing view name.')
+    configure_mcp_parser(
+        collaborators_parser,
+        'add_collaborators',
+        (mcp_field('emails', 'emails'), mcp_field('view', 'view')),
+        ('emails',),
+        validator=validate_collaborators,
+    )
 
     return parser
 

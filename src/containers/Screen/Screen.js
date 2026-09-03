@@ -546,7 +546,7 @@ function Screen(props) {
         </div>
       )}
 
-      <div className={contentClass} style={{
+      <div className={contentClass} data-page-scroll-container={!hidden} style={{
         maxWidth: leftNavAdjust ? `calc(100vw - ${leftNavAdjust}px)` : undefined,
         backgroundColor: pageBackground || undefined
       }}>

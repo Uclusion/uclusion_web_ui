@@ -137,6 +137,31 @@ export function preventDefaultAndProp(event) {
   }
 }
 
+function hasExplicitScrollTarget(to) {
+  if (typeof to !== 'string') {
+    return false;
+  }
+  const [pathAndQuery, hashFragment] = to.split('#');
+  if (!hashFragment || [ASSIGNED_HASH, BACKLOG_HASH, DISCUSSION_HASH].includes(hashFragment)) {
+    return false;
+  }
+  const [pathname] = pathAndQuery.split('?');
+  const { action } = decomposeMarketPath(pathname);
+  return pathname === '/' || ['dialog', 'inbox', 'comment'].includes(action);
+}
+
+function resetPageScrollAfterNavigation(to) {
+  if (hasExplicitScrollTarget(to)) {
+    return;
+  }
+  window.setTimeout(() => {
+    window.scrollTo(0, 0);
+    document.querySelectorAll('[data-page-scroll-container="true"]').forEach((element) => {
+      element.scrollTop = 0;
+    });
+  }, 0);
+}
+
 export function navigate(history, to, insideUseEffect, doNotAddToHistory) {
   const {
     action: fromAction,
@@ -146,13 +171,12 @@ export function navigate(history, to, insideUseEffect, doNotAddToHistory) {
   rememberOriginIfEnteringJob(history.location.pathname, history.location.search, to);
   broadcastView(fromMarketId, fromInvestibleId, false, fromAction);
   if (to) {
-    // If going somewhere new previous scroll position no longer relevant
-    window.scrollTo(0, 0);
     if (insideUseEffect) {
       // Without the set timeout the use effect can be re-run before the push is complete
       // though not clear why that run wouldn't run it again.
       setTimeout(() => {
         history.push(to);
+        resetPageScrollAfterNavigation(to);
       }, 0);
     } else {
       if (doNotAddToHistory) {
@@ -160,6 +184,7 @@ export function navigate(history, to, insideUseEffect, doNotAddToHistory) {
       } else {
         history.push(to);
       }
+      resetPageScrollAfterNavigation(to);
     }
   } else {
     if (insideUseEffect) {

@@ -52,6 +52,10 @@ same boundary.
 
 When workspace data can answer a request and is not already loaded, run the
 environment-correct `uclusion export` and search the reported Markdown.
+Run it without `-o` or `--output` so the CLI uses the configured
+`uclusionMDFolderPath`, then search the path reported by the command. Never
+redirect an ordinary workflow export to `/tmp` or another destination; override
+the configured path only when the human explicitly requests a different one.
 Exports include jobs, comments, options, votes, reasons, and UTC update dates.
 Use those dates for recency.
 

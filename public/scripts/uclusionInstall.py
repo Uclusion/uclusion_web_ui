@@ -140,7 +140,7 @@ SCRIPT_FILES = (
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCLI.py':
-        'e40bbe4564dcbb2b4d6d8be27ba9632a0f460cf5b648f33a86f04ad00e0c0d11',
+        'af619feee5b1804398c0933b8ac5fa434be5babb1515bc42adca6696b074b9f5',
     'uclusionMCPProxy.py':
         '285bae5fb7789d42c12b58dfa56e1a31447397445563a68009a0d7f568efb315',
     'uclusionSetupMCP.py':

@@ -280,6 +280,7 @@ WORKFLOW_ASSET_PATHS = {
     'skill': 'skills/uclusion/SKILL.md',
     'pokes_reference': 'skills/uclusion/references/pokes.md',
     'operations_reference': 'skills/uclusion/references/operations.md',
+    'completion_reference': 'skills/uclusion/references/completion.md',
     'openai_metadata': 'skills/uclusion/agents/openai.yaml',
     'design_skill': 'skills/uclusion-design/SKILL.md',
     'design_examples': 'skills/uclusion-design/references/examples.md',
@@ -291,9 +292,10 @@ WORKFLOW_ASSET_SHA256 = {
     'claude_stub': 'b89451b4cf5dbba8199e2b2ac138e58250077415a1da6cac32e5e70ab03f425b',
     'codex_stub': '02ea82a01620a5909ea40ea33d0ed67a27f275b808d926e21f753cb51861135e',
     'cursor_stub': '2e4bf88903896ba312738f9a4ab7163582df99050b62f13e0e0324a6580a412f',
-    'skill': '7519075326cef3a8f5084d40167f796894d8594ad846f735d093f23f65de13ec',
-    'pokes_reference': 'a00bc9f2b827e2c0c68d961d6e5507d9fcb9f3470fc6ae3eba5ba149c604ebd3',
-    'operations_reference': 'b95aaa1df5768c153988522448da4fbae2972ead1549960bfbf33bc707900569',
+    'skill': '1a2c1d57ec5f72bc252f2adc2de6807564ff72e5194a80c7af886c01c4ea5357',
+    'pokes_reference': 'be7cff2f5ccc75064c83073ce36cf0d9dbc36fe5f0bddd2ebadb840c80c8d6f9',
+    'operations_reference': '8a3dd29f7abe1bb79d63fef9c1f61970ed88bccbbad86e295d464de10c224752',
+    'completion_reference': 'accd3b8f2f5d37a94c8d8a58a2aaef4c1ae1225a3c574db2af279e3ab5249684',
     'openai_metadata': 'ecf2759354ff3bbfd7178452a705650aff7a13352458bb20e1df122da7c30f40',
     'design_skill': '06280e77c24a8819d975435c1c678ac42ed372bbfbf4b2fedded60097fd89df9',
     'design_examples': '49978a3c50b40a676379511a289cef860a70875eb18e8bed8898076192bf4aad',
@@ -307,6 +309,7 @@ CLIENT_STUB_ASSET = {
 SKILL_PACKAGE_ASSETS = (
     ('pokes_reference', os.path.join('references', 'pokes.md')),
     ('operations_reference', os.path.join('references', 'operations.md')),
+    ('completion_reference', os.path.join('references', 'completion.md')),
     ('openai_metadata', os.path.join('agents', 'openai.yaml')),
     # Publish the entrypoint last so an interrupted refresh never exposes a
     # new SKILL.md before all files it routes to are durable.
@@ -2345,7 +2348,9 @@ def validate_workflow_bundle(bundle):
                 f'workflow asset {key} exceeds the 500-line entrypoint budget'
             )
 
-    for key in ('pokes_reference', 'operations_reference'):
+    for key, relative_path in SKILL_PACKAGE_ASSETS:
+        if os.path.dirname(relative_path) != 'references':
+            continue
         reference = bundle[key]
         if (
             reference.count(SKILL_REFERENCE_MARKER) != 1

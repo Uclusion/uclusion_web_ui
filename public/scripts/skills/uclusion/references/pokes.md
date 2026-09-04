@@ -177,6 +177,22 @@ Reload and resume it only when that job is already the session's assignment.
 An idle session or a session assigned elsewhere does not activate because the
 job became executable.
 
+A job moving into Reviewable is also an `Updated` state transition. For the
+assigned lane, compare the reloaded stage with the stage this session last
+observed. When it changes from any other stage into Reviewable, read
+`completion.md` and run both completion scans once before handling review. A
+successful in-session stage change to Reviewable follows the same rule. Merely
+loading a job already in Reviewable, or receiving another update while it stays
+there, does not retrigger the sweep. After the job leaves Reviewable, a later
+transition back into it is a new trigger.
+
+Resolving a standalone bug is also an `Updated` state transition. For an
+assigned bug, compare its reloaded resolution state with the state this session
+last observed. When it changes from open to resolved, read `completion.md` and
+run both completion scans once. A successful in-session Resolve follows the
+same rule immediately. Merely loading a bug already resolved, or receiving
+another update while it remains resolved, does not retrigger the sweep.
+
 A legacy bare `Responded.` has no target. Reload only the outstanding
 dependency of the assigned lane. With no assignment, ignore it.
 

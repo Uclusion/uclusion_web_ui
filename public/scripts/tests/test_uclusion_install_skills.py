@@ -127,6 +127,15 @@ class SkillPackageContractTests(unittest.TestCase):
             references,
             'SKILL.md must route detailed workflow instructions to references/',
         )
+        self.assertIn('references/completion.md', references)
+        packaged_paths = {
+            destination.replace(os.sep, '/')
+            for _key, destination in INSTALL.SKILL_PACKAGE_ASSETS
+        }
+        self.assertEqual(
+            ('skill', 'SKILL.md'),
+            INSTALL.SKILL_PACKAGE_ASSETS[-1],
+        )
         for relative_path in references:
             self.assertNotIn('..', relative_path.split('/'))
             self.assertEqual(2, len(relative_path.split('/')))
@@ -139,6 +148,11 @@ class SkillPackageContractTests(unittest.TestCase):
             self.assertEqual(1, reference.count(INSTALL.SKILL_REFERENCE_MARKER))
             self.assertEqual(
                 1, reference.count(INSTALL.SKILL_REFERENCE_END_MARKER)
+            )
+            self.assertIn(
+                relative_path,
+                packaged_paths,
+                f'SKILL.md reference is not packaged: {relative_path}',
             )
 
     def test_skill_package_does_not_capture_workspace_specific_short_codes(self):

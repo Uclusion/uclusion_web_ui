@@ -20,20 +20,29 @@ SPEC.loader.exec_module(INSTALL)
 class WorkflowProtocolContractTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        pokes_path = os.path.join(
+            SCRIPT_DIR, 'skills', 'uclusion', 'references', 'pokes.md'
+        )
+        completion_path = os.path.join(
+            SCRIPT_DIR, 'skills', 'uclusion', 'references', 'completion.md'
+        )
         workflow_paths = (
             os.path.join(SCRIPT_DIR, 'skills', 'uclusion', 'SKILL.md'),
-            os.path.join(
-                SCRIPT_DIR, 'skills', 'uclusion', 'references', 'pokes.md'
-            ),
+            pokes_path,
             os.path.join(
                 SCRIPT_DIR, 'skills', 'uclusion', 'references', 'operations.md'
             ),
+            completion_path,
         )
         parts = []
         for workflow_path in workflow_paths:
             with open(workflow_path, encoding='utf-8') as workflow:
                 parts.append(workflow.read())
         cls.workflow = ' '.join(' '.join(parts).split())
+        with open(pokes_path, encoding='utf-8') as pokes:
+            cls.pokes_workflow = ' '.join(pokes.read().split())
+        with open(completion_path, encoding='utf-8') as completion:
+            cls.completion_workflow = ' '.join(completion.read().split())
         with open(
             os.path.join(SCRIPT_DIR, 'AGENTS.md'), encoding='utf-8'
         ) as codex_stub:
@@ -463,6 +472,115 @@ class WorkflowProtocolContractTests(unittest.TestCase):
         )
         self.assertIn(
             'Never convert a bug merely to ask an open-ended question',
+            self.workflow,
+        )
+
+    def test_completion_sweeps_use_reliable_lifecycle_triggers(self):
+        completion = self.completion_workflow
+        required_completion_rules = (
+            'Run both scans when a standalone bug is resolved or whenever a '
+            'job transitions into Reviewable',
+            'if the job leaves Reviewable and later returns, that later '
+            'transition runs a new sweep',
+            'Merely loading a job that is already Reviewable, or receiving '
+            'another update while it remains there, is not a trigger',
+            'Individual task completion, the act of requesting review, using '
+            'a completed code in a commit, '
+            'resolving the job, later human signoff, and shipped or fixed '
+            'confirmation are not independent job triggers',
+            'A subsequent transition into Reviewable remains a trigger',
+            'run one fresh, environment-correct `uclusion export` through the '
+            'configured destination',
+            'Use only the path reported by that successful command for both '
+            'scans',
+            'never use an older export or redirect the export to `/tmp`',
+            'completed-code set starts with the resolved bug or Reviewable '
+            "job's exact short code",
+            'every contained item rendered as a `Task` or `Grouped task`',
+            'Membership comes from its rendered role and containment, not '
+            'its prefix',
+            'use the record available at the trigger',
+            'current completion/review report when each is present',
+            'Rejected, unresolved, and speculative proposals are not evidence',
+            'exact completed-code or exact Uclusion-link-target match inside '
+            'open blockers on other jobs or bugs',
+            'Keep each matching blocker once even when it names several '
+            'completed codes',
+            'unresolved jobs in every stage except Reviewable and Skippable',
+            'unresolved view-level bugs',
+            'current outcome must have causally changed whether or how the '
+            'candidate should proceed',
+            'Assign exactly one semantic category',
+            'Merge both scans by target into one numbered list',
+            '<exact code> — <exact short description>',
+            'Proposed action: <specific human action>',
+            'with `add_info` on the triggering source item',
+            'Do not call `make_suggestion`, `add_info`, or any other mutating '
+            'tool on a candidate during the sweep',
+            "Never resolve, edit, or change a candidate's stage during it",
+            'reload the exact target because the export may no longer be '
+            'current',
+            'No completion-sweep candidates: no open dependency blocker '
+            'matched the triggering work',
+        )
+        for rule in required_completion_rules:
+            with self.subTest(rule=rule):
+                self.assertIn(rule, completion)
+
+        for category in ('**duplicate**', '**obsolete**', '**modify**'):
+            self.assertIn(category, completion)
+        self.assertNotIn('accepted-outcome scan', completion)
+        self.assertNotIn('runs only the dependency scan', completion)
+
+        pokes = self.pokes_workflow
+        for rule in (
+            'A job moving into Reviewable is also an `Updated` state '
+            'transition',
+            'compare the reloaded stage with the stage this session last '
+            'observed',
+            'from any other stage into Reviewable',
+            'read `completion.md` and run both completion scans once before '
+            'handling review',
+            'A successful in-session stage change to Reviewable follows the '
+            'same rule',
+            'loading a job already in Reviewable, or receiving another update '
+            'while it stays there, does not retrigger the sweep',
+            'later transition back into it is a new trigger',
+            'Resolving a standalone bug is also an `Updated` state transition',
+            'compare its reloaded resolution state with the state this session '
+            'last observed',
+            'When it changes from open to resolved, read `completion.md` and '
+            'run both completion scans once',
+            'A successful in-session Resolve follows the same rule immediately',
+            'Merely loading a bug already resolved, or receiving another '
+            'update while it remains resolved, does not retrigger the sweep',
+        ):
+            with self.subTest(rule=rule):
+                self.assertIn(rule, pokes)
+
+        self.assertIn(
+            'When a standalone bug is resolved or an assigned job transitions '
+            'into Reviewable, read',
+            self.workflow,
+        )
+        self.assertIn(
+            'Do not rerun the completion sweep for a later job Resolve, '
+            'signoff, shipped confirmation, or commit',
+            self.workflow,
+        )
+        self.assertIn(
+            'If this session moved the job into Reviewable, run the sweep '
+            'immediately instead of waiting for its `Updated` Poke',
+            self.workflow,
+        )
+        self.assertIn(
+            'ensure the completion sweep for that resolution transition has '
+            'run once',
+            self.workflow,
+        )
+        self.assertIn(
+            'exceptions are the resolved-bug and Reviewable-transition sweeps '
+            'in `pokes.md`',
             self.workflow,
         )
 

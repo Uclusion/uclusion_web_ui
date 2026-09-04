@@ -9,7 +9,7 @@
 - Workspace export and decision search
 - Creating jobs and human-authored artifacts
 - Uploading files
-- Job dependencies
+- Recording dependencies
 - Saving general lessons as view notes
 
 ## Durable threading and commit identities
@@ -88,15 +88,10 @@ Reference `file_url` in the artifact body and pass its metadata through
 `uploaded_files` on the creating tool call. An unreferenced upload is not
 retained. File bytes do not pass through the model.
 
-## Job dependencies
+## Recording dependencies
 
 Uclusion has no first-class job dependency. A human-confirmed blocker on the
 blocked job names the prerequisite job's short code.
-
-At every completion moment—job Resolve, a completed job code in a commit, or
-human confirmation that it shipped—export and search open blockers for that
-job code. Show each dependent job and offer to resolve its blocker. Never
-resolve unasked; it may encode more than one condition.
 
 ## Saving general lessons as view notes
 

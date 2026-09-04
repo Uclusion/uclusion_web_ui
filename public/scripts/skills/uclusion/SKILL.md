@@ -14,13 +14,19 @@ skill owns event handling and the job workflow.
 
 - For Pokes, idle work discovery, auto-take, delivery behavior, lookup routing,
   or update notices, read [references/pokes.md](references/pokes.md).
-- For notifications, exports, creating artifacts, uploads, dependencies,
-  view notes, commits, or context-clear boundaries, read
+- For notifications, exports, creating artifacts, uploads, recording
+  dependencies, view notes, commits, or context-clear boundaries, read
   [references/operations.md](references/operations.md).
+- When a standalone bug is resolved or an assigned job transitions into
+  Reviewable, read
+  [references/completion.md](references/completion.md).
 - Before every lane handoff, read `pokes.md` and perform its assignment-aware
   immediate work discovery rules. Also read `operations.md` when resolving a
-  bug/job, opening review, or receiving sign-off and committing. On full
-  completion, apply its dependency and context-boundary rules too.
+  bug/job, opening review, or receiving sign-off and committing. On standalone
+  bug resolution, also read `completion.md` and apply its sweep before the
+  operations reference's remaining completion actions. Job transitions into
+  Reviewable are routed by `pokes.md` or handled immediately after a successful
+  in-session stage change.
 
 ## Non-negotiable invariants
 
@@ -363,9 +369,15 @@ In Reviewable, inspect the author of the latest Reports comment:
   on explicit feedback or a stage change.
 - From a human: review the human's work and reply through Uclusion.
 
-A Poke only triggers reload; it does not change that direction, except that a
-current capsule's `Updated` event also requires the obsolete-review cleanup in
-the capsule section above.
+Before interpreting the report for a job that just transitioned into
+Reviewable, apply the transition rule in `pokes.md` and finish its completion
+sweep. If this session moved the job into Reviewable, run the sweep immediately
+instead of waiting for its `Updated` Poke.
+
+A Poke only triggers reload; it does not otherwise change that direction. The
+exceptions are the resolved-bug and Reviewable-transition sweeps in `pokes.md`,
+and a current capsule's `Updated` event, which also requires the obsolete-review
+cleanup in the capsule section above.
 
 The report names the exact current capsule R-code. It does not restate
 unchanged capsule content. Under `Deltas`, say `No implementation deltas` or
@@ -401,8 +413,12 @@ pause, or interruption:
 - If blocked on a human, leave the exact dependency in Uclusion.
 - If testable, read `operations.md`, request review, then check fresh
   notifications.
-- If complete, read `operations.md`, perform the dependency sweep, and apply
-  any notification, commit, or context-boundary action.
+- If a standalone bug was resolved, read `operations.md` and `completion.md`,
+  ensure the completion sweep for that resolution transition has run once, and
+  apply any notification, commit, or context-boundary action.
+- If a job is fully complete, read `operations.md` and apply its notification,
+  commit, and context-boundary rules. Do not rerun the completion sweep for a
+  later job Resolve, signoff, shipped confirmation, or commit.
 
 ## Single-comment workflow
 

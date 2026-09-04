@@ -71,9 +71,10 @@ requires work claims. Human-guided selections do not require the tool.
 - At every lane handoff (blocked, review requested, or complete), call
   `claim_work` with operation `release` for the held short code. Claims a
   crashed agent leaves behind expire on their own, so never wait for another
-  agent's claim beyond a denial. The required Doable completion review and its
-  menu wait are not a review handoff: keep that claim until a valid selection
-  and all selected actions finish.
+  agent's claim beyond a denial. Either stage-appropriate implementation review
+  and its completion-menu wait are not a review handoff: keep that claim until
+  the valid selection's execution attempt reaches a terminal outcome and its
+  post-attempt record is confirmed.
 - Classification lookups and triage reads never claim; merely reading an item
   must not block another agent.
 
@@ -177,11 +178,14 @@ The first word is contractual:
   that review ends with the active completion menu from `operations.md`, reload
   its exact thread and accept the first valid non-AI, non-advisory human
   `all`, `none`, or numbered selection from either that thread or normal client
-  chat, using the exact first-nonblank-line grammar defined there. Reconcile
-  any accepted chat-selection and package-state records defined there before
-  acting. A review response creates no assistance and does not itself change
-  stage. Once one valid selection governs the review attempt, later duplicate
-  or conflicting replies cannot authorize or repeat its package work.
+  chat, using the exact first-nonblank-line grammar defined there. Before
+  acting, reconcile any governing review-thread selection, current
+  uninterrupted chat selection, and terminal package records as defined there.
+  Do not create a pre-action AI selection receipt; if an interruption loses an
+  unrecorded chat selection, require the human to repeat it. A review response
+  creates no assistance and does not itself change stage. Once one valid
+  selection governs the review attempt, later duplicate or conflicting replies
+  cannot authorize or repeat its package work.
 
 A job moving into Doable is an `Updated` state transition, never a `Start`.
 Reload and resume it only when that job is already the session's assignment.

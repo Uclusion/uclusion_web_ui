@@ -602,15 +602,22 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             'review is required durable documentation and generates the '
             'notification that brings the work to the human\'s attention',
             'Opening it does not change the job stage',
-            'End the review report with the completion menu below',
+            'End either implementation review report with its stage-appropriate '
+            'completion menu',
             'After `ask_for_review` returns the review code or link, immediately '
             'print the same numbered menu in normal client chat and name that review',
             'review footer says the human may reply there or in the agent',
             'chat copy says the human may reply there or on the named review',
             'Neither copy calls `ask_question` or creates a Uclusion question or '
             'assistance item',
-            'Both copies name the exact job and its exact transition from Doable '
-            'to Reviewable',
+            'For a complete Doable job-level pass, name the exact '
+            'Doable-to-Reviewable transition',
+            'follow-up implementation review while the exact job is already '
+            'Reviewable',
+            'use only the applicable three actions',
+            '<job> follow-up has been reviewed. Choose completion actions:',
+            'Reply `all`, `none`, or numbers such as `1,2` here, or <in the '
+            'agent/on review R-code>',
             'substituting the exact job, review, repositories, and current '
             'reviewed scope',
             'name every affected repository, and include its files when the list '
@@ -619,16 +626,17 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             'Reply `all`, `none`, or numbers such as `1,2,4` here, or <in the '
             'agent/on review R-code>',
             'Put the selection alone on the first nonblank line',
-            '`all` selects actions 1 through 4, `none` selects no action',
-            'numbered reply selects exactly the actions whose numbers it contains',
+            '`all` selects every action shown, `none` selects no action',
+            'numbered reply selects exactly the shown actions whose numbers it '
+            'contains',
             'valid only when authored by a non-AI, non-advisory human',
             'first nonblank line, after trimming, consists only of `all`, `none`, '
-            'or a comma-delimited list of unique digits from `1` through `4`',
-            'do not infer authorization from action numbers elsewhere',
+            'or a comma-delimited list of unique action numbers shown in that menu',
+            'do not infer authorization from numbers elsewhere',
             'Perform selected actions in their listed relative order regardless '
             'of the order supplied',
-            'Only `all` or a numbered selection containing `4` authorizes the '
-            'exact Reviewable transition and sweep',
+            'Only a Doable menu\'s `all` or numbered selection containing `4` '
+            'authorizes the exact Reviewable transition and sweep',
             'Any response that lacks that authority or exact grammar authorizes '
             'nothing',
             'first valid response observed on either the review or in normal '
@@ -636,26 +644,37 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             'later duplicate or conflicting response does not authorize or '
             'repeat package work',
             'valid selection is final for that attempt',
-            'offer the package again only after material work changes or an '
+            'offer a new package only after material work changes or an '
             'explicit human request',
-            'While awaiting a valid reply, retain the assigned lane and any '
-            'auto-take claim',
+            'While awaiting a valid reply to either menu, retain the assigned '
+            'lane and any auto-take claim',
             'This wait is not a review handoff: do not release the claim, begin '
             'work discovery, or start another job',
             'After every apparently valid reply, including `none`, reload the '
             'exact job, its assistance, and the exact review thread before acting',
-            'earlier valid human selection or accepted chat-selection record on '
-            'that review governs over a later response',
-            'first review-thread selection is already its durable package-state '
-            'root, with no actions completed initially',
-            'When the current chat reply is first, call `add_info` on the exact '
-            'review to record its source, canonical selection, and initial '
-            'selected, completed, and remaining action numbers',
-            'AI-authored chat record preserves the human\'s authorization; it '
-            'supplies no authority by itself',
-            'If the record or reconciliation fails, perform no package action',
-            'At successful completion, the first failure, or a later retry '
-            'handoff, reply on that thread with the completed and remaining actions',
+            'Reconcile the first valid human review-thread response and every '
+            'existing AI terminal package record',
+            'earlier governing review-thread selection or terminal record takes '
+            'precedence over a later response',
+            'first valid normal-client-chat selection can govern the current '
+            'uninterrupted execution attempt',
+            'Do not call `add_info` or create any other AI selection receipt '
+            'before attempting the package actions',
+            'If an interruption loses that unrecorded chat selection before its '
+            'terminal record is created, require the human to repeat the selection',
+            'governing selection from either the review thread or normal client chat',
+            'use `add_info` in the exact review thread to create exactly one '
+            'terminal record for that execution attempt',
+            'Reply to the governing human review response when the selection '
+            'came from the review, or to the exact review root when it came from '
+            'normal client chat',
+            'source, canonical selection, completed action numbers, failed action '
+            'or check if any, and remaining selected action numbers',
+            'only AI package-state reply for that execution attempt',
+            'terminal failure record is durable package state and supports a '
+            'later retry under the same human selection',
+            'create exactly one new terminal record after that retry attempt '
+            'reaches success or its first failure',
             'reconcile the latest state with the durable job, review, repository, '
             'remote, notification, and sweep results',
             'Never repeat an action whose durable result is already present',
@@ -687,7 +706,8 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             'incomplete failed sweep remains work from its original transition '
             'trigger and must be retried directly',
             'conversation/context clear',
-            'completion menu is its sole notification-clear offer',
+            'implementation review\'s completion menu is its sole '
+            'notification-clear offer',
             'list its exact-job matches, but do not ask a separate clear question',
             'failed check must not delay or suppress the required menu mirror in chat',
         )
@@ -696,7 +716,7 @@ class WorkflowProtocolContractTests(unittest.TestCase):
                 self.assertIn(rule, operations)
 
         package_rules = operations.split(
-            '## Doable post-review completion package', 1
+            '## Stage-appropriate post-review completion packages', 1
         )[1].split('## Notifications', 1)[0]
         for obsolete_rule in (
             'ask one open-ended',
@@ -705,6 +725,7 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             'resolve the package question',
             'back in Doable',
             'Requires Input',
+            'initial selected, completed, and remaining action numbers',
         ):
             with self.subTest(obsolete_rule=obsolete_rule):
                 self.assertNotIn(obsolete_rule, package_rules)
@@ -730,6 +751,21 @@ class WorkflowProtocolContractTests(unittest.TestCase):
         self.assertNotIn('5.', menu)
         self.assertNotIn('fresh', menu)
         self.assertNotIn('`get_notifications`', menu)
+        follow_up_start = operations.index(
+            '<job> follow-up has been reviewed. Choose completion actions:'
+        )
+        follow_up_menu = operations[
+            follow_up_start:operations.index('```', follow_up_start)
+        ]
+        self.assertIn('1. Commit only its reviewed changes in:', follow_up_menu)
+        self.assertIn('2. Push only those commits.', follow_up_menu)
+        self.assertIn(
+            '3. Clear only the notifications produced by <job>.',
+            follow_up_menu,
+        )
+        self.assertNotIn('4.', follow_up_menu)
+        self.assertNotIn('Reviewable', follow_up_menu)
+        self.assertNotIn('completion sweep', follow_up_menu)
         self.assertIn(
             'finish the sweep in that same turn before lane handoff, work '
             'discovery, or starting another job',
@@ -747,8 +783,25 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             self.workflow,
         )
         self.assertIn(
-            'complete Doable job-level code pass opens its review and mirrors '
-            'its menu before handing off. Retain its lane while waiting',
+            'For a complete, testable job-level implementation pass in an '
+            'assigned Doable job, or a follow-up implementation pass for new '
+            'job- or task-owned code changes in an assigned Reviewable job',
+            self.workflow,
+        )
+        self.assertNotIn(
+            'implementation review of new job- or task-owned code changes in '
+            'an assigned Doable or Reviewable job',
+            self.workflow,
+        )
+        self.assertIn(
+            'Reviewable follow-up menu offers only commit, push, and exact-job '
+            'notification clear',
+            self.workflow,
+        )
+        self.assertIn(
+            'Doable completion pass or Reviewable follow-up implementation pass '
+            'opens its review and mirrors its stage-appropriate menu before '
+            'handing off',
             self.workflow,
         )
         self.assertIn(
@@ -756,8 +809,9 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             self.workflow,
         )
         self.assertIn(
-            'menu wait becomes a review handoff only after its valid selection '
-            'and selected actions finish',
+            'implementation review and menu wait becomes a review handoff only '
+            'after its valid selection\'s current execution attempt reaches a '
+            'terminal outcome and its post-attempt record is confirmed',
             self.workflow,
         )
         self.assertIn(
@@ -780,8 +834,13 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             self.pokes_workflow,
         )
         self.assertIn(
-            'Reconcile any accepted chat-selection and package-state records '
-            'defined there before acting',
+            'reconcile any governing review-thread selection, current '
+            'uninterrupted chat selection, and terminal package records',
+            self.pokes_workflow,
+        )
+        self.assertIn(
+            'Do not create a pre-action AI selection receipt; if an interruption '
+            'loses an unrecorded chat selection, require the human to repeat it',
             self.pokes_workflow,
         )
 

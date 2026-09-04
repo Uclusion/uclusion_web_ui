@@ -71,7 +71,9 @@ requires work claims. Human-guided selections do not require the tool.
 - At every lane handoff (blocked, review requested, or complete), call
   `claim_work` with operation `release` for the held short code. Claims a
   crashed agent leaves behind expire on their own, so never wait for another
-  agent's claim beyond a denial.
+  agent's claim beyond a denial. The required Doable completion review and its
+  menu wait are not a review handoff: keep that claim until a valid selection
+  and all selected actions finish.
 - Classification lookups and triage reads never claim; merely reading an item
   must not block another agent.
 
@@ -170,7 +172,16 @@ The first word is contractual:
 - `Responded <target>` hands an AI-authored assistance turn back after any
   semantic human reply, vote, or Resolve. Advisory responses also send it, so
   reload and inspect answerability; perform every action actually unblocked and
-  keep waiting if the response is advisory or another dependency remains.
+  keep waiting if the response is advisory or another dependency remains. A
+  response on the assigned job's current AI review is a separate case: when
+  that review ends with the active completion menu from `operations.md`, reload
+  its exact thread and accept the first valid non-AI, non-advisory human
+  `all`, `none`, or numbered selection from either that thread or normal client
+  chat, using the exact first-nonblank-line grammar defined there. Reconcile
+  any accepted chat-selection and package-state records defined there before
+  acting. A review response creates no assistance and does not itself change
+  stage. Once one valid selection governs the review attempt, later duplicate
+  or conflicting replies cannot authorize or repeat its package work.
 
 A job moving into Doable is an `Updated` state transition, never a `Start`.
 Reload and resume it only when that job is already the session's assignment.
@@ -181,10 +192,15 @@ A job moving into Reviewable is also an `Updated` state transition. For the
 assigned lane, compare the reloaded stage with the stage this session last
 observed. When it changes from any other stage into Reviewable, read
 `completion.md` and run both completion scans once before handling review. A
-successful in-session stage change to Reviewable follows the same rule. Merely
+successful in-session stage change to Reviewable follows the same rule. For an
+authorized in-session post-review transition, finish the sweep in that same
+turn before lane handoff, work discovery, or starting another job. Merely
 loading a job already in Reviewable, or receiving another update while it stays
 there, does not retrigger the sweep. After the job leaves Reviewable, a later
-transition back into it is a new trigger.
+transition back into it is a new trigger. A sweep that began on a real trigger
+but failed is still incomplete work from that trigger, not a retrigger: retry it
+directly without new package permission and do not switch lanes until it
+succeeds.
 
 Resolving a standalone bug is also an `Updated` state transition. For an
 assigned bug, compare its reloaded resolution state with the state this session

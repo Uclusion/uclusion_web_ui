@@ -26,7 +26,9 @@ skill owns event handling and the job workflow.
   bug resolution, also read `completion.md` and apply its sweep before the
   operations reference's remaining completion actions. Job transitions into
   Reviewable are routed by `pokes.md` or handled immediately after a successful
-  in-session stage change.
+  in-session stage change. Opening the required Doable completion review and
+  waiting on its menu is expressly not a lane handoff; retain its assignment
+  and any work claim until a valid selection and all selected actions finish.
 
 ## Non-negotiable invariants
 
@@ -46,9 +48,12 @@ skill owns event handling and the job workflow.
   into Doable. Explicit human-configured multi-agent roles are exempt. Apply
   the complete assignment and delivery rules in `references/pokes.md`.
 - Put every question, suggestion, approval, vote, progress note, resolution,
-  and review request in Uclusion through its MCP tools. Chat may mirror the
-  artifact but never replace it. Questions about the job—including redo
-  direction—use `ask_question`, not a local question tool.
+  and review request in Uclusion through its MCP tools. The narrow
+  code-complete completion menu defined in `operations.md` is appended to its
+  Uclusion review and mirrored in normal client chat. Neither copy calls
+  `ask_question` or creates assistance. Chat may otherwise mirror an artifact
+  but never replace it. Other questions about the job, including redo
+  direction, use `ask_question`, not a local question tool.
 - Run the ordered workflow: read, ask questions, address suggestions, approve
   when applicable, execute only in an executable stage, then request review.
 - The job stage controls permission, not workflow position. Doable and
@@ -57,21 +62,30 @@ skill owns event handling and the job workflow.
   resolved and the job returns to Doable or Reviewable. That lock covers
   implementation edits to this job and nothing more, so investigation,
   reproduction, and measurement continue while it holds.
-- Treat every `change_job_stage` call as a separate authorization boundary. A
+- Treat every `change_job_stage` call as an explicit authorization boundary. A
   non-advisory human authorizes it only by directly instructing a transition
-  that names the exact job and destination stage, or by affirmatively answering
-  a question that names that exact job and destination transition. A `Start`
-  event and general work language such as "analyze this," "take this up,"
-  "proceed," "go," or "fix it" never authorize a stage change. Planning
-  outcomes, replies or resolutions on other questions, approvals or votes
-  unrelated to that exact transition, recommendations, and capsule changes do
-  not authorize one. Never infer stage authorization from surrounding work
-  language. If a needed transition lacks exact authorization, leave the stage
-  unchanged and ask the human about that exact job and destination transition.
+  that names the exact job and destination stage, by affirmatively answering a
+  question that names that exact job and destination transition, or by a valid
+  `all` or numbered selection containing action 4 in the code-complete menu
+  defined in `operations.md`. That menu may carry this authorization
+  alongside its other expressly named permissions only when it names the exact
+  job and the Reviewable destination. A `Start` event and general work language
+  such as "analyze this," "take this up," "proceed," "go," or "fix it" never
+  authorize a stage change. Planning outcomes, replies or resolutions on other
+  questions, approvals or votes unrelated to that exact transition,
+  recommendations, and capsule changes do not authorize one. Never infer stage
+  authorization from surrounding work language. If a needed transition lacks
+  exact authorization, leave the stage unchanged and ask the human about that
+  exact job and destination transition. A completed post-review selection that
+  omitted action 4 or selected `none` is final, so leave the stage unchanged
+  without asking again.
 - Recheck assistance and stage immediately before editing. New assistance can
   arrive at any time.
 - Never silently make a judgment call a reasonable reviewer could choose
-  differently. Ask one Uclusion question per decision.
+  differently. Ask one Uclusion question per decision. The standard
+  post-review package is one deliberately compound operational decision and
+  the sole normal-client-chat permission exception; do not split its expressly
+  listed permissions into separate prompts.
 - An executable stage alone never authorizes edits. Before the first affected
   source or test edit, load the selected executable target's current
   intent/design capsule. Create it with `set_design_capsule` when absent, and
@@ -79,7 +93,11 @@ skill owns event handling and the job workflow.
   intent or design change occurs. The capsule must stand alone and preserve the
   actor-visible outcome, not merely list decisions or components.
 - A capsule is a contract, not permission. Stage, testing and build, security,
-  deployment, commit, and push gates remain independent.
+  deployment, commit, and push gates remain independent. The required review
+  is opened before permission is requested. Only the standard post-review
+  package may request commit, push, exact-job notification-clear, and
+  Reviewable permissions together; it never grants a test, build, security,
+  deployment, or omitted action.
 - Use the exact short code returned by Uclusion in tool calls, chat, commit
   messages, and durable notes.
 
@@ -142,12 +160,13 @@ workflow below.
 
 ## 2. Ask and resolve questions
 
-Call `ask_question` for ambiguity and judgment calls. Give options only for a
-real discrete choice. When facts, reproduction steps, observed behavior, or
-meaning are unknown, ask an open-ended question with no options. Never infer
-runtime behavior from code when the observed path is missing; ask the person
-who saw it. Use one `ask_question` call per distinct question; never bundle
-separate unknowns.
+Except for the completion-permission menu defined in `operations.md`, call
+`ask_question` for ambiguity and judgment calls. Give options only for a real
+discrete choice. When facts, reproduction steps, observed behavior, or meaning
+are unknown, ask an open-ended question with no options. Never infer runtime
+behavior from code when the observed path is missing; ask the person who saw
+it. Use one `ask_question` call per distinct question; never bundle separate
+unknowns.
 
 File every currently known distinct question in the same turn, each with its
 options and your vote, so the job enters Requires Input once and the human
@@ -359,9 +378,15 @@ durable thread.
 ## 6. Request or perform review
 
 Before review, turn unfinished or deferred actionable work into suggestions and
-reference those suggestions in the report. Once output is testable, call
-`ask_for_review` with a concise capsule-delta report. Only one AI review may be
-open per job, so job and task capsule reviews are sequential.
+reference those suggestions in the report. When a complete job-level code pass
+is testable while its assigned job is in Doable, read `operations.md`, call
+`ask_for_review` with the required completion menu appended to its concise
+capsule-delta report, then immediately mirror the menu in normal client chat.
+The review is required and is never a selectable package action. This menu wait
+does not release a work claim or start lane-handoff discovery. For other
+testable review work, call `ask_for_review` with a concise capsule-delta report.
+Only one AI review may be open per job, so job and task capsule reviews are
+sequential.
 
 In Reviewable, inspect the author of the latest Reports comment:
 
@@ -385,8 +410,10 @@ give one concise bullet for each actual omission, changed behavior, addition,
 scope expansion, or newly introduced decision. Name its observable effect and
 verification or approval status. A known change that can still guide work
 belongs in an updated capsule instead. Never hide a remaining choice in review
-prose; ask it as a question. End with the AI product, exact model/version, and
-effort level.
+prose; ask it as a question. End the report narrative with the AI product,
+exact model/version, and effort level. For the required Doable review, append
+the completion menu after that provenance so the menu is the review's final
+content.
 
 ## Durable progress checkpoints and material handoffs
 
@@ -402,7 +429,9 @@ item before final output. Returning an ordinary model/chat turn is not a lane
 handoff either and must not end the active audit.
 
 At a genuine lane handoff for a blocking human dependency, review, completion,
-pause, or interruption:
+pause, or interruption, apply the rules below. The required Doable completion
+review and menu wait becomes a review handoff only after its valid selection
+and selected actions finish; before then, do not apply this handoff checklist:
 
 - Ending an audit or execution interval does not clear a retained human-guided
   assignment. It remains available for matching continuation events until
@@ -411,8 +440,10 @@ pause, or interruption:
 - If `claim_work` is exposed and the lane's short code is claimed, release it
   per the work claim lock rules in `pokes.md`.
 - If blocked on a human, leave the exact dependency in Uclusion.
-- If testable, read `operations.md`, request review, then check fresh
-  notifications.
+- If testable, read `operations.md` and follow the review routing above. A
+  complete Doable job-level code pass opens its review and mirrors its menu
+  before handing off. Retain its lane while waiting, then finish every selected
+  package action after a valid reply before work discovery.
 - If a standalone bug was resolved, read `operations.md` and `completion.md`,
   ensure the completion sweep for that resolution transition has run once, and
   apply any notification, commit, or context-boundary action.

@@ -26,12 +26,13 @@ class WorkflowProtocolContractTests(unittest.TestCase):
         completion_path = os.path.join(
             SCRIPT_DIR, 'skills', 'uclusion', 'references', 'completion.md'
         )
+        operations_path = os.path.join(
+            SCRIPT_DIR, 'skills', 'uclusion', 'references', 'operations.md'
+        )
         workflow_paths = (
             os.path.join(SCRIPT_DIR, 'skills', 'uclusion', 'SKILL.md'),
             pokes_path,
-            os.path.join(
-                SCRIPT_DIR, 'skills', 'uclusion', 'references', 'operations.md'
-            ),
+            operations_path,
             completion_path,
         )
         parts = []
@@ -43,6 +44,8 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             cls.pokes_workflow = ' '.join(pokes.read().split())
         with open(completion_path, encoding='utf-8') as completion:
             cls.completion_workflow = ' '.join(completion.read().split())
+        with open(operations_path, encoding='utf-8') as operations:
+            cls.operations_workflow = ' '.join(operations.read().split())
         with open(
             os.path.join(SCRIPT_DIR, 'AGENTS.md'), encoding='utf-8'
         ) as codex_stub:
@@ -56,6 +59,13 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             encoding='utf-8',
         ) as bridge_doc:
             cls.bridge_doc = ' '.join(bridge_doc.read().split())
+
+    def test_workflow_asset_digests_match_shipped_sources(self):
+        for key, relative_path in INSTALL.WORKFLOW_ASSET_PATHS.items():
+            with self.subTest(asset=key):
+                with open(os.path.join(SCRIPT_DIR, relative_path), 'rb') as asset:
+                    digest = hashlib.sha256(asset.read()).hexdigest()
+                self.assertEqual(digest, INSTALL.WORKFLOW_ASSET_SHA256[key])
 
     def test_protocol_reserves_start_for_explicit_ui_poke(self):
         self.assertIn(
@@ -582,6 +592,197 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             'exceptions are the resolved-bug and Reviewable-transition sweeps '
             'in `pokes.md`',
             self.workflow,
+        )
+
+    def test_doable_code_completion_opens_review_before_one_completion_package(self):
+        operations = self.operations_workflow
+        required_rules = (
+            'open the exact job\'s review with the current capsule-delta report. '
+            'Do not ask permission first',
+            'review is required durable documentation and generates the '
+            'notification that brings the work to the human\'s attention',
+            'Opening it does not change the job stage',
+            'End the review report with the completion menu below',
+            'After `ask_for_review` returns the review code or link, immediately '
+            'print the same numbered menu in normal client chat and name that review',
+            'review footer says the human may reply there or in the agent',
+            'chat copy says the human may reply there or on the named review',
+            'Neither copy calls `ask_question` or creates a Uclusion question or '
+            'assistance item',
+            'Both copies name the exact job and its exact transition from Doable '
+            'to Reviewable',
+            'substituting the exact job, review, repositories, and current '
+            'reviewed scope',
+            'name every affected repository, and include its files when the list '
+            'remains concise',
+            'Otherwise give its file count and a compact scope summary',
+            'Reply `all`, `none`, or numbers such as `1,2,4` here, or <in the '
+            'agent/on review R-code>',
+            'Put the selection alone on the first nonblank line',
+            '`all` selects actions 1 through 4, `none` selects no action',
+            'numbered reply selects exactly the actions whose numbers it contains',
+            'valid only when authored by a non-AI, non-advisory human',
+            'first nonblank line, after trimming, consists only of `all`, `none`, '
+            'or a comma-delimited list of unique digits from `1` through `4`',
+            'do not infer authorization from action numbers elsewhere',
+            'Perform selected actions in their listed relative order regardless '
+            'of the order supplied',
+            'Only `all` or a numbered selection containing `4` authorizes the '
+            'exact Reviewable transition and sweep',
+            'Any response that lacks that authority or exact grammar authorizes '
+            'nothing',
+            'first valid response observed on either the review or in normal '
+            'client chat governs that review attempt',
+            'later duplicate or conflicting response does not authorize or '
+            'repeat package work',
+            'valid selection is final for that attempt',
+            'offer the package again only after material work changes or an '
+            'explicit human request',
+            'While awaiting a valid reply, retain the assigned lane and any '
+            'auto-take claim',
+            'This wait is not a review handoff: do not release the claim, begin '
+            'work discovery, or start another job',
+            'After every apparently valid reply, including `none`, reload the '
+            'exact job, its assistance, and the exact review thread before acting',
+            'earlier valid human selection or accepted chat-selection record on '
+            'that review governs over a later response',
+            'first review-thread selection is already its durable package-state '
+            'root, with no actions completed initially',
+            'When the current chat reply is first, call `add_info` on the exact '
+            'review to record its source, canonical selection, and initial '
+            'selected, completed, and remaining action numbers',
+            'AI-authored chat record preserves the human\'s authorization; it '
+            'supplies no authority by itself',
+            'If the record or reconciliation fails, perform no package action',
+            'At successful completion, the first failure, or a later retry '
+            'handoff, reply on that thread with the completed and remaining actions',
+            'reconcile the latest state with the durable job, review, repository, '
+            'remote, notification, and sweep results',
+            'Never repeat an action whose durable result is already present',
+            'ordinary read-only job, assistance, repository-scope, and '
+            'notification checks remain required',
+            'one fresh notification check after the last selected commit or push '
+            'and before any selected clear or Reviewable transition',
+            'matching notifications even when action 3 was omitted',
+            'neither perform nor request an omitted clear again',
+            'Immediately before the selected stage action, reload the exact '
+            'job again',
+            'still the assigned, unblocked Doable job',
+            'Stop at the first mandatory check or selected action that fails',
+            'do not attempt later actions or roll back successful ones',
+            'later retry resumes the incomplete work under the same selection '
+            'without repeating completed irreversible work',
+            'prospectively identifies this clear scope',
+            'call `clear_notifications` with the exact job short code without '
+            'asking again',
+            'nested reports or tasks but leaves every unrelated notification '
+            'untouched',
+            'valid package selection omitted action 3 or selected `none`, list '
+            'the matching notifications but do not ask again',
+            'failed stage change does not trigger a sweep',
+            'exact assigned job has newly entered Reviewable, do not call '
+            '`change_job_stage`; run the triggered completion sweep immediately',
+            'If the sweep fails, leave the job in Reviewable',
+            'block any lane switch until the sweep succeeds',
+            'incomplete failed sweep remains work from its original transition '
+            'trigger and must be retried directly',
+            'conversation/context clear',
+            'completion menu is its sole notification-clear offer',
+            'list its exact-job matches, but do not ask a separate clear question',
+            'failed check must not delay or suppress the required menu mirror in chat',
+        )
+        for rule in required_rules:
+            with self.subTest(rule=rule):
+                self.assertIn(rule, operations)
+
+        package_rules = operations.split(
+            '## Doable post-review completion package', 1
+        )[1].split('## Notifications', 1)[0]
+        for obsolete_rule in (
+            'ask one open-ended',
+            'human Resolve',
+            'wait for a non-advisory human response',
+            'resolve the package question',
+            'back in Doable',
+            'Requires Input',
+        ):
+            with self.subTest(obsolete_rule=obsolete_rule):
+                self.assertNotIn(obsolete_rule, package_rules)
+
+        ordered_actions = (
+            '1. Commit only its reviewed changes in:',
+            '2. Push only those commits.',
+            '3. Clear only the notifications produced by <job>.',
+            '4. Move <job> from Doable to Reviewable and immediately run its '
+            'completion sweep.',
+        )
+        action_offsets = [operations.index(action) for action in ordered_actions]
+        self.assertEqual(action_offsets, sorted(action_offsets))
+        menu = operations[
+            action_offsets[0]:operations.index('```', action_offsets[-1])
+        ]
+        self.assertIn(
+            '<repository>: <concise file list, or file count and compact scope>.',
+            menu,
+        )
+        self.assertIn('Action 4 is indivisible', menu)
+        self.assertNotIn('Open the exact job\'s review', menu)
+        self.assertNotIn('5.', menu)
+        self.assertNotIn('fresh', menu)
+        self.assertNotIn('`get_notifications`', menu)
+        self.assertIn(
+            'finish the sweep in that same turn before lane handoff, work '
+            'discovery, or starting another job',
+            self.pokes_workflow,
+        )
+        self.assertIn(
+            'retry it directly without new package permission and do not '
+            'switch lanes until it succeeds',
+            self.pokes_workflow,
+        )
+        self.assertIn(
+            'standard post-review package is one deliberately compound '
+            'operational decision and the sole normal-client-chat permission '
+            'exception',
+            self.workflow,
+        )
+        self.assertIn(
+            'complete Doable job-level code pass opens its review and mirrors '
+            'its menu before handing off. Retain its lane while waiting',
+            self.workflow,
+        )
+        self.assertIn(
+            'menu wait does not release a work claim or start lane-handoff discovery',
+            self.workflow,
+        )
+        self.assertIn(
+            'menu wait becomes a review handoff only after its valid selection '
+            'and selected actions finish',
+            self.workflow,
+        )
+        self.assertIn(
+            'completed post-review selection that omitted action 4 or selected '
+            '`none` is final',
+            self.workflow,
+        )
+        self.assertIn(
+            'review ends with the active completion menu from `operations.md`',
+            self.pokes_workflow,
+        )
+        self.assertIn(
+            'accept the first valid non-AI, non-advisory human `all`, `none`, or '
+            'numbered selection from either that thread or normal client chat',
+            self.pokes_workflow,
+        )
+        self.assertIn(
+            'later duplicate or conflicting replies cannot authorize or repeat '
+            'its package work',
+            self.pokes_workflow,
+        )
+        self.assertIn(
+            'Reconcile any accepted chat-selection and package-state records '
+            'defined there before acting',
+            self.pokes_workflow,
         )
 
     def test_token_audit_boundaries_and_bucket_semantics_are_documented(self):

@@ -22,6 +22,7 @@ import {
 import { PLANNING_TYPE } from '../constants/markets'
 import { getMarketToken } from '../api/marketLogin';
 import { LeaderContext } from './LeaderContext/LeaderContext';
+import { isEditingPaused, onEditingResumed } from '../utils/editingPause';
 
 const WebSocketContext = React.createContext({
   pokeAI: () => Promise.resolve(),
@@ -124,10 +125,39 @@ function WebSocketProvider(props) {
   // Ref so the websocket and interval callbacks see the latest value instead of a stale closure
   const hasNonDemoRef = useRef(false);
   const isLeaderRef = useRef(false);
+  const pendingVersionCheckRef = useRef(false);
+  const pendingVersionNoticeRef = useRef(undefined);
   isLeaderRef.current = !!leaderState.isLeader;
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
   hasNonDemoRef.current = !_.isEmpty((planningDetails || []).filter((market) => !marketIsDemo(market)));
+  const requestVersionCheck = useCallback(() => {
+    if (isSignedOut()) {
+      return;
+    }
+    if (isEditingPaused()) {
+      pendingVersionCheckRef.current = true;
+      return;
+    }
+    pendingVersionCheckRef.current = false;
+    checkAppVersion(hasNonDemoRef);
+  }, []);
+  useEffect(() => onEditingResumed(() => {
+    if (isSignedOut()) {
+      pendingVersionCheckRef.current = false;
+      pendingVersionNoticeRef.current = undefined;
+      return;
+    }
+    const notice = pendingVersionNoticeRef.current;
+    pendingVersionNoticeRef.current = undefined;
+    if (notice) {
+      notifyNewApplicationVersion(notice.currentVersion, notice.cacheClearVersion,
+        notice.scriptReinstallVersion, hasNonDemoRef.current);
+    }
+    if (pendingVersionCheckRef.current) {
+      requestVersionCheck();
+    }
+  }), [requestVersionCheck]);
   const { sendMessage, getWebSocket } = useWebSocket(
     config.webSockets.wsUrl,
     {
@@ -145,8 +175,12 @@ function WebSocketProvider(props) {
           case 'pong':
             break;
           case 'UI_UPDATE_REQUIRED':
-            notifyNewApplicationVersion(currentVersion, cacheClearVersion, scriptReinstallVersion,
-              hasNonDemoRef.current);
+            if (isEditingPaused()) {
+              pendingVersionNoticeRef.current = { currentVersion, cacheClearVersion, scriptReinstallVersion };
+            } else {
+              notifyNewApplicationVersion(currentVersion, cacheClearVersion, scriptReinstallVersion,
+                hasNonDemoRef.current);
+            }
             break;
           case 'user':
             pushMessage(PUSH_HOME_USER_CHANNEL, { event: VERSIONS_EVENT, version });
@@ -203,10 +237,8 @@ function WebSocketProvider(props) {
   // https://stage.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/Q-all-106
   const hasNonDemo = hasNonDemoRef.current;
   useEffect(() => {
-    if (!isSignedOut()) {
-      checkAppVersion(hasNonDemoRef);
-    }
-  }, [hasNonDemo]);
+    requestVersionCheck();
+  }, [hasNonDemo, requestVersionCheck]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -217,13 +249,13 @@ function WebSocketProvider(props) {
         if (isLeaderRef.current) {
           ensureRefreshRunner();
         }
-        checkAppVersion(hasNonDemoRef);
+        requestVersionCheck();
       }
     }, 300000);
     return () => {
       clearInterval(interval);
     };
-  }, []);
+  }, [requestVersionCheck]);
 
   return (
     <WebSocketContext.Provider value={{ pokeAI }}>

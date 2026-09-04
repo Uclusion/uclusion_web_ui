@@ -2,8 +2,12 @@ import { fetchComments } from './comments';
 import { getChangedIds, getVersions } from './summaries';
 import { getMarketClient } from './marketLogin';
 import { checkSignatureInStorage } from './storageIntrospector';
+import { pushMessage } from '../utils/MessageBusUtils';
+import { installEditingPause } from '../utils/editingPause';
+import { FRESHNESS_NAMESPACES, registerNamespaceReloader, reloadFromDisk } from './crossTabFreshness';
 import {
   refreshVersionsForNotificationDependencies,
+  refreshVersions,
   refreshVersionsNow,
   stopRefreshRunner
 } from './versionedFetchUtils';
@@ -188,6 +192,174 @@ describe('notification dependency refresh', () => {
       expect(getVersions).toHaveBeenCalledTimes(1);
     } finally {
       dateSpy.mockRestore();
+    }
+  });
+});
+
+describe('editing pause', () => {
+  let editor;
+  let uninstall;
+
+  beforeEach(() => {
+    uninstall = installEditingPause();
+    editor = document.createElement('textarea');
+    document.body.appendChild(editor);
+    getChangedIds.mockResolvedValue([]);
+    getVersions.mockResolvedValue([]);
+  });
+
+  afterEach(() => {
+    stopRefreshRunner();
+    uninstall();
+    editor.remove();
+    jest.clearAllMocks();
+  });
+
+  it.each(['textarea', 'Quill contenteditable'])('holds new syncs while editing a %s', async (kind) => {
+    if (kind === 'Quill contenteditable') {
+      editor.remove();
+      editor = document.createElement('div');
+      editor.className = 'ql-editor';
+      editor.setAttribute('contenteditable', 'true');
+      editor.tabIndex = 0;
+      document.body.appendChild(editor);
+    }
+    editor.focus();
+    editor.dispatchEvent(new InputEvent('input', { bubbles: true, data: 'a' }));
+    const refreshes = [refreshVersionsNow(), refreshVersionsNow(), refreshVersionsNow()];
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(getChangedIds).not.toHaveBeenCalled();
+
+    editor.blur();
+    await Promise.all(refreshes);
+    expect(getChangedIds).toHaveBeenCalledTimes(1);
+  });
+
+  it('finishes an admitted sync while holding its queued successor', async () => {
+    let finishDiscovery;
+    getChangedIds.mockImplementationOnce(() => new Promise((resolve) => { finishDiscovery = resolve; }));
+    const admitted = refreshVersionsNow();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(getChangedIds).toHaveBeenCalledTimes(1);
+    await refreshVersionsNow();
+
+    editor.focus();
+    editor.dispatchEvent(new InputEvent('input', { bubbles: true, data: 'a' }));
+    finishDiscovery([]);
+    await admitted;
+
+    expect(getChangedIds).toHaveBeenCalledTimes(1);
+    expect(pushMessage).toHaveBeenCalledWith('NotificationsChannel', expect.objectContaining({
+      event: 'version_push'
+    }));
+
+    editor.blur();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(getChangedIds).toHaveBeenCalledTimes(2);
+  });
+
+  it.each(['Enter', 'Backspace', 'paste'])('holds sync when the editor handles %s without native input',
+    async (operation) => {
+      editor.remove();
+      editor = document.createElement('div');
+      editor.className = 'ql-editor';
+      editor.setAttribute('contenteditable', 'true');
+      editor.tabIndex = 0;
+      document.body.appendChild(editor);
+      editor.focus();
+      const event = operation === 'paste'
+        ? new Event('paste', { bubbles: true, cancelable: true })
+        : new KeyboardEvent('keydown', { key: operation, bubbles: true, cancelable: true });
+      editor.addEventListener(event.type, (handled) => handled.preventDefault());
+      editor.dispatchEvent(event);
+      const refresh = refreshVersionsNow();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(getChangedIds).not.toHaveBeenCalled();
+
+      editor.remove();
+      await refresh;
+      expect(getChangedIds).toHaveBeenCalledTimes(1);
+    });
+
+  it('coalesces paused refreshes and discards them when their lifecycle ends', async () => {
+    editor.focus();
+    editor.dispatchEvent(new InputEvent('input', { bubbles: true, data: 'a' }));
+    const requests = [refreshVersionsNow(), refreshVersionsNow(), refreshVersionsNow()];
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(getChangedIds).not.toHaveBeenCalled();
+
+    stopRefreshRunner();
+    await Promise.all(requests);
+    editor.blur();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(getChangedIds).not.toHaveBeenCalled();
+  });
+
+  it('allows an explicit action to refresh while background work stays paused', async () => {
+    editor.focus();
+    editor.dispatchEvent(new InputEvent('input', { bubbles: true, data: 'a' }));
+    const background = refreshVersionsNow();
+    await refreshVersionsNow(undefined, true);
+    expect(getChangedIds).toHaveBeenCalledTimes(1);
+
+    stopRefreshRunner();
+    await background;
+  });
+
+  it('keeps a debounced verification refresh pending if typing starts before admission', async () => {
+    jest.useFakeTimers();
+    const flushWork = () => new Promise(jest.requireActual('timers').setImmediate);
+    try {
+      await refreshVersions();
+      const completed = jest.fn();
+      const retry = refreshVersions().then(completed);
+      await flushWork();
+      expect(completed).not.toHaveBeenCalled();
+
+      editor.focus();
+      editor.dispatchEvent(new InputEvent('input', { bubbles: true, data: 'a' }));
+      jest.advanceTimersByTime(120000);
+      await flushWork();
+      expect(getChangedIds).toHaveBeenCalledTimes(1);
+      expect(completed).not.toHaveBeenCalled();
+
+      editor.blur();
+      await retry;
+      expect(getChangedIds).toHaveBeenCalledTimes(2);
+      expect(completed).toHaveBeenCalledWith(0);
+    } finally {
+      stopRefreshRunner();
+      jest.useRealTimers();
+    }
+  });
+
+  it('holds background disk adoption while an explicit read can still finish', async () => {
+    const comments = jest.fn().mockResolvedValue(true);
+    const investibles = jest.fn().mockResolvedValue(true);
+    const unregister = [
+      registerNamespaceReloader(FRESHNESS_NAMESPACES.COMMENTS, comments),
+      registerNamespaceReloader(FRESHNESS_NAMESPACES.INVESTIBLES, investibles)
+    ];
+    try {
+      editor.focus();
+      editor.dispatchEvent(new InputEvent('input', { bubbles: true, data: 'a' }));
+      const notices = [reloadFromDisk(FRESHNESS_NAMESPACES.COMMENTS),
+        reloadFromDisk(FRESHNESS_NAMESPACES.INVESTIBLES)];
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(comments).not.toHaveBeenCalled();
+      expect(investibles).not.toHaveBeenCalled();
+
+      await reloadFromDisk(FRESHNESS_NAMESPACES.COMMENTS, true);
+      expect(comments).toHaveBeenCalledTimes(1);
+      expect(investibles).toHaveBeenCalledTimes(1);
+
+      editor.readOnly = true;
+      await Promise.all(notices);
+      expect(comments).toHaveBeenCalledTimes(2);
+      expect(investibles).toHaveBeenCalledTimes(2);
+    } finally {
+      unregister.forEach((remove) => remove());
     }
   });
 });

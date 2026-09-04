@@ -53,6 +53,10 @@ export const LOGOUT = 'logout';
 const LEADERSHIP_RETRY_START_MS = 1000;
 const LEADERSHIP_RETRY_MAX_MS = 30000;
 
+function isExplicitRefresh(request={}) {
+  return request.reason === 'navigation' || request.reason === 'manual' || request.reason === 'serverResponse';
+}
+
 function LeaderProvider(props) {
   const { children, authState, userId } = props;
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
@@ -103,7 +107,7 @@ function LeaderProvider(props) {
     markDiskAdoptionComplete();
   }, []);
 
-  const reloadAll = useCallback(() => reloadAllFromDisk(), []);
+  const reloadAll = useCallback((allowWhileEditing=false) => reloadAllFromDisk(allowWhileEditing), []);
 
   const refreshAsLeader = useCallback((request={}) => {
     if (request.reason === 'push') {
@@ -115,9 +119,10 @@ function LeaderProvider(props) {
       const sourceId = myTab.getCurrentCallerId() || myTab.id;
       return refreshVersionsForNotificationDependencies(request.dependencies, dispatchers, sourceId);
     }
-    if (request.reason === 'missingData' || request.reason === 'missingDataPoll' ||
-        request.reason === 'navigation' ||
-        request.reason === 'manual' || request.reason === 'serverResponse') {
+    if (isExplicitRefresh(request)) {
+      return refreshVersionsNow(dispatchers, true);
+    }
+    if (request.reason === 'missingData' || request.reason === 'missingDataPoll') {
       return refreshVersionsNow(dispatchers);
     }
     return refreshVersions(dispatchers, request.skipIfRefreshedWithinMs);
@@ -140,28 +145,39 @@ function LeaderProvider(props) {
       // stale network work cannot land between the replacement and enabling leader writes.
       stopRefreshRunner();
       console.info('Reloading disk state before claiming leadership');
-      const adoption = reloadAll().then((reloaded) => {
-        if (leadershipAttemptRef.current !== attempt || !myTab.isLeader) {
-          throw new Error('Leadership changed during disk adoption');
+      let diskAdopted = false;
+      const adoptDisk = (allowWhileEditing=false) => reloadAll(allowWhileEditing).then((reloaded) => {
+        if (!diskAdopted) {
+          if (leadershipAttemptRef.current !== attempt || !myTab.isLeader) {
+            throw new Error('Leadership changed during disk adoption');
+          }
+          if (!reloaded) {
+            throw new Error('Disk adoption stopped before all contexts reloaded');
+          }
+          diskAdopted = true;
+          leadershipRetryDelayRef.current = LEADERSHIP_RETRY_START_MS;
+          leaderContextHack = { ...leaderContextHack, isLeader: true };
+          dispatch(updateLeader(true));
         }
-        if (!reloaded) {
-          throw new Error('Disk adoption stopped before all contexts reloaded');
-        }
-        leadershipRetryDelayRef.current = LEADERSHIP_RETRY_START_MS;
-        leaderContextHack = { ...leaderContextHack, isLeader: true };
-        dispatch(updateLeader(true));
-      });
-      adoption.catch((error) => {
-        adoptionError = error;
-        if (leadershipAttemptRef.current === attempt) {
+      }).catch((error) => {
+        if (!diskAdopted && leadershipAttemptRef.current === attempt) {
+          adoptionError = error;
           invalidateLocalLeaderRefresh(myTab);
           relinquishLeadership();
         }
+        throw error;
       });
+      const adoption = adoptDisk();
+      // Acquisition errors are reported when waitForLeadership finishes.
+      adoption.catch(() => {});
       // Return the API immediately so tab-election can queue/call it on every reacquisition.
       // Its method still waits for disk adoption, so no refresh can write before replacement.
       return createLeaderRefreshApi((request) => {
-        return adoption.then(() => {
+        // An explicit action can complete the same required adoption while background
+        // reads are paused. Later completion of the original read cannot adopt twice.
+        const ready = diskAdopted ? Promise.resolve() :
+          (isExplicitRefresh(request) ? adoptDisk(true) : adoption);
+        return ready.then(() => {
           if (leadershipAttemptRef.current !== attempt || !myTab.isLeader) {
             throw new Error('Leadership changed before refresh');
           }

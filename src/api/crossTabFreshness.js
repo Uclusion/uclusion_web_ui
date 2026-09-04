@@ -1,4 +1,5 @@
 import { isSignedOut } from '../utils/logoutState';
+import { isEditingPaused, onEditingResumed } from '../utils/editingPause';
 
 export const FRESHNESS_NAMESPACES = Object.freeze({
   MARKETS: 'markets',
@@ -27,6 +28,7 @@ let localLeaderTab;
 let localLeaderRefresh;
 let onFullReload;
 let reloadPromise;
+let activeReloadPromise;
 
 function validateNamespace(namespace) {
   if (!knownNamespaces.has(namespace)) {
@@ -132,14 +134,49 @@ export function registerNamespaceReloader(namespace, reload) {
   };
 }
 
-function addReload(namespace) {
+function addReload(targets, namespace) {
   validateNamespace(namespace);
-  queuedReloads.add(namespace);
+  targets.add(namespace);
   if (namespace === FRESHNESS_NAMESPACES.COMMENTS ||
       namespace === FRESHNESS_NAMESPACES.INVESTIBLES) {
-    queuedReloads.add(FRESHNESS_NAMESPACES.COMMENTS);
-    queuedReloads.add(FRESHNESS_NAMESPACES.INVESTIBLES);
+    targets.add(FRESHNESS_NAMESPACES.COMMENTS);
+    targets.add(FRESHNESS_NAMESPACES.INVESTIBLES);
   }
+}
+
+async function reloadNamespaces(targets, allowWhileEditing) {
+  // Waiting background work holds no disk-read slot, so an explicit action or
+  // authentication token notice can still adopt state while editing continues.
+  while (!isSignedOut()) {
+    if (activeReloadPromise) {
+      await activeReloadPromise;
+    } else if (!allowWhileEditing && isEditingPaused()) {
+      await new Promise((resolve) => {
+        const unsubscribe = onEditingResumed(() => {
+          unsubscribe();
+          resolve();
+        });
+      });
+    } else {
+      const namespaces = namespaceValues.filter((namespace) => targets.has(namespace));
+      namespaces.forEach((namespace) => targets.delete(namespace));
+      const operation = Promise.allSettled(namespaces.map((namespace) => {
+        const reload = reloaders.get(namespace);
+        return reload
+          ? reload()
+          : Promise.reject(new Error(`No disk reloader registered for ${namespace}`));
+      }));
+      activeReloadPromise = operation;
+      const results = await operation;
+      activeReloadPromise = undefined;
+      const failure = results.find((result) => result.status === 'rejected');
+      if (failure) {
+        throw failure.reason;
+      }
+      return results.some((result) => result.status === 'fulfilled');
+    }
+  }
+  return false;
 }
 
 async function runReloads() {
@@ -147,20 +184,11 @@ async function runReloads() {
     let didReload = false;
     let firstError;
     while (queuedReloads.size && !isSignedOut()) {
-      const targets = namespaceValues.filter((namespace) => queuedReloads.has(namespace));
-      queuedReloads.clear();
-      const results = await Promise.allSettled(targets.map((namespace) => {
-        const reload = reloaders.get(namespace);
-        return reload
-          ? reload()
-          : Promise.reject(new Error(`No disk reloader registered for ${namespace}`));
-      }));
-      for (const result of results) {
-        if (result.status === 'rejected' && !firstError) {
-          firstError = result.reason;
-        }
+      try {
+        didReload = await reloadNamespaces(queuedReloads, false) || didReload;
+      } catch (error) {
+        firstError = firstError || error;
       }
-      didReload = didReload || results.some((result) => result.status === 'fulfilled');
     }
     if (firstError) {
       throw firstError;
@@ -172,19 +200,24 @@ async function runReloads() {
 }
 
 /** Collapses concurrent requests into one provider-owned disk reload pass. */
-export function reloadFromDisk(namespaces) {
+export function reloadFromDisk(namespaces, allowWhileEditing=false) {
   if (isSignedOut()) {
     return Promise.resolve(false);
   }
-  (Array.isArray(namespaces) ? namespaces : [namespaces]).forEach(addReload);
+  const targets = new Set();
+  (Array.isArray(namespaces) ? namespaces : [namespaces]).forEach((namespace) => addReload(targets, namespace));
+  if (allowWhileEditing || (targets.size === 1 && targets.has(FRESHNESS_NAMESPACES.TOKENS))) {
+    return reloadNamespaces(targets, true);
+  }
+  targets.forEach((namespace) => queuedReloads.add(namespace));
   if (!reloadPromise) {
     reloadPromise = runReloads();
   }
   return reloadPromise;
 }
 
-export function reloadAllFromDisk() {
-  return reloadFromDisk(namespaceValues).then((reloaded) => {
+export function reloadAllFromDisk(allowWhileEditing=false) {
+  return reloadFromDisk(namespaceValues, allowWhileEditing).then((reloaded) => {
     if (reloaded) {
       onFullReload?.();
     }
@@ -252,8 +285,10 @@ export async function requestFreshness(request={}) {
     return localLeaderRefresh(request);
   }
   const isNotificationHeartbeat = request.reason === 'notificationDependencies' && request.heartbeat;
+  const isExplicit = request.reason === 'navigation' || request.reason === 'manual' ||
+    request.reason === 'serverResponse';
   if (request.reason !== 'push' && request.reason !== 'missingDataPoll' && !isNotificationHeartbeat) {
-    await reloadAllFromDisk()
+    await reloadAllFromDisk(isExplicit)
       .catch((error) => console.warn('Unable to reload follower state before refresh', error));
   }
   if (canUseLocalLeaderRefresh(tab)) {

@@ -17,7 +17,7 @@ function AccountProvider(props) {
   const [state, dispatch] = useReducer(reducer, defaultValue);
 
   useEffect(() => {
-    beginListening(dispatch);
+    return beginListening(dispatch);
   }, []);
 
   return (

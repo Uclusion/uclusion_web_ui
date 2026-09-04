@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import { isEditingPaused, onEditingResumed } from '../utils/editingPause';
 import { pushMessage } from '../utils/MessageBusUtils'
 import { getChangedIds, getVersions } from './summaries'
 import {
@@ -91,6 +92,8 @@ let refreshInProgress = false;
 let refreshQueued = false;
 let queuedDispatchers = undefined;
 let queuedImmediateRelease = false;
+let queuedAllowWhileEditing = false;
+let editingRefresh;
 // When the last refresh completed without error - lets speculative (focus/visibility/online)
 // refreshes skip when the data is known fresh (C-all-1066).
 let lastSuccessfulRefreshMs = 0;
@@ -104,6 +107,28 @@ let releaseDispatchers = undefined;
 // Incremented when this tab gives up leadership. Work started under an older value may
 // finish its network calls, but it must not release data or restart the recurring runner.
 let refreshLifecycle = 0;
+
+function deferRefreshWhileEditing(dispatchers, releaseImmediately) {
+  if (!editingRefresh) {
+    let resolve;
+    const promise = new Promise((done) => { resolve = done; });
+    editingRefresh = { promise, resolve, releaseImmediately: false };
+  }
+  if (dispatchers) {
+    editingRefresh.dispatchers = dispatchers;
+  }
+  editingRefresh.releaseImmediately ||= releaseImmediately;
+  return editingRefresh.promise;
+}
+
+onEditingResumed(() => {
+  if (editingRefresh) {
+    const pending = editingRefresh;
+    editingRefresh = undefined;
+    matchErrorHandlingVersionRefresh(pending.dispatchers, pending.releaseImmediately)
+      .then(pending.resolve);
+  }
+});
 
 function doRelease() {
   if (!releasePending) {
@@ -137,7 +162,8 @@ function scheduleRelease() {
     doRelease();
   }, delay);
 }
-const matchErrorHandlingVersionRefresh = (dispatchers=undefined, releaseImmediately=false) => {
+const matchErrorHandlingVersionRefresh = (dispatchers=undefined, releaseImmediately=false,
+  allowWhileEditing=false) => {
   // A dead link burns 30s abort + retry per call and chains queued refreshes behind the
   // failures, so on bad internet the tab syncs back to back continuously. The browser
   // reliably knows definite offline - skip outright and let the 'online' listener or the
@@ -146,9 +172,13 @@ const matchErrorHandlingVersionRefresh = (dispatchers=undefined, releaseImmediat
     console.info('Not refreshing while offline');
     return Promise.resolve(false);
   }
+  if (!allowWhileEditing && isEditingPaused()) {
+    return deferRefreshWhileEditing(dispatchers, releaseImmediately);
+  }
   if (refreshInProgress) {
     refreshQueued = true;
     queuedImmediateRelease = queuedImmediateRelease || releaseImmediately;
+    queuedAllowWhileEditing ||= allowWhileEditing;
     if (dispatchers) {
       queuedDispatchers = dispatchers;
     }
@@ -185,9 +215,12 @@ const matchErrorHandlingVersionRefresh = (dispatchers=undefined, releaseImmediat
           refreshQueued = false;
           const dispatchersForQueued = queuedDispatchers;
           const releaseQueuedImmediately = queuedImmediateRelease;
+          const allowQueuedWhileEditing = queuedAllowWhileEditing;
           queuedDispatchers = undefined;
           queuedImmediateRelease = false;
-          return matchErrorHandlingVersionRefresh(dispatchersForQueued, releaseQueuedImmediately);
+          queuedAllowWhileEditing = false;
+          return matchErrorHandlingVersionRefresh(dispatchersForQueued, releaseQueuedImmediately,
+            allowQueuedWhileEditing);
         }
         return dirtyMarketCount;
       }
@@ -202,9 +235,17 @@ const matchErrorHandlingVersionRefresh = (dispatchers=undefined, releaseImmediat
         refreshQueued = false;
         const dispatchersForQueued = queuedDispatchers;
         const releaseQueuedImmediately = releaseImmediately || queuedImmediateRelease;
+        const allowQueuedWhileEditing = queuedAllowWhileEditing;
         queuedDispatchers = undefined;
         queuedImmediateRelease = false;
-        return matchErrorHandlingVersionRefresh(dispatchersForQueued, releaseQueuedImmediately);
+        queuedAllowWhileEditing = false;
+        if (isEditingPaused() && !allowQueuedWhileEditing) {
+          deferRefreshWhileEditing(dispatchersForQueued, releaseQueuedImmediately);
+          // Finish this admitted cycle even though its successor now waits for editing.
+        } else {
+          return matchErrorHandlingVersionRefresh(dispatchersForQueued, releaseQueuedImmediately,
+            allowQueuedWhileEditing);
+        }
       }
       if (releaseImmediately) {
         if (releaseTimer) {
@@ -229,6 +270,16 @@ let lastRequestMs = undefined;
 let syncThrottleTimer = undefined;
 let firstSuppressedMs = undefined;
 let suppressedDispatchers = undefined;
+let throttledRefreshResult;
+
+function settleThrottledRefresh(refresh) {
+  const pending = throttledRefreshResult;
+  throttledRefreshResult = undefined;
+  if (pending) {
+    refresh.then(pending.resolve);
+  }
+  return refresh;
+}
 
 function runCycleNow(dispatchers) {
   firstSuppressedMs = undefined;
@@ -236,6 +287,15 @@ function runCycleNow(dispatchers) {
 }
 
 function throttledRefresh(dispatchers) {
+  if (isEditingPaused()) {
+    if (syncThrottleTimer) {
+      clearTimeout(syncThrottleTimer);
+      syncThrottleTimer = undefined;
+    }
+    const pendingDispatchers = dispatchers || suppressedDispatchers;
+    suppressedDispatchers = undefined;
+    return settleThrottledRefresh(runCycleNow(pendingDispatchers));
+  }
   const now = Date.now();
   // A cycle already running means this request must wait, whatever the window says. Calling
   // through would hand it to matchErrorHandlingVersionRefresh's own refreshQueued path, which
@@ -249,7 +309,7 @@ function throttledRefresh(dispatchers) {
       clearTimeout(syncThrottleTimer);
       syncThrottleTimer = undefined;
     }
-    return runCycleNow(dispatchers);
+    return settleThrottledRefresh(runCycleNow(dispatchers));
   }
   if (firstSuppressedMs === undefined) {
     firstSuppressedMs = now;
@@ -262,6 +322,11 @@ function throttledRefresh(dispatchers) {
   if (syncThrottleTimer) {
     clearTimeout(syncThrottleTimer);
   }
+  if (!throttledRefreshResult) {
+    let resolve;
+    const promise = new Promise((done) => { resolve = done; });
+    throttledRefreshResult = { promise, resolve };
+  }
   syncThrottleTimer = setTimeout(() => {
     syncThrottleTimer = undefined;
     if (refreshInProgress) {
@@ -271,9 +336,10 @@ function throttledRefresh(dispatchers) {
     }
     const trailingDispatchers = suppressedDispatchers;
     suppressedDispatchers = undefined;
-    runCycleNow(trailingDispatchers).catch(() => console.warn('Error in throttled refresh'));
+    settleThrottledRefresh(runCycleNow(trailingDispatchers))
+      .catch(() => console.warn('Error in throttled refresh'));
   }, delay);
-  return Promise.resolve(false);
+  return throttledRefreshResult.promise;
 }
 
 export function startRefreshRunner() {
@@ -294,6 +360,14 @@ export function ensureRefreshRunner() {
 
 export function stopRefreshRunner() {
   refreshLifecycle += 1;
+  if (editingRefresh) {
+    editingRefresh.resolve(false);
+    editingRefresh = undefined;
+  }
+  if (throttledRefreshResult) {
+    throttledRefreshResult.resolve(false);
+    throttledRefreshResult = undefined;
+  }
   if (runner) {
     runner.stop();
     runner = undefined;
@@ -317,6 +391,11 @@ export function stopRefreshRunner() {
   refreshQueued = false;
   queuedDispatchers = undefined;
   queuedImmediateRelease = false;
+  queuedAllowWhileEditing = false;
+  pushVerifyResume?.();
+  pushVerifyResume = undefined;
+  notificationVerifyResume?.();
+  notificationVerifyResume = undefined;
   if (pushVerifyTimer) {
     clearTimeout(pushVerifyTimer);
     pushVerifyTimer = undefined;
@@ -333,7 +412,8 @@ function ensureRunnerAfter(refreshPromise) {
   const lifecycle = refreshLifecycle;
   return refreshPromise.then((dirtyMarketCount) => {
     if (lifecycle === refreshLifecycle && runner == null) {
-      return startRefreshRunner().then(() => dirtyMarketCount);
+      // The runner's first background pass may wait for editing. This refresh is complete.
+      startRefreshRunner().catch(() => console.warn('Error starting refresh runner'));
     }
     return dirtyMarketCount;
   });
@@ -345,12 +425,12 @@ function ensureRunnerAfter(refreshPromise) {
  * @param dispatchers
  * @returns {Promise<*>}
  */
-export function refreshVersionsNow(dispatchers=undefined) {
+export function refreshVersionsNow(dispatchers=undefined, allowWhileEditing=false) {
   if (isSignedOut()) {
     console.info('Not refreshing when signed out')
     return Promise.resolve(true);
   }
-  return ensureRunnerAfter(matchErrorHandlingVersionRefresh(dispatchers, true));
+  return ensureRunnerAfter(matchErrorHandlingVersionRefresh(dispatchers, true, allowWhileEditing));
 }
 
 /**
@@ -395,6 +475,7 @@ const PUSH_VERIFY_MAX_ATTEMPTS = 5;
 const PUSH_VERIFY_BASE_DELAY_MS = 2000;
 const pendingPushChecks = [];
 let pushVerifyTimer = undefined;
+let pushVerifyResume;
 
 function signatureForPush(push) {
   const { objectType, version, objectIdOneTwo } = push;
@@ -424,20 +505,34 @@ function verifyPendingPushes() {
       }
       return false;
     });
-    if (_.isEmpty(pendingPushChecks) || pushVerifyTimer) {
+    if (_.isEmpty(pendingPushChecks) || pushVerifyTimer || pushVerifyResume) {
       return;
     }
     // Back off on the youngest check so a fresh push keeps the next retry snappy
     const attempts = Math.min(...pendingPushChecks.map((check) => check.attempts));
     const delay = PUSH_VERIFY_BASE_DELAY_MS * Math.pow(2, attempts);
     console.info(`Pushed object not in storage yet - retrying sync in ${delay}ms`);
-    pushVerifyTimer = setTimeout(() => {
+    const retry = () => {
       pushVerifyTimer = undefined;
-      pendingPushChecks.forEach((check) => { check.attempts += 1; });
+      if (isEditingPaused()) {
+        pushVerifyResume = onEditingResumed(() => {
+          pushVerifyResume();
+          pushVerifyResume = undefined;
+          retry();
+        });
+        return;
+      }
+      const pendingRetries = [...pendingPushChecks];
       refreshVersions()
-        .then(() => verifyPendingPushes())
+        .then((dirtyMarketCount) => {
+          if (typeof dirtyMarketCount === 'number' || dirtyMarketCount === undefined) {
+            pendingRetries.forEach((check) => { check.attempts += 1; });
+          }
+          return verifyPendingPushes();
+        })
         .catch(() => console.warn('Error in push verify refresh'));
-    }, delay);
+    };
+    pushVerifyTimer = setTimeout(retry, delay);
   });
 }
 
@@ -462,6 +557,7 @@ export function refreshVersionsFromPush(push=undefined) {
 // messageIsSynced pass removes it. Keeping this retry state separate preserves push timing.
 const pendingNotificationChecks = [];
 let notificationVerifyTimer = undefined;
+let notificationVerifyResume;
 const NOTIFICATION_DEPENDENCY_LEASE_MS = MAX_DRIFT_TIME * 2;
 
 function notificationCheckKey(check) {
@@ -483,20 +579,30 @@ function scheduleNotificationVerification(resetTimer=false) {
     notificationVerifyTimer = undefined;
   }
   const retryableChecks = pendingNotificationChecks.filter((check) => !check.exhausted);
-  if (_.isEmpty(retryableChecks) || notificationVerifyTimer) {
+  if (_.isEmpty(retryableChecks) || notificationVerifyTimer || notificationVerifyResume) {
     return;
   }
   const attempts = Math.min(...retryableChecks.map((check) => check.attempts));
   const delay = PUSH_VERIFY_BASE_DELAY_MS * Math.pow(2, attempts);
   console.info(`Notification dependency still missing - retrying sync in ${delay}ms`);
-  notificationVerifyTimer = setTimeout(() => {
+  const retry = () => {
     notificationVerifyTimer = undefined;
+    if (isEditingPaused()) {
+      notificationVerifyResume = onEditingResumed(() => {
+        notificationVerifyResume();
+        notificationVerifyResume = undefined;
+        retry();
+      });
+      return;
+    }
     const pendingRetries = pendingNotificationChecks.filter((check) => !check.exhausted);
     if (_.isEmpty(pendingRetries)) {
       return;
     }
-    pendingRetries.forEach((check) => { check.attempts += 1; });
-    refreshVersions().then(() => {
+    refreshVersions().then((dirtyMarketCount) => {
+      if (typeof dirtyMarketCount === 'number' || dirtyMarketCount === undefined) {
+        pendingRetries.forEach((check) => { check.attempts += 1; });
+      }
       pendingRetries.filter((check) => pendingNotificationChecks.includes(check) &&
         check.attempts >= PUSH_VERIFY_MAX_ATTEMPTS)
         .forEach((check) => {
@@ -506,7 +612,8 @@ function scheduleNotificationVerification(resetTimer=false) {
         });
       scheduleNotificationVerification();
     }).catch(() => console.warn('Error in notification dependency refresh'));
-  }, delay);
+  };
+  notificationVerifyTimer = setTimeout(retry, delay);
 }
 
 /**

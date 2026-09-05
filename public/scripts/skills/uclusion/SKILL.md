@@ -92,9 +92,10 @@ skill owns event handling and the job workflow.
   listed permissions into separate prompts.
 - An executable stage alone never authorizes edits. Before the first affected
   source or test edit, load the selected executable target's current
-  intent/design capsule. Create it with `set_design_capsule` when absent, and
-  full-replace it before further affected edits whenever a known material
-  intent or design change occurs. The capsule must stand alone and preserve the
+  intent/design capsule. Complete drafting and cold review before creating it
+  with `set_design_capsule` when absent. Once sent, keep its body stable unless
+  new human input establishes a new contract. Incorporate that input before
+  further affected edits. The capsule must stand alone and preserve the
   actor-visible outcome, not merely list decisions or components.
 - A capsule is a contract, not permission. Stage, testing and build, security,
   deployment, commit, and push gates remain independent. The required review
@@ -314,23 +315,26 @@ successful update. Do not improvise or fall back to an embedded writing
 workflow.
 
 Give `$uclusion-design` the selected target, its current capsule when present,
-and all relevant evidence. It returns either the complete replacement Markdown
-body or the unsupported reviewer-divergent choices as typed questions. This
-core skill alone files and resolves those questions and calls
-`set_design_capsule`. After each create or replacement, reload the selected
-target and have `$uclusion-design` cold-review the authoritative body before
-affected edits. Persist its complete revision when the existing evidence
-supports one; otherwise file its typed questions and wait for qualifying human
-answers where required.
+and all relevant evidence, identifying any new human input since publication.
+It returns a complete draft or the unsupported reviewer-divergent choices as
+typed questions. This core skill alone files and resolves those questions and
+calls `set_design_capsule`. Have `$uclusion-design` cold-review and finish the
+draft before publication. After each create or permitted replacement, reload
+the selected target to confirm the authoritative body before affected edits.
+Do not use a later cold review to polish or rewrite a sent capsule.
 
-Known material changes belong in the capsule, not the review. Reload the
-current R-code and version, then call `set_design_capsule` in update mode with
+Replace a sent capsule only when new human input establishes a new contract.
+AI discoveries and implementation differences do not authorize a replacement;
+report those differences once in the review. Unsettled choices still require
+questions under step two. For a permitted replacement, finish drafting and
+cold review, reload the current R-code and version, then call
+`set_design_capsule` in update mode with
 `update_capsule_short_code_id`, `update_capsule_version`, and the complete
 replacement body. Never patch fragments or blindly retry a version conflict.
-Replies remain discussion until a settled change is folded into the body. A
-real replacement keeps the capsule R-code; its former body appears
-asynchronously as an ordinary unpinned note. Do not wait for that archive or
-treat it as current implementation context.
+Replies remain discussion until new human input establishes a new contract
+and is folded into the body. A real replacement keeps the capsule R-code; its
+former body appears asynchronously as an ordinary unpinned note. Do not wait
+for that archive or treat it as current implementation context.
 
 Capsule writes are human-facing, not scratch storage. A create or replacement
 puts an inbox item in front of the current human assignees without email or
@@ -415,10 +419,11 @@ The report names the exact current capsule R-code. It does not restate
 unchanged capsule content. Under `Deltas`, say `No implementation deltas` or
 give one concise bullet for each actual omission, changed behavior, addition,
 scope expansion, or newly introduced decision. Name its observable effect and
-verification or approval status. A known change that can still guide work
-belongs in an updated capsule instead. Never hide a remaining choice in review
-prose; ask it as a question. End the report narrative with the AI product,
-exact model/version, and effort level. For either stage-appropriate
+verification or approval status. Report implementation differences once here;
+only new human input establishing a new contract calls for a capsule
+replacement. Never hide a remaining choice in review prose; ask it as a
+question. End the report narrative with the AI product, exact model/version,
+and effort level. For either stage-appropriate
 implementation review, append the completion menu after that provenance so the
 menu is the review's final content.
 

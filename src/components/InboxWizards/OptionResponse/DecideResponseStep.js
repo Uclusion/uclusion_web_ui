@@ -79,6 +79,7 @@ function DecideResponseStep(props) {
         </Typography>
         <JobDescription marketId={marketId} investibleId={decisionInvestibleId}
                         comments={optionComments}
+                        isSingleTaskDisplay
                         removeActions
                         showCreatedBy
         />

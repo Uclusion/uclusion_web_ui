@@ -1,5 +1,7 @@
 import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
+import { createMemoryHistory } from 'history';
+import { useHistory, useLocation } from 'react-router';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
@@ -73,8 +75,8 @@ jest.mock('react-intl', () => ({
   useIntl: () => ({ formatMessage: ({ id }) => id })
 }));
 jest.mock('react-router', () => ({
-  useHistory: () => ({}),
-  useLocation: () => ({ pathname: '/market-a/job-a', search: '', hash: '' })
+  useHistory: jest.fn(),
+  useLocation: jest.fn()
 }));
 jest.mock('../../api/useInitialSyncComplete', () => ({
   useInitialSyncComplete: () => true
@@ -106,6 +108,9 @@ jest.mock('../../contexts/NotificationsContext/notificationsContextReducer', () 
 jest.mock('../../contexts/CommentsContext/commentsContextHelper', () => ({
   getOpenInvestibleComments: () => []
 }));
+jest.mock('../../contexts/InvestibesContext/investiblesContextHelper', () => ({
+  getInvestibleName: () => undefined
+}));
 jest.mock('../../pages/Home/YourWork/InboxExpansionPanel', () => ({
   getWorkspaceData: () => []
 }));
@@ -113,19 +118,8 @@ jest.mock('../../pages/Home/YourWork/InboxContext', () => ({
   addWorkspaceGroupAttribute: (messages) => messages
 }));
 jest.mock('../../utils/marketIdPathFunctions', () => ({
-  ASSIGNED_HASH: '',
-  clearJobBackOrigin: () => undefined,
-  clearNavigationOrigins: () => undefined,
-  formatGroupLinkWithSuffix: () => '',
-  formCommentLink: () => '',
-  formInboxItemLink: () => '',
-  formInvestibleLink: () => '',
-  formMarketLink: () => '',
-  getCanonicalNavigationUrl: () => '/market-a/job-a',
-  getJobBackOrigin: () => undefined,
-  isReturnableNavigationUrl: () => true,
-  navigate: jest.fn(),
-  rememberSeenNavigationUrl: () => undefined
+  ...jest.requireActual('../../utils/marketIdPathFunctions'),
+  navigate: jest.fn()
 }));
 jest.mock('../../utils/messageUtils', () => ({
   findMessagesForTypeObjectId: () => undefined
@@ -135,6 +129,8 @@ jest.mock('../../utils/redirectUtils', () => ({
   getGroupForInvestibleId: () => undefined
 }));
 jest.mock('../../pages/Home/ReturnTop', () => () => null);
+
+const navigation = jest.requireActual('../../utils/marketIdPathFunctions');
 
 function navigationChevronsTree({
   tokensHash = { 'market-a': 'token-a' },
@@ -189,12 +185,92 @@ describe('NavigationChevrons', () => {
   });
 
   beforeEach(() => {
+    useHistory.mockReturnValue({});
+    useLocation.mockReturnValue({ pathname: '/market-a/job-a', search: '', hash: '' });
+    navigate.mockReset();
+    navigation.clearNavigationOrigins();
     container = document.createElement('div');
     root = createRoot(container);
   });
 
   afterEach(() => {
     act(() => root.unmount());
+  });
+
+  describe('Back after a job description link', () => {
+    const sourceUrl = '/dialog/market-a/job-a';
+    const destinationUrl = '/dialog/market-a/job-b';
+    const aliasUrl = '/market-a/J-all-433';
+    const ticketState = {
+      'market-a/J-all-433': { marketId: 'market-a', investibleId: 'job-b' }
+    };
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+      jest.spyOn(window, 'scrollTo').mockImplementation(() => {});
+      navigate.mockImplementation(navigation.navigate);
+    });
+
+    afterEach(() => {
+      jest.runOnlyPendingTimers();
+      jest.useRealTimers();
+      jest.restoreAllMocks();
+    });
+
+    function renderBack(history, navigations) {
+      useHistory.mockReturnValue(history);
+      useLocation.mockImplementation(() => history.location);
+      act(() => root.render(navigationChevronsTree({
+        tokensHash: { 'market-a': 'token-a', 'market-b': 'token-b' },
+        navigations
+      })));
+      return container.querySelector('#backNavigation');
+    }
+
+    it.each([aliasUrl, destinationUrl])('returns to the source job after following %s', (linkUrl) => {
+      const history = createMemoryHistory({ initialEntries: [sourceUrl] });
+      navigation.rememberSeenNavigationUrl(sourceUrl);
+      navigation.navigate(history, linkUrl);
+      navigation.rememberSeenNavigationUrl(navigation.getCanonicalNavigationUrl(
+        history.location.pathname, history.location.search));
+      const redirect = navigation.getTicketRedirectUrl(history.location.pathname, '', ticketState, {}, {});
+      if (redirect) {
+        navigation.navigate(history, redirect, true);
+        jest.runOnlyPendingTimers();
+      }
+      expect(history.location.pathname).toBe(destinationUrl);
+
+      const back = renderBack(history, [{ url: navigation.getJobBackOrigin(), time: 1 }]);
+      expect(back.disabled).toBe(false);
+      act(() => back.click());
+
+      expect(history.location.pathname).toBe(sourceUrl);
+    });
+
+    it('keeps Back disabled when a job alias was opened without an in-app source', () => {
+      const history = createMemoryHistory({ initialEntries: [aliasUrl] });
+      navigation.rememberSeenNavigationUrl(aliasUrl);
+      navigation.navigate(history,
+        navigation.getTicketRedirectUrl(aliasUrl, '', ticketState, {}, {}), true);
+      jest.runOnlyPendingTimers();
+      const origin = navigation.getJobBackOrigin();
+
+      const back = renderBack(history, origin ? [{ url: origin, time: 1 }] : []);
+
+      expect(back.disabled).toBe(true);
+    });
+
+    it('skips an old alias entry when returning to the previous job', () => {
+      const history = createMemoryHistory({ initialEntries: [destinationUrl] });
+      const back = renderBack(history, [
+        { url: sourceUrl, time: 1 },
+        { url: aliasUrl, time: 2 }
+      ]);
+
+      act(() => back.click());
+
+      expect(history.location.pathname).toBe(sourceUrl);
+    });
   });
 
   it('disables navigation while a workspace token is missing', () => {

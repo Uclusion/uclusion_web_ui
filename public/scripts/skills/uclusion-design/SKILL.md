@@ -15,7 +15,9 @@ composition, revision, and cold review.
 
 Accept the target, its current intent/design capsule when one exists, and all
 relevant job or task text, qualifying answers, approved plans, prior
-authoritative artifacts, and hard source constraints from `$uclusion`.
+authoritative artifacts, and hard source constraints from `$uclusion`. For a
+sent capsule, also require the new human input establishing a new contract
+before returning a replacement body.
 
 Never choose the target, change a stage, ask or resolve a question, address a
 suggestion, call `set_design_capsule`, handle persistence or version conflicts,
@@ -81,8 +83,12 @@ checklist, chronological coding plan, question recap, or evidence ledger.
 
 ## Revise and cold-review
 
-For a revision, incorporate every settled material change and return the full
-replacement body. Never return a fragment or patch.
+Complete drafting, polishing, and cold review before publication. Once a
+capsule is sent, keep its body stable unless new human input establishes a new
+contract. For that permitted revision, incorporate the new contract and return
+the full replacement body. Never return a fragment or patch. AI discoveries
+and implementation differences belong once in the implementation review,
+which the core workflow owns.
 
 For a cold review, discard remembered chat and questions. Read only the
 candidate capsule and the claim-local evidence it links. Check whether a new
@@ -92,9 +98,11 @@ approved verification limit. Also check that every reviewer-divergent choice
 has qualifying human evidence beside it and that selected-option evidence names
 both exact identifiers.
 
-If the evidence supports a clearer or more complete contract, return a revised
-complete body. If correction would require an unsupported choice, return the
-typed question instead. A capsule fails review when its prose is accurate only
-with remembered context, or when an evidence ledger leaves the reader to map
-authority back to claims.
+For an unpublished draft or a revision authorized by new human input, return a
+revised complete body when the evidence supports a clearer or more complete
+contract. Otherwise return findings without rewriting the sent body. If
+correction would require an unsupported choice, return the typed question
+instead. A capsule fails review when its prose is accurate only with remembered
+context, or when an evidence ledger leaves the reader to map authority back to
+claims.
 <!-- /uclusion-design-skill:v1 -->

@@ -72,7 +72,9 @@ export function isReturnableNavigationUrl(url) {
     return false;
   }
   const [pathname] = url.split(/[?#]/);
-  return !ONE_SHOT_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));
+  // Ticket URLs only redirect to a page; remembering one makes Back reopen its destination.
+  return !isTicketPath(pathname) &&
+    !ONE_SHOT_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));
 }
 
 function navigationKey(pathname, search) {

@@ -340,12 +340,16 @@ function DecisionInvestible(props) {
     hasDecisionComment(marketId, allowedCommentType, investibleId));
   const showAfterDescriptionVoting = !inProposed && !_.isEmpty(voters);
   const showAfterDescriptionComments = (displayCommentInput && mobileLayout) || !_.isEmpty(investmentReasonsRemoved);
-  const afterDescription = <>{showAfterDescriptionVoting && (
+  const afterDescription = <>{info.some((comment) => comment.comment_type === TODO_TYPE) && (
     <div style={{marginTop: '1rem'}}>
       <CommentBox comments={info} marketId={marketId} allowedTypes={allowedCommentTypes}
                   isInbox={removeActions} removeActions={removeActions} usePadding={false}
                   pokeAIMarketId={parentMarketId}
                   pokeAIParentTicketCode={parentComment.ticket_code} />
+    </div>
+  )}
+  {showAfterDescriptionVoting && (
+    <div style={{marginTop: '1rem'}}>
       <h2 id="approvals" style={{marginTop: '1rem'}}>
         <FormattedMessage id="decisionInvestibleOthersVoting"/>
       </h2>

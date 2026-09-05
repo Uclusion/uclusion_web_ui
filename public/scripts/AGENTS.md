@@ -25,7 +25,8 @@ for the new request.
 
 The bridge starts after the retained backlog by default and delivers only to
 the primary thread; Pokes arriving during review/compaction wait until that turn
-ends. Never add `--deliver-existing-pokes` yourself. If the human explicitly
+ends. Do not narrate default startup delivery setup or skipped history.
+Never add `--deliver-existing-pokes` yourself. If the human explicitly
 launches with it, retained rows arrive as an unmarked private copy and are
 handled only as their request directs. If the bridge cannot connect, suggest an
 environment-correct `uclusion update` and restart through `uclusion codex`.

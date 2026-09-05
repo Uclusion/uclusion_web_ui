@@ -89,7 +89,7 @@ human-controlled knob for explicitly separated consumers.
 ## Backlog and session lifecycle
 
 A fresh per-session cursor starts at arm time. Older output marked `(replayed)`
-is history: drop it without reload or action. Never add
+is history: drop it without reload, action, or user-facing narration. Never add
 `--ignore-existing-pokes` or `--deliver-existing-pokes` unless the human
 explicitly asks. Ignoring advances only that cursor past retained rows.
 Delivering existing Pokes emits retained history as an unmarked private copy,
@@ -133,18 +133,19 @@ remains available for a matching continuation event.
 
 - Handle a continuation event for the assigned item or anything known to be
   nested under it immediately.
-- Ignore an unrelated continuation event without loading it. Briefly name the
-  deferral and continue. In a compound event, the parent after `of` identifies
-  the assignment. Merely receiving `Added`, `Updated`, or `Responded` never
-  creates or switches an assignment.
+- While assigned, ignore an unrelated continuation event without loading it.
+  Briefly name the deferral and continue. In a compound event, the parent after
+  `of` identifies the assignment. Merely receiving `Added`, `Updated`, or
+  `Responded` never creates or switches an assignment.
 - When a bare direct continuation code is not already known to belong to the
   assigned lane, defer it without lookup. Current Uclusion state remains the
   authority for later work discovery.
 - A deferred Start never auto-starts after the lane ends. It may belong to
   another session; find_work will surface anything still actionable.
 - While unassigned, only a valid live `Start`, a direct human selection, or a
-  successful auto-take claim activates work. `Added`, `Updated`, and
-  `Responded` do not load or activate a target while the session is unassigned.
+  successful auto-take claim activates work. Silently ignore `Added`, `Updated`,
+  and `Responded` while unassigned, including during startup. Do not load their
+  targets or mention these discarded events in progress or the work list.
   They also never switch a session from a different assignment.
 
 A new chat instruction does not stop a valid listener. Handle it while delivery

@@ -290,14 +290,14 @@ WORKFLOW_ASSET_PATHS = {
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
     'claude_stub': 'b89451b4cf5dbba8199e2b2ac138e58250077415a1da6cac32e5e70ab03f425b',
-    'codex_stub': '02ea82a01620a5909ea40ea33d0ed67a27f275b808d926e21f753cb51861135e',
+    'codex_stub': '907ba73c491210e2b26fc5c3005964e437c3e61e435894b1d5e5daafc4c3b641',
     'cursor_stub': '2e4bf88903896ba312738f9a4ab7163582df99050b62f13e0e0324a6580a412f',
-    'skill': 'b53d69275f183fc2ed90afef9af666df7cfc2e73ba047ac6f2406e2266fde828',
-    'pokes_reference': '7d6282eea219b5d988a63f02e2375189d873d345899421e7cc60ca5f44de389f',
+    'skill': '0142588d70a2d04092aa6b362a88b0e6ff8c5efb995741bea2abc70aeb0d6371',
+    'pokes_reference': '644b2c99474a7ee0d6271a93508633aad765adc9e602a19b83f1b2d5bf57b83b',
     'operations_reference': '84db1d1b13ec02b7dcea4ddfc2b7c80c9d7b739af1eed30285871c8fea4ef5aa',
     'completion_reference': 'accd3b8f2f5d37a94c8d8a58a2aaef4c1ae1225a3c574db2af279e3ab5249684',
     'openai_metadata': 'ecf2759354ff3bbfd7178452a705650aff7a13352458bb20e1df122da7c30f40',
-    'design_skill': '06280e77c24a8819d975435c1c678ac42ed372bbfbf4b2fedded60097fd89df9',
+    'design_skill': '0e61780273603317c1bb09d7a912773285e79568f424c93fa31d4983270cb70a',
     'design_examples': '49978a3c50b40a676379511a289cef860a70875eb18e8bed8898076192bf4aad',
     'design_openai_metadata': 'f31f258d8b76d5fcfa724b7e7468481ef18a863c9afbdd78b81b873641f9c7ba',
 }

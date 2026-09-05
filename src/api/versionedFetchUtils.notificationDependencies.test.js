@@ -1,4 +1,5 @@
 import { fetchComments } from './comments';
+import { fetchInvestibles } from './marketInvestibles';
 import { getChangedIds, getVersions } from './summaries';
 import { getMarketClient } from './marketLogin';
 import { checkSignatureInStorage } from './storageIntrospector';
@@ -7,6 +8,8 @@ import { installEditingPause } from '../utils/editingPause';
 import { FRESHNESS_NAMESPACES, registerNamespaceReloader, reloadFromDisk } from './crossTabFreshness';
 import {
   refreshVersionsForNotificationDependencies,
+  refreshVersionsFromPush,
+  getStorageStates,
   refreshVersions,
   refreshVersionsNow,
   stopRefreshRunner
@@ -15,10 +18,13 @@ import {
 const mockMarketId = 'market-id';
 const mockCommentId = 'comment-id';
 const mockCommentsState = {};
+const mockPresencesState = {};
+const mockInvestiblesState = {};
 const mockMarketsState = { marketDetails: [{ id: mockMarketId, version: 2 }] };
 
 jest.mock('./summaries', () => ({ getChangedIds: jest.fn(), getVersions: jest.fn() }));
 jest.mock('./comments', () => ({ fetchComments: jest.fn() }));
+jest.mock('./marketInvestibles', () => ({ fetchInvestibles: jest.fn() }));
 jest.mock('./marketLogin', () => ({ getMarketClient: jest.fn() }));
 jest.mock('../utils/MessageBusUtils', () => ({ pushMessage: jest.fn() }));
 jest.mock('../utils/userFunctions', () => ({ isSignedOut: () => false }));
@@ -32,19 +38,19 @@ jest.mock('./syncStatus', () => ({ recordInitialSyncCycle: jest.fn() }));
 jest.mock('../authorization/TokenStorageManager', () => jest.fn());
 jest.mock('../contexts/CommentsContext/CommentsContext', () => ({
   COMMENTS_CONTEXT_NAMESPACE: 'comments_context',
-  commentsContextHack: mockCommentsState
+  get commentsContextHack() { return mockCommentsState; }
 }));
 jest.mock('../contexts/InvestibesContext/InvestiblesContext', () => ({
   INVESTIBLES_CONTEXT_NAMESPACE: 'investibles_context',
-  investibleContextHack: {}
+  get investibleContextHack() { return mockInvestiblesState; }
 }));
 jest.mock('../contexts/MarketsContext/MarketsContext', () => ({
   MARKET_CONTEXT_NAMESPACE: 'markets_context',
-  marketsContextHack: mockMarketsState
+  get marketsContextHack() { return mockMarketsState; }
 }));
 jest.mock('../contexts/MarketPresencesContext/MarketPresencesContext', () => ({
   MARKET_PRESENCES_CONTEXT_NAMESPACE: 'presences_context',
-  marketPresencesContextHack: {}
+  get marketPresencesContextHack() { return mockPresencesState; }
 }));
 jest.mock('../contexts/MarketStagesContext/MarketStagesContext', () => ({
   MARKET_STAGES_CONTEXT_NAMESPACE: 'stages_context',
@@ -68,7 +74,7 @@ jest.mock('../contexts/CommentsContext/commentsContextReducer', () => ({
 jest.mock('../contexts/MarketsContext/marketsContextHelper', () => ({ addMarketsToStorage: jest.fn() }));
 jest.mock('../contexts/InvestibesContext/investiblesContextHelper', () => ({
   refreshInvestibles: jest.fn(),
-  getMarketInvestibles: () => []
+  getMarketInvestibles: (state) => Object.values(state)
 }));
 jest.mock('../contexts/MarketPresencesContext/marketPresencesContextReducer', () => ({
   versionsUpdateMarketPresences: jest.fn()
@@ -192,6 +198,127 @@ describe('notification dependency refresh', () => {
       expect(getVersions).toHaveBeenCalledTimes(1);
     } finally {
       dateSpy.mockRestore();
+    }
+  });
+});
+
+describe('pushed changes hidden by the last audit signature', () => {
+  const flushWork = () => new Promise(jest.requireActual('timers').setImmediate);
+  const question = { id: mockCommentId, version: 2, resolved: true, comment_type: 'QUESTION' };
+  const job = { investible: { id: 'job-id', version: 1 },
+    market_infos: [{ id: 'job-info', market_id: mockMarketId, version: 2, stage: 'Doable' }] };
+  const syncedVote = { object_type: 'investment', object_id_one: 'option-info',
+    object_id_two: 'voter-id', version: 3 };
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+    mockCommentsState[mockMarketId] = [{ ...question, version: 1, resolved: false }];
+    mockInvestiblesState['job-id'] = { ...job,
+      market_infos: [{ ...job.market_infos[0], version: 1, stage: 'Requires Input' }] };
+    mockPresencesState[mockMarketId] = [{ id: 'voter-id',
+      investments: [{ type_object_id: 'investible_option-info', version: 3 }] }];
+    getChangedIds.mockResolvedValue([{ id: mockMarketId, active: true, signature: syncedVote }]);
+    getVersions.mockResolvedValue([{ market_id: mockMarketId, signatures: [
+      { type: 'comment', object_versions: [{ object_id_one: mockCommentId, version: 2 }] },
+      { type: 'market_investible', object_versions: [
+        { object_id_one: 'job-info', object_id_two: 'job-id', version: 2 }
+      ] }
+    ] }]);
+    getMarketClient.mockResolvedValue({ id: 'client' });
+    fetchComments.mockResolvedValue([question]);
+    fetchInvestibles.mockResolvedValue([job]);
+  });
+
+  afterEach(() => {
+    stopRefreshRunner();
+    delete mockCommentsState[mockMarketId];
+    delete mockPresencesState[mockMarketId];
+    delete mockInvestiblesState['job-id'];
+    jest.clearAllMocks();
+    jest.useRealTimers();
+  });
+
+  it.each([
+    ['question resolution', 'comment', mockCommentId],
+    ['job stage change', 'market_investible', 'job-info_job-id']
+  ])('reconciles a pushed %s even when the audit names an already-synced vote',
+    async (_description, objectType, objectIdOneTwo) => {
+      expect(checkSignatureInStorage(mockMarketId, syncedVote,
+        await getStorageStates())).toBe(true);
+
+      await refreshVersionsFromPush({ marketId: mockMarketId, objectType, objectIdOneTwo, version: 2 });
+
+      expect(getVersions).toHaveBeenCalledWith([mockMarketId], false);
+      expect(fetchComments).toHaveBeenCalledTimes(1);
+      expect(fetchInvestibles).toHaveBeenCalledTimes(1);
+      jest.advanceTimersByTime(2500);
+      expect(pushMessage).toHaveBeenCalledWith('CommentsChannel', expect.objectContaining({
+        commentDetails: { [mockMarketId]: [question] }
+      }));
+      expect(pushMessage).toHaveBeenCalledWith('InvestiblesChannel', expect.objectContaining({
+        investibles: [job]
+      }));
+    });
+
+  it.each(['already-synced vote', 'absent audit'])('retries delayed versions with an %s without another event',
+    async (auditState) => {
+      if (auditState === 'absent audit') {
+        getChangedIds.mockResolvedValue([]);
+      }
+      getVersions.mockResolvedValueOnce([]);
+
+      await refreshVersionsFromPush({ marketId: mockMarketId, objectType: 'comment',
+        objectIdOneTwo: mockCommentId, version: 2 });
+      await flushWork();
+      expect(fetchComments).not.toHaveBeenCalled();
+
+      jest.advanceTimersByTime(2000);
+      await flushWork();
+      jest.advanceTimersByTime(5000);
+      await flushWork();
+      jest.advanceTimersByTime(2500);
+
+      expect(getVersions).toHaveBeenCalledTimes(2);
+      expect(pushMessage).toHaveBeenCalledWith('CommentsChannel', expect.objectContaining({
+        commentDetails: { [mockMarketId]: [question] }
+      }));
+    });
+
+  it('does not force a refresh for a pushed version already in memory', async () => {
+    mockCommentsState[mockMarketId] = [question];
+
+    await refreshVersionsFromPush({ marketId: mockMarketId, objectType: 'comment',
+      objectIdOneTwo: mockCommentId, version: 2 });
+    await flushWork();
+    jest.advanceTimersByTime(30000);
+    await flushWork();
+
+    expect(getVersions).not.toHaveBeenCalled();
+    expect(fetchComments).not.toHaveBeenCalled();
+  });
+
+  it('retains a pushed resolution while editing and reconciles it after blur', async () => {
+    const uninstall = installEditingPause();
+    const editor = document.createElement('textarea');
+    document.body.appendChild(editor);
+    try {
+      editor.focus();
+      editor.dispatchEvent(new InputEvent('input', { bubbles: true, data: 'a' }));
+      const refresh = refreshVersionsFromPush({ marketId: mockMarketId, objectType: 'comment',
+        objectIdOneTwo: mockCommentId, version: 2 });
+      await flushWork();
+      expect(getChangedIds).not.toHaveBeenCalled();
+
+      editor.blur();
+      await refresh;
+      jest.advanceTimersByTime(2500);
+
+      expect(pushMessage).toHaveBeenCalledWith('CommentsChannel', expect.objectContaining({
+        commentDetails: { [mockMarketId]: [question] }
+      }));
+    } finally {
+      uninstall();
+      editor.remove();
     }
   });
 });

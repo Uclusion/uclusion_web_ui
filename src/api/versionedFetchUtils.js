@@ -857,6 +857,13 @@ async function doVersionRefresh(dispatchers, refreshIsCurrent) {
   const forcedMarketIds = new Set();
   pruneExpiredNotificationChecks();
   pendingNotificationChecks.forEach((check) => forcedMarketIds.add(check.marketId));
+  // The last audit may name an already-synced vote while a pushed resolution or stage
+  // change is still missing. That exact missing signature remains evidence of dirty data.
+  pendingPushChecks.forEach((check) => {
+    if (!checkSignatureInStorage(check.marketId, check.signature, storageStates)) {
+      forcedMarketIds.add(check.marketId);
+    }
+  });
   timeSpan('signatureDiff', () => (audits || []).forEach((audit) => {
     const { signature, inline, active, banned, id } = audit;
     if (banned) {
@@ -875,9 +882,9 @@ async function doVersionRefresh(dispatchers, refreshIsCurrent) {
       }
     }
   }));
-  // A notification dependency remains authoritative even when the audit row is absent. It stays
-  // pending, so an object-version row that is not visible yet is retried through this same normal
-  // market refresh path.
+  // Missing pushed objects and notification dependencies remain authoritative even when the
+  // audit row is absent. Pending checks retry object-version rows that are not visible yet
+  // through this same normal market refresh path.
   forcedMarketIds.forEach((marketId) => foregroundList.push(marketId));
   // T-all-2485: this fired every cycle regardless, and the presences listener answered it with a
   // dispatch whose reducer correctly returned the same state - which the wrapper then persisted

@@ -236,6 +236,14 @@ existing match instead of duplicating it. Cite related-but-distinct short codes
 in the new description. Pass initial `tasks` when parts could be reviewed,
 committed, or documented separately.
 
+When the human requests a new job containing existing bugs, pass their short
+codes in `bug_short_code_ids` alongside any new `tasks`. Only standalone bugs
+can move, and only into the job created by that call. Each distinct bug has a
+`moved`, `failed`, or `unconfirmed` outcome; one failure does not stop the other
+moves. Report those outcomes with the returned new job identity. Preserve that
+identity when checking an unconfirmed result with `get_job`: each `add_job`
+call creates another job, so repeating the call is not a retry of that job.
+
 `add_job`, `add_task`, `add_bug`, and `add_blocker` create content as the human.
 Use them only for the human's explicit request. AI-originated ideas use
 `make_suggestion`. The one exception is decomposing a newly requested job into

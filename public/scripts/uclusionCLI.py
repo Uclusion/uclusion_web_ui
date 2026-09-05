@@ -3831,6 +3831,10 @@ def build_parser():
         help='Initial task Markdown. Repeat for multiple tasks.',
     )
     add_job_parser.add_argument(
+        '--bug-short-code-id', action='append', dest='bug_short_code_ids',
+        help='Existing standalone bug to move into the new job. Repeat for multiple bugs.',
+    )
+    add_job_parser.add_argument(
         '--view-short-code-id', help='Existing job or bug whose view receives the job.',
     )
     configure_mcp_parser(
@@ -3840,6 +3844,7 @@ def build_parser():
             mcp_field('name', 'name'),
             mcp_field('description', 'description'),
             mcp_field('tasks', 'tasks'),
+            mcp_field('bug_short_code_ids', 'bug_short_code_ids'),
             mcp_field('view_short_code_id', 'view_short_code_id'),
         ),
         ('name', 'description'),

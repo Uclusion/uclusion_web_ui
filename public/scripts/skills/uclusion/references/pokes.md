@@ -18,8 +18,11 @@ When there is no assigned work, call `find_work` without waiting to be asked.
 Whenever presenting `find_work` results or any equivalent current-work list,
 render the complete result as a numbered list. Every numbered entry must include
 both its exact `short_code_id` and returned `name` (its short description); never
-present an entry as only a bug, job, suggestion, or other short code. Apply this
-invariant at an idle session start, immediately after finishing or handing off
+present an entry as only a bug, job, suggestion, or other short code. For each
+bug, also display its returned `severity_label` alongside the code and name;
+use `unknown` when the label is missing. Priority comes from the bug's stored
+severity, never notification urgency or list position. Apply this invariant at
+an idle session start, immediately after finishing or handing off
 work, and anywhere else current work is shown. A deferred Poke does not count as
 concrete work; find_work is the current state. A human-guided assignment retained
 through an input or review handoff is still assigned work, so the list is

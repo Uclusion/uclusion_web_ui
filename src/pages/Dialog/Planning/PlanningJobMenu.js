@@ -22,6 +22,7 @@ import { useHistory } from 'react-router';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { getGroupPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import _ from 'lodash';
+import useDoableStageGuard from '../../../components/AddNewWizards/JobStage/useDoableStageGuard';
 
 const useStyles = makeStyles(() => ({
   paperMenu: {
@@ -32,6 +33,7 @@ const useStyles = makeStyles(() => ({
 function PlanningJobMenu(props) {
   const { anchorEl, recordPositionToggle, marketId, investibleId, stageId, openForInvestment, isBlocked,
     needsAssist, groupId, marketPresences, assigned } = props;
+  const confirmDoableQuestions = useDoableStageGuard(marketId);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, invDispatch] = useContext(InvestiblesContext);
@@ -54,6 +56,9 @@ function PlanningJobMenu(props) {
 
   function stageChange(targetStageId, readyToStart, assignments) {
     if (!operationRunning) {
+      if (confirmDoableQuestions(investibleId, targetStageId, assignments?.[0])) {
+        return Promise.resolve(false);
+      }
       const moveInfo = {
         marketId,
         investibleId,

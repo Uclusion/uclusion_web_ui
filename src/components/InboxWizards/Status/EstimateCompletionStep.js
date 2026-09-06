@@ -26,10 +26,12 @@ import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctio
 import JobDescription from '../JobDescription';
 import { REPORT_TYPE } from '../../../constants/comments';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { getCommentsSortedByType } from '../../../utils/commentFunctions';
+import { getCommentsSortedByType, getUnresolvedAIQuestions } from '../../../utils/commentFunctions';
+import useDoableStageGuard from '../../AddNewWizards/JobStage/useDoableStageGuard';
 
 function EstimateCompletionStep(props) {
   const { marketId, investibleId, message, updateFormData = () => {}, formData = {} } = props;
+  const confirmDoableQuestions = useDoableStageGuard(marketId);
   const classes = wizardStyles();
   const intl = useIntl();
   const history = useHistory();
@@ -41,7 +43,7 @@ function EstimateCompletionStep(props) {
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const { link_type: linkType } = message;
   const marketInvestible = getInvestible(investiblesState, investibleId) || {};
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
@@ -73,6 +75,15 @@ function EstimateCompletionStep(props) {
   function submit() {
     if (alreadyMoved) {
       const startedStage = getAcceptedStage(marketStagesState, marketId);
+      if (getUnresolvedAIQuestions(comments, marketPresencesState[marketId]).length > 0) {
+        // Save the submitted estimate before leaving this form; the stage still needs confirmation.
+        return updateInvestible({ marketId, investibleId, daysEstimate: newEstimate })
+          .then((fullInvestible) => {
+            refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
+            confirmDoableQuestions(investibleId, startedStage.id);
+          })
+          .finally(() => setOperationRunning(false));
+      }
       const moveInfo = {
         marketId,
         investibleId,

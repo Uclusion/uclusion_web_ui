@@ -287,7 +287,9 @@ or re-review work.
 Execution also requires the capsule gate from the invariants. Select exactly
 one executable target for the implementation pass:
 
-- A job-level pass uses the job capsule.
+- A job-level pass for one cohesive outcome uses the job capsule.
+- Unrelated top-level tasks execute as separate task passes, each with its own
+  complete task capsule, even when the human starts them together as one job.
 - An independently executing top-level task uses its task capsule. A grouped
   task normalizes to its top-level parent.
 - A task capsule is complete and solely authoritative for that task pass.
@@ -415,8 +417,12 @@ exceptions are the resolved-bug and Reviewable-transition sweeps in `pokes.md`,
 and a current capsule's `Updated` event, which also requires the obsolete-review
 cleanup in the capsule section above.
 
-The report names the exact current capsule R-code. It does not restate
-unchanged capsule content. Under `Deltas`, say `No implementation deltas` or
+The report names the exact current capsule R-code. A final job completion
+report covering separate task passes names each task and its exact current
+capsule R-code, with deltas attributed to that capsule. It keeps those
+contracts separate and retains the limit of one open AI review per job.
+It does not restate unchanged capsule content. Under `Deltas`, say
+`No implementation deltas` or
 give one concise bullet for each actual omission, changed behavior, addition,
 scope expansion, or newly introduced decision. Name its observable effect and
 verification or approval status. Report implementation differences once here;

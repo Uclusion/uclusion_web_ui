@@ -23,9 +23,11 @@ import { getInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import JobDescription from '../../InboxWizards/JobDescription';
+import useDoableStageGuard from '../JobStage/useDoableStageGuard';
 
 function JobApproveStep(props) {
   const { marketId, groupId, updateFormData = () => {}, formData = {}, onFinish } = props;
+  const confirmDoableQuestions = useDoableStageGuard(marketId);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -77,6 +79,9 @@ function JobApproveStep(props) {
 
   function start() {
     const fullMoveStage = getAcceptedStage(marketStagesState, marketId);
+    if (confirmDoableQuestions(investibleId, fullMoveStage.id)) {
+      return Promise.resolve(false);
+    }
     const fullCurrentStage = getFullStage(marketStagesState, marketId, stageId) || {};
     const moveInfo = {
       marketId,
@@ -91,6 +96,7 @@ function JobApproveStep(props) {
         onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, marketId, commentsState,
           commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
           fullCurrentStage, marketPresencesDispatch);
+        onFinish(formData);
         return formData;
       });
   }
@@ -148,6 +154,7 @@ function JobApproveStep(props) {
         showOtherNext={_.isEmpty(requiredApprovers) && isAssignedToMe}
         otherNextValid
         onOtherNext={start}
+        onOtherDoAdvance={false}
         otherNextLabel="skipAllApprovals"
         onTerminate={onTerminate}
         terminateLabel="JobWizardGotoJob"

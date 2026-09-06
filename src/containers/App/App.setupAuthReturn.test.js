@@ -1,10 +1,10 @@
 import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Router } from 'react-router';
-import { createMemoryHistory } from 'history';
+import { createBrowserHistory, createMemoryHistory } from 'history';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { LocaleContext } from '../../contexts/LocaleContext';
-import { clearRedirect, getRedirect } from '../../utils/redirectUtils';
+import { clearRedirect, getRedirect, redirectFromHistory } from '../../utils/redirectUtils';
 import AppWithAuth from './AppWithAuth';
 
 
@@ -151,6 +151,46 @@ describe('setup authorization auth return', () => {
     act(() => root.unmount());
     window.IS_REACT_ACT_ENVIRONMENT = previousActEnvironment;
     clearRedirect();
+  });
+
+  it('clears the sign-out wizard before a later Gmail sign-in captures its return route', async () => {
+    const previousUrl = window.location.href;
+    try {
+      window.history.replaceState({}, '', '/wizard#type=signout');
+      history = createBrowserHistory();
+      await act(async () => {
+        renderBoundary();
+      });
+
+      // Sign-out resets the browser URL before the authentication event arrives.
+      window.history.replaceState({}, '', '/');
+      await act(async () => {
+        await mockAuthListener({ payload: { event: 'signOut' } });
+      });
+
+      expect(history.location.pathname).toBe('/');
+      expect(history.location.hash).toBe('');
+      expect(redirectFromHistory(history)).toBeUndefined();
+    } finally {
+      window.history.replaceState({}, '', previousUrl);
+    }
+  });
+
+  it('restores the explicit setup destination after switching accounts signs out', async () => {
+    mockAuthState = 'signedIn';
+    mockCurrentAuthenticatedUser.mockReturnValue(new Promise(() => {}));
+    mockOnSignOut.mockImplementation(async () => {
+      await mockAuthListener({ payload: { event: 'signOut' } });
+    });
+    await act(async () => {
+      renderBoundary();
+    });
+
+    await act(async () => {
+      await mockSetupApprovalProps.onSwitchAccount();
+    });
+
+    expect(history.location.pathname).toBe('/setup/opaque-id');
   });
 
   it('restores the setup page when sign-in returns to the site root', async () => {

@@ -26,9 +26,11 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { findMessageOfType } from '../../../utils/messageUtils';
 import { dismissWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import useDoableStageGuard from '../JobStage/useDoableStageGuard';
 
 function JobApproveStep(props) {
   const { marketId, groupId, updateFormData = () => {}, formData = {}, investibleId, currentReasonId, isInline } = props;
+  const confirmDoableQuestions = useDoableStageGuard(marketId);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -101,6 +103,9 @@ function JobApproveStep(props) {
 
   function start() {
     const fullMoveStage = getAcceptedStage(marketStagesState, marketId);
+    if (confirmDoableQuestions(investibleId, fullMoveStage.id)) {
+      return Promise.resolve(false);
+    }
     const fullCurrentStage = getFullStage(marketStagesState, marketId, stage) || {};
     const moveInfo = {
       marketId,

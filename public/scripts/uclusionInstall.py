@@ -292,7 +292,7 @@ WORKFLOW_ASSET_SHA256 = {
     'claude_stub': 'b89451b4cf5dbba8199e2b2ac138e58250077415a1da6cac32e5e70ab03f425b',
     'codex_stub': '907ba73c491210e2b26fc5c3005964e437c3e61e435894b1d5e5daafc4c3b641',
     'cursor_stub': '2e4bf88903896ba312738f9a4ab7163582df99050b62f13e0e0324a6580a412f',
-    'skill': '0142588d70a2d04092aa6b362a88b0e6ff8c5efb995741bea2abc70aeb0d6371',
+    'skill': 'a5a4f56fabed5e1e9f99cdb2a7936a2e09404e033d52d4dd5b1b7000dc42e0f0',
     'pokes_reference': '8050bc466a921d6b761c96c2641897d77adbc4aca2f7972e3028fb3c1231efd3',
     'operations_reference': '571b46c8e32153e5f15ca6632377149c1639bd6a4243faecf73e42c0e8e48432',
     'completion_reference': 'accd3b8f2f5d37a94c8d8a58a2aaef4c1ae1225a3c574db2af279e3ab5249684',

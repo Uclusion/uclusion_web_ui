@@ -32,6 +32,7 @@ import PokeReminder from '../PokeReminder';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
+import useDoableStageGuard from '../../AddNewWizards/JobStage/useDoableStageGuard';
 
 function DoneVotingStep(props) {
   // message is present when reached from an inbox approval row (B-all-524): the terminate
@@ -48,6 +49,7 @@ function DoneVotingStep(props) {
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const history = useHistory();
+  const confirmDoableQuestions = useDoableStageGuard(marketId);
   const classes = wizardStyles();
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const marketComments = getMarketComments(commentsState, marketId, groupId);
@@ -65,6 +67,9 @@ function DoneVotingStep(props) {
 
   function accept() {
     const startedStage = getAcceptedStage(marketStagesState, marketId);
+    if (confirmDoableQuestions(investibleId, startedStage.id)) {
+      return Promise.resolve(false);
+    }
     const moveInfo = {
       marketId,
       investibleId,

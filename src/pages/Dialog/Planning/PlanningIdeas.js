@@ -72,6 +72,7 @@ import { calculateInvestibleVoters } from '../../../utils/votingUtils';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import DismissableText from '../../../components/Notifications/DismissableText';
 import { BLUE_LEVEL } from '../../../constants/notifications';
+import useDoableStageGuard from '../../../components/AddNewWizards/JobStage/useDoableStageGuard';
 
 // Orange palette for the swimlane overdue/report-required clock badge, matching
 // the assistance-section Suggestion badge so the two views read the same
@@ -117,6 +118,7 @@ function PlanningIdeas(props) {
     groupId,
     comments = []
   } = props;
+  const confirmDoableQuestions = useDoableStageGuard(marketId);
   const history = useHistory();
   const intl = useIntl();
   const theme = useTheme();
@@ -266,6 +268,11 @@ function PlanningIdeas(props) {
       }
     } else {
       removeDroppableById();
+      const marketInfo = getMarketInfo(getInvestible(invState, id), marketId);
+      const assignId = marketInfo.assigned?.includes(presenceId) ? undefined : presenceId;
+      if (confirmDoableQuestions(id, acceptedStageId, assignId)) {
+        return;
+      }
       const link = getDropDestination(acceptedStageId, id, stageId);
       if (link) {
         navigate(history, link);

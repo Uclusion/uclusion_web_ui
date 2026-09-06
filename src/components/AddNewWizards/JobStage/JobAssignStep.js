@@ -17,6 +17,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getUnresolvedAIQuestions } from '../../../utils/commentFunctions';
 
 function JobAssignStep (props) {
   const { marketId, updateFormData = () => {}, formData = {}, investibleId, marketInfo, myFinish: finish, requiresAction } = props;
@@ -45,6 +46,10 @@ function JobAssignStep (props) {
   }
 
   function isRequiresInput() {
+    if (isAcceptedStage(fullMoveStage) &&
+      getUnresolvedAIQuestions(unresolvedComments, marketPresencesState[marketId]).length > 0) {
+      return true;
+    }
     return !_.isEmpty((unresolvedComments || []).find((fromComment) => {
       return (formData.wasSet && value.includes(fromComment.created_by)
         && (fromComment.comment_type === QUESTION_TYPE || fromComment.comment_type === SUGGEST_CHANGE_TYPE));

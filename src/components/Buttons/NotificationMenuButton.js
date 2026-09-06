@@ -14,10 +14,10 @@ import {
   navigate,
   preventDefaultAndProp
 } from '../../utils/marketIdPathFunctions';
-import { deleteOrDehilightMessages } from '../../api/users';
+import { deleteOrDehilightMessages, shouldRemoveMessage } from '../../api/users';
 import { addNavigation } from '../../contexts/NotificationsContext/notificationsContextReducer';
 
-// T-all-2447 / B-all-582: every notification bell offers a choice - go to the notification or clear it -
+// T-all-2447 / B-all-582: every notification bell offers navigation and clearing or marking read,
 // following the All Done button's menu-before-action pattern
 function NotificationMenuButton(props) {
   const { message, lightSurface, unhighlightedColor, iconStyle, clearOnly } = props;
@@ -27,6 +27,7 @@ function NotificationMenuButton(props) {
   const intl = useIntl();
   const theme = useTheme();
   const { warningColor } = useButtonColors();
+  const canClear = shouldRemoveMessage(message, false, true);
   const useUnhighlightedColor = unhighlightedColor ||
     (theme.palette.type === 'dark' ? DARK_INFO_COLOR : undefined);
   return (
@@ -63,12 +64,12 @@ function NotificationMenuButton(props) {
             {intl.formatMessage({ id: 'notificationGoTo' })}
           </MenuItem>
         )}
-        <MenuItem onClick={(event) => {
+        <MenuItem disabled={!canClear && !message.is_highlighted} onClick={(event) => {
           preventDefaultAndProp(event);
           setAnchorEl(null);
           deleteOrDehilightMessages([message], messagesDispatch, true, false, true);
         }}>
-          {intl.formatMessage({ id: 'notificationClear' })}
+          {intl.formatMessage({ id: canClear ? 'notificationClear' : 'markRead' })}
         </MenuItem>
       </Menu>
     </>
@@ -77,7 +78,7 @@ function NotificationMenuButton(props) {
 
 NotificationMenuButton.propTypes = {
   message: PropTypes.object.isRequired,
-  // In the inbox you are already at the notification, so only clearing it makes sense
+  // In the inbox you are already at the notification, so hide navigation.
   clearOnly: PropTypes.bool,
 };
 

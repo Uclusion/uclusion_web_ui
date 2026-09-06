@@ -32,6 +32,7 @@ import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { IN_PROGRESS_WIZARD_TYPE } from '../../../constants/markets';
+import useDoableStageGuard from './useDoableStageGuard';
 
 function StageActionStep(props) {
   const { marketId, groupId, updateFormData = () => {}, formData = {}, investibleId, currentReasonId, assignId } = props;
@@ -42,6 +43,7 @@ function StageActionStep(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const history = useHistory();
+  const confirmDoableQuestions = useDoableStageGuard(marketId);
   const classes = useContext(WizardStylesContext);
   const inv = getInvestible(investiblesState, investibleId);
   const editorName = getJobApproveEditorName(investibleId);
@@ -127,6 +129,9 @@ function StageActionStep(props) {
 
   function start() {
     const fullMoveStage = getAcceptedStage(marketStagesState, marketId);
+    if (confirmDoableQuestions(investibleId, fullMoveStage.id, assignId)) {
+      return Promise.resolve(false);
+    }
     const fullCurrentStage = getFullStage(marketStagesState, marketId, stage) || {};
     const moveInfo = {
       marketId,

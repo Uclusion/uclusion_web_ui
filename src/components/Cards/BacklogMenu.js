@@ -11,6 +11,7 @@ import { JOB_STAGE_WIZARD_TYPE } from '../../constants/markets';
 import { useHistory } from 'react-router';
 import Chip from '@material-ui/core/Chip';
 import { AssignmentInd, Block } from '@material-ui/icons';
+import useDoableStageGuard from '../AddNewWizards/JobStage/useDoableStageGuard';
 
 const useStyles = makeStyles(() => ({
   paperMenu: {
@@ -35,6 +36,7 @@ function BacklogMenu(props) {
   const { anchorEl, recordPositionToggle, marketId, investibleId, openForInvestment, mouseX, mouseY,
     myGroupPresence, isSingleUser, acceptedStageId, stage, inDialogStageId, notDoingStageId,
     furtherWorkStageId } = props;
+  const confirmDoableQuestions = useDoableStageGuard(marketId);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const classes = useStyles();
@@ -88,12 +90,16 @@ function BacklogMenu(props) {
 
   function assignJob() {
     if (isSingleUser) {
+      const stageId = !_.isEmpty(myGroupPresence) ? acceptedStageId : inDialogStageId;
+      if (confirmDoableQuestions(investibleId, stageId, myGroupPresence.id)) {
+        return Promise.resolve(false);
+      }
       const moveInfo = {
         marketId,
         investibleId,
         stageInfo: {
           current_stage_id: stage,
-          stage_id: !_.isEmpty(myGroupPresence) ? acceptedStageId : inDialogStageId,
+          stage_id: stageId,
           assignments: [myGroupPresence.id]
         },
       };

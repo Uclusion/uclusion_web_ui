@@ -92,6 +92,7 @@ function JobStageWizard(props) {
   return (
     <WizardStylesProvider>
       <FormdataWizard name={`job_stage_wizard${investibleId}`} useLocalStorage={false}
+                      key={`${investibleId}:${useStageId}:${isAssign}:${assignId}`}
                       defaultFormData={{approveQuantity: Math.abs(approveQuantity), originalQuantity: approveQuantity,
                         wasDeleted: yourVote?.deleted, userId: yourPresence?.id, approveReason: originalReason,
                         originalReason, stage: useStageId ? useStageId : undefined, stageWasSet: !!useStageId,
@@ -120,4 +121,3 @@ JobStageWizard.propTypes = {
 };
 
 export default JobStageWizard;
-

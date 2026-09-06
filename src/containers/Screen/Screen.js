@@ -540,7 +540,7 @@ function Screen(props) {
           useLink={useLink} typeObjectId={typeObjectId}
         />
       )}
-      {!mobileLayout && !hidden && (
+      {!mobileLayout && !hidden && !reallyAmLoading && (
         <div className={classes.paper}>
           {sideNavigationContents}
         </div>

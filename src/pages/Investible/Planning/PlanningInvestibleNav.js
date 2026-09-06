@@ -74,6 +74,8 @@ import NameField, { getNameStoredState } from '../../../components/TextFields/Na
 import { DARK_ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
 import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
 import PokeAIButton from '../../../components/Buttons/PokeAIButton';
+import useDoableStageGuard from '../../../components/AddNewWizards/JobStage/useDoableStageGuard';
+import { getUnresolvedAIQuestions } from '../../../utils/commentFunctions';
 
 const useStyles = makeStyles(
   () => ({
@@ -89,6 +91,7 @@ export default function PlanningInvestibleNav(props) {
   const { name, marketInvestible, classes, userId, isAssigned, labels,
     pageState, marketPresences, assigned, isInVoting, investibleComments, marketInfo, marketId,
     updatePageState, investibleId, yourVote, openInlineWizard } = props;
+  const confirmDoableQuestions = useDoableStageGuard(marketId);
   const intl = useIntl();
   const history = useHistory();
   const [themeMode] = useContext(ThemeModeContext);
@@ -160,7 +163,8 @@ export default function PlanningInvestibleNav(props) {
     const openAssistance = investibleComments.find((comment) => !comment.resolved &&
       [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(comment.comment_type));
     const hasOpenTodos = !_.isEmpty(openTodos) && isInReviewStage(fullMoveStage);
-    return hasOpenTodos ||
+    return hasOpenTodos || (isAcceptedStage(fullMoveStage) &&
+      getUnresolvedAIQuestions(investibleComments, marketPresencesState[marketId]).length > 0) ||
       (fullStage.move_on_comment && openAssistance && !fullMoveStage.close_comments_on_entrance &&
         !isFurtherWorkStage(fullMoveStage));
   }
@@ -238,6 +242,9 @@ export default function PlanningInvestibleNav(props) {
 
   function assignToSingleUser() {
     const fullMoveStage = getAcceptedStage(marketStagesState, marketId);
+    if (confirmDoableQuestions(investibleId, fullMoveStage.id, userId)) {
+      return Promise.resolve(false);
+    }
     const moveInfo = {
       marketId,
       investibleId,
@@ -647,7 +654,7 @@ export const useMetaDataStyles = makeStyles(
   { name: "MetaData" }
 );
 
-function MarketMetaData(props) {
+export function MarketMetaData(props) {
   const {
     marketId,
     investibleId,
@@ -713,6 +720,9 @@ function MarketMetaData(props) {
       const requiresAssignment = !isSingleUser && _.isEmpty(assigned) && fullMoveStage.allows_assignment;
       if (requiresClose || requiresOtherAction || requiresAssignment) {
         let fullStageLink = `${stageLink}&stageId=${stageMoveId}`;
+        if (isSingleUser && !isAssigned && isAcceptedStage(fullMoveStage)) {
+          fullStageLink += `&assignId=${userId}`;
+        }
         if (stagesInfo.isInBlocked) {
           fullStageLink = `${fullStageLink}&isBlocked=true`;
         }

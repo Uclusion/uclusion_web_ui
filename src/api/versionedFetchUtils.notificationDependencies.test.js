@@ -12,6 +12,7 @@ import {
   getStorageStates,
   refreshVersions,
   refreshVersionsNow,
+  refreshVersionsOnce,
   stopRefreshRunner
 } from './versionedFetchUtils';
 
@@ -21,6 +22,7 @@ const mockCommentsState = {};
 const mockPresencesState = {};
 const mockInvestiblesState = {};
 const mockMarketsState = { marketDetails: [{ id: mockMarketId, version: 2 }] };
+let mockInitialSyncStatus;
 
 jest.mock('./summaries', () => ({ getChangedIds: jest.fn(), getVersions: jest.fn() }));
 jest.mock('./comments', () => ({ fetchComments: jest.fn() }));
@@ -34,7 +36,11 @@ jest.mock('../utils/RepeatingFunction', () => ({
     stop() {}
   }
 }));
-jest.mock('./syncStatus', () => ({ recordInitialSyncCycle: jest.fn() }));
+jest.mock('./syncStatus', () => ({
+  recordInitialSyncCycle: jest.fn((...args) => mockInitialSyncStatus?.recordInitialSyncCycle(...args)),
+  isInitialSyncComplete: () => mockInitialSyncStatus?.isInitialSyncComplete() || false,
+  markInitialSyncComplete: () => mockInitialSyncStatus?.markInitialSyncComplete(),
+}));
 jest.mock('../authorization/TokenStorageManager', () => jest.fn());
 jest.mock('../contexts/CommentsContext/CommentsContext', () => ({
   COMMENTS_CONTEXT_NAMESPACE: 'comments_context',
@@ -200,6 +206,89 @@ describe('notification dependency refresh', () => {
       dateSpy.mockRestore();
     }
   });
+});
+
+it('keeps initial readiness pending through canceled fetches and queued releases, then accepts the follower snapshot', async () => {
+  const flushWork = () => new Promise(jest.requireActual('timers').setImmediate);
+  function freshSyncStatus() {
+    jest.isolateModules(() => {
+      mockInitialSyncStatus = jest.requireActual('./syncStatus');
+    });
+  }
+  freshSyncStatus();
+  try {
+    mockInitialSyncStatus.markDiskAdoptionComplete([]);
+    expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(false);
+
+    getChangedIds.mockRejectedValueOnce(new Error('Discovery failed'));
+    expect(await refreshVersionsOnce()).toBeUndefined();
+    expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(false);
+
+    let finishCanceledDiscovery;
+    getChangedIds.mockImplementationOnce(() => new Promise((resolve) => { finishCanceledDiscovery = resolve; }));
+    const canceled = refreshVersionsOnce();
+    await flushWork();
+    stopRefreshRunner();
+    finishCanceledDiscovery([]);
+    expect(await canceled).toBe(0);
+    expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(false);
+
+    const comment = { id: mockCommentId, version: 1, comment_type: 'QUESTION' };
+    const audits = [{ id: mockMarketId, active: true,
+      signature: { object_type: 'comment', object_id_one: mockCommentId, version: 1 } }];
+    let finishSecondDiscovery;
+    let finishThirdDiscovery;
+    getChangedIds.mockResolvedValueOnce(audits)
+      .mockImplementationOnce(() => new Promise((resolve) => { finishSecondDiscovery = resolve; }))
+      .mockImplementationOnce(() => new Promise((resolve) => { finishThirdDiscovery = resolve; }));
+    getVersions.mockResolvedValue([{ market_id: mockMarketId, signatures: [{
+      type: 'comment', object_versions: [{ object_id_one: mockCommentId, version: 1 }]
+    }] }]);
+    getMarketClient.mockResolvedValue({ id: 'client' });
+    let finishComments;
+    fetchComments.mockImplementationOnce(() => new Promise((resolve) => { finishComments = resolve; }));
+    const commentsDispatch = jest.fn(() => {
+      expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(false);
+      mockCommentsState[mockMarketId] = [comment];
+    });
+    const dispatchers = { commentsDispatch, diffDispatch: jest.fn(), index: {}, ticketsDispatch: jest.fn() };
+
+    const initialRefresh = refreshVersionsNow(dispatchers);
+    await flushWork();
+    await refreshVersionsNow(dispatchers);
+    finishComments([comment]);
+    await flushWork();
+    await refreshVersionsNow(dispatchers);
+    finishSecondDiscovery(audits);
+    await flushWork();
+
+    // The second discovery sees the accrued comment as synced, but a queued cycle still
+    // holds its release. The UI must remain loading until those dispatches actually happen.
+    expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(false);
+    expect(commentsDispatch).not.toHaveBeenCalled();
+    finishThirdDiscovery(audits);
+    await initialRefresh;
+    expect(commentsDispatch).toHaveBeenCalledTimes(1);
+    expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(true);
+
+    stopRefreshRunner();
+    delete mockCommentsState[mockMarketId];
+    freshSyncStatus();
+    getChangedIds.mockResolvedValue(audits);
+    fetchComments.mockResolvedValue([comment]);
+    expect(await refreshVersionsOnce(dispatchers)).toBe(1);
+    expect(commentsDispatch).toHaveBeenCalledTimes(2);
+    expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(true);
+
+    freshSyncStatus();
+    mockInitialSyncStatus.markDiskAdoptionComplete(mockMarketsState.marketDetails);
+    expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(true);
+  } finally {
+    stopRefreshRunner();
+    delete mockCommentsState[mockMarketId];
+    mockInitialSyncStatus = undefined;
+    jest.clearAllMocks();
+  }
 });
 
 describe('pushed changes hidden by the last audit signature', () => {

@@ -17,7 +17,7 @@ export function isInitialSyncComplete() {
   return initialSyncComplete;
 }
 
-function markInitialSyncComplete() {
+export function markInitialSyncComplete() {
   if (initialSyncComplete) {
     return;
   }
@@ -25,8 +25,10 @@ function markInitialSyncComplete() {
   pushMessage(SYNC_STATUS_CHANNEL, { event: INITIAL_SYNC_COMPLETE });
 }
 
-export function markDiskAdoptionComplete() {
-  markInitialSyncComplete();
+export function markDiskAdoptionComplete(marketDetails) {
+  if (marketDetails?.length) {
+    markInitialSyncComplete();
+  }
 }
 
 export function recordInitialSyncCycle(dirtyMarketCount) {

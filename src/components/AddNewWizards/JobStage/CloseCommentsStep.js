@@ -15,7 +15,7 @@ import _ from 'lodash';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import {
-  getFullStage, isFurtherWorkStage,
+  getFullStage, isAcceptedStage, isFurtherWorkStage,
   isInReviewStage, isNotDoingStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { stageChangeInvestible } from '../../../api/investibles';
@@ -31,6 +31,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { findMessagesForInvestibleId } from '../../../utils/messageUtils';
 import { deleteOrDehilightMessages } from '../../../api/users';
+import { getUnresolvedAIQuestions } from '../../../utils/commentFunctions';
 
 function CloseCommentsStep(props) {
   const { marketId, investibleId, formData = {}, marketInfo, myFinish: finish, isAssign, requiresAction,
@@ -52,13 +53,16 @@ function CloseCommentsStep(props) {
   const assigned = newAssigned || originalAssigned;
   const fullMoveStage = getFullStage(marketStagesState, marketId, stage);
   const fullCurrentStage = getFullStage(marketStagesState, marketId, currentStageId);
+  const aiQuestions = isAcceptedStage(fullMoveStage) ?
+    getUnresolvedAIQuestions(unresolvedComments, marketPresencesState[marketId]) : [];
   const mustResolveComments = unresolvedComments.filter((comment) =>
+    aiQuestions.includes(comment) ||
     (comment.comment_type === ISSUE_TYPE)||
     (isInReviewStage(fullMoveStage) && comment.comment_type === TODO_TYPE)||
       ([QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type) &&
         ((!assignId && _.isEmpty(assigned))||(assignId ? [assignId] : assigned).includes(comment.created_by))));
   const commentThreads = getCommentThreads(mustResolveComments, marketComments);
-  const isMustResolve = fullCurrentStage.move_on_comment ||
+  const isMustResolve = aiQuestions.length > 0 || fullCurrentStage.move_on_comment ||
     !_.isEmpty(unresolvedComments.filter((comment) => comment.comment_type === TODO_TYPE));
   const isSingleSuggest = _.size(mustResolveComments) === 1 &&
     mustResolveComments[0].comment_type === SUGGEST_CHANGE_TYPE;

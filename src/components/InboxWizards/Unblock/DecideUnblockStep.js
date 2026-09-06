@@ -34,6 +34,7 @@ import { formInvestibleLink, formWizardLink, navigate } from '../../../utils/mar
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 import { REPLY_WIZARD_TYPE } from '../../../constants/markets';
 import { hasReply } from '../../AddNewWizards/Reply/ReplyStep';
+import useDoableStageGuard from '../../AddNewWizards/JobStage/useDoableStageGuard';
 
 function DecideUnblockStep(props) {
   const { marketId, commentId, message, formData = {}, updateFormData = () => {} } = props;
@@ -46,6 +47,7 @@ function DecideUnblockStep(props) {
   const [,marketPresencesDispatch] = useContext(MarketPresencesContext);
   const intl = useIntl();
   const history = useHistory();
+  const confirmDoableQuestions = useDoableStageGuard(marketId);
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const comments = getMarketComments(commentState, marketId).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
@@ -70,6 +72,9 @@ function DecideUnblockStep(props) {
   function changeStage(targetStage) {
     const investibleId = commentRoot.investible_id;
     const targetStageId = targetStage.id;
+    if (confirmDoableQuestions(investibleId, targetStageId)) {
+      return Promise.resolve(false);
+    }
     const moveInfo = {
       marketId,
       investibleId,

@@ -55,6 +55,7 @@ import { getComment } from '../../contexts/CommentsContext/commentsContextHelper
 import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { RenderCensus } from '../../utils/renderProfiler';
 import { LeaderContext } from '../../contexts/LeaderContext/LeaderContext';
+import { useInitialSyncComplete } from '../../api/useInitialSyncComplete';
 
 // T-all-2154 poll fast while a URL references data not yet local, then back off so a tab
 // parked on a dead link does not hit the API every two seconds indefinitely
@@ -213,6 +214,7 @@ function Root(props) {
     hideTodoAdd() && hideCommentReplyEdit() && hideDemoLoad() && hideGroupManage() && !isTicketPath(pathname));
 
   const isUserLoaded = userIsLoaded(userState, marketsState);
+  const initialSyncComplete = useInitialSyncComplete('root');
   const dataPollTimerRef = useRef(null);
 
   useEffect(() => {
@@ -334,9 +336,8 @@ function Root(props) {
       navigate(history, '/demo');
       return;
     }
-    // No market navigation until markets hydrate or the empty check below fires on the
-    // first render and sends a user with workspaces to the wizard
-    if (marketsState.initializing) {
+    // Empty disk hydration can finish before the workspace list arrives from the network.
+    if (marketsState.initializing || !initialSyncComplete) {
       return;
     }
     if (isDemoWorkspace || _.isEmpty(defaultMarketLink)) {
@@ -351,7 +352,7 @@ function Root(props) {
       navigate(history, defaultMarketLink, true);
     }
   },  [history, isRootPath, pathname, defaultMarketLink, isDemoWorkspace, authState,
-    marketsState.initializing, userState]);
+    marketsState.initializing, initialSyncComplete, userState]);
 
   useEffect(() => {
     function handleViewChange(isEntry) {
@@ -416,7 +417,8 @@ function Root(props) {
   },  [history, setOnline, isUserLoaded, setShowOfflineMessage, requestFreshness]);
 
   if (authState !== 'signedIn' || action === 'supportWorkspace' || (action === 'demo' && marketsState.initializing) || 
-    (isRootPath && marketJoinedUser && _.isEmpty(defaultMarketLink))||(isTicketPath(pathname)&&!getTicket(ticketState, pathname.substring(1)))) {
+    (isRootPath && marketJoinedUser && (!initialSyncComplete || _.isEmpty(defaultMarketLink)))||
+    (isTicketPath(pathname)&&!getTicket(ticketState, pathname.substring(1)))) {
     return (
       <Screen
         hidden={false}

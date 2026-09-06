@@ -268,6 +268,13 @@ export function isAIAuthoredQuestion(comment, presences) {
     presence.id === comment.created_by && _.isEmpty(presence.email));
 }
 
+// Entering Doable explicitly settles every live AI question, including a question already answered
+// by a human. This is separate from the creation-stage rules for automatically entering Requires Input.
+export function getUnresolvedAIQuestions(comments, presences) {
+  return (comments || []).filter((comment) => !comment.resolved && !comment.deleted && comment.is_sent !== false &&
+    isAIAuthoredQuestion(comment, presences));
+}
+
 export function changeInvestibleStageOnCommentOpen(investibleBlocks, investibleRequiresInput, marketStagesState,
   market_infos, rootInvestible, investibleDispatch, comment, myPresence) {
   const [info] = (market_infos || []);

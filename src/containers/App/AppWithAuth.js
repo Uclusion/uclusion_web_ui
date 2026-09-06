@@ -65,6 +65,9 @@ function AppWithAuth() {
     const { payload } = (data || {});
     const { event } = (payload || {});
     switch (event) {
+      case 'signOut':
+        history.replace('/');
+        break;
       case 'signIn':
         // J-all-400 (C-all-1507): all post sign in routing lives in Root's redirect effect,
         // which consumes the stored redirect and utm once the user record arrives - this

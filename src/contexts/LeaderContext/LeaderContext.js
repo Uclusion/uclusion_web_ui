@@ -10,7 +10,7 @@ import {
 } from '../../api/versionedFetchUtils';
 import { AccountContext } from '../AccountContext/AccountContext';
 import { accountUserPresent, userIsLoaded } from '../AccountContext/accountUserContextHelper';
-import { MarketsContext } from '../MarketsContext/MarketsContext';
+import { MarketsContext, marketsContextHack } from '../MarketsContext/MarketsContext';
 import { MarketPresencesContext } from '../MarketPresencesContext/MarketPresencesContext';
 import { MarketStagesContext } from '../MarketStagesContext/MarketStagesContext';
 import { InvestiblesContext } from '../InvestibesContext/InvestiblesContext';
@@ -34,7 +34,7 @@ import {
   requestFreshness as requestTabFreshness,
   waitForPendingWrites,
 } from '../../api/crossTabFreshness';
-import { markDiskAdoptionComplete } from '../../api/syncStatus';
+import { isInitialSyncComplete, markDiskAdoptionComplete } from '../../api/syncStatus';
 
 const EMPTY_STATE = {
   leader: undefined,
@@ -104,7 +104,7 @@ function LeaderProvider(props) {
 
   const recordDiskAdoption = useCallback(() => {
     diskAdoptedRef.current = true;
-    markDiskAdoptionComplete();
+    markDiskAdoptionComplete(marketsContextHack?.marketDetails);
   }, []);
 
   const reloadAll = useCallback((allowWhileEditing=false) => reloadAllFromDisk(allowWhileEditing), []);
@@ -339,7 +339,7 @@ function LeaderProvider(props) {
         // period unless leadership arrives first and does the full refresh to disk.
         reloadAll().catch(() => console.warn('Error reloading follower state'));
         const timer = setTimeout(() => {
-          if (!diskAdoptedRef.current && !myTab.isLeader) {
+          if ((!diskAdoptedRef.current || !isInitialSyncComplete()) && !myTab.isLeader) {
             console.info('Refreshing versions once without leadership');
             refreshVersionsOnce(dispatchers).catch(() => console.warn('Error refreshing'));
           }

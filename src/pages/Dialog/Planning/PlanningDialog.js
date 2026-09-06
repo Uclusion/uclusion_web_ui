@@ -100,6 +100,7 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { calculateInvestibleVoters } from '../../../utils/votingUtils';
 import { getSwimlaneInvestiblesForStage } from './userUtils';
 import LightbulbOutlined from '../../../components/CustomChip/LightbulbOutlined';
+import useDoableStageGuard from '../../../components/AddNewWizards/JobStage/useDoableStageGuard';
 
 function getAnchorId(tabIndex) {
   switch (tabIndex) {
@@ -126,6 +127,7 @@ function PlanningDialog(props) {
     marketId,
     groupId
   } = props;
+  const confirmDoableQuestions = useDoableStageGuard(marketId);
   const [searchResults] = useContext(SearchResultsContext);
   const { results, parentResults, search } = searchResults;
   const history = useHistory();
@@ -440,6 +442,9 @@ function PlanningDialog(props) {
         const marketInfo = getMarketInfo(inv, marketId) || {};
         if (marketInfo.stage !== acceptedStage.id) {
           const fullMoveStage = !_.isEmpty(myGroupPresence) ? acceptedStage : inDialogStage;
+          if (confirmDoableQuestions(id, fullMoveStage.id, myGroupPresence.id)) {
+            return Promise.resolve(false);
+          }
           const moveInfo = {
             marketId,
             investibleId: id,

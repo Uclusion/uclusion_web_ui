@@ -41,7 +41,7 @@ import {
 import { RepeatingFunction } from '../utils/RepeatingFunction';
 import { isSignedOut } from '../utils/userFunctions';
 import { getMarketClient } from './marketLogin';
-import { recordInitialSyncCycle } from './syncStatus';
+import { isInitialSyncComplete, markInitialSyncComplete, recordInitialSyncCycle } from './syncStatus';
 import { TOKEN_TYPE_MARKET } from './tokenConstants';
 import TokenStorageManager from '../authorization/TokenStorageManager';
 import { addMarketsToStorage } from '../contexts/MarketsContext/marketsContextHelper';
@@ -104,6 +104,7 @@ let releasePending = false;
 let lastCycleEndMs = 0;
 let releaseTimer = undefined;
 let releaseDispatchers = undefined;
+const pendingInitialSyncCycles = [];
 // Incremented when this tab gives up leadership. Work started under an older value may
 // finish its network calls, but it must not release data or restart the recurring runner.
 let refreshLifecycle = 0;
@@ -145,6 +146,9 @@ function doRelease() {
   if (hasAccrued()) {
     timeSpan('release', () => sendMarketsStruct(takeAccrued(), releaseDispatchers));
   }
+  // A clean cycle can see accrued data before it reaches the UI. Publish readiness only
+  // after that data is released, retaining the sync layer's successful-cycle sequence.
+  pendingInitialSyncCycles.splice(0).forEach(recordInitialSyncCycle);
   // Q-all-479 O-1: notifications release with the market data and never ahead of it, because
   // a row whose comment is not in state yet does not function. This fetch is asynchronous, so
   // calling it after the dispatch above keeps that order.
@@ -208,6 +212,7 @@ const matchErrorHandlingVersionRefresh = (dispatchers=undefined, releaseImmediat
         refreshInProgress = false;
         releasePending = false;
         releaseDispatchers = undefined;
+        pendingInitialSyncCycles.length = 0;
         if (hasAccrued()) {
           takeAccrued();
         }
@@ -226,7 +231,9 @@ const matchErrorHandlingVersionRefresh = (dispatchers=undefined, releaseImmediat
       }
       if (refreshSucceeded) {
         lastSuccessfulRefreshMs = Date.now();
-        recordInitialSyncCycle(dirtyMarketCount);
+        if (!isInitialSyncComplete()) {
+          pendingInitialSyncCycles.push(dirtyMarketCount);
+        }
       }
       refreshInProgress = false;
       lastCycleEndMs = Date.now();
@@ -382,6 +389,7 @@ export function stopRefreshRunner() {
   }
   releasePending = false;
   releaseDispatchers = undefined;
+  pendingInitialSyncCycles.length = 0;
   if (hasAccrued()) {
     takeAccrued();
   }
@@ -442,7 +450,16 @@ export function refreshVersionsOnce(dispatchers=undefined) {
     console.info('Not refreshing when signed out')
     return Promise.resolve(true);
   }
-  return matchErrorHandlingVersionRefresh(dispatchers, true);
+  const lifecycle = refreshLifecycle;
+  return matchErrorHandlingVersionRefresh(dispatchers, true).then((dirtyMarketCount) => {
+    // This follower has no recurring runner. Its successful full fetch and immediate
+    // release provide a usable snapshot, as populated disk adoption does for a warm tab.
+    if (lifecycle === refreshLifecycle && !isSignedOut() &&
+        typeof dirtyMarketCount === 'number' && dirtyMarketCount >= 0) {
+      markInitialSyncComplete();
+    }
+    return dirtyMarketCount;
+  });
 }
 
 /**

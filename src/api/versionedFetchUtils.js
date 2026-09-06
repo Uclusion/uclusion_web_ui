@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import { flushSync } from 'react-dom';
 import { isEditingPaused, onEditingResumed } from '../utils/editingPause';
 import { pushMessage } from '../utils/MessageBusUtils'
 import { getChangedIds, getVersions } from './summaries'
@@ -144,7 +145,16 @@ function doRelease() {
   }
   releasePending = false;
   if (hasAccrued()) {
-    timeSpan('release', () => sendMarketsStruct(takeAccrued(), releaseDispatchers));
+    const release = () => sendMarketsStruct(takeAccrued(), releaseDispatchers);
+    timeSpan('release', () => {
+      if (isInitialSyncComplete()) {
+        release();
+      } else {
+        // Startup immediately runs another sync. Publish its data before that pass reads
+        // React context, so a stale snapshot cannot leave loading until the drift timer.
+        flushSync(release);
+      }
+    });
   }
   // A clean cycle can see accrued data before it reaches the UI. Publish readiness only
   // after that data is released, retaining the sync layer's successful-cycle sequence.

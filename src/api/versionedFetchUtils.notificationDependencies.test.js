@@ -1,3 +1,5 @@
+import React, { act, useReducer } from 'react';
+import { createRoot } from 'react-dom/client';
 import { fetchComments } from './comments';
 import { fetchInvestibles } from './marketInvestibles';
 import { getChangedIds, getVersions } from './summaries';
@@ -5,6 +7,7 @@ import { getMarketClient } from './marketLogin';
 import { checkSignatureInStorage } from './storageIntrospector';
 import { pushMessage } from '../utils/MessageBusUtils';
 import { installEditingPause } from '../utils/editingPause';
+import { useInitialSyncComplete } from './useInitialSyncComplete';
 import { FRESHNESS_NAMESPACES, registerNamespaceReloader, reloadFromDisk } from './crossTabFreshness';
 import {
   refreshVersionsForNotificationDependencies,
@@ -18,25 +21,35 @@ import {
 
 const mockMarketId = 'market-id';
 const mockCommentId = 'comment-id';
-const mockCommentsState = {};
+let mockCommentsState = {};
 const mockPresencesState = {};
 const mockInvestiblesState = {};
 const mockMarketsState = { marketDetails: [{ id: mockMarketId, version: 2 }] };
 let mockInitialSyncStatus;
+let mockUseRefreshRunner = false;
 
 jest.mock('./summaries', () => ({ getChangedIds: jest.fn(), getVersions: jest.fn() }));
 jest.mock('./comments', () => ({ fetchComments: jest.fn() }));
 jest.mock('./marketInvestibles', () => ({ fetchInvestibles: jest.fn() }));
 jest.mock('./marketLogin', () => ({ getMarketClient: jest.fn() }));
-jest.mock('../utils/MessageBusUtils', () => ({ pushMessage: jest.fn() }));
+jest.mock('../utils/MessageBusUtils', () => ({
+  ...jest.requireActual('../utils/MessageBusUtils'),
+  pushMessage: jest.fn(jest.requireActual('../utils/MessageBusUtils').pushMessage),
+}));
 jest.mock('../utils/userFunctions', () => ({ isSignedOut: () => false }));
 jest.mock('../utils/RepeatingFunction', () => ({
   RepeatingFunction: class {
+    constructor(...args) {
+      if (mockUseRefreshRunner) {
+        return new (jest.requireActual('../utils/RepeatingFunction').RepeatingFunction)(...args);
+      }
+    }
     start() { return Promise.resolve(); }
     stop() {}
   }
 }));
 jest.mock('./syncStatus', () => ({
+  ...jest.requireActual('./syncStatus'),
   recordInitialSyncCycle: jest.fn((...args) => mockInitialSyncStatus?.recordInitialSyncCycle(...args)),
   isInitialSyncComplete: () => mockInitialSyncStatus?.isInitialSyncComplete() || false,
   markInitialSyncComplete: () => mockInitialSyncStatus?.markInitialSyncComplete(),
@@ -288,6 +301,59 @@ it('keeps initial readiness pending through canceled fetches and queued releases
     delete mockCommentsState[mockMarketId];
     mockInitialSyncStatus = undefined;
     jest.clearAllMocks();
+  }
+});
+
+it('finishes cold leader loading after React publishes data without waiting for drift or reload', async () => {
+  const previousActEnvironment = window.IS_REACT_ACT_ENVIRONMENT;
+  window.IS_REACT_ACT_ENVIRONMENT = true;
+  jest.useFakeTimers();
+  mockUseRefreshRunner = true;
+  jest.isolateModules(() => {
+    mockInitialSyncStatus = jest.requireActual('./syncStatus');
+  });
+  const container = document.createElement('div');
+  const root = createRoot(container);
+  const comment = { id: mockCommentId, version: 1, comment_type: 'QUESTION' };
+  const flushWork = () => new Promise(jest.requireActual('timers').setImmediate);
+  let dispatchers;
+  function Startup() {
+    const [comments, commentsDispatch] = useReducer(
+      (state, { commentDetails }) => ({ ...state, ...commentDetails }), {}
+    );
+    mockCommentsState = comments;
+    dispatchers = { commentsDispatch, diffDispatch: jest.fn(), index: {}, ticketsDispatch: jest.fn() };
+    const ready = useInitialSyncComplete('startup-regression');
+    return <div>{ready ? 'Workspace ready' : 'Loading'}</div>;
+  }
+  getChangedIds.mockResolvedValue([{ id: mockMarketId, active: true,
+    signature: { object_type: 'comment', object_id_one: mockCommentId, version: 1 } }]);
+  getVersions.mockResolvedValue([{ market_id: mockMarketId, signatures: [{
+    type: 'comment', object_versions: [{ object_id_one: mockCommentId, version: 1 }]
+  }] }]);
+  getMarketClient.mockResolvedValue({ id: 'client' });
+  fetchComments.mockResolvedValue([comment]);
+  try {
+    act(() => root.render(<Startup />));
+    expect(container.textContent).toBe('Loading');
+    await act(async () => {
+      await refreshVersionsNow(dispatchers);
+      await flushWork();
+      // Finish the ordinary release window, without reaching the five-minute drift cycle.
+      jest.advanceTimersByTime(2500);
+      await flushWork();
+    });
+    expect(mockCommentsState[mockMarketId]).toEqual([comment]);
+    expect(container.textContent).toBe('Workspace ready');
+  } finally {
+    stopRefreshRunner();
+    act(() => root.unmount());
+    mockCommentsState = {};
+    mockInitialSyncStatus = undefined;
+    mockUseRefreshRunner = false;
+    jest.clearAllMocks();
+    jest.useRealTimers();
+    window.IS_REACT_ACT_ENVIRONMENT = previousActEnvironment;
   }
 });
 

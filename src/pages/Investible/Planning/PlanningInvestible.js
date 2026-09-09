@@ -95,6 +95,7 @@ import { isInInbox } from '../../../contexts/NotificationsContext/notificationsC
 import { DARK_ACTION_BUTTON_COLOR, DARK_TEXT_BACKGROUND_COLOR, useButtonColors } from '../../../components/Buttons/ButtonConstants';
 import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
 import { countAssistanceRootsWithNewMessages } from './assistanceNotificationCounts';
+import { useSyncedMessages } from '../../../contexts/SyncedMessagesContext/SyncedMessagesContext';
 import NotificationMenuButton from '../../../components/Buttons/NotificationMenuButton';
 import Approvals from './Approvals';
 
@@ -390,6 +391,7 @@ function PlanningInvestible(props) {
   const [searchResults] = useContext(SearchResultsContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const syncedMessages = useSyncedMessages();
   const [commentsState] = useContext(CommentsContext);
   const [allDoneAnchorEl, setAllDoneAnchorEl] = useState(null);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -674,11 +676,13 @@ function PlanningInvestible(props) {
   const assistanceCommentsRepliesSearched = investibleComments.filter((comment) => comment.comment_type === REPLY_TYPE &&
     assistanceCommentsSearched.some((parent) => parent.id === comment.root_comment_id));
   const assistanceCommentsSearchedAll = assistanceCommentsSearched.concat(assistanceCommentsRepliesSearched);
+  // J-all-440: every tab count on this page reads the synced set. jobInboxMessages just below
+  // deliberately does not, because All Done must still be able to clear an unsynced message.
   const newAssistanceMessages = findMessagesForCommentIds(assistanceCommentsSearchedAll?.map((comment) => comment.id), 
-    messagesState, true);
-  const newInvestibleMessages = findMessagesForInvestibleIds([investibleId], messagesState, true);
+    syncedMessages, true);
+  const newInvestibleMessages = findMessagesForInvestibleIds([investibleId], syncedMessages, true);
   // T-all-2439: everything in this user's inbox about the job - offered for clearing on All Done
-  const jobInboxMessages = findMessagesForInvestibleId(investibleId, messagesState)
+  const jobInboxMessages = findMessagesForInvestibleId(investibleId, messagesState.messages)
     .filter((message) => isInInbox(message));
 
   function moveJobToReviewable(doClear) {
@@ -728,7 +732,7 @@ function PlanningInvestible(props) {
   // T-all-2475: the Debatable tab counts roots needing attention exactly like its Unresponded
   // sub-tab instead of one per notification, so replies and votes on one thread stay one new
   const numNewAssistanceMessages = countAssistanceRootsWithNewMessages(
-    assistanceCommentsSearched, investibleComments, messagesState);
+    assistanceCommentsSearched, investibleComments, syncedMessages);
   // T-all-2308: per sub-tab notification counts - same rule as the sections, a sub-tab shows its
   // new message count instead of its contents count when new messages are present
   function countBucketNewMessages(bucketComments) {
@@ -736,7 +740,7 @@ function PlanningInvestible(props) {
       comment.comment_type === REPLY_TYPE &&
       bucketComments.some((parent) => parent.id === comment.root_comment_id)));
     const bucketMessages = findMessagesForCommentIds(bucketAll.map((comment) => comment.id),
-      messagesState, true);
+      syncedMessages, true);
     newInvestibleMessages.forEach((message) => {
       if (message.market_id !== marketId &&
         bucketComments.find((comment) => comment.inline_market_id === message.market_id)) {
@@ -746,14 +750,14 @@ function PlanningInvestible(props) {
     return _.size(bucketMessages.filter((message) => isInInbox(message)));
   }
   const assistanceTabNewCounts = assistanceTabComments.map((bucket, index) => index === 0 ?
-    countAssistanceRootsWithNewMessages(bucket, investibleComments, messagesState) :
+    countAssistanceRootsWithNewMessages(bucket, investibleComments, syncedMessages) :
     countBucketNewMessages(bucket));
   const newTodoMessages = findMessagesForCommentIds(openTodoCommentsSearchedAll?.map((comment) => comment.id),
-    messagesState, true);
+    syncedMessages, true);
   // Do not include each unread task as its own message
   const numNewTodoMessages = _.size(newTodoMessages.filter((message) => isInInbox(message)));
   const newNotesMessages = findMessagesForCommentIds(notesCommentsAllSearched?.map((comment) => comment.id), 
-  messagesState, true);
+  syncedMessages, true);
   const newNotOverviewMessages = newTodoMessages.concat(newAssistanceMessages).concat(newNotesMessages);
   const newOverviewMessages = newInvestibleMessages.filter((message) => isInInbox(message) && 
     !newNotOverviewMessages.includes(message));

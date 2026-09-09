@@ -16,6 +16,7 @@ import {
 import LoadingDisplay from '../../components/LoadingDisplay';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import { getInboxCount } from '../../contexts/NotificationsContext/notificationsContextHelper'
+import { useSyncedMessages } from '../../contexts/SyncedMessagesContext/SyncedMessagesContext'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
@@ -224,7 +225,7 @@ export function getActiveGroupId(myPresence, groupsState, marketId, marketPresen
 
 export function getSidebarGroups(isDark, navListItemTextArray, groupsState, marketPresencesState, groupPresencesState,
   history, market, useGroupId, groupId, classes, useHoverFunctions, search, results, openMenuItems=[], inactiveGroups=[], pathname, resetFunction,
-  mobileLayout, messagesState, commentsState, investiblesState, investibleId, syncComplete = true,
+  mobileLayout, syncedMessages, commentsState, investiblesState, investibleId, syncComplete = true,
   navigateFromLeftNav = (navigation) => navigation()) {
   const marketId = market.id;
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
@@ -278,9 +279,11 @@ export function getSidebarGroups(isDark, navListItemTextArray, groupsState, mark
       // B-all-570: the count badges walk every message per group (and every market comment
       // for critical bugs) per render, so they wait for sync convergence; the rows render
       // immediately and the counts fill in once, no flicker, when the latch flips
-      let groupMessages = findMessagesForGroupId(group.id, messagesState, true);
+      // J-all-440: the synced set, so a view badge never advertises a notification the user
+      // cannot open yet.
+      let groupMessages = findMessagesForGroupId(group.id, syncedMessages, true);
       if (_.isEmpty(groupMessages)) {
-        groupMessages = findMessagesForGroupId(group.id, messagesState, false);
+        groupMessages = findMessagesForGroupId(group.id, syncedMessages, false);
         numSuffix = 'total';
       } else {
         numSuffix = 'new';
@@ -365,6 +368,7 @@ function Screen(props) {
   const { marketId: hashMarketId, investibleId: hashInvestibleId, type,
     groupId: hashGroupId, typeObjectId, commentId: hashCommentId } = hashValues || {};
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const syncedMessages = useSyncedMessages();
   const [searchResults] = useContext(SearchResultsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState] = useContext(InvestiblesContext);
@@ -407,14 +411,14 @@ function Screen(props) {
   const initialSyncComplete = useInitialSyncComplete('screen');
   useEffect(() => {
     if (!hidden && !_.isEmpty(tabTitle)) {
-      const calcPend = initialSyncComplete ? getInboxCount(messagesState) : 0;
+      const calcPend = initialSyncComplete ? getInboxCount(syncedMessages) : 0;
       if (calcPend > 0) {
         document.title = `(${calcPend}) ${tabTitle}`;
       } else {
         document.title = `${tabTitle}`;
       }
     }
-  }, [hidden, initialSyncComplete, messagesState, tabTitle]);
+  }, [hidden, initialSyncComplete, syncedMessages, tabTitle]);
   if (hidden && !isKeptInMemory) {
     return <React.Fragment/>
   }
@@ -492,7 +496,7 @@ function Screen(props) {
     const { useHoverFunctions, resetFunction } = navigationOptions || {};
     getSidebarGroups(isDark, navListItemTextArray, groupsState, marketPresencesState, groupPresencesState,
       history, defaultMarket, useGroupId || pathGroupId || hashGroupId, groupId, classes, useHoverFunctions, search,
-      results, openMenuItems, inactiveGroups, pathname, resetFunction, mobileLayout, messagesState, commentsState,
+      results, openMenuItems, inactiveGroups, pathname, resetFunction, mobileLayout, syncedMessages, commentsState,
       investiblesState, investibleId, initialSyncComplete, navigateFromLeftNav);
   }
   const composeChosen = action === 'wizard' && type === COMPOSE_WIZARD_TYPE.toLowerCase();

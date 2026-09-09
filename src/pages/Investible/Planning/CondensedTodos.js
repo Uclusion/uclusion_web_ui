@@ -85,7 +85,7 @@ function CondensedTodos(props) {
   const resolvedCommentsReplies = (investibleComments || []).filter((comment) =>
     resolvedCommentIds.includes(comment.root_comment_id) && comment.root_comment_id !== comment.id);
   const resolvedTodoMessages = findMessagesForCommentIds(
-    resolvedCommentIds.concat(resolvedCommentsReplies.map((comment) => comment.id)), messagesState, true);
+    resolvedCommentIds.concat(resolvedCommentsReplies.map((comment) => comment.id)), messagesState.messages, true);
   const hasResolvedTodoMessages = !_.isEmpty(resolvedTodoMessages);
 
   useEffect(() => {

@@ -238,7 +238,7 @@ function MarketTodos(props) {
   // on either - including a reply that raced ahead of the bug being resolved (T-all-2237).
   const unreadResolvedCount = getUnreadCount(resolvedTodoComments, messagesState);
   const tabComments = _.orderBy(tabCommentsRaw,
-    [(comment) => _.size(findMessagesForCommentIds(comment.id, messagesState, true)),
+    [(comment) => _.size(findMessagesForCommentIds(comment.id, messagesState.messages, true)),
       'updated_at'], ['desc', 'desc']);
   const page = getRealPage(tabComments, pinned, originalPage, PAGE_SIZE);
   const { first, last, data, hasMore, hasLess } = getPaginatedItems(tabComments, page,
@@ -280,7 +280,7 @@ function MarketTodos(props) {
             bugDispatch(setTab(2));
           }
           bugDispatch(pin(rootComment.id));
-          const message = findMessageForCommentId(rootComment.id, messagesState);
+          const message = findMessageForCommentId(rootComment.id, messagesState.messages);
           if (message?.is_highlighted) {
             let event = DEHIGHLIGHT_EVENT;
             if (message.type_object_id.startsWith('UNREAD')) {
@@ -312,12 +312,12 @@ function MarketTodos(props) {
     data.forEach((comment) => {
       const replies = comments.filter(aComment => aComment.root_comment_id === comment.id &&
         aComment.id !== comment.id) || [];
-      const myMessage = findMessageForCommentId(comment.id, messagesState);
+      const myMessage = findMessageForCommentId(comment.id, messagesState.messages);
       if (myMessage) {
         allMessages.push(myMessage);
       }
       replies.forEach((reply) => {
-        const aMessage = findMessageForCommentId(reply.id, messagesState);
+        const aMessage = findMessageForCommentId(reply.id, messagesState.messages);
         if (aMessage) {
           allMessages.push(aMessage);
         }

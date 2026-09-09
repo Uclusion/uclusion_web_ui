@@ -101,7 +101,7 @@ function CloseCommentsStep(props) {
         // T-all-2439: the All Done flow can also clear this user's notifications for the job
         const clearPromise = clearNotifications && isResolve && isInReviewStage(fullMoveStage) &&
           !requiresAction(fullMoveStage) ?
-          deleteOrDehilightMessages(findMessagesForInvestibleId(investibleId, messagesState)
+          deleteOrDehilightMessages(findMessagesForInvestibleId(investibleId, messagesState.messages)
             .filter((message) => isInInbox(message)), messagesDispatch, true, false, true) : Promise.resolve(true);
         return clearPromise.then(() => {
           if (isResolve) {

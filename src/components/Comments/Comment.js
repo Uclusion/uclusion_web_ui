@@ -641,7 +641,7 @@ function Comment(props) {
   } = editState;
   // Diffs are opt in everywhere - see B-all-518
   const showDiff = storedShowDiff === true;
-  const myMessage = findMessageForCommentId(id, messagesState);
+  const myMessage = findMessageForCommentId(id, messagesState.messages);
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const inReviewStageId = inReviewStage.id;
   const inBacklogStage = getFurtherWorkStage(marketStagesState, marketId) || {};

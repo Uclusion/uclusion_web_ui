@@ -149,8 +149,12 @@ export function messageText(message, isMobile, intl) {
   }
 }
 
-export function findMessagesForGroupId(groupId, state, isHighlighted) {
-  const { messages } = (state || {});
+// J-all-440: this family takes a message list, not messagesState, so the caller must decide
+// which list applies. Display surfaces pass the synced set from SyncedMessagesContext so a
+// notification whose data has not arrived is never announced; sweep, clear and dehighlight
+// paths pass messagesState.messages, because a message the user cannot see is exactly the one
+// a clear action still has to be able to delete.
+export function findMessagesForGroupId(groupId, messages, isHighlighted) {
   const safeMessages = messages || [];
   return safeMessages.filter((message) => message.group_id === groupId && message.level !== BLUE_LEVEL && !message.deleted
     && (isHighlighted === undefined || message.is_highlighted === isHighlighted));
@@ -190,8 +194,7 @@ export function removeMessagesForCommentId(commentId, state, messagesDispatch) {
   });
 }
 
-export function findMessagesForInvestibleIds(investibleIds, state, isHighlighted) {
-  const { messages } = (state || {});
+export function findMessagesForInvestibleIds(investibleIds, messages, isHighlighted) {
   const safeInvestibleIds = investibleIds || [];
   const safeMessages = messages || [];
   return safeMessages.filter((message) => (safeInvestibleIds.includes(message.investible_id) ||
@@ -199,15 +202,13 @@ export function findMessagesForInvestibleIds(investibleIds, state, isHighlighted
     (isHighlighted === undefined || message.is_highlighted === isHighlighted));
 }
 
-export function findMessagesForInvestibleId(investibleId, state) {
-  const { messages } = (state || {});
+export function findMessagesForInvestibleId(investibleId, messages) {
   const safeMessages = messages || [];
   return safeMessages.filter((message) => (message.investible_id === investibleId ||
     message.decision_investible_id === investibleId) && !message.deleted);
 }
 
-export function findMessagesForCommentIds(commentIds, state, isHighlighted) {
-  const { messages } = (state || {});
+export function findMessagesForCommentIds(commentIds, messages, isHighlighted) {
   const safeCommentIds = commentIds || [];
   const safeMessages = messages || [];
   return safeMessages.filter((message) => (safeCommentIds.includes(message.comment_id)
@@ -215,10 +216,10 @@ export function findMessagesForCommentIds(commentIds, state, isHighlighted) {
     (isHighlighted === undefined || message.is_highlighted === isHighlighted));
 }
 
-export function findMessageForCommentId(commentId, state) {
-  const messages = findMessagesForCommentIds([commentId], state);
-  const myHighlighted = messages.find((message) => message.is_highlighted);
-  return myHighlighted || messages[0];
+export function findMessageForCommentId(commentId, messages) {
+  const found = findMessagesForCommentIds([commentId], messages);
+  const myHighlighted = found.find((message) => message.is_highlighted);
+  return myHighlighted || found[0];
 }
 
 export function findMessageOfType(aType, notificationId, state, subtype) {

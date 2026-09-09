@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import React, { useContext, useLayoutEffect } from 'react';
 import Toolbar from '@material-ui/core/Toolbar';
 import { Button, Tooltip, makeStyles, useMediaQuery, useTheme } from '@material-ui/core';
 import { ArrowBack, ArrowForward, ArrowUpward } from '@material-ui/icons';
@@ -16,15 +16,13 @@ import { useHistory, useLocation } from 'react-router';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import {
   dehighlightMessage, getInboxTarget,
-  getNotificationSyncState,
   isInboxItemNavigationUrl, isInboxNavigationUrl, isInboxTopLevelNavigationUrl
 } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import { addNavigation, removeNavigation } from '../../contexts/NotificationsContext/notificationsContextReducer';
 import _ from 'lodash';
 import {
   getMarketDetailsForType,
-  getNotHiddenMarketDetailsForUser,
-  marketTokenLoaded
+  getNotHiddenMarketDetailsForUser
 } from '../../contexts/MarketsContext/marketsContextHelper';
 import { PLANNING_TYPE } from '../../constants/markets';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
@@ -43,7 +41,7 @@ import ReturnTop from '../../pages/Home/ReturnTop';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { WARNING_COLOR } from '../Buttons/ButtonConstants';
 import { getCurrentWorkspace, getGroupForInvestibleId } from '../../utils/redirectUtils';
-import { LeaderContext } from '../../contexts/LeaderContext/LeaderContext';
+import { SyncedMessagesContext } from '../../contexts/SyncedMessagesContext/SyncedMessagesContext';
 
 const useStyles = makeStyles((theme) => ({
   magicButton: {
@@ -74,8 +72,6 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const NOTIFICATION_DEPENDENCY_HEARTBEAT_MS = 60000;
-
 export default function NavigationChevrons(props) {
   const classes = useStyles();
   const history = useHistory();
@@ -84,14 +80,13 @@ export default function NavigationChevrons(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const { action, pathInvestibleId, defaultMarket, pathMarketIdRaw, hashInvestibleId, isArchivedWorkspace,
     useLink, typeObjectId } = props;
-  const [messagesState, messagesDispatch, notificationsInitialized] = useContext(NotificationsContext);
-  const [marketsState, , tokensHash] = useContext(MarketsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [groupsState] = useContext(MarketGroupsContext);
-  const [leaderState, , { requestFreshness }] = useContext(LeaderContext);
   const [searchResults] = useContext(SearchResultsContext);
   const location = useLocation();
   const { search: searchText } = searchResults;
@@ -104,43 +99,11 @@ export default function NavigationChevrons(props) {
   const initialSyncComplete = useInitialSyncComplete('navigationChevrons');
   const myNotHiddenMarketsState = !initialSyncComplete ? {} : getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = !initialSyncComplete ? {} : getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
-  const stillLoading = !initialSyncComplete || !notificationsInitialized || marketsState.initializing ||
-    !_.isEmpty((myNotHiddenMarketsState.marketDetails || []).find((market) =>
-      !marketTokenLoaded(market.id, tokensHash)));
-  const { messages, navigations } = messagesState || {};
-  // One authoritative pass both keeps unsynced messages out of navigation and identifies
-  // the markets that must bypass the normal audit-signature shortcut.
-  const notificationSyncState = useMemo(() => stillLoading ? { syncedMessages: [], dependencies: [] } :
-    getNotificationSyncState(messages, marketsState, marketPresencesState, commentsState,
-      investiblesState, groupsState), [commentsState, groupsState, investiblesState, marketPresencesState,
-    marketsState, messages, stillLoading]);
-  const { syncedMessages: allMessages, dependencies: notificationDependencies } = notificationSyncState;
-  const notificationDependencySnapshot = `${leaderState?.isLeader}|${JSON.stringify(notificationDependencies)}`;
-  const requestedNotificationSnapshotRef = useRef(undefined);
-  useEffect(() => {
-    if (stillLoading || requestedNotificationSnapshotRef.current === notificationDependencySnapshot) {
-      return;
-    }
-    requestedNotificationSnapshotRef.current = notificationDependencySnapshot;
-    requestFreshness({ reason: 'notificationDependencies', dependencies: notificationDependencies })
-      .catch(() => {
-        if (requestedNotificationSnapshotRef.current === notificationDependencySnapshot) {
-          requestedNotificationSnapshotRef.current = undefined;
-        }
-        console.warn('Error refreshing unsynced notification dependencies');
-      });
-  }, [notificationDependencies, notificationDependencySnapshot, requestFreshness, stillLoading]);
-  useEffect(() => {
-    if (stillLoading || _.isEmpty(notificationDependencies)) {
-      return;
-    }
-    const heartbeat = setInterval(() => {
-      requestFreshness({ reason: 'notificationDependencies', dependencies: notificationDependencies,
-        heartbeat: true })
-        .catch(() => console.warn('Error renewing unsynced notification dependencies'));
-    }, NOTIFICATION_DEPENDENCY_HEARTBEAT_MS);
-    return () => clearInterval(heartbeat);
-  }, [notificationDependencies, requestFreshness, stillLoading]);
+  // J-all-440: the synced pass and its dependency recovery moved to SyncedMessagesContext, so
+  // one pass serves every display surface and a notification whose data has not landed is chased
+  // whether or not this component is mounted.
+  const { syncedMessages: allMessages, stillLoading } = useContext(SyncedMessagesContext);
+  const { navigations } = messagesState || {};
   const highlightedMessages = allMessages.filter((message) => message.is_highlighted);
   const orderedNavigations = _.orderBy(navigations || [], ['time'], ['desc']);
   const workspacesData = stillLoading ? [] :

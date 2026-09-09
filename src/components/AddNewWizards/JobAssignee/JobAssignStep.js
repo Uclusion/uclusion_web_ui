@@ -88,7 +88,7 @@ function JobAssignStep (props) {
     };
     return updateInvestible(updateInfo).then((fullInvestible) => { 
       refreshInvestibles(investiblesDispatch, () => {}, [fullInvestible]);
-      const messages = findMessagesForInvestibleId(investibleId, messagesState) || [];
+      const messages = findMessagesForInvestibleId(investibleId, messagesState.messages) || [];
       const messageIds = messages.map((message) => message.type_object_id);
       messagesDispatch(removeMessages(messageIds));
       removeInvestibleInvestments(marketPresencesState, marketPresencesDispatch, marketId, investibleId, true);

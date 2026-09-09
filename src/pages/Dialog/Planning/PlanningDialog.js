@@ -91,7 +91,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { findMessagesForCommentIds, findMessagesForInvestibleIds } from '../../../utils/messageUtils';
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { useSyncedMessages } from '../../../contexts/SyncedMessagesContext/SyncedMessagesContext';
 import { isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { RED_LEVEL } from '../../../constants/notifications';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
@@ -150,7 +150,8 @@ function PlanningDialog(props) {
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [groupState] = useContext(MarketGroupsContext);
   const [marketsState] = useContext(MarketsContext);
-  const [messagesState] = useContext(NotificationsContext);
+  // J-all-440: view tab counts read the synced set only.
+  const syncedMessages = useSyncedMessages();
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [, diffDispatch] = useContext(DiffContext);
   const market = getMarket(marketsState, marketId) || {};
@@ -530,7 +531,7 @@ function PlanningDialog(props) {
       // uncapped like the search list since the swimlane cap runs before the notification exemption
       investibleIds = investibleIds.concat((getInvestiblesInStage(investiblesFullAssist, inReviewStage.id,
         marketId) || []).map((investible) => investible.investible.id));
-      const numNewMessagesRaw = findMessagesForInvestibleIds(investibleIds, messagesState, true)||[];
+      const numNewMessagesRaw = findMessagesForInvestibleIds(investibleIds, syncedMessages, true)||[];
       const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
       if (!_.isEmpty(numNewMessages)) {
         return `${_.size(numNewMessages)}`;
@@ -539,7 +540,7 @@ function PlanningDialog(props) {
     if (tabIndex === 1) {
       let investibleIds = (furtherWorkReadyToStart || []).map((investible)=>investible.investible.id);
       investibleIds = investibleIds.concat((furtherWorkInvestibles||[]).map((investible)=>investible.investible.id));
-      const numNewMessagesRaw = findMessagesForInvestibleIds(investibleIds, messagesState, true)||[];
+      const numNewMessagesRaw = findMessagesForInvestibleIds(investibleIds, syncedMessages, true)||[];
       const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
       if (!_.isEmpty(numNewMessages)) {
         return `${_.size(numNewMessages)}`;
@@ -554,7 +555,7 @@ function PlanningDialog(props) {
         todoRootIdSet.has(comment.root_comment_id)).map((comment) => comment.id);
       const commentIds = todoRootIds.concat(todoReplyIds)
         .concat((resolvedTodoGroupComments || []).map((comment) => comment.id));
-      const numNewMessagesRaw = findMessagesForCommentIds(commentIds, messagesState, true);
+      const numNewMessagesRaw = findMessagesForCommentIds(commentIds, syncedMessages, true);
       const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
       if (!_.isEmpty(numNewMessages)) {
         bugTabCountIsImmediate = false;
@@ -572,7 +573,7 @@ function PlanningDialog(props) {
       const discussionReplyIds = unResolvedGroupComments.filter((comment) => comment.comment_type === REPLY_TYPE &&
         discussionRootIdSet.has(comment.root_comment_id)).map((comment) => comment.id);
       const commentIds = discussionRootIds.concat(discussionReplyIds);
-      const numNewMessagesRaw = findMessagesForCommentIds(commentIds, messagesState, true);
+      const numNewMessagesRaw = findMessagesForCommentIds(commentIds, syncedMessages, true);
       const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
       if (!_.isEmpty(numNewMessages)) {
         discussionTabCountIsOpen = false;

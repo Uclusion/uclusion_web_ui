@@ -283,7 +283,7 @@ function ArchiveInvestbiles(props) {
     return sortedData.map((inv) => {
       const { investible } = inv;
       const { id, name } = investible;
-      const messages = findMessagesForInvestibleId(id, messagesState);
+      const messages = findMessagesForInvestibleId(id, messagesState.messages);
       const info = getMarketInfo(inv, marketId) || {};
       const { assigned, stage: stageId, last_stage_change_date: lastStageChangeDate,
         open_for_investment: openForInvestment, group_id: groupId } = info;

@@ -214,21 +214,21 @@ export function getMessageId(message) {
   return message?.type_object_id || message?.id;
 }
 
-export function getInboxCount(messagesState, groupAttr, groupsState, isRawCount=false) {
+// J-all-440: takes a message list rather than messagesState. Display callers pass the synced
+// set so an unreachable notification is never counted; see findMessagesForGroupId for the
+// display versus sweep split this signature exists to keep visible.
+export function getInboxCount(messages, groupAttr, groupsState, isRawCount=false) {
   let calcPend = 0;
-  if (!_.isEmpty(messagesState)) {
-    const { messages } = messagesState;
-    if (!_.isEmpty(messages)) {
-      const fullGroupAttr = `${groupAttr}_${groupAttr}`;
-      const messagesProcessed = groupsState ? addWorkspaceGroupAttribute(messages, groupsState) : messages;
-      messagesProcessed.forEach((message) => {
-        const { is_highlighted: isHighlighted } = message;
-        if ((isHighlighted || isRawCount) && isInInbox(message) && (!groupAttr || !message.groupAttr
-          || message.groupAttr === fullGroupAttr)) {
-          calcPend += 1;
-        }
-      });
-    }
+  if (!_.isEmpty(messages)) {
+    const fullGroupAttr = `${groupAttr}_${groupAttr}`;
+    const messagesProcessed = groupsState ? addWorkspaceGroupAttribute(messages, groupsState) : messages;
+    messagesProcessed.forEach((message) => {
+      const { is_highlighted: isHighlighted } = message;
+      if ((isHighlighted || isRawCount) && isInInbox(message) && (!groupAttr || !message.groupAttr
+        || message.groupAttr === fullGroupAttr)) {
+        calcPend += 1;
+      }
+    });
   }
   return calcPend;
 }

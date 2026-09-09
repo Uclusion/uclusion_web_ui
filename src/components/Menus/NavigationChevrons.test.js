@@ -11,6 +11,7 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
 import { LeaderContext } from '../../contexts/LeaderContext/LeaderContext';
+import { SyncedMessagesContext } from '../../contexts/SyncedMessagesContext/SyncedMessagesContext';
 import { navigate } from '../../utils/marketIdPathFunctions';
 import NavigationChevrons from './NavigationChevrons';
 
@@ -53,6 +54,12 @@ jest.mock('../../contexts/LeaderContext/LeaderContext', () => {
       requestFreshness: () => Promise.resolve()
     }])
   };
+});
+// J-all-440: the synced pass and its recovery live in the provider now, so this component test
+// supplies the set directly. The provider's own behavior is covered in SyncedMessagesContext.test.js.
+jest.mock('../../contexts/SyncedMessagesContext/SyncedMessagesContext', () => {
+  const React = require('react');
+  return { SyncedMessagesContext: React.createContext({ syncedMessages: [], stillLoading: true }) };
 });
 jest.mock('@material-ui/core/Toolbar', () => ({ children }) => <div>{children}</div>);
 jest.mock('@material-ui/core', () => ({
@@ -136,6 +143,8 @@ function navigationChevronsTree({
   tokensHash = { 'market-a': 'token-a' },
   navigations = [{ url: '/previous', time: 1 }],
   messages = [],
+  syncedMessages = [],
+  stillLoading = false,
   messagesDispatch = jest.fn(),
   requestFreshness = () => Promise.resolve()
 } = {}) {
@@ -158,7 +167,9 @@ function navigationChevronsTree({
                     <LeaderContext.Provider value={[{}, jest.fn(), {
                       requestFreshness
                     }]}>
-                      <NavigationChevrons action="dialog" />
+                      <SyncedMessagesContext.Provider value={{ syncedMessages, dependencies: [], stillLoading }}>
+                        <NavigationChevrons action="dialog" />
+                      </SyncedMessagesContext.Provider>
                     </LeaderContext.Provider>
                   </SearchResultsContext.Provider>
                 </MarketGroupsContext.Provider>
@@ -273,9 +284,11 @@ describe('NavigationChevrons', () => {
     });
   });
 
-  it('disables navigation while a workspace token is missing', () => {
+  // J-all-440: the component is told whether the synced set is ready; deriving that from market
+  // tokens is the provider's job and is covered in SyncedMessagesContext.test.js.
+  it('disables navigation while the synced set is still loading', () => {
     const requestFreshness = jest.fn(() => Promise.resolve());
-    act(() => root.render(navigationChevronsTree({ requestFreshness })));
+    act(() => root.render(navigationChevronsTree({ requestFreshness, stillLoading: true })));
 
     requestFreshness.mockClear();
     const next = container.querySelector('#nextNavigation');
@@ -354,64 +367,4 @@ describe('NavigationChevrons', () => {
     expect(requestFreshness).not.toHaveBeenCalled();
   });
 
-  it('registers and retires an unsynced notification dependency', () => {
-    const requestFreshness = jest.fn(() => Promise.resolve());
-    const loadedTokens = { 'market-a': 'token-a', 'market-b': 'token-b' };
-    const message = {
-      type: 'UNREAD_COMMENT',
-      market_id: 'market-a',
-      comment_id: 'comment-a',
-      comment_version: 2
-    };
-    act(() => root.render(navigationChevronsTree({
-      tokensHash: loadedTokens,
-      messages: [message],
-      requestFreshness
-    })));
-
-    expect(requestFreshness).toHaveBeenLastCalledWith({
-      reason: 'notificationDependencies',
-      dependencies: [{ marketId: 'market-a', commentId: 'comment-a', version: 2 }]
-    });
-
-    act(() => root.render(navigationChevronsTree({
-      tokensHash: loadedTokens,
-      messages: [],
-      requestFreshness
-    })));
-
-    expect(requestFreshness).toHaveBeenLastCalledWith({
-      reason: 'notificationDependencies',
-      dependencies: []
-    });
-  });
-
-  it('renews an unsynced dependency while its tab remains mounted', () => {
-    jest.useFakeTimers();
-    try {
-      const requestFreshness = jest.fn(() => Promise.resolve());
-      const message = {
-        type: 'UNREAD_COMMENT',
-        market_id: 'market-a',
-        comment_id: 'comment-a',
-        comment_version: 2
-      };
-      act(() => root.render(navigationChevronsTree({
-        tokensHash: { 'market-a': 'token-a', 'market-b': 'token-b' },
-        messages: [message],
-        requestFreshness
-      })));
-      requestFreshness.mockClear();
-
-      act(() => jest.advanceTimersByTime(60000));
-
-      expect(requestFreshness).toHaveBeenCalledWith({
-        reason: 'notificationDependencies',
-        dependencies: [{ marketId: 'market-a', commentId: 'comment-a', version: 2 }],
-        heartbeat: true
-      });
-    } finally {
-      jest.useRealTimers();
-    }
-  });
 });

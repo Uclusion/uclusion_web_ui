@@ -202,7 +202,7 @@ function InboxRow(props) {
       onClick: (event) => {
         preventDefaultAndProp(event);
         setOperationRunning(true);
-        return deleteOrDehilightMessages(findMessagesForInvestibleId(investibleId, messagesState)
+        return deleteOrDehilightMessages(findMessagesForInvestibleId(investibleId, messagesState.messages)
           .filter((jobMessage) => isInInbox(jobMessage)), messagesDispatch, true, false, true)
           .finally(() => setOperationRunning(false));
       }

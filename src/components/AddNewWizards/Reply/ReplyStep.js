@@ -89,7 +89,7 @@ function ReplyStep(props) {
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage, former_stage_id: formerStageId, assigned } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
-  const message = findMessageForCommentId(commentId, messagesState);
+  const message = findMessageForCommentId(commentId, messagesState.messages);
   const { useCompression } = formData;
   const parentIsTopLevel = _.isEmpty(comment.reply_id);
 

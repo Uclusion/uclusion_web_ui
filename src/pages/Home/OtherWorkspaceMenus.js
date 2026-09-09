@@ -20,6 +20,7 @@ import { getPageReducerPage, usePageStateReducer } from '../../components/PageSt
 import GravatarGroup from '../../components/Avatars/GravatarGroup';
 import { DARK_ACTION_BUTTON_COLOR, useButtonColors } from '../../components/Buttons/ButtonConstants';
 import { getInboxCount, getInboxTarget, isInInbox } from '../../contexts/NotificationsContext/notificationsContextHelper';
+import { useSyncedMessages } from '../../contexts/SyncedMessagesContext/SyncedMessagesContext';
 import OutboxIcon from '../../components/CustomChip/Outbox';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
@@ -66,6 +67,7 @@ function OtherWorkspaceMenus(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
   const [messagesState] = useContext(NotificationsContext);
+  const syncedMessages = useSyncedMessages();
   const [searchResults] = useContext(SearchResultsContext);
   const [online] = useContext(OnlineStateContext);
   const [gravatarExists, setGravatarExists] = useState(undefined);
@@ -133,8 +135,10 @@ function OtherWorkspaceMenus(props) {
     return React.Fragment;
   }
 
-  const { messages } = messagesState;
-  const messagesFull = messages?.filter((message) => {
+  // J-all-440: both the "N new" count and the "N total" fallback read the synced set, so a
+  // workspace whose only pending message is unsynced shows no chip at all rather than a number
+  // the user cannot act on.
+  const messagesFull = syncedMessages?.filter((message) => {
     return isInInbox(message);
   });
   const isSearch = !_.isEmpty(search);
@@ -148,7 +152,7 @@ function OtherWorkspaceMenus(props) {
       numSuffix = 'total';
     }
   } else {
-    const unreadCount = getInboxCount(messagesState);
+    const unreadCount = getInboxCount(syncedMessages);
     if (unreadCount > 0) {
       num = unreadCount;
       numSuffix = 'new';

@@ -12,6 +12,7 @@ import { CognitoUserProvider } from '../../contexts/CognitoUserContext/CongitoUs
 import { LeaderProvider } from '../../contexts/LeaderContext/LeaderContext'
 import { CommentsProvider } from '../../contexts/CommentsContext/CommentsContext'
 import { InvestiblesProvider } from '../../contexts/InvestibesContext/InvestiblesContext'
+import { SyncedMessagesProvider } from '../../contexts/SyncedMessagesContext/SyncedMessagesContext'
 import { MarketPresencesProvider } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { MarketsProvider } from '../../contexts/MarketsContext/MarketsContext'
 import { GroupMembersProvider } from '../../contexts/GroupMembersContext/GroupMembersContext'
@@ -213,7 +214,9 @@ function App(props) {
                       <WebSocketProvider config={config} userId={userId}>
                         <AppConfigProvider appConfig={configs}>
                           <ThemeModeProvider>
-                            <Root appConfig={configs} authState={authState}/>
+                            <SyncedMessagesProvider>
+                              <Root appConfig={configs} authState={authState}/>
+                            </SyncedMessagesProvider>
                           </ThemeModeProvider>
                         </AppConfigProvider>
                       </WebSocketProvider>

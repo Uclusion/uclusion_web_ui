@@ -186,7 +186,7 @@ function addSingleMessage(state, action) {
 function removeForInvestible(state, action) {
   const { messages } = state;
   const { investibleId, useRemoveTypes } = action;
-  const myMessages = findMessagesForInvestibleId(investibleId, state) || [];
+  const myMessages = findMessagesForInvestibleId(investibleId, state?.messages) || [];
   const filteredMessages = (messages || []).filter((aMessage) => {
     if ((myMessages || []).includes(aMessage)) {
       if (!useRemoveTypes) {

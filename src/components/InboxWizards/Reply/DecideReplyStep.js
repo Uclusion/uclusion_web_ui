@@ -74,7 +74,7 @@ function DecideReplyStep(props) {
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const threadMessages = [];
   comments.forEach((comment) => {
-    const myMessage = findMessageForCommentId(comment.id, messagesState);
+    const myMessage = findMessageForCommentId(comment.id, messagesState.messages);
     if (myMessage && ['UNREAD_COMMENT', 'UNREAD_REPLY'].includes(myMessage.type)) {
       threadMessages.push(myMessage);
     }

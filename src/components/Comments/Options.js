@@ -35,7 +35,7 @@ export function isNew(inv, messagesState) {
 
 export function getNewMessages(inv, messagesState) {
   const investibleId = inv.investible.id;
-  const myMessages = findMessagesForInvestibleId(investibleId, messagesState);
+  const myMessages = findMessagesForInvestibleId(investibleId, messagesState.messages);
   return myMessages.filter((message) => message.is_highlighted);
 }
 
@@ -44,7 +44,7 @@ export function getNewBugNotifications(comment, messagesState, replies = []) {
   // when replies are supplied - this is what bolds a row that has a notification anywhere in its thread,
   // including resolved bugs whose root notification cleared but a reply's did not (C-all-1047).
   const threadIds = [comment.id, ...replies.map((reply) => reply.id)];
-  const myMessages = findMessagesForCommentIds(threadIds, messagesState) || [];
+  const myMessages = findMessagesForCommentIds(threadIds, messagesState.messages) || [];
   return myMessages.filter((myMessage) => {
     if (myMessage?.highlighted_list !== undefined) {
       return !_.isEmpty(_.intersection(myMessage.highlighted_list, threadIds));

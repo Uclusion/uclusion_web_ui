@@ -276,7 +276,7 @@ export function quickNotificationChanges(apiType, investibleId, messagesState, m
       }
     }
   } else {
-    const messages = findMessagesForInvestibleId(investibleId, messagesState) || [];
+    const messages = findMessagesForInvestibleId(investibleId, messagesState.messages) || [];
     const message = messages.find((aMessage) =>
       ['UNREAD_REVIEWABLE','REVIEW_REQUIRED'].includes(aMessage.type));
     if (message) {

@@ -52,7 +52,7 @@ function DecisionApproveStep(props) {
     const parentMarketComments = getMarketComments(commentsState, parentMarketId) || [];
     const threadIds = [parentCommentId, ...parentMarketComments
       .filter((comment) => comment.root_comment_id === parentCommentId).map((comment) => comment.id)];
-    const threadMessages = findMessagesForCommentIds(threadIds, messagesState) || [];
+    const threadMessages = findMessagesForCommentIds(threadIds, messagesState.messages) || [];
     threadMessages.forEach((message) => dismissWorkListItem(message, messagesDispatch));
   }
 

@@ -57,6 +57,7 @@ import {
   findMessageOfTypeAndId,
   findMessagesForInvestibleId
 } from '../../../utils/messageUtils';
+import { useSyncedMessages } from '../../../contexts/SyncedMessagesContext/SyncedMessagesContext';
 import { IN_PROGRESS_WIZARD_TYPE, JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
 import UsefulRelativeTime from '../../../components/TextFields/UseRelativeTime';
 import { isInPast } from '../../../utils/timerUtils';
@@ -652,6 +653,8 @@ function StageInvestible(props) {
   const to = `${formInvestibleLink(marketId, id)}#investible-header`;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  // J-all-440: the card pill and its critical colour read the synced set only.
+  const syncedMessages = useSyncedMessages();
   const [groupsState] = useContext(MarketGroupsContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [marketsState] = useContext(MarketsContext);
@@ -679,7 +682,7 @@ function StageInvestible(props) {
   const label = _.isEmpty(labelsSorted) ? undefined : labelsSorted[0].label;
 
   function getMessagesChip() {
-    const messagesRaw = findMessagesForInvestibleId(id, messagesState);
+    const messagesRaw = findMessagesForInvestibleId(id, syncedMessages);
     const messages = messagesRaw.filter((message) => isInInbox(message));
     const newMessages = messages.filter((message) => message.is_highlighted);
     // Just go to the first new message associated with this investible - do not show read messages
@@ -738,7 +741,7 @@ function StageInvestible(props) {
   };
   const isRequiredInputCard = isRequiredInputStage(getFullStage(marketStagesState, marketId, stageId) || {});
   const hasHighlightedNotifications = !_.isEmpty(
-    findMessagesForInvestibleId(id, messagesState).filter((message) => isInInbox(message) && message.is_highlighted)
+    findMessagesForInvestibleId(id, syncedMessages).filter((message) => isInInbox(message) && message.is_highlighted)
   );
   const countChip = mobileLayout ? undefined :
     getCountChip(isVoting ? numQuestionsSuggestions : numOpenTasks, isVoting ? 'inputRequiredCountExplanation':

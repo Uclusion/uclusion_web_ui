@@ -235,7 +235,7 @@ function Reply(props) {
   const { pathname } = location;
   const { marketId: typeObjectIdRaw, action } = decomposeMarketPath(pathname);
   const typeObjectId = action === 'inbox' ? typeObjectIdRaw : undefined;
-  const myMessage = findMessageForCommentId(comment.id, messagesState) || {};
+  const myMessage = findMessageForCommentId(comment.id, messagesState.messages) || {};
   const myPresence = presences.find(presence => presence.current_user) || {};
   const userId = myPresence?.id;
   const isEditable = comment.created_by === userId;

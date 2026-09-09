@@ -5,6 +5,7 @@
 # Usage:
 #   install.sh <workspaceId> <viewId> [environment] [--project] [--clients claude,cursor,codex]
 #   install.sh setup [environment] --clients <claude|cursor|codex> [--project]
+#   install.sh demo [environment] --clients <claude|cursor|codex> [--project]
 #
 # Extra flags after the positional arguments are forwarded to uclusionInstall.py;
 # --clients makes the install non-interactive and --project configures the
@@ -16,12 +17,12 @@
 set -euo pipefail
 
 MODE="install"
-if [ "$#" -gt 0 ] && [ "$1" = "setup" ]; then
-  MODE="setup"
+if [ "$#" -gt 0 ] && { [ "$1" = "setup" ] || [ "$1" = "demo" ]; }; then
+  MODE="$1"
   shift
 elif [ "$#" -lt 2 ]; then
   echo "Usage: $0 <workspaceId> <viewId> [environment] [--project] [--clients claude,cursor,codex]" >&2
-  echo "       $0 setup [environment] --clients <claude|cursor|codex> [--project]" >&2
+  echo "       $0 <setup|demo> [environment] --clients <claude|cursor|codex> [--project]" >&2
   echo "  environment: dev | stage | production (default: production)" >&2
   exit 64
 fi
@@ -65,8 +66,8 @@ else
   exit 1
 fi
 
-if [ "$MODE" = "setup" ]; then
-  exec python3 "$INSTALL_SCRIPT" "$ENVIRONMENT" setup "$@"
+if [ "$MODE" != "install" ]; then
+  exec python3 "$INSTALL_SCRIPT" "$ENVIRONMENT" "$MODE" "$@"
 fi
 
 exec python3 "$INSTALL_SCRIPT" "$ENVIRONMENT" "$WORKSPACE_ID" "$VIEW_ID" "$@"

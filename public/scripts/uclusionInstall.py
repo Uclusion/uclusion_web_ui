@@ -126,6 +126,7 @@ SCRIPT_FILES = (
     ('uclusionCLI.py', 'uclusion.py', 'uclusion'),
     ('uclusionMCPProxy.py', 'uclusionMCPProxy.py', 'uclusionMCPProxy.py'),
     ('uclusionSetupMCP.py', 'uclusionSetupMCP.py', 'uclusionSetupMCP.py'),
+    ('uclusionDemoMCP.py', 'uclusionDemoMCP.py', 'uclusionDemoMCP.py'),
     ('uclusionCodexBridge.py', 'uclusionCodexBridge.py', 'uclusionCodexBridge.py'),
     ('uclusionTokenAudit.py', 'uclusionTokenAudit.py', TOKEN_AUDIT_SYMLINK_NAME),
     # Retained for compatibility while workflow refreshes remove old hooks.
@@ -143,6 +144,8 @@ SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
         '7195712aa1b721bad60f8df979e9e5271a0de8c1dac8600ca4f1cbd9a2413bbf',
     'uclusionMCPProxy.py':
         '285bae5fb7789d42c12b58dfa56e1a31447397445563a68009a0d7f568efb315',
+    'uclusionDemoMCP.py':
+        'f2549793149c07743fe9e7fe702923fb34e67203e17e4b714b16a962c5efc558',
     'uclusionSetupMCP.py':
         'f91ea798847ec8f8cb3407dfcc8eb4ab36ffbaab0c9695fb6028b56b94549d51',
     'uclusionCodexBridge.py':
@@ -234,6 +237,7 @@ CURSOR_MDC_FRONTMATTER = (
 )
 MCP_PROXY_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionMCPProxy.py')
 SETUP_MCP_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionSetupMCP.py')
+DEMO_MCP_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionDemoMCP.py')
 INSTALLER_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionInstall.py')
 RUNTIME_PROXY_MODE = '--uclusion-runtime-after-setup'
 RUNTIME_CLEANUP_MODE = '--uclusion-cleanup-after-setup'
@@ -1222,6 +1226,13 @@ def setup_mcp_descriptor(env, client, project_dir=None):
     if project_dir is not None:
         args.extend(['--project-dir', os.path.abspath(project_dir)])
     return {'command': 'python3', 'args': args}
+
+
+def demo_mcp_descriptor(env):
+    return {
+        'command': 'python3',
+        'args': [DEMO_MCP_SYMLINK_PATH, env or 'production'],
+    }
 
 
 def _validate_mcp_descriptor(descriptor):
@@ -3305,7 +3316,7 @@ def build_parser():
     )
     parser.add_argument(
         'workspace_id',
-        help='Uclusion workspaceId to configure, or "setup" to bootstrap setup.',
+        help='Uclusion workspaceId, "setup" for account setup, or "demo" to try Uclusion.',
     )
     parser.add_argument(
         'view_id', nargs='?',
@@ -3457,25 +3468,41 @@ def assert_setup_registration_absent(client, project_dir=None):
     _assert_setup_registration_state(client, project_dir, None)
 
 
-def install_setup_registration(env, client, project_dir=None):
-    """Register setup only when the selected scope has no Uclusion descriptor."""
-    descriptor = setup_mcp_descriptor(env, client, project_dir)
+def _install_temporary_registration(descriptor, client, project_dir, expected):
+    """Write a bootstrap descriptor only over the state checked by its caller."""
     path, label, is_codex = _setup_registration_target(client, project_dir)
     if is_codex:
         return register_codex_descriptor(
             descriptor,
             config_path=path,
-            expected_descriptor=None,
+            expected_descriptor=expected,
         )
     return register_mcp_json(
         path,
-        f'{label} setup',
+        f'{label} bootstrap',
         None,
         None,
         require_existing=False,
         descriptor=descriptor,
-        expected_descriptor=None,
+        expected_descriptor=expected,
     )
+
+
+def install_setup_registration(env, client, project_dir=None, *, expected=None):
+    return _install_temporary_registration(
+        setup_mcp_descriptor(env, client, project_dir), client, project_dir, expected,
+    )
+
+
+def bootstrap_registration_expected(env, client, project_dir):
+    """Accept an empty slot or this environment's exact owned demo descriptor."""
+    try:
+        assert_setup_registration_absent(client, project_dir)
+        return None
+    except RuntimeError:
+        expected = demo_mcp_descriptor(env)
+        _assert_setup_registration_state(client, project_dir, expected)
+        return expected
 
 
 def replace_setup_registration(
@@ -3944,16 +3971,17 @@ def main():
     view_id = args.view_id
     mcp_env = None if env == 'production' else env
 
-    if workspace_id == 'setup':
+    if workspace_id in ('setup', 'demo'):
+        mode = workspace_id
         if view_id is not None:
-            parser.error('setup mode takes no workspace or view ID')
+            parser.error(f'{mode} mode takes no workspace or view ID')
         if not args.clients:
             parser.error(
-                'setup mode requires --clients <claude|cursor|codex>'
+                f'{mode} mode requires --clients <claude|cursor|codex>'
             )
         clients = parse_clients(args.clients)
         if len(clients) != 1:
-            parser.error('setup mode requires exactly one --clients value')
+            parser.error(f'{mode} mode requires exactly one --clients value')
         if any((
             args.scripts_only,
             args.skip_scripts,
@@ -3964,20 +3992,26 @@ def main():
             args.script_version is not None,
         )):
             parser.error(
-                'setup mode accepts only --clients and optional --project'
+                f'{mode} mode accepts only --clients and optional --project'
             )
         try:
             project_dir = os.getcwd() if args.project else None
             setup_client = next(iter(clients))
-            assert_setup_registration_absent(setup_client, project_dir)
+            expected = bootstrap_registration_expected(env, setup_client, project_dir)
             install_scripts(env, None, setup_bootstrap=True)
-            install_setup_registration(env, setup_client, project_dir)
+            if mode == 'demo':
+                _install_temporary_registration(
+                    demo_mcp_descriptor(env), setup_client, project_dir, expected,
+                )
+            else:
+                install_setup_registration(env, setup_client, project_dir, expected=expected)
         except Exception as err:
-            print(f"❌ Setup bootstrap failed: {err}")
+            print(f"❌ {mode.capitalize()} bootstrap failed: {err}")
             return 1
+        tool_names = 'start_demo' if mode == 'demo' else 'create_workspace and complete_setup'
         print(
-            "🎉 Uclusion setup bootstrap complete. Restart or reconnect "
-            "the selected client to load create_workspace and complete_setup."
+            f"🎉 Uclusion {mode} bootstrap complete. Restart or reconnect "
+            f"the selected client to load {tool_names}."
         )
         return 0
 

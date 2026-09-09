@@ -1806,7 +1806,7 @@ class SetupInstallerRegistrationTests(unittest.TestCase):
         install_scripts.assert_called_once_with(
             'stage', None, setup_bootstrap=True
         )
-        register.assert_called_once_with('stage', 'codex', project_dir)
+        register.assert_called_once_with('stage', 'codex', project_dir, expected=None)
         fetch_version.assert_not_called()
         fetch_workflow.assert_not_called()
 

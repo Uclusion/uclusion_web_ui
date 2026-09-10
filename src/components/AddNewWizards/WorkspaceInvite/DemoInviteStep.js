@@ -13,34 +13,18 @@ import {
 import { useHistory } from 'react-router';
 import Link from '@material-ui/core/Link';
 import NavigationChevrons from '../../Menus/NavigationChevrons';
-import { getSidebarGroups, screenStyles } from '../../../containers/Screen/Screen';
-import { useIntl } from 'react-intl';
-import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
-import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { useButtonColors } from '../../Buttons/ButtonConstants';
-import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
 
 function DemoInviteStep (props) {
   const { marketId } = props;
   const history = useHistory();
-  const intl = useIntl();
   const theme = useTheme();
-  const [themeMode] = useContext(ThemeModeContext);
-  const isDark = themeMode === 'dark';
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const classes = useContext(WizardStylesContext);
-  const screenClasses = screenStyles();
   const { infoColor } = useButtonColors();
   const [marketsState] = useContext(MarketsContext);
-  const [groupsState] = useContext(MarketGroupsContext);
-  const [groupPresencesState] = useContext(GroupMembersContext);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
   const market = getMarket(marketsState, marketId) || {};
   const link = formMarketLink(marketId, marketId);
-  const navListItemTextArray = [];
-  getSidebarGroups(isDark, navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState, history, market, marketId, marketId, 
-    screenClasses);
 
   return (
     <WizardStepContainer

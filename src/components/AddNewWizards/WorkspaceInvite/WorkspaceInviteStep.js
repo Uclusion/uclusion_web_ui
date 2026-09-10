@@ -20,30 +20,17 @@ import { OnboardingState } from '../../../contexts/AccountContext/accountUserCon
 import { useHistory } from 'react-router';
 import Link from '@material-ui/core/Link';
 import NavigationChevrons from '../../Menus/NavigationChevrons';
-import { getSidebarGroups, screenStyles } from '../../../containers/Screen/Screen';
-import { useIntl } from 'react-intl';
-import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
-import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { useButtonColors } from '../../Buttons/ButtonConstants';
-import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
 
 function WorkspaceInviteStep (props) {
   const { marketId } = props;
   const history = useHistory();
-  const intl = useIntl();
   const theme = useTheme();
-  const [themeMode] = useContext(ThemeModeContext);
-  const isDark = themeMode === 'dark';
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const classes = useContext(WizardStylesContext);
-  const screenClasses = screenStyles();
   const { infoColor } = useButtonColors();
   const [userState] = useContext(AccountContext);
   const [marketsState] = useContext(MarketsContext);
-  const [groupsState] = useContext(MarketGroupsContext);
-  const [groupPresencesState] = useContext(GroupMembersContext);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
   const isDemoOn = userState?.user?.onboarding_state !== OnboardingState.FirstMarketJoined;
   const market = getMarket(marketsState, marketId) || {};
   const link = formMarketLink(marketId, marketId);
@@ -54,9 +41,6 @@ function WorkspaceInviteStep (props) {
     <path
       d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
   </svg>;
-  const navListItemTextArray = [];
-  getSidebarGroups(isDark, navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState, history, market, marketId, marketId, 
-    screenClasses);
 
   return (
     <WizardStepContainer

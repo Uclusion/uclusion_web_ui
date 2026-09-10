@@ -231,14 +231,14 @@ function MarketTodos(props) {
   const commentsForCurrentTab = isResolvedTab ? resolvedTodoComments : comments;
   // S-all-199: badge unread replies at any depth too - only the counts fold threads in,
   // the row lists stay roots
-  const unreadRedCount = getUnreadCount(getThreads(redComments, comments), messagesState);
-  const unreadYellowCount = getUnreadCount(getThreads(yellowComments, comments), messagesState);
-  const unreadBlueCount = getUnreadCount(getThreads(blueComments, comments), messagesState);
+  const unreadRedCount = getUnreadCount(getThreads(redComments, comments), messagesState.messages);
+  const unreadYellowCount = getUnreadCount(getThreads(yellowComments, comments), messagesState.messages);
+  const unreadBlueCount = getUnreadCount(getThreads(blueComments, comments), messagesState.messages);
   // resolvedTodoComments bundles resolved bug roots AND their replies, so this counts unread notifications
   // on either - including a reply that raced ahead of the bug being resolved (T-all-2237).
-  const unreadResolvedCount = getUnreadCount(resolvedTodoComments, messagesState);
+  const unreadResolvedCount = getUnreadCount(resolvedTodoComments, messagesState.messages);
   const tabComments = _.orderBy(tabCommentsRaw,
-    [(comment) => _.size(findMessagesForCommentIds(comment.id, messagesState.messages, true)),
+    [(comment) => _.size(findMessagesForCommentIds([comment.id], messagesState.messages, true)),
       'updated_at'], ['desc', 'desc']);
   const page = getRealPage(tabComments, pinned, originalPage, PAGE_SIZE);
   const { first, last, data, hasMore, hasLess } = getPaginatedItems(tabComments, page,

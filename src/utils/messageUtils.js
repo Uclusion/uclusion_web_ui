@@ -26,7 +26,7 @@ export function removeInlineMarketMessages(inlineMarketId, investiblesState, com
   const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId) || [];
   const anInlineMarketInvestibleComments = getMarketComments(commentsState, inlineMarketId) || [];
   inlineInvestibles.forEach((inv) => {
-    const messages = findMessagesForInvestibleId(inv.investible.id, messagesState) || [];
+    const messages = findMessagesForInvestibleId(inv.investible.id, messagesState.messages) || [];
     const messageIds = messages.map((message) => message.type_object_id);
     messagesDispatch(removeMessages(messageIds));
   });
@@ -277,10 +277,10 @@ export function getRealPage(tabComments, pinned, originalPage, pageSize) {
   return Math.floor(index / pageSize) + 1;
 }
 
-export function getUnreadCount(comments, messagesState) {
+export function getUnreadCount(comments, messages) {
   let unreadCount = 0;
   (comments || []).forEach((comment) => {
-    const myMessage = findMessageForCommentId(comment.id, messagesState);
+    const myMessage = findMessageForCommentId(comment.id, messages);
     if (myMessage?.is_highlighted){
       unreadCount++;
     }

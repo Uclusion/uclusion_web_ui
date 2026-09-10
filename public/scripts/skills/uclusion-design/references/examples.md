@@ -9,6 +9,14 @@ patterns. All Uclusion codes, names, and links are fictional.
 
 > # Download workspace audit history
 >
+> ## Summary
+>
+> - Exports panel: the request button and its progress and result states.
+> - Export worker: file generation and publication.
+> - Export API: adds an export id and four status values to the existing
+>   endpoint.
+> - No new table. Completed files go to the existing object store.
+>
 > When a workspace owner requests an audit-history export, the existing Exports
 > panel starts one export and shows its progress. Success replaces the current
 > result with an expiring download link
@@ -37,6 +45,8 @@ patterns. All Uclusion codes, names, and links are fictional.
 
 Why this works:
 
+- The summary says where to start and what shape the change is, and repeats no
+  sentence from the story below it.
 - The first paragraph gives the actor, trigger, success, and failure without a
   second section restating them.
 - Each later paragraph adds information an implementer needs: ownership and
@@ -90,8 +100,10 @@ Why this works:
 
 Why this is weak:
 
-- The first two sections repeat the same aspiration in different abstract
-  words. They consume attention without adding implementable behavior.
+- It opens with two sections that repeat the same aspiration in different
+  abstract words. Neither is a summary: a summary would say which files to open
+  and whether a table was added. These consume attention without adding
+  navigation or implementable behavior.
 - Six headings make the reader assemble the design themselves. The capsule is
   long because it records writing categories, not because the design is
   complex.

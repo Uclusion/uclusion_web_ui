@@ -56,11 +56,22 @@ the question before asking this skill to continue.
 
 ## Compose the system story
 
-Write freeform Markdown sized to the work. Lead with what the actor experiences
-from trigger through terminal success or failure, then make the implementation
-contract easy to skim. State each important idea once. Do not split one story
-into an “intended outcome” and a second section that restates it as a contract,
-and do not create a heading for every planning category.
+Open with a `## Summary` section, then write the rest as freeform Markdown
+sized to the work. The summary is navigational and is defined by what it
+carries: the files or surfaces a reader should open first, any new or changed
+table and the one-line reason it exists, and the broad shape of the change,
+such as one new provider and twelve converted call sites. Three to five lines,
+bullets allowed. It must not carry the actor story, terminal outcomes,
+evidence links, or any sentence that also appears later in the capsule. A
+reader who stops after it should know where to start work; a reader who wanted
+the design still has to read on.
+
+After that summary, lead with what the actor experiences from trigger through
+terminal success or failure, then make the implementation contract easy to
+skim. State each important idea once. The summary is the single exception, and
+only because navigation appears nowhere else: do not split one story into an
+“intended outcome” and a second section that restates it as a contract, and do
+not create a heading for every planning category.
 
 Integrate only the applicable subjects into that story:
 
@@ -94,7 +105,9 @@ For a cold review, discard remembered chat and questions. Read only the
 candidate capsule and the claim-local evidence it links. Check whether a new
 implementer can recover each actor's terminal outcome, responsibility boundary,
 state transition, interface, failure and concurrency rule, exclusion, and
-approved verification limit. Also check that every reviewer-divergent choice
+approved verification limit. Check the summary first: it exists, it names where
+to start, and no sentence in it appears again below. Also check that every
+reviewer-divergent choice
 has qualifying human evidence beside it and that selected-option evidence names
 both exact identifiers.
 
@@ -103,6 +116,7 @@ revised complete body when the evidence supports a clearer or more complete
 contract. Otherwise return findings without rewriting the sent body. If
 correction would require an unsupported choice, return the typed question
 instead. A capsule fails review when its prose is accurate only with remembered
-context, or when an evidence ledger leaves the reader to map authority back to
-claims.
+context, when an evidence ledger leaves the reader to map authority back to
+claims, or when its summary is missing or restates the story instead of
+pointing at it.
 <!-- /uclusion-design-skill:v1 -->

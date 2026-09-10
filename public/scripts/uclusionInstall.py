@@ -301,8 +301,8 @@ WORKFLOW_ASSET_SHA256 = {
     'operations_reference': '571b46c8e32153e5f15ca6632377149c1639bd6a4243faecf73e42c0e8e48432',
     'completion_reference': 'accd3b8f2f5d37a94c8d8a58a2aaef4c1ae1225a3c574db2af279e3ab5249684',
     'openai_metadata': 'ecf2759354ff3bbfd7178452a705650aff7a13352458bb20e1df122da7c30f40',
-    'design_skill': '0e61780273603317c1bb09d7a912773285e79568f424c93fa31d4983270cb70a',
-    'design_examples': '49978a3c50b40a676379511a289cef860a70875eb18e8bed8898076192bf4aad',
+    'design_skill': '638d418c7d956f8fda4ad004e4abee637a5ec9a78bd66fd16db5cc52334d75e7',
+    'design_examples': '73313157290179d0b56e20cebfef264eb91739b841c7538750c80f7f2ede0b1b',
     'design_openai_metadata': 'f31f258d8b76d5fcfa724b7e7468481ef18a863c9afbdd78b81b873641f9c7ba',
 }
 CLIENT_STUB_ASSET = {

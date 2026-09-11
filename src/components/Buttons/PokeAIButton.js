@@ -92,7 +92,11 @@ function PokeAIButton(props) {
       <TooltipIconButton
         id={operationId}
         lightSurface={lightSurface}
-        disabled={operationRunning !== false}
+        // J-all-445: operationRunning is one global value, so this disabled the poke
+        // button whenever any unrelated operation was in flight. Arriving from another
+        // page fires a refresh, and the click then landed on a disabled control and was
+        // lost with no error. Only this button's own operation should block it.
+        disabled={operationRunning === operationId}
         onClick={handlePoke}
         icon={<TouchApp fontSize="small" htmlColor={ACTION_BUTTON_COLOR} />}
         size="small"
@@ -106,6 +110,10 @@ function PokeAIButton(props) {
   return (
     <SpinningIconLabelButton
       aria-label={jobTooltip}
+      // J-all-445: poking sends a message and mutates nothing, so an unrelated operation
+      // must not disable it. This is the job-level button, the one most likely to be
+      // clicked on arrival from another page while that page's refresh is still running.
+      ignoreOtherOperations
       id={operationId}
       icon={TouchApp}
       iconColor={useDark ? DARK_ACTION_BUTTON_COLOR : 'black'}

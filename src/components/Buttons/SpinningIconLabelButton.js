@@ -147,6 +147,10 @@ function SpinningIconLabelButton(props) {
     focus,
     useDark,
     primary = false,
+    // J-all-445: by default any in-flight operation disables every button here, which
+    // guards against concurrent mutations. A button that only sends a message and mutates
+    // nothing can opt out, so an unrelated refresh does not swallow its click silently.
+    ignoreOtherOperations = false,
     ...rest
   } = props;
   const intl = useIntl();
@@ -154,7 +158,9 @@ function SpinningIconLabelButton(props) {
   const classes = useStyles();
   const theme = useTheme();
   const spinning = operationRunning === id;
-  const spinningDisabled = operationRunning !== false;
+  const spinningDisabled = ignoreOtherOperations
+    ? operationRunning === id
+    : operationRunning !== false;
   function myOnClick(event) {
     if (onClick) {
       preventDefaultAndProp(event);

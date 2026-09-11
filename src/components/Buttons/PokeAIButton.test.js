@@ -28,26 +28,28 @@ afterAll(() => {
 jest.mock('./SpinningIconLabelButton', () => {
   const React = require('react');
   return function MockSpinningIconLabelButton(props) {
-    const { children, id, onClick, toolTipTitle } = props;
-    return <button id={id} aria-label={toolTipTitle} onClick={onClick}>{children}</button>;
+    const { children, id, onClick, toolTipTitle, ignoreOtherOperations } = props;
+    return <button id={id} aria-label={toolTipTitle} onClick={onClick}
+                   data-ignore-other-operations={String(!!ignoreOtherOperations)}>{children}</button>;
   };
 });
 
 jest.mock('./TooltipIconButton', () => {
   const React = require('react');
   return function MockTooltipIconButton(props) {
-    const { id, onClick, translationId } = props;
-    return <button id={id} title={translationId} onClick={onClick} />;
+    const { id, onClick, translationId, disabled } = props;
+    return <button id={id} title={translationId} onClick={onClick} disabled={!!disabled} />;
   };
 });
 
-function pokeAIButtonTree(props, pokeAI = jest.fn(), setOperationRunning = () => {}) {
+function pokeAIButtonTree(props, pokeAI = jest.fn(), setOperationRunning = () => {},
+                          operationRunning = false) {
   return (
     <IntlProvider locale="en" messages={{
       pokeAI: 'Poke AI',
       pokeAIJobTooltip: 'Send `{command}` to your connected AI terminal.',
     }}>
-      <OperationInProgressContext.Provider value={[false, setOperationRunning]}>
+      <OperationInProgressContext.Provider value={[operationRunning, setOperationRunning]}>
         <WebSocketContext.Provider value={{ pokeAI }}>
           <PokeAIButton {...props} />
         </WebSocketContext.Provider>
@@ -56,8 +58,9 @@ function pokeAIButtonTree(props, pokeAI = jest.fn(), setOperationRunning = () =>
   );
 }
 
-function renderPokeAIButton(props) {
-  return ReactDOMServer.renderToString(pokeAIButtonTree(props));
+function renderPokeAIButton(props, operationRunning = false) {
+  return ReactDOMServer.renderToString(
+    pokeAIButtonTree(props, jest.fn(), () => {}, operationRunning));
 }
 
 describe('getPokeAIMessage', () => {
@@ -160,6 +163,33 @@ describe('getPokeAIMessage', () => {
     expect(setOperationRunning).toHaveBeenNthCalledWith(1, 'pokeAIOptionReply');
     expect(setOperationRunning).toHaveBeenLastCalledWith(false);
     await act(async () => root.unmount());
+  });
+
+  // J-all-445: one global operationRunning value disabled this button whenever any
+  // unrelated operation was in flight, so arriving from another page and clicking
+  // during that page's refresh lost the click with no error.
+  it('stays enabled for the compact control while an unrelated operation runs', () => {
+    const html = renderPokeAIButton(
+      { marketId: 'market-id', ticketCode: 'T-all-1', id: 'pokeAIComment', iconOnly: true },
+      'someOtherOperation');
+
+    expect(html).not.toContain('disabled');
+  });
+
+  it('disables the compact control only while its own poke is in flight', () => {
+    const html = renderPokeAIButton(
+      { marketId: 'market-id', ticketCode: 'T-all-1', id: 'pokeAIComment', iconOnly: true },
+      'pokeAIComment');
+
+    expect(html).toContain('disabled');
+  });
+
+  it('asks the labeled control to ignore unrelated operations', () => {
+    // The labeled form delegates its disabled state, so the contract it must carry is
+    // the opt-out itself. Poking sends a message and mutates nothing.
+    const html = renderPokeAIButton({ marketId: 'market-id', ticketCode: 'J-all-1', id: 'pokeAIJob' });
+
+    expect(html).toContain('data-ignore-other-operations="true"');
   });
 });
 

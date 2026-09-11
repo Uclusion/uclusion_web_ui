@@ -602,6 +602,37 @@ const generalStageStyles = makeStyles((theme) => {
       width: '24px',
       height: '24px',
     },
+    cardHeader: {
+      display: 'flex',
+      alignItems: 'flex-start',
+      marginTop: '0.35rem',
+      marginBottom: '0.35rem'
+    },
+    cardHeaderMetadata: {
+      display: 'flex',
+      alignItems: 'center',
+      flex: '1 1 auto',
+      // B-all-632: constrained cards wrap complete metadata units instead of
+      // squeezing status text and pills into broken multi-line fragments.
+      flexWrap: 'wrap',
+      minWidth: 0,
+      rowGap: '0.35rem',
+      '& > *': {
+        flexShrink: 0,
+        whiteSpace: 'nowrap'
+      }
+    },
+    cardHeaderCode: {
+      display: 'flex',
+      flexShrink: 1,
+      fontSize: '.75rem',
+      marginLeft: 'auto',
+      maxWidth: '100%',
+      minWidth: 0,
+      paddingLeft: '0.5rem',
+      paddingTop: '0.25rem',
+      whiteSpace: 'nowrap'
+    },
     outlinedAccepted: {
       border: `1px solid ${theme.palette.grey['400']}`,
       borderRadius: theme.spacing(1),
@@ -788,8 +819,8 @@ function StageInvestible(props) {
              navigate(history, `${formInvestibleLink(marketId, investible.id)}#investible-header`);
            }}
       >
-        <div style={{display: 'flex', alignItems: 'center', marginTop: '0.35rem', marginBottom: '0.35rem'}}>
-          <div style={{display: 'flex', alignItems: 'center', minWidth: 0, overflow: 'hidden', flex: '1 1 auto'}}>
+        <div className={classes.cardHeader}>
+          <div className={classes.cardHeaderMetadata}>
           {!unaccepted && (isVoting || isReview) &&
             !_.isEmpty(collaboratorsForInvestible.filter((collaborator) => !assigned?.includes(collaborator.id))) && (
               <div style={{marginRight: '0.5rem'}}>
@@ -874,8 +905,7 @@ function StageInvestible(props) {
           )}
           </div>
           {jobNumber && (
-            <div style={{display: 'flex', minWidth: 0, maxWidth: '100%', whiteSpace: 'nowrap', fontSize: '.75rem',
-              marginLeft: 'auto', paddingLeft: '0.5rem', flexShrink: jobQualifier ? 1 : 0}}>
+            <div className={classes.cardHeaderCode} style={{flexShrink: jobQualifier ? 1 : 0}}>
               {jobQualifier ? (
                 <React.Fragment>
                   <span style={{overflow: 'hidden', textOverflow: 'ellipsis'}}>{jobQualifier}</span>

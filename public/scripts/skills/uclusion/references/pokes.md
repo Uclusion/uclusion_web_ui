@@ -241,7 +241,10 @@ before continuing. Soft-deleted direct items reload as the enclosing job with
 the item absent.
 
 Use `sections` (`tasks`, `assistance`, `reports`, `notes`, `resolved`) or
-`thread_only` for economical reloads. Direct lookup already retries five times
+`thread_only` for economical reloads. Scoped reads omit the view's standing
+notes, which an unscoped read carries, so scope every reload of a job you
+already hold and take the job whole only on a first read or to re-read those
+notes. Direct lookup already retries five times
 with bounded backoff. If a newly Added direct code still returns 404, retry
 later rather than discarding it.
 

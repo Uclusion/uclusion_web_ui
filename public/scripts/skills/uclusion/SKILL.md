@@ -132,12 +132,15 @@ tasks, grouped tasks, assistance, blockers, and reports. Use
 `include_all_resolved` when full resolved content and notes are needed. Treat
 rendered View Notes as standing instructions.
 
-On event-driven reloads, use `sections` or `thread_only` when the relevant
-scope is already known. Scoping prevents duplicate loading: the first read of
-a job this session takes the whole job, while a later event for an item
-inside it reloads just that item instead of the full job again. If the result
-has no Job header and contains one top-level comment, use the single-comment
-workflow below.
+On event-driven reloads, use `sections` or `thread_only` whenever you already
+hold the job's name and description, which is every read after the first one.
+Scoping is required rather than an optimization, because a scoped read does not
+re-send the view's standing notes, so reloading the whole job repeats them for
+nothing. A scoped read still renders the header, description, stage and votes,
+so it never hides a job-level change. Take the whole job unscoped for a first
+read, or to deliberately re-read its view notes. If the result has no Job
+header and contains one top-level comment, use the single-comment workflow
+below.
 
 ## 2. Ask and resolve questions
 

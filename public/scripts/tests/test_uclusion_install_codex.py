@@ -806,6 +806,25 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             'exception',
             self.workflow,
         )
+        # An AI-authored artifact must never be gated behind a permission ask.
+        # ask_for_review states this outright and is obeyed; make_suggestion did
+        # not, and was not, so the rule is pinned where the permission rules are.
+        self.assertIn(
+            'Recording an AI-originated idea, question, or review needs no '
+            'permission and is never offered or deferred',
+            self.workflow,
+        )
+        self.assertIn(
+            '`make_suggestion`, `ask_question` and `ask_for_review` post as '
+            'the AI; `add_job`, `add_task`, `add_bug` and `add_blocker` post '
+            'as the human and need their explicit request',
+            self.workflow,
+        )
+        self.assertIn(
+            'Chat never replaces the record; an unrecorded finding ends with '
+            'the session',
+            self.workflow,
+        )
         self.assertIn(
             'Resolving a bug triggers both its completion sweep and its '
             'completion package: read `operations.md`, end the sweep record '

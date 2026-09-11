@@ -90,6 +90,11 @@ skill owns event handling and the job workflow.
   completion package is one deliberately compound operational decision and
   the sole normal-client-chat permission exception; do not split its expressly
   listed permissions into separate prompts.
+- Recording an AI-originated idea, question, or review needs no permission and
+  is never offered or deferred. `make_suggestion`, `ask_question` and
+  `ask_for_review` post as the AI; `add_job`, `add_task`, `add_bug` and
+  `add_blocker` post as the human and need their explicit request. Chat never
+  replaces the record; an unrecorded finding ends with the session.
 - An executable stage alone never authorizes edits. Before the first affected
   source or test edit, load the selected executable target's current
   intent/design capsule. Complete drafting and cold review before creating it

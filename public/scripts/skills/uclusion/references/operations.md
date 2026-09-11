@@ -4,7 +4,7 @@
 ## Contents
 
 - Durable threading and commit identities
-- Stage-appropriate post-review completion packages
+- Completion packages
 - Notifications
 - Context-clear boundary
 - Workspace export and decision search
@@ -24,7 +24,14 @@ uses the question's full returned link when available. After review opens, a
 proposed commit message begins with the completed task/comment code. A job code
 at the start means the whole job is done, so use it only when no tasks remain.
 
-## Stage-appropriate post-review completion packages
+## Completion packages
+
+A completion package is one numbered menu, one human reply, and one terminal
+record. Two events open one: a job's implementation review, and a standalone
+bug's resolution. Each names a **package thread** that holds the menu, the
+governing reply when it arrives there, and the terminal record: the exact
+review for a job, and the exact resolved bug for a bug. Everything below
+applies to both packages except where it names a stage or a review.
 
 When the core workflow identifies a complete, testable job-level code pass in
 Doable, open the exact job's review with the current capsule-delta report. Do
@@ -76,13 +83,37 @@ Put the selection alone on the first nonblank line.
 Selected actions run in numeric order and stop at the first failure.
 ```
 
+When a standalone bug's fix is complete, resolve it under the single-comment
+workflow and run the completion sweep that resolution triggers. Record the
+sweep result with `add_info` on that bug, end the same record with the bug
+completion menu, then immediately print the same numbered menu in normal client
+chat and name that bug. Resolving is itself the terminal transition and is
+already the sweep trigger, so the bug menu carries no stage action and never
+offers the sweep. If the sweep could not run, report that, and still create the
+menu record on the bug and mirror it; a sweep failure never suppresses the
+package. Use:
+
+```text
+<bug> has been resolved. Choose completion actions:
+
+1. Commit only its reviewed changes in:
+    - <repository>: <concise file list, or file count and compact scope>.
+2. Push only those commits.
+3. Clear only the notifications produced by <bug>.
+
+Reply `all`, `none`, or numbers such as `1,2` here, or <in the agent/on B-code>.
+Put the selection alone on the first nonblank line.
+Selected actions run in numeric order and stop at the first failure.
+```
+
 For action 1, use canonical short codes for commits, name every affected
 repository, and include its files when the list remains concise. Otherwise
 give its file count and a compact scope summary. Action 3 includes the exact
-job's nested task and review notifications present at the fresh check. Only the
-Doable menu has action 4, which couples the exact stage transition and
-established completion sweep before any lane handoff, work discovery, or
-other-job work. The Reviewable menu never offers or reruns either one.
+job's nested task and review notifications present at the fresh check, or the
+exact bug's own notifications. Only the Doable menu has action 4, which couples
+the exact stage transition and established completion sweep before any lane
+handoff, work discovery, or other-job work. Neither the Reviewable menu nor the
+bug menu offers or reruns either one.
 
 `all` selects every action shown, `none` selects no action, and a numbered reply
 selects exactly the shown actions whose numbers it contains. A response is
@@ -97,21 +128,21 @@ and sweep. Any response that lacks that authority or exact grammar authorizes
 nothing and requires only a narrow clarification in the channel where it
 appeared.
 
-The first valid response observed on either the review or in normal client chat
-governs that review attempt. A later duplicate or conflicting response does not
-authorize or repeat package work. A valid selection is final for that attempt.
-Do not ask again for granted or omitted actions, and offer a new package only
-after material work changes or an explicit human request. While awaiting a
-valid reply to either menu, retain the assigned lane and any auto-take claim.
-This wait is not a review handoff: do not release the claim, begin work
-discovery, or start another job.
+The first valid response observed on either the package thread or in normal
+client chat governs that package attempt. A later duplicate or conflicting
+response does not authorize or repeat package work. A valid selection is final
+for that attempt. Do not ask again for granted or omitted actions, and offer a
+new package only after material work changes or an explicit human request.
+While awaiting a valid reply to any menu, retain any assigned lane and
+auto-take claim. This wait is not a review handoff: do not release the claim,
+begin work discovery, or start another job or bug.
 
-After every apparently valid reply, including `none`, reload the exact job,
-its assistance, and the exact review thread before acting. Reconcile the first
-valid human review-thread response and every existing AI terminal package
-record. An earlier governing review-thread selection or terminal record takes
-precedence over a later response. An AI record preserves the governing human
-selection but supplies no authority by itself.
+After every apparently valid reply, including `none`, reload the exact job or
+bug, its assistance, and the exact package thread before acting. Reconcile the
+first valid human package-thread response and every existing AI terminal
+package record. An earlier governing package-thread selection or terminal
+record takes precedence over a later response. An AI record preserves the
+governing human selection but supplies no authority by itself.
 
 A first valid normal-client-chat selection can govern the current uninterrupted
 execution attempt when that reconciliation finds no earlier governing
@@ -120,13 +151,13 @@ selection receipt before attempting the package actions. If an interruption
 loses that unrecorded chat selection before its terminal record is created,
 require the human to repeat the selection, then reload and reconcile again.
 
-For a governing selection from either the review thread or normal client chat,
+For a governing selection from either the package thread or normal client chat,
 finish the required reload and reconciliation, then attempt only its selected
 actions. After all selected actions succeed, the first mandatory check or
 selected action fails, or `none` selects no action, use `add_info` in the exact
-review thread to create exactly one terminal record for that execution attempt.
-Reply to the governing human review response when the selection came from the
-review, or to the exact review root when it came from normal client chat.
+package thread to create exactly one terminal record for that execution
+attempt. Reply to the governing human response when the selection came from the
+package thread, or to that thread's root when it came from normal client chat.
 Record the source, canonical selection, completed action numbers, failed action
 or check if any, and remaining selected action numbers. This is the only AI
 package-state reply for that execution attempt. If its write outcome is
@@ -135,20 +166,21 @@ action merely to produce the record or create a duplicate record.
 
 A terminal failure record is durable package state and supports a later retry
 under the same human selection. On retry, reconcile the latest state with the
-durable job, review, repository, remote, notification, and sweep results. Never
-repeat an action whose durable result is already present. Perform only the
-selected actions, and create exactly one new terminal record after that retry
-attempt reaches success or its first failure. The ordinary read-only job,
-assistance, repository-scope, and notification checks remain required at their
-workflow boundaries and need no permission.
+durable job or bug, package thread, repository, remote, notification, and
+sweep results. Never repeat an action whose durable result is already present.
+Perform only the selected actions, and create exactly one new terminal record
+after that retry attempt reaches success or its first failure. The ordinary
+read-only job, assistance, repository-scope, and notification checks remain
+required at their workflow boundaries and need no permission.
 
 Whenever at least one action is selected, make one fresh notification check
 after the last selected commit or push and before any selected clear or
-Reviewable transition. List the exact job's matching notifications even when
+Reviewable transition. List the exact item's matching notifications even when
 action 3 was omitted, but neither perform nor request an omitted clear again.
-The job named in the menu prospectively identifies this clear scope, including
-its task or review notifications created before the fresh check. Opening the
-review also retains the ordinary completion-time notification check.
+The job or bug named in the menu prospectively identifies this clear scope,
+including a job's task or review notifications created before the fresh check.
+Opening the review, and resolving the bug, each also retains the ordinary
+completion-time notification check.
 
 The Reviewable transition and its completion sweep are one coupled action for
 authorization: without permission for that exact transition, do neither. A
@@ -163,11 +195,12 @@ handoff, work discovery, or other job starts. If the sweep fails, leave the job
 in Reviewable, report the failure, and block any lane switch until the sweep
 succeeds. An incomplete failed sweep remains work from its original transition
 trigger and must be retried directly, without a new transition or package
-permission. Package permission applies only to the named job, the job- or
-task-owned changes covered by its review, their affected branches, and the
-job's notifications. It does not authorize tests, builds, deployment, security
-work, force-push, unrelated dirty changes, another job, a broader notification
-clear, completion-candidate mutation, or a conversation/context clear.
+permission. Package permission applies only to the named job or bug, the
+changes covered by its review or its bug thread, their affected branches, and
+that item's notifications. It does not authorize tests, builds, deployment,
+security work, force-push, unrelated dirty changes, another job or bug, a
+broader notification clear, completion-candidate mutation, or a
+conversation/context clear.
 
 Stop at the first mandatory check or selected action that fails. Report what
 succeeded, what failed, and which selected actions remain; do not attempt later
@@ -180,25 +213,24 @@ successful no-op, not a failure.
 
 Call `get_notifications` whenever the human requests their inbox and at every
 completion moment: resolving a bug/job, opening review, or receiving sign-off
-and committing. Use a fresh check after the completion action. Either
-stage-appropriate implementation review's completion menu is its sole
-notification-clear offer. Make the ordinary fresh check after opening that
-review and list its exact-job matches, but do not ask a separate clear
-question. A failed check must not delay or suppress the required menu mirror
-in chat. A later selected package pass still makes its execution-time fresh
-check after any selected commit or push.
+and committing. Use a fresh check after the completion action. A completion
+menu is its item's sole notification-clear offer. Make the ordinary fresh
+check after opening that review or resolving that bug and list its exact-item
+matches, but do not ask a separate clear question. A failed check must not
+delay or suppress the required menu mirror in chat. A later selected package
+pass still makes its execution-time fresh check after any selected commit or
+push.
 
-Outside those implementation-review package flows, if notifications exist for
-the item just worked, list them and ask whether to clear those exact
-notifications. Call `clear_notifications` only after explicit permission for
-that object. When the package already grants that permission, list the matching
-notifications and call `clear_notifications` with the exact job short code
-without asking again; this includes notifications about its nested reports or
-tasks but leaves every unrelated notification untouched.
-When the valid package selection omitted action 3 or selected `none`, list the
-matching notifications but do not ask again or call the clear tool for that
-attempt. Never offer or perform a broader clear. If none exist, do not ask or
-call the clear tool.
+Outside those package flows, if notifications exist for the item just worked,
+list them and ask whether to clear those exact notifications. Call
+`clear_notifications` only after explicit permission for that object. When the
+package already grants that permission, list the matching notifications and
+call `clear_notifications` with the exact job or bug short code without asking
+again; this includes notifications about its nested reports or tasks but
+leaves every unrelated notification untouched. When the valid package
+selection omitted action 3 or selected `none`, list the matching notifications
+but do not ask again or call the clear tool for that attempt. Never offer or
+perform a broader clear. If none exist, do not ask or call the clear tool.
 
 ## Context-clear boundary
 

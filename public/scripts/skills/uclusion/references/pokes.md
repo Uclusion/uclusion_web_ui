@@ -178,18 +178,19 @@ The first word is contractual:
   semantic human reply, vote, or Resolve. Advisory responses also send it, so
   reload and inspect answerability; perform every action actually unblocked and
   keep waiting if the response is advisory or another dependency remains. A
-  response on the assigned job's current AI review is a separate case: when
-  that review ends with the active completion menu from `operations.md`, reload
-  its exact thread and accept the first valid non-AI, non-advisory human
+  response on the assigned item's current AI package thread is a separate case:
+  when that thread ends with the active completion menu from `operations.md` —
+  the job's current AI review, or the resolved bug's sweep record — reload its
+  exact thread and accept the first valid non-AI, non-advisory human
   `all`, `none`, or numbered selection from either that thread or normal client
   chat, using the exact first-nonblank-line grammar defined there. Before
-  acting, reconcile any governing review-thread selection, current
+  acting, reconcile any governing package-thread selection, current
   uninterrupted chat selection, and terminal package records as defined there.
   Do not create a pre-action AI selection receipt; if an interruption loses an
-  unrecorded chat selection, require the human to repeat it. A review response
-  creates no assistance and does not itself change stage. Once one valid
-  selection governs the review attempt, later duplicate or conflicting replies
-  cannot authorize or repeat its package work.
+  unrecorded chat selection, require the human to repeat it. Such a response
+  creates no assistance and does not itself change stage or resolution. Once
+  one valid selection governs the package attempt, later duplicate or
+  conflicting replies cannot authorize or repeat its package work.
 
 A job moving into Doable is an `Updated` state transition, never a `Start`.
 Reload and resume it only when that job is already the session's assignment.
@@ -214,8 +215,11 @@ Resolving a standalone bug is also an `Updated` state transition. For an
 assigned bug, compare its reloaded resolution state with the state this session
 last observed. When it changes from open to resolved, read `completion.md` and
 run both completion scans once. A successful in-session Resolve follows the
-same rule immediately. Merely loading a bug already resolved, or receiving
-another update while it remains resolved, does not retrigger the sweep.
+same rule immediately. When this session completed that fix, the resolution
+also opens the bug's completion package: read `operations.md`, end the sweep
+record with the bug completion menu, and mirror that menu in normal client
+chat. Merely loading a bug already resolved, or receiving another update while
+it remains resolved, does not retrigger the sweep or reopen its package.
 
 A legacy bare `Responded.` has no target. Reload only the outstanding
 dependency of the assigned lane. With no assignment, ignore it.

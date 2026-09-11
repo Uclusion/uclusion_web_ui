@@ -639,35 +639,37 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             'authorizes the exact Reviewable transition and sweep',
             'Any response that lacks that authority or exact grammar authorizes '
             'nothing',
-            'first valid response observed on either the review or in normal '
-            'client chat governs that review attempt',
+            'first valid response observed on either the package thread or in '
+            'normal client chat governs that package attempt',
             'later duplicate or conflicting response does not authorize or '
             'repeat package work',
             'valid selection is final for that attempt',
             'offer a new package only after material work changes or an '
             'explicit human request',
-            'While awaiting a valid reply to either menu, retain the assigned '
-            'lane and any auto-take claim',
+            'While awaiting a valid reply to any menu, retain any assigned '
+            'lane and auto-take claim',
             'This wait is not a review handoff: do not release the claim, begin '
             'work discovery, or start another job',
             'After every apparently valid reply, including `none`, reload the '
-            'exact job, its assistance, and the exact review thread before acting',
-            'Reconcile the first valid human review-thread response and every '
+            'exact job or bug, its assistance, and the exact package thread '
+            'before acting',
+            'Reconcile the first valid human package-thread response and every '
             'existing AI terminal package record',
-            'earlier governing review-thread selection or terminal record takes '
-            'precedence over a later response',
+            'earlier governing package-thread selection or terminal record '
+            'takes precedence over a later response',
             'first valid normal-client-chat selection can govern the current '
             'uninterrupted execution attempt',
             'Do not call `add_info` or create any other AI selection receipt '
             'before attempting the package actions',
             'If an interruption loses that unrecorded chat selection before its '
             'terminal record is created, require the human to repeat the selection',
-            'governing selection from either the review thread or normal client chat',
-            'use `add_info` in the exact review thread to create exactly one '
+            'governing selection from either the package thread or normal '
+            'client chat',
+            'use `add_info` in the exact package thread to create exactly one '
             'terminal record for that execution attempt',
-            'Reply to the governing human review response when the selection '
-            'came from the review, or to the exact review root when it came from '
-            'normal client chat',
+            'Reply to the governing human response when the selection came '
+            'from the package thread, or to that thread\'s root when it came '
+            'from normal client chat',
             'source, canonical selection, completed action numbers, failed action '
             'or check if any, and remaining selected action numbers',
             'only AI package-state reply for that execution attempt',
@@ -675,8 +677,8 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             'later retry under the same human selection',
             'create exactly one new terminal record after that retry attempt '
             'reaches success or its first failure',
-            'reconcile the latest state with the durable job, review, repository, '
-            'remote, notification, and sweep results',
+            'reconcile the latest state with the durable job or bug, package '
+            'thread, repository, remote, notification, and sweep results',
             'Never repeat an action whose durable result is already present',
             'ordinary read-only job, assistance, repository-scope, and '
             'notification checks remain required',
@@ -692,8 +694,8 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             'later retry resumes the incomplete work under the same selection '
             'without repeating completed irreversible work',
             'prospectively identifies this clear scope',
-            'call `clear_notifications` with the exact job short code without '
-            'asking again',
+            'call `clear_notifications` with the exact job or bug short code '
+            'without asking again',
             'nested reports or tasks but leaves every unrelated notification '
             'untouched',
             'valid package selection omitted action 3 or selected `none`, list '
@@ -706,17 +708,39 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             'incomplete failed sweep remains work from its original transition '
             'trigger and must be retried directly',
             'conversation/context clear',
-            'implementation review\'s completion menu is its sole '
-            'notification-clear offer',
-            'list its exact-job matches, but do not ask a separate clear question',
+            'A completion menu is its item\'s sole notification-clear offer',
+            'list its exact-item matches, but do not ask a separate clear '
+            'question',
             'failed check must not delay or suppress the required menu mirror in chat',
+            'A completion package is one numbered menu, one human reply, and '
+            'one terminal record',
+            'Two events open one: a job\'s implementation review, and a '
+            'standalone bug\'s resolution',
+            'the exact review for a job, and the exact resolved bug for a bug',
+            'When a standalone bug\'s fix is complete, resolve it under the '
+            'single-comment workflow and run the completion sweep that '
+            'resolution triggers',
+            'Record the sweep result with `add_info` on that bug, end the same '
+            'record with the bug completion menu',
+            'immediately print the same numbered menu in normal client chat and '
+            'name that bug',
+            'the bug menu carries no stage action and never offers the sweep',
+            'a sweep failure never suppresses the package',
+            '<bug> has been resolved. Choose completion actions:',
+            'Reply `all`, `none`, or numbers such as `1,2` here, or <in the '
+            'agent/on B-code>',
+            'Neither the Reviewable menu nor the bug menu offers or reruns '
+            'either one',
+            'Package permission applies only to the named job or bug',
+            'Opening the review, and resolving the bug, each also retains the '
+            'ordinary completion-time notification check',
         )
         for rule in required_rules:
             with self.subTest(rule=rule):
                 self.assertIn(rule, operations)
 
         package_rules = operations.split(
-            '## Stage-appropriate post-review completion packages', 1
+            '## Completion packages', 1
         )[1].split('## Notifications', 1)[0]
         for obsolete_rule in (
             'ask one open-ended',
@@ -777,10 +801,40 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             self.pokes_workflow,
         )
         self.assertIn(
-            'standard post-review package is one deliberately compound '
+            'standard completion package is one deliberately compound '
             'operational decision and the sole normal-client-chat permission '
             'exception',
             self.workflow,
+        )
+        self.assertIn(
+            'Resolving a bug triggers both its completion sweep and its '
+            'completion package: read `operations.md`, end the sweep record '
+            'with the bug completion menu, and mirror that menu in normal '
+            'client chat',
+            self.workflow,
+        )
+        self.assertNotIn(
+            'After resolving, offer to commit with the comment short code at '
+            'the start of the commit message',
+            self.workflow,
+        )
+        self.assertIn(
+            'end that sweep record with the bug completion menu and mirror the '
+            'menu in chat',
+            self.workflow,
+        )
+        self.assertIn(
+            'the resolution also opens the bug\'s completion package',
+            self.pokes_workflow,
+        )
+        self.assertIn(
+            'does not retrigger the sweep or reopen its package',
+            self.pokes_workflow,
+        )
+        self.assertIn(
+            'end that same record with the bug completion menu in '
+            '`operations.md` and mirror the menu with it',
+            self.completion_workflow,
         )
         self.assertIn(
             'For a complete, testable job-level implementation pass in an '
@@ -820,7 +874,9 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             self.workflow,
         )
         self.assertIn(
-            'review ends with the active completion menu from `operations.md`',
+            'when that thread ends with the active completion menu from '
+            '`operations.md` — the job\'s current AI review, or the resolved '
+            'bug\'s sweep record',
             self.pokes_workflow,
         )
         self.assertIn(
@@ -834,7 +890,7 @@ class WorkflowProtocolContractTests(unittest.TestCase):
             self.pokes_workflow,
         )
         self.assertIn(
-            'reconcile any governing review-thread selection, current '
+            'reconcile any governing package-thread selection, current '
             'uninterrupted chat selection, and terminal package records',
             self.pokes_workflow,
         )

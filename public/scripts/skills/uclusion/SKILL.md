@@ -87,7 +87,7 @@ skill owns event handling and the job workflow.
   arrive at any time.
 - Never silently make a judgment call a reasonable reviewer could choose
   differently. Ask one Uclusion question per decision. The standard
-  post-review package is one deliberately compound operational decision and
+  completion package is one deliberately compound operational decision and
   the sole normal-client-chat permission exception; do not split its expressly
   listed permissions into separate prompts.
 - An executable stage alone never authorizes edits. Before the first affected
@@ -99,8 +99,8 @@ skill owns event handling and the job workflow.
   actor-visible outcome, not merely list decisions or components.
 - A capsule is a contract, not permission. Stage, testing and build, security,
   deployment, commit, and push gates remain independent. The required review
-  is opened before permission is requested. Only the standard post-review
-  package may request commit, push, exact-job notification-clear, and
+  is opened before permission is requested. Only a standard completion
+  package may request commit, push, exact-item notification-clear, and
   Reviewable permissions together; it never grants a test, build, security,
   deployment, or omitted action.
 - Use the exact short code returned by Uclusion in tool calls, chat, commit
@@ -466,8 +466,10 @@ checklist:
   lane while waiting, then finish every selected package action after a valid
   reply before work discovery.
 - If a standalone bug was resolved, read `operations.md` and `completion.md`,
-  ensure the completion sweep for that resolution transition has run once, and
-  apply any notification, commit, or context-boundary action.
+  ensure the completion sweep for that resolution transition has run once, then
+  end that sweep record with the bug completion menu and mirror the menu in
+  chat. Finish every selected package action after a valid reply, then apply
+  the context-boundary rule.
 - If a job is fully complete, read `operations.md` and apply its notification,
   commit, and context-boundary rules. Do not rerun the completion sweep for a
   later job Resolve, signoff, shipped confirmation, or commit.
@@ -483,7 +485,10 @@ A single-comment result has no Job header.
 - Question: use only `get_job`, `add_info`, and
   `approve_job_or_option` for its options.
 
-Use `add_info` for questions or progress. After resolving, offer to commit with
-the comment short code at the start of the commit message. When the next item
-is unrelated or unknown, apply the context-clear rule in operations.md.
+Use `add_info` for questions or progress. Resolving a bug triggers both its
+completion sweep and its completion package: read `operations.md`, end the
+sweep record with the bug completion menu, and mirror that menu in normal
+client chat. A proposed commit message begins with the comment short code.
+When the next item is unrelated or unknown, apply the context-clear rule in
+operations.md.
 <!-- /uclusion-skill:v1 -->

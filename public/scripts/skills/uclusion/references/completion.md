@@ -69,7 +69,9 @@ Merge both scans by target into one numbered list. Use exactly this shape:
 `1. **<exact code> — <exact short description>** — **<category>**. Evidence: <matching blocker code and completed code, or conflicting current-outcome evidence>. Proposed action: <specific human action>.`
 
 Record that numbered result, or the explicit no-candidate result below, with
-`add_info` on the triggering source item and mirror it in chat. The proposed
+`add_info` on the triggering source item and mirror it in chat. When the
+trigger was resolving a standalone bug, end that same record with the bug
+completion menu in `operations.md` and mirror the menu with it. The proposed
 actions are part of the completion-sweep result, not new suggestion artifacts.
 Do not call `make_suggestion`, `add_info`, or any other mutating tool on a
 candidate during the sweep.

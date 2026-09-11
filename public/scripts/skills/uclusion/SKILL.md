@@ -20,6 +20,8 @@ skill owns event handling and the job workflow.
 - When a standalone bug is resolved or an assigned job transitions into
   Reviewable, read
   [references/completion.md](references/completion.md).
+- If `start_job_audit` is exposed, read the token usage audit rules in
+  `operations.md` before substantive planning.
 - Before every lane handoff, read `pokes.md` and perform its assignment-aware
   immediate work discovery rules. Also read `operations.md` when resolving a
   bug/job, opening review, or receiving sign-off and committing. On standalone
@@ -111,37 +113,6 @@ skill owns event handling and the job workflow.
 - Use the exact short code returned by Uclusion in tool calls, chat, commit
   messages, and durable notes.
 
-## Token usage audit when available
-
-If `start_job_audit`, `set_job_audit_phase`, and `end_job_audit` are exposed:
-
-1. A lookup used only to classify a Poke starts no audit. Audits attach only
-   to jobs: a standalone view-level comment lane (a single-comment result with
-   no Job header) has no J- job, so never call `start_job_audit` for it — the
-   call fails. If that comment later converts into a Bugs job, audit the
-   returned job. Once an authorized activation establishes a job as the
-   assigned lane and its lookup begins, call `start_job_audit` before
-   substantive planning or execution and retain the run identifier. The
-   initial bucket is `planning`.
-2. Before the kind of work changes, call `set_job_audit_phase`. Include the
-   active job, run identifier, a `marker_sequence` starting at 1 and increasing
-   strictly, and a concise bucket label. A replay reuses its original sequence.
-   Ordinary labels are `planning`, `implementation`,
-   `testing`, and `other`; use a custom label only when it is materially more
-   informative. Switch to `testing` before tests or builds. A marker applies to
-   the next model request and cannot relabel earlier tokens.
-3. Keep the audit active across ordinary model/chat turns. Call
-   `end_job_audit` only when the lane genuinely hands off for a blocking human
-   dependency, review, completion, pause, or interruption. Adding or updating
-   a durable artifact, showing its link, or returning an ordinary model/chat
-   turn is not a lane handoff and must not end the audit. Collection finishes
-   asynchronously; do not poll for it.
-
-Keep at most 32 labels, each 1–80 safe characters. Re-entering a bucket adds to
-its total; do not create separate standard/custom dimensions or a new run when
-the task or turn changes. Every request belongs to one bucket. Audit errors or
-partial telemetry never block the work.
-
 ## Plan mode
 
 Plan-mode restrictions govern machine and repository changes, not Uclusion
@@ -190,9 +161,8 @@ reading source, and gathering the evidence the answers will need, and carry on
 with any other lane the human has authorised. On a hard job the answers
 usually reveal the next unknown rather than clearing the field, so a batch
 cannot be assembled up front and asking recurs; that is normal and is not a
-licence to halt each time. End the turn when nothing can proceed without the
-human, not because questions were filed. Say plainly what is blocked, what you
-are doing meanwhile, and what you need.
+licence to halt each time. Filing a question never ends a turn; see Ending a
+turn below.
 
 For a view-level bug:
 
@@ -445,11 +415,8 @@ ends, recording every substantive result, decision, blocker, and next step.
 Use the specialized Uclusion tool when one applies, otherwise `add_info` on the
 active item. This rule lasts for every turn in that lane, not only the first.
 
-A progress checkpoint is not a lane handoff. After writing or updating an
-artifact or showing its link, continue every authorized investigation,
-planning, and execution step, and surface or create the actual next actionable
-item before final output. Returning an ordinary model/chat turn is not a lane
-handoff either and must not end the active audit.
+A progress checkpoint is not a lane handoff, and neither is returning an
+ordinary model/chat turn; neither ends the active audit.
 
 At a genuine lane handoff for a blocking human dependency, review, completion,
 pause, or interruption, apply the rules below. Either stage-appropriate
@@ -478,6 +445,22 @@ checklist:
 - If a job is fully complete, read `operations.md` and apply its notification,
   commit, and context-boundary rules. Do not rerun the completion sweep for a
   later job Resolve, signoff, shipped confirmation, or commit.
+
+## Ending a turn
+
+Do not end a turn while authorized work remains. After writing or updating an
+artifact or showing its link, continue every authorized investigation,
+planning, and execution step, and surface or create the actual next actionable
+item before final output. A question blocks only the work depending on its
+answer, so keep going on everything else.
+
+End when nothing can proceed without the human. Then say what you need from
+them, and why the current lane is blocked if it is.
+
+Every ending turn presents one of exactly two things: the completion package
+for work that reached it, or `find_work` results in the required numbered form.
+A prose summary of open items is neither, and leaves the human with no decision
+to make and no next item to pick.
 
 ## Single-comment workflow
 

@@ -28,11 +28,10 @@ skill owns event handling and the job workflow.
   bug resolution, also read `completion.md` and apply its sweep before the
   operations reference's remaining completion actions. Job transitions into
   Reviewable are routed by `pokes.md` or handled immediately after a successful
-  in-session stage change. Opening either stage-appropriate implementation
-  review and waiting on its completion menu is expressly not a lane handoff;
-  retain its assignment and any work claim until the valid selection's current
-  execution attempt reaches a terminal outcome and its post-attempt record is
-  confirmed.
+  in-session stage change. Opening an implementation review and waiting on its
+  completion menu is expressly not a lane handoff; retain its assignment and
+  any work claim until the valid selection's current execution attempt reaches
+  a terminal outcome and its post-attempt record is confirmed.
 
 ## Non-negotiable invariants
 
@@ -52,11 +51,10 @@ skill owns event handling and the job workflow.
   into Doable. Explicit human-configured multi-agent roles are exempt. Apply
   the complete assignment and delivery rules in `references/pokes.md`.
 - Put every question, suggestion, approval, vote, progress note, resolution,
-  and review request in Uclusion through its MCP tools. The narrow
-  stage-appropriate completion menu defined in `operations.md` is appended to
-  each qualifying AI implementation review and mirrored in normal client chat:
-  a complete job-level pass in Doable, or a follow-up pass for new job- or
-  task-owned code changes in Reviewable. Neither copy calls `ask_question` or
+  and review request in Uclusion through its MCP tools. The narrow completion
+  menu defined in `operations.md` is appended to each qualifying AI
+  implementation review and mirrored in chat, selected by whether the pass
+  finishes the job rather than by stage. Neither copy calls `ask_question` or
   creates assistance. Chat may otherwise mirror an artifact but never replace
   it. Other questions about the job, including redo direction, use
   `ask_question`, not a local question tool.
@@ -359,22 +357,23 @@ Before editing:
 3. Reload assistance/stage if either could have changed.
 
 Implement active tasks and grouped tasks; do not redo resolved work. Resolve
-each task when complete. Use `add_info` on the relevant job/task for decisions,
-trade-offs, follow-ups, and anything a reviewer cannot reconstruct from the
-durable thread.
+each task when its code is written and tested. Commit, push and deployment are
+separate gates and none of them holds task resolution; verification needing
+another environment becomes a new task rather than a reason to hold this one
+open. Use `add_info` on the relevant job/task for decisions, trade-offs,
+follow-ups, and anything a reviewer cannot reconstruct from the durable thread.
 
 ## 6. Request or perform review
 
 Before review, turn unfinished or deferred actionable work into suggestions and
-reference those suggestions in the report. For a complete, testable job-level
-implementation pass in an assigned Doable job, or a follow-up implementation
-pass for new job- or task-owned code changes in an assigned Reviewable job,
-read `operations.md`, call `ask_for_review` with that pass's completion menu
-appended to its concise capsule-delta report, then immediately mirror the menu
-in normal client chat. The review is required and is never a selectable package
-action. The complete Doable job-level menu includes the exact Reviewable
-transition and sweep; the Reviewable follow-up menu offers only commit, push,
-and exact-job notification clear. This menu wait does not release a work claim
+reference those suggestions in the report. For any testable implementation pass
+in an assigned job in an executable stage, read `operations.md`, call
+`ask_for_review` with that pass's completion menu appended to its concise
+capsule-delta report, then immediately mirror the menu in normal client chat.
+The menu is selected by whether the pass finishes the job, not by stage;
+`operations.md` defines finished and both menus, and only the four-action menu
+carries the Reviewable transition and sweep. The review is required and is
+never a selectable package action. This menu wait does not release a work claim
 or start lane-handoff discovery. For other testable review work, call
 `ask_for_review` with a concise capsule-delta report. Only one AI review may be
 open per job, so job and task capsule reviews are sequential.
@@ -407,9 +406,8 @@ verification or approval status. Report implementation differences once here;
 only new human input establishing a new contract calls for a capsule
 replacement. Never hide a remaining choice in review prose; ask it as a
 question. End the report narrative with the AI product, exact model/version,
-and effort level. For either stage-appropriate
-implementation review, append the completion menu after that provenance so the
-menu is the review's final content.
+and effort level. For an implementation review, append the completion menu
+after that provenance so the menu is the review's final content.
 
 ## Durable progress checkpoints and material handoffs
 
@@ -422,11 +420,10 @@ A progress checkpoint is not a lane handoff, and neither is returning an
 ordinary model/chat turn; neither ends the active audit.
 
 At a genuine lane handoff for a blocking human dependency, review, completion,
-pause, or interruption, apply the rules below. Either stage-appropriate
-implementation review and menu wait becomes a review handoff only after its
-valid selection's current execution attempt reaches a terminal outcome and its
-post-attempt record is confirmed; before then, do not apply this handoff
-checklist:
+pause, or interruption, apply the rules below. An implementation review and its
+menu wait becomes a review handoff only after its valid selection's current
+execution attempt reaches a terminal outcome and its post-attempt record is
+confirmed; before then, do not apply this handoff checklist:
 
 - Ending an audit or execution interval does not clear a retained human-guided
   assignment. It remains available for matching continuation events until
@@ -435,11 +432,10 @@ checklist:
 - If `claim_work` is exposed and the lane's short code is claimed, release it
   per the work claim lock rules in `pokes.md`.
 - If blocked on a human, leave the exact dependency in Uclusion.
-- If testable, read `operations.md` and follow the review routing above. A
-  Doable completion pass or Reviewable follow-up implementation pass opens its
-  review and mirrors its stage-appropriate menu before handing off. Retain its
-  lane while waiting, then finish every selected package action after a valid
-  reply before work discovery.
+- If testable, read `operations.md` and follow the review routing above. Any
+  implementation pass opens its review and mirrors the menu its completeness
+  selects before handing off. Retain its lane while waiting, then finish every
+  selected package action after a valid reply before work discovery.
 - If a standalone bug was resolved, read `operations.md` and `completion.md`,
   ensure the completion sweep for that resolution transition has run once, then
   end that sweep record with the bug completion menu and mirror the menu in

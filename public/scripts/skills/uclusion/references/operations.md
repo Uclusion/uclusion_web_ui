@@ -21,16 +21,22 @@ governing reply when it arrives there, and the terminal record: the exact
 review for a job, and the exact resolved bug for a bug. Everything below
 applies to both packages except where it names a stage or a review.
 
-When the core workflow identifies a complete, testable job-level code pass in
-Doable, open the exact job's review with the current capsule-delta report. Do
-not ask permission first. The review is required durable documentation and
-generates the notification that brings the work to the human's attention.
-Opening it does not change the job stage. When new job- or task-owned code
-changes become testable while the assigned job is already Reviewable, open a
-follow-up implementation review under the same rule.
+When the core workflow identifies a testable implementation pass in an assigned
+job in an executable stage, open the exact job's review with the current
+capsule-delta report. Do not ask permission first. The review is required
+durable documentation and generates the notification that brings the work to
+the human's attention. Opening it does not change the job stage.
 
-End either implementation review report with its stage-appropriate completion
-menu. After `ask_for_review` returns the review code or link, immediately print
+Before writing the menu, decide whether the job itself is finished. A job is
+finished when everything its current intent/design capsule promises is built
+and tested and no open task remains. An open task blocks that conclusion. An
+empty task list never establishes it, because it is equally consistent with a
+pass that opened no tasks at all. State which conclusion you reached, and why,
+in the review, so a wrong call is visible in the record instead of surfacing
+later as a transition the platform refuses.
+
+End every implementation review report with the completion menu that conclusion
+selects. After `ask_for_review` returns the review code or link, immediately print
 the same numbered menu in normal client chat and name that review. The review
 footer says the human may reply there or in the agent; the chat copy says the
 human may reply there or on the named review. Neither copy calls `ask_question`
@@ -38,8 +44,8 @@ or creates a Uclusion question or assistance item. Use the applicable
 user-facing menu below, substituting the exact job, review, repositories, and
 current reviewed scope.
 
-For a complete Doable job-level pass, name the exact Doable-to-Reviewable
-transition and use:
+For a pass that finishes the job while it is in Doable, name the exact
+Doable-to-Reviewable transition and use:
 
 ```text
 <job> has been reviewed. Choose completion actions:
@@ -55,16 +61,16 @@ Put the selection alone on the first nonblank line.
 Selected actions run in numeric order and stop at the first failure. Action 4 is indivisible.
 ```
 
-For a follow-up implementation review while the exact job is already
+For a pass that does not finish the job, and for any pass on a job already in
 Reviewable, use only the applicable three actions:
 
 ```text
-<job> follow-up has been reviewed. Choose completion actions:
+<job> has been reviewed. Choose completion actions:
 
 1. Commit only its reviewed changes in:
     - <repository>: <concise file list, or file count and compact scope>.
 2. Push only those commits.
-3. Clear only the notifications produced by <job>.
+3. Clear only the notifications produced by <clear scope>.
 
 Reply `all`, `none`, or numbers such as `1,2` here, or <in the agent/on review R-code>.
 Put the selection alone on the first nonblank line.
@@ -96,12 +102,20 @@ Selected actions run in numeric order and stop at the first failure.
 
 For action 1, use canonical short codes for commits, name every affected
 repository, and include its files when the list remains concise. Otherwise
-give its file count and a compact scope summary. Action 3 includes the exact
-job's nested task and review notifications present at the fresh check, or the
-exact bug's own notifications. Only the Doable menu has action 4, which couples
-the exact stage transition and established completion sweep before any lane
-handoff, work discovery, or other-job work. Neither the Reviewable menu nor the
-bug menu offers or reruns either one.
+give its file count and a compact scope summary.
+
+Action 3's <clear scope> is the exact job when the pass finished it, and
+otherwise the exact review just opened plus any task that pass resolved. The
+review always exists, because opening it is what produces the menu, so a
+resolved task is an addition when there is one and the wording still reads
+correctly when the pass resolved none. Naming the job includes its nested task
+and review notifications present at the fresh check; a bug menu names the exact
+bug's own notifications. More than one named code is one clear call per code.
+
+Only the four-action menu has action 4, which couples the exact stage
+transition and established completion sweep before any lane handoff, work
+discovery, or other-job work. Neither the three-action menu nor the bug menu
+offers or reruns either one.
 
 `all` selects every action shown, `none` selects no action, and a numbered reply
 selects exactly the shown actions whose numbers it contains. A response is
@@ -110,9 +124,9 @@ line, after trimming, consists only of `all`, `none`, or a comma-delimited list
 of unique action numbers shown in that menu, with optional spaces around
 commas. Ignore later prose when interpreting the selection; do not infer
 authorization from numbers elsewhere. Perform selected actions in their listed
-relative order regardless of the order supplied. Only a Doable menu's `all` or
-numbered selection containing `4` authorizes the exact Reviewable transition
-and sweep. Any response that lacks that authority or exact grammar authorizes
+relative order regardless of the order supplied. Only a four-action menu's
+`all` or numbered selection containing `4` authorizes the exact Reviewable
+transition and sweep. Any response that lacks that authority or exact grammar authorizes
 nothing and requires only a narrow clarification in the channel where it
 appeared.
 

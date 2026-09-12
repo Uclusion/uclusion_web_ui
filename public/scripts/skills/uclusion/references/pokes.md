@@ -74,8 +74,8 @@ requires work claims. Human-guided selections do not require the tool.
 - At every lane handoff (blocked, review requested, or complete), call
   `claim_work` with operation `release` for the held short code. Claims a
   crashed agent leaves behind expire on their own, so never wait for another
-  agent's claim beyond a denial. Either stage-appropriate implementation review
-  and its completion-menu wait are not a review handoff: keep that claim until
+  agent's claim beyond a denial. An implementation review and its
+  completion-menu wait are not a review handoff: keep that claim until
   the valid selection's execution attempt reaches a terminal outcome and its
   post-attempt record is confirmed.
 - Classification lookups and triage reads never claim; merely reading an item

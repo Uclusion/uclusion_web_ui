@@ -298,7 +298,7 @@ WORKFLOW_ASSET_SHA256 = {
     'cursor_stub': '2e4bf88903896ba312738f9a4ab7163582df99050b62f13e0e0324a6580a412f',
     'skill': 'a1ee34fd7037ea22ab3ecfbe39ffcebf252ec0f771ed4084f586774952650815',
     'pokes_reference': '82fa4542a9713b8d277f8bb2c8f0d6e13c081a7203f7280ce926bd94272ee13c',
-    'operations_reference': '38193928b08d0d3bc4e6d16ace3d8ca4cb06086d32824f90aae480bfaee4bfd0',
+    'operations_reference': '9e34c9e4d49f4af58c74d82086d64981c3a8ca73996a4e32cf2ac7f38973bb9e',
     'completion_reference': '2f627b9e6156958ce7940f11b0281a4ee3295517b60eb339b0bc577dd59240c3',
     'openai_metadata': 'ecf2759354ff3bbfd7178452a705650aff7a13352458bb20e1df122da7c30f40',
     'design_skill': '638d418c7d956f8fda4ad004e4abee637a5ec9a78bd66fd16db5cc52334d75e7',

@@ -259,9 +259,15 @@ the configured path only when the human explicitly requests a different one.
 Exports include jobs, comments, options, votes, reasons, and UTC update dates.
 Use those dates for recency.
 
-Before reopening a debate or answering what was decided, search the export and
-cite the existing artifact. Present enough inline detail for relevance and its
-short code; offer to drill in without requiring the human to open Uclusion.
+Search it before you create a design, before you rely on a design you did not
+write yourself, and before you answer something in case it was already decided,
+and cite what you find. The first two stop a design re-deciding something
+settled or resting on something that has gone stale; the third finds what
+settled it. A design is whatever records the agreed approach, which is the
+current intent/design capsule where one exists and otherwise the design written
+into the item's own thread, as a standalone bug carries one. Present enough
+inline detail for relevance and its short code; offer to drill in without
+requiring the human to open Uclusion.
 
 ## Creating jobs and human-authored artifacts
 

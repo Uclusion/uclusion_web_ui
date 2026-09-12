@@ -3835,6 +3835,10 @@ def build_parser():
         help='Existing standalone bug to move into the new job. Repeat for multiple bugs.',
     )
     add_job_parser.add_argument(
+        '--task-short-code-id', action='append', dest='task_short_code_ids',
+        help='Existing task to move out of its current job into the new job. Repeat for multiple tasks.',
+    )
+    add_job_parser.add_argument(
         '--view-short-code-id', help='Existing job or bug whose view receives the job.',
     )
     configure_mcp_parser(
@@ -3845,6 +3849,7 @@ def build_parser():
             mcp_field('description', 'description'),
             mcp_field('tasks', 'tasks'),
             mcp_field('bug_short_code_ids', 'bug_short_code_ids'),
+            mcp_field('task_short_code_ids', 'task_short_code_ids'),
             mcp_field('view_short_code_id', 'view_short_code_id'),
         ),
         ('name', 'description'),
@@ -3925,6 +3930,25 @@ def build_parser():
             mcp_field('view_short_code_id', 'view_short_code_id'),
         ),
         ('severity', 'bug'),
+    )
+
+    move_task_to_bug_parser = subparsers.add_parser(
+        'move_task_to_bug', help='Move an existing task out of its job to become a view-level bug.'
+    )
+    move_task_to_bug_parser.add_argument(
+        '--task-short-code-id', help='Task short code to move out of its job.',
+    )
+    move_task_to_bug_parser.add_argument(
+        '--severity', type=severity_value, help='RED, YELLOW, or BLUE severity.',
+    )
+    configure_mcp_parser(
+        move_task_to_bug_parser,
+        'move_task_to_bug',
+        (
+            mcp_field('task_short_code_id', 'task_short_code_id'),
+            mcp_field('severity', 'severity', transform=severity_code),
+        ),
+        ('task_short_code_id', 'severity'),
     )
 
     resolve_parser = subparsers.add_parser(

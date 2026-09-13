@@ -89,6 +89,12 @@ job work, and never substitute a different wait/listen strategy. Handle every
 delivered line in arrival order. Never set `UCLUSION_CONSUMER` yourself; it is a
 human-controlled knob for explicitly separated consumers.
 
+No resident stub in context is itself the delivery mode: nothing to establish,
+no listener to arm, and every turn started directly by the human. Work
+discovery and the job workflow then proceed normally. Following a stated mode
+is not substituting one, so the rule above still bars inventing a wait
+strategy, and never install or configure anything to obtain delivery.
+
 ## Backlog and session lifecycle
 
 A fresh per-session cursor starts at arm time. Older output marked `(replayed)`

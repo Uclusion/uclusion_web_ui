@@ -99,9 +99,14 @@ skill owns event handling and the job workflow.
   source or test edit, load the selected executable target's current
   intent/design capsule. Complete drafting and cold review before creating it
   with `set_design_capsule` when absent. Once sent, keep its body stable unless
-  new human input establishes a new contract. Incorporate that input before
-  further affected edits. The capsule must stand alone and preserve the
-  actor-visible outcome, not merely list decisions or components.
+  human input that arrives after it establishes a new contract. Finding older
+  human input you had not read is not that; raise it as a question instead.
+  When a new contract is established, update the capsule to say it. Do that
+  before any further affected edits, and before the lane ends even when there
+  are no edits at all, so a decision you have settled is never left sitting
+  beside a capsule that still states what it replaced. The capsule must stand
+  alone and preserve the actor-visible outcome, not merely list decisions or
+  components.
 - A capsule is a contract, not permission. Stage, testing and build, security,
   deployment, commit, and push gates remain independent. The required review
   is opened before permission is requested. Only a standard completion

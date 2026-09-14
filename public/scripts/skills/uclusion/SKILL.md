@@ -174,17 +174,23 @@ For a view-level bug:
 
 - Ask for missing facts with `add_info`, keeping the single-comment workflow.
 - For a discrete options question, call `ask_question` with the bug short code
-  and a nonempty options list. It creates a human-owned Bugs job in the same
-  view, moves the original bug thread into that job as a task, creates the
-  question, and returns both links. Complete the conversion as one atomic
-  workflow turn: `ask_question` → reload the returned Bugs job → cast exactly
-  one explained preferred-option vote with `approve_job_or_option`, all before
-  ending the turn. Never convert a bug merely to ask an open-ended question.
+  and a nonempty options list, including the required `initial_vote`. That
+  call creates a human-owned Bugs job in the same view, moves the original bug
+  thread into it as a task, creates the question and records the preferred
+  vote. Reload the returned Bugs job. Never convert a bug merely to ask an
+  open-ended question.
 
-When offering options, vote for the preferred option with
-`approve_job_or_option` and explain why. Hold that position through mere
-restatement or pressure; change it only for new evidence or a changed
-requirement, and name what changed.
+Every option-bearing `ask_question` and every `add_options` call must include
+one `initial_vote` with certainty 1–5 and a nonblank reason. Select a new option
+by its zero-based `new_option_index`. With `add_options`, use either that index
+or `existing_option_id` for an Approvable option in the same question, making
+clear whether the added alternatives change your preference. Supply exactly
+one selector. An open-ended question has no vote input.
+
+The creation call records the vote; do not repeat it in a separate initial
+`approve_job_or_option` call. Use that tool for later preference changes. Hold
+your position through mere restatement or pressure; change it only for new
+evidence or a changed requirement, and name what changed.
 
 ### What answers an AI-authored question
 

@@ -3335,6 +3335,34 @@ def validate_required_options(arguments):
     validate_options(arguments, True)
 
 
+def build_option_creation_arguments(args):
+    vote_fields = ('new_option_index', 'existing_option_id', 'certainty', 'reason')
+    arguments = declared_mcp_arguments(
+        args, extra_destinations=tuple('vote_' + field for field in vote_fields)
+    )
+    if args.arguments_json is not None:
+        return arguments
+    vote = {
+        field: getattr(args, 'vote_' + field)
+        for field in vote_fields
+        if getattr(args, 'vote_' + field, None) is not None
+    }
+    options = arguments.get('options', [])
+    if not options:
+        if vote:
+            raise CLIArgumentError('initial vote arguments require options')
+        return arguments
+    selectors = [field for field in ('new_option_index', 'existing_option_id') if field in vote]
+    if len(selectors) != 1 or 'certainty' not in vote or not vote.get('reason', '').strip():
+        raise CLIArgumentError('options require a vote target, --vote-certainty and a nonblank --vote-reason')
+    if 'new_option_index' in vote and vote['new_option_index'] >= len(options):
+        raise CLIArgumentError('--vote-new-option-index must identify one of the supplied options (starting at 0)')
+    if 'existing_option_id' in vote and not vote['existing_option_id'].strip():
+        raise CLIArgumentError('--vote-existing-option-id must be nonblank')
+    arguments['initial_vote'] = vote
+    return arguments
+
+
 def validate_suggestion(arguments):
     if 'job_id' in arguments and 'view_short_code_id' in arguments:
         raise CLIArgumentError('job_id and view_short_code_id are mutually exclusive')
@@ -3583,6 +3611,23 @@ def add_option_argument(command_parser):
         dest='options',
         help='An option as NAME DESCRIPTION. Repeat for multiple options.',
     )
+
+
+def add_initial_vote_arguments(command_parser, allow_existing=False):
+    selector = command_parser.add_mutually_exclusive_group()
+    selector.add_argument(
+        '--vote-new-option-index', type=nonnegative_int,
+        help='Zero-based index of the supplied option receiving the initial For vote.',
+    )
+    if allow_existing:
+        selector.add_argument(
+            '--vote-existing-option-id',
+            help='Existing Approvable option in this question receiving the For vote instead.',
+        )
+    command_parser.add_argument(
+        '--vote-certainty', type=certainty_value, help='Initial vote certainty, an integer from 1 to 5.',
+    )
+    command_parser.add_argument('--vote-reason', help='Nonblank reason for the initial For vote.')
 
 
 def build_parser():
@@ -4090,12 +4135,13 @@ def build_parser():
     )
 
     ask_question_parser = subparsers.add_parser(
-        'ask_question', help='Ask a question on a job or convert a view-level bug atomically.'
+        'ask_question', help='Ask a question, recording an explained vote when options are supplied.'
     )
     ask_question_parser.add_argument('--job-id', help='Job or view-level bug short code.')
     ask_question_parser.add_argument('--question', help='Question Markdown.')
     ask_question_parser.add_argument('--name', help='Optional converted bug job name.')
     add_option_argument(ask_question_parser)
+    add_initial_vote_arguments(ask_question_parser)
     add_uploaded_file_argument(ask_question_parser)
     question_fields = (
         mcp_field('job_id', 'job_id'),
@@ -4110,6 +4156,7 @@ def build_parser():
         question_fields,
         ('job_id', 'question'),
         validator=validate_question,
+        builder=build_option_creation_arguments,
     )
 
     add_question_parser = subparsers.add_parser(
@@ -4121,6 +4168,7 @@ def build_parser():
     add_question_parser.add_argument('--question', help='Question Markdown.')
     add_question_parser.add_argument('--name', help='Optional converted bug job name.')
     add_option_argument(add_question_parser)
+    add_initial_vote_arguments(add_question_parser)
     add_uploaded_file_argument(add_question_parser)
     configure_mcp_parser(
         add_question_parser,
@@ -4134,14 +4182,18 @@ def build_parser():
         ),
         ('job_id', 'question'),
         validator=validate_question,
+        builder=build_option_creation_arguments,
     )
 
-    add_options_parser = subparsers.add_parser('add_options', help='Add options to a question.')
+    add_options_parser = subparsers.add_parser(
+        'add_options', help='Add options and record an explained preferred-option vote.'
+    )
     add_options_parser.add_argument(
         'legacy_question_id', nargs='?', help='Compatibility question short code.'
     )
     add_options_parser.add_argument('--question-id', help='Question short code.')
     add_option_argument(add_options_parser)
+    add_initial_vote_arguments(add_options_parser, allow_existing=True)
     configure_mcp_parser(
         add_options_parser,
         'add_options',
@@ -4151,6 +4203,7 @@ def build_parser():
         ),
         ('question_id', 'options'),
         validator=validate_required_options,
+        builder=build_option_creation_arguments,
     )
 
     update_option_parser = subparsers.add_parser(

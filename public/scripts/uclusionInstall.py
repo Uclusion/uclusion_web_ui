@@ -1228,6 +1228,15 @@ def setup_mcp_descriptor(env, client, project_dir=None):
     return {'command': 'python3', 'args': args}
 
 
+# Clients whose sub-agents reach the parent's MCP servers, which the demo needs
+# because the agent doing the evaluating is a sub-agent of the one that
+# installed it. Claude Code shares the parent session's connection for a named
+# server, and Codex subagents use the parent's tools and inherit mcp_servers.
+# Cursor's take theirs from a team cloud configuration rather than the local
+# session, which a local stdio server cannot satisfy.
+DEMO_SUBAGENT_CLIENTS = frozenset({'claude', 'codex'})
+
+
 def _demo_user_token():
     # Keeps one person's demo directory from colliding with another's on a
     # shared machine. Windows has no getuid, so fall back to the login name.
@@ -4058,6 +4067,15 @@ def main():
         try:
             project_dir = os.getcwd() if args.project else None
             setup_client = next(iter(clients))
+            if mode == 'demo' and setup_client not in DEMO_SUBAGENT_CLIENTS:
+                # The demo is driven by a sub-agent that has to reach this
+                # client's MCP servers. Refused before anything is written, so
+                # the answer is a sentence rather than a demo nothing drives.
+                raise RuntimeError(
+                    f'the demo needs a client whose sub-agents reach its MCP servers, '
+                    f"which is {' or '.join(sorted(DEMO_SUBAGENT_CLIENTS))}; "
+                    f'{setup_client} is not one of them'
+                )
             expected = bootstrap_registration_expected(env, setup_client, project_dir)
             if mode == 'demo':
                 # Only the demo client, and not through install_scripts: that

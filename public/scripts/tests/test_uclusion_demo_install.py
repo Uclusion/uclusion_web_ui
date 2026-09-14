@@ -121,5 +121,26 @@ class DemoInstallTests(unittest.TestCase):
         self.assertFalse((Path(self.temp.name) / f'uclusion-demo-{INSTALL._demo_user_token()}').exists())
 
 
+class DemoClientGateTests(unittest.TestCase):
+    """Which clients demo mode accepts, and that it refuses before writing."""
+
+    def test_only_clients_whose_subagents_reach_the_parent_mcp_are_accepted(self):
+        self.assertEqual(INSTALL.DEMO_SUBAGENT_CLIENTS, frozenset({'claude', 'codex'}))
+
+    def test_a_refused_client_is_named_and_nothing_is_installed(self):
+        with mock.patch.object(INSTALL, 'install_demo_client') as installed, \
+                mock.patch.object(INSTALL, '_install_temporary_registration') as registered, \
+                mock.patch.object(INSTALL, 'bootstrap_registration_expected') as inspected:
+            with mock.patch.object(INSTALL.sys, 'argv',
+                                   ['uclusionInstall.py', 'stage', 'demo', '--clients', 'cursor']):
+                code = INSTALL.main()
+        self.assertEqual(code, 1)
+        # Refused ahead of the registration read, so nothing on disk or in the
+        # client's configuration is touched or even inspected.
+        installed.assert_not_called()
+        registered.assert_not_called()
+        inspected.assert_not_called()
+
+
 if __name__ == '__main__':
     unittest.main()

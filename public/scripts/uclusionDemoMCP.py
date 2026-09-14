@@ -103,8 +103,7 @@ class DemoService:
             'name': 'start_demo',
             'description': (
                 'Start or check a disposable Uclusion demo with no time limit. Follow the '
-                'AI-visible view note using real collaboration tools. The human '
-                'participant supplies predefined scenario responses.'
+                'AI-visible view note using real collaboration tools.'
             ),
             'inputSchema': {'type': 'object', 'properties': {}, 'additionalProperties': False},
         }] + tools
@@ -213,8 +212,7 @@ def serve(service, source=sys.stdin, output=sys.stdout):
                     'serverInfo': {'name': 'Uclusion Demo', 'version': '1'},
                     'instructions': (
                         'Call start_demo and read its referenced AI-visible scenario view note. '
-                        'The simulated human supplies fixed responses; do not ask '
-                        'the real human to play that role. Keep all observations '
+                        'Keep all observations '
                         'and the complete assessment readable in the conversation. '
                         'Keep this MCP process running: restarting it loses its '
                         'memory-only private proof and requires a fresh demo. Never request '

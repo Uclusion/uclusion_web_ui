@@ -53,6 +53,7 @@ import filecmp
 import hashlib
 import json
 import os
+import getpass
 import re
 import shlex
 import shutil
@@ -237,7 +238,6 @@ CURSOR_MDC_FRONTMATTER = (
 )
 MCP_PROXY_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionMCPProxy.py')
 SETUP_MCP_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionSetupMCP.py')
-DEMO_MCP_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionDemoMCP.py')
 INSTALLER_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionInstall.py')
 RUNTIME_PROXY_MODE = '--uclusion-runtime-after-setup'
 RUNTIME_CLEANUP_MODE = '--uclusion-cleanup-after-setup'
@@ -1228,10 +1228,71 @@ def setup_mcp_descriptor(env, client, project_dir=None):
     return {'command': 'python3', 'args': args}
 
 
+def _demo_user_token():
+    # Keeps one person's demo directory from colliding with another's on a
+    # shared machine. Windows has no getuid, so fall back to the login name.
+    if hasattr(os, 'getuid'):
+        return str(os.getuid())
+    return re.sub(r'[^A-Za-z0-9_.-]', '_', getpass.getuser() or 'user')
+
+
+def demo_runtime_dir():
+    """The disposable directory the demo client runs from.
+
+    Deterministic rather than random so a repeat demo install produces the same
+    descriptor and the existing registration comparison still recognises it.
+    The operating system clears it, which is the intended end: the registration
+    outlives the file, the server fails loudly at the next client start, and
+    that is what prompts someone to clear the entry. A registration that still
+    worked would spawn a process and call us at every client start forever.
+    """
+    path = os.path.join(tempfile.gettempdir(), f'uclusion-demo-{_demo_user_token()}')
+    try:
+        os.mkdir(path, 0o700)
+    except FileExistsError:
+        pass
+    # lstat, so a symlink planted in a shared temp directory is refused rather
+    # than followed. Everything below runs before anything is written.
+    info = os.lstat(path)
+    if not stat.S_ISDIR(info.st_mode):
+        raise RuntimeError(f'{path} exists and is not a directory')
+    if hasattr(os, 'getuid') and info.st_uid != os.getuid():
+        raise RuntimeError(f'{path} is owned by another user')
+    if info.st_mode & (stat.S_IRWXG | stat.S_IRWXO):
+        os.chmod(path, 0o700)
+    return path
+
+
+def demo_client_path():
+    return os.path.join(demo_runtime_dir(), 'uclusionDemoMCP.py')
+
+
+def install_demo_client(env):
+    """Place only the demo MCP client, in a directory the system clears.
+
+    The demo calls one script. It imports the standard library only and
+    references no sibling, so installing the rest of SCRIPT_FILES would leave a
+    prospect with seven programs they never ran and a release directory to
+    clean up. The bootstrap digest check still applies to the one that ships.
+    """
+    _validate_setup_bootstrap_pin_table()
+    target = demo_client_path()
+    base_url = get_scripts_base_url(env)
+    print(f"📦 Installing the demo client from {base_url}")
+    print(f"    install dir : {os.path.dirname(target)}")
+    download_to(base_url + 'uclusionDemoMCP.py', target)
+    _validate_setup_bootstrap_script('uclusionDemoMCP.py', target)
+    validate_python_script(target)
+    # Owner-only, matching the directory: nothing here is meant to be shared.
+    os.chmod(target, 0o700)
+    _fsync_file(target)
+    return target
+
+
 def demo_mcp_descriptor(env):
     return {
         'command': 'python3',
-        'args': [DEMO_MCP_SYMLINK_PATH, env or 'production'],
+        'args': [demo_client_path(), env or 'production'],
     }
 
 
@@ -3998,12 +4059,16 @@ def main():
             project_dir = os.getcwd() if args.project else None
             setup_client = next(iter(clients))
             expected = bootstrap_registration_expected(env, setup_client, project_dir)
-            install_scripts(env, None, setup_bootstrap=True)
             if mode == 'demo':
+                # Only the demo client, and not through install_scripts: that
+                # path is setup's, and placing its eight scripts and symlinks
+                # is the footprint this avoids.
+                install_demo_client(env)
                 _install_temporary_registration(
                     demo_mcp_descriptor(env), setup_client, project_dir, expected,
                 )
             else:
+                install_scripts(env, None, setup_bootstrap=True)
                 install_setup_registration(env, setup_client, project_dir, expected=expected)
         except Exception as err:
             print(f"❌ {mode.capitalize()} bootstrap failed: {err}")

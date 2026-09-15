@@ -192,6 +192,23 @@ The creation call records the vote; do not repeat it in a separate initial
 your position through mere restatement or pressure; change it only for new
 evidence or a changed requirement, and name what changed.
 
+### Recording the human's own records
+
+`add_info`, `approve_job_or_option`, `make_suggestion`, `ask_question` and
+`add_options` take `for_human`, and so does the `initial_vote` that the last two
+carry. Set it when the person you are working with has told you to record
+something of theirs: their answer, their vote and reasoning, their option, their
+suggestion or question inside an option. The record is then authored by them and
+carries the weight of one they made in Uclusion themselves, so it answers an
+AI-authored question and its vote counts. Your own records leave it off, which is
+the default. Never set it to put your own reasoning under their name.
+
+A vote is theirs only if the certainty and the reason are theirs too. When
+someone states a preference without them - "go with the second one" - ask for
+how certain they are and why before registering it, and relay what they say. A
+vote recorded in their name with your reasoning attached misrepresents them in
+the permanent record, and the reason is the part collaborators actually read.
+
 ### What answers an AI-authored question
 
 For a question on a job, an Approvable option's For vote answers only when it is

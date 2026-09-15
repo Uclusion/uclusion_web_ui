@@ -5,7 +5,7 @@ import ReactDOMServer from 'react-dom/server'
 import MentionListItem from '../CustomUI/MentionListItem'
 import React from 'react'
 import Quill from 'quill'
-import Delta from 'quill-delta';
+import matchTextPreservingSpaces from './matchTextPreservingSpaces';
 
 import { convertHTMLString } from '../ImageBlot';
 import { pushMessage } from '../../../utils/MessageBusUtils'
@@ -251,11 +251,7 @@ export function createEditor (id, editorContents, config, forceCreate) {
     boxRef.current.innerHTML = '';
   }
   const editor = new Quill(boxRef.current, editorOptions);
-  // this matcher prevents the quill editor from collapsing spaces
-  // with it's default text parsing
-  editor.clipboard.addMatcher(Node.TEXT_NODE, (node, data) => {
-    return new Delta().insert(node.data);
-  });
+  editor.clipboard.addMatcher(Node.TEXT_NODE, matchTextPreservingSpaces);
   if (isSetEditorContents) {
     // Unfortunately this will cause loss of focus
     editor.clipboard.dangerouslyPasteHTML(convertHTMLString(editorContents));

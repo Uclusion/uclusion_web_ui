@@ -55,7 +55,6 @@ function JobDescriptionStep (props) {
   const { newQuantity } = formData;
   const showImmediate = !_.isEmpty(myGroupPresence)||!isSingleUser;
   const jobTypes = ['APPROVABLE', ...(showImmediate ? ['IMMEDIATE'] : []), 'READY', 'NOT_READY'];
-  const marketHasOthers = _.size(presences) > 1;
 
   function getDefaultDescription() {
     let defaultDescription = undefined;
@@ -117,7 +116,7 @@ function JobDescriptionStep (props) {
   function doIncrement(resolved) {
     if (resolved?.isMissingName) {
       nextStep();
-    } else if (currentValue === 'IMMEDIATE' && (resolved?.useApprovals || !isSingleUser)) {
+    } else if (currentValue === 'IMMEDIATE' && !isSingleUser) {
       nextStep(2);
     }
   }
@@ -141,7 +140,7 @@ function JobDescriptionStep (props) {
   const defaultFromPage = jobType === undefined ? 'APPROVABLE' : (`${jobType}` === '0' ? 'READY' : 'NOT_READY');
   const currentValue = newQuantity || defaultFromPage || '';
 
-  function createJob(useApprovals) {
+  function createJob() {
     const isApprovable = currentValue === 'APPROVABLE';
     const readyToStart = currentValue === 'READY' ? true :
       (currentValue === 'NOT_READY' ? false : undefined);
@@ -158,7 +157,7 @@ function JobDescriptionStep (props) {
       });
       resetEditor(editorName);
       refreshName();
-      return Promise.resolve({isMissingName: true, useApprovals});
+      return Promise.resolve({isMissingName: true});
     }
     const addInfo = {
       name,
@@ -180,9 +179,7 @@ function JobDescriptionStep (props) {
       addInfo.openForInvestment = readyToStart;
     }
     else if (isSingleUser) {
-      if (!useApprovals) {
-        addInfo.stageId = getAcceptedStage(marketStagesState, marketId).id;
-      }
+      addInfo.stageId = getAcceptedStage(marketStagesState, marketId).id;
       addInfo.assignments = [myPresenceId];
     }
     return addPlanningInvestible(addInfo)
@@ -203,7 +200,7 @@ function JobDescriptionStep (props) {
           investibleId,
           link
         });
-        const shouldFinish = currentValue !== 'IMMEDIATE' || (isSingleUser && !useApprovals);
+        const shouldFinish = currentValue !== 'IMMEDIATE' || isSingleUser;
         if (moveFromComments) {
           return moveFromComments(inv, formData, updateFormData).then(() => {
             if (shouldFinish) {
@@ -211,7 +208,7 @@ function JobDescriptionStep (props) {
                 link
               });
             }
-            return {link, useApprovals};
+            return {link};
           });
         }
         if (shouldFinish) {
@@ -219,7 +216,7 @@ function JobDescriptionStep (props) {
             link
           });
         }
-        return {link, useApprovals};
+        return {link};
       })
   }
 
@@ -277,9 +274,6 @@ function JobDescriptionStep (props) {
         validForm={hasValue}
         nextLabel='jobCreate'
         onNext={createJob}
-        showOtherNext={currentValue !== 'APPROVABLE' && isSingleUser && marketHasOthers}
-        otherNextLabel='useApprovals'
-        onOtherNext={() => createJob(true)}
         onIncrement={doIncrement}
         showTerminate={hasFromComments}
         onTerminate={onTerminate}

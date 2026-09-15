@@ -23,7 +23,7 @@ function JobNameStep(props) {
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const classes = useContext(WizardStylesContext);
   const [hasValue, setHasValue] = useState(false);
-  const { description, uploadedFiles, jobStage, doCreateTasks, useApprovals } = formData;
+  const { description, uploadedFiles, jobStage, doCreateTasks } = formData;
   const nameId = `jobNameEdit${groupId}`;
 
   function createJob() {
@@ -50,9 +50,7 @@ function JobNameStep(props) {
         addInfo.openForInvestment = true;
       }
       if (isSingleUser) {
-        if (!useApprovals) {
-          addInfo.stageId = getAcceptedStage(marketStagesState, marketId).id;
-        }
+        addInfo.stageId = getAcceptedStage(marketStagesState, marketId).id;
         addInfo.assignments = [myPresenceId];
       }
     }
@@ -77,13 +75,13 @@ function JobNameStep(props) {
           // Same finish rules as without a move - otherwise the wizard strands the user
           // on this step after the comments moved (found with S-1 under Q-all-216)
           return moveFromComments(inv, formData, updateFormData).then(() => {
-            if (jobStage === 'IMMEDIATE' && (!isSingleUser || useApprovals)) {
+            if (jobStage === 'IMMEDIATE' && !isSingleUser) {
               return { link };
             }
             return onFinish({ link });
           });
         }
-        if (jobStage === 'IMMEDIATE' && (!isSingleUser || useApprovals)) {
+        if (jobStage === 'IMMEDIATE' && !isSingleUser) {
           return { link };
         }
         onFinish({ link });
@@ -105,7 +103,7 @@ function JobNameStep(props) {
         validForm={hasValue}
         nextLabel="jobCreate"
         onNext={createJob}
-        onNextDoAdvance={jobStage === 'IMMEDIATE' && (!isSingleUser || useApprovals)}
+        onNextDoAdvance={jobStage === 'IMMEDIATE' && !isSingleUser}
         isFinal={jobStage !== 'IMMEDIATE'}
       />
     </WizardStepContainer>

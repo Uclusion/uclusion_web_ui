@@ -1503,7 +1503,6 @@ const messages = defineMessages({
   moveToNotReady: 'Move to not ready',
   JobWizardNoAssign: 'Backlog not ready',
   skipAllApprovals: 'Skip all approvals',
-  useApprovals: 'Use approvals',
 
   //GroupWizard
   GroupWizardMeetingName: 'Your view name',

@@ -35,7 +35,20 @@ STAGE_CREDENTIALS_FILE = 'stage_credentials'
 DEV_API_URL = "dev.api.uclusion.com/v1"
 STAGE_API_URL = "stage.api.uclusion.com/v1"
 PRODUCTION_API_URL = "production.api.uclusion.com/v1"
-DEFAULT_EXPORT_FOLDER = os.path.join(os.path.expanduser('~'), '.uclusion', 'export')
+def uclusion_home_root():
+    """The directory Uclusion's own files live under.
+
+    UCLUSION_HOME lets a disposable install - the AI demo runs one out of /tmp -
+    use the ordinary client without touching a real installation, and a demo
+    process tree inherits it without every invocation repeating it. Unset, this
+    is the user's home and every path below is exactly what it has always been.
+    Client-owned locations such as .codex, .cursor and .claude are deliberately
+    not affected; they have their own variables.
+    """
+    return os.path.abspath(os.path.expanduser(os.environ.get('UCLUSION_HOME', '~')))
+
+
+DEFAULT_EXPORT_FOLDER = os.path.join(uclusion_home_root(), '.uclusion', 'export')
 INBOX_FILE = 'poke_inbox.sqlite3'
 MESSAGE_RETENTION_SECONDS = 7 * 24 * 60 * 60
 DEFAULT_CONSUMER = 'default'
@@ -71,15 +84,15 @@ def resolve_consumer(explicit_consumer, is_listener):
         return generate_session_consumer()
     return DEFAULT_CONSUMER
 CODEX_BRIDGE_SYMLINK = os.path.join(
-    os.path.expanduser('~'), '.local', 'bin', 'uclusionCodexBridge.py'
+    uclusion_home_root(), '.local', 'bin', 'uclusionCodexBridge.py'
 )
 UCLUSION_MCP_PROXY_SYMLINK = os.path.join(
-    os.path.expanduser('~'), '.local', 'bin', 'uclusionMCPProxy.py'
+    uclusion_home_root(), '.local', 'bin', 'uclusionMCPProxy.py'
 )
 UCLUSION_INSTALLER_SYMLINK = os.path.join(
-    os.path.expanduser('~'), '.local', 'bin', 'uclusionInstall.py'
+    uclusion_home_root(), '.local', 'bin', 'uclusionInstall.py'
 )
-UCLUSION_HOME = os.path.join(os.path.expanduser('~'), '.uclusion')
+UCLUSION_HOME = os.path.join(uclusion_home_root(), '.uclusion')
 CODEX_HOME = os.path.abspath(os.path.expanduser(
     os.environ.get('CODEX_HOME', os.path.join(os.path.expanduser('~'), '.codex'))
 ))
@@ -124,13 +137,13 @@ CODEX_LAUNCH_MANAGED_ENV = CODEX_LEGACY_BRIDGE_ENV + (
 # release is derivable from this file's realpath; the workflow-doc marker and
 # Codex table header identify which AI client surfaces are installed so
 # `uclusion update` refreshes exactly those.
-SCRIPT_INSTALL_PREFIX = os.path.join(os.path.expanduser('~'), '.local', 'uclusion-cli')
+SCRIPT_INSTALL_PREFIX = os.path.join(uclusion_home_root(), '.local', 'uclusion-cli')
 UNVERSIONED_DIR_NAMES = ('v1', 'current', 'unversioned', 'bin')
 
 # The wait loop doubles as the update watcher (Q-all-301 O-1): it checks at
 # most once per interval across processes, and surfaces each newer release
 # exactly once — recorded here so relaunched waits stay silent about it.
-UPDATE_CHECK_STATE_FILE = os.path.join(os.path.expanduser('~'), '.uclusion', 'update_check.json')
+UPDATE_CHECK_STATE_FILE = os.path.join(uclusion_home_root(), '.uclusion', 'update_check.json')
 UPDATE_CHECK_INTERVAL = 900
 WORKFLOW_MD_MARKER = '<!-- uclusion-workflow:v1 -->'
 WORKFLOW_SKILL_MARKER = '<!-- uclusion-skill:v1 -->'
@@ -140,7 +153,7 @@ WORKFLOW_CLIENTS = frozenset(('claude', 'cursor', 'codex'))
 
 
 def get_inbox_path():
-    return os.path.join(os.path.expanduser('~'), '.uclusion', INBOX_FILE)
+    return os.path.join(uclusion_home_root(), '.uclusion', INBOX_FILE)
 
 
 def open_inbox():
@@ -604,8 +617,8 @@ def get_credentials(credentials_path):
         found, is invalid, or missing required keys.
     """
     credentials = {}
-    # os.path.expanduser('~') correctly finds the user's home directory
-    cred_path = os.path.join(os.path.expanduser('~'), '.uclusion', credentials_path)
+    # uclusion_home_root() is the user's home unless a disposable install moved it
+    cred_path = os.path.join(uclusion_home_root(), '.uclusion', credentials_path)
 
     if not os.path.exists(cred_path):
         print("🔐 Error: Credentials file not found.")
@@ -1344,7 +1357,7 @@ def load_config(json_path):
     project_path = get_project_config_path(environment) \
         if environment is not None else None
     config_path = project_path or os.path.join(
-        os.path.expanduser('~'), '.uclusion', json_path
+        uclusion_home_root(), '.uclusion', json_path
     )
     try:
         with open(config_path, 'r') as f:
@@ -2964,7 +2977,7 @@ def check_wait_update_notice(environment):
         project_config_path = get_project_config_path(environment)
         _api_url, json_name, _credentials_path = get_env_paths(environment)
         global_config_path = os.path.join(
-            os.path.expanduser('~'), '.uclusion', json_name
+            uclusion_home_root(), '.uclusion', json_name
         )
         global_config = load_config_at(global_config_path)
         if installed_version is None and project_config_path is None and global_config is None:
@@ -3161,7 +3174,7 @@ def cmd_update(args):
     has_project_install = project_dir is not None
 
     _api_url, json_path, _credentials_path = get_env_paths(env)
-    global_config_path = os.path.join(os.path.expanduser('~'), '.uclusion', json_path)
+    global_config_path = os.path.join(uclusion_home_root(), '.uclusion', json_path)
     global_config = load_config_at(global_config_path)
     project_config = load_config_at(project_config_path)
     project_clients = detect_project_clients(project_dir) \

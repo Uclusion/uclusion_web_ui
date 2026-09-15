@@ -142,8 +142,21 @@ def parse_args(argv=None):
     return args
 
 
+def uclusion_home_root():
+    """The directory Uclusion's own files live under.
+
+    UCLUSION_HOME lets a disposable install - the AI demo runs one out of /tmp -
+    use the ordinary client without touching a real installation, and a demo
+    process tree inherits it without every invocation repeating it. Unset, this
+    is the user's home and every path below is exactly what it has always been.
+    Client-owned locations such as .codex, .cursor and .claude are deliberately
+    not affected; they have their own variables.
+    """
+    return os.path.abspath(os.path.expanduser(os.environ.get('UCLUSION_HOME', '~')))
+
+
 def get_inbox_path():
-    return os.path.join(os.path.expanduser('~'), '.uclusion', INBOX_FILE)
+    return os.path.join(uclusion_home_root(), '.uclusion', INBOX_FILE)
 
 
 def open_inbox():
@@ -615,7 +628,7 @@ def listen_for_pokes(websocket_url, token, environment, workspace_id, stop_event
 
 def get_credentials(credentials_path):
     credentials = {}
-    cred_path = os.path.join(os.path.expanduser('~'), '.uclusion', credentials_path)
+    cred_path = os.path.join(uclusion_home_root(), '.uclusion', credentials_path)
 
     if not os.path.exists(cred_path):
         sys.stderr.write("Error: Credentials file not found.\n")

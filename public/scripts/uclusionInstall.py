@@ -83,7 +83,18 @@ except ImportError:  # Python < 3.11 keeps standalone installer compatibility.
     tomllib = None
 
 
-LOCAL_PREFIX = os.path.join(os.path.expanduser('~'), '.local')
+def uclusion_home_root():
+    """The directory Uclusion's own files are installed under.
+
+    UCLUSION_HOME lets a disposable install - the AI demo runs one out of /tmp -
+    place the ordinary client without touching a real installation. Unset, it is
+    the user's home. USER_HOME stays the real home either way, because the client
+    locations below are Cursor's, Claude's and Codex's rather than ours.
+    """
+    return os.path.abspath(os.path.expanduser(os.environ.get('UCLUSION_HOME', '~')))
+
+
+LOCAL_PREFIX = os.path.join(uclusion_home_root(), '.local')
 SCRIPT_INSTALL_PREFIX = os.path.join(LOCAL_PREFIX, 'uclusion-cli')
 # Scripts install into ~/.local/uclusion-cli/<script_reinstall_version>/bin —
 # the same versions-in-the-path layout Claude uses (versions/2.1.220) — so the
@@ -158,7 +169,7 @@ SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
 }
 
 USER_HOME = os.path.expanduser('~')
-UCLUSION_HOME = os.path.join(USER_HOME, '.uclusion')
+UCLUSION_HOME = os.path.join(uclusion_home_root(), '.uclusion')
 # Workspace config filenames are environment-specific — the same names the CLI
 # reads (S-all-163): production stays uclusion.json, stage/dev get prefixed so
 # `uclusion -e stage ...` finds the config the installer wrote.
@@ -354,7 +365,7 @@ CREDENTIALS_FILES = {
 def read_credentials(env):
     """Parse the key=value credentials file for ``env``; None when absent."""
     cred_path = os.path.join(
-        os.path.expanduser('~'), '.uclusion', CREDENTIALS_FILES[env]
+        uclusion_home_root(), '.uclusion', CREDENTIALS_FILES[env]
     )
     if not os.path.exists(cred_path):
         return None

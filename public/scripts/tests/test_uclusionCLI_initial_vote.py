@@ -86,6 +86,44 @@ class InitialVoteCLITests(unittest.TestCase):
         self.invoke(command, arguments)
         self.invoke(command + ['--vote-reason', 'A conflicting source.'])
 
+    def test_for_human_is_sent_only_when_asked_for_and_only_where_accepted(self):
+        for command, expected in [
+            (['add_info', 'J-example-1', 'Agreed, use the nightly file.', '--for-human'],
+             {'short_code_id': 'J-example-1', 'info': 'Agreed, use the nightly file.',
+              'for_human': True, 'tz': cli.local_timezone_name()}),
+            (['approve', '--job-or-option-id', 'O-2', '--parent-question-short-code-id', 'Q-example-1',
+              '--certainty', '4', '--reason', 'Keeps the record with us.', '--for-human'],
+             {'job_or_option_id': 'O-2', 'parent_question_short_code_id': 'Q-example-1',
+              'certainty': 4, 'reason': 'Keeps the record with us.', 'for_human': True}),
+            (['make_suggestion', '--suggestion', 'Name the 06:00 window.', '--for-human'],
+             {'suggestion': 'Name the 06:00 window.', 'for_human': True}),
+        ]:
+            with self.subTest(command=command[0]):
+                self.invoke(command, expected)
+
+    def test_omitting_for_human_leaves_the_record_authored_by_the_agent(self):
+        self.invoke(['make_suggestion', '--suggestion', 'Name the 06:00 window.'],
+                    {'suggestion': 'Name the 06:00 window.'})
+
+    def test_a_relayed_question_can_carry_a_separately_relayed_vote(self):
+        self.invoke([
+            'ask_question', '--job-id', 'J-example-1', '--question', 'Which approach?',
+            '--option', 'First', 'First approach',
+            '--vote-new-option-index', '0', '--vote-certainty', '4',
+            '--vote-reason', 'Fewest moving parts.', '--vote-for-human',
+        ], {
+            'job_id': 'J-example-1', 'question': 'Which approach?',
+            'options': [{'name': 'First', 'description': 'First approach'}],
+            'initial_vote': {'new_option_index': 0, 'certainty': 4,
+                             'reason': 'Fewest moving parts.', 'for_human': True},
+        })
+
+    def test_vote_for_human_alone_is_not_a_vote(self):
+        self.invoke([
+            'add_options', 'Q-example-1', '--option', 'Alternative', 'Another approach',
+            '--vote-for-human',
+        ])
+
     def test_open_ended_question_has_no_vote_and_rejects_vote_flags(self):
         command = ['ask_question', '--job-id', 'J-example-1', '--question', 'What happened?']
         self.invoke(command, {'job_id': 'J-example-1', 'question': 'What happened?'})

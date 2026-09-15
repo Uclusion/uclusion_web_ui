@@ -3336,7 +3336,7 @@ def validate_required_options(arguments):
 
 
 def build_option_creation_arguments(args):
-    vote_fields = ('new_option_index', 'existing_option_id', 'certainty', 'reason')
+    vote_fields = ('new_option_index', 'existing_option_id', 'certainty', 'reason', 'for_human')
     arguments = declared_mcp_arguments(
         args, extra_destinations=tuple('vote_' + field for field in vote_fields)
     )
@@ -3352,6 +3352,8 @@ def build_option_creation_arguments(args):
         if vote:
             raise CLIArgumentError('initial vote arguments require options')
         return arguments
+    if set(vote) == {'for_human'}:
+        raise CLIArgumentError('--vote-for-human describes an initial vote, so supply one')
     selectors = [field for field in ('new_option_index', 'existing_option_id') if field in vote]
     if len(selectors) != 1 or 'certainty' not in vote or not vote.get('reason', '').strip():
         raise CLIArgumentError('options require a vote target, --vote-certainty and a nonblank --vote-reason')
@@ -3578,9 +3580,23 @@ def add_mcp_common_arguments(command_parser):
     )
 
 
+FOR_HUMAN_TOOLS = frozenset({
+    'add_info', 'approve_job_or_option', 'make_suggestion', 'ask_question', 'add_options',
+})
+
+
 def configure_mcp_parser(command_parser, tool_name, fields=(), required=(),
                          validator=None, builder=None):
     add_mcp_common_arguments(command_parser)
+    if tool_name in FOR_HUMAN_TOOLS:
+        # Added here rather than at each registration so the canonical and legacy
+        # spellings of the same tool cannot disagree about whether it is accepted.
+        command_parser.add_argument(
+            '--for-human', action='store_true', default=None, dest='for_human',
+            help="Record this as the human's own, authored by them rather than by the AI user. "
+                 'Use it only for what they told you to record.',
+        )
+        fields = tuple(fields) + (mcp_field('for_human', 'for_human'),)
     command_parser.set_defaults(
         func=cmd_mcp,
         mcp_name=tool_name,
@@ -3628,6 +3644,11 @@ def add_initial_vote_arguments(command_parser, allow_existing=False):
         '--vote-certainty', type=certainty_value, help='Initial vote certainty, an integer from 1 to 5.',
     )
     command_parser.add_argument('--vote-reason', help='Nonblank reason for the initial For vote.')
+    command_parser.add_argument(
+        '--vote-for-human', action='store_true', default=None,
+        help="Record the initial vote as the human's own. Ask them for the certainty and the "
+             'reason first; a vote in their name carrying your reasoning misrepresents them.',
+    )
 
 
 def build_parser():

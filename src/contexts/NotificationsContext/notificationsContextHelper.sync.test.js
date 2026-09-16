@@ -47,7 +47,49 @@ describe('notification synchronization classification', () => {
 
     expect(getSyncState({}, [olderMessage, newerMessage])).toEqual({
       syncedMessages: [],
-      dependencies: [{ marketId: inlineMarketId, commentId, version: 3 }]
+      dependencies: [
+        { marketId: inlineMarketId, commentId, version: 3 },
+        { marketId, commentId, version: 3 }
+      ]
+    });
+  });
+
+  it('loads both sides of an inline question before exposing its vote notification', () => {
+    const inlineMarketId = 'inline-market-id';
+    const investibleId = 'job-id';
+    const inlineQuestionMessage = {
+      ...message,
+      type: 'NOT_FULLY_VOTED',
+      type_object_id: `NOT_FULLY_VOTED_${inlineMarketId}`,
+      market_id: inlineMarketId,
+      comment_market_id: marketId,
+      investible_id: investibleId
+    };
+    const commentsState = { [marketId]: [{ id: commentId, version: 2 }] };
+    const investiblesState = {
+      [investibleId]: {
+        investible: { id: investibleId, version: 1 },
+        market_infos: [{ market_id: marketId, version: 1 }]
+      }
+    };
+    const parentMarketOnly = { marketDetails: [{ id: marketId, version: 1 }] };
+
+    expect(getNotificationSyncState([inlineQuestionMessage], parentMarketOnly, {},
+      commentsState, investiblesState, {})).toEqual({
+      syncedMessages: [],
+      dependencies: [
+        { marketId: inlineMarketId, commentId, version: 2 },
+        { marketId, commentId, version: 2 }
+      ]
+    });
+
+    const bothMarkets = {
+      marketDetails: [...parentMarketOnly.marketDetails, { id: inlineMarketId, version: 1 }]
+    };
+    expect(getNotificationSyncState([inlineQuestionMessage], bothMarkets, {},
+      commentsState, investiblesState, {})).toEqual({
+      syncedMessages: [inlineQuestionMessage],
+      dependencies: []
     });
   });
 

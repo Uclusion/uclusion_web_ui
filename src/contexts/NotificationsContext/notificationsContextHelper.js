@@ -66,11 +66,12 @@ export function messageIsSynced(message, marketState, marketPresencesState, comm
     commentId)) {
     return false;
   }
-  if (marketVersion) {
+  const needsActionMarket = commentMarketId && commentMarketId !== marketId;
+  if (marketVersion || needsActionMarket) {
     checked = true;
-    const market = getMarket(marketState, marketId) || {};
-    if (market.version < marketVersion) {
-      console.warn(`Market version mismatch for ${marketVersion} and ${marketId}`);
+    const market = getMarket(marketState, marketId);
+    if (!market || (marketVersion && market.version < marketVersion)) {
+      console.warn(`Market missing or below version ${marketVersion || 'required'} for ${marketId}`);
       return false;
     }
   }
@@ -166,16 +167,17 @@ export function getNotificationSyncState(messages, marketState, marketPresencesS
       syncedMessages.push(message);
       return;
     }
-    const marketId = message.comment_market_id || message.market_id;
     const { comment_id: commentId, comment_version: version } = message;
-    if (!marketId || !commentId) {
+    if (!commentId) {
       return;
     }
-    const key = `${marketId}|${commentId}`;
-    const existing = byComment.get(key);
-    if (!existing || (version ?? -1) > (existing.version ?? -1)) {
-      byComment.set(key, { marketId, commentId, version });
-    }
+    _.uniq([message.comment_market_id, message.market_id].filter(Boolean)).forEach((marketId) => {
+      const key = `${marketId}|${commentId}`;
+      const existing = byComment.get(key);
+      if (!existing || (version ?? -1) > (existing.version ?? -1)) {
+        byComment.set(key, { marketId, commentId, version });
+      }
+    });
   });
   const dependencies = [...byComment.values()].sort((left, right) =>
     `${left.marketId}|${left.commentId}`.localeCompare(`${right.marketId}|${right.commentId}`));

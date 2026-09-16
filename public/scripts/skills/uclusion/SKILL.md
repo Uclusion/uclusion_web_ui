@@ -195,19 +195,10 @@ evidence or a changed requirement, and name what changed.
 ### Recording the human's own records
 
 `add_info`, `approve_job_or_option`, `make_suggestion`, `ask_question` and
-`add_options` take `for_human`, and so does the `initial_vote` that the last two
-carry. Set it when the person you are working with has told you to record
-something of theirs: their answer, their vote and reasoning, their option, their
-suggestion or question inside an option. The record is then authored by them and
-carries the weight of one they made in Uclusion themselves, so it answers an
-AI-authored question and its vote counts. Your own records leave it off, which is
-the default. Never set it to put your own reasoning under their name.
-
-A vote is theirs only if the certainty and the reason are theirs too. When
-someone states a preference without them - "go with the second one" - ask for
-how certain they are and why before registering it, and relay what they say. A
-vote recorded in their name with your reasoning attached misrepresents them in
-the permanent record, and the reason is the part collaborators actually read.
+`add_options` take `for_human`, as does any `initial_vote` they carry. Set it only
+when the person told you to record something of theirs; the record is then theirs
+and its vote counts. Never put your own reasoning under their name: a vote is
+theirs only if its certainty and reason are theirs too, so ask for both first.
 
 ### What answers an AI-authored question
 

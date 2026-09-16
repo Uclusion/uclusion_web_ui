@@ -155,7 +155,7 @@ SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCLI.py':
         'f76c6ebab97914909ce762f796748f504d2387768d26054cb61650daa611bab4',
     'uclusionMCPProxy.py':
-        '6903aeea9908bb8adec771f16f1c5a1f254de20a1e08651559b000be58ab2e85',
+        '5acf7394d250ce193793163256975e9f542c6bb485a98b7b3a00a30f3910e4ec',
     'uclusionDemoMCP.py':
         '7d524932dceb7f9d2bfb473868e82b402b863a65c3f26e0d2d72848a5a4687aa',
     'uclusionSetupMCP.py':
@@ -1203,6 +1203,11 @@ def runtime_mcp_descriptor(workspace_id, env, token_audit=None,
             proxy_args.extend(['--token-audit-client', token_audit_client])
     if work_claims:
         proxy_args.append('--work-claims')
+    home = uclusion_home_root()
+    if home != os.path.abspath(os.path.expanduser('~')):
+        # A client starts this process with none of our environment, so an
+        # install that does not live in the user home has to say where it does.
+        proxy_args.extend(['--home', home])
     if setup_receipt_path is None and setup_view_id is None:
         return {'command': 'python3', 'args': proxy_args}
     if setup_receipt_path is None or not _setup_identifier(setup_view_id):

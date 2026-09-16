@@ -104,7 +104,15 @@ def parse_args(argv=None):
     )
     parser.add_argument('--token-audit-ready-file')
     parser.add_argument('--token-audit-owner')
+    parser.add_argument(
+        '--home',
+        help='Directory Uclusion reads its own files from, for an install that does '
+             'not live in the user home. Exported as UCLUSION_HOME so anything this '
+             'process starts resolves the same way.',
+    )
     args = parser.parse_args(argv)
+    if args.home:
+        os.environ['UCLUSION_HOME'] = args.home
     if args.token_audit:
         if args.token_audit_port is None or args.token_audit_source is None:
             parser.error(
@@ -1014,6 +1022,8 @@ def main():
     sys.stdin = os.fdopen(sys.stdin.fileno(), 'r', buffering=1, closefd=False)
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering=1, closefd=False)
 
+    # Before any path is resolved: a client spawns this process with no
+    # environment of ours, so the descriptor carries the home as an argument.
     args = parse_args()
     market_id = args.workspace_id
     url_env = args.environment

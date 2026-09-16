@@ -46,8 +46,14 @@ installs the same immutable script release and registers ``uclusionSetupMCP.py``
 under the existing ``Uclusion`` key for exactly one selected client and scope.
 The temporary MCP later invokes this installer without putting a secret on the
 command line, replacing its own registration with the normal runtime proxy.
+
+``demo`` mode provisions a disposable workspace, writes its restricted demo
+credential under a private ``/tmp`` home, and then follows the ordinary install
+path for one Poke-capable client. It prints the one-line prompt that starts the
+evaluator on the fixture's first job.
 """
 import argparse
+import base64
 import errno
 import filecmp
 import hashlib
@@ -55,6 +61,7 @@ import json
 import os
 import getpass
 import re
+import secrets
 import shlex
 import shutil
 import stat
@@ -63,6 +70,7 @@ import sys
 import tempfile
 import time
 import urllib.parse
+import urllib.error
 import urllib.request
 import uuid
 from contextlib import contextmanager
@@ -138,7 +146,6 @@ SCRIPT_FILES = (
     ('uclusionCLI.py', 'uclusion.py', 'uclusion'),
     ('uclusionMCPProxy.py', 'uclusionMCPProxy.py', 'uclusionMCPProxy.py'),
     ('uclusionSetupMCP.py', 'uclusionSetupMCP.py', 'uclusionSetupMCP.py'),
-    ('uclusionDemoMCP.py', 'uclusionDemoMCP.py', 'uclusionDemoMCP.py'),
     ('uclusionCodexBridge.py', 'uclusionCodexBridge.py', 'uclusionCodexBridge.py'),
     ('uclusionTokenAudit.py', 'uclusionTokenAudit.py', TOKEN_AUDIT_SYMLINK_NAME),
     # Retained for compatibility while workflow refreshes remove old hooks.
@@ -153,15 +160,13 @@ SCRIPT_FILES = (
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCLI.py':
-        'f76c6ebab97914909ce762f796748f504d2387768d26054cb61650daa611bab4',
+        'b9a27d6b7166d50cd023825640de5498119937cd08454f4ae9cdbf16d0872f49',
     'uclusionMCPProxy.py':
         '5acf7394d250ce193793163256975e9f542c6bb485a98b7b3a00a30f3910e4ec',
-    'uclusionDemoMCP.py':
-        '7d524932dceb7f9d2bfb473868e82b402b863a65c3f26e0d2d72848a5a4687aa',
     'uclusionSetupMCP.py':
         'f91ea798847ec8f8cb3407dfcc8eb4ab36ffbaab0c9695fb6028b56b94549d51',
     'uclusionCodexBridge.py':
-        '3695b6612f6cd1a34df165202374864ccc8de8c1506a80b55431d8ebb0c66762',
+        'a1a7f468abdd422fd8a83ce7f8f2880f719b3c9b52fad2d98933cceac6776669',
     'uclusionTokenAudit.py':
         '371e49d36c8393048f8e500bace829c9031f59f504673bdc40b1c1af12453df8',
     'uclusionCursorPokeDrain.py':
@@ -360,6 +365,14 @@ CREDENTIALS_FILES = {
     'stage': 'stage_credentials',
     'production': 'credentials',
 }
+
+# C-Marketing-396: this is intentionally the same public constant used when
+# the fixture creates the demo human. It opens only that demo's workspace and
+# expires when the demo is retired; returning it from an API would not make it
+# more secret.
+DEMO_CLIENT_SECRET = 'uclusion-ai-demo-shared-secret-v1'
+DEMO_PROVISION_TIMEOUT_SECONDS = 300
+DEMO_RESPONSE_LIMIT_BYTES = 1024 * 1024
 
 
 def read_credentials(env):
@@ -1244,13 +1257,16 @@ def setup_mcp_descriptor(env, client, project_dir=None):
     return {'command': 'python3', 'args': args}
 
 
-# Clients whose sub-agents reach the parent's MCP servers, which the demo needs
-# because the agent doing the evaluating is a sub-agent of the one that
-# installed it. Claude Code shares the parent session's connection for a named
-# server, and Codex subagents use the parent's tools and inherit mcp_servers.
-# Cursor's take theirs from a team cloud configuration rather than the local
-# session, which a local stdio server cannot satisfy.
-DEMO_SUBAGENT_CLIENTS = frozenset({'claude', 'codex'})
+DEMO_CLIENTS = frozenset({'claude', 'codex'})
+DEMO_CLIENT_ID_RE = re.compile(
+    r'^ai-demo:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-'
+    r'[0-9a-f]{12}:human_[A-Za-z0-9._-]{1,241}$',
+    re.IGNORECASE,
+)
+DEMO_SHORT_CODE_RE = re.compile(
+    r'^[A-Z]-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$'
+)
+DEMO_CLIENT_ID_MAX_LENGTH = 292
 
 
 def _demo_user_token():
@@ -1261,17 +1277,16 @@ def _demo_user_token():
     return re.sub(r'[^A-Za-z0-9_.-]', '_', getpass.getuser() or 'user')
 
 
-def demo_runtime_dir():
-    """The disposable directory the demo client runs from.
+def demo_home_path():
+    """Return the deterministic disposable home for this operating-system user."""
+    return os.path.join(
+        tempfile.gettempdir(), f'uclusion-demo-{_demo_user_token()}'
+    )
 
-    Deterministic rather than random so a repeat demo install produces the same
-    descriptor and the existing registration comparison still recognises it.
-    The operating system clears it, which is the intended end: the registration
-    outlives the file, the server fails loudly at the next client start, and
-    that is what prompts someone to clear the entry. A registration that still
-    worked would spawn a process and call us at every client start forever.
-    """
-    path = os.path.join(tempfile.gettempdir(), f'uclusion-demo-{_demo_user_token()}')
+
+def demo_runtime_dir():
+    """Create and secure the disposable home used by the ordinary client."""
+    path = demo_home_path()
     try:
         os.mkdir(path, 0o700)
     except FileExistsError:
@@ -1288,37 +1303,238 @@ def demo_runtime_dir():
     return path
 
 
-def demo_client_path():
-    return os.path.join(demo_runtime_dir(), 'uclusionDemoMCP.py')
-
-
-def install_demo_client(env):
-    """Place only the demo MCP client, in a directory the system clears.
-
-    The demo calls one script. It imports the standard library only and
-    references no sibling, so installing the rest of SCRIPT_FILES would leave a
-    prospect with seven programs they never ran and a release directory to
-    clean up. The bootstrap digest check still applies to the one that ships.
-    """
-    _validate_setup_bootstrap_pin_table()
-    target = demo_client_path()
-    base_url = get_scripts_base_url(env)
-    print(f"📦 Installing the demo client from {base_url}")
-    print(f"    install dir : {os.path.dirname(target)}")
-    download_to(base_url + 'uclusionDemoMCP.py', target)
-    _validate_setup_bootstrap_script('uclusionDemoMCP.py', target)
-    validate_python_script(target)
-    # Owner-only, matching the directory: nothing here is meant to be shared.
-    os.chmod(target, 0o700)
-    _fsync_file(target)
-    return target
-
-
-def demo_mcp_descriptor(env):
+def legacy_demo_mcp_descriptor(env):
+    """Describe the removed demo proxy so setup can safely replace one."""
     return {
         'command': 'python3',
-        'args': [demo_client_path(), env or 'production'],
+        'args': [
+            os.path.join(demo_home_path(), 'uclusionDemoMCP.py'),
+            env or 'production',
+        ],
     }
+
+
+def reexec_in_demo_home():
+    """Restart this installer so import-time Uclusion paths use the demo home."""
+    home = demo_runtime_dir()
+    if uclusion_home_root() == home:
+        return
+    environment = dict(os.environ)
+    environment['UCLUSION_HOME'] = home
+    os.execve(
+        sys.executable,
+        [sys.executable, os.path.abspath(__file__)] + sys.argv[1:],
+        environment,
+    )
+    raise RuntimeError('the installer could not restart in the demo home')
+
+
+class _NoDemoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, _request, _fp, _code, _message, _headers, _url):
+        return None
+
+
+def request_demo_json(url, payload):
+    """POST one bounded JSON request without forwarding the verifier on redirect."""
+    request = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode('utf-8'),
+        headers={
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        method='POST',
+    )
+    try:
+        try:
+            response = urllib.request.build_opener(
+                _NoDemoRedirectHandler()
+            ).open(request, timeout=HTTP_TIMEOUT)
+        except urllib.error.HTTPError as error:
+            response = error
+        with response:
+            body = response.read(DEMO_RESPONSE_LIMIT_BYTES + 1)
+            if len(body) > DEMO_RESPONSE_LIMIT_BYTES:
+                raise ValueError('oversize response')
+            parsed = json.loads(body)
+            if not isinstance(parsed, dict):
+                raise ValueError('response is not an object')
+            return response.code, parsed
+    except (OSError, UnicodeError, ValueError, urllib.error.URLError) as error:
+        raise RuntimeError(
+            'the demo service did not return a valid response'
+        ) from error
+
+
+def provision_demo(env):
+    """Allocate a demo and wait for the ordinary client's workspace details."""
+    demo_id = str(uuid.uuid4())
+    verifier = secrets.token_urlsafe(32)
+    challenge = base64.urlsafe_b64encode(
+        hashlib.sha256(verifier.encode('ascii')).digest()
+    ).decode('ascii').rstrip('=')
+    base_url = f'https://sso.{get_api_base_url(env)}/ai-demo'
+    status, result = request_demo_json(base_url, {
+        'demo_id': demo_id,
+        'code_challenge': challenge,
+    })
+    if status not in (200, 202) or result.get('demo_id') != demo_id:
+        raise RuntimeError('the demo could not be allocated; start a fresh demo')
+
+    print('⏳ Preparing the demo workspace...')
+    deadline = time.monotonic() + DEMO_PROVISION_TIMEOUT_SECONDS
+    while True:
+        status, result = request_demo_json(
+            f'{base_url}/{demo_id}/status', {'verifier': verifier}
+        )
+        if status not in (200, 202) or result.get('demo_id') != demo_id:
+            raise RuntimeError(
+                'the demo could not be prepared; start a fresh demo'
+            )
+        state = result.get('state')
+        if state == 'READY':
+            required = ('workspace_id', 'view_id', 'client_id')
+            if not all(
+                isinstance(result.get(key), str) and result[key]
+                for key in required
+            ):
+                raise RuntimeError(
+                    'the demo service returned incomplete workspace details'
+                )
+            starting_jobs = result.get('starting_job_short_codes')
+            if (
+                not isinstance(starting_jobs, list)
+                or not starting_jobs
+                or not all(
+                    isinstance(short_code, str)
+                    and DEMO_SHORT_CODE_RE.fullmatch(short_code)
+                    for short_code in starting_jobs
+                )
+            ):
+                raise RuntimeError(
+                    'the demo service returned incomplete starting work'
+                )
+            client_id = result['client_id']
+            if (
+                len(client_id) > DEMO_CLIENT_ID_MAX_LENGTH
+                or not client_id.lower().startswith(
+                    f'ai-demo:{demo_id.lower()}:human_'
+                )
+                or DEMO_CLIENT_ID_RE.fullmatch(client_id) is None
+            ):
+                raise RuntimeError('the demo service returned an invalid client id')
+            return result
+        if state != 'PROVISIONING':
+            raise RuntimeError(
+                'the demo could not be prepared; start a fresh demo'
+            )
+        if time.monotonic() >= deadline:
+            raise RuntimeError(
+                'the demo took too long to prepare; start a fresh demo'
+            )
+        retry = result.get('retry_after_seconds', 2)
+        if not isinstance(retry, (int, float)) or isinstance(retry, bool):
+            retry = 2
+        time.sleep(max(0.25, min(float(retry), 10)))
+
+
+def write_demo_credentials(env, client_id):
+    """Write the demo human's ordinary CLI credential into the disposable home."""
+    path = os.path.join(UCLUSION_HOME, CREDENTIALS_FILES[env])
+    target = _config_write_target(path)
+    existing, signature = _read_text_snapshot(target)
+    content = (
+        f'secret_key_id={client_id}\n'
+        f'secret_key={DEMO_CLIENT_SECRET}\n'
+    )
+    with config_file_lock(path):
+        atomic_write_text(path, content, existing, target, signature)
+    print(f'  ✅ Wrote demo credentials to {path}')
+
+
+def workflow_cli_command(environment):
+    """The CLI invocation resident stubs should use for this install."""
+    if environment == 'production':
+        invocation = 'uclusion'
+    elif environment in ('dev', 'stage'):
+        invocation = f'uclusion -e {environment}'
+    else:
+        return None
+    if uclusion_home_root() == os.path.abspath(os.path.expanduser('~')):
+        return invocation
+    prefix = (
+        f'UCLUSION_HOME={shlex.quote(uclusion_home_root())} '
+        f'{shlex.quote(os.path.join(SYMLINK_DIR, "uclusion"))}'
+    )
+    if environment == 'production':
+        return prefix
+    return f'{prefix} -e {environment}'
+
+
+def _args_belong_to_this_demo(args, raw_text=None):
+    home = demo_home_path()
+    if isinstance(args, list):
+        if '--home' in args:
+            index = args.index('--home')
+            return index + 1 < len(args) and args[index + 1] == home
+        return os.path.join(home, 'uclusionDemoMCP.py') in args
+    if not raw_text:
+        return False
+    return home in raw_text and (
+        '--home' in raw_text or 'uclusionDemoMCP.py' in raw_text
+    )
+
+
+def _codex_uclusion_args(text):
+    if tomllib is None:
+        return None
+    parsed = tomllib.loads(text)
+    servers = parsed.get('mcp_servers')
+    if not isinstance(servers, dict):
+        return None
+    server = servers.get(MCP_SERVER_KEY)
+    if not isinstance(server, dict):
+        return None
+    args = server.get('args')
+    return args if isinstance(args, list) else None
+
+
+def assert_demo_may_replace_client(client):
+    """Refuse to overwrite a real Uclusion MCP registration with the demo."""
+    path, _label, is_codex = _setup_registration_target(client, None)
+    existing, signature = _read_text_snapshot(_config_write_target(path))
+    if signature is None or not existing.strip():
+        return
+    if is_codex:
+        if not _codex_has_uclusion_descriptor(existing):
+            return
+        if _args_belong_to_this_demo(
+            _codex_uclusion_args(existing), existing
+        ):
+            return
+        raise RuntimeError(
+            f'{path} already has a Uclusion MCP server; remove it before '
+            'running the demo'
+        )
+    try:
+        config = json.loads(existing) if existing.strip() else {}
+    except json.JSONDecodeError as error:
+        raise RuntimeError(f'{path} is not valid JSON: {error}') from error
+    if not isinstance(config, dict):
+        raise RuntimeError(f'{path} top-level value must be a JSON object')
+    servers = config.get('mcpServers', {})
+    if not isinstance(servers, dict):
+        raise RuntimeError(f"'mcpServers' in {path} must be a JSON object")
+    if MCP_SERVER_KEY not in servers:
+        return
+    descriptor = servers[MCP_SERVER_KEY]
+    args = descriptor.get('args') if isinstance(descriptor, dict) else None
+    if _args_belong_to_this_demo(args):
+        return
+    raise RuntimeError(
+        f'{path} already has a Uclusion MCP server; remove it before '
+        'running the demo'
+    )
 
 
 def _validate_mcp_descriptor(descriptor):
@@ -3113,12 +3329,8 @@ def install_skill_and_stub(
             'workflow_environment'
         )
         rendered_stub = bundle[CLIENT_STUB_ASSET[client]]
-        if environment in ('dev', 'stage', 'production'):
-            cli_command = (
-                'uclusion'
-                if environment == 'production'
-                else f'uclusion -e {environment}'
-            )
+        cli_command = workflow_cli_command(environment)
+        if cli_command is not None:
             rendered_stub = rendered_stub.replace(
                 WORKFLOW_ENV_PLACEHOLDER, cli_command
             )
@@ -3586,7 +3798,7 @@ def bootstrap_registration_expected(env, client, project_dir):
         assert_setup_registration_absent(client, project_dir)
         return None
     except RuntimeError:
-        expected = demo_mcp_descriptor(env)
+        expected = legacy_demo_mcp_descriptor(env)
         _assert_setup_registration_state(client, project_dir, expected)
         return expected
 
@@ -4057,14 +4269,18 @@ def main():
     view_id = args.view_id
     mcp_env = None if env == 'production' else env
 
-    if workspace_id in ('setup', 'demo'):
-        mode = workspace_id
+    bootstrap_mode = (
+        workspace_id if workspace_id in ('setup', 'demo') else None
+    )
+    if bootstrap_mode is not None:
+        mode = bootstrap_mode
         if view_id is not None:
             parser.error(f'{mode} mode takes no workspace or view ID')
         if not args.clients:
-            parser.error(
-                f'{mode} mode requires --clients <claude|cursor|codex>'
+            allowed = (
+                'claude|codex' if mode == 'demo' else 'claude|cursor|codex'
             )
+            parser.error(f'{mode} mode requires --clients <{allowed}>')
         clients = parse_clients(args.clients)
         if len(clients) != 1:
             parser.error(f'{mode} mode requires exactly one --clients value')
@@ -4077,42 +4293,61 @@ def main():
             args.work_claims is not None,
             args.script_version is not None,
         )):
+            allowed = '--clients' if mode == 'demo' else (
+                '--clients and optional --project'
+            )
             parser.error(
-                f'{mode} mode accepts only --clients and optional --project'
+                f'{mode} mode accepts only {allowed}'
+            )
+        if mode == 'demo' and args.project:
+            parser.error(
+                'demo mode always uses its disposable home and does not '
+                'accept --project'
             )
         try:
-            project_dir = os.getcwd() if args.project else None
             setup_client = next(iter(clients))
-            if mode == 'demo' and setup_client not in DEMO_SUBAGENT_CLIENTS:
-                # The demo is driven by a sub-agent that has to reach this
-                # client's MCP servers. Refused before anything is written, so
-                # the answer is a sentence rather than a demo nothing drives.
-                raise RuntimeError(
-                    f'the demo needs a client whose sub-agents reach its MCP servers, '
-                    f"which is {' or '.join(sorted(DEMO_SUBAGENT_CLIENTS))}; "
-                    f'{setup_client} is not one of them'
-                )
-            expected = bootstrap_registration_expected(env, setup_client, project_dir)
             if mode == 'demo':
-                # Only the demo client, and not through install_scripts: that
-                # path is setup's, and placing its eight scripts and symlinks
-                # is the footprint this avoids.
-                install_demo_client(env)
-                _install_temporary_registration(
-                    demo_mcp_descriptor(env), setup_client, project_dir, expected,
+                if setup_client not in DEMO_CLIENTS:
+                    raise RuntimeError(
+                        'the demo requires Poke AI delivery through '
+                        + ' or '.join(sorted(DEMO_CLIENTS))
+                    )
+                if setup_client == 'codex' and os.name == 'nt':
+                    raise RuntimeError(
+                        'the Codex demo needs a Unix receiver; use Claude Code '
+                        'on this machine'
+                    )
+                # All Uclusion-owned files belong under /tmp. These paths are
+                # constants resolved at import, so the first invocation has to
+                # replace itself before it provisions or writes anything.
+                reexec_in_demo_home()
+                assert_demo_may_replace_client(setup_client)
+                ready = provision_demo(env)
+                write_demo_credentials(env, ready['client_id'])
+                workspace_id = ready['workspace_id']
+                view_id = ready['view_id']
+                print(
+                    '  ✅ Demo workspace ready: '
+                    + ', '.join(ready.get('starting_job_short_codes', []))
                 )
             else:
+                project_dir = os.getcwd() if args.project else None
+                expected = bootstrap_registration_expected(
+                    env, setup_client, project_dir
+                )
                 install_scripts(env, None, setup_bootstrap=True)
-                install_setup_registration(env, setup_client, project_dir, expected=expected)
+                install_setup_registration(
+                    env, setup_client, project_dir, expected=expected
+                )
         except Exception as err:
             print(f"❌ {mode.capitalize()} bootstrap failed: {err}")
             return 1
-        tool_names = 'start_demo' if mode == 'demo' else 'create_workspace and complete_setup'
-        print(
-            f"🎉 Uclusion {mode} bootstrap complete. Restart or reconnect "
-            f"the selected client to load {tool_names}."
-        )
-        return 0
+        if mode == 'setup':
+            print(
+                '🎉 Uclusion setup bootstrap complete. Restart or reconnect '
+                'the selected client to load create_workspace and complete_setup.'
+            )
+            return 0
 
     if view_id is None:
         parser.error('a view ID is required for a normal install')
@@ -4196,7 +4431,31 @@ def main():
         print(f"❌ Installation failed: {err}")
         return 1
 
-    print("🎉 Uclusion install complete.")
+    if bootstrap_mode == 'demo':
+        start_prompt = (
+            f"Start {ready['starting_job_short_codes'][0]}."
+        )
+        print(
+            f'🎉 Uclusion demo is ready under {uclusion_home_root()}.'
+        )
+        if setup_client == 'codex':
+            command = ' '.join((
+                f'UCLUSION_HOME={shlex.quote(uclusion_home_root())}',
+                shlex.quote(os.path.join(SYMLINK_DIR, 'uclusion')),
+                '-e',
+                shlex.quote(env),
+                'codex',
+                '--',
+                shlex.quote(start_prompt),
+            ))
+            print(f'Start the evaluator with:\n  {command}')
+        else:
+            print(
+                'Restart or reconnect Claude Code, then start one fresh '
+                f'sub-agent with exactly:\n  {start_prompt}'
+            )
+    else:
+        print("🎉 Uclusion install complete.")
     return 0
 
 

@@ -2301,6 +2301,7 @@ def cmd_codex(args):
                 '--frontend-socket', frontend_socket_path,
                 '--ready-file', bridge_ready_path,
                 '--receiver-pid-file', receiver_pid_path,
+                '--inbox-path', get_inbox_path(),
             ]
             if token_audit is not None:
                 bridge_command.extend([

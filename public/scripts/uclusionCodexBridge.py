@@ -157,7 +157,12 @@ class BridgeConfig:
     def resolved_inbox_path(self) -> str:
         if self.inbox_path:
             return os.path.abspath(os.path.expanduser(self.inbox_path))
-        return os.path.join(os.path.expanduser("~"), ".uclusion", INBOX_FILE)
+        home = os.environ.get("UCLUSION_HOME", "~")
+        return os.path.join(
+            os.path.abspath(os.path.expanduser(home)),
+            ".uclusion",
+            INBOX_FILE,
+        )
 
 
 @dataclasses.dataclass(frozen=True)

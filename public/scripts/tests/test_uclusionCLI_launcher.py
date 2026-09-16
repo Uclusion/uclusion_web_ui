@@ -413,6 +413,11 @@ class CodexLauncherTests(unittest.TestCase):
                 '--frontend-socket', '/private/runtime/tui-relay.sock',
                 '--ready-file', '/private/runtime/bridge.ready',
                 '--receiver-pid-file', '/private/runtime/receiver.pid',
+                '--inbox-path', os.path.join(
+                    os.path.abspath(os.path.expanduser('~')),
+                    '.uclusion',
+                    cli.INBOX_FILE,
+                ),
             ],
         )
         self.assertEqual(

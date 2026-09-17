@@ -588,7 +588,9 @@ let notificationVerifyResume;
 const NOTIFICATION_DEPENDENCY_LEASE_MS = MAX_DRIFT_TIME * 2;
 
 function notificationCheckKey(check) {
-  return [check.marketId, check.commentId, check.version ?? ''].join('|');
+  return check.commentId
+    ? ['c', check.marketId, check.commentId, check.version ?? ''].join('|')
+    : ['i', check.marketId, check.investibleId, check.version ?? ''].join('|');
 }
 
 function pruneExpiredNotificationChecks(now=Date.now()) {
@@ -635,7 +637,8 @@ function scheduleNotificationVerification(resetTimer=false) {
         .forEach((check) => {
           check.exhausted = true;
           console.warn('Giving up automatic retries for notification dependency - later syncs will still force it');
-          console.warn({ marketId: check.marketId, commentId: check.commentId, version: check.version });
+          console.warn({ marketId: check.marketId, commentId: check.commentId,
+            investibleId: check.investibleId, version: check.version });
         });
       scheduleNotificationVerification();
     }).catch(() => console.warn('Error in notification dependency refresh'));
@@ -648,15 +651,19 @@ function scheduleNotificationVerification(resetTimer=false) {
  * markets known dirty independently of the latest audit signature, then use the normal market
  * version path to reconcile them. Snapshots are scoped to the reporting tab so a lagging tab
  * cannot clear another tab's marker; a later synced snapshot from that tab retires its markers.
+ * S-all-283: an unsynced job or assignment notification records market plus investible rather
+ * than a comment, and that form is enough because this path forces the market, not the object.
  */
 export async function refreshVersionsForNotificationDependencies(dependencies=[], dispatchers=undefined,
   sourceId='local') {
   pruneExpiredNotificationChecks();
   const expiresAt = Date.now() + NOTIFICATION_DEPENDENCY_LEASE_MS;
-  const checks = dependencies.filter((dependency) => dependency?.marketId && dependency?.commentId)
+  const checks = dependencies.filter((dependency) => dependency?.marketId &&
+    (dependency.commentId || dependency.investibleId))
     .map((dependency) => ({
       marketId: dependency.marketId,
       commentId: dependency.commentId,
+      investibleId: dependency.investibleId,
       version: dependency.version,
       sourceId,
       expiresAt

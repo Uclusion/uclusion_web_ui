@@ -148,14 +148,25 @@ export function isInInbox(message) {
   return !(!message.type || message.type === 'UNREAD_REPORT' || message.deleted);
 }
 
+function rememberDependency(byDependency, key, record) {
+  const existing = byDependency.get(key);
+  if (!existing || (record.version ?? -1) > (existing.version ?? -1)) {
+    byDependency.set(key, record);
+  }
+}
+
+function dependencySortKey(dependency) {
+  return `${dependency.marketId}|${dependency.commentId || ''}|${dependency.investibleId || ''}`;
+}
+
 /**
  * Classifies all inbox notifications once using the live-context predicate. The returned
- * dependency ids do not second-guess that result; they only tell the version refresher which
- * unsynced comment markets it must treat as known dirty.
+ * dependencies do not second-guess that result; they only tell the version refresher which
+ * unsynced comment or investible markets it must treat as known dirty.
  */
 export function getNotificationSyncState(messages, marketState, marketPresencesState,
   commentsState, investiblesState, groupState) {
-  const byComment = new Map();
+  const byDependency = new Map();
   const syncedMessages = [];
   (messages || []).forEach((message) => {
     if (!isInInbox(message)) {
@@ -167,20 +178,32 @@ export function getNotificationSyncState(messages, marketState, marketPresencesS
       syncedMessages.push(message);
       return;
     }
-    const { comment_id: commentId, comment_version: version } = message;
-    if (!commentId) {
+    const { comment_id: commentId, comment_version: commentVersion, market_id: marketId,
+      comment_market_id: commentMarketId, investible_id: investibleId,
+      decision_investible_id: decisionInvestibleId, market_investible_id: marketInvestibleId,
+      investible_version: investibleVersion, market_investible_version: marketInvestibleVersion
+    } = message;
+    if (commentId) {
+      _.uniq([commentMarketId, marketId].filter(Boolean)).forEach((depMarketId) => {
+        rememberDependency(byDependency, `c|${depMarketId}|${commentId}`,
+          { marketId: depMarketId, commentId, version: commentVersion });
+      });
       return;
     }
-    _.uniq([message.comment_market_id, message.market_id].filter(Boolean)).forEach((marketId) => {
-      const key = `${marketId}|${commentId}`;
-      const existing = byComment.get(key);
-      if (!existing || (version ?? -1) > (existing.version ?? -1)) {
-        byComment.set(key, { marketId, commentId, version });
-      }
+    // S-all-283: job stage and assignment notifications have an investible and no
+    // comment. Without a dependency the refresher never asks for them.
+    const depInvestibleId = decisionInvestibleId || investibleId || marketInvestibleId;
+    if (!marketId || !depInvestibleId) {
+      return;
+    }
+    rememberDependency(byDependency, `i|${marketId}|${depInvestibleId}`, {
+      marketId,
+      investibleId: depInvestibleId,
+      version: investibleVersion ?? marketInvestibleVersion
     });
   });
-  const dependencies = [...byComment.values()].sort((left, right) =>
-    `${left.marketId}|${left.commentId}`.localeCompare(`${right.marketId}|${right.commentId}`));
+  const dependencies = [...byDependency.values()].sort((left, right) =>
+    dependencySortKey(left).localeCompare(dependencySortKey(right)));
   return { syncedMessages, dependencies };
 }
 

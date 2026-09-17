@@ -107,4 +107,45 @@ describe('notification synchronization classification', () => {
       dependencies: []
     });
   });
+
+  it('records a market plus investible dependency when a job notification has no comment', () => {
+    const investibleId = 'job-id';
+    const jobMessage = {
+      type: 'UNREAD_REVIEWABLE',
+      type_object_id: `UNREAD_REVIEWABLE_${investibleId}`,
+      market_id: marketId,
+      investible_id: investibleId,
+      investible_version: 2
+    };
+
+    expect(getNotificationSyncState([jobMessage], {}, {}, {}, {}, {})).toEqual({
+      syncedMessages: [],
+      dependencies: [{ marketId, investibleId, version: 2 }]
+    });
+
+    const investiblesState = {
+      [investibleId]: {
+        investible: { id: investibleId, version: 2 },
+        market_infos: [{ market_id: marketId, version: 1 }]
+      }
+    };
+    expect(getNotificationSyncState([jobMessage], {}, {}, {}, investiblesState, {})).toEqual({
+      syncedMessages: [jobMessage],
+      dependencies: []
+    });
+  });
+
+  it('does not invent a dependency for an unsynced notification with neither comment nor investible', () => {
+    const marketOnly = {
+      type: 'UNREAD_GROUP',
+      type_object_id: 'UNREAD_GROUP_x_group-id',
+      market_id: marketId,
+      market_version: 2
+    };
+
+    expect(getNotificationSyncState([marketOnly], {}, {}, {}, {}, {})).toEqual({
+      syncedMessages: [],
+      dependencies: []
+    });
+  });
 });

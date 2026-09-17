@@ -180,6 +180,30 @@ describe('notification dependency refresh', () => {
     expect(getVersions).toHaveBeenCalledTimes(1);
   });
 
+  it('forces a market refresh for an unsynced job notification with no comment', async () => {
+    getChangedIds.mockResolvedValue([]);
+    getVersions.mockResolvedValue([]);
+
+    await refreshVersionsForNotificationDependencies([{
+      marketId: mockMarketId,
+      investibleId: 'job-id',
+      version: 2
+    }]);
+    expect(getVersions).toHaveBeenCalledTimes(1);
+    expect(getVersions).toHaveBeenCalledWith([mockMarketId], false);
+  });
+
+  it('ignores a notification dependency that names neither a comment nor an investible', async () => {
+    getChangedIds.mockResolvedValue([]);
+    getVersions.mockResolvedValue([]);
+
+    await refreshVersionsForNotificationDependencies([{
+      marketId: mockMarketId,
+      version: 2
+    }]);
+    expect(getVersions).not.toHaveBeenCalled();
+  });
+
   it('does not let one tab clear another tab\'s unsynced dependency', async () => {
     getChangedIds.mockResolvedValue([]);
     getVersions.mockResolvedValue([]);

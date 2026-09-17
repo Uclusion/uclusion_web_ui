@@ -22,6 +22,9 @@ import { removeInvestment, removeOthersInvestment } from '../../../api/marketInv
 import { commonQuick } from '../../../components/AddNewWizards/Approval/ApprovalWizard';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
+import { getDiff } from '../../../contexts/DiffContext/diffContextHelper';
+import DiffDisplay from '../../../components/TextEditors/DiffDisplay';
 import Reply from '../../../components/Comments/Reply';
 import { LocalCommentsContext } from '../../../components/Comments/Comment';
 import { hasReply } from '../../../components/AddNewWizards/Reply/ReplyStep';
@@ -139,9 +142,11 @@ function Voting(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const midLayout = useMediaQuery(theme.breakpoints.down('md'));
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [diffState] = useContext(DiffContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
+  const [showDiffByReasonId, setShowDiffByReasonId] = React.useState({});
   const classes = useVoteStyles();
   const voters = useInvestibleVoters(marketPresences, investibleId, market.id, showDeleted);
   const sortedVoters = _.sortBy(voters, 'quantity', 'updatedAt');
@@ -203,6 +208,9 @@ function Voting(props) {
           const voteReplies = reason ? _.sortBy(marketComments.filter((comment) => comment.reply_id === reason.id),
             'created_at') : [];
           const voteId = `cv${userId}`;
+          const diff = reason ? getDiff(diffState, reason.id) : undefined;
+          const showDiff = !!showDiffByReasonId[reason?.id];
+          const displayingDiff = showDiff && !!diff;
 
           function setBeingEdited(event) {
             if (!invalidEditEvent(event, history)) {
@@ -212,6 +220,8 @@ function Voting(props) {
           const myUseCompression = useCompression && isLargeDisplay(reason?.body);
           const isEditable = isYourVote && !myUseCompression;
           const hasContent = !editorEmpty(reason?.body);
+          const showReply = hasContent && !myUseCompression && !isInbox;
+          const showLastChange = hasContent && !myUseCompression && !!diff;
           return (
             <div style={{width: 'fit-content', cursor: myUseCompression ? 'pointer' : undefined,
                    maxWidth: myUseCompression ? '98%' : undefined}} key={userId}>
@@ -294,27 +304,54 @@ function Voting(props) {
                 </div>
                 {hasContent && !myUseCompression && (
                   <CardContent className={classes.cardContent}>
-                    <ReadOnlyQuillEditor value={reason.body} isEditable={isEditable} isWhiteText={isDark}
-                                         id={isInbox ? `inboxReason${reason.id}` : reason.id}
-                                         setBeingEdited={setBeingEdited}
-                    />
+                    {displayingDiff ? (
+                      <DiffDisplay id={reason.id} isWhiteText={isDark} />
+                    ) : (
+                      <ReadOnlyQuillEditor value={reason.body} isEditable={isEditable} isWhiteText={isDark}
+                                           id={isInbox ? `inboxReason${reason.id}` : reason.id}
+                                           setBeingEdited={setBeingEdited}
+                      />
+                    )}
                   </CardContent>
                 )}
-                {hasContent && !myUseCompression && !isInbox && (
+                {hasContent && !myUseCompression && (showReply || showLastChange) && (
                   <CardActions className={classes.cardActions}>
-                    <Button
-                      className={classes.action}
-                      id={`voteReplyButton${reason.id}`}
-                      onClick={(event) => {
-                        preventDefaultAndProp(event);
-                        navigate(history, formWizardLink(REPLY_WIZARD_TYPE, market.id, undefined, undefined,
-                          reason.id));
-                      }}
-                      variant="text"
-                    >
-                      {intl.formatMessage({ id: 'issueReplyLabel' })} {hasReply(reason) &&
-                        <Edit htmlColor={ACTION_BUTTON_COLOR} style={{fontSize: '1rem'}} fontSize='small' />}
-                    </Button>
+                    {showReply && (
+                      <Button
+                        className={classes.action}
+                        id={`voteReplyButton${reason.id}`}
+                        onClick={(event) => {
+                          preventDefaultAndProp(event);
+                          navigate(history, formWizardLink(REPLY_WIZARD_TYPE, market.id, undefined, undefined,
+                            reason.id));
+                        }}
+                        variant="text"
+                      >
+                        {intl.formatMessage({ id: 'issueReplyLabel' })} {hasReply(reason) &&
+                          <Edit htmlColor={ACTION_BUTTON_COLOR} style={{fontSize: '1rem'}} fontSize='small' />}
+                      </Button>
+                    )}
+                    {showLastChange && (
+                      <SpinningIconLabelButton
+                        id={`voteLastChange${reason.id}`}
+                        icon={showDiff ? ExpandLess : ExpandMoreIcon}
+                        iconOnly={mobileLayout}
+                        doSpin={false}
+                        useDark={isDark}
+                        iconColor={isDark ? 'white' : 'black'}
+                        onClick={(event) => {
+                          preventDefaultAndProp(event);
+                          setShowDiffByReasonId((current) => ({
+                            ...current,
+                            [reason.id]: !current[reason.id]
+                          }));
+                        }}
+                      >
+                        {!mobileLayout && intl.formatMessage({
+                          id: showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'
+                        })}
+                      </SpinningIconLabelButton>
+                    )}
                   </CardActions>
                 )}
               </div>

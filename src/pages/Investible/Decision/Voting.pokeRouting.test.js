@@ -4,6 +4,7 @@ import { IntlProvider } from 'react-intl';
 import { MemoryRouter } from 'react-router';
 import { ThemeProvider, createTheme } from '@material-ui/core/styles';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -37,11 +38,22 @@ jest.mock('../../../utils/votingUtils', () => ({
   }],
 }));
 jest.mock('../../../components/TextEditors/ReadOnlyQuillEditor', () => () => null);
+jest.mock('../../../components/TextEditors/DiffDisplay', () => {
+  const React = require('react');
+  return function MockDiffDisplay({ id }) {
+    return React.createElement('div', { id: `diff-${id}` }, 'diff');
+  };
+});
 jest.mock('../../../components/CardType', () => () => null);
 jest.mock('../../../components/Expiration/ExpiresDisplay', () => () => null);
 jest.mock('../../../components/Avatars/GravatarAndName', () => () => null);
 jest.mock('../../../components/Buttons/TooltipIconButton', () => () => null);
-jest.mock('../../../components/Buttons/SpinningIconLabelButton', () => () => null);
+jest.mock('../../../components/Buttons/SpinningIconLabelButton', () => {
+  const React = require('react');
+  return function MockSpinningIconLabelButton({ children, id }) {
+    return React.createElement('button', { id, type: 'button' }, children);
+  };
+});
 jest.mock('../../Home/YourWork/NotificationDeletion', () => () => null);
 jest.mock('../../../components/AddNewWizards/Reply/ReplyStep', () => ({
   hasReply: () => false,
@@ -64,32 +76,31 @@ jest.mock('@material-ui/core', () => {
   };
 });
 
-describe('Voting option Poke AI routing', () => {
-  beforeEach(() => {
-    mockReply.mockClear();
-  });
+const noOp = jest.fn();
+const inlineMarketId = 'inline-option-market';
+const reason = {
+  id: 'vote-reason',
+  body: '<p>Because this option is best.</p>',
+};
+const reply = {
+  id: 'vote-reply',
+  reply_id: reason.id,
+  ticket_code: 'C-2',
+  body: '<p>What about the tradeoff?</p>',
+};
 
-  it('places vote replies in a context qualified by the parent planning question', () => {
-    const noOp = jest.fn();
-    const inlineMarketId = 'inline-option-market';
-    const reason = {
-      id: 'vote-reason',
-      body: '<p>Because this option is best.</p>',
-    };
-    const reply = {
-      id: 'vote-reply',
-      reply_id: reason.id,
-      ticket_code: 'C-2',
-      body: '<p>What about the tradeoff?</p>',
-    };
-    const tree = (
-      <ThemeProvider theme={createTheme()}>
-        <IntlProvider locale="en" messages={{
-          commentCloseThreadLabel: 'Collapse',
-          issueReplyLabel: 'Reply',
-        }}>
-          <MemoryRouter>
-            <CommentsContext.Provider value={[{ [inlineMarketId]: [reason, reply] }, noOp]}>
+function renderVoting(diffState = {}) {
+  return (
+    <ThemeProvider theme={createTheme()}>
+      <IntlProvider locale="en" messages={{
+        commentCloseThreadLabel: 'Collapse',
+        issueReplyLabel: 'Reply',
+        diffDisplayShowLabel: 'Last change',
+        diffDisplayDismissLabel: 'Hide change',
+      }}>
+        <MemoryRouter>
+          <CommentsContext.Provider value={[{ [inlineMarketId]: [reason, reply] }, noOp]}>
+            <DiffContext.Provider value={[diffState, noOp]}>
               <MarketPresencesContext.Provider value={[{}, noOp]}>
                 <NotificationsContext.Provider value={[{ messages: [] }, noOp]}>
                   <OperationInProgressContext.Provider value={[false, noOp]}>
@@ -106,13 +117,21 @@ describe('Voting option Poke AI routing', () => {
                   </OperationInProgressContext.Provider>
                 </NotificationsContext.Provider>
               </MarketPresencesContext.Provider>
-            </CommentsContext.Provider>
-          </MemoryRouter>
-        </IntlProvider>
-      </ThemeProvider>
-    );
+            </DiffContext.Provider>
+          </CommentsContext.Provider>
+        </MemoryRouter>
+      </IntlProvider>
+    </ThemeProvider>
+  );
+}
 
-    ReactDOMServer.renderToStaticMarkup(tree);
+describe('Voting option Poke AI routing', () => {
+  beforeEach(() => {
+    mockReply.mockClear();
+  });
+
+  it('places vote replies in a context qualified by the parent planning question', () => {
+    ReactDOMServer.renderToStaticMarkup(renderVoting());
 
     expect(mockReply).toHaveBeenCalledWith(
       expect.objectContaining({ comment: reply }),
@@ -122,5 +141,14 @@ describe('Voting option Poke AI routing', () => {
         pokeAIParentTicketCode: 'Q-all-500',
       })
     );
+  });
+
+  it('shows Last change on the vote card when a diff exists for that reason', () => {
+    const markup = ReactDOMServer.renderToStaticMarkup(renderVoting({
+      'vote-reason': { diff: '<ins>raised certainty</ins>' },
+    }));
+
+    expect(markup).toContain('Last change');
+    expect(markup).toContain('voteLastChangevote-reason');
   });
 });

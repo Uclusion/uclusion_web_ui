@@ -118,6 +118,7 @@ function CondensedTodos(props) {
           marketId={marketId}
           comment={comment}
           comments={investibleComments}
+          investibleComments={investibleComments}
           allowedTypes={[TODO_TYPE]}
           marketInfo={marketInfo}
           noAuthor
@@ -126,6 +127,11 @@ function CondensedTodos(props) {
           stagePreventsActions={isInbox && removeActions}
           idPrepend='condensed'
           inNotesTab={inNotesTab}
+          // B-all-641: open tasks in the Tasks tab already show associated notes
+          // when expanded. Resolved tasks only appear in this overview list, so
+          // the same expansion must show those notes. Skip it in the Notes tab,
+          // which already renders them beside the task.
+          showNotes={!inNotesTab}
         />
       </div>
       const determinateChecked = determinate[id];

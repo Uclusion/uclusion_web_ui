@@ -590,6 +590,10 @@ class TokenAuditInstallerTests(unittest.TestCase):
         self.assertFalse(
             INSTALL.build_parser().parse_args(base + ['--no-token-audit']).token_audit
         )
+        self.assertFalse(INSTALL.build_parser().parse_args(base).force)
+        self.assertTrue(
+            INSTALL.build_parser().parse_args(base + ['--force']).force
+        )
 
     def test_config_defaults_off_and_preserves_explicit_preference(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -619,6 +623,108 @@ class TokenAuditInstallerTests(unittest.TestCase):
         self.assertTrue(enabled_claims)
         self.assertTrue(preserved_claims)
         self.assertFalse(disabled_claims)
+
+    def _write_feature_config(self, directory, env, token_audit, work_claims):
+        path = os.path.join(directory, INSTALL.CONFIG_FILES[env])
+        INSTALL.write_uclusion_config(
+            'workspace-1',
+            None,
+            path,
+            token_audit_enabled=token_audit,
+            work_claims_enabled=work_claims,
+        )
+        return path
+
+    def test_matching_or_omitted_features_are_an_upgrade_and_do_not_prompt(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self._write_feature_config(temp_dir, 'stage', True, False)
+            with mock.patch.object(INSTALL, 'prompt_yes_no') as prompt:
+                self.assertTrue(INSTALL.confirm_existing_feature_changes(
+                    False, 'stage', temp_dir, True, False,
+                ))
+                self.assertTrue(INSTALL.confirm_existing_feature_changes(
+                    False, 'stage', temp_dir, None, None,
+                ))
+            prompt.assert_not_called()
+
+    def test_first_install_does_not_prompt(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with mock.patch.object(INSTALL, 'prompt_yes_no') as prompt:
+                self.assertTrue(INSTALL.confirm_existing_feature_changes(
+                    False, 'stage', temp_dir, False, False,
+                ))
+            prompt.assert_not_called()
+
+    def test_feature_flip_prompts_unless_force(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self._write_feature_config(temp_dir, 'stage', True, True)
+            with mock.patch.object(
+                    INSTALL, 'prompt_yes_no', return_value=False) as prompt:
+                self.assertFalse(INSTALL.confirm_existing_feature_changes(
+                    False, 'stage', temp_dir, False, True,
+                ))
+            prompt.assert_called_once()
+            question = prompt.call_args.args[0]
+            self.assertIn('token audit from on to off', question)
+            self.assertNotIn('work claims', question)
+            self.assertIs(prompt.call_args.kwargs['default'], False)
+
+            with mock.patch.object(INSTALL, 'prompt_yes_no') as prompt:
+                self.assertTrue(INSTALL.confirm_existing_feature_changes(
+                    True, 'stage', temp_dir, False, False,
+                ))
+            prompt.assert_not_called()
+
+            with mock.patch.object(
+                    INSTALL, 'prompt_yes_no', return_value=True) as prompt:
+                self.assertTrue(INSTALL.confirm_existing_feature_changes(
+                    False, 'stage', temp_dir, False, False,
+                ))
+            question = prompt.call_args.args[0]
+            self.assertIn('token audit from on to off', question)
+            self.assertIn('work claims from on to off', question)
+
+    def test_legacy_config_counts_as_the_existing_stage_install(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            INSTALL.write_uclusion_config(
+                'workspace-1',
+                None,
+                os.path.join(temp_dir, INSTALL.CONFIG_FILES['production']),
+                token_audit_enabled=False,
+                work_claims_enabled=False,
+            )
+            with mock.patch.object(
+                    INSTALL, 'prompt_yes_no', return_value=True) as prompt:
+                self.assertTrue(INSTALL.confirm_existing_feature_changes(
+                    False, 'stage', temp_dir, True, False,
+                ))
+            question = prompt.call_args.args[0]
+            self.assertIn('token audit from off to on', question)
+
+    def test_declining_a_feature_change_leaves_the_existing_install(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config_path = self._write_feature_config(temp_dir, 'stage', True, False)
+            with mock.patch.object(
+                INSTALL.sys,
+                'argv',
+                [
+                    'uclusionInstall', 'stage', 'workspace-1', 'view-1',
+                    '--clients', 'codex', '--no-token-audit', '--no-work-claims',
+                ],
+            ), mock.patch.object(
+                INSTALL, 'UCLUSION_HOME', temp_dir
+            ), mock.patch.object(
+                INSTALL, 'prompt_yes_no', return_value=False
+            ), mock.patch.object(
+                INSTALL, 'install_scripts'
+            ) as scripts, mock.patch.object(
+                INSTALL, 'install_global'
+            ) as configure:
+                self.assertEqual(INSTALL.main(), 0)
+            scripts.assert_not_called()
+            configure.assert_not_called()
+            with open(config_path, encoding='utf-8') as config:
+                self.assertTrue(INSTALL.json.load(config)['tokenAudit']['enabled'])
 
     def test_enabled_claude_registration_receives_audit_arguments(self):
         with tempfile.TemporaryDirectory() as temp_dir:

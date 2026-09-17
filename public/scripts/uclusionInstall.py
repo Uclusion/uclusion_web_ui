@@ -1023,6 +1023,94 @@ def write_uclusion_config(workspace_id, view_id, config_path, script_version=Non
     return dict(token_audit), config['workClaims']
 
 
+def workspace_config_path(env, project_dir=None):
+    """Return the env-specific workspace config this install would write."""
+    directory = os.path.abspath(os.path.expanduser(
+        project_dir if project_dir is not None else UCLUSION_HOME
+    ))
+    return os.path.join(directory, CONFIG_FILES[env or 'production'])
+
+
+def workspace_config_merge_path(env, project_dir=None):
+    """Return the config file a rerun would merge, including legacy names."""
+    target = workspace_config_path(env, project_dir)
+    if os.path.isfile(target):
+        return target
+    legacy = os.path.join(os.path.dirname(target), CONFIG_FILES['production'])
+    if legacy != target and os.path.isfile(legacy):
+        return legacy
+    return target
+
+
+def _config_token_audit_enabled(config):
+    value = config.get('tokenAudit')
+    if isinstance(value, dict):
+        return value.get('enabled') is True
+    return value is True
+
+
+def _config_work_claims_enabled(config):
+    return config.get('workClaims') is True
+
+
+def existing_install_feature_changes(
+    config, token_audit_enabled, work_claims_enabled,
+):
+    """Return feature flips this install would apply to an existing config.
+
+    A plain upgrade — omitted flags, or flags that match the current
+    preference — is not a feature change (B-all-636).
+    """
+    if config is None:
+        return ()
+    changes = []
+    if token_audit_enabled is not None:
+        current = _config_token_audit_enabled(config)
+        wanted = bool(token_audit_enabled)
+        if wanted != current:
+            changes.append(
+                'token audit from '
+                f"{'on' if current else 'off'} to {'on' if wanted else 'off'}"
+            )
+    if work_claims_enabled is not None:
+        current = _config_work_claims_enabled(config)
+        wanted = bool(work_claims_enabled)
+        if wanted != current:
+            changes.append(
+                'work claims from '
+                f"{'on' if current else 'off'} to {'on' if wanted else 'off'}"
+            )
+    return tuple(changes)
+
+
+def confirm_existing_feature_changes(
+    force, env, project_dir, token_audit_enabled, work_claims_enabled,
+):
+    """Ask before flipping token audit or work claims on an existing install."""
+    if force:
+        return True
+    path = workspace_config_merge_path(env, project_dir)
+    if not os.path.isfile(path):
+        return True
+    try:
+        with open(path, encoding='utf-8') as source:
+            config = json.load(source)
+    except json.JSONDecodeError as err:
+        raise RuntimeError(f'{path} is not valid JSON: {err}') from err
+    if not isinstance(config, dict):
+        raise RuntimeError(f'{path} top-level value must be a JSON object')
+    changes = existing_install_feature_changes(
+        config, token_audit_enabled, work_claims_enabled,
+    )
+    if not changes:
+        return True
+    detail = ' and '.join(changes)
+    return prompt_yes_no(
+        f'This will change the existing Uclusion install ({detail}). Continue?',
+        default=False,
+    )
+
+
 def update_token_audit_client_config(config_path, source=None, managed_env=None):
     """Persist Claude collection ownership after settings were merged.
 
@@ -3676,6 +3764,12 @@ def build_parser():
     )
     parser.set_defaults(work_claims=None)
     parser.add_argument(
+        '--force',
+        action='store_true',
+        help='Change token audit or work claims on an existing install without '
+             'prompting. A plain upgrade still does not prompt.',
+    )
+    parser.add_argument(
         '--script-version',
         help=argparse.SUPPRESS,
     )
@@ -4291,6 +4385,7 @@ def main():
             args.setup_receipt is not None,
             args.token_audit is not None,
             args.work_claims is not None,
+            args.force,
             args.script_version is not None,
         )):
             allowed = '--clients' if mode == 'demo' else (
@@ -4366,6 +4461,16 @@ def main():
         parser.error('--replace-setup requires exactly one --clients value')
 
     try:
+        confirm_dir = os.getcwd() if args.project else None
+        if not confirm_existing_feature_changes(
+            args.force,
+            env,
+            confirm_dir,
+            args.token_audit,
+            args.work_claims,
+        ):
+            print('⏭  Existing install was left unchanged.')
+            return 0
         if args.replace_setup:
             setup_project_dir = os.getcwd() if args.project else None
             setup_client = next(iter(clients))

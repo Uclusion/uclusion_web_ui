@@ -9,7 +9,9 @@
 #
 # Extra flags after the positional arguments are forwarded to uclusionInstall.py;
 # --clients makes the install non-interactive and --project configures the
-# current working directory instead of the home directory.
+# current working directory instead of the home directory. Changing token audit
+# or work claims on an existing install prompts unless --force is supplied; a
+# plain upgrade does not prompt.
 #
 # Typical invocations (one-liners):
 #   curl -fsSL https://production.uclusion.com/scripts/install.sh | bash -s -- <workspaceId> <viewId>
@@ -21,7 +23,7 @@ if [ "$#" -gt 0 ] && { [ "$1" = "setup" ] || [ "$1" = "demo" ]; }; then
   MODE="$1"
   shift
 elif [ "$#" -lt 2 ]; then
-  echo "Usage: $0 <workspaceId> <viewId> [environment] [--project] [--clients claude,cursor,codex]" >&2
+  echo "Usage: $0 <workspaceId> <viewId> [environment] [--project] [--clients claude,cursor,codex] [--force]" >&2
   echo "       $0 setup [environment] --clients <claude|cursor|codex> [--project]" >&2
   echo "       $0 demo [environment] --clients <claude|codex>" >&2
   echo "  environment: dev | stage | production (default: production)" >&2

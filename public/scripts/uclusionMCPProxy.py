@@ -695,10 +695,46 @@ def post_to_mcp_refreshing_token(url, headers, body, token_provider, timeout=30)
 
 
 def write_message(obj):
-    """Write a JSON-RPC message as a single compact line to stdout (stdio transport)."""
+    """Write a JSON-RPC object as a single compact line to stdout (stdio transport)."""
+    if not isinstance(obj, dict):
+        sys.stderr.write(
+            'MCP stdio skip: '
+            f'{type(obj).__name__} is not a JSON-RPC object\n'
+        )
+        return
     line = json.dumps(obj, separators=(',', ':'))
     sys.stdout.write(line + '\n')
     sys.stdout.flush()
+
+
+def load_mcp_stdio_object(raw):
+    """Parse one HTTP/SSE payload into a JSON-RPC object, or None to skip."""
+    text = raw.strip() if isinstance(raw, str) else ''
+    if not text or text == '[DONE]':
+        return None
+    try:
+        payload = json.loads(text)
+    except json.JSONDecodeError:
+        sys.stderr.write('MCP stdio skip: payload is not JSON\n')
+        return None
+    if not isinstance(payload, dict):
+        sys.stderr.write(
+            'MCP stdio skip: payload is '
+            f'{type(payload).__name__}, not a JSON object\n'
+        )
+        return None
+    return payload
+
+
+def write_non_object_mcp_error(request_id):
+    if request_id is None:
+        return
+    write_jsonrpc_error(
+        request_id=request_id,
+        code=-32001,
+        message='MCP server returned a non-object JSON payload',
+    )
+
 
 def write_jsonrpc_error(request_id, code, message, data=None):
     """Emit a JSON-RPC error response for a request id."""
@@ -738,23 +774,33 @@ def inject_work_claim_tool(message, enabled):
     return {**message, 'result': {**result, 'tools': tools + [WORK_CLAIM_TOOL]}}
 
 
-def handle_json_response(resp, token_audit_enabled=False, work_claims_enabled=False):
-    data = resp.read().decode('utf-8')
-    if data.strip():
-        write_message(inject_work_claim_tool(filter_token_audit_tools(
-            json.loads(data), token_audit_enabled
-        ), work_claims_enabled))
+def handle_json_response(resp, token_audit_enabled=False, work_claims_enabled=False,
+                         request_id=None):
+    payload = load_mcp_stdio_object(resp.read().decode('utf-8'))
+    if payload is None:
+        write_non_object_mcp_error(request_id)
+        return
+    write_message(inject_work_claim_tool(filter_token_audit_tools(
+        payload, token_audit_enabled
+    ), work_claims_enabled))
 
 
-def handle_sse_response(resp, token_audit_enabled=False, work_claims_enabled=False):
+def handle_sse_response(resp, token_audit_enabled=False, work_claims_enabled=False,
+                        request_id=None):
+    wrote = False
     for raw_line in resp:
         line = raw_line.decode('utf-8').rstrip('\r\n')
-        if line.startswith('data: '):
-            payload = line[6:]
-            if payload.strip():
-                write_message(inject_work_claim_tool(filter_token_audit_tools(
-                    json.loads(payload), token_audit_enabled
-                ), work_claims_enabled))
+        if not line.startswith('data: '):
+            continue
+        payload = load_mcp_stdio_object(line[6:])
+        if payload is None:
+            continue
+        write_message(inject_work_claim_tool(filter_token_audit_tools(
+            payload, token_audit_enabled
+        ), work_claims_enabled))
+        wrote = True
+    if not wrote:
+        write_non_object_mcp_error(request_id)
 
 
 def handle_claim_tool_call(work_claims, request_id, params):
@@ -1181,10 +1227,12 @@ def main():
                 content_type = resp.headers.get('Content-Type', '')
                 if 'text/event-stream' in content_type:
                     handle_sse_response(resp, token_audit_available(),
-                                        work_claims is not None)
+                                        work_claims is not None,
+                                        request_id=request_id)
                 else:
                     handle_json_response(resp, token_audit_available(),
-                                         work_claims is not None)
+                                         work_claims is not None,
+                                         request_id=request_id)
 
             except urllib.request.HTTPError as e:
                 body = e.read().decode('utf-8', errors='replace')

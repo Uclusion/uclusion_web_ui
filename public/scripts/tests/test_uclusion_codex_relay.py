@@ -2401,6 +2401,21 @@ class RelayIntegrationTests(unittest.TestCase):
         self.assertIsNone(self.authority.current_snapshot())
 
     def test_frontend_upgrade_requires_host_header(self):
+        primary, primary_upstream = self.initialized_connection()
+        send_client_json(
+            primary,
+            {
+                "id": "primary-root",
+                "method": "thread/start",
+                "params": {"cwd": "/workspace/project"},
+            },
+        )
+        primary_upstream.sent.get(timeout=1)
+        primary_upstream.respond(
+            {"id": "primary-root", "result": root_result("root-primary")}
+        )
+        self.assertEqual("primary-root", read_server_json(primary)["id"])
+
         stream = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.clients.append(stream)
         stream.connect(self.frontend_path)
@@ -2417,7 +2432,10 @@ class RelayIntegrationTests(unittest.TestCase):
             ).format(key).encode("ascii")
         )
         self.assertEqual(b"", stream.recv(4096))
-        self.assertFalse(self.relay.fatal_event.is_set())
+        self.assertFalse(self.relay.fatal_event.wait(0.2))
+        self.assertEqual(
+            "root-primary", self.authority.current_snapshot().thread_id
+        )
 
     def test_existing_frontend_socket_is_never_unlinked(self):
         protected_path = os.path.join(
@@ -2528,7 +2546,23 @@ class RelayIntegrationTests(unittest.TestCase):
         self.assertFalse(self.relay.fatal_event.is_set())
 
     def test_nested_origin_fences_preserve_buffered_wire_order(self):
-        _primary, _primary_upstream = self.initialized_connection()
+        primary, primary_upstream = self.initialized_connection()
+        send_client_json(
+            primary,
+            {
+                "id": "primary-root",
+                "method": "thread/start",
+                "params": {"cwd": "/workspace/project"},
+            },
+        )
+        self.assertEqual(
+            "thread/start",
+            primary_upstream.sent.get(timeout=1)["method"],
+        )
+        primary_upstream.respond(
+            {"id": "primary-root", "result": root_result("root-primary")}
+        )
+        self.assertEqual("primary-root", read_server_json(primary)["id"])
         auxiliary, upstream = self.initialized_connection()
         for request_id, thread_id in ((1, "root-a"), (2, "root-b")):
             send_client_json(

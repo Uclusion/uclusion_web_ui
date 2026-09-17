@@ -140,6 +140,10 @@ class RelayProtocolError(BridgeError):
     """A TUI/backend protocol violation that makes root authority unsafe."""
 
 
+class RelayPolicyError(BridgeError):
+    """Refuse this TUI connection without failing the companion."""
+
+
 @dataclasses.dataclass(frozen=True)
 class BridgeConfig:
     environment: str
@@ -2456,6 +2460,16 @@ class RootAuthority:
                 and self.primary_connection_id == connection_id
             )
 
+    def protocol_fault_is_session_fatal(self, connection_id: int) -> bool:
+        """Whether a protocol fault on this connection fails the companion.
+
+        Unassigned ownership fails closed on the first live TUI session.
+        After assignment, only that recorded primary remains fatal, including
+        after on_closing has already cleared primary_live.
+        """
+        with self.condition:
+            return self.primary_connection_id in (None, connection_id)
+
     def handoffs_abandoned_after_primary_close(self) -> bool:
         """Return whether normal primary exit made every handoff irrelevant."""
         with self.condition:
@@ -3043,7 +3057,7 @@ class RootAuthority:
             if self.primary_connection_id == connection_id:
                 return
             if method in HUMAN_ADMISSION_METHODS:
-                raise RelayProtocolError(
+                raise RelayPolicyError(
                     "auxiliary TUI attempted {}".format(method)
                 )
             if (
@@ -3056,7 +3070,7 @@ class RootAuthority:
                         "{} request has no threadId".format(method)
                     )
                 if requested == self.thread_id:
-                    raise RelayProtocolError(
+                    raise RelayPolicyError(
                         "auxiliary TUI attempted {} on the primary root"
                         .format(method)
                     )
@@ -3083,7 +3097,7 @@ class RootAuthority:
 
         with self.condition:
             if self.primary_connection_id != connection_id:
-                raise RelayProtocolError(
+                raise RelayPolicyError(
                     "auxiliary TUI attempted authority-changing {}".format(
                         method
                     )
@@ -4142,6 +4156,17 @@ class BridgeEngine:
                 "unhealthy",
                 sequence=delivery.sequence,
                 error="observed user message has no valid turn id",
+            )
+        if (
+            delivery.turn_id is not None
+            and live_candidate is not None
+            and live_candidate != delivery.turn_id
+        ):
+            return None, 0, StepResult(
+                "unhealthy",
+                sequence=delivery.sequence,
+                error="observed user message turn id did not match the "
+                "persisted admission turn",
             )
         if thread is not None:
             try:
@@ -6052,7 +6077,16 @@ class _RelayConnection:
         return self.relay.authority.is_primary(self.connection_id)
 
     def _fatal_or_close(self, reason: str) -> None:
-        if self._is_authoritative():
+        # Handshake failures never become a TUI session. A live TUI session
+        # fails the companion when it is the assigned primary, or when no
+        # primary has been assigned yet; on_closing may already have cleared
+        # primary_live. Auxiliary sessions isolate.
+        if (
+            self.frontend is not None
+            and self.relay.authority.protocol_fault_is_session_fatal(
+                self.connection_id
+            )
+        ):
             self.relay.fail(reason)
         else:
             self._retire_upstream_stream()
@@ -6263,6 +6297,19 @@ class _RelayConnection:
                 return
             assert self.upstream is not None
             self.upstream.send_json_message(message)
+        except RelayPolicyError as exc:
+            if key is not None:
+                self._discard_pending(key)
+            if gate is not None:
+                assert pending is not None
+                self.relay.authority.abort_tui_request(
+                    gate, "{} forwarding failed: {}".format(
+                        pending.method, exc
+                    )
+                )
+            if not self.closed.is_set():
+                self._retire_upstream_stream()
+                self.close()
         except Exception as exc:
             if key is not None:
                 self._discard_pending(key)
@@ -6298,7 +6345,7 @@ class _RelayConnection:
         method = message.get("method")
         if not isinstance(method, str):
             if self.role == "pending":
-                raise RelayProtocolError(
+                raise RelayPolicyError(
                     "TUI sent a response before initialize completed"
                 )
             # This is a response to a backend-initiated server request.
@@ -6319,11 +6366,11 @@ class _RelayConnection:
         if self.role == "pending":
             if not self.initialize_seen:
                 if method != "initialize" or "id" not in message:
-                    raise RelayProtocolError(
+                    raise RelayPolicyError(
                         "initialize must be the first TUI request"
                     )
             else:
-                raise RelayProtocolError(
+                raise RelayPolicyError(
                     "TUI sent traffic before initialize completed"
                 )
         params = message.get("params", {})
@@ -6396,7 +6443,7 @@ class _RelayConnection:
                 or method in HUMAN_ADMISSION_METHODS
                 or method in PRIMARY_CONTROL_BYPASS_METHODS
             ):
-                raise RelayProtocolError(
+                raise RelayPolicyError(
                     "{} must be a JSON-RPC request".format(method)
                 )
             if (
@@ -6712,6 +6759,10 @@ class _RelayConnection:
                     frontend_closed_cleanly = True
                     break
                 self._handle_frontend_message(message)
+        except RelayPolicyError:
+            if not self.closed.is_set():
+                self._retire_upstream_stream()
+                self.close()
         except Exception as exc:
             if not self.closed.is_set():
                 self._fatal_or_close(

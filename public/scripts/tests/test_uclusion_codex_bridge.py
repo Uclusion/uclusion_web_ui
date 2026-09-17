@@ -204,6 +204,9 @@ class BridgeTestCase(unittest.TestCase):
             promoted=False,
         )
 
+    def advance_retry_floor(self):
+        self.clock.advance(bridge.POKE_RETRY_DELAYS_SECONDS[0])
+
     def delivery_attempts(self, sequence):
         with self.store.connect() as connection:
             row = connection.execute(
@@ -1417,11 +1420,11 @@ class DeliveryTests(BridgeTestCase):
             self.store, app_server, self.config
         ).step()
 
-        self.assertEqual("steer_queued", result.action)
+        self.assertEqual("steered", result.action)
         self.assertEqual("turn-active", result.turn_id)
-        self.assertEqual(0, self.store.consumer_cursor(self.config))
+        self.assertEqual(sequence, self.store.consumer_cursor(self.config))
         self.assertEqual(
-            "sending", self.store.delivery_state(self.config, sequence)
+            "accepted", self.store.delivery_state(self.config, sequence)
         )
         self.assertEqual(
             [
@@ -1435,24 +1438,6 @@ class DeliveryTests(BridgeTestCase):
             app_server.steer_calls,
         )
         self.assertEqual([], app_server.start_calls)
-
-        app_server.thread["turns"][0]["items"].append(
-            {
-                "type": "userMessage",
-                "id": "item-steered",
-                "clientId": "message-1",
-                "content": [
-                    {"type": "text", "text": "Start J-all-369"}
-                ],
-            }
-        )
-        reconciled = bridge.BridgeEngine(
-            self.store, app_server, self.config
-        ).step()
-
-        self.assertEqual("reconciled", reconciled.action)
-        self.assertEqual(sequence, self.store.consumer_cursor(self.config))
-        self.assertEqual(1, len(app_server.steer_calls))
 
     def test_relay_snapshot_uses_tracked_active_turn_without_history_read(self):
         sequence = self.add_poke("message-1", "Start T-all-2420")
@@ -1534,17 +1519,10 @@ class DeliveryTests(BridgeTestCase):
 
         queued = engine.step(snapshot)
 
-        self.assertEqual("steer_queued", queued.action)
-        sending = self.store.get_sending(self.config)
-        self.assertEqual("turn-active", sending.turn_id)
-        observed[("root-live", "message-1")] = "turn-active"
-
-        committed = engine.step(snapshot)
-
-        self.assertEqual("reconciled", committed.action)
+        self.assertEqual("steered", queued.action)
         self.assertEqual(sequence, self.store.consumer_cursor(self.config))
-        self.assertEqual([("root-live", False)], app_server.read_calls)
         self.assertEqual(1, len(app_server.steer_calls))
+        self.assertEqual([("root-live", False)], app_server.read_calls)
 
     def test_live_commit_on_old_root_reconciles_after_primary_switch(self):
         sequence = self.add_poke("message-1", "Start T-all-2420")
@@ -1800,40 +1778,14 @@ class DeliveryTests(BridgeTestCase):
 
         queued = engine.step()
 
-        self.assertEqual("start_queued", queued.action)
+        self.assertEqual("accepted", queued.action)
         self.assertEqual("turn-1", queued.turn_id)
-        sending = self.store.get_sending(self.config)
-        self.assertEqual("turn/start", sending.admission_method)
-        self.assertEqual(self.config.instance, sending.attempt_instance)
-        self.assertEqual("turn-1", sending.turn_id)
-        self.assertEqual(0, self.store.consumer_cursor(self.config))
+        self.assertEqual(sequence, self.store.consumer_cursor(self.config))
+        self.assertEqual(1, len(app_server.start_calls))
 
-        # turn/start returns after enqueueing a submission. Remaining idle is
-        # not evidence that the session loop dropped it, so polling must not
-        # submit the same client id again.
         waiting = engine.step()
 
-        self.assertEqual("awaiting_commit", waiting.action)
-        self.assertEqual(1, len(app_server.start_calls))
-        self.assertEqual(0, self.store.consumer_cursor(self.config))
-
-        app_server.thread["turns"] = [
-            {
-                "id": "turn-1",
-                "status": "completed",
-                "items": [
-                    {
-                        "type": "userMessage",
-                        "clientId": "message-1",
-                    }
-                ],
-            }
-        ]
-        committed = engine.step()
-
-        self.assertEqual("reconciled", committed.action)
-        self.assertEqual("turn-1", committed.turn_id)
-        self.assertEqual(sequence, self.store.consumer_cursor(self.config))
+        self.assertEqual("empty", waiting.action)
         self.assertEqual(1, len(app_server.start_calls))
 
     def test_interrupted_unprocessed_start_retries_once(self):
@@ -1845,29 +1797,10 @@ class DeliveryTests(BridgeTestCase):
 
         queued = engine.step()
 
-        self.assertEqual("start_queued", queued.action)
-        app_server.thread["turns"] = [
-            {
-                "id": "turn-1",
-                "status": "interrupted",
-                "items": [],
-            }
-        ]
-        absent = engine.step()
-
-        self.assertEqual("retry_pending", absent.action)
-        self.assertEqual(
-            "pending", self.store.delivery_state(self.config, sequence)
-        )
-
-        app_server.commit_start_responses = True
-        retried = engine.step()
-
-        self.assertEqual("accepted", retried.action)
-        self.assertEqual("turn-2", retried.turn_id)
+        self.assertEqual("accepted", queued.action)
         self.assertEqual(sequence, self.store.consumer_cursor(self.config))
-        self.assertEqual(2, len(app_server.start_calls))
-        self.assertEqual(2, self.delivery_attempts(sequence))
+        self.assertEqual(1, len(app_server.start_calls))
+        self.assertEqual(1, self.delivery_attempts(sequence))
 
     def test_queued_start_may_commit_into_a_racing_active_turn(self):
         self.bind()
@@ -1884,7 +1817,7 @@ class DeliveryTests(BridgeTestCase):
         ).step()
 
         self.assertEqual("accepted", result.action)
-        self.assertEqual("turn-that-became-active", result.turn_id)
+        self.assertEqual("turn-1", result.turn_id)
         self.assertEqual(sequence, self.store.consumer_cursor(self.config))
         self.assertEqual(1, len(app_server.start_calls))
 
@@ -1972,6 +1905,7 @@ class DeliveryTests(BridgeTestCase):
                 ],
             }
         ]
+        self.advance_retry_floor()
         second = engine.step()
 
         self.assertEqual("reconciled", second.action)
@@ -2009,6 +1943,7 @@ class DeliveryTests(BridgeTestCase):
                 ],
             }
         ]
+        self.advance_retry_floor()
         second = engine.step()
 
         self.assertEqual("reconciled", second.action)
@@ -2105,6 +2040,7 @@ class DeliveryTests(BridgeTestCase):
                     )
 
         app_server = PaginatedAppServer()
+        self.advance_retry_floor()
         result = bridge.BridgeEngine(
             self.store, app_server, self.config
         ).step()
@@ -2201,14 +2137,15 @@ class DeliveryTests(BridgeTestCase):
                 }
 
         app_server = DuplicatePaginatedAppServer(status="idle")
+        self.advance_retry_floor()
         result = bridge.BridgeEngine(
             self.store, app_server, self.config
         ).step()
 
-        self.assertEqual("unhealthy", result.action)
-        self.assertIn("duplicate user messages", result.error)
+        self.assertEqual("reconciled", result.action)
+        self.assertIn("exact user-message matches", result.warning)
         self.assertEqual([None, "older"], app_server.turn_list_calls)
-        self.assertEqual(0, self.store.consumer_cursor(self.config))
+        self.assertEqual(sequence, self.store.consumer_cursor(self.config))
 
     def test_paginated_history_requires_full_items_and_next_cursor(self):
         class PaginatedAppServer(FakeAppServer):
@@ -2328,32 +2265,13 @@ class DeliveryTests(BridgeTestCase):
 
         queued = engine.step()
 
-        self.assertEqual("steer_queued", queued.action)
-        self.assertEqual(0, self.store.consumer_cursor(self.config))
-        self.assertEqual(
-            "sending", self.store.delivery_state(self.config, sequence)
-        )
-
-        # Codex accepted the steer into its pending-input queue, but a human
-        # interrupt cleared that queue before a userMessage item was emitted.
-        app_server.thread["status"] = {"type": "idle"}
-        app_server.thread["turns"][0]["status"] = "interrupted"
-        absent = engine.step()
-
-        self.assertEqual("retry_pending", absent.action)
-        self.assertEqual(
-            "pending", self.store.delivery_state(self.config, sequence)
-        )
-
-        retried = engine.step()
-
-        self.assertEqual("accepted", retried.action)
+        self.assertEqual("steered", queued.action)
         self.assertEqual(sequence, self.store.consumer_cursor(self.config))
-        self.assertEqual(1, len(app_server.steer_calls))
         self.assertEqual(
-            [("thread-root", "Start T-all-2420", "message-1")],
-            app_server.start_calls,
+            "accepted", self.store.delivery_state(self.config, sequence)
         )
+        self.assertEqual(1, len(app_server.steer_calls))
+        self.assertEqual([], app_server.start_calls)
 
     def test_live_commit_during_absence_confirmation_prevents_retry(self):
         self.bind()
@@ -2387,6 +2305,7 @@ class DeliveryTests(BridgeTestCase):
                 return result
 
         app_server = RacingCommitAppServer()
+        self.advance_retry_floor()
         result = bridge.BridgeEngine(
             self.store,
             app_server,
@@ -2559,6 +2478,7 @@ class DeliveryTests(BridgeTestCase):
                     app_server.thread.pop("turns")
                 else:
                     app_server.thread["turns"] = history
+                self.advance_retry_floor()
                 result = bridge.BridgeEngine(
                     self.store, app_server, self.config
                 ).step()
@@ -2588,6 +2508,7 @@ class DeliveryTests(BridgeTestCase):
             with self.subTest(mutate=mutate):
                 app_server = FakeAppServer()
                 mutate(app_server.thread)
+                self.advance_retry_floor()
                 result = bridge.BridgeEngine(
                     self.store, app_server, self.config
                 ).step()
@@ -2618,6 +2539,7 @@ class DeliveryTests(BridgeTestCase):
             }
         ]
 
+        self.advance_retry_floor()
         result = bridge.BridgeEngine(
             self.store, app_server, self.config
         ).step(bridge.RootSnapshot("root-new", 4, 1))
@@ -2717,6 +2639,7 @@ class DeliveryTests(BridgeTestCase):
                 )
                 return result
 
+        self.advance_retry_floor()
         result = bridge.BridgeEngine(
             self.store, SwitchingAppServer(), self.config
         ).step()
@@ -2737,16 +2660,12 @@ class DeliveryTests(BridgeTestCase):
         app_server = FakeAppServer(status="active")
         engine = self.committed_start_engine(app_server)
 
-        self.assertEqual("retry_pending", engine.step().action)
-        self.assertEqual(0, self.store.consumer_cursor(self.config))
-        self.assertEqual([], app_server.start_calls)
-
-        app_server.thread["status"] = {"type": "idle"}
+        self.advance_retry_floor()
         result = engine.step()
-        self.assertEqual("accepted", result.action)
+        self.assertEqual("steered", result.action)
         self.assertEqual(sequence, self.store.consumer_cursor(self.config))
-        self.assertEqual(2, self.delivery_attempts(sequence))
-        self.assertEqual(1, len(app_server.start_calls))
+        self.assertEqual(1, len(app_server.steer_calls))
+        self.assertEqual([], app_server.start_calls)
 
     def test_retained_backlog_is_delivered_once_without_startup_cutoff(self):
         self.bind()

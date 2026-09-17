@@ -111,8 +111,8 @@ skill owns event handling and the job workflow.
   deployment, commit, and push gates remain independent. The required review
   is opened before permission is requested. Only a standard completion
   package may request commit, push, exact-item notification-clear, and
-  Reviewable permissions together; it never grants a test, build, security,
-  deployment, or omitted action.
+  Reviewable or resolve-that-task as its fourth permission together; it never
+  grants a test, build, security, deployment, or omitted action.
 - Use the exact short code returned by Uclusion in tool calls, chat, commit
   messages, and durable notes.
 
@@ -376,10 +376,10 @@ Before editing:
 3. Reload assistance/stage if either could have changed.
 
 Implement active tasks and grouped tasks; do not redo resolved work. Resolve
-each task when its code is written and tested. Commit, push and deployment are
-separate gates and none of them holds task resolution; verification needing
-another environment becomes a new task rather than a reason to hold this one
-open. Use `add_info` on the relevant job/task for decisions, trade-offs,
+each task when written and tested, except an incomplete task-based pass, which
+stays open so its package can offer resolve. Commit, push and deployment are
+separate gates and hold none of that; extra-environment verification is a new
+task. Use `add_info` on the relevant job/task for decisions, trade-offs,
 follow-ups, and anything a reviewer cannot reconstruct from the durable thread.
 
 ## 6. Request or perform review
@@ -389,9 +389,9 @@ reference those suggestions in the report. For any testable implementation pass
 in an assigned job in an executable stage, read `operations.md`, call
 `ask_for_review` with that pass's completion menu appended to its concise
 capsule-delta report, then immediately mirror the menu in normal client chat.
-The menu is selected by whether the pass finishes the job, not by stage;
-`operations.md` defines finished and both menus, and only the four-action menu
-carries the Reviewable transition and sweep. The review is required and is
+The menu is selected by finish-state and whether the pass is task-based, not
+by stage; `operations.md` defines finished and the menus, and only the
+job-finished four-action menu carries Reviewable. The review is required and is
 never a selectable package action. This menu wait does not release a work claim
 or start lane-handoff discovery. For other testable review work, call
 `ask_for_review` with a concise capsule-delta report. Only one AI review may be

@@ -61,8 +61,30 @@ Put the selection alone on the first nonblank line.
 Selected actions run in numeric order and stop at the first failure. Action 4 is indivisible.
 ```
 
-For a pass that does not finish the job, and for any pass on a job already in
-Reviewable, use only the applicable three actions:
+For a pass whose selected executable target is a task, including a grouped
+task normalized to its top-level parent, and that does not finish the job,
+do not resolve that task before the menu. Use:
+
+```text
+<job> has been reviewed. Choose completion actions:
+
+1. Commit only its reviewed changes in:
+    - <repository>: <concise file list, or file count and compact scope>.
+2. Push only those commits.
+3. Clear only the notifications produced by <clear scope>.
+4. Resolve <task>.
+
+Reply `all`, `none`, or numbers such as `1,2,4` here, or <in the agent/on review R-code>.
+Put the selection alone on the first nonblank line.
+Selected actions run in numeric order and stop at the first failure.
+```
+
+If that task is the last remaining job work, resolve it when its code is
+written and tested, then use the job-finished menu above when the job is
+Doable, or the three-action menu below when it is already Reviewable.
+
+For any other pass that does not finish the job, and for a finishing pass on a
+job already in Reviewable, use only the applicable three actions:
 
 ```text
 <job> has been reviewed. Choose completion actions:
@@ -104,18 +126,21 @@ For action 1, use canonical short codes for commits, name every affected
 repository, and include its files when the list remains concise. Otherwise
 give its file count and a compact scope summary.
 
-Action 3's <clear scope> is the exact job when the pass finished it, and
-otherwise the exact review just opened plus any task that pass resolved. The
-review always exists, because opening it is what produces the menu, so a
+Action 3's <clear scope> is the exact job when the pass finished it, the exact
+review just opened plus that exact task when the incomplete-task menu is used,
+and otherwise the exact review just opened plus any task that pass resolved.
+The review always exists, because opening it is what produces the menu, so a
 resolved task is an addition when there is one and the wording still reads
 correctly when the pass resolved none. Naming the job includes its nested task
 and review notifications present at the fresh check; a bug menu names the exact
 bug's own notifications. More than one named code is one clear call per code.
 
-Only the four-action menu has action 4, which couples the exact stage
-transition and established completion sweep before any lane handoff, work
-discovery, or other-job work. Neither the three-action menu nor the bug menu
-offers or reruns either one.
+A four-action menu's action 4 is the one terminal state change shown. On the
+job-finished menu it couples the exact Reviewable transition and established
+completion sweep before any lane handoff, work discovery, or other-job work.
+On the incomplete-task menu it resolves only that named task and does not
+move the job or run the sweep. The three-action menu and the bug menu have
+no action 4.
 
 `all` selects every action shown, `none` selects no action, and a numbered reply
 selects exactly the shown actions whose numbers it contains. A response is
@@ -124,11 +149,13 @@ line, after trimming, consists only of `all`, `none`, or a comma-delimited list
 of unique action numbers shown in that menu, with optional spaces around
 commas. Ignore later prose when interpreting the selection; do not infer
 authorization from numbers elsewhere. Perform selected actions in their listed
-relative order regardless of the order supplied. Only a four-action menu's
-`all` or numbered selection containing `4` authorizes the exact Reviewable
-transition and sweep. Any response that lacks that authority or exact grammar authorizes
-nothing and requires only a narrow clarification in the channel where it
-appeared.
+relative order regardless of the order supplied. Only the job-finished
+four-action menu's `all` or numbered selection containing `4` authorizes the
+exact Reviewable transition and sweep. Only the incomplete-task four-action
+menu's `all` or numbered selection containing `4` authorizes resolving that
+named task. Neither action 4 authorizes the other. Any response that lacks
+the shown action's authority or exact grammar authorizes nothing and requires
+only a narrow clarification in the channel where it appeared.
 
 The first valid response observed on either the package thread or in normal
 client chat governs that package attempt. A later duplicate or conflicting
@@ -186,30 +213,33 @@ completion-time notification check.
 
 The Reviewable transition and its completion sweep are one coupled action for
 authorization: without permission for that exact transition, do neither. A
-failed stage change does not trigger a sweep. Immediately before the selected
-stage action, reload the exact job again and proceed only if it is still the
-assigned, unblocked Doable job. If that reload instead shows the exact assigned
-job has newly entered Reviewable, do not call `change_job_stage`; run the
-triggered completion sweep immediately, then handle any assistance. For any
-other state, stop at that action and preserve the current stage. After a
-successful stage change, finish the sweep in the same turn before any lane
-handoff, work discovery, or other job starts. If the sweep fails, leave the job
-in Reviewable, report the failure, and block any lane switch until the sweep
-succeeds. An incomplete failed sweep remains work from its original transition
-trigger and must be retried directly, without a new transition or package
-permission. Package permission applies only to the named job or bug, the
-changes covered by its review or its bug thread, their affected branches, and
-that item's notifications. It does not authorize tests, builds, deployment,
-security work, force-push, unrelated dirty changes, another job or bug, a
-broader notification clear, completion-candidate mutation, or a
+failed stage change does not trigger a sweep. Immediately before a selected
+task-resolve action, reload that exact task and resolve it if it is still open.
+If the reload shows it already resolved, that action is a successful no-op.
+Immediately before the selected stage action, reload the exact job again and
+proceed only if it is still the assigned, unblocked Doable job. If that reload
+instead shows the exact assigned job has newly entered Reviewable, do not call
+`change_job_stage`; run the triggered completion sweep immediately, then handle
+any assistance. For any other state, stop at that action and preserve the
+current stage. After a successful stage change, finish the sweep in the same
+turn before any lane handoff, work discovery, or other job starts. If the sweep
+fails, leave the job in Reviewable, report the failure, and block any lane
+switch until the sweep succeeds. An incomplete failed sweep remains work from
+its original transition trigger and must be retried directly, without a new
+transition or package permission. Package permission applies only to the named
+job or bug, the changes covered by its review or its bug thread, their affected
+branches, that item's notifications, and resolving the named task when the
+incomplete-task menu's action 4 is selected. It does not authorize tests,
+builds, deployment, security work, force-push, unrelated dirty changes, another
+job or bug, a broader notification clear, completion-candidate mutation, or a
 conversation/context clear.
 
 Stop at the first mandatory check or selected action that fails. Report what
 succeeded, what failed, and which selected actions remain; do not attempt later
 actions or roll back successful ones. A later retry resumes the incomplete
 work under the same selection without repeating completed irreversible work.
-Having no applicable commit, push, or exact-job notification to act on is a
-successful no-op, not a failure.
+Having no applicable commit, push, exact-item notification, or already-resolved
+task to act on is a successful no-op, not a failure.
 
 ## Notifications
 

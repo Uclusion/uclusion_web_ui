@@ -45,7 +45,9 @@ user-facing menu below, substituting the exact job, review, repositories, and
 current reviewed scope.
 
 For a pass that finishes the job while it is in Doable, name the exact
-Doable-to-Reviewable transition and use:
+Doable-to-Reviewable transition and use the menu below. Resolve any task
+the pass completed before presenting it, so its action 4 is that transition
+rather than a resolve:
 
 ```text
 <job> has been reviewed. Choose completion actions:
@@ -63,7 +65,10 @@ Selected actions run in numeric order and stop at the first failure. Action 4 is
 
 For a pass whose selected executable target is a task, including a grouped
 task normalized to its top-level parent, and that does not finish the job,
-do not resolve that task before the menu. Use:
+do not resolve that task before the menu. If that task is the job's last
+remaining work this is not your menu: resolve it once its code is written
+and tested, then use the job-finished menu above when the job is Doable, or
+the three-action menu below when it is already Reviewable. Otherwise use:
 
 ```text
 <job> has been reviewed. Choose completion actions:
@@ -78,10 +83,6 @@ Reply `all`, `none`, or numbers such as `1,2,4` here, or <in the agent/on review
 Put the selection alone on the first nonblank line.
 Selected actions run in numeric order and stop at the first failure.
 ```
-
-If that task is the last remaining job work, resolve it when its code is
-written and tested, then use the job-finished menu above when the job is
-Doable, or the three-action menu below when it is already Reviewable.
 
 For any other pass that does not finish the job, and for a finishing pass on a
 job already in Reviewable, use only the applicable three actions:
@@ -323,6 +324,16 @@ For `add_bug`, use the human-indicated severity: RED critical, YELLOW normal,
 BLUE minor. For a dependency the AI discovers, suggest it; create a blocker only
 when the human explicitly says the job is blocked. View-level creation should
 target the implied existing job/bug view when one is named.
+
+## Visual options
+
+Visuals only depict canonical Uclusion options. Create every choice with
+`ask_question` or `add_options`, and label each panel with its stable Uclusion
+option code/name—never a parallel A/B/C scheme. Keep the artifact and options
+in sync in the same turn. Never silently reuse an existing label for a changed
+meaning; create a new option or question. An accepted, durably recorded human
+suggestion explicitly authorizes `update_option` on that canonical option
+while preserving its identity.
 
 ## Uploading files
 

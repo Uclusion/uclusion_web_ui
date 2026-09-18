@@ -14,9 +14,9 @@ skill owns event handling and the job workflow.
 
 - For Pokes, idle work discovery, auto-take, delivery behavior, lookup routing,
   or update notices, read [references/pokes.md](references/pokes.md).
-- For notifications, exports, creating artifacts, uploads, recording
-  dependencies, view notes, commits, or context-clear boundaries, read
-  [references/operations.md](references/operations.md).
+- For notifications, exports, creating artifacts and visual options,
+  uploads, recording dependencies, view notes, commits, or context-clear
+  boundaries, read [references/operations.md](references/operations.md).
 - When a standalone bug is resolved or an assigned job transitions into
   Reviewable, read
   [references/completion.md](references/completion.md).
@@ -229,16 +229,6 @@ replies. Only Approvable options count or accept votes. If later work would say
 "flag if you prefer" or "verify this choice," stop: that was an unasked
 step-two question.
 
-### Visual options
-
-Visuals only depict canonical Uclusion options. Create every choice with
-`ask_question` or `add_options`, and label each panel with its stable Uclusion
-option code/name—never a parallel A/B/C scheme. Keep the artifact and options
-in sync in the same turn. Never silently reuse an existing label for a changed
-meaning; create a new option or question. An accepted, durably recorded human
-suggestion explicitly authorizes `update_option` on that canonical option
-while preserving its identity.
-
 ## 3. Address suggestions
 
 Use `make_suggestion` before mentioning any better approach or follow-up in
@@ -285,6 +275,10 @@ one executable target for the implementation pass:
 - A job-level pass for one cohesive outcome uses the job capsule.
 - Unrelated top-level tasks execute as separate task passes, each with its own
   complete task capsule, even when the human starts them together as one job.
+- Work this pass's own verification produced stays in this pass, even once it
+  is a task of its own: no capsule, and the review reports it as a
+  scope-expansion delta naming that task. A task capsule is for work queued
+  independently of the running pass.
 - An independently executing top-level task uses its task capsule. A grouped
   task normalizes to its top-level parent.
 - A task capsule is complete and solely authoritative for that task pass.

@@ -564,17 +564,75 @@ class WorkClaimsManager:
             pass
 
 
-def listen_for_pokes(websocket_url, token, environment, workspace_id, stop_event,
+class MarketTokenHolder:
+    """One CLI market token, shared by everything in this proxy that needs one.
+
+    A CLI market token lasts fourteen days, so minting one per websocket
+    connect was wasted SSO traffic and extra failure surface on reconnect
+    (B-all-649). The token is reused until it stops working, which shows up
+    in one of two ways: a connection that fails twice running, since a
+    rejected token fails every time it is used while a network blip does not,
+    or simple age, refreshed inside the token's life rather than after it.
+    """
+
+    REFRESH_AFTER_SECONDS = 12 * 24 * 60 * 60
+    FAILURES_BEFORE_REFRESH = 2
+
+    def __init__(self, mint):
+        self._mint = mint
+        self._lock = threading.Lock()
+        self._token = None
+        self._minted_at = 0.0
+        self._consecutive_failures = 0
+
+    def get(self):
+        """The current token, minting one only when the held one is spent."""
+        with self._lock:
+            spent = (
+                self._token is None
+                or self._consecutive_failures >= self.FAILURES_BEFORE_REFRESH
+                or (time.time() - self._minted_at) >= self.REFRESH_AFTER_SECONDS
+            )
+            if spent:
+                self._set_locked(self._mint())
+            return self._token
+
+    def refresh(self):
+        """Mint unconditionally, for a caller that already knows it was rejected."""
+        with self._lock:
+            self._set_locked(self._mint())
+            return self._token
+
+    def record_failure(self):
+        """Count a failed connection attempt toward replacing the token."""
+        with self._lock:
+            self._consecutive_failures += 1
+
+    def record_success(self):
+        """Clear the count, on proof the token was accepted rather than on a
+        socket merely opening: a connection dropped right after it opens would
+        otherwise hold the count at one forever and never refresh."""
+        with self._lock:
+            self._consecutive_failures = 0
+
+    def _set_locked(self, token):
+        self._token = token
+        self._minted_at = time.time()
+        self._consecutive_failures = 0
+
+
+def listen_for_pokes(websocket_url, token_holder, environment, workspace_id, stop_event,
                      work_claims=None):
     """Maintain the AI websocket subscription until the MCP process exits."""
     retry_delay = 1
     while not stop_event.is_set():
         websocket = WebSocketConnection(websocket_url)
         try:
-            # A CLI market token lasts fourteen days. Resolve it for every
-            # connection so a long-running proxy can recover after a network
-            # break instead of resubscribing forever with an expired token.
-            connection_token = token() if callable(token) else token
+            # A CLI market token lasts fourteen days, so the held one is
+            # reused here. The holder replaces it when this attempt is the
+            # second consecutive failure, which is what a rejected token looks
+            # like, so recovery stays automatic without minting per connect.
+            connection_token = token_holder.get()
             websocket.connect()
             subscribe_body = {
                 'action': 'subscribe',
@@ -590,6 +648,7 @@ def listen_for_pokes(websocket_url, token, environment, workspace_id, stop_event
             websocket.send_text(json.dumps(subscribe_body, separators=(',', ':')))
             if work_claims is not None:
                 work_claims.attach_connection(websocket)
+            token_holder.record_success()
             retry_delay = 1
             awaiting_pong = False
             while not stop_event.is_set():
@@ -622,6 +681,7 @@ def listen_for_pokes(websocket_url, token, environment, workspace_id, stop_event
                         'claim_result', 'rebind_result'):
                     work_claims.handle_event(payload)
         except Exception as error:
+            token_holder.record_failure()
             if not stop_event.is_set():
                 sys.stderr.write(f'Poke AI websocket reconnecting after error: {error}\n')
                 sys.stderr.flush()
@@ -1101,15 +1161,20 @@ def main():
             sys.exit(1)
         credentials['workspace_id'] = market_id
 
-        def websocket_token():
+        def mint_market_token():
             return login(api_url, credentials)['uclusion_token']
 
-        token = websocket_token()
+        # One holder for every consumer below, so a proxy logs in once at
+        # startup instead of twice and reuses that token until it stops
+        # working. get() returns the held token; refresh() forces a new one
+        # for a caller that has already been told it was rejected.
+        token_holder = MarketTokenHolder(mint_market_token)
+        token = token_holder.get()
         prune_inbox()
-        work_claims = WorkClaimsManager(websocket_token) if args.work_claims else None
+        work_claims = WorkClaimsManager(token_holder.get) if args.work_claims else None
         listener = threading.Thread(
             target=listen_for_pokes,
-            args=(websocket_url, websocket_token, environment, market_id, stop_event,
+            args=(websocket_url, token_holder, environment, market_id, stop_event,
                   work_claims),
             name='uclusion-poke-ai',
             daemon=True
@@ -1126,7 +1191,7 @@ def main():
                     args.token_audit_source,
                     args.token_audit_client,
                     args.token_audit_port,
-                    make_token_audit_publisher(post_url, websocket_token),
+                    make_token_audit_publisher(post_url, token_holder.get),
                     ready_file=args.token_audit_ready_file,
                     ready_owner=args.token_audit_owner,
                 )
@@ -1211,7 +1276,7 @@ def main():
                     post_url,
                     headers,
                     line,
-                    websocket_token
+                    token_holder.refresh
                 )
                 if refreshed_token is not None:
                     token = refreshed_token

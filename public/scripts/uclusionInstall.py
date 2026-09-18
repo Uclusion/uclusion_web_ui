@@ -184,10 +184,19 @@ CONFIG_FILES = {
     'production': 'uclusion.json',
 }
 CURSOR_MCP_PATH = os.path.join(USER_HOME, '.cursor', 'mcp.json')
-CLAUDE_JSON_PATH = os.path.join(USER_HOME, '.claude.json')
 CLAUDE_CONFIG_HOME = os.path.abspath(os.path.expanduser(
     os.environ.get('CLAUDE_CONFIG_DIR', os.path.join(USER_HOME, '.claude'))
 ))
+# Claude Code keeps .claude.json beside the rest of its configuration whenever
+# CLAUDE_CONFIG_DIR names one, so registering into USER_HOME would write a file
+# the client never reads. Verified against a client started with the variable
+# pointed elsewhere: it reported no MCP servers and created its own .claude.json
+# in the directory it was given.
+CLAUDE_JSON_PATH = (
+    os.path.join(CLAUDE_CONFIG_HOME, '.claude.json')
+    if os.environ.get('CLAUDE_CONFIG_DIR')
+    else os.path.join(USER_HOME, '.claude.json')
+)
 CLAUDE_MD_PATH = os.path.join(CLAUDE_CONFIG_HOME, 'CLAUDE.md')
 CLAUDE_SKILL_DIR = os.path.join(
     CLAUDE_CONFIG_HOME, 'skills', 'uclusion'
@@ -1418,12 +1427,20 @@ def legacy_demo_mcp_descriptor(env):
 
 
 def reexec_in_demo_home():
-    """Restart this installer so import-time Uclusion paths use the demo home."""
+    """Restart this installer so import-time paths all use the demo home.
+
+    Both variables are read at import, so they have to be set before this
+    module's path constants resolve. UCLUSION_HOME moves what Uclusion owns;
+    CLAUDE_CONFIG_DIR moves what the client owns, which is how a demo writes
+    nothing at all into the person's own configuration - the bootstrap, the
+    allow rule, both skill packages and .claude.json travel together.
+    """
     home = demo_runtime_dir()
     if uclusion_home_root() == home:
         return
     environment = dict(os.environ)
     environment['UCLUSION_HOME'] = home
+    environment['CLAUDE_CONFIG_DIR'] = os.path.join(home, '.claude')
     os.execve(
         sys.executable,
         [sys.executable, os.path.abspath(__file__)] + sys.argv[1:],
@@ -4895,6 +4912,7 @@ def main():
                 'echo',
                 shlex.quote(start_prompt),
                 '|',
+                f'CLAUDE_CONFIG_DIR={shlex.quote(CLAUDE_CONFIG_HOME)}',
                 'claude',
                 '--bg',
                 '--allowedTools',

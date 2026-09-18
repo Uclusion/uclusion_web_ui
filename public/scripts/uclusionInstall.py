@@ -257,6 +257,11 @@ SETUP_MCP_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionSetupMCP.py')
 INSTALLER_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionInstall.py')
 RUNTIME_PROXY_MODE = '--uclusion-runtime-after-setup'
 RUNTIME_CLEANUP_MODE = '--uclusion-cleanup-after-setup'
+# `uclusion demo --remove` runs the installer in these two modes. The first
+# undoes the client-side traces; it then re-execs a staged copy of itself in
+# the second mode to delete the disposable home it is running out of.
+DEMO_REMOVE_MODE = '--uclusion-demo-remove'
+DEMO_PURGE_MODE = '--uclusion-demo-purge'
 TOKEN_AUDIT_SYMLINK_PATH = os.path.join(SYMLINK_DIR, TOKEN_AUDIT_SYMLINK_NAME)
 CODEX_BRIDGE_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionCodexBridge.py')
 CODEX_HOME = os.path.abspath(os.path.expanduser(
@@ -974,11 +979,21 @@ def write_uclusion_config(workspace_id, view_id, config_path, script_version=Non
             raise RuntimeError(
                 f'{merge_path} is not valid JSON: {err}'
             ) from err
+    # `~/.uclusion/export` is right for an ordinary install and wrong for a
+    # demo: the CLI expands it with expanduser at export time, which resolves
+    # against the client home rather than UCLUSION_HOME, so a demo's export
+    # lands in the person's real directory where the demo's own removal
+    # neither looks nor should. A disposable home gets an absolute path
+    # inside itself, so removal takes the exports with everything else.
+    demo_home = uclusion_home_root() == demo_home_path()
     defaults = {
         'extensionsList': ['js', 'py'],
         'sourcesList': ['./src'],
         'uclusionMDFileType': 'export',
-        'uclusionMDFolderPath': '~/.uclusion/export',
+        'uclusionMDFolderPath': (
+            os.path.join(UCLUSION_HOME, 'export') if demo_home
+            else '~/.uclusion/export'
+        ),
     }
     for key, value in defaults.items():
         config.setdefault(key, value)
@@ -1623,6 +1638,303 @@ def assert_demo_may_replace_client(client):
         f'{path} already has a Uclusion MCP server; remove it before '
         'running the demo'
     )
+
+
+def _demo_workspace_config_path(env=None):
+    """Locate this disposable home's workspace config, whatever its environment."""
+    directory = os.path.join(uclusion_home_root(), '.uclusion')
+    names = (
+        [CONFIG_FILES[env]] if env in CONFIG_FILES
+        else list(CONFIG_FILES.values())
+    )
+    for name in names:
+        candidate = os.path.join(directory, name)
+        if os.path.isfile(candidate):
+            return candidate
+    return None
+
+
+def demo_installed_clients(env=None):
+    """The clients this demo wrote to, taken from its own workspace config.
+
+    Re-detecting the client would answer a different question - what is
+    running now - so removal asks what the install recorded. An unreadable
+    config falls back to every demo-capable client, which is safe because
+    each removal step independently tests the mark it owns.
+    """
+    path = _demo_workspace_config_path(env)
+    if path is not None:
+        try:
+            with open(path, 'r', encoding='utf-8') as handle:
+                config = json.load(handle)
+        except (OSError, ValueError):
+            config = None
+        if isinstance(config, dict):
+            clients = config.get('workflowClients')
+            if isinstance(clients, list):
+                found = [
+                    client for client in clients if client in DEMO_CLIENTS
+                ]
+                if found:
+                    return found
+    return sorted(DEMO_CLIENTS)
+
+
+def _remove_demo_registration(client):
+    """Drop the MCP entry only when its args name this demo's home."""
+    path, _label, is_codex = _setup_registration_target(client, None)
+    target = _config_write_target(path)
+    existing, signature = _read_text_snapshot(target)
+    if signature is None or not existing.strip():
+        return 'absent', f'no Uclusion MCP server in {path}'
+    if is_codex:
+        if not _codex_has_uclusion_descriptor(existing):
+            return 'absent', f'no Uclusion MCP server in {path}'
+        if not _args_belong_to_this_demo(
+            _codex_uclusion_args(existing), existing
+        ):
+            return 'kept', (
+                f'{path} has a Uclusion MCP server that is not this demo\'s'
+            )
+        updated, changed = remove_owned_block(
+            existing, CODEX_CONFIG_MARKER, CODEX_CONFIG_END_MARKER, 'MCP', path
+        )
+        if not changed:
+            return 'kept', f'{path} has an unmarked Uclusion MCP server'
+        validate_codex_config(updated)
+        with codex_config_lock(path):
+            atomic_write_text(path, updated, existing, target, signature)
+        return 'removed', f'Uclusion MCP server from {path}'
+    try:
+        config = json.loads(existing)
+    except json.JSONDecodeError as err:
+        return 'kept', f'{path} is not valid JSON: {err}'
+    if not isinstance(config, dict):
+        return 'kept', f'{path} top-level value is not a JSON object'
+    servers = config.get('mcpServers')
+    if not isinstance(servers, dict) or MCP_SERVER_KEY not in servers:
+        return 'absent', f'no Uclusion MCP server in {path}'
+    descriptor = servers[MCP_SERVER_KEY]
+    args = descriptor.get('args') if isinstance(descriptor, dict) else None
+    if not _args_belong_to_this_demo(args):
+        return 'kept', (
+            f'{path} has a Uclusion MCP server that is not this demo\'s'
+        )
+    del servers[MCP_SERVER_KEY]
+    if not servers:
+        config.pop('mcpServers', None)
+    updated = json.dumps(config, indent=2) + '\n'
+    with config_file_lock(path):
+        atomic_write_text(path, updated, existing, target, signature)
+    return 'removed', f'Uclusion MCP server from {path}'
+
+
+def _remove_demo_allow_rule():
+    """Take back the allow rule, and the settings file if it held only that."""
+    path = CLAUDE_SETTINGS_PATH
+    target = _config_write_target(path)
+    existing, signature = _read_text_snapshot(target)
+    if signature is None:
+        return 'absent', f'no {path}'
+    try:
+        config = json.loads(existing) if existing.strip() else {}
+    except json.JSONDecodeError as err:
+        return 'kept', f'{path} is not valid JSON: {err}'
+    if not isinstance(config, dict):
+        return 'kept', f'{path} top-level value is not a JSON object'
+    permissions = config.get('permissions')
+    allow = permissions.get('allow') if isinstance(permissions, dict) else None
+    if not isinstance(allow, list) or CLAUDE_ALLOW_RULE not in allow:
+        return 'absent', f'{path} does not allow {CLAUDE_ALLOW_RULE}'
+    remaining = [rule for rule in allow if rule != CLAUDE_ALLOW_RULE]
+    if remaining:
+        permissions['allow'] = remaining
+    else:
+        permissions.pop('allow', None)
+    if not permissions:
+        config.pop('permissions', None)
+    if not config:
+        os.remove(path)
+        return 'removed', f'{path}, which held only the Uclusion allow rule'
+    updated = json.dumps(config, indent=2) + '\n'
+    with config_file_lock(path):
+        atomic_write_text(path, updated, existing, target, signature)
+    return 'removed', f'{CLAUDE_ALLOW_RULE} from {path}'
+
+
+def _remove_demo_stub(resident_path):
+    """Take back the marker-owned block, and the file if nothing else is in it."""
+    target = _config_write_target(resident_path)
+    existing, signature = _read_text_snapshot(target)
+    if signature is None:
+        return 'absent', f'no {resident_path}'
+    if CLAUDE_MD_MARKER not in existing:
+        return 'absent', f'no Uclusion block in {resident_path}'
+    updated, changed = remove_owned_block(
+        existing, CLAUDE_MD_MARKER, CLAUDE_MD_END_MARKER, 'workflow',
+        resident_path,
+    )
+    if not changed:
+        return 'absent', f'no Uclusion block in {resident_path}'
+    if not updated.strip():
+        os.remove(resident_path)
+        return 'removed', f'{resident_path}, which held only the Uclusion block'
+    with config_file_lock(resident_path):
+        atomic_write_text(
+            resident_path, updated, existing, target, signature
+        )
+    return 'removed', f'the Uclusion block from {resident_path}'
+
+
+def _demo_client_paths(client):
+    """The resident stub and the two skill directories for ``client``."""
+    if client == 'codex':
+        return (
+            CODEX_AGENTS_MD_PATH,
+            (
+                CODEX_SKILL_DIR,
+                os.path.join(os.path.dirname(CODEX_SKILL_DIR), DESIGN_SKILL_NAME),
+            ),
+        )
+    return (
+        CLAUDE_MD_PATH,
+        (
+            CLAUDE_SKILL_DIR,
+            os.path.join(CLAUDE_CONFIG_HOME, 'skills', DESIGN_SKILL_NAME),
+        ),
+    )
+
+
+def _remove_demo_skill(skill_dir, package):
+    """Remove a managed package whole, the way an install replaces it whole."""
+    if not os.path.lexists(skill_dir):
+        return 'absent', f'no {skill_dir}'
+    try:
+        _validate_owned_skill(skill_dir, package)
+    except RuntimeError as err:
+        return 'kept', str(err)
+    _remove_installer_tree(skill_dir)
+    return 'removed', skill_dir
+
+
+def _remove_demo_config_lock(path):
+    """Take the lock file with the config it guarded.
+
+    These are ours by name and empty by design, so they are removed without a
+    line of their own rather than reported as though the person had to care.
+    """
+    lock_path = f'{path}.uclusion.lock'
+    try:
+        os.remove(lock_path)
+    except OSError:
+        pass
+
+
+def remove_demo_client_traces(env=None):
+    """Undo every client-side trace this demo wrote, and report each one.
+
+    The registration is removed first because it is the only trace that
+    carries this demo's identity in its own content. The bootstrap block and
+    the skill packages carry Uclusion's marks but not the demo's, and a real
+    prospect's demo writes them into the same locations a genuine install
+    uses, so removing them on their own marks would take a real install
+    apart. They go only behind a registration this demo could prove was
+    its own.
+    """
+    outcomes = []
+    for client in demo_installed_clients(env):
+        resident_path, skill_dirs = _demo_client_paths(client)
+        registration = _remove_demo_registration(client)
+        outcomes.append(registration)
+        if registration[0] != 'removed':
+            outcomes.append((
+                'kept',
+                f'everything else {client} holds, because no MCP server this '
+                'demo installed was there to prove the rest is the demo\'s',
+            ))
+            continue
+        if client == 'claude':
+            outcomes.append(_remove_demo_allow_rule())
+            _remove_demo_config_lock(CLAUDE_SETTINGS_PATH)
+        outcomes.append(_remove_demo_stub(resident_path))
+        outcomes.append(_remove_demo_skill(skill_dirs[0], 'uclusion'))
+        outcomes.append(_remove_demo_skill(skill_dirs[1], DESIGN_SKILL_NAME))
+        registration_path, _label, _is_codex = _setup_registration_target(
+            client, None
+        )
+        _remove_demo_config_lock(registration_path)
+        _remove_demo_config_lock(resident_path)
+    return outcomes
+
+
+def remove_demo_install(argv):
+    """Undo the client-side traces, then hand the home to a staged copy."""
+    env = argv[0] if argv else None
+    home = uclusion_home_root()
+    if home != demo_home_path():
+        print(
+            '❌ This is not a disposable demo install, so there is nothing '
+            'for the demo removal to undo.',
+            file=sys.stderr,
+        )
+        return 1
+    print(f'🧹 Removing the Uclusion demo installed under {home}.')
+    status = 0
+    for state, detail in remove_demo_client_traces(env):
+        if state == 'removed':
+            print(f'  ✅ Removed {detail}')
+        elif state == 'absent':
+            print(f'  ⏭  Nothing to remove: {detail}')
+        else:
+            print(f'  ⚠️  Left alone: {detail}')
+            status = 1
+    # The rest of this process lives inside the directory it is about to
+    # delete, so it continues from a copy outside it.
+    staging = tempfile.mkdtemp(prefix='uclusion-demo-remove-')
+    staged_installer = os.path.join(staging, 'uclusionInstall.py')
+    shutil.copy2(os.path.abspath(__file__), staged_installer)
+    sys.stdout.flush()
+    os.execve(
+        sys.executable,
+        [
+            sys.executable, staged_installer, DEMO_PURGE_MODE,
+            home, staging, str(status),
+        ],
+        dict(os.environ),
+    )
+    raise RuntimeError('the demo removal could not restart outside the home')
+
+
+def purge_demo_home(argv):
+    """Delete the disposable home, then the staging copy this runs from."""
+    if len(argv) < 3:
+        return 1
+    home, staging, inherited = argv[0], argv[1], argv[2]
+    status = 1 if inherited not in ('0', '') else 0
+    if os.path.abspath(home) != demo_home_path():
+        print(
+            f'❌ Refusing to delete {home}: it is not this user\'s demo home.',
+            file=sys.stderr,
+        )
+        return 1
+    try:
+        shutil.rmtree(home)
+        print(f'  ✅ Removed {home}')
+    except OSError as err:
+        print(f'  ⚠️  Left alone: {home} ({err})')
+        status = 1
+    shutil.rmtree(staging, ignore_errors=True)
+    if status == 0:
+        print(
+            '🎉 The demo is removed. Restart or reconnect your client, and '
+            'the demo workspace expires on its own.'
+        )
+    else:
+        print(
+            '⚠️  The demo is partly removed. What was left alone is listed '
+            'above, and nothing else was touched.'
+        )
+    return status
 
 
 def _validate_mcp_descriptor(descriptor):
@@ -4355,6 +4667,18 @@ def main():
         try:
             return cleanup_runtime_receipt(sys.argv[2:])
         except Exception:
+            return 1
+    if len(sys.argv) > 1 and sys.argv[1] == DEMO_REMOVE_MODE:
+        try:
+            return remove_demo_install(sys.argv[2:])
+        except Exception as err:
+            print(f'❌ Demo removal failed: {err}', file=sys.stderr)
+            return 1
+    if len(sys.argv) > 1 and sys.argv[1] == DEMO_PURGE_MODE:
+        try:
+            return purge_demo_home(sys.argv[2:])
+        except Exception as err:
+            print(f'❌ Demo removal failed: {err}', file=sys.stderr)
             return 1
     parser = build_parser()
     args = parser.parse_args()

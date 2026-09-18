@@ -101,6 +101,9 @@ CODEX_MCP_CONFIG_MARKER = '# uclusion-mcp:v1'
 CODEX_MCP_CONFIG_END_MARKER = '# /uclusion-mcp:v1'
 SETUP_RUNTIME_PROXY_MODE = '--uclusion-runtime-after-setup'
 SETUP_RUNTIME_CLEANUP_MODE = '--uclusion-cleanup-after-setup'
+# The installer owns every writer that created a demo's traces, so removal
+# runs there rather than growing a second copy of that logic here.
+DEMO_REMOVE_MODE = '--uclusion-demo-remove'
 CODEX_SETUP_CLEANUP_TIMEOUT = 10
 CODEX_CHILD_SHUTDOWN_TIMEOUT = 5
 CODEX_CHILD_POLL_INTERVAL = 0.1
@@ -2458,6 +2461,40 @@ def is_orphaned(initial_ppid):
     return os.getppid() != initial_ppid
 
 
+def cmd_demo(args):
+    """Undo a demo install, through the installer that created it.
+
+    Only ``--remove`` exists: a demo is created by the published install
+    command, so the CLI's half of it is the undo. The installer is handed
+    this home explicitly, because it is the one being removed and resolving
+    it again from the environment after the re-exec would be a different
+    question.
+    """
+    if not args.remove:
+        print(
+            "❌ 'uclusion demo' takes --remove; a demo is created by the "
+            'published install command.',
+            file=sys.stderr,
+        )
+        return 1
+    installer = UCLUSION_INSTALLER_SYMLINK
+    if not os.path.exists(installer):
+        print(
+            f'❌ Cannot remove the demo: {installer} is missing.',
+            file=sys.stderr,
+        )
+        return 1
+    environment = args.env or 'production'
+    child_env = dict(os.environ)
+    child_env['UCLUSION_HOME'] = uclusion_home_root()
+    os.execve(
+        sys.executable,
+        [sys.executable, installer, DEMO_REMOVE_MODE, environment],
+        child_env,
+    )
+    return 1
+
+
 def cmd_wait(args):
     """Wait for inbound Poke AI prompts, watching for updates while idle.
 
@@ -3721,6 +3758,19 @@ def build_parser():
         help='Arguments passed through to Codex (place them after --).',
     )
     codex_parser.set_defaults(func=cmd_codex)
+
+    demo_parser = subparsers.add_parser(
+        'demo',
+        help='Undo the demo install in this disposable home.',
+    )
+    demo_parser.add_argument(
+        '--remove',
+        action='store_true',
+        help='Undo every trace the demo wrote to this client and delete the '
+             'disposable home. Anything that is not this demo\'s is left '
+             'alone and reported.',
+    )
+    demo_parser.set_defaults(func=cmd_demo)
 
     wait_parser = subparsers.add_parser(
         'wait',

@@ -1396,6 +1396,76 @@ def demo_home_path():
     )
 
 
+DEMO_PLUGIN_NAME = 'uclusion-demo'
+
+
+def demo_plugin_path():
+    """The plugin directory a demo session loads its workflow skills from."""
+    return os.path.join(UCLUSION_HOME, 'plugin')
+
+
+def demo_bootstrap_path():
+    """The bootstrap instructions a demo session appends to its system prompt."""
+    return os.path.join(UCLUSION_HOME, 'bootstrap.md')
+
+
+def install_demo_plugin(fetch_bundle):
+    """Write the workflow into the demo's own directory instead of the person's.
+
+    A demo session loads its skills with --plugin-dir and its bootstrap with
+    --append-system-prompt, so the exercise needs nothing in the person's own
+    configuration. Verified against a background session started this way,
+    which reported a skill that exists only in this directory.
+
+    The skill packages are written byte-for-byte as an ordinary install writes
+    them; only the stub takes the CLI substitution, exactly as
+    install_skill_and_stub does.
+    """
+    bundle = fetch_bundle()
+    if bundle is None:
+        raise RuntimeError('the Uclusion workflow bundle is unavailable')
+    validate_workflow_bundle(bundle)
+    environment = getattr(fetch_bundle, '__dict__', {}).get(
+        'workflow_environment'
+    )
+    root = demo_plugin_path()
+    if os.path.lexists(root):
+        shutil.rmtree(root)
+    manifest_dir = os.path.join(root, '.claude-plugin')
+    ensure_dir(manifest_dir)
+    manifest = {
+        'name': DEMO_PLUGIN_NAME,
+        'description': 'Uclusion workflow for this demo session.',
+        'version': '1.0.0',
+    }
+    with open(os.path.join(manifest_dir, 'plugin.json'), 'w',
+              encoding='utf-8') as handle:
+        json.dump(manifest, handle, indent=2)
+    for package in ('uclusion', DESIGN_SKILL_NAME):
+        package_dir = os.path.join(root, 'skills', package)
+        ensure_dir(package_dir)
+        for asset_key, relative_path in _skill_package_definition(package)[0]:
+            _write_staged_asset(package_dir, relative_path, bundle[asset_key])
+    stub = bundle[CLIENT_STUB_ASSET['claude']]
+    cli_command = workflow_cli_command(environment)
+    if cli_command is not None:
+        stub = stub.replace(WORKFLOW_ENV_PLACEHOLDER, cli_command)
+    with open(demo_bootstrap_path(), 'w', encoding='utf-8') as handle:
+        handle.write(stub)
+    print(f'🧩 Wrote the demo workflow to {root}')
+    return True
+
+
+def demo_mcp_config_path():
+    """The standalone MCP config this demo's launch line hands the client.
+
+    Passing the server on the command line is what keeps a background session
+    out of the per-project "new MCP server found" trust prompt, which such a
+    session has no way to answer.
+    """
+    return os.path.join(UCLUSION_HOME, 'mcp.json')
+
+
 def demo_runtime_dir():
     """Create and secure the disposable home used by the ordinary client."""
     path = demo_home_path()
@@ -1429,18 +1499,22 @@ def legacy_demo_mcp_descriptor(env):
 def reexec_in_demo_home():
     """Restart this installer so import-time paths all use the demo home.
 
-    Both variables are read at import, so they have to be set before this
-    module's path constants resolve. UCLUSION_HOME moves what Uclusion owns;
-    CLAUDE_CONFIG_DIR moves what the client owns, which is how a demo writes
-    nothing at all into the person's own configuration - the bootstrap, the
-    allow rule, both skill packages and .claude.json travel together.
+    UCLUSION_HOME is read at import, so it has to be set before this module's
+    path constants resolve. It moves what Uclusion owns and nothing else.
+
+    What the client owns stays where the client put it. Moving it with
+    CLAUDE_CONFIG_DIR looked like a way to write nothing into the person's own
+    configuration, but a relocated directory holds no credentials, and the
+    person's identity is a logged-in session rather than anything an installer
+    could copy into one. A session started against a moved directory reported
+    "Not logged in" and could not begin the exercise, so the demo keeps the
+    directory the person is already signed in to.
     """
     home = demo_runtime_dir()
     if uclusion_home_root() == home:
         return
     environment = dict(os.environ)
     environment['UCLUSION_HOME'] = home
-    environment['CLAUDE_CONFIG_DIR'] = os.path.join(home, '.claude')
     os.execve(
         sys.executable,
         [sys.executable, os.path.abspath(__file__)] + sys.argv[1:],
@@ -1620,7 +1694,11 @@ def _codex_uclusion_args(text):
 
 
 def assert_demo_may_replace_client(client):
-    """Refuse to overwrite a real Uclusion MCP registration with the demo."""
+    """Refuse to overwrite a real Uclusion MCP registration with the demo.
+
+    Only the Codex demo still needs this. Claude's writes nothing into the
+    person's client at all, so it has nothing of theirs to overwrite.
+    """
     path, _label, is_codex = _setup_registration_target(client, None)
     existing, signature = _read_text_snapshot(_config_write_target(path))
     if signature is None or not existing.strip():
@@ -1863,6 +1941,18 @@ def remove_demo_client_traces(env=None):
         resident_path, skill_dirs = _demo_client_paths(client)
         registration = _remove_demo_registration(client)
         outcomes.append(registration)
+        if registration[0] == 'absent' and os.path.isdir(demo_plugin_path()):
+            # A demo of the launch-line shape wrote nothing into this client,
+            # and its own plugin directory is the positive evidence of that -
+            # without it, an absent registration could instead mean an older
+            # demo whose registration someone removed by hand, whose skill and
+            # bootstrap would still be theirs to keep.
+            outcomes.append((
+                'absent',
+                f'anything else in {client}, because this demo keeps its '
+                'workflow in its own home and starts each session with it',
+            ))
+            continue
         if registration[0] != 'removed':
             outcomes.append((
                 'kept',
@@ -4338,7 +4428,10 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                 if detected
             },
         )
-    if claude_selected and claude_detected:
+    if (claude_selected and claude_detected
+            and uclusion_home_root() != demo_home_path()):
+        # A demo session carries its grant on --allowedTools instead, so there
+        # is no rule left in the person's settings to take back out.
         add_claude_permissions(CLAUDE_SETTINGS_PATH)
         result = configure_claude_token_audit(
             CLAUDE_SETTINGS_PATH,
@@ -4390,24 +4483,42 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
         register_mcp_json(CURSOR_MCP_PATH, 'Cursor', workspace_id, mcp_env,
                           require_existing=interactive, work_claims=work_claims)
     if claude_selected and not replace_setup:
-        register_mcp_json(
-            CLAUDE_JSON_PATH, 'Claude Code', workspace_id, mcp_env,
-            require_existing=interactive, token_audit=claude_registration_audit,
-            token_audit_client='claude', work_claims=work_claims
-        )
+        if uclusion_home_root() == demo_home_path():
+            # The demo registers nothing in the person's configuration. Both
+            # of its sessions are started with --mcp-config naming this file,
+            # which is also what keeps them clear of the per-project trust
+            # prompt that a background session can never answer.
+            register_mcp_json(
+                demo_mcp_config_path(), "the demo's launch line", workspace_id,
+                mcp_env, require_existing=False,
+                token_audit=claude_registration_audit,
+                token_audit_client='claude', work_claims=work_claims
+            )
+        else:
+            register_mcp_json(
+                CLAUDE_JSON_PATH, 'Claude Code', workspace_id, mcp_env,
+                require_existing=interactive,
+                token_audit=claude_registration_audit,
+                token_audit_client='claude', work_claims=work_claims
+            )
     if claude_selected:
         if not claude_detected:
             workflow_results['claude'] = False
         else:
             try:
-                workflow_results['claude'] = install_skill_and_stub(
-                    fetch_bundle,
-                    CLAUDE_SKILL_DIR,
-                    CLAUDE_MD_PATH,
-                    'claude',
-                    'Claude Code',
-                    assume_yes=not interactive,
-                )
+                if uclusion_home_root() == demo_home_path():
+                    workflow_results['claude'] = install_demo_plugin(
+                        fetch_bundle
+                    )
+                else:
+                    workflow_results['claude'] = install_skill_and_stub(
+                        fetch_bundle,
+                        CLAUDE_SKILL_DIR,
+                        CLAUDE_MD_PATH,
+                        'claude',
+                        'Claude Code',
+                        assume_yes=not interactive,
+                    )
             except Exception as err:
                 workflow_results['claude'] = False
                 workflow_errors.append(('claude', err))
@@ -4757,7 +4868,14 @@ def main():
                 # constants resolved at import, so the first invocation has to
                 # replace itself before it provisions or writes anything.
                 reexec_in_demo_home()
-                assert_demo_may_replace_client(setup_client)
+                if setup_client != 'claude':
+                    # Claude's demo writes nothing into the person's client -
+                    # its workflow, server and grant all travel on the launch
+                    # line - so there is no registration of theirs left for it
+                    # to overwrite, and someone who already uses Uclusion can
+                    # take the demo. Codex still writes a skill directory into
+                    # their home, so its guard stays until that is closed.
+                    assert_demo_may_replace_client(setup_client)
                 ready = provision_demo(env)
                 write_demo_credentials(env, ready['client_id'])
                 workspace_id = ready['workspace_id']
@@ -4908,23 +5026,49 @@ def main():
             # idle session that was never asked anything, which costs the one
             # launch the exercise allows. The evaluator inherits the directory
             # it is started from, so it is started from the project.
-            command = ' '.join((
-                'echo',
-                shlex.quote(start_prompt),
-                '|',
-                f'CLAUDE_CONFIG_DIR={shlex.quote(CLAUDE_CONFIG_HOME)}',
-                'claude',
-                '--bg',
+            # Everything a session needs travels on its own command line:
+            # the server, the workflow skills, the bootstrap instructions and
+            # the grant. None of it was written into the person's
+            # configuration, so a session started any other way simply has no
+            # Uclusion in it. The server in particular has to arrive this way
+            # rather than through a configuration file, because a background
+            # session that meets the per-project "new MCP server found"
+            # prompt sits on it until the exercise is over and nothing can
+            # answer it. --strict-mcp-config keeps the session to exactly the
+            # server named here.
+            session_flags = (
+                '--mcp-config',
+                shlex.quote(demo_mcp_config_path()),
+                '--strict-mcp-config',
+                '--plugin-dir',
+                shlex.quote(demo_plugin_path()),
+                '--append-system-prompt',
+                f'"$(cat {shlex.quote(demo_bootstrap_path())})"',
                 '--allowedTools',
                 shlex.quote(f'mcp__{MCP_SERVER_KEY}__*'),
                 shlex.quote(f'Bash({demo_cli}:*)'),
-            ))
+            )
+            owner_command = ' '.join(('claude',) + session_flags)
+            # The evaluator's instruction arrives on stdin because a
+            # background session does not consume a positional prompt: passed
+            # as an argument it starts an idle session that was never asked
+            # anything, which costs the one launch the exercise allows. The
+            # evaluator inherits the directory it is started from, so it is
+            # started from the project.
+            evaluator_command = ' '.join(
+                ('echo', shlex.quote(start_prompt), '|', 'claude', '--bg')
+                + session_flags
+            )
             print(
-                'Start Claude Code fresh - resuming or continuing an earlier '
-                'conversation keeps its old tool registry and will not load '
-                'the server just registered - then start the evaluator from '
-                'your project directory with:'
-                f'\n  {command}'
+                'This demo wrote nothing into your own configuration, so '
+                'each session carries what it needs on its command line and '
+                'a session started any other way will not have Uclusion in '
+                'it.'
+                '\n\nStart a fresh Claude Code as the demo owner with:'
+                f'\n  {owner_command}'
+                '\n\nThat session then starts the evaluator, from your '
+                'project directory, with:'
+                f'\n  {evaluator_command}'
             )
     else:
         print("🎉 Uclusion install complete.")

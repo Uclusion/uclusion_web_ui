@@ -1,6 +1,7 @@
 """The demo provisions once, then uses the ordinary disposable install."""
 
 import importlib.util
+import inspect
 import os
 from pathlib import Path
 import stat
@@ -60,6 +61,46 @@ class DemoHomeTests(unittest.TestCase):
                 INSTALL.reexec_in_demo_home()
         environment = execute.call_args.args[2]
         self.assertEqual(environment['UCLUSION_HOME'], home)
+
+    def test_reexec_leaves_the_client_configuration_where_it_is(self):
+        # A moved configuration directory holds no credentials, and the
+        # person's identity is a logged-in session rather than a file the
+        # installer could copy. A session started against a moved one reports
+        # "Not logged in" and never begins the exercise.
+        with mock.patch.object(
+            INSTALL, 'uclusion_home_root', return_value='/real/home'
+        ), mock.patch.object(
+            INSTALL.os, 'execve', side_effect=RuntimeError('reexec')
+        ) as execute:
+            with self.assertRaisesRegex(RuntimeError, 'reexec'):
+                INSTALL.reexec_in_demo_home()
+        environment = execute.call_args.args[2]
+        self.assertNotIn('CLAUDE_CONFIG_DIR', environment)
+
+    def test_the_plugin_and_bootstrap_stay_inside_the_demo_home(self):
+        # Both are named on the launch line, so they have to live somewhere
+        # that removing the demo takes with it.
+        self.assertTrue(
+            INSTALL.demo_plugin_path().startswith(INSTALL.UCLUSION_HOME)
+        )
+        self.assertTrue(
+            INSTALL.demo_bootstrap_path().startswith(INSTALL.UCLUSION_HOME)
+        )
+
+    def test_the_demo_guard_only_protects_clients_it_still_writes_to(self):
+        # Claude's demo writes nothing into the person's configuration, so a
+        # person who already uses Uclusion can take it; Codex still writes a
+        # skill directory into their home and keeps its guard.
+        source = inspect.getsource(INSTALL.main)
+        self.assertIn("if setup_client != 'claude':", source)
+        self.assertIn('assert_demo_may_replace_client(setup_client)', source)
+
+    def test_the_launch_configuration_stays_inside_the_demo_home(self):
+        # The launch line names this file, so it has to be somewhere removing
+        # the demo takes with it.
+        self.assertTrue(
+            INSTALL.demo_mcp_config_path().startswith(INSTALL.UCLUSION_HOME)
+        )
 
 
 class DemoProvisionTests(unittest.TestCase):

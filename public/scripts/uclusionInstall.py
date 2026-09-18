@@ -4886,18 +4886,26 @@ def main():
             # the Uclusion tools and this demo's own CLI, matched by the
             # prefix the workflow stub tells it to run.
             demo_cli = workflow_cli_command(env)
+            # The line arrives on stdin because a background session does not
+            # consume a positional prompt: passed as an argument it starts an
+            # idle session that was never asked anything, which costs the one
+            # launch the exercise allows. The evaluator inherits the directory
+            # it is started from, so it is started from the project.
             command = ' '.join((
+                'echo',
+                shlex.quote(start_prompt),
+                '|',
                 'claude',
                 '--bg',
                 '--allowedTools',
                 shlex.quote(f'mcp__{MCP_SERVER_KEY}__*'),
                 shlex.quote(f'Bash({demo_cli}:*)'),
-                shlex.quote(start_prompt),
             ))
             print(
                 'Start Claude Code fresh - resuming or continuing an earlier '
                 'conversation keeps its old tool registry and will not load '
-                'the server just registered - then start the evaluator with:'
+                'the server just registered - then start the evaluator from '
+                'your project directory with:'
                 f'\n  {command}'
             )
     else:

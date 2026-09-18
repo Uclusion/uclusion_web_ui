@@ -4879,9 +4879,26 @@ def main():
             ))
             print(f'Start the evaluator with:\n  {command}')
         else:
+            # The evaluator is its own session rather than a sub-agent: the
+            # owner's later records reach it through Poke AI, and an agent
+            # that ends its turn inside the owner's session is gone before
+            # they arrive. Its grant is exactly what the prompt disclosed -
+            # the Uclusion tools and this demo's own CLI, matched by the
+            # prefix the workflow stub tells it to run.
+            demo_cli = workflow_cli_command(env)
+            command = ' '.join((
+                'claude',
+                '--bg',
+                '--allowedTools',
+                shlex.quote(f'mcp__{MCP_SERVER_KEY}__*'),
+                shlex.quote(f'Bash({demo_cli}:*)'),
+                shlex.quote(start_prompt),
+            ))
             print(
-                'Restart or reconnect Claude Code, then start one fresh '
-                f'sub-agent with exactly:\n  {start_prompt}'
+                'Start Claude Code fresh - resuming or continuing an earlier '
+                'conversation keeps its old tool registry and will not load '
+                'the server just registered - then start the evaluator with:'
+                f'\n  {command}'
             )
     else:
         print("🎉 Uclusion install complete.")

@@ -55,7 +55,7 @@ export function getNewBugNotifications(comment, messagesState, replies = []) {
 
 function Options(props) {
   const { anInlineMarket, marketId, investibleId, inArchives, isEditable, isSent, groupId, removeActions,
-    selectedInvestibleIdParent, searchResults, isInbox, useCompression } = props;
+    selectedInvestibleIdParent, searchResults, isInbox, useCompression, parentCommentResolved } = props;
   const location = useLocation();
   const { hash } = location;
   const intl = useIntl();
@@ -242,7 +242,11 @@ function Options(props) {
         groupId={groupId}
         comments={anInlineMarketInvestibleComments}
         inArchives={inArchives}
-        questionResolved={anInlineMarket.market_stage !== ACTIVE_STAGE}
+        // B-all-651: the comment's own resolved flag is written synchronously, while the
+        // inline market is deactivated later off the event stream, so keying only on the
+        // stage leaves an option's actions live for the whole interval between the two.
+        // A standalone decision market has no parent question, hence both sources.
+        questionResolved={!!parentCommentResolved || anInlineMarket.market_stage !== ACTIVE_STAGE}
         isAdmin={isEditable}
         isSent={isSent}
         isInbox={isInbox}

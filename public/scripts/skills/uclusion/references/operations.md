@@ -60,7 +60,9 @@ rather than a resolve:
 
 Reply `all`, `none`, or numbers such as `1,2,4` here, or <in the agent/on review R-code>.
 Put the selection alone on the first nonblank line.
-Selected actions run in numeric order and stop at the first failure. Action 4 is indivisible.
+Selected actions run in numeric order and stop at the first failure, except
+that a selected clear runs last so it covers this attempt's own record.
+Action 4 is indivisible.
 ```
 
 For a pass whose selected executable target is a task, including a grouped
@@ -81,7 +83,8 @@ the three-action menu below when it is already Reviewable. Otherwise use:
 
 Reply `all`, `none`, or numbers such as `1,2,4` here, or <in the agent/on review R-code>.
 Put the selection alone on the first nonblank line.
-Selected actions run in numeric order and stop at the first failure.
+Selected actions run in numeric order and stop at the first failure, except
+that a selected clear runs last so it covers this attempt's own record.
 ```
 
 For any other pass that does not finish the job, and for a finishing pass on a
@@ -97,7 +100,8 @@ job already in Reviewable, use only the applicable three actions:
 
 Reply `all`, `none`, or numbers such as `1,2` here, or <in the agent/on review R-code>.
 Put the selection alone on the first nonblank line.
-Selected actions run in numeric order and stop at the first failure.
+Selected actions run in numeric order and stop at the first failure, except
+that a selected clear runs last so it covers this attempt's own record.
 ```
 
 When a standalone bug's fix is complete, resolve it under the single-comment
@@ -120,7 +124,8 @@ package. Use:
 
 Reply `all`, `none`, or numbers such as `1,2` here, or <in the agent/on B-code>.
 Put the selection alone on the first nonblank line.
-Selected actions run in numeric order and stop at the first failure.
+Selected actions run in numeric order and stop at the first failure, except
+that a selected clear runs last so it covers this attempt's own record.
 ```
 
 For action 1, use canonical short codes for commits, name every affected
@@ -183,10 +188,15 @@ require the human to repeat the selection, then reload and reconcile again.
 
 For a governing selection from either the package thread or normal client chat,
 finish the required reload and reconciliation, then attempt only its selected
-actions. After all selected actions succeed, the first mandatory check or
+actions. A selected clear is the exception to numeric order and runs last, after
+every other selected action and after this attempt's terminal record, because a
+record written after the clear leaves a notification the human just asked to be
+rid of. After every other selected action succeeds, the first mandatory check or
 selected action fails, or `none` selects no action, use `add_info` in the exact
 package thread to create exactly one terminal record for that execution
-attempt. Reply to the governing human response when the selection came from the
+attempt, then perform the selected clear. That record names the clear among its
+remaining selected action numbers, since it is written before the clear runs; a
+failed clear is reported in chat and never creates a second record. Reply to the governing human response when the selection came from the
 package thread, or to that thread's root when it came from normal client chat.
 Record the source, canonical selection, completed action numbers, failed action
 or check if any, and remaining selected action numbers. This is the only AI
@@ -208,7 +218,8 @@ after the last selected commit or push and before any selected clear or
 Reviewable transition. List the exact item's matching notifications even when
 action 3 was omitted, but neither perform nor request an omitted clear again.
 The job or bug named in the menu prospectively identifies this clear scope,
-including a job's task or review notifications created before the fresh check.
+including a job's task or review notifications created before the fresh check
+and this attempt's own terminal record, which is created after it.
 Opening the review, and resolving the bug, each also retains the ordinary
 completion-time notification check.
 

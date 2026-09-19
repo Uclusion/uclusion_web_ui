@@ -1341,6 +1341,7 @@ const messages = defineMessages({
   allDoneClearNotifications: 'Move to Reviewable and clear its notifications',
   allDoneMoveOnly: 'Move to Reviewable only',
   inboxClearJob: "Clear all of this job's notifications",
+  jobNavClearNotifications: 'Clear notifications',
   inboxMoveJobReviewable: 'Move job to Reviewable',
   inboxMoveJobReviewableClear: 'Move job to Reviewable and clear its notifications',
   addVoting: 'Add voting',

@@ -10,6 +10,7 @@ import {
 } from '@material-ui/core';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import { ExpandLess, Label, ThumbDown, ThumbUp } from '@material-ui/icons';
+import DeleteSweepIcon from '@material-ui/icons/DeleteSweep';
 import { FormattedMessage, useIntl } from 'react-intl';
 import AttachedFilesList from '../../../components/Files/AttachedFilesList';
 import React, { useContext, useState } from 'react';
@@ -19,7 +20,9 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messageUtils';
+import { findMessageOfType, findMessageOfTypeAndId, findMessagesForInvestibleId } from '../../../utils/messageUtils';
+import { isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { deleteOrDehilightMessages } from '../../../api/users';
 import { getDiff } from '../../../contexts/DiffContext/diffContextHelper';
 import { getStagesInfo } from '../../../utils/stageUtils';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -143,6 +146,8 @@ export default function PlanningInvestibleNav(props) {
     investibleId, marketId, true);
   const assignedNotAccepted = assigned.filter((assignee) => !(accepted || []).includes(assignee));
   const reportMessage = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
+  const jobInboxMessages = findMessagesForInvestibleId(investibleId, messagesState.messages)
+    .filter((message) => isInInbox(message));
   const unaccceptedMessage = findMessageOfType('UNREAD_JOB_APPROVAL_REQUEST', investibleId, messagesState);
   const estimateMessage = findMessageOfType('UNREAD_ESTIMATE', investibleId, messagesState) || 
     findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
@@ -300,6 +305,21 @@ export default function PlanningInvestibleNav(props) {
           />
         </div>
       )}
+      {/* https://stage.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/Q-all-706
+          Q-all-706 O-1: always show, disable when this user has nothing to clear. */}
+      <div style={{display: 'flex'}}>
+        <SpinningIconLabelButton
+          id={`inboxClearJob${investibleId}`}
+          icon={DeleteSweepIcon}
+          iconColor={isDark ? DARK_ACTION_BUTTON_COLOR : undefined}
+          useDark={isDark}
+          disabled={_.isEmpty(jobInboxMessages)}
+          onClick={() => deleteOrDehilightMessages(jobInboxMessages, messagesDispatch, true, false, true)
+            .finally(() => setOperationRunning(false))}
+        >
+          {intl.formatMessage({ id: 'jobNavClearNotifications' })}
+        </SpinningIconLabelButton>
+      </div>
       {isInAccepted && (
         <DaysEstimate marketId={marketId} onChange={handleDateChange} value={marketDaysEstimate}
                       isAssigned={isAssigned} estimateMessage={estimateMessage} />

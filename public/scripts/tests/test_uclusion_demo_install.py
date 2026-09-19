@@ -141,8 +141,10 @@ class DemoHomeTests(unittest.TestCase):
 
     def test_the_process_scan_cannot_stop_its_own_removal(self):
         # The removal pipeline and the shell that launched it both name this
-        # home on their command lines. Matching them would mean killing the
-        # delete halfway through.
+        # home on their command lines, and so does anything else that merely
+        # mentions the path - a grep, an editor, the script running a check.
+        # Matching those means killing bystanders, and in the gate's first run
+        # it meant killing the gate.
         home = INSTALL.demo_home_path()
         listing = '\n'.join([
             f'  111 claude --mcp-config {home}/.uclusion/mcp.json',
@@ -151,6 +153,8 @@ class DemoHomeTests(unittest.TestCase):
             f'  333 bash -c UCLUSION_HOME={home} uclusion -e stage demo --remove',
             f'  {os.getpid()} python3 {home}/anything',
             '  444 an unrelated process',
+            f'  555 grep -r something {home}',
+            f'  666 /bin/bash ./gate.sh {home} stage',
         ])
         with mock.patch.object(
             INSTALL.subprocess, 'run', return_value=mock.Mock(stdout=listing)

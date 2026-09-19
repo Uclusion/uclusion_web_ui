@@ -1486,10 +1486,23 @@ def demo_home_processes(home, needle=None):
         ).stdout
     except Exception:
         return []
+    # Naming the home is not enough. A grep, an editor, or the script running
+    # a check all mention that path and none of them is a demo session; the
+    # first run of the gate had this scan kill the gate. A session or the
+    # demo's own client always names one of the things only this install put
+    # there.
+    markers = (
+        os.path.join(home, '.local', 'bin'),
+        os.path.join(home, '.uclusion', 'mcp.json'),
+        os.path.join(home, '.uclusion', 'plugin'),
+        os.path.join(home, '.uclusion', 'bootstrap.md'),
+    )
     found = []
     for line in listing.splitlines():
         pid_text, _, args = line.strip().partition(' ')
         if not args or home not in args:
+            continue
+        if not any(marker in args for marker in markers):
             continue
         if needle is not None and needle not in args:
             continue

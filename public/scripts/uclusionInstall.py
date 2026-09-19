@@ -5230,12 +5230,7 @@ def main():
                 'one do, and did it work? Say plainly which ones you could '
                 'not inspect or did not exercise, and do not treat those as '
                 'absent. Say where it got in your way as readily as where it '
-                'helped.\n\n'
-                'Do not speculate about the project or the setup of whoever '
-                'is reading this. You cannot see it: you hold one MCP server, '
-                'one command line and one directory. Someone who can see it '
-                'will compare your report against it, and a guess from you '
-                'would only get in their way.'
+                'helped.'
             )
             evaluation = subprocess.run(
                 ['claude'] + session_args,

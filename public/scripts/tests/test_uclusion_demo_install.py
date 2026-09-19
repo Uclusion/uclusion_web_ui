@@ -142,13 +142,16 @@ class DemoHomeTests(unittest.TestCase):
         self.assertIn('demo_brief_path()', source)
         self.assertNotIn('demo_brief_url', source)
 
-    def test_the_evaluator_reports_on_uclusion_not_on_a_project_it_cannot_see(self):
-        # It holds one MCP server, one command line and one directory. A guess
-        # about the reader's setup would displace the comparison made by the
-        # agent that can actually see it.
+    def test_the_evaluator_is_not_told_what_its_report_is_for(self):
+        # Its scope is what it used. Naming the comparison, or the reader who
+        # makes it, hands it a frame to write toward - which is the coaching
+        # the demo is not allowed to do, and naming the project is what puts
+        # the project in the room.
         source = inspect.getsource(INSTALL.main)
-        self.assertIn('Do not speculate about the project', source)
         self.assertIn('Report on Uclusion itself', source)
+        for leak in ('compare your report', 'whoever is reading',
+                     'Do not speculate about the project'):
+            self.assertNotIn(leak, source)
 
     def test_sessions_can_reach_the_demo_home_they_are_told_to_read(self):
         # Reads resolve inside the session's directory root, which is the

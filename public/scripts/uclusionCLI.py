@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import argparse
 import hashlib
+import importlib.util
 import io
 import json
 import math
@@ -9,6 +10,7 @@ import re
 import select
 import shutil
 import signal
+import socket
 import sqlite3
 import stat
 import subprocess
@@ -2555,6 +2557,133 @@ def cmd_wait(args):
         time.sleep(min(0.25, remaining))
 
 
+NOTIFICATION_EVENT_TYPE = 'notification'
+WATCH_WEBSOCKET_URLS = {
+    'dev': 'wss://dev.ws.uclusion.com/v1',
+    'stage': 'wss://stage.ws.uclusion.com/v1',
+    'production': 'wss://production.ws.uclusion.com/v1',
+}
+
+
+def load_proxy_module():
+    """Import the installed proxy so its websocket client and login are shared.
+
+    A second RFC 6455 client in this package would drift from the first, and
+    the proxy's already handles this server's framing, timeouts and close.
+    """
+    candidates = [UCLUSION_MCP_PROXY_SYMLINK]
+    sibling = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), 'uclusionMCPProxy.py'
+    )
+    if sibling not in candidates:
+        candidates.append(sibling)
+    for candidate in candidates:
+        if os.path.isfile(candidate):
+            spec = importlib.util.spec_from_file_location(
+                'uclusion_mcp_proxy_for_watch', candidate
+            )
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+    raise RuntimeError(
+        'uclusionMCPProxy.py was not found beside this CLI, so the '
+        'notification watch has no websocket client'
+    )
+
+
+def watch_notification_line(payload, bell):
+    """One line saying a notification arrived, never what it says.
+
+    The push carries no content, and the caller already holds
+    get_notifications, so reading the inbox here would duplicate a call the
+    watcher can make better itself (Q-Marketing-169, selected O-2).
+    """
+    stamp = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+    line = f'{NOTIFICATION_EVENT_TYPE} {stamp}'
+    return f'\a{line}' if bell else line
+
+
+def cmd_watch(args):
+    """Watch this workspace's notifications for the human identity.
+
+    The subscribe body is the Poke listener's without ``is_ai``, which is the
+    whole difference between the two streams: this one sees what a person
+    sees. It holds a single subscription for the life of the watch and
+    reconnects with backoff, so a notification cannot fall into a gap between
+    one subscribe and the next (R-Marketing-675).
+    """
+    api_url, json_path, credentials_path = get_env_paths(args.env)
+    config = load_config(json_path)
+    if config is None:
+        return 1
+    workspace_id = config.get('workspaceId')
+    if workspace_id is None:
+        print("⚠️ Warning: No workspaceId in config.")
+        return 1
+    credentials = get_credentials(credentials_path)
+    if credentials is None:
+        return 1
+    proxy = load_proxy_module()
+    websocket_url = WATCH_WEBSOCKET_URLS.get(
+        args.env or 'production', WATCH_WEBSOCKET_URLS['production']
+    )
+    login_credentials = dict(credentials)
+    login_credentials['workspace_id'] = workspace_id
+    bell = getattr(args, 'bell', False)
+    once = getattr(args, 'once', False)
+    timeout = getattr(args, 'timeout', None)
+    deadline = None if timeout is None else time.monotonic() + timeout
+    retry_delay = 1
+
+    while deadline is None or time.monotonic() < deadline:
+        websocket = proxy.WebSocketConnection(websocket_url)
+        try:
+            token = proxy.login(api_url, login_credentials)['uclusion_token']
+            websocket.connect()
+            # No is_ai: this is the person's own stream rather than the one an
+            # agent is poked on.
+            websocket.send_text(json.dumps(
+                {'action': 'subscribe', 'identity': token},
+                separators=(',', ':')
+            ))
+            retry_delay = 1
+            awaiting_pong = False
+            while deadline is None or time.monotonic() < deadline:
+                try:
+                    raw_message = websocket.receive_text()
+                except socket.timeout:
+                    if awaiting_pong:
+                        raise ConnectionError(
+                            'the notification websocket did not answer its '
+                            'heartbeat'
+                        )
+                    # Silence is this command's normal state, so an open
+                    # socket proves nothing on its own; the application pong
+                    # is what proves the subscription is still there.
+                    websocket.send_text('ping')
+                    awaiting_pong = True
+                    continue
+                payload = json.loads(raw_message)
+                awaiting_pong = False
+                if payload.get('event_type') != NOTIFICATION_EVENT_TYPE:
+                    continue
+                print(watch_notification_line(payload, bell), flush=True)
+                if once:
+                    return 0
+        except Exception as error:
+            sys.stderr.write(
+                f'Notification websocket reconnecting after error: {error}\n'
+            )
+            sys.stderr.flush()
+        finally:
+            websocket.close()
+        if deadline is not None and time.monotonic() + retry_delay >= deadline:
+            break
+        time.sleep(retry_delay)
+        retry_delay = min(retry_delay * 2, 30)
+    return 0
+
+
 def cmd_listen(args):
     """Stream Poke AI prompts indefinitely, one flushed line per prompt.
 
@@ -3811,6 +3940,32 @@ def build_parser():
              'the flag changes nothing there.',
     )
     wait_parser.set_defaults(func=cmd_wait)
+
+    watch_parser = subparsers.add_parser(
+        'watch',
+        help='Watch this workspace for notifications addressed to you, the '
+             'human, printing one line each. Rings the terminal bell with '
+             '--bell so a person hears it; without the bell the same line is '
+             'what an AI client consumes as an event.',
+    )
+    watch_parser.add_argument(
+        '--bell',
+        action='store_true',
+        help='Also write the terminal bell character, for a person who is '
+             'working in another window.',
+    )
+    watch_parser.add_argument(
+        '--once',
+        action='store_true',
+        help='Exit after the first notification instead of watching on.',
+    )
+    watch_parser.add_argument(
+        '--timeout',
+        type=float,
+        default=None,
+        help='Stop watching after this many seconds.',
+    )
+    watch_parser.set_defaults(func=cmd_watch)
 
     listen_parser = subparsers.add_parser(
         'listen',

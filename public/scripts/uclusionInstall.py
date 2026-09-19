@@ -64,6 +64,7 @@ import re
 import secrets
 import shlex
 import shutil
+import signal
 import stat
 import subprocess
 import sys
@@ -1456,6 +1457,93 @@ def install_demo_plugin(fetch_bundle):
     return True
 
 
+DEMO_BRIEF_URL = 'https://uclusion.com/demo-brief.md'
+
+
+def demo_brief_url():
+    """Where the owner reads its directions.
+
+    The owner never sees this installer's output, so the address is handed to
+    it as its opening message rather than printed. The override exists because
+    stage has no storefront: a stage run serves the brief locally and points
+    this at it.
+    """
+    return os.environ.get('UCLUSION_DEMO_BRIEF_URL') or DEMO_BRIEF_URL
+
+
+def demo_home_processes(home, needle=None):
+    """(pid, args) for live processes whose command line names this home.
+
+    One mechanism for two needs: waiting until the owner's watch is up before
+    the evaluator can say anything, and refusing to delete a home something is
+    still using. Best effort - a platform without `ps` returns nothing rather
+    than failing the run, so callers treat an empty list as "cannot tell".
+    """
+    try:
+        listing = subprocess.run(
+            ['ps', '-eo', 'pid=,args='],
+            capture_output=True, text=True, timeout=30,
+        ).stdout
+    except Exception:
+        return []
+    found = []
+    for line in listing.splitlines():
+        pid_text, _, args = line.strip().partition(' ')
+        if not args or home not in args:
+            continue
+        if needle is not None and needle not in args:
+            continue
+        try:
+            pid = int(pid_text)
+        except ValueError:
+            continue
+        if pid in (os.getpid(), os.getppid()):
+            continue
+        # The removal pipeline names this home on its own command line, as
+        # does whatever shell invoked it. Stopping those would be stopping
+        # ourselves partway through a delete.
+        if DEMO_REMOVE_MODE in args or DEMO_PURGE_MODE in args:
+            continue
+        if 'demo --remove' in args:
+            continue
+        found.append((pid, args))
+    return found
+
+
+def wait_for_owner_watch(home, deadline_seconds=180):
+    """Hold the evaluator until the owner can hear it.
+
+    The owner learns it is needed from `watch`; an evaluator that writes before
+    that is up is writing where nobody is looking, which is how the first run
+    to reach the exercise died.
+    """
+    deadline = time.monotonic() + deadline_seconds
+    while time.monotonic() < deadline:
+        if demo_home_processes(home, ' watch'):
+            return True
+        time.sleep(2)
+    return False
+
+
+def stop_demo_home_processes(home):
+    """Stop anything still running against this home. Returns (stopped, left)."""
+    stopped, left = 0, []
+    for pid, args in demo_home_processes(home):
+        try:
+            os.kill(pid, signal.SIGTERM)
+            stopped += 1
+        except Exception:
+            left.append((pid, args))
+    if stopped:
+        time.sleep(3)
+        for pid, args in demo_home_processes(home):
+            try:
+                os.kill(pid, signal.SIGKILL)
+            except Exception:
+                left.append((pid, args))
+    return stopped, left
+
+
 def demo_mcp_config_path():
     """The standalone MCP config this demo's launch line hands the client.
 
@@ -1996,6 +2084,24 @@ def remove_demo_install(argv):
         else:
             print(f'  ⚠️  Left alone: {detail}')
             status = 1
+    # Nothing records the sessions a run started, so removal has to look for
+    # them. A session started against this home keeps its client and its
+    # credentials inside it, and deleting underneath one does not fail
+    # anywhere a person is watching - it fails the next time that session
+    # tries to do anything.
+    stopped, left = stop_demo_home_processes(home)
+    if stopped:
+        print(f'  ✅ Stopped {stopped} session(s) still using {home}.')
+    if left:
+        for pid, _args in left:
+            print(f'  ❌ Process {pid} is still using {home}.', file=sys.stderr)
+        print(
+            '❌ Refusing to delete a demo home that is still in use. Stop the '
+            'processes above, then run removal again.',
+            file=sys.stderr,
+        )
+        return 1
+
     # The rest of this process lives inside the directory it is about to
     # delete, so it continues from a copy outside it.
     staging = tempfile.mkdtemp(prefix='uclusion-demo-remove-')
@@ -5015,86 +5121,110 @@ def main():
             ))
             print(f'Start the evaluator with:\n  {command}')
         else:
-            # The evaluator is its own session rather than a sub-agent: the
-            # owner's later records reach it through Poke AI, and an agent
-            # that ends its turn inside the owner's session is gone before
-            # they arrive. Its grant is exactly what the prompt disclosed -
-            # the Uclusion tools and this demo's own CLI, matched by the
-            # prefix the workflow stub tells it to run.
+            # Both sessions are started here rather than printed for someone
+            # else to run: this process is the only participant that ever sees
+            # both, so ordering and cleanup can live in one place. A session
+            # already running cannot acquire --mcp-config or --plugin-dir,
+            # which is why these have to be new processes.
             demo_cli = workflow_cli_command(env)
-            # The line arrives on stdin because a background session does not
-            # consume a positional prompt: passed as an argument it starts an
-            # idle session that was never asked anything, which costs the one
-            # launch the exercise allows. The evaluator inherits the directory
-            # it is started from, so it is started from the project.
-            # Everything a session needs travels on its own command line:
-            # the server, the workflow skills, the bootstrap instructions and
-            # the grant. None of it was written into the person's
-            # configuration, so a session started any other way simply has no
-            # Uclusion in it. The server in particular has to arrive this way
-            # rather than through a configuration file, because a background
-            # session that meets the per-project "new MCP server found"
-            # prompt sits on it until the exercise is over and nothing can
-            # answer it. --strict-mcp-config keeps the session to exactly the
-            # server named here.
-            session_flags = (
-                '--mcp-config',
-                shlex.quote(demo_mcp_config_path()),
+            # Everything a session needs travels on its own command line: the
+            # server, the workflow skills, the bootstrap instructions and the
+            # grant. None of it was written into the person's configuration, so
+            # a session started any other way simply has no Uclusion in it. The
+            # server in particular has to arrive this way rather than through a
+            # configuration file, because a session that meets the per-project
+            # "new MCP server found" prompt sits on it until the exercise is
+            # over and nothing here can answer it.
+            session_args = [
+                '--mcp-config', demo_mcp_config_path(),
                 '--strict-mcp-config',
-                '--plugin-dir',
-                shlex.quote(demo_plugin_path()),
+                '--plugin-dir', demo_plugin_path(),
                 # The file form rather than --append-system-prompt "$(cat ...)":
                 # a command substitution cannot be analysed statically, so an
-                # agent asked to run that line has it refused and starts
-                # inventing workarounds instead of starting the exercise.
-                '--append-system-prompt-file',
-                shlex.quote(demo_bootstrap_path()),
+                # agent asked to run that line has it refused.
+                '--append-system-prompt-file', demo_bootstrap_path(),
                 '--allowedTools',
                 shlex.quote(f'mcp__{MCP_SERVER_KEY}__*'),
                 shlex.quote(f'Bash({demo_cli}:*)'),
+            ]
+
+            print('🤝 Starting the workshop owner.')
+            owner = subprocess.Popen(
+                ['claude'] + session_args,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                text=True,
             )
-            owner_command = ' '.join(('claude',) + session_flags)
-            # The evaluator's instruction arrives on stdin because a
-            # background session does not consume a positional prompt: passed
-            # as an argument it starts an idle session that was never asked
-            # anything, which costs the one launch the exercise allows. The
-            # evaluator inherits the directory it is started from, so it is
-            # started from the project.
-            evaluator_command = ' '.join(
-                ('echo', shlex.quote(start_prompt), '|', 'claude', '--bg')
-                + session_flags
+            # The owner has no other way to learn where its directions are:
+            # this output is addressed to the agent that ran the installer and
+            # the owner never sees it.
+            owner.stdin.write(
+                f'Read {demo_brief_url()} and follow it exactly. '
+                'It is addressed to you.\n'
             )
-            # Addressed to the agent that ran this installer rather than to
-            # the person: it starts the owner itself, and the owner cannot
-            # find the second command because it was printed here, in a
-            # session the owner never sees.
+            owner.stdin.close()
+
+            if not wait_for_owner_watch(uclusion_home_root()):
+                print(
+                    '⚠️  The owner is not watching for notifications yet. '
+                    'Continuing, but if it never wakes the exercise will not '
+                    'finish.'
+                )
+
             print(
-                'This demo wrote nothing into your own configuration, so '
-                'each session carries what it needs on its command line and '
-                'a session started any other way will not have Uclusion in '
-                'it.'
-                '\n\nStart this one yourself, in the background, from the '
-                'project directory. It is the workshop owner and it runs the '
-                'exercise:'
-                f'\n  {owner_command}'
-                '\n\nGive that session the demo brief address and this '
-                'second command as its opening message. It needs this one to '
-                'start the evaluator and has no way to find it:'
-                f'\n  {evaluator_command}'
-                '\n\nThen leave it alone. It runs for several minutes, and '
-                'when it is done it writes the evaluating agent\'s report to'
-                # The demo home itself, not the .uclusion inside it that
-                # UCLUSION_HOME names. The brief sends the owner to
-                # "<the demo home>/evaluation.md" and tells it to take that
-                # home from the CLI prefix on its own launch line, which is
-                # the home rather than the config directory. The owner never
-                # sees this output, so it has no way to learn otherwise, and
-                # naming a different path here leaves the person's agent
-                # waiting on a file that is never written.
-                f'\n  {os.path.join(uclusion_home_root(), "evaluation.md")}'
-                '\nWait for that file and show the person what is in it, '
-                'unaltered. It is the report this demo exists to produce.'
+                '🧠 Starting the evaluating agent. This runs for several '
+                'minutes and needs nothing from anyone while it does.'
             )
+            # Its prompt carries the starting job and the ask it answers at the
+            # end. The ask lives here rather than reaching it later as a Poke
+            # so that the evaluation is the last thing the session says and the
+            # session then ends, which is what makes this wait terminate.
+            evaluator_prompt = (
+                f'{start_prompt}\n\n'
+                'When you have presented your completion package for that '
+                'work, do not stop and do not wait to be asked. In the same '
+                'turn, answer the following as ordinary Uclusion records, '
+                'print that answer as the last thing you say, and then end '
+                'this session instead of returning to the Poke listener.\n\n'
+                'Evaluate Uclusion from your point of view as this project\'s '
+                'coding agent. Having used it here, say whether it adds '
+                'collaboration capabilities you currently lack, whether they '
+                'work, and whether they seem useful. Ground the comparison in '
+                'this project: inspect its instructions and a relevant sample '
+                'of its existing work and decision records using the tools '
+                'already available to you. Distinguish capabilities missing '
+                'from that setup from capabilities already present that '
+                'Uclusion handles differently. State what you could not '
+                'inspect or did not test, and do not treat those gaps as '
+                'evidence that a capability is absent.'
+            )
+            evaluation = subprocess.run(
+                ['claude'] + session_args,
+                input=evaluator_prompt,
+                capture_output=True,
+                text=True,
+            )
+
+            # Stop what this process started. An owner left running fails
+            # silently - it just sits on a watch against a workspace nobody is
+            # using - so it is stopped here rather than trusted to leave.
+            stopped, left = stop_demo_home_processes(uclusion_home_root())
+            if stopped:
+                print(f'🧹 Stopped {stopped} demo session(s).')
+            for pid, _args in left:
+                print(f'  ⚠️  Could not stop process {pid}.')
+
+            answer = (evaluation.stdout or '').strip()
+            if not answer:
+                print(
+                    '❌ The evaluating agent finished without producing a '
+                    f'report. Its records are in demo workspace {workspace_id}'
+                    f', and everything it wrote is under '
+                    f'{uclusion_home_root()} until that directory is removed.'
+                )
+                return 1
+            print('\n' + answer)
     else:
         print("🎉 Uclusion install complete.")
     return 0

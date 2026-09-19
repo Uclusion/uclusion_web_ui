@@ -119,21 +119,44 @@ class DemoHomeTests(unittest.TestCase):
             INSTALL.demo_mcp_config_path().startswith(INSTALL.UCLUSION_HOME)
         )
 
-    def test_the_report_lands_where_the_brief_sends_the_owner(self):
-        # Two agents have to agree on this path and neither can see the
-        # other: the brief tells the owner to write
-        # "<the demo home>/evaluation.md", taking that home from the CLI
-        # prefix on its own launch line, while the person's agent waits on
-        # whatever this output names. UCLUSION_HOME is the .uclusion
-        # directory inside the home, so naming it here parts them by one
-        # directory and the wait never ends.
+    def test_the_installer_runs_the_exercise_rather_than_printing_it(self):
+        # Two sessions have to be started in a fixed order by something that
+        # can see both, and stopped by it afterwards. Printing commands for
+        # another agent to run is what this replaced, and an owner left
+        # running fails silently, so the stop is part of the contract rather
+        # than tidiness. Nothing passes between participants as a file.
         source = inspect.getsource(INSTALL.main)
-        self.assertIn(
-            'os.path.join(uclusion_home_root(), "evaluation.md")', source
-        )
-        self.assertNotIn(
-            'os.path.join(UCLUSION_HOME, "evaluation.md")', source
-        )
+        self.assertIn('demo_brief_url()', source)
+        self.assertIn('wait_for_owner_watch(', source)
+        self.assertIn('stop_demo_home_processes(', source)
+        self.assertNotIn('evaluation.md', source)
+
+    def test_removal_refuses_a_home_something_is_still_using(self):
+        # A session started against this home keeps its client and its
+        # credentials inside it, and deleting underneath one fails later,
+        # somewhere nobody is watching.
+        source = inspect.getsource(INSTALL.remove_demo_install)
+        self.assertIn('stop_demo_home_processes(home)', source)
+        self.assertIn('Refusing to delete', source)
+
+    def test_the_process_scan_cannot_stop_its_own_removal(self):
+        # The removal pipeline and the shell that launched it both name this
+        # home on their command lines. Matching them would mean killing the
+        # delete halfway through.
+        home = INSTALL.demo_home_path()
+        listing = '\n'.join([
+            f'  111 claude --mcp-config {home}/.uclusion/mcp.json',
+            f'  222 python3 {home}/.local/bin/uclusionInstall.py '
+            f'{INSTALL.DEMO_REMOVE_MODE} stage',
+            f'  333 bash -c UCLUSION_HOME={home} uclusion -e stage demo --remove',
+            f'  {os.getpid()} python3 {home}/anything',
+            '  444 an unrelated process',
+        ])
+        with mock.patch.object(
+            INSTALL.subprocess, 'run', return_value=mock.Mock(stdout=listing)
+        ):
+            found = INSTALL.demo_home_processes(home)
+        self.assertEqual([111], [pid for pid, _args in found])
 
 
 class DemoProvisionTests(unittest.TestCase):

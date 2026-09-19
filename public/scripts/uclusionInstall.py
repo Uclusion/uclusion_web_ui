@@ -5083,7 +5083,15 @@ def main():
                 f'\n  {evaluator_command}'
                 '\n\nThen leave it alone. It runs for several minutes, and '
                 'when it is done it writes the evaluating agent\'s report to'
-                f'\n  {os.path.join(UCLUSION_HOME, "evaluation.md")}'
+                # The demo home itself, not the .uclusion inside it that
+                # UCLUSION_HOME names. The brief sends the owner to
+                # "<the demo home>/evaluation.md" and tells it to take that
+                # home from the CLI prefix on its own launch line, which is
+                # the home rather than the config directory. The owner never
+                # sees this output, so it has no way to learn otherwise, and
+                # naming a different path here leaves the person's agent
+                # waiting on a file that is never written.
+                f'\n  {os.path.join(uclusion_home_root(), "evaluation.md")}'
                 '\nWait for that file and show the person what is in it, '
                 'unaltered. It is the report this demo exists to produce.'
             )

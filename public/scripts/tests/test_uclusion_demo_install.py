@@ -119,6 +119,22 @@ class DemoHomeTests(unittest.TestCase):
             INSTALL.demo_mcp_config_path().startswith(INSTALL.UCLUSION_HOME)
         )
 
+    def test_the_report_lands_where_the_brief_sends_the_owner(self):
+        # Two agents have to agree on this path and neither can see the
+        # other: the brief tells the owner to write
+        # "<the demo home>/evaluation.md", taking that home from the CLI
+        # prefix on its own launch line, while the person's agent waits on
+        # whatever this output names. UCLUSION_HOME is the .uclusion
+        # directory inside the home, so naming it here parts them by one
+        # directory and the wait never ends.
+        source = inspect.getsource(INSTALL.main)
+        self.assertIn(
+            'os.path.join(uclusion_home_root(), "evaluation.md")', source
+        )
+        self.assertNotIn(
+            'os.path.join(UCLUSION_HOME, "evaluation.md")', source
+        )
+
 
 class DemoProvisionTests(unittest.TestCase):
     def test_provision_polls_until_ready(self):

@@ -87,6 +87,23 @@ class DemoHomeTests(unittest.TestCase):
             INSTALL.demo_bootstrap_path().startswith(INSTALL.UCLUSION_HOME)
         )
 
+    def test_removal_reports_cleanly_beside_the_person_s_own_install(self):
+        # A person who already uses Uclusion can now take the demo. Removal
+        # must not inspect their client, find their own registration and
+        # report the demo as only partly removed - which is what it did.
+        home = Path(INSTALL.UCLUSION_HOME)
+        (home / 'plugin').mkdir(parents=True, exist_ok=True)
+        with mock.patch.object(
+            INSTALL, 'demo_installed_clients', return_value=['claude']
+        ), mock.patch.object(
+            INSTALL, '_demo_client_paths', return_value=('resident', ('a', 'b'))
+        ), mock.patch.object(
+            INSTALL, '_remove_demo_registration'
+        ) as registration:
+            outcomes = INSTALL.remove_demo_client_traces()
+        registration.assert_not_called()
+        self.assertEqual(['absent'], [state for state, _detail in outcomes])
+
     def test_the_demo_guard_only_protects_clients_it_still_writes_to(self):
         # Claude's demo writes nothing into the person's configuration, so a
         # person who already uses Uclusion can take it; Codex still writes a

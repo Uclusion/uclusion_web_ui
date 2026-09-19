@@ -1939,20 +1939,21 @@ def remove_demo_client_traces(env=None):
     outcomes = []
     for client in demo_installed_clients(env):
         resident_path, skill_dirs = _demo_client_paths(client)
-        registration = _remove_demo_registration(client)
-        outcomes.append(registration)
-        if registration[0] == 'absent' and os.path.isdir(demo_plugin_path()):
-            # A demo of the launch-line shape wrote nothing into this client,
-            # and its own plugin directory is the positive evidence of that -
-            # without it, an absent registration could instead mean an older
-            # demo whose registration someone removed by hand, whose skill and
-            # bootstrap would still be theirs to keep.
+        if client == 'claude' and os.path.isdir(demo_plugin_path()):
+            # This demo kept its workflow in its own home and started every
+            # session with it, so there is nothing of the person's to undo -
+            # and nothing of theirs to inspect either. Looking would find a
+            # Uclusion install of their own, which is now allowed alongside a
+            # demo, and report it as something left behind when it is simply
+            # theirs.
             outcomes.append((
                 'absent',
-                f'anything else in {client}, because this demo keeps its '
-                'workflow in its own home and starts each session with it',
+                f'anything in {client}, because this demo keeps its workflow '
+                'in its own home and starts each session with it',
             ))
             continue
+        registration = _remove_demo_registration(client)
+        outcomes.append(registration)
         if registration[0] != 'removed':
             outcomes.append((
                 'kept',

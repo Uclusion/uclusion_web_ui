@@ -320,10 +320,15 @@ WORKFLOW_ASSET_PATHS = {
     'design_skill': 'skills/uclusion-design/SKILL.md',
     'design_examples': 'skills/uclusion-design/references/examples.md',
     'design_openai_metadata': 'skills/uclusion-design/agents/openai.yaml',
+    # The owner's directions travel with the workflow rather than being
+    # fetched: a session's grant holds the demo's tools and its CLI, and
+    # nothing in that can retrieve a URL.
+    'demo_brief': 'demo-brief.md',
 }
 # These digests bind the installer to one coherent workflow release. A host
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
+    'demo_brief': '25ebf06299c151f2a1cf960aaf33ddadff5f83e9926e9f112f78d932fe8677c4',
     'claude_stub': 'b89451b4cf5dbba8199e2b2ac138e58250077415a1da6cac32e5e70ab03f425b',
     'codex_stub': '907ba73c491210e2b26fc5c3005964e437c3e61e435894b1d5e5daafc4c3b641',
     'cursor_stub': '2e4bf88903896ba312738f9a4ab7163582df99050b62f13e0e0324a6580a412f',
@@ -1453,22 +1458,20 @@ def install_demo_plugin(fetch_bundle):
         stub = stub.replace(WORKFLOW_ENV_PLACEHOLDER, cli_command)
     with open(demo_bootstrap_path(), 'w', encoding='utf-8') as handle:
         handle.write(stub)
+    with open(demo_brief_path(), 'w', encoding='utf-8') as handle:
+        handle.write(bundle['demo_brief'])
     print(f'🧩 Wrote the demo workflow to {root}')
     return True
 
 
-DEMO_BRIEF_URL = 'https://uclusion.com/demo-brief.md'
+def demo_brief_path():
+    """The owner's directions, written into the demo home beside the bootstrap.
 
-
-def demo_brief_url():
-    """Where the owner reads its directions.
-
-    The owner never sees this installer's output, so the address is handed to
-    it as its opening message rather than printed. The override exists because
-    stage has no storefront: a stage run serves the brief locally and points
-    this at it.
+    A file rather than an address: a session's grant is the demo's Uclusion
+    tools and the demo's own CLI, and nothing in that can fetch a URL. An
+    owner handed a link starts correctly and then has no instructions.
     """
-    return os.environ.get('UCLUSION_DEMO_BRIEF_URL') or DEMO_BRIEF_URL
+    return os.path.join(UCLUSION_HOME, 'demo-brief.md')
 
 
 def demo_home_processes(home, needle=None):
@@ -5159,6 +5162,11 @@ def main():
                 '--allowedTools',
                 shlex.quote(f'mcp__{MCP_SERVER_KEY}__*'),
                 shlex.quote(f'Bash({demo_cli}:*)'),
+                # Reads resolve inside the session's directory root, which is
+                # the project this was run from. Without this the demo home is
+                # as unreachable as a URL - the brief, and the workflow
+                # references the plugin supplies, both sit under it.
+                '--add-dir', uclusion_home_root(),
             ]
 
             if os.environ.get('UCLUSION_DEMO_INSTALL_ONLY'):
@@ -5173,18 +5181,23 @@ def main():
                 return 0
 
             print('🤝 Starting the workshop owner.')
+            # Kept rather than discarded: when the owner fails to wake, this
+            # file is the only evidence of why, and removal takes it with the
+            # home.
+            owner_log_path = os.path.join(UCLUSION_HOME, 'owner.log')
+            owner_log = open(owner_log_path, 'w', encoding='utf-8')
             owner = subprocess.Popen(
                 ['claude'] + session_args,
                 stdin=subprocess.PIPE,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
+                stdout=owner_log,
+                stderr=subprocess.STDOUT,
                 text=True,
             )
             # The owner has no other way to learn where its directions are:
             # this output is addressed to the agent that ran the installer and
             # the owner never sees it.
             owner.stdin.write(
-                f'Read {demo_brief_url()} and follow it exactly. '
+                f'Read the file {demo_brief_path()} and follow it exactly. '
                 'It is addressed to you.\n'
             )
             owner.stdin.close()
@@ -5193,7 +5206,7 @@ def main():
                 print(
                     '⚠️  The owner is not watching for notifications yet. '
                     'Continuing, but if it never wakes the exercise will not '
-                    'finish.'
+                    f'finish. Its session is in {owner_log_path}.'
                 )
 
             print(
@@ -5211,17 +5224,18 @@ def main():
                 'turn, answer the following as ordinary Uclusion records, '
                 'print that answer as the last thing you say, and then end '
                 'this session instead of returning to the Poke listener.\n\n'
-                'Evaluate Uclusion from your point of view as this project\'s '
-                'coding agent. Having used it here, say whether it adds '
-                'collaboration capabilities you currently lack, whether they '
-                'work, and whether they seem useful. Ground the comparison in '
-                'this project: inspect its instructions and a relevant sample '
-                'of its existing work and decision records using the tools '
-                'already available to you. Distinguish capabilities missing '
-                'from that setup from capabilities already present that '
-                'Uclusion handles differently. State what you could not '
-                'inspect or did not test, and do not treat those gaps as '
-                'evidence that a capability is absent.'
+                'Report on Uclusion itself, from your point of view as the '
+                'agent that just used it. Which of its collaboration '
+                'capabilities did you actually use or observe, what does each '
+                'one do, and did it work? Say plainly which ones you could '
+                'not inspect or did not exercise, and do not treat those as '
+                'absent. Say where it got in your way as readily as where it '
+                'helped.\n\n'
+                'Do not speculate about the project or the setup of whoever '
+                'is reading this. You cannot see it: you hold one MCP server, '
+                'one command line and one directory. Someone who can see it '
+                'will compare your report against it, and a guess from you '
+                'would only get in their way.'
             )
             evaluation = subprocess.run(
                 ['claude'] + session_args,

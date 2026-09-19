@@ -126,10 +126,41 @@ class DemoHomeTests(unittest.TestCase):
         # running fails silently, so the stop is part of the contract rather
         # than tidiness. Nothing passes between participants as a file.
         source = inspect.getsource(INSTALL.main)
-        self.assertIn('demo_brief_url()', source)
         self.assertIn('wait_for_owner_watch(', source)
         self.assertIn('stop_demo_home_processes(', source)
         self.assertNotIn('evaluation.md', source)
+
+    def test_the_brief_is_a_file_in_the_home_not_an_address(self):
+        # A session's grant holds the demo's tools and its CLI; nothing in it
+        # can fetch a URL, so an owner handed a link has no instructions.
+        self.assertIn('demo_brief', INSTALL.WORKFLOW_ASSET_PATHS)
+        self.assertIn('demo_brief', INSTALL.WORKFLOW_ASSET_SHA256)
+        self.assertTrue(
+            INSTALL.demo_brief_path().startswith(INSTALL.UCLUSION_HOME)
+        )
+        source = inspect.getsource(INSTALL.main)
+        self.assertIn('demo_brief_path()', source)
+        self.assertNotIn('demo_brief_url', source)
+
+    def test_the_evaluator_reports_on_uclusion_not_on_a_project_it_cannot_see(self):
+        # It holds one MCP server, one command line and one directory. A guess
+        # about the reader's setup would displace the comparison made by the
+        # agent that can actually see it.
+        source = inspect.getsource(INSTALL.main)
+        self.assertIn('Do not speculate about the project', source)
+        self.assertIn('Report on Uclusion itself', source)
+
+    def test_sessions_can_reach_the_demo_home_they_are_told_to_read(self):
+        # Reads resolve inside the session's directory root, which is the
+        # project the installer was run from, not the home under /tmp.
+        source = inspect.getsource(INSTALL.main)
+        self.assertIn("'--add-dir', uclusion_home_root()", source)
+
+    def test_the_owner_session_is_kept_for_diagnosis(self):
+        # When the owner never wakes, its session is the only evidence of why.
+        source = inspect.getsource(INSTALL.main)
+        self.assertIn("'owner.log'", source)
+        self.assertNotIn('stdout=subprocess.DEVNULL', source)
 
     def test_a_demo_can_be_installed_without_running_the_exercise(self):
         # Installing and running are one command now, so without this the

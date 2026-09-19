@@ -5043,8 +5043,12 @@ def main():
                 '--strict-mcp-config',
                 '--plugin-dir',
                 shlex.quote(demo_plugin_path()),
-                '--append-system-prompt',
-                f'"$(cat {shlex.quote(demo_bootstrap_path())})"',
+                # The file form rather than --append-system-prompt "$(cat ...)":
+                # a command substitution cannot be analysed statically, so an
+                # agent asked to run that line has it refused and starts
+                # inventing workarounds instead of starting the exercise.
+                '--append-system-prompt-file',
+                shlex.quote(demo_bootstrap_path()),
                 '--allowedTools',
                 shlex.quote(f'mcp__{MCP_SERVER_KEY}__*'),
                 shlex.quote(f'Bash({demo_cli}:*)'),
@@ -5060,16 +5064,28 @@ def main():
                 ('echo', shlex.quote(start_prompt), '|', 'claude', '--bg')
                 + session_flags
             )
+            # Addressed to the agent that ran this installer rather than to
+            # the person: it starts the owner itself, and the owner cannot
+            # find the second command because it was printed here, in a
+            # session the owner never sees.
             print(
                 'This demo wrote nothing into your own configuration, so '
                 'each session carries what it needs on its command line and '
                 'a session started any other way will not have Uclusion in '
                 'it.'
-                '\n\nStart a fresh Claude Code as the demo owner with:'
+                '\n\nStart this one yourself, in the background, from the '
+                'project directory. It is the workshop owner and it runs the '
+                'exercise:'
                 f'\n  {owner_command}'
-                '\n\nThat session then starts the evaluator, from your '
-                'project directory, with:'
+                '\n\nGive that session the demo brief address and this '
+                'second command as its opening message. It needs this one to '
+                'start the evaluator and has no way to find it:'
                 f'\n  {evaluator_command}'
+                '\n\nThen leave it alone. It runs for several minutes, and '
+                'when it is done it writes the evaluating agent\'s report to'
+                f'\n  {os.path.join(UCLUSION_HOME, "evaluation.md")}'
+                '\nWait for that file and show the person what is in it, '
+                'unaltered. It is the report this demo exists to produce.'
             )
     else:
         print("🎉 Uclusion install complete.")

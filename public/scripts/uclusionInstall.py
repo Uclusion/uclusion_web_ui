@@ -5161,6 +5161,17 @@ def main():
                 shlex.quote(f'Bash({demo_cli}:*)'),
             ]
 
+            if os.environ.get('UCLUSION_DEMO_INSTALL_ONLY'):
+                # Provisioning and running are the same command now, so a
+                # pre-flight that wants a demo home to check would otherwise
+                # have to spend a whole exercise to get one. This stops with
+                # everything installed and nothing started.
+                print(
+                    '⏹  Installed only: UCLUSION_DEMO_INSTALL_ONLY is set, so '
+                    'the owner and the evaluator were not started.'
+                )
+                return 0
+
             print('🤝 Starting the workshop owner.')
             owner = subprocess.Popen(
                 ['claude'] + session_args,

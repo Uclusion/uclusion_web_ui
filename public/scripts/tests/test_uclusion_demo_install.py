@@ -131,6 +131,17 @@ class DemoHomeTests(unittest.TestCase):
         self.assertIn('stop_demo_home_processes(', source)
         self.assertNotIn('evaluation.md', source)
 
+    def test_a_demo_can_be_installed_without_running_the_exercise(self):
+        # Installing and running are one command now, so without this the
+        # pre-flight would have to spend an exercise to get a home to check.
+        source = inspect.getsource(INSTALL.main)
+        self.assertIn("os.environ.get('UCLUSION_DEMO_INSTALL_ONLY')", source)
+        # It has to stop before anything is started, not after.
+        self.assertLess(
+            source.index('UCLUSION_DEMO_INSTALL_ONLY'),
+            source.index('Starting the workshop owner'),
+        )
+
     def test_removal_refuses_a_home_something_is_still_using(self):
         # A session started against this home keeps its client and its
         # credentials inside it, and deleting underneath one fails later,

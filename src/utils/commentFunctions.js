@@ -148,6 +148,19 @@ export function removeTodosFromDescription(description) {
   return doc.body.innerHTML;
 }
 
+export function moveToTaskPayload(marketId, commentId, isResolved) {
+  // B-all-658: moving a resolved suggestion to a task must state that it reopens.
+  // Every update to a resolved comment is refused, and that guard is what stops one
+  // person's move silently clobbering another person's resolve, so the intent is
+  // declared rather than the guard relaxed. An open comment sends no reopen.
+  return {
+    marketId,
+    commentId,
+    commentType: TODO_TYPE,
+    ...(isResolved ? { resolved: false } : {})
+  };
+}
+
 export function handleAcceptSuggestion(info) {
   const { isMove, comment, investible, investiblesDispatch, marketStagesState, commentsState,
     commentsDispatch, messagesState, messagesDispatch } = info;

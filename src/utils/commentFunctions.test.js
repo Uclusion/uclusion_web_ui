@@ -1,9 +1,10 @@
 import {
   changeInvestibleStageOnCommentClose,
   doesCommentResolutionRestoreStage,
-  isAssistanceRespondedByHuman
+  isAssistanceRespondedByHuman,
+  moveToTaskPayload
 } from './commentFunctions';
-import { ISSUE_TYPE, QUESTION_TYPE } from '../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE, TODO_TYPE } from '../constants/comments';
 
 const planningMarketId = 'planning-market';
 const inlineMarketId = 'inline-option-market';
@@ -410,5 +411,28 @@ describe('isAssistanceRespondedByHuman option chronology', () => {
       { ...marketPresencesState, [inlineMarketId]: afterHumanVote },
       { [inlineMarketId]: [aiOptionQuestion, aiClarification] }
     )).toBe(false);
+  });
+});
+
+
+describe('moveToTaskPayload (B-all-658)', () => {
+  it('declares the reopen when the suggestion is resolved', () => {
+    const payload = moveToTaskPayload('market-1', 'comment-1', true);
+
+    // Without this the PATCH is refused with 403 Comment resolved and the move
+    // silently does nothing, which is the reported defect.
+    expect(payload.resolved).toBe(false);
+    expect(payload.commentType).toBe(TODO_TYPE);
+    expect(payload.marketId).toBe('market-1');
+    expect(payload.commentId).toBe('comment-1');
+  });
+
+  it('sends no reopen for a comment that is already open', () => {
+    const payload = moveToTaskPayload('market-1', 'comment-1', false);
+
+    // An ordinary move must not carry a reopen, or it would clobber a resolve
+    // another person made while this move was in flight.
+    expect('resolved' in payload).toBe(false);
+    expect(payload.commentType).toBe(TODO_TYPE);
   });
 });

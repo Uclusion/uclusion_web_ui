@@ -82,6 +82,7 @@ import {
   handleAcceptSuggestion,
   isAIAuthoredQuestion,
   isSingleAssisted,
+  moveToTaskPayload,
   onCommentOpen, onCommentsMove
 } from '../../utils/commentFunctions';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
@@ -918,7 +919,7 @@ function Comment(props) {
   }
 
   function moveToTask() {
-    return updateComment({marketId, commentId: id, commentType: TODO_TYPE}).then((taskComment) => {
+    return updateComment(moveToTaskPayload(marketId, id, resolved)).then((taskComment) => {
       handleAcceptSuggestion({
         isMove: myPresenceIsAssigned && myPresence.id === comment.created_by &&
           isSingleAssisted(comments, assigned), comment: taskComment, investible, investiblesDispatch, marketStagesState,

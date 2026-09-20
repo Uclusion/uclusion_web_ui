@@ -200,12 +200,18 @@ class DemoHomeTests(unittest.TestCase):
             '  444 an unrelated process',
             f'  555 grep -r something {home}',
             f'  666 /bin/bash ./gate.sh {home} stage',
+            # Named a file inside the home on its command line without ever
+            # running it. This is what killed the gate twice.
+            f'  777 /bin/bash -c GATE_INSTALLER={home}/.local/bin/x.py ./gate.sh',
+            f'  888 vim {home}/.uclusion/bootstrap.md',
+            # The demo's own client, running from the home.
+            f'  999 python3 {home}/.local/bin/uclusion.py -e stage watch',
         ])
         with mock.patch.object(
             INSTALL.subprocess, 'run', return_value=mock.Mock(stdout=listing)
         ):
             found = INSTALL.demo_home_processes(home)
-        self.assertEqual([111], [pid for pid, _args in found])
+        self.assertEqual([111, 999], sorted(pid for pid, _args in found))
 
 
 class DemoProvisionTests(unittest.TestCase):

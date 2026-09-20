@@ -1489,23 +1489,32 @@ def demo_home_processes(home, needle=None):
         ).stdout
     except Exception:
         return []
-    # Naming the home is not enough. A grep, an editor, or the script running
-    # a check all mention that path and none of them is a demo session; the
-    # first run of the gate had this scan kill the gate. A session or the
-    # demo's own client always names one of the things only this install put
-    # there.
-    markers = (
-        os.path.join(home, '.local', 'bin'),
-        os.path.join(home, '.uclusion', 'mcp.json'),
-        os.path.join(home, '.uclusion', 'plugin'),
-        os.path.join(home, '.uclusion', 'bootstrap.md'),
-    )
     found = []
     for line in listing.splitlines():
         pid_text, _, args = line.strip().partition(' ')
         if not args or home not in args:
             continue
-        if not any(marker in args for marker in markers):
+        # Mentioning the home is not enough to be killed for. A grep, an
+        # editor, or a script passed the path as an argument all name it and
+        # none of them is this demo; naming a file inside the home does not
+        # help either, because a command line that references one still is
+        # not running it. What distinguishes a demo process is that it *runs*
+        # from this home, or is a client session pointed at it.
+        fields = args.split()
+        program = fields[0]
+        script = fields[1] if len(fields) > 1 else ''
+        # An interpreter running one of this demo's own executables counts;
+        # an editor with a file from the home open does not, and the second
+        # argument being somewhere in the home is not the difference.
+        runs_from_home = (
+            program.startswith(home)
+            or script.startswith(os.path.join(home, '.local'))
+        )
+        is_demo_session = (
+            os.path.basename(program) == 'claude'
+            and any(field.startswith(home) for field in fields[1:])
+        )
+        if not (runs_from_home or is_demo_session):
             continue
         if needle is not None and needle not in args:
             continue

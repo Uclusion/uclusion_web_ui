@@ -15,13 +15,15 @@ skill owns event handling and the job workflow.
 - For Pokes, idle work discovery, auto-take, delivery behavior, lookup routing,
   or update notices, read [references/pokes.md](references/pokes.md).
 - For notifications, exports, creating artifacts and visual options,
-  uploads, recording dependencies, view notes, commits, or context-clear
+  recording dependencies, view notes, commits, or context-clear
   boundaries, read [references/operations.md](references/operations.md).
 - When a standalone bug is resolved or an assigned job transitions into
   Reviewable, read
   [references/completion.md](references/completion.md).
-- If `start_job_audit` is exposed, read the token usage audit rules in
-  `operations.md` before substantive planning.
+- Read a tool's rules only when the session exposes that tool: `start_job_audit`
+  routes to [references/audit.md](references/audit.md) before substantive
+  planning, `claim_work` to [references/claims.md](references/claims.md), and
+  `get_upload` to [references/uploads.md](references/uploads.md).
 - Before every lane handoff, read `pokes.md` and perform its assignment-aware
   immediate work discovery rules. Also read `operations.md` when resolving a
   bug/job, opening review, or receiving sign-off and committing. On standalone
@@ -443,7 +445,7 @@ confirmed; before then, do not apply this handoff checklist:
   completion or an explicit human switch.
 - First read `pokes.md` so the handoff includes assignment-aware work discovery.
 - If `claim_work` is exposed and the lane's short code is claimed, release it
-  per the work claim lock rules in `pokes.md`.
+  per `claims.md`.
 - If blocked on a human, leave the exact dependency in Uclusion.
 - If testable, read `operations.md` and follow the review routing above. Any
   implementation pass opens its review and mirrors the menu its completeness

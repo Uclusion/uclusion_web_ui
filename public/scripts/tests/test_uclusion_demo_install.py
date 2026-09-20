@@ -153,11 +153,23 @@ class DemoHomeTests(unittest.TestCase):
                      'Do not speculate about the project'):
             self.assertNotIn(leak, source)
 
+    def test_the_grant_is_argv_not_a_shell_line(self):
+        # shlex.quote output here arrives as literal quote characters, the
+        # client rejects both rules as malformed, and every session runs with
+        # no grant at all - which is why the owner could not run its watch.
+        args = INSTALL.demo_session_args('stage')
+        grant = args[args.index('--allowedTools') + 1:]
+        for value in grant[:2]:
+            self.assertFalse(value.startswith("'"), value)
+            self.assertFalse(value.endswith("'"), value)
+        self.assertIn('mcp__Uclusion__*', grant)
+
     def test_sessions_can_reach_the_demo_home_they_are_told_to_read(self):
         # Reads resolve inside the session's directory root, which is the
         # project the installer was run from, not the home under /tmp.
-        source = inspect.getsource(INSTALL.main)
-        self.assertIn("'--add-dir', uclusion_home_root()", source)
+        self.assertIn('--add-dir', INSTALL.demo_session_args('stage'))
+        # main() must use that definition rather than assembling its own.
+        self.assertIn('demo_session_args(env)', inspect.getsource(INSTALL.main))
 
     def test_the_owner_session_is_kept_for_diagnosis(self):
         # When the owner never wakes, its session is the only evidence of why.

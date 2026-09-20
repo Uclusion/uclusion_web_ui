@@ -1569,6 +1569,33 @@ def stop_demo_home_processes(home):
     return stopped, left
 
 
+def demo_session_args(env):
+    """The flags every demo session is started with.
+
+    Argv, not a shell line: values must not be shell-quoted. Passing
+    shlex.quote output here made the client reject both --allowedTools rules
+    as malformed - the quotes arrived as literal characters - so every session
+    ran with no grant at all and the owner could not run its own watch.
+    """
+    demo_cli = workflow_cli_command(env)
+    return [
+        '--mcp-config', demo_mcp_config_path(),
+        '--strict-mcp-config',
+        '--plugin-dir', demo_plugin_path(),
+        # The file form rather than --append-system-prompt "$(cat ...)": a
+        # command substitution cannot be analysed statically, so an agent
+        # asked to run that line has it refused.
+        '--append-system-prompt-file', demo_bootstrap_path(),
+        '--allowedTools',
+        f'mcp__{MCP_SERVER_KEY}__*',
+        f'Bash({demo_cli}:*)',
+        # Reads resolve inside the session's directory root, which is the
+        # project this was run from; the brief and the workflow references
+        # both sit under the demo home.
+        '--add-dir', uclusion_home_root(),
+    ]
+
+
 def demo_mcp_config_path():
     """The standalone MCP config this demo's launch line hands the client.
 
@@ -5151,32 +5178,7 @@ def main():
             # both, so ordering and cleanup can live in one place. A session
             # already running cannot acquire --mcp-config or --plugin-dir,
             # which is why these have to be new processes.
-            demo_cli = workflow_cli_command(env)
-            # Everything a session needs travels on its own command line: the
-            # server, the workflow skills, the bootstrap instructions and the
-            # grant. None of it was written into the person's configuration, so
-            # a session started any other way simply has no Uclusion in it. The
-            # server in particular has to arrive this way rather than through a
-            # configuration file, because a session that meets the per-project
-            # "new MCP server found" prompt sits on it until the exercise is
-            # over and nothing here can answer it.
-            session_args = [
-                '--mcp-config', demo_mcp_config_path(),
-                '--strict-mcp-config',
-                '--plugin-dir', demo_plugin_path(),
-                # The file form rather than --append-system-prompt "$(cat ...)":
-                # a command substitution cannot be analysed statically, so an
-                # agent asked to run that line has it refused.
-                '--append-system-prompt-file', demo_bootstrap_path(),
-                '--allowedTools',
-                shlex.quote(f'mcp__{MCP_SERVER_KEY}__*'),
-                shlex.quote(f'Bash({demo_cli}:*)'),
-                # Reads resolve inside the session's directory root, which is
-                # the project this was run from. Without this the demo home is
-                # as unreachable as a URL - the brief, and the workflow
-                # references the plugin supplies, both sit under it.
-                '--add-dir', uclusion_home_root(),
-            ]
+            session_args = demo_session_args(env)
 
             if os.environ.get('UCLUSION_DEMO_INSTALL_ONLY'):
                 # Provisioning and running are the same command now, so a

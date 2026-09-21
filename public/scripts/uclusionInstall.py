@@ -332,9 +332,9 @@ WORKFLOW_ASSET_PATHS = {
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
     'demo_brief': '25ebf06299c151f2a1cf960aaf33ddadff5f83e9926e9f112f78d932fe8677c4',
-    'claude_stub': 'f938a4564caac1a48542ca9a2e925bc51d8acc5876a4aa74de940cf84a6290c5',
-    'codex_stub': '907ba73c491210e2b26fc5c3005964e437c3e61e435894b1d5e5daafc4c3b641',
-    'cursor_stub': '2e4bf88903896ba312738f9a4ab7163582df99050b62f13e0e0324a6580a412f',
+    'claude_stub': 'a5d10cc9f472630b54e79e5c46421c7dc8da134e60141da6ca51a718b40b4a00',
+    'codex_stub': 'f8746051d7fc6ad2fa3e6c48e3936489067b2aa620c57a9651c690d73c1408c6',
+    'cursor_stub': 'c4042191bbb4a67a06381996e4d8e79dbec339a71735352d028d68705f659d72',
     'skill': '54d65bd4c45a8ee3e399158561f57ba3b184e2e5662a47b75fe2e8d250512391',
     'pokes_reference': 'eaa19f97a4ba3451e395b2244b90a58c103845263275c53666dd40b033932ab1',
     'operations_reference': 'cfd466b67ebb755fde8be45a41ed28f9605030d6f1aa4f82d0767bdb14ae62dd',

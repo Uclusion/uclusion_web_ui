@@ -5,7 +5,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import LoadingOverlay from 'react-loading-overlay';
 import { useIntl } from 'react-intl';
-import { makeStyles, useMediaQuery, useTheme } from '@material-ui/core'
+import { makeStyles, Tooltip, useMediaQuery, useTheme } from '@material-ui/core'
 import { pushMessage } from '../../utils/MessageBusUtils';
 import _ from 'lodash';
 import VideoDialog from './CustomUI/VideoDialog';
@@ -33,6 +33,7 @@ import { ticketContextHack } from '../../contexts/TicketContext/TicketIndexConte
 import { marketsContextHack } from '../../contexts/MarketsContext/MarketsContext';
 import { commentsContextHack } from '../../contexts/CommentsContext/CommentsContext';
 import { MyLink } from './Utilities/LinkUtils';
+import { getLinkTargetName } from '../../utils/marketIdPathFunctions';
 
 // https://github.com/derrickpelletier/react-loading-overlay/pull/57
 LoadingOverlay.propTypes = undefined;
@@ -98,6 +99,14 @@ function QuillEditor2 (props) {
   const boxRef = useRef();
   const toolbarRef = useRef();
   const [uploadInProgress, setUploadInProgress] = useState(false);
+  // S-all-321: a short code link reads as its code, so the target's current title is
+  // shown on hover. A Quill blot is plain DOM built outside React, so the tooltip lives
+  // here, on the component that owns the rendered body, and is anchored to whichever
+  // link is hovered. That is what makes it the application's own tooltip - below the
+  // link and centered on it - rather than the browser's native title tooltip, which
+  // anchors at the pointer's x position and clips its own border (C-all-2098).
+  const [hoveredLink, setHoveredLink] = useState(null);
+  const [hoveredLinkName, setHoveredLinkName] = useState(undefined);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
@@ -247,6 +256,43 @@ function QuillEditor2 (props) {
     };
   }, [id, editorCreator]);
 
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) {
+      return undefined;
+    }
+    const onOver = (event) => {
+      const link = event.target?.closest?.('a');
+      if (!link || !container.contains(link)) {
+        return;
+      }
+      const name = getLinkTargetName(link.getAttribute('href'));
+      if (!name) {
+        return;
+      }
+      setHoveredLinkName(name);
+      setHoveredLink(link);
+    };
+    const onOut = (event) => {
+      const link = event.target?.closest?.('a');
+      if (!link) {
+        return;
+      }
+      // mouseout also fires moving between a link's own descendants, so only clear
+      // when the pointer has actually left that link.
+      if (event.relatedTarget && link.contains(event.relatedTarget)) {
+        return;
+      }
+      setHoveredLink(null);
+    };
+    container.addEventListener('mouseover', onOver);
+    container.addEventListener('mouseout', onOut);
+    return () => {
+      container.removeEventListener('mouseover', onOver);
+      container.removeEventListener('mouseout', onOut);
+    };
+  }, []);
+
   return (
     <div
       style={{
@@ -258,6 +304,14 @@ function QuillEditor2 (props) {
         maxWidth: noToolbar ? undefined : '680px',
       }}
     >
+      <Tooltip
+        open={!!hoveredLink}
+        title={hoveredLinkName || ''}
+        placement="bottom"
+        PopperProps={{ anchorEl: hoveredLink }}
+      >
+        <span />
+      </Tooltip>
       <div
         id={`${useCssId}scroll`}
         style={{

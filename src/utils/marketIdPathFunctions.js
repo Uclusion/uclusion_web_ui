@@ -15,6 +15,7 @@ import {
   isTicketPath
 } from '../contexts/TicketContext/ticketIndexContextHelper';
 import { getInboxTarget, getMessageId } from '../contexts/NotificationsContext/notificationsContextHelper';
+import { nameFromDescription } from './stringFunctions';
 
 export const VISIT_CHANNEL = 'VisitChannel';
 export const VIEW_EVENT = 'pageView';
@@ -375,6 +376,48 @@ export function getNameForUrl(url) {
 
 // T-all-1704: a link's display name comes from its root comment (see getNameForUrl),
 // so a link whose root comment is resolved renders struck through in MyLink
+// S-all-321: a short code link keeps the code as its text, so the target's current
+// title is shown on hover instead of being copied into every body that mentions it.
+// Resolution is the same walk isUrlToResolvedComment does for the strike through, and
+// it is absent in the same cases: a target this session has not loaded has no name.
+export function getLinkTargetName(url, ticketState = ticketContextHack,
+  commentsState = commentsContextHack, investiblesState = investibleContextHack) {
+  try {
+    // stored link hrefs can be relative - resolve them against this host
+    const urlParts = new URL(url, window.location.origin);
+    if (isTicketPath(urlParts.pathname)) {
+      const ticket = getTicket(ticketState, urlParts.pathname.substring(1));
+      if (!ticket) {
+        return undefined;
+      }
+      if (isInvestibleTicket(urlParts.pathname)) {
+        return getInvestibleName(investiblesState, ticket.investibleId);
+      }
+      const comment = getComment(commentsState, ticket.marketId, ticket.commentId);
+      return comment ? nameFromDescription(comment.body) : undefined;
+    }
+    if (urlParts.host !== window.location.host) {
+      return undefined;
+    }
+    const { action, marketId, investibleId } = decomposeMarketPath(urlParts.pathname);
+    if (action !== 'dialog') {
+      return undefined;
+    }
+    // A comment anchors #c on its investible or its group; a job has no hash at all.
+    if (urlParts.hash && urlParts.hash.startsWith('#c') && !urlParts.hash.startsWith('#cv')) {
+      const commentId = urlParts.hash.substring(2);
+      const comment = getComment(commentsState, marketId, commentId);
+      return comment ? nameFromDescription(comment.body) : undefined;
+    }
+    if (investibleId) {
+      return getInvestibleName(investiblesState, investibleId);
+    }
+  } catch (e) {
+    return undefined;
+  }
+  return undefined;
+}
+
 export function isUrlToResolvedComment(url) {
   const commentsState = commentsContextHack;
   const ticketState = ticketContextHack;

@@ -332,7 +332,7 @@ WORKFLOW_ASSET_PATHS = {
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
     'demo_brief': '25ebf06299c151f2a1cf960aaf33ddadff5f83e9926e9f112f78d932fe8677c4',
-    'claude_stub': 'b89451b4cf5dbba8199e2b2ac138e58250077415a1da6cac32e5e70ab03f425b',
+    'claude_stub': 'f938a4564caac1a48542ca9a2e925bc51d8acc5876a4aa74de940cf84a6290c5',
     'codex_stub': '907ba73c491210e2b26fc5c3005964e437c3e61e435894b1d5e5daafc4c3b641',
     'cursor_stub': '2e4bf88903896ba312738f9a4ab7163582df99050b62f13e0e0324a6580a412f',
     'skill': '54d65bd4c45a8ee3e399158561f57ba3b184e2e5662a47b75fe2e8d250512391',

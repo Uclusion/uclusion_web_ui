@@ -233,6 +233,19 @@ class ResidentStubContractTests(unittest.TestCase):
         self.assertRegex(stub, r'(?i)never[^\n]*(?:wait|listen)')
 
 
+    def test_claude_stub_arms_its_own_poke_listener(self):
+        stub = self.bundle['claude_stub']
+        self.assertIn(INSTALL.WORKFLOW_ENV_PLACEHOLDER + ' listen', stub)
+        self.assertRegex(stub, r'(?i)arm\s+exactly one Monitor')
+        # A Monitor reports only into the conversation that armed it, so the
+        # session that needs delivery is the session that arms it.
+        self.assertRegex(stub, r'(?i)only the session that armed it')
+        self.assertRegex(stub, r'(?i)did not arm')
+        # Regression guard for T-Marketing-272: the shipped text sent the
+        # session to the process list to adopt a listener belonging to another
+        # conversation, which delivered nothing for that session's whole life.
+        self.assertNotRegex(stub, r'(?i)process list')
+
 class WorkflowBundleFetcherTests(unittest.TestCase):
     class Response:
         def __init__(self, content):

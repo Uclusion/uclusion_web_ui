@@ -13,19 +13,28 @@
 
 ## Finding work and auto-take
 
-When there is no assigned work, call `find_work` without waiting to be asked.
+Call `find_work` at an unassigned session start, when an assignment ends, or
+when the human explicitly requests other work. A Poke, delivery rearm, or
+ordinary turn ending never triggers a call or another work list by itself.
+
+While a human-guided assignment waits for input or finishes an intermediate
+task's completion package, retain it and report the pending decision or
+completed task. At the first such wait or completed package in the session,
+say once: "You can ask me to find other work at any time." This is an
+informational hint, not a question or a `find_work` call. Carry whether it has
+been shown into the session summary so compaction does not repeat it. Further
+handoffs within that assignment do not repeat the hint or fetch work unless
+the human asks. A completion-menu wait still keeps its assignment and claim.
+
 Whenever presenting `find_work` results or any equivalent current-work list,
 render the complete result as a numbered list. Every numbered entry must include
 both its exact `short_code_id` and returned `name` (its short description); never
 present an entry as only a bug, job, suggestion, or other short code. For each
 bug, also display its returned `severity_label` alongside the code and name;
 use `unknown` when the label is missing. Priority comes from the bug's stored
-severity, never notification urgency or list position. Apply this invariant at
-an idle session start, immediately after finishing or handing off
-work, and anywhere else current work is shown. A deferred Poke does not count as
-concrete work; find_work is the current state. A human-guided assignment retained
-through an input or review handoff is still assigned work, so the list is
-informational until the human explicitly switches that session.
+severity, never notification urgency or list position. A list requested while
+a human-guided assignment remains retained is informational until the human
+explicitly switches that session.
 
 If the response has `auto_take_directions`, present the list and follow
 [claims.md](claims.md) before loading any marked item. Pass the marked

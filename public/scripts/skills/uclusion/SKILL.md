@@ -24,8 +24,9 @@ skill owns event handling and the job workflow.
   routes to [references/audit.md](references/audit.md) before substantive
   planning, `claim_work` to [references/claims.md](references/claims.md), and
   `get_upload` to [references/uploads.md](references/uploads.md).
-- Before every lane handoff, read `pokes.md` and perform its assignment-aware
-  immediate work discovery rules. Also read `operations.md` when resolving a
+- Before every lane handoff, apply `pokes.md`'s assignment-aware discovery
+  rules; a retained assignment does not trigger a work list. Read
+  `operations.md` when resolving a
   bug/job, opening review, or receiving sign-off and committing. On standalone
   bug resolution, also read `completion.md` and apply its sweep before the
   operations reference's remaining completion actions. Job transitions into
@@ -471,10 +472,10 @@ answer, so keep going on everything else.
 End when nothing can proceed without the human. Then say what you need from
 them, and why the current lane is blocked if it is.
 
-Every ending turn presents one of exactly two things: the completion package
-for work that reached it, or `find_work` results in the required numbered form.
-A prose summary of open items is neither, and leaves the human with no decision
-to make and no next item to pick.
+Present the completion package when work reaches it. Otherwise state the
+pending decision or completed task, applying `pokes.md`'s one-time hint and
+discovery triggers. A turn ending alone never calls `find_work` or repeats its
+list.
 
 ## Single-comment workflow
 

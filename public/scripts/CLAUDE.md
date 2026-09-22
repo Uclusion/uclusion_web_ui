@@ -46,8 +46,10 @@ or a request names Uclusion, Poke AI, find_work, or a Uclusion short code
 beginning `J-`, `T-`, `B-`, `Q-`, `S-`, `O-`, `I-`, `R-`, or `C-`, load the
 `/uclusion` skill before acting. Handle every delivered line in order.
 
-With no concrete work at session start or after finishing work, load the
-`/uclusion` skill and call `find_work`. If the skill or one of its required
+At an unassigned session start or when the assignment ends, load `/uclusion`
+and call `find_work`. While an assignment remains, find other work only on an
+explicit human request. A Poke, delivery rearm, or turn ending alone never
+triggers discovery. If the skill or one of its required
 references is absent or unreadable, report that the Uclusion install is broken,
 ask permission to run `{{UCLUSION_CLI}} update`, and after success require a
 client restart or MCP reconnect before Uclusion work. Do not improvise the

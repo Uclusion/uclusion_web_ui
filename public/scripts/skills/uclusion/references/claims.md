@@ -14,8 +14,8 @@ requires work claims. Human-guided selections do not require the tool.
   result names the single code you now hold; start that item, even when it is
   not your first preference.
 - A denied claim means every listed item is already held by other agents. Do
-  not start a lane; return to idle delivery, or re-run find_work when new work
-  may have arrived.
+  not start a lane; return to idle delivery. Further discovery follows the
+  triggers in [pokes.md](pokes.md), not another Poke or delivery rearm.
 - A timeout or error result means the lock service is unreachable. No claim was
   granted, so do not start auto-take work; remain idle and report the failure.
   A later direct human selection may use the human-guided path without a claim.

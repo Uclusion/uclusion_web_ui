@@ -6,10 +6,10 @@ description: Compose, revise, or cold-review the current intent/design capsule f
 <!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->
 # Uclusion design capsule
 
-Turn the selected Uclusion target and its evidence into a concise,
-implementation-ready system story. The core `$uclusion` skill owns target
-selection and every Uclusion tool call. This skill owns only capsule
-composition, revision, and cold review.
+Write the shortest standalone capsule that lets a new implementer build the
+agreed outcome. Scale detail to the work's complexity and uncertainty. The core
+`$uclusion` skill owns target selection and every Uclusion tool call; this skill
+owns only capsule composition, revision, and cold review.
 
 ## Boundary with the core workflow
 
@@ -56,22 +56,15 @@ the question before asking this skill to continue.
 
 ## Compose the system story
 
-Open with a `## Summary` section, then write the rest as freeform Markdown
-sized to the work. The summary is navigational and is defined by what it
-carries: the files or surfaces a reader should open first, any new or changed
-table and the one-line reason it exists, and the broad shape of the change,
-such as one new provider and twelve converted call sites. Three to five lines,
-bullets allowed. It must not carry the actor story, terminal outcomes,
-evidence links, or any sentence that also appears later in the capsule. A
-reader who stops after it should know where to start work; a reader who wanted
-the design still has to read on.
+Open with a navigational `## Summary`: the files or surfaces to open first and
+the broad shape of the change. Mention a new or changed table only when there
+is one, with its reason. Use as few lines as needed; one can suffice. Keep actor
+outcomes, evidence links and the contract below out of this summary.
 
-After that summary, lead with what the actor experiences from trigger through
-terminal success or failure, then make the implementation contract easy to
-skim. State each important idea once. The summary is the single exception, and
-only because navigation appears nowhere else: do not split one story into an
-“intended outcome” and a second section that restates it as a contract, and do
-not create a heading for every planning category.
+Then describe the actor's trigger and outcome, with the material constraints
+needed to implement it. State each idea once. Small work may need only one
+short paragraph after the summary. Do not add sections or repeat the outcome
+to make the capsule look complete.
 
 Integrate only the applicable subjects into that story:
 
@@ -84,13 +77,13 @@ Integrate only the applicable subjects into that story:
 - exclusions and non-goals;
 - only the testing and security work already approved by the human.
 
-Omit irrelevant categories instead of announcing that each one is
-inapplicable, except when an explicit testing or security limit prevents
-unauthorized work. Every paragraph or bullet must add behavior, a boundary, or
-a constraint that an implementer needs. Delete throat-clearing, repeated
-rationale, status history, and obvious consequences. Derive any remaining
-structure from the system story. Do not turn the capsule into a component
-checklist, chronological coding plan, question recap, or evidence ledger.
+These subjects are prompts, not required sections. Omit irrelevant categories
+and obvious exclusions; retain explicit testing or security limits. Every
+sentence must add behavior, a necessary boundary, evidence or verification.
+Remove repeated rationale, status history and obvious consequences. Use brief
+claim-local links rather than retelling the supporting discussion. Do not turn
+the capsule into a component checklist, coding plan or question recap. Brevity
+must preserve the contract and its evidence, not impose an arbitrary word cap.
 
 ## Revise and cold-review
 
@@ -102,14 +95,13 @@ and implementation differences belong once in the implementation review,
 which the core workflow owns.
 
 For a cold review, discard remembered chat and questions. Read only the
-candidate capsule and the claim-local evidence it links. Check whether a new
-implementer can recover each actor's terminal outcome, responsibility boundary,
-state transition, interface, failure and concurrency rule, exclusion, and
-approved verification limit. Check the summary first: it exists, it names where
-to start, and no sentence in it appears again below. Also check that every
-reviewer-divergent choice
-has qualifying human evidence beside it and that selected-option evidence names
-both exact identifiers.
+candidate capsule and its claim-local evidence. Check that a new implementer
+can recover the agreed outcome and material, applicable boundaries, state,
+interfaces, failure and concurrency behavior, and approved verification. Do not demand detail
+for inapplicable categories. Check that the summary provides navigation without
+repeating the contract, and remove prose whose deletion would lose no needed
+information. Every reviewer-divergent choice still needs qualifying human
+evidence beside it; selected-option evidence names both exact identifiers.
 
 For an unpublished draft or a revision authorized by new human input, return a
 revised complete body when the evidence supports a clearer or more complete

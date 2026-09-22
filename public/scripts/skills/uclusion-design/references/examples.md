@@ -5,94 +5,75 @@
 The examples below are complete capsule bodies, not isolated sentence
 patterns. All Uclusion codes, names, and links are fictional.
 
-## Good: one concise system story
+## Good: small work stays small
+
+> ## Summary
+>
+> `ExportButton.jsx`: download-button copy.
+>
+> When an export is ready, its button reads “Download CSV”. Activation still
+> downloads the same file
+> ([B-Demo-2: clarify the label without changing the
+> action](https://uclusion.example/demo/B-Demo-2)). Verify the ready-state label
+> in the existing preview
+> ([C-Demo-4: approved visual check](https://uclusion.example/demo/C-Demo-4)).
+
+One summary line and one paragraph cover this change. There is no new lifecycle
+or concurrency rule to invent, and no need to announce every unaffected area.
+
+## Good: more detail where behavior requires it
 
 > # Download workspace audit history
 >
 > ## Summary
 >
-> - Exports panel: the request button and its progress and result states.
-> - Export worker: file generation and publication.
-> - Export API: adds an export id and four status values to the existing
->   endpoint.
-> - No new table. Completed files go to the existing object store.
+> Exports panel, worker and API: extend the existing request/status path.
 >
-> When a workspace owner requests an audit-history export, the existing Exports
-> panel starts one export and shows its progress. Success replaces the current
-> result with an expiring download link
+> A workspace owner requests an audit-history export and sees its progress.
+> Success replaces the current result with an expiring download link
 > ([Q-Demo-7, selected O-1: deliver through an expiring
 > link](https://uclusion.example/demo/Q-Demo-7)). If a later attempt fails, the
 > panel shows that failure but keeps the last successful link available
 > ([Q-Demo-8, selected O-2: preserve the prior successful
 > export](https://uclusion.example/demo/Q-Demo-8)).
 >
-> The web app owns the request and status display; the export worker owns file
-> generation and publishes only complete files. The existing API returns an
-> export ID, reports `queued`, `running`, `ready`, or `failed`, and returns the
-> active export when a repeated request races with it
+> The web app displays progress; the worker publishes only complete files. The
+> existing API returns an export ID and `queued`, `running`, `ready`, or `failed`,
+> reusing the active export when a repeated request races with it
 > ([R-Demo-9: current export states and active-request
-> behavior](https://uclusion.example/demo/R-Demo-9)). No new transport is
-> introduced.
+> behavior](https://uclusion.example/demo/R-Demo-9)).
 >
-> Work stays in the existing Exports panel, worker, and API documentation. It
-> does not add email attachments, a new export page, or a new authorization
-> model
-> ([J-Demo-12: existing surfaces and authorization remain in
-> scope](https://uclusion.example/demo/J-Demo-12)). Verification is one live
-> request through download plus one live failed attempt that preserves the
+> Keep the existing surfaces and authorization
+> ([J-Demo-12: scope and authorization
+> boundary](https://uclusion.example/demo/J-Demo-12)).
+>
+> Verify one successful download and one failed attempt that preserves the
 > prior link
 > ([C-Demo-3: approved verification](https://uclusion.example/demo/C-Demo-3)).
 
 Why this works:
 
-- The summary says where to start and what shape the change is, and repeats no
-  sentence from the story below it.
-- The first paragraph gives the actor, trigger, success, and failure without a
-  second section restating them.
-- Each later paragraph adds information an implementer needs: ownership and
-  states, then scope and verification. Removing one would remove a real part of
-  the contract.
-- The two human choices are attached to the behavior they authorize, and each
-  link visibly names the exact fictional question and selected option.
-- The source artifact supports an existing API fact, not a product choice.
-- Concrete states and terminal outcomes replace phrases such as “handle
-  failures safely.”
+- Failure, concurrency and ownership need explicit detail for this outcome.
+- Evidence stays beside its claim, with both question and selected option named.
+- Navigation, behavior and verification each appear once.
 
-## Weak: a long requirements-shaped recap
+## Weak: repetition and a missing contract
 
-> # Intended outcome
+> ## Summary
 >
-> Workspace owners need a robust, secure, scalable, and user-friendly way to
-> export audit history. The system should make exports reliable and easy to
-> understand while preserving previous work.
+> Make audit exports reliable and easy to understand.
 >
-> # Composition and evidence contract
+> ## Intended outcome
 >
-> The export experience must communicate progress, success, and failure. It
-> must be durable and reviewable. All decisions should be supported by the
-> available evidence, and the implementation should follow best practices.
+> Workspace owners need reliable, understandable audit exports.
 >
-> # Components
->
-> - Export panel
-> - Export API
-> - Queue
-> - Object storage
-> - Email service
-> - Monitoring
->
-> # Behavior
+> ## Behavior
 >
 > Exports will remain available for 30 days and will also arrive as email
 > attachments. Concurrent requests and failures will be handled safely. The
 > implementation should preserve compatibility and provide useful errors.
 >
-> # Implementation plan
->
-> First update the API, then create the worker, then modify the panel, then add
-> monitoring and tests. Reviewers can flag any concerns with these choices.
->
-> # Evidence
+> ## Evidence
 >
 > - [Q-Demo-7: delivery question](https://uclusion.example/demo/Q-Demo-7)
 > - [Q-Demo-8: failure question](https://uclusion.example/demo/Q-Demo-8)
@@ -100,23 +81,12 @@ Why this works:
 
 Why this is weak:
 
-- It opens with two sections that repeat the same aspiration in different
-  abstract words. Neither is a summary: a summary would say which files to open
-  and whether a table was added. These consume attention without adding
-  navigation or implementable behavior.
-- Six headings make the reader assemble the design themselves. The capsule is
-  long because it records writing categories, not because the design is
-  complex.
-- The component list and chronological plan describe how to organize work, not
-  what the actor or system experiences.
+- The opening repeats the outcome instead of providing navigation.
 - “Handled safely,” “preserve compatibility,” and “useful errors” never say
   what happens when an export fails or requests race.
-- Thirty-day retention, email attachments, object storage, and monitoring are
-  unsupported additions. “Flag concerns later” does not turn them into agreed
-  choices.
-- The evidence ledger is detached from the claims, and the question links do
-  not name selected option codes. A skimming human cannot tell which behavior
-  was actually approved.
+- Retention and email attachments are unsupported additions.
+- Detached links without selected options do not establish which behavior was
+  approved. Making this prose shorter would not repair its missing contract.
 
 ## When evidence is missing
 

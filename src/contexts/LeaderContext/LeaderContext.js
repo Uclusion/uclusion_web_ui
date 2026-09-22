@@ -35,6 +35,7 @@ import {
   waitForPendingWrites,
 } from '../../api/crossTabFreshness';
 import { isInitialSyncComplete, markDiskAdoptionComplete } from '../../api/syncStatus';
+import { isExplicitFreshnessReason } from '../../api/viewReturnRefresh';
 
 const EMPTY_STATE = {
   leader: undefined,
@@ -54,7 +55,10 @@ const LEADERSHIP_RETRY_START_MS = 1000;
 const LEADERSHIP_RETRY_MAX_MS = 30000;
 
 function isExplicitRefresh(request={}) {
-  return request.reason === 'navigation' || request.reason === 'manual' || request.reason === 'serverResponse';
+  // longAbsence is a return after the page was hidden or blurred longer than the
+  // speculative freshness window. It must run now, including over a stale editing
+  // pause, instead of being skipped as already fresh (B-all-664).
+  return isExplicitFreshnessReason(request.reason);
 }
 
 function LeaderProvider(props) {

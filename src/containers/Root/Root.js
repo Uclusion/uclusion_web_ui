@@ -56,6 +56,7 @@ import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContext
 import { RenderCensus } from '../../utils/renderProfiler';
 import { LeaderContext } from '../../contexts/LeaderContext/LeaderContext';
 import { useInitialSyncComplete } from '../../api/useInitialSyncComplete';
+import { LONG_ABSENCE_REFRESH_REASON, viewReturnRefresh } from '../../api/viewReturnRefresh';
 
 // T-all-2154 poll fast while a URL references data not yet local, then back off so a tab
 // parked on a dead link does not hit the API every two seconds indefinitely
@@ -88,6 +89,9 @@ function Root(props) {
   // (the old `|| offlineTimer` guard escape), which piled up duplicate listeners on every
   // wifi flap and multiplied sync cycles on bad internet (C-all-1066).
   const offlineTimerRef = useRef(undefined);
+  // When the page was hidden or the window blurred. Cleared on the first return
+  // so focus and visibilitychange for that return share one absence measurement.
+  const awaySinceRef = useRef(undefined);
   // T-all-2209 (Q-all-156 O-2): top-level edit-comment modal state, keyed by
   // comment id so it survives the comment's row unmounting when a task is moved.
   const [editComment, setEditComment] = useState(undefined);
@@ -355,21 +359,32 @@ function Root(props) {
     marketsState.initializing, initialSyncComplete, userState]);
 
   useEffect(() => {
+    function markAway() {
+      if (awaySinceRef.current === undefined) {
+        awaySinceRef.current = Date.now();
+      }
+    }
+
     function handleViewChange(isEntry) {
       const currentPath = window.location.pathname;
       const { action, marketId, investibleId } = decomposeMarketPath(currentPath);
       broadcastView(marketId, investibleId, isEntry, action);
-      if (isEntry) {
-        console.info('Refresh versions in view change');
-        // refresh if entering - lock will prevent concurrent refresh
-        // Concurrent market load is something already happening potentially from leader context
-        // However, should not be anything to get until invite or demo api called
-        // Speculative refresh: skip when a refresh is in flight or one succeeded recently,
-        // so focus + visibilitychange both firing on a tab return costs one cycle, not two,
-        // and rapid tab flipping on bad internet does not queue endless syncs (C-all-1066).
-        requestFreshness({ reason: 'viewChange', skipIfRefreshedWithinMs: VIEW_CHANGE_REFRESH_STALENESS_MS })
-          .catch(() => console.warn('Error refreshing'));
+      if (!isEntry) {
+        markAway();
+        return;
       }
+      const leftAt = awaySinceRef.current;
+      awaySinceRef.current = undefined;
+      const request = viewReturnRefresh(leftAt, Date.now(), VIEW_CHANGE_REFRESH_STALENESS_MS);
+      console.info(request.reason === LONG_ABSENCE_REFRESH_REASON
+        ? 'Refresh versions after a long absence'
+        : 'Refresh versions in view change');
+      // Speculative refresh: skip when a refresh is in flight or one succeeded recently,
+      // so focus + visibilitychange both firing on a short return cost one cycle, not two,
+      // and rapid tab flipping on bad internet does not queue endless syncs (C-all-1066).
+      // A longer absence is a different request and is not eligible for that skip (B-all-664).
+      requestFreshness(request)
+        .catch(() => console.warn('Error refreshing'));
     }
 
     // Register exactly once per page load. Everything mutable the listeners touch is a
@@ -382,8 +397,17 @@ function Root(props) {
         console.info('Load listener');
         handleViewChange(true)
       }, { passive: true })
+      window.addEventListener('blur', () => {
+        // Unfocused but still visible (another window in front) is still away.
+        markAway();
+      }, { passive: true })
       window.addEventListener('focus', () => {
         console.info('Focus listener');
+        // Focus can arrive while the document is still hidden. Consuming the
+        // away mark then would make the real visible return look like a short flip.
+        if (document.visibilityState === 'hidden') {
+          return;
+        }
         handleViewChange(true)
       }, { passive: true })
       window.addEventListener('online', () => {

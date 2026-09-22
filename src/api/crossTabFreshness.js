@@ -1,5 +1,6 @@
 import { isSignedOut } from '../utils/logoutState';
 import { isEditingPaused, onEditingResumed } from '../utils/editingPause';
+import { isExplicitFreshnessReason } from './viewReturnRefresh';
 
 export const FRESHNESS_NAMESPACES = Object.freeze({
   MARKETS: 'markets',
@@ -285,8 +286,7 @@ export async function requestFreshness(request={}) {
     return localLeaderRefresh(request);
   }
   const isNotificationHeartbeat = request.reason === 'notificationDependencies' && request.heartbeat;
-  const isExplicit = request.reason === 'navigation' || request.reason === 'manual' ||
-    request.reason === 'serverResponse';
+  const isExplicit = isExplicitFreshnessReason(request.reason);
   if (request.reason !== 'push' && request.reason !== 'missingDataPoll' && !isNotificationHeartbeat) {
     await reloadAllFromDisk(isExplicit)
       .catch((error) => console.warn('Unable to reload follower state before refresh', error));

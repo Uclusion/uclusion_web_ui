@@ -3,9 +3,16 @@
 
 ## Durable threading and commit identities
 
-Every substantive result belongs in a Uclusion artifact. Reply with `add_info`
-on the exact comment being answered, not its thread root; flat root replies
-separate answers from their questions and cannot be re-threaded.
+Record substantive information once with the tool and artifact that own it.
+Use `add_info` only for findings, decisions, blockers or next steps missing from
+the durable thread. Do not add notes that merely recap a question and answer,
+capsule, state transition or completed instruction reload. A decision belongs
+in the capsule when drafting or making an already permitted revision; avoiding
+a duplicate note does not authorize rewriting a sent capsule. Required reviews,
+completion-package records and audit telemetry remain mandatory without an
+extra recap note. Reply on the exact comment being answered, not its thread
+root; flat root replies separate answers from their questions and cannot be
+re-threaded.
 
 Use canonical short codes verbatim. A source-code comment that cites a question
 uses the question's full returned link when available. After review opens, a

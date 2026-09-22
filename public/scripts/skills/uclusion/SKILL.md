@@ -53,8 +53,9 @@ skill owns event handling and the job workflow.
   `Responded` never grants ownership; this includes an update that moves a job
   into Doable. Explicit human-configured multi-agent roles are exempt. Apply
   the complete assignment and delivery rules in `references/pokes.md`.
-- Put every question, suggestion, approval, vote, progress note, resolution,
-  and review request in Uclusion through its MCP tools. The narrow completion
+- Record each question, suggestion, approval, vote, resolution and review
+  through its Uclusion tool. Record new findings once; the existing artifact
+  is sufficient without an added recap note. The narrow completion
   menu defined in `operations.md` is appended to each qualifying AI
   implementation review and mirrored in chat, selected by whether the pass
   finishes the job rather than by stage. Neither copy calls `ask_question` or
@@ -123,8 +124,9 @@ skill owns event handling and the job workflow.
 
 Plan-mode restrictions govern machine and repository changes, not Uclusion
 artifacts. File job questions and suggestions immediately. Before leaving plan
-mode, persist the plan with `add_info` and show its returned link; a plan that
-exists only in chat or a local file is unfinished.
+mode, ensure the plan is durable in the applicable artifact and show its link;
+use `add_info` only for information still missing. A plan that exists only in
+chat or a local file is unfinished.
 
 ## 1. Read
 
@@ -216,9 +218,10 @@ An open AI-authored question created from Doable or Reviewable moves the job to
 Requires Input. A primary, non-advisory reply or vote makes it answerable, but
 the job stays locked until the AI calls `resolve`. A human may instead Resolve
 the question directly; that delegates the choice to the AI, does not silently
-select an option, and restores the prior executable stage. Use the recorded
-evidence, document a non-obvious delegated decision with `add_info` on the
-enclosing job or task—never inside the resolved question—and do not reopen it.
+select an option, and restores the prior executable stage. Record a new
+non-obvious delegated choice in the applicable capsule when writing it, or
+use `add_info` on the job/task only if missing from the durable thread. Do not
+reopen or write inside the resolved question.
 
 Standalone AI-authored view-level questions have no advisory gate: any clear
 non-AI reply or Approvable For vote answers. AI votes never answer an
@@ -427,10 +430,10 @@ after that provenance so the menu is the review's final content.
 
 ## Durable progress checkpoints and material handoffs
 
-An auto-taken lane always gets a durable progress checkpoint before a turn
-ends, recording every substantive result, decision, blocker, and next step.
-Use the specialized Uclusion tool when one applies, otherwise `add_info` on the
-active item. This rule lasts for every turn in that lane, not only the first.
+Before ending an auto-taken turn, ensure new results, decisions, blockers and
+next steps are durable. An existing substantive artifact is the checkpoint;
+use `add_info` only for information still missing. Do not add an extra record
+for unchanged state, an instruction reload, or a turn boundary alone.
 
 A progress checkpoint is not a lane handoff, and neither is returning an
 ordinary model/chat turn; neither ends the active audit.

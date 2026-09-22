@@ -468,6 +468,190 @@ class ConfigVersionStampTests(unittest.TestCase):
         self.assertNotIn('scriptReinstallVersion', result)
 
 
+class ResponseStatsInstallerTests(unittest.TestCase):
+    def test_parser_preserves_enables_and_disables_recording(self):
+        parser = INSTALL.build_parser()
+        base = ['stage', 'workspace-1', 'view-1', '--clients', 'claude']
+        self.assertIsNone(parser.parse_args(base).response_stats)
+        self.assertEqual(
+            parser.parse_args(base + ['--response-stats', '/tmp/sizes.jsonl'])
+            .response_stats,
+            '/tmp/sizes.jsonl',
+        )
+        self.assertIs(
+            parser.parse_args(base + ['--no-response-stats']).response_stats,
+            False,
+        )
+        self.assertEqual(
+            parser.parse_args(base + ['--response-stats', 'sizes.jsonl']).response_stats,
+            os.path.join(os.getcwd(), 'sizes.jsonl'),
+        )
+        with mock.patch.object(INSTALL.sys, 'stderr'), self.assertRaises(SystemExit):
+            parser.parse_args(base + ['--response-stats', '  '])
+        with mock.patch.object(INSTALL.sys, 'stderr'), self.assertRaises(SystemExit):
+            parser.parse_args(base + [
+                '--response-stats', '/tmp/sizes.jsonl', '--no-response-stats',
+            ])
+
+    def test_main_forwards_controls_to_the_selected_scope(self):
+        for flags, expected, project in (
+            (['--response-stats', 'sizes.jsonl'],
+             os.path.join(os.getcwd(), 'sizes.jsonl'), False),
+            (['--no-response-stats', '--project'], False, True),
+        ):
+            with self.subTest(project=project), mock.patch.object(
+                INSTALL.sys, 'argv', [
+                    'uclusionInstall', 'stage', 'workspace-1', 'view-1',
+                    '--clients', 'claude', '--skip-scripts',
+                    '--script-version', 'release-1',
+                ] + flags,
+            ), mock.patch.object(
+                INSTALL, 'confirm_existing_feature_changes', return_value=True,
+            ), mock.patch.object(
+                INSTALL, 'make_workflow_bundle_fetcher', return_value=mock.Mock(),
+            ), mock.patch.object(
+                INSTALL, 'install_global',
+            ) as install_global, mock.patch.object(
+                INSTALL, 'install_project_level',
+            ) as install_project:
+                self.assertEqual(INSTALL.main(), 0)
+                selected = install_project if project else install_global
+                other = install_global if project else install_project
+                self.assertEqual(selected.call_args.kwargs['response_stats'], expected)
+                other.assert_not_called()
+
+    def test_global_and_project_updates_preserve_claude_settings(self):
+        for scope in ('global', 'project'):
+            with self.subTest(scope=scope), tempfile.TemporaryDirectory() as directory:
+                mcp_path = os.path.join(directory, '.claude.json' if scope == 'global'
+                                        else '.mcp.json')
+                cursor_path = os.path.join(directory, '.cursor', 'mcp.json')
+                previous_stats = os.path.join(directory, 'previous.jsonl')
+                selected_stats = os.path.join(directory, 'selected.jsonl')
+                original = {
+                    'theme': 'dark',
+                    'mcpServers': {
+                        'Other': {'command': 'keep-other', 'args': ['untouched']},
+                        'Uclusion': {
+                            'command': 'old-python',
+                            'args': ['old-proxy', 'old-workspace',
+                                     '--response-stats', previous_stats],
+                            'env': {'KEEP_ME': 'yes'},
+                            'timeout': 120,
+                        },
+                    },
+                }
+                with open(mcp_path, 'w', encoding='utf-8') as config:
+                    INSTALL.json.dump(original, config)
+                with mock.patch.multiple(
+                    INSTALL,
+                    UCLUSION_HOME=directory,
+                    SCRIPT_INSTALL_PREFIX=os.path.join(directory, 'releases'),
+                    CLAUDE_JSON_PATH=mcp_path,
+                    CLAUDE_SETTINGS_PATH=os.path.join(directory, 'settings.json'),
+                    CURSOR_MCP_PATH=cursor_path,
+                ), mock.patch.object(INSTALL, 'add_claude_permissions'), \
+                        mock.patch.object(
+                            INSTALL, 'configure_claude_token_audit',
+                            return_value={'source': None, 'managedEnv': {}},
+                        ), mock.patch.object(
+                            INSTALL, 'install_skill_and_stub', return_value=True,
+                        ), mock.patch.object(INSTALL, 'remove_cursor_poke_drain_hook'):
+                    install_args = ['workspace-1', 'view-1', 'stage', mock.Mock()]
+                    configure = INSTALL.install_global
+                    if scope == 'project':
+                        configure = INSTALL.install_project_level
+                        install_args.append(directory)
+                    for choice, expected in (
+                        (None, previous_stats),
+                        (selected_stats, selected_stats),
+                        (None, selected_stats),
+                        (False, None),
+                        (None, None),
+                    ):
+                        with self.subTest(choice=choice, expected=expected):
+                            configure(
+                                *install_args, clients={'claude', 'cursor'},
+                                response_stats=choice,
+                            )
+                            with open(mcp_path, encoding='utf-8') as config:
+                                updated = INSTALL.json.load(config)
+                            server = updated['mcpServers']['Uclusion']
+                            expected_args = INSTALL.runtime_mcp_descriptor(
+                                'workspace-1', 'stage', token_audit_client='claude',
+                            )['args']
+                            if expected is not None:
+                                expected_args += ['--response-stats', expected]
+                            self.assertEqual(server['command'], 'python3')
+                            self.assertEqual(server['args'], expected_args)
+                            self.assertEqual(server['env'], {'KEEP_ME': 'yes'})
+                            self.assertEqual(server['timeout'], 120)
+                            self.assertEqual(updated['theme'], original['theme'])
+                            self.assertEqual(updated['mcpServers']['Other'],
+                                             original['mcpServers']['Other'])
+                            with open(cursor_path, encoding='utf-8') as config:
+                                cursor = INSTALL.json.load(config)
+                            self.assertNotIn('--response-stats',
+                                             cursor['mcpServers']['Uclusion']['args'])
+                            with open(os.path.join(
+                                directory, INSTALL.CONFIG_FILES['stage'],
+                            ), encoding='utf-8') as config:
+                                workspace_config = config.read()
+                            self.assertNotIn('response_stats', workspace_config)
+                            self.assertNotIn('responseStats', workspace_config)
+                            self.assertNotIn('jsonl', workspace_config)
+                    self.assertFalse(os.path.exists(previous_stats))
+                    self.assertFalse(os.path.exists(selected_stats))
+
+    def test_new_claude_registration_defaults_off_and_preserves_equals_argument(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = os.path.join(directory, '.mcp.json')
+            INSTALL.register_mcp_json(
+                path, 'Claude Code', 'workspace-1', 'stage', False,
+                token_audit_client='claude',
+            )
+            with open(path, encoding='utf-8') as config:
+                first = INSTALL.json.load(config)
+            self.assertNotIn('--response-stats', first['mcpServers']['Uclusion']['args'])
+            stats_path = os.path.join(directory, 'sizes.jsonl')
+            first['mcpServers']['Uclusion']['args'].append('--response-stats=' + stats_path)
+            with open(path, 'w', encoding='utf-8') as config:
+                INSTALL.json.dump(first, config)
+            INSTALL.register_mcp_json(
+                path, 'Claude Code', 'workspace-1', 'stage', False,
+                token_audit_client='claude',
+            )
+            with open(path, encoding='utf-8') as config:
+                updated = INSTALL.json.load(config)
+            self.assertEqual(updated['mcpServers']['Uclusion']['args'][-2:],
+                             ['--response-stats', stats_path])
+
+    def test_explicit_setup_descriptor_keeps_exact_match_contract(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = os.path.join(directory, '.mcp.json')
+            descriptor = {'command': 'python3', 'args': ['setup-proxy', 'stage']}
+            INSTALL.register_mcp_json(
+                path, 'Claude Code', None, None, False,
+                token_audit_client='claude', descriptor=descriptor,
+                expected_descriptor=None,
+            )
+            with open(path, encoding='utf-8') as config:
+                registered = INSTALL.json.load(config)
+            self.assertEqual(registered['mcpServers']['Uclusion'], descriptor)
+            registered['mcpServers']['Uclusion']['env'] = {'KEEP_ME': 'yes'}
+            with open(path, 'w', encoding='utf-8') as config:
+                INSTALL.json.dump(registered, config)
+            with self.assertRaisesRegex(RuntimeError, 'setup MCP descriptor changed'):
+                INSTALL.register_mcp_json(
+                    path, 'Claude Code', 'workspace-1', 'stage', False,
+                    token_audit_client='claude',
+                    descriptor=INSTALL.runtime_mcp_descriptor('workspace-1', 'stage'),
+                    expected_descriptor=descriptor,
+                )
+            with open(path, encoding='utf-8') as config:
+                self.assertEqual(INSTALL.json.load(config), registered)
+
+
 class TokenAuditInstallerTests(unittest.TestCase):
     def test_claude_disabled_hooks_declines_audit_and_preserves_setting(self):
         with tempfile.TemporaryDirectory() as temp_dir:

@@ -191,6 +191,32 @@ class CodexLauncherTests(unittest.TestCase):
         self.assertTrue(legacy_args.ignore_existing_pokes)
         self.assertFalse(legacy_args.deliver_existing_pokes)
 
+    def test_response_stats_are_forwarded_only_to_this_codex_proxy(self):
+        for enabled in (False, True):
+            with self.subTest(enabled=enabled), ExitStack() as stack:
+                config = {'workspaceId': 'workspace-123'}
+                self.launcher_prerequisites(stack, config=config)
+                command = ['-e', 'stage']
+                if enabled:
+                    command += ['--response-stats', 'sizes.jsonl']
+                args = cli.parse_args(command + ['codex'])
+                processes = [FakeProcess([None]), FakeProcess([None]), FakeProcess([0])]
+                popen = stack.enter_context(mock.patch.object(
+                    cli.subprocess, 'Popen', side_effect=processes,
+                ))
+
+                self.assertEqual(0, cli.cmd_codex(args))
+
+                backend, bridge, tui = popen.call_args_list
+                proxy_table = backend.args[0][backend.args[0].index('-c') + 1]
+                if enabled:
+                    self.assertIn('"--response-stats", "/work/project/sizes.jsonl"', proxy_table)
+                else:
+                    self.assertNotIn('--response-stats', proxy_table)
+                self.assertNotIn('--response-stats', bridge.args[0])
+                self.assertNotIn('--response-stats', tui.args[0])
+                self.assertEqual({'workspaceId': 'workspace-123'}, config)
+
     def test_rejects_passthrough_remote_override_before_process_start(self):
         for codex_args in (
             ['--', '--remote', 'unix:///tmp/other.sock'],
@@ -1417,6 +1443,19 @@ class ProjectInstallDiscoveryTests(unittest.TestCase):
             self.assertIn('claude', clients)
             self.assertIn('codex', clients)
 
+    def test_global_detection_finds_only_mcp_registration_in_custom_claude_directory(self):
+        with tempfile.TemporaryDirectory() as directory:
+            claude_root = Path(directory) / 'claude-data'
+            claude_root.mkdir()
+            (claude_root / '.claude.json').write_text(
+                json.dumps({'mcpServers': {'Uclusion': {'command': 'python3'}}}),
+                encoding='utf-8',
+            )
+            with mock.patch.dict(os.environ, {'CLAUDE_CONFIG_DIR': str(claude_root)}), \
+                    mock.patch.object(cli.os.path, 'expanduser', side_effect=lambda path:
+                                      path.replace('~', str(Path(directory) / 'home'), 1)):
+                self.assertIn('claude', cli.detect_global_clients())
+
     def test_codex_override_bootstraps_are_detected_globally_and_in_project(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
@@ -1847,6 +1886,29 @@ class UpdateReleaseConsistencyTests(unittest.TestCase):
             env='stage', check=False, token_audit=token_audit
         )
 
+    def test_response_stats_parser_preserves_launch_flag_and_rejects_invalid_modes(self):
+        expected = os.path.abspath('sizes.jsonl')
+        for command in (
+            ['--response-stats', 'sizes.jsonl', 'codex'],
+            ['--response-stats', 'sizes.jsonl', 'update'],
+            ['update', '--response-stats', 'sizes.jsonl'],
+        ):
+            with self.subTest(command=command):
+                self.assertEqual(expected, cli.parse_args(command).response_stats)
+        self.assertIsNone(cli.parse_args(['update']).response_stats)
+        self.assertIs(cli.parse_args(['update', '--no-response-stats']).response_stats, False)
+        for command in (
+            ['update', '--response-stats', 'sizes', '--no-response-stats'],
+            ['update', '--check', '--response-stats', 'sizes'],
+            ['update', '--check', '--no-response-stats'],
+            ['--response-stats', 'sizes', 'export'],
+            ['--response-stats', ' ', 'codex'],
+        ):
+            with self.subTest(command=command), mock.patch('sys.stderr', io.StringIO()):
+                with self.assertRaises(SystemExit) as raised:
+                    cli.parse_args(command)
+                self.assertEqual(2, raised.exception.code)
+
     def test_update_parser_exposes_mutually_exclusive_token_audit_flags(self):
         parser = cli.build_parser()
 
@@ -1953,6 +2015,29 @@ class UpdateReleaseConsistencyTests(unittest.TestCase):
                 '--skip-scripts',
             ],
         )
+
+    def test_run_installer_passes_stats_choice_only_to_claude_scopes(self):
+        for clients in ({'claude', 'codex'}, {'codex'}, set()):
+            for choice in (None, False, '/work/sizes.jsonl'):
+                with self.subTest(clients=clients, choice=choice), mock.patch.object(
+                    cli.subprocess, 'run', return_value=SimpleNamespace(returncode=0)
+                ) as run:
+                    self.assertTrue(cli.run_installer(
+                        '/tmp/installer.py', 'stage', {'workspaceId': 'workspace'},
+                        None, clients, project=True, script_version='release-one',
+                        project_dir='/work/project', response_stats=choice,
+                    ))
+                    command = run.call_args.args[0]
+                    if 'claude' in clients and choice is False:
+                        self.assertIn('--no-response-stats', command)
+                        self.assertNotIn('--response-stats', command)
+                    elif 'claude' in clients and choice is not None:
+                        index = command.index('--response-stats')
+                        self.assertEqual(choice, command[index + 1])
+                    else:
+                        self.assertNotIn('--response-stats', command)
+                        self.assertNotIn('--no-response-stats', command)
+                    self.assertEqual('/work/project', run.call_args.kwargs['cwd'])
 
     def test_run_installer_preserves_enabled_token_audit(self):
         completed = SimpleNamespace(returncode=0)
@@ -2089,6 +2174,43 @@ class UpdateReleaseConsistencyTests(unittest.TestCase):
         self.assertIn('--project', command)
         self.assertNotIn('--skip-scripts', command)
         self.assertEqual(run.call_args.kwargs['cwd'], '/work/project')
+
+    def test_update_response_stats_choice_reaches_both_scopes_with_one_absolute_path(self):
+        for choice in (['--response-stats', 'sizes.jsonl'], ['--no-response-stats'], []):
+            with self.subTest(choice=choice), ExitStack() as stack:
+                self.patch_update_context(stack)
+                stack.enter_context(mock.patch.object(
+                    cli, 'detect_global_clients', return_value={'claude'}))
+                stack.enter_context(mock.patch.object(
+                    cli, 'detect_project_clients', return_value={'claude'}))
+                stack.enter_context(mock.patch.object(
+                    cli, 'fetch_script_version_for_workspace', return_value='release-one'))
+                response = mock.MagicMock()
+                response.__enter__.return_value.read.return_value = b'# installer\n'
+                stack.enter_context(mock.patch.object(
+                    cli.urllib.request, 'urlopen', return_value=response))
+                run = stack.enter_context(mock.patch.object(cli, 'run_installer', return_value=True))
+                args = cli.parse_args(['-e', 'stage', 'update'] + choice)
+
+                self.assertEqual(0, cli.cmd_update(args))
+
+                self.assertEqual(2, run.call_count)
+                expected = '/work/project/sizes.jsonl' if len(choice) == 2 else False if choice else None
+                for invocation in run.call_args_list:
+                    self.assertEqual(expected, invocation.kwargs['response_stats'])
+
+    def test_update_response_stats_refuses_missing_claude_before_download(self):
+        with ExitStack() as stack:
+            self.patch_update_context(stack)
+            stack.enter_context(mock.patch.object(
+                cli, 'detect_global_clients', return_value={'codex'}))
+            resolve = stack.enter_context(mock.patch.object(cli, 'resolve_update_release'))
+            download = stack.enter_context(mock.patch.object(cli.urllib.request, 'urlopen'))
+            output = stack.enter_context(mock.patch('sys.stdout', io.StringIO()))
+            self.assertEqual(1, cli.cmd_update(cli.parse_args(['update', '--no-response-stats'])))
+            self.assertIn('No installed Claude Uclusion connection', output.getvalue())
+            resolve.assert_not_called()
+            download.assert_not_called()
 
     def test_update_rejects_workspace_release_disagreement_before_download(self):
         with ExitStack() as stack:

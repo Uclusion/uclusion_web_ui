@@ -162,9 +162,9 @@ SCRIPT_FILES = (
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCLI.py':
-        '94cd1bf58d1b78dd77eeb5bc06de01a3bc270259b334f4106496cbc53c1d7a23',
+        '1165d5434056751aff9c597cc35c047c51ee49cb128076c7e81dc4a9f34f1355',
     'uclusionMCPProxy.py':
-        '6197f209514898ebdfe1f090bbccfd3d7bcbd08970cb159b94173a2e8b2ddb74',
+        '474d2a2c96aeea97689331f47107ab5aea78662be25de650b4cb5ef9d071bb53',
     'uclusionSetupMCP.py':
         'f91ea798847ec8f8cb3407dfcc8eb4ab36ffbaab0c9695fb6028b56b94549d51',
     'uclusionCodexBridge.py':
@@ -2685,7 +2685,8 @@ def _assert_expected_json_descriptor(servers, expected_descriptor, path):
 def register_mcp_json(path, label, workspace_id, env, require_existing,
                       token_audit=None, token_audit_client=None,
                       work_claims=False, descriptor=None,
-                      expected_descriptor=_UNCHECKED_MCP_DESCRIPTOR):
+                      expected_descriptor=_UNCHECKED_MCP_DESCRIPTOR,
+                      response_stats=None):
     """Register the Uclusion MCP server in a JSON config at ``path``.
 
     Handles every ``{"mcpServers": {...}}`` surface: the global Cursor
@@ -2713,6 +2714,7 @@ def register_mcp_json(path, label, workspace_id, env, require_existing,
         if not isinstance(config, dict):
             raise RuntimeError(f'{path} top-level value must be a JSON object')
 
+    normal_claude = descriptor is None and token_audit_client == 'claude'
     if descriptor is None:
         descriptor = runtime_mcp_descriptor(
             workspace_id,
@@ -2728,6 +2730,27 @@ def register_mcp_json(path, label, workspace_id, env, require_existing,
         raise RuntimeError(f"'mcpServers' in {path} must be a JSON object")
 
     _assert_expected_json_descriptor(servers, expected_descriptor, path)
+
+    if normal_claude:
+        previous = servers.get(MCP_SERVER_KEY, {})
+        if not isinstance(previous, dict):
+            previous = {}
+        if response_stats is None:
+            previous_args = previous.get('args', [])
+            if isinstance(previous_args, list):
+                for index, arg in enumerate(previous_args):
+                    if (arg == '--response-stats'
+                            and index + 1 < len(previous_args)
+                            and isinstance(previous_args[index + 1], str)):
+                        response_stats = previous_args[index + 1]
+                    elif (isinstance(arg, str)
+                          and arg.startswith('--response-stats=')):
+                        response_stats = arg.split('=', 1)[1]
+        if response_stats:
+            descriptor['args'].extend(['--response-stats', response_stats])
+        # Preserve custom Claude fields while refreshing the owned command.
+        # Explicit setup descriptors still use their exact-match contract.
+        descriptor = {**previous, **descriptor}
 
     servers[MCP_SERVER_KEY] = descriptor
 
@@ -4710,6 +4733,12 @@ def finish_workflow_installs(
     return results
 
 
+def response_stats_path(value):
+    if not value.strip():
+        raise argparse.ArgumentTypeError('response statistics require a nonblank file path')
+    return os.path.abspath(os.path.expanduser(value))
+
+
 def build_parser():
     parser = argparse.ArgumentParser(
         prog='uclusionInstall',
@@ -4783,6 +4812,22 @@ def build_parser():
         help='Disable the work claim lock.',
     )
     parser.set_defaults(work_claims=None)
+    response_stats_group = parser.add_mutually_exclusive_group()
+    response_stats_group.add_argument(
+        '--response-stats',
+        type=response_stats_path,
+        metavar='PATH',
+        help='Record local MCP response sizes for Claude in this JSONL file '
+             'starting with its next connection.',
+    )
+    response_stats_group.add_argument(
+        '--no-response-stats',
+        dest='response_stats',
+        action='store_const',
+        const=False,
+        help='Disable Claude MCP response-size recording on its next connection.',
+    )
+    parser.set_defaults(response_stats=None)
     parser.add_argument(
         '--force',
         action='store_true',
@@ -4968,7 +5013,7 @@ def replace_setup_registration(
 def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                    script_version=None, token_audit_enabled=None,
                    work_claims_enabled=None, replace_setup=False,
-                   setup_receipt_path=None):
+                   setup_receipt_path=None, response_stats=None):
     """Configure Uclusion in the user's home directory (the default).
 
     Without ``clients`` every detected client is offered interactively. With
@@ -5093,14 +5138,16 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                 demo_mcp_config_path(), "the demo's launch line", workspace_id,
                 mcp_env, require_existing=False,
                 token_audit=claude_registration_audit,
-                token_audit_client='claude', work_claims=work_claims
+                token_audit_client='claude', work_claims=work_claims,
+                response_stats=response_stats,
             )
         else:
             register_mcp_json(
                 CLAUDE_JSON_PATH, 'Claude Code', workspace_id, mcp_env,
                 require_existing=interactive,
                 token_audit=claude_registration_audit,
-                token_audit_client='claude', work_claims=work_claims
+                token_audit_client='claude', work_claims=work_claims,
+                response_stats=response_stats,
             )
     if claude_selected:
         if not claude_detected:
@@ -5205,6 +5252,7 @@ def install_project_level(
     work_claims_enabled=None,
     replace_setup=False,
     setup_receipt_path=None,
+    response_stats=None,
 ):
     """Configure Uclusion inside ``project_dir`` instead of the home directory.
 
@@ -5295,7 +5343,8 @@ def install_project_level(
                 os.path.join(project_dir, '.mcp.json'),
                 'Claude Code (project)', workspace_id, mcp_env,
                 require_existing=False, token_audit=claude_registration_audit,
-                token_audit_client='claude', work_claims=work_claims
+                token_audit_client='claude', work_claims=work_claims,
+                response_stats=response_stats,
             )
     elif (
         clients
@@ -5443,6 +5492,7 @@ def main():
             args.setup_receipt is not None,
             args.token_audit is not None,
             args.work_claims is not None,
+            args.response_stats is not None,
             args.force,
             args.script_version is not None,
         )):
@@ -5571,6 +5621,7 @@ def main():
                 args.work_claims,
                 args.replace_setup,
                 args.setup_receipt,
+                response_stats=args.response_stats,
             )
         else:
             install_project_level(
@@ -5585,6 +5636,7 @@ def main():
                 args.work_claims,
                 args.replace_setup,
                 args.setup_receipt,
+                response_stats=args.response_stats,
             )
     except subprocess.CalledProcessError as err:
         print(f"❌ Command failed: {err}")

@@ -1912,6 +1912,7 @@ def build_codex_mcp_overrides(
     token_audit_ready_file=None,
     token_audit_owner=None,
     work_claims=False,
+    response_stats=None,
 ):
     """Build a complete per-launch Uclusion MCP table as Codex ``-c`` args."""
     proxy_args = [
@@ -1921,6 +1922,8 @@ def build_codex_mcp_overrides(
     ]
     if work_claims:
         proxy_args.append('--work-claims')
+    if response_stats is not None:
+        proxy_args.extend(['--response-stats', response_stats])
     if token_audit is not None:
         if not token_audit_ready_file or not token_audit_owner:
             raise ValueError(
@@ -2290,6 +2293,7 @@ def cmd_codex(args):
                     token_audit_ready_file=token_audit_ready_path,
                     token_audit_owner=instance_id,
                     work_claims=work_claims,
+                    response_stats=getattr(args, 'response_stats', None),
                 ),
                 '--listen',
                 backend_listen_url,
@@ -2862,7 +2866,11 @@ def detect_global_clients():
         os.environ.get('CODEX_HOME', os.path.join(home, '.codex'))
     ))
     clients = set()
-    if (json_has_uclusion_server(os.path.join(home, '.claude.json'))
+    claude_json_path = os.path.join(
+        claude_config_dir if os.environ.get('CLAUDE_CONFIG_DIR') else home,
+        '.claude.json',
+    )
+    if (json_has_uclusion_server(claude_json_path)
             or file_contains(
                 os.path.join(claude_config_dir, 'CLAUDE.md'),
                 WORKFLOW_MD_MARKER,
@@ -3263,6 +3271,7 @@ def run_installer(
     token_audit_enabled=None,
     work_claims_enabled=None,
     project_dir=None,
+    response_stats=None,
 ):
     """Run the downloaded installer non-interactively for one install scope.
 
@@ -3291,6 +3300,11 @@ def run_installer(
     if work_claims_enabled is None:
         work_claims_enabled = bool(source.get('workClaims') is True) if source else False
     command.append('--work-claims' if work_claims_enabled else '--no-work-claims')
+    if clients and 'claude' in clients:
+        if response_stats is False:
+            command.append('--no-response-stats')
+        elif response_stats is not None:
+            command.extend(['--response-stats', response_stats])
     if clients:
         command += ['--clients', ','.join(sorted(clients))]
     else:
@@ -3395,6 +3409,13 @@ def cmd_update(args):
     project_clients.update(workflow_clients_needing_repair(project_config))
     global_clients = detect_global_clients()
     global_clients.update(workflow_clients_needing_repair(global_config))
+    response_stats = getattr(args, 'response_stats', None)
+    if response_stats is not None and not (
+        (global_config is not None and 'claude' in global_clients)
+        or (has_project_install and 'claude' in project_clients)
+    ):
+        print('❌ No installed Claude Uclusion connection found for response-size recording.')
+        return 1
 
     if args.check:
         latest = resolve_update_release(
@@ -3496,7 +3517,8 @@ def cmd_update(args):
                                  global_clients, project=False,
                                  script_version=script_version,
                                  token_audit_enabled=args.token_audit,
-                                 work_claims_enabled=getattr(args, 'work_claims', None)):
+                                 work_claims_enabled=getattr(args, 'work_claims', None),
+                                 response_stats=response_stats):
                 return 1
             ran_global = True
         if has_project_install:
@@ -3506,7 +3528,8 @@ def cmd_update(args):
                                  skip_scripts=ran_global,
                                  token_audit_enabled=args.token_audit,
                                  work_claims_enabled=getattr(args, 'work_claims', None),
-                                 project_dir=project_dir):
+                                 project_dir=project_dir,
+                                 response_stats=response_stats):
                 return 1
 
     print("🎉 Update complete. Restart your AI client sessions (or reconnect the "
@@ -3877,6 +3900,12 @@ def add_initial_vote_arguments(command_parser, allow_existing=False):
     )
 
 
+def response_stats_path(value):
+    if not value.strip():
+        raise argparse.ArgumentTypeError('response statistics require a nonblank file path')
+    return os.path.abspath(os.path.expanduser(value))
+
+
 def build_parser():
     parser = argparse.ArgumentParser(
         prog='uclusionCLI',
@@ -3887,6 +3916,10 @@ def build_parser():
         choices=['dev', 'stage', 'production'],
         default='production',
         help='API environment to target (default: production).',
+    )
+    parser.add_argument(
+        '--response-stats', type=response_stats_path, metavar='PATH',
+        help='Append local response-size statistics for this Codex launch.',
     )
 
     subparsers = parser.add_subparsers(dest='command', metavar='COMMAND', required=True)
@@ -4100,6 +4133,17 @@ def build_parser():
              'and the closest containing project install.',
     )
     update_parser.set_defaults(func=cmd_update, token_audit=None, work_claims=None)
+    response_stats_group = update_parser.add_mutually_exclusive_group()
+    response_stats_group.add_argument(
+        '--response-stats', type=response_stats_path, metavar='PATH',
+        default=argparse.SUPPRESS,
+        help='Enable local response-size recording for installed Claude connections.',
+    )
+    response_stats_group.add_argument(
+        '--no-response-stats', dest='response_stats', action='store_const', const=False,
+        default=argparse.SUPPRESS,
+        help='Disable response-size recording for installed Claude connections.',
+    )
 
     get_job_parser = subparsers.add_parser(
         'get_job',
@@ -4727,6 +4771,17 @@ def build_parser():
     return parser
 
 
+def parse_args(argv=None):
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    if args.response_stats is not None:
+        if args.command not in ('codex', 'update'):
+            parser.error('--response-stats is supported only with codex or update')
+        if args.command == 'update' and args.check:
+            parser.error('--check cannot change response-size recording')
+    return args
+
+
 if __name__ == "__main__":
-    args = build_parser().parse_args()
+    args = parse_args()
     sys.exit(args.func(args) or 0)

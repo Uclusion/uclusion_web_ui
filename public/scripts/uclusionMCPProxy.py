@@ -4,9 +4,11 @@ import hashlib
 import os
 import sys
 import json
+import re
 import socket
 import sqlite3
 import ssl
+import stat
 import struct
 import threading
 import time
@@ -94,6 +96,10 @@ def parse_args(argv=None):
         'environment', nargs='?', choices=('dev', 'stage', 'production')
     )
     parser.add_argument('--work-claims', action='store_true')
+    parser.add_argument(
+        '--response-stats', metavar='PATH',
+        help='Append content-free response byte measurements to a private JSONL file.',
+    )
     parser.add_argument('--token-audit', action='store_true')
     parser.add_argument('--token-audit-port', type=token_audit_port)
     parser.add_argument(
@@ -754,7 +760,106 @@ def post_to_mcp_refreshing_token(url, headers, body, token_provider, timeout=30)
         )
 
 
-def write_message(obj):
+class ResponseStats:
+    """Optional, failure-isolated measurements for the sequential MCP loop."""
+
+    def __init__(self, path):
+        self._fd = None
+        self._request = {'method': None, 'tool': None, 'scope': None}
+        if path is None:
+            return
+        try:
+            # Do not weaken the private regular-file contract on a platform
+            # that cannot check ownership or safely open a caller's path.
+            if not all(hasattr(os, name) for name in ('geteuid', 'O_NOFOLLOW', 'O_NONBLOCK')):
+                raise OSError('Private statistics files are unsupported')
+            flags = os.O_WRONLY | os.O_APPEND | os.O_CREAT | os.O_NONBLOCK | os.O_NOFOLLOW
+            self._fd = os.open(path, flags, 0o600)
+            opened = os.fstat(self._fd)
+            if (
+                not stat.S_ISREG(opened.st_mode)
+                or opened.st_mode & 0o077
+                or opened.st_uid != os.geteuid()
+            ):
+                raise OSError('Statistics destination is not a private owned file')
+        except Exception:
+            self._disable()
+
+    def _disable(self):
+        descriptor, self._fd = self._fd, None
+        if descriptor is not None:
+            try:
+                os.close(descriptor)
+            except Exception:
+                pass
+        try:
+            sys.stderr.write('Uclusion response statistics disabled.\n')
+        except Exception:
+            pass
+
+    def set_request(self, message):
+        if self._fd is None:
+            return
+        params = message.get('params')
+        params = params if isinstance(params, dict) else {}
+        method = self._label(message.get('method'))
+        tool = self._label(params.get('name')) if method == 'tools/call' else None
+        scope = None
+        if tool == 'get_job':
+            arguments = params.get('arguments')
+            arguments = arguments if isinstance(arguments, dict) else {}
+            scope = 'thread_only' if arguments.get('thread_only') is True else (
+                'sections' if arguments.get('sections') else 'default'
+            )
+        self._request = {'method': method, 'tool': tool, 'scope': scope}
+
+    @staticmethod
+    def _label(value):
+        # Bound each row and retain identifiers only, never arbitrary values.
+        if isinstance(value, str) and re.fullmatch(r'[A-Za-z0-9_./:-]{1,128}', value):
+            return value
+        return None
+
+    def record(self, message, emitted):
+        if self._fd is None:
+            return
+        try:
+            result = message.get('result')
+            result = result if isinstance(result, dict) else {}
+            content = result.get('content')
+            content = content if isinstance(content, list) else []
+            text_bytes = sum(
+                len(block['text'].encode('utf-8')) for block in content
+                if isinstance(block, dict) and block.get('type') == 'text'
+                and isinstance(block.get('text'), str)
+            )
+            status = 'rpc_error' if 'error' in message else (
+                'tool_error' if result.get('isError') is True else (
+                    'ok' if 'result' in message else 'notification'
+                )
+            )
+            row = {
+                **self._request,
+                'status': status,
+                'jsonrpc_utf8_bytes': len(emitted),
+                'text_utf8_bytes': text_bytes,
+            }
+            encoded = (json.dumps(row, separators=(',', ':')) + '\n').encode('utf-8')
+            if os.write(self._fd, encoded) != len(encoded):
+                raise OSError('Incomplete statistics write')
+        except Exception:
+            self._disable()
+
+    def close(self):
+        descriptor, self._fd = self._fd, None
+        if descriptor is not None:
+            try:
+                os.close(descriptor)
+            except Exception:
+                self._disable()
+
+
+def write_message(obj, stats=None):
     """Write a JSON-RPC object as a single compact line to stdout (stdio transport)."""
     if not isinstance(obj, dict):
         sys.stderr.write(
@@ -762,9 +867,17 @@ def write_message(obj):
             f'{type(obj).__name__} is not a JSON-RPC object\n'
         )
         return
-    line = json.dumps(obj, separators=(',', ':'))
-    sys.stdout.write(line + '\n')
+    line = json.dumps(obj, separators=(',', ':')) + '\n'
+    emitted = line.encode('utf-8')
+    binary_stdout = getattr(sys.stdout, 'buffer', None)
+    if binary_stdout is not None:
+        # The bytes counted are the bytes written, including LF on Windows.
+        binary_stdout.write(emitted)
+    else:
+        sys.stdout.write(line)
     sys.stdout.flush()
+    if stats is not None:
+        stats.record(obj, emitted)
 
 
 def load_mcp_stdio_object(raw):
@@ -786,22 +899,23 @@ def load_mcp_stdio_object(raw):
     return payload
 
 
-def write_non_object_mcp_error(request_id):
+def write_non_object_mcp_error(request_id, stats=None):
     if request_id is None:
         return
     write_jsonrpc_error(
         request_id=request_id,
         code=-32001,
         message='MCP server returned a non-object JSON payload',
+        stats=stats,
     )
 
 
-def write_jsonrpc_error(request_id, code, message, data=None):
+def write_jsonrpc_error(request_id, code, message, data=None, stats=None):
     """Emit a JSON-RPC error response for a request id."""
     err = {"code": code, "message": message}
     if data is not None:
         err["data"] = data
-    write_message({"jsonrpc": "2.0", "id": request_id, "error": err})
+    write_message({"jsonrpc": "2.0", "id": request_id, "error": err}, stats=stats)
 
 
 def filter_token_audit_tools(message, enabled):
@@ -835,18 +949,18 @@ def inject_work_claim_tool(message, enabled):
 
 
 def handle_json_response(resp, token_audit_enabled=False, work_claims_enabled=False,
-                         request_id=None):
+                         request_id=None, stats=None):
     payload = load_mcp_stdio_object(resp.read().decode('utf-8'))
     if payload is None:
-        write_non_object_mcp_error(request_id)
+        write_non_object_mcp_error(request_id, stats=stats)
         return
     write_message(inject_work_claim_tool(filter_token_audit_tools(
         payload, token_audit_enabled
-    ), work_claims_enabled))
+    ), work_claims_enabled), stats=stats)
 
 
 def handle_sse_response(resp, token_audit_enabled=False, work_claims_enabled=False,
-                        request_id=None):
+                        request_id=None, stats=None):
     wrote = False
     for raw_line in resp:
         line = raw_line.decode('utf-8').rstrip('\r\n')
@@ -857,13 +971,13 @@ def handle_sse_response(resp, token_audit_enabled=False, work_claims_enabled=Fal
             continue
         write_message(inject_work_claim_tool(filter_token_audit_tools(
             payload, token_audit_enabled
-        ), work_claims_enabled))
+        ), work_claims_enabled), stats=stats)
         wrote = True
     if not wrote:
-        write_non_object_mcp_error(request_id)
+        write_non_object_mcp_error(request_id, stats=stats)
 
 
-def handle_claim_tool_call(work_claims, request_id, params):
+def handle_claim_tool_call(work_claims, request_id, params, stats=None):
     """Service the local claim tool without involving the MCP backend."""
     arguments = params.get('arguments')
     arguments = arguments if isinstance(arguments, dict) else {}
@@ -885,6 +999,7 @@ def handle_claim_tool_call(work_claims, request_id, params):
             code=-32602,
             message='claim_work takes operation claim with short_code_id or '
                     'short_code_ids, or operation release with short_code_id',
+            stats=stats,
         )
         return
     result = work_claims.request(
@@ -899,7 +1014,7 @@ def handle_claim_tool_call(work_claims, request_id, params):
         })
         write_message({'jsonrpc': '2.0', 'id': request_id,
                        'result': {'content': [{'type': 'text', 'text': text}],
-                                  'isError': True}})
+                                  'isError': True}}, stats=stats)
         return
     text = json.dumps({
         'operation': operation,
@@ -909,7 +1024,7 @@ def handle_claim_tool_call(work_claims, request_id, params):
     })
     write_message({'jsonrpc': '2.0', 'id': request_id,
                    'result': {'content': [{'type': 'text', 'text': text}],
-                              'isError': False}})
+                              'isError': False}}, stats=stats)
 
 
 def read_mcp_response(resp):
@@ -1152,6 +1267,7 @@ def main():
     stop_event = threading.Event()
     token_audit_runtime = None
     work_claims = None
+    response_stats = ResponseStats(args.response_stats)
     try:
         # Retention is scoped local maintenance and does not depend on login
         # succeeding. This remains active after an explicit audit opt-out.
@@ -1236,6 +1352,7 @@ def main():
 
             is_notification = 'id' not in msg
             request_id = msg.get('id')
+            response_stats.set_request(msg)
 
             params = msg.get('params')
             claim_tool_call = (
@@ -1253,9 +1370,10 @@ def main():
                         request_id=request_id,
                         code=-32601,
                         message='Work claims are not enabled for this connection',
+                        stats=response_stats,
                     )
                     continue
-                handle_claim_tool_call(work_claims, request_id, params)
+                handle_claim_tool_call(work_claims, request_id, params, stats=response_stats)
                 continue
             audit_tool_call = (
                 msg.get('method') == 'tools/call'
@@ -1268,6 +1386,7 @@ def main():
                         request_id=request_id,
                         code=-32601,
                         message='Token audit is not enabled for this connection',
+                        stats=response_stats,
                     )
                 continue
 
@@ -1293,11 +1412,11 @@ def main():
                 if 'text/event-stream' in content_type:
                     handle_sse_response(resp, token_audit_available(),
                                         work_claims is not None,
-                                        request_id=request_id)
+                                        request_id=request_id, stats=response_stats)
                 else:
                     handle_json_response(resp, token_audit_available(),
                                          work_claims is not None,
-                                         request_id=request_id)
+                                         request_id=request_id, stats=response_stats)
 
             except urllib.request.HTTPError as e:
                 body = e.read().decode('utf-8', errors='replace')
@@ -1307,7 +1426,8 @@ def main():
                         request_id=request_id,
                         code=-32000,
                         message=f"HTTP {e.code} from MCP server",
-                        data={"status": e.code, "body": body}
+                        data={"status": e.code, "body": body},
+                        stats=response_stats,
                     )
                 else:
                     sys.stderr.write(f"HTTP {e.code} from MCP server: {body}\n")
@@ -1317,7 +1437,8 @@ def main():
                         request_id=request_id,
                         code=-32001,
                         message="Error posting to MCP server",
-                        data={"error": str(e)}
+                        data={"error": str(e)},
+                        stats=response_stats,
                     )
                 else:
                     sys.stderr.write(f"Error posting to MCP server: {e}\n")
@@ -1326,6 +1447,7 @@ def main():
         sys.stderr.write(f"Proxy setup failed: {e}\n")
         sys.exit(1)
     finally:
+        response_stats.close()
         if work_claims is not None:
             # Graceful exit frees held locks immediately instead of waiting
             # for the server-side expiry to lapse.

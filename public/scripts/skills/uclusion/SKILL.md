@@ -239,17 +239,17 @@ step-two question.
 
 Use `make_suggestion` before mentioning any better approach or follow-up in
 chat, then include the returned link when mentioning it. Omit `job_id` for a
-view-level idea. A human-authored suggestion is addressed to the AI: reply with
-a definitive accept or reject and the action you will take. When voting is
-enabled, also call `vote_on_suggestion`; never vote on your own suggestion.
+view-level idea. For human suggestions, reply with a definitive decision and action
+unless accepting an option amendment below. When voting is enabled, call
+`vote_on_suggestion` before resolving; never vote on your own suggestion.
 
-An open qualifying human suggestion keeps the job in Requires Input. Record an
-accepted plan change, act on it, then resolve the suggestion. When accepting a
-human suggestion that revises an existing option, call `update_option` on that
-canonical option; never use `add_options` or create a replacement option.
-Reply to, vote on, and resolve the suggestion normally. Updating the option
-does not handle the suggestion. A human Resolve on an AI-authored suggestion
-without reply or vote declines the mitigation and accepts the described risk;
+An open qualifying human suggestion keeps the job in Requires Input. For an
+accepted option amendment, record any required vote, then call `update_option`
+with `resolve_suggestion_short_code_id` naming that suggestion. This updates the
+canonical option and resolves the suggestion in one call; omit a separate
+acceptance reply. Never replace the option with `add_options`. For other accepted
+changes, record the plan, act, then resolve. A human Resolve on an AI-authored
+suggestion without reply or vote declines the mitigation and accepts the risk;
 do not recreate it.
 
 Do not offer execution or approve the job while an unanswered question remains.

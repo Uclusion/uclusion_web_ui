@@ -4508,6 +4508,10 @@ def build_parser():
     update_option_parser.add_argument('--option-id', help='Local option short code.')
     update_option_parser.add_argument('--name', help='Complete replacement option name.')
     update_option_parser.add_argument('--description', help='Complete replacement Markdown description.')
+    update_option_parser.add_argument(
+        '--resolve-suggestion-short-code-id',
+        help='Accepted suggestion on this option to resolve after updating it.',
+    )
     configure_mcp_parser(
         update_option_parser,
         'update_option',
@@ -4516,6 +4520,7 @@ def build_parser():
             mcp_field('option_id', 'option_id'),
             mcp_field('name', 'name'),
             mcp_field('description', 'description'),
+            mcp_field('resolve_suggestion_short_code_id', 'resolve_suggestion_short_code_id'),
         ),
         ('parent_question_short_code_id', 'option_id', 'name', 'description'),
     )

@@ -162,7 +162,7 @@ SCRIPT_FILES = (
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCLI.py':
-        '1165d5434056751aff9c597cc35c047c51ee49cb128076c7e81dc4a9f34f1355',
+        '3d4dde85a7d513b2b5694b0be31c8b2a61dcbd1427f42967d58bc2219d4839b0',
     'uclusionMCPProxy.py':
         '474d2a2c96aeea97689331f47107ab5aea78662be25de650b4cb5ef9d071bb53',
     'uclusionSetupMCP.py':
@@ -315,6 +315,7 @@ WORKFLOW_ASSET_PATHS = {
     'cursor_stub': 'uclusion.mdc',
     'skill': 'skills/uclusion/SKILL.md',
     'pokes_reference': 'skills/uclusion/references/pokes.md',
+    'reading_reference': 'skills/uclusion/references/reading.md',
     'operations_reference': 'skills/uclusion/references/operations.md',
     'completion_reference': 'skills/uclusion/references/completion.md',
     'audit_reference': 'skills/uclusion/references/audit.md',
@@ -332,12 +333,13 @@ WORKFLOW_ASSET_PATHS = {
 # These digests bind the installer to one coherent workflow release. A host
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
+    'reading_reference': '6da00e9f78d3409516548ddf74a4210b00052cc982a392ab814d02f3cd1c4bb9',
     'demo_brief': '32c0fe865d973d06628f19f08bedf7925136f53c65f4d4578bb3c2b53a703a35',
     'claude_stub': '49c9682ed4bef4723084f8f4e6dbdbde4c52e5d8d1b0e27d1358d7050b946fec',
     'codex_stub': '7cc3b75aa1b7af3799e47962d7ce2beb43b4a8f52541bb571c0dc968eb808336',
     'cursor_stub': 'c2e03afbaf55fd656b68478de9268955ef2af5813d3a2109ebce04ae0c8061bf',
-    'skill': '6e0ffee78dc2274bf7eb04d99eff46f51cbe96747f0dd837d4ee1bd18148f7bd',
-    'pokes_reference': '3c46f3074c9e7fc39bd7e45dc24eceb24a3709cd9e8d64c57f05a7d46698b424',
+    'skill': '3d9cfa25f2aa269063ea68b3e77649fccaf910badaf2edbff7db3166a55b7a03',
+    'pokes_reference': '3a6878caf88071ccef078edef4623188623103020ed92c66041b0d21bd4a20ee',
     'operations_reference': '70609c8be74ab4bf9f91a8401c2a676b5c57622d30239f59a1eb246efde73769',
     'completion_reference': '2f627b9e6156958ce7940f11b0281a4ee3295517b60eb339b0bc577dd59240c3',
     'audit_reference': '6e064e0baf27e4a17bd3a15060dbb15f8730de31f71eb8df0caba180852be71d',
@@ -355,6 +357,7 @@ CLIENT_STUB_ASSET = {
 }
 SKILL_PACKAGE_ASSETS = (
     ('pokes_reference', os.path.join('references', 'pokes.md')),
+    ('reading_reference', os.path.join('references', 'reading.md')),
     ('operations_reference', os.path.join('references', 'operations.md')),
     ('completion_reference', os.path.join('references', 'completion.md')),
     ('audit_reference', os.path.join('references', 'audit.md')),

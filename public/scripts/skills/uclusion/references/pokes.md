@@ -156,9 +156,9 @@ The first word is contractual:
 - `Updated <target>` reports an edit, move, deletion, assignment/description
   change, or explicit stage change. When the target is the current
   intent/design capsule, its body replaces the cached contract. Reload that
-  capsule and Reports, then resolve your open review naming its R-code before
-  further affected implementation. This urgency never bypasses the assignment
-  gate; a capsule update does not assign a session.
+  capsule with `thread_only: true` and Reports, then resolve your open review
+  naming its R-code before further affected implementation. This urgency never
+  bypasses the assignment gate; a capsule update does not assign a session.
 - `Responded <target>` hands an AI-authored assistance turn back after any
   semantic human reply, vote, or Resolve. Advisory responses also send it, so
   reload and inspect answerability; perform every action actually unblocked and
@@ -226,12 +226,11 @@ before continuing. Soft-deleted direct items reload as the enclosing job with
 the item absent.
 
 Use `sections` (`tasks`, `assistance`, `reports`, `notes`, `resolved`) or
-`thread_only` for economical reloads. Scoped reads omit the view's standing
-notes, which an unscoped read carries, so scope every reload of a job you
-already hold and take the job whole only on a first read or to re-read those
-notes. Direct lookup already retries five times
-with bounded backoff. If a newly Added direct code still returns 404, retry
-later rather than discarding it.
+`thread_only` for reloads of a job already held. Follow
+[reading.md](reading.md) for capsule and standing-note references, explicit
+body fetches and refresh after compaction. Direct lookup already retries five
+times with bounded backoff. If a newly Added direct code still returns 404,
+retry later rather than discarding it.
 
 When creating an item also changes derived stage/readiness, Uclusion emits its
 Added event only after the workflow transaction commits. That single reload

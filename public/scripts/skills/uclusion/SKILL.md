@@ -135,20 +135,11 @@ section. An unassigned or cross-lane `Added`, `Updated`, or `Responded` event
 stops there without `get_job`, audit startup, or activation. A job becoming
 Doable does not bypass that gate.
 
-Call `get_job` with the named short code. It loads the enclosing job and its
-tasks, grouped tasks, assistance, blockers, and reports. Use
-`include_all_resolved` when full resolved content and notes are needed. Treat
-rendered View Notes as standing instructions.
-
-On event-driven reloads, use `sections` or `thread_only` whenever you already
-hold the job's name and description, which is every read after the first one.
-Scoping is required rather than an optimization, because a scoped read does not
-re-send the view's standing notes, so reloading the whole job repeats them for
-nothing. A scoped read still renders the header, description, stage and votes,
-so it never hides a job-level change. Take the whole job unscoped for a first
-read, or to deliberately re-read its view notes. If the result has no Job
-header and contains one top-level comment, use the single-comment workflow
-below.
+For assigned work, read [references/reading.md](references/reading.md) before
+`get_job`. It governs scoped reads, explicit capsule bodies, standing-note
+versions and refresh after compaction. References alone do not load a contract
+or standing instructions. If the result has no Job header and contains one
+top-level comment, use the single-comment workflow below.
 
 ## 2. Ask and resolve questions
 
@@ -290,8 +281,9 @@ one executable target for the implementation pass:
 - A task capsule is complete and solely authoritative for that task pass.
   Never merge it with, inherit from, or fall back to the job capsule.
 
-Load the selected target with `get_job` before affected edits. If its capsule
-is absent, continue read-only investigation, settle every reviewer-divergent
+Load the selected target's reference, then explicitly fetch its current capsule
+body as `references/reading.md` requires before affected edits. If absent,
+continue read-only investigation, settle every reviewer-divergent
 choice, then call `set_design_capsule` in target mode. For a job, send `job_id`
 and the complete `capsule`. For a top-level or grouped task, send its current
 `job_id`, `task_id`, and the complete `capsule`; a grouped `task_id` normalizes
@@ -316,8 +308,8 @@ and all relevant evidence, identifying any new human input since publication.
 It returns a complete draft or the unsupported reviewer-divergent choices as
 typed questions. This core skill alone files and resolves those questions and
 calls `set_design_capsule`. Have `$uclusion-design` cold-review and finish the
-draft before publication. After each create or permitted replacement, reload
-the selected target to confirm the authoritative body before affected edits.
+draft before publication. After each create or permitted replacement, follow
+`references/reading.md` to confirm the selected target's current body before edits.
 Do not use a later cold review to polish or rewrite a sent capsule.
 
 Replace a sent capsule only when new human input establishes a new contract.
@@ -340,9 +332,9 @@ Slack; explicit mentions keep their ordinary delivery behavior.
 After an AI replacement, reload Reports and resolve your still-open review
 whose body names that capsule R-code before further affected edits. A human
 body edit arrives as `Updated <capsule R-code> of <job short code>`. Reload the
-exact capsule and Reports, resolve the matching review first, then reconcile
-in-progress work with the new authoritative body. Review cleanup is agent
-workflow, not backend review parsing or linkage.
+exact capsule with `thread_only: true` and Reports, resolve the matching review
+first, then reconcile in-progress work with the new authoritative body. Review
+cleanup is agent workflow, not backend review parsing or linkage.
 
 If initial work is ready but the job is not executable, leave its stage
 unchanged and ask the human whether to move the exact job to Doable. Only

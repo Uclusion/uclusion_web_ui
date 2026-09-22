@@ -4147,12 +4147,12 @@ def build_parser():
 
     get_job_parser = subparsers.add_parser(
         'get_job',
-        help='Return MCP Markdown for a job or one of its items.',
+        help='Read a job with context references; fetch an R-code thread for its full body/version.',
     )
     get_job_parser.add_argument('--short-code-id', help='Job or comment short code.')
     get_job_parser.add_argument(
         '--include-all-resolved', action='store_true', default=None,
-        help='Include full resolved threads and notes.',
+        help='Include full resolved threads and ordinary notes; capsules remain explicit R-code reads.',
     )
     get_job_parser.add_argument(
         '--section', action='append', dest='sections',
@@ -4161,7 +4161,7 @@ def build_parser():
     )
     get_job_parser.add_argument(
         '--thread-only', action='store_true', default=None,
-        help='For a nested short code, return only that comment thread.',
+        help='Return that comment thread; an R-code fetches its full body and version.',
     )
     get_job_parser.add_argument('-o', '--output', help='Write output to this file.')
     get_job_fields = (
@@ -4182,7 +4182,7 @@ def build_parser():
     report_parser.add_argument('--short-code-id', help='Job or comment short code.')
     report_parser.add_argument(
         '--include-all-resolved', action='store_true', default=None,
-        help='Include full resolved threads and notes.',
+        help='Include full resolved threads and ordinary notes; capsules remain explicit R-code reads.',
     )
     report_parser.add_argument(
         '--section', action='append', dest='sections',
@@ -4191,7 +4191,7 @@ def build_parser():
     )
     report_parser.add_argument(
         '--thread-only', action='store_true', default=None,
-        help='For a nested short code, return only that comment thread.',
+        help='Return that comment thread; an R-code fetches its full body and version.',
     )
     report_parser.add_argument(
         '-o', '--output', default='job_report.md',

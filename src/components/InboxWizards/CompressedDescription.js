@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { stripHTML } from '../../utils/stringFunctions';
+import { DEFAULT_LARGE_DISPLAY_LINES, stripHTML } from '../../utils/stringFunctions';
 import { ExpandLess } from '@material-ui/icons';
 import { useIntl } from 'react-intl';
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
@@ -12,9 +12,11 @@ import TooltipIconButton from '../Buttons/TooltipIconButton';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 const Div = styled("div")`
-  height: 40px;
+  min-height: 40px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  padding-top: 8px;
+  padding-bottom: 8px;
   box-shadow: inset 0 -1px 0 0 rgba(100, 121, 143, 0.122);
   &:hover {
     box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0,
@@ -27,10 +29,14 @@ const Text = styled("div")`
   -webkit-font-smoothing: antialiased;
   font-size: 14px;
   color: #5f6368;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: ${DEFAULT_LARGE_DISPLAY_LINES};
+  -webkit-box-orient: vertical;
+  white-space: normal;
   overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
   flex-grow: 1;
+  min-width: 0;
   padding-left: 0.5rem;
   @media (max-width: 768px) {
     font-size: 14px;
@@ -72,7 +78,7 @@ function CompressedDescription(props) {
           }>
             <Div>
               <Text>{title}</Text>
-              <div style={{marginLeft: '1rem', marginRight: '1rem'}}>
+              <div style={{marginLeft: '1rem', marginRight: '1rem', alignSelf: 'center'}}>
                 <TooltipIconButton
                   icon={<ExpandMoreIcon />}
                   size="small"

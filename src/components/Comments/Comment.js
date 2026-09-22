@@ -164,6 +164,10 @@ function formatCommentDate(intl, comment, inNotesTab) {
   return intl.formatDate(comment.updated_at);
 }
 
+// Preview this many lines. isLargeDisplay uses the same allowance, so compression
+// starts only after the preview is full.
+const COMPRESSED_PREVIEW_LINES = 7;
+
 export const useCommentStyles = makeStyles(
   theme => {
     return {
@@ -416,9 +420,14 @@ export const useCommentStyles = makeStyles(
         paddingLeft: '1rem',
         paddingTop: '0.25rem',
         color: 'black',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
+        display: '-webkit-box',
+        WebkitLineClamp: COMPRESSED_PREVIEW_LINES,
+        WebkitBoxOrient: 'vertical',
+        whiteSpace: 'normal',
         overflow: 'hidden',
+        overflowWrap: 'anywhere',
+        flex: '1 1 auto',
+        minWidth: 0,
         paddingRight: '0.5rem',
         marginRight: '0.5rem',
         marginTop: '0.25rem'
@@ -1410,7 +1419,7 @@ function Comment(props) {
           )}
         </Box>
       </CardContent>
-      {!showActions && !thisCommentBeingEdited && useCompression === false && (
+      {!thisCommentBeingEdited && useCompression === false && (
         <CardActions>
           <div className={classes.actions}>
             <SpinningIconLabelButton
@@ -1679,7 +1688,7 @@ function Comment(props) {
   // CardType chip the reply / uncompressed view shows, C-all-986), the body,
   // and an expand chevron - instead of the cramped avatar + name row.
   const compressedCommentCard = <div className={getCommentHighlightStyle()}
-  style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px',
+  style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '9px 12px',
     backgroundColor: (theme.palette.type === 'dark' ? DARK_TEXT_BACKGROUND_COLOR : 'white'),
     cursor: 'pointer', width: '100%', maxWidth: '98%', marginTop: isSent === false || usePadding === false ? 0
       : '1rem' }} onClick={(event) => {
@@ -1694,7 +1703,6 @@ function Comment(props) {
     {commentTypeChip}
     <div className={classes.compressedComment} style={{ paddingLeft: 0, paddingTop: 0, marginTop: 0 }}>
       {strippedBody}</div>
-    <div style={{ flexGrow: 1 }}/>
     {isInbox && (
       // Explicit click-through affordance (T-all-2181, Q-all-154 O-1 / Q-1):
       // in wizards/inbox the row navigates to the full comment, so back the
@@ -1730,7 +1738,7 @@ function Comment(props) {
     return (
     <>
       {inboxMessageId !== id ? compressedCommentCard :
-        (isLargeDisplay(body, 7) ? compressedCommentCard  : commentCard)}
+        (isLargeDisplay(body, COMPRESSED_PREVIEW_LINES) ? compressedCommentCard  : commentCard)}
       <LocalCommentsContext.Provider value={{
         comments, marketId, idPrepend, pokeAIMarketId,
         pokeAIParentTicketCode: pokeAIParentTicketCode ||

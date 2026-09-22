@@ -387,12 +387,11 @@ function Reply(props) {
   }
 
   const compressedCommentCard = <div style={{
-    display: 'flex', paddingBottom: '0.5rem', paddingLeft: '0.5rem',
+    display: 'flex', alignItems: 'flex-start', paddingBottom: '0.5rem', paddingLeft: '0.5rem',
     paddingTop: '0.5rem', paddingRight: '0.5rem', cursor: 'pointer', backgroundColor: 'white'
   }} onClick={isInbox ? openComment : toggleCompression}>
     <Gravatar name={commenter.name} email={commenter.email} className={commentClasses.smallGravatar}/>
     <div className={commentClasses.compressedComment}>{stripHTML(comment.body)}</div>
-    <div style={{ flexGrow: 1 }}/>
     {isInbox && (
       <TooltipIconButton
         lightSurface

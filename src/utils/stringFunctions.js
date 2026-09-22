@@ -68,7 +68,9 @@ export function stripHTML(foundSubstring) {
   return undefined;
 }
 
-export function isLargeDisplay(description, linesAllowed=3) {
+export const DEFAULT_LARGE_DISPLAY_LINES = 3;
+
+export function isLargeDisplay(description, linesAllowed=DEFAULT_LARGE_DISPLAY_LINES) {
   if (_.isEmpty(description)) {
     return false;
   }

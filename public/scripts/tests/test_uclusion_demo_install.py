@@ -105,12 +105,9 @@ class DemoHomeTests(unittest.TestCase):
         self.assertEqual(['absent'], [state for state, _detail in outcomes])
 
     def test_the_demo_guard_only_protects_clients_it_still_writes_to(self):
-        # Claude's demo writes nothing into the person's configuration, so a
-        # person who already uses Uclusion can take it; Codex still writes a
-        # skill directory into their home and keeps its guard.
+        # Both clients now carry their demo workflow outside native config.
         source = inspect.getsource(INSTALL.main)
-        self.assertIn("if setup_client != 'claude':", source)
-        self.assertIn('assert_demo_may_replace_client(setup_client)', source)
+        self.assertNotIn('assert_demo_may_replace_client(setup_client)', source)
 
     def test_the_launch_configuration_stays_inside_the_demo_home(self):
         # The launch line names this file, so it has to be somewhere removing
@@ -218,12 +215,18 @@ class DemoHomeTests(unittest.TestCase):
             f'  888 vim {home}/.uclusion/bootstrap.md',
             # The demo's own client, running from the home.
             f'  999 python3 {home}/.local/bin/uclusion.py -e stage watch',
+            f'  1001 codex exec -c projects={{"{home}"={{trust_level="trusted"}}}} '
+            f'-c mcp_servers={{Uclusion={{args=["{home}/.local/bin/uclusionMCPProxy.py"]}}}} '
+            f'Read the brief and run {home}/.local/bin/uclusion -e stage watch',
+            f'  1002 codex exec inspect files in {home}',
         ])
         with mock.patch.object(
             INSTALL.subprocess, 'run', return_value=mock.Mock(stdout=listing)
         ):
             found = INSTALL.demo_home_processes(home)
-        self.assertEqual([111, 999], sorted(pid for pid, _args in found))
+            watchers = INSTALL.demo_home_processes(home, ' watch')
+        self.assertEqual([111, 999, 1001], sorted(pid for pid, _args in found))
+        self.assertEqual([999], [pid for pid, _args in watchers])
 
 
 class DemoProvisionTests(unittest.TestCase):

@@ -14,10 +14,9 @@ If a fact you are asked for is not in the supplied records, say it is unknown.
 Do not invent partner capabilities, schedules, agreements or confirmation
 behavior. Do not evaluate Uclusion yourself or coach the evaluator's workflow.
 
-The Poke listener your start-up instructions arm stays silent for you all
-exercise; do not wait on it. Run that same command with `watch` in place of
-`listen`, and hold it open throughout. Each line it prints means only that
-something arrived. Do not end your turn until the evaluator has presented its
+You receive human notifications through the CLI, not Pokes. Run
+`{{UCLUSION_CLI}} watch` and hold it open throughout. Each line it prints means
+only that something arrived. Do not end your turn until the evaluator has presented its
 completion package; nothing else is a reason to stop.
 
 Read the selected job with `get_job`.

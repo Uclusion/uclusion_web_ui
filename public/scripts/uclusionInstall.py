@@ -62,6 +62,7 @@ import os
 import getpass
 import re
 import secrets
+import selectors
 import shlex
 import shutil
 import signal
@@ -161,7 +162,7 @@ SCRIPT_FILES = (
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCLI.py':
-        '95d40f711b331a07b6c89cef213eafdaee0c66d73328d3e8d90dfc0dca35964b',
+        '041923934d32ba814d59ab05a4d4537a8d697dbc237a8fa4b1816c564ee607f1',
     'uclusionMCPProxy.py':
         '6197f209514898ebdfe1f090bbccfd3d7bcbd08970cb159b94173a2e8b2ddb74',
     'uclusionSetupMCP.py':
@@ -331,7 +332,7 @@ WORKFLOW_ASSET_PATHS = {
 # These digests bind the installer to one coherent workflow release. A host
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
-    'demo_brief': '25ebf06299c151f2a1cf960aaf33ddadff5f83e9926e9f112f78d932fe8677c4',
+    'demo_brief': '32c0fe865d973d06628f19f08bedf7925136f53c65f4d4578bb3c2b53a703a35',
     'claude_stub': 'a5d10cc9f472630b54e79e5c46421c7dc8da134e60141da6ca51a718b40b4a00',
     'codex_stub': 'f8746051d7fc6ad2fa3e6c48e3936489067b2aa620c57a9651c690d73c1408c6',
     'cursor_stub': 'c4042191bbb4a67a06381996e4d8e79dbec339a71735352d028d68705f659d72',
@@ -1468,9 +1469,218 @@ def install_demo_plugin(fetch_bundle):
     with open(demo_bootstrap_path(), 'w', encoding='utf-8') as handle:
         handle.write(stub)
     with open(demo_brief_path(), 'w', encoding='utf-8') as handle:
-        handle.write(bundle['demo_brief'])
+        handle.write(bundle['demo_brief'].replace(
+            WORKFLOW_ENV_PLACEHOLDER, cli_command or 'uclusion'
+        ))
     print(f'🧩 Wrote the demo workflow to {root}')
     return True
+
+
+def demo_codex_environment():
+    """Isolate demo skills while retaining the person's native Codex login."""
+    environment = {
+        key: value for key, value in os.environ.items()
+        if not key.startswith('UCLUSION_CODEX_')
+    }
+    environment['HOME'] = uclusion_home_root()
+    environment['UCLUSION_HOME'] = uclusion_home_root()
+    environment['CODEX_HOME'] = CODEX_HOME
+    environment['PATH'] = (
+        SYMLINK_DIR + os.pathsep + environment.get('PATH', os.defpath)
+    )
+    return environment
+
+
+def demo_codex_cli_args(environment):
+    """Use a literal executable prefix that native Codex rules can match."""
+    command = [os.path.join(SYMLINK_DIR, 'uclusion')]
+    if environment != 'production':
+        command.extend(['-e', environment])
+    return command
+
+
+def install_demo_codex_workflow(fetch_bundle):
+    """Install Codex's skills, bootstrap and additive rules only in the demo."""
+    bundle = fetch_bundle()
+    validate_workflow_bundle(bundle)
+    environment = getattr(fetch_bundle, 'workflow_environment', 'production')
+    command = demo_codex_cli_args(environment)
+    cli = ' '.join(shlex.quote(part) for part in command)
+    home = uclusion_home_root()
+    for package in ('uclusion', DESIGN_SKILL_NAME):
+        for asset_key, relative_path in _skill_package_definition(package)[0]:
+            _write_staged_asset(
+                home,
+                os.path.join('.agents', 'skills', package, relative_path),
+                bundle[asset_key],
+            )
+    _write_staged_asset(
+        home, os.path.join('.uclusion', 'bootstrap.md'),
+        bundle['codex_stub'].replace(WORKFLOW_ENV_PLACEHOLDER, cli)
+        + '\nWhen assigned the workshop owner role, follow the installed owner '
+        'brief and watch human notifications through the demo CLI. Do not '
+        'arm a listener, wait for or drain Pokes, call find_work, or take jobs. '
+        'Answer through human-role records until the evaluator presents its '
+        'completion package and opens review. These owner-role directions '
+        'override the normal work discovery and Poke delivery directions '
+        'above. They do not change the evaluator workflow.\n',
+    )
+    _write_staged_asset(
+        home, os.path.join('.uclusion', 'demo-brief.md'),
+        bundle['demo_brief'].replace(WORKFLOW_ENV_PLACEHOLDER, cli),
+    )
+    # A project config layer makes its sibling rules discoverable. Trust is
+    # supplied on the launch line, never saved in the person's configuration.
+    _write_staged_asset(home, os.path.join('.codex', 'config.toml'), '')
+    _write_staged_asset(
+        home, os.path.join('.codex', 'rules', 'uclusion-demo.rules'),
+        'prefix_rule(pattern=' + repr(command) + ', decision="allow")\n',
+    )
+    print(f'🧩 Wrote the Codex demo workflow to {home}')
+    return True
+
+
+def _read_demo_codex_config(codex, arguments, environment):
+    """Read effective settings through Codex without starting a model thread."""
+    process = subprocess.Popen(
+        [codex, *arguments, 'app-server'],
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL, env=environment, cwd=uclusion_home_root(),
+    )
+    selector = selectors.DefaultSelector()
+    selector.register(process.stdout, selectors.EVENT_READ)
+    pending = bytearray()
+    deadline = time.monotonic() + 20
+
+    def request(method, params, request_id):
+        payload = {'id': request_id, 'method': method, 'params': params}
+        process.stdin.write((json.dumps(payload) + '\n').encode('utf-8'))
+        process.stdin.flush()
+        while time.monotonic() < deadline:
+            if not selector.select(min(0.25, max(0, deadline - time.monotonic()))):
+                continue
+            chunk = os.read(process.stdout.fileno(), 65536)
+            if not chunk:
+                raise RuntimeError('Codex exited while reading demo settings')
+            pending.extend(chunk)
+            while b'\n' in pending:
+                line, _, remainder = pending.partition(b'\n')
+                pending[:] = remainder
+                message = json.loads(line)
+                if message.get('id') == request_id:
+                    if ('error' in message
+                            or not isinstance(message.get('result'), dict)):
+                        raise RuntimeError('Codex could not read its demo settings')
+                    return message['result']
+        raise RuntimeError('Codex timed out while reading demo settings')
+
+    try:
+        request('initialize', {
+            'clientInfo': {'name': 'uclusion-demo-config', 'version': '1'},
+        }, 1)
+        process.stdin.write(b'{"method":"initialized"}\n')
+        process.stdin.flush()
+        return request('config/read', {
+            'cwd': uclusion_home_root(), 'includeLayers': False,
+        }, 2)['config']
+    finally:
+        selector.close()
+        if process.poll() is None:
+            process.terminate()
+        try:
+            process.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait(timeout=3)
+        process.stdin.close()
+        process.stdout.close()
+
+
+def demo_codex_session_args(environment, workspace_id):
+    """Build and check launch-local settings shared by both Codex sessions."""
+    child_environment = demo_codex_environment()
+    codex = shutil.which('codex', path=child_environment['PATH'])
+    if codex is None:
+        raise RuntimeError('the Codex demo requires codex on PATH')
+    disabled_features = ('plugins', 'apps', 'remote_plugin')
+    arguments = []
+    for feature in disabled_features:
+        arguments.extend(['--disable', feature])
+    arguments.extend([
+        '-c', 'projects={' + _toml_basic_string(uclusion_home_root())
+        + '={trust_level="trusted"}}',
+    ])
+    config = _read_demo_codex_config(codex, arguments, child_environment)
+    if not isinstance(config, dict):
+        raise RuntimeError('Codex returned unsupported demo settings')
+    features = config.get('features', {})
+    if not isinstance(features, dict) or any(
+        features.get(feature) is not False for feature in disabled_features
+    ):
+        raise RuntimeError(
+            'Codex did not disable plugin and app MCP servers for the demo'
+        )
+    servers = config.get('mcp_servers', {})
+    if not isinstance(servers, dict) or any(
+        not isinstance(name, str) or not isinstance(server, dict)
+        for name, server in servers.items()
+    ):
+        raise RuntimeError('Codex returned an unsupported MCP configuration')
+    if servers.get(MCP_SERVER_KEY, {}).get('url') is not None:
+        raise RuntimeError(
+            'The Codex demo cannot replace an inherited HTTP Uclusion server '
+            'for one invocation. Use a Codex configuration without that '
+            'HTTP registration.'
+        )
+    descriptor = runtime_mcp_descriptor(
+        workspace_id, None if environment == 'production' else environment,
+    )
+    server_overrides = [
+        _toml_basic_string(name) + '={enabled=false}'
+        for name in sorted(servers) if name != MCP_SERVER_KEY
+    ]
+    server_overrides.append(
+        _toml_basic_string(MCP_SERVER_KEY) + '={enabled=true,required=true,'
+        'command=' + _toml_basic_string(descriptor['command'])
+        + ',args=[' + ','.join(_toml_basic_string(arg) for arg in descriptor['args'])
+        + '],default_tools_approval_mode="approve"}'
+    )
+    with open(demo_bootstrap_path(), encoding='utf-8') as handle:
+        bootstrap = handle.read()
+    native_instructions = config.get('developer_instructions') or ''
+    if not isinstance(native_instructions, str):
+        raise RuntimeError('Codex returned invalid developer instructions')
+    instructions = (
+        native_instructions + ('\n\n' if native_instructions else '') + bootstrap
+    )
+    arguments.extend([
+        '-c', 'mcp_servers={' + ','.join(server_overrides) + '}',
+        '-c', 'developer_instructions=' + _toml_basic_string(instructions),
+    ])
+    result = subprocess.run(
+        [codex, *arguments, 'mcp', 'list', '--json'],
+        capture_output=True, text=True, timeout=20,
+        env=child_environment, cwd=uclusion_home_root(),
+    )
+    if result.returncode:
+        raise RuntimeError('Codex could not validate the demo MCP configuration')
+    inventory = json.loads(result.stdout)
+    if not isinstance(inventory, list) or any(
+        not isinstance(server, dict)
+        or not isinstance(server.get('name'), str)
+        or not isinstance(server.get('enabled'), bool)
+        for server in inventory
+    ):
+        raise RuntimeError('Codex returned an unsupported MCP inventory')
+    enabled = [server for server in inventory if server.get('enabled') is True]
+    if len(enabled) != 1 or enabled[0].get('name') != MCP_SERVER_KEY:
+        raise RuntimeError('Codex did not select only the demo Uclusion server')
+    transport = enabled[0].get('transport', {})
+    if (not isinstance(transport, dict)
+            or transport.get('command') != descriptor['command']
+            or transport.get('args') != descriptor['args']):
+        raise RuntimeError('Codex did not select the demo proxy and workspace')
+    return arguments
 
 
 def demo_brief_path():
@@ -1523,10 +1733,19 @@ def demo_home_processes(home, needle=None):
             os.path.basename(program) == 'claude'
             and any(field.startswith(home) for field in fields[1:])
         )
-        if not (runs_from_home or is_demo_session):
+        is_demo_codex = (
+            os.path.basename(program) == 'codex'
+            and os.path.join(home, '.local', 'bin', 'uclusionMCPProxy.py') in args
+            and ('-c projects={' + _toml_basic_string(home)
+                 + '={trust_level="trusted"}}') in args
+        )
+        if not (runs_from_home or is_demo_session or is_demo_codex):
             continue
-        if needle is not None and needle not in args:
-            continue
+        if needle is not None:
+            # A native client's prompt can itself name the watch command.
+            # Readiness requires the running CLI, not text inside a prompt.
+            if is_demo_session or is_demo_codex or needle not in args:
+                continue
         try:
             pid = int(pid_text)
         except ValueError:
@@ -1544,7 +1763,7 @@ def demo_home_processes(home, needle=None):
     return found
 
 
-def wait_for_owner_watch(home, deadline_seconds=180):
+def wait_for_owner_watch(home, deadline_seconds=180, owner=None):
     """Hold the evaluator until the owner can hear it.
 
     The owner learns it is needed from `watch`; an evaluator that writes before
@@ -1553,6 +1772,8 @@ def wait_for_owner_watch(home, deadline_seconds=180):
     """
     deadline = time.monotonic() + deadline_seconds
     while time.monotonic() < deadline:
+        if owner is not None and owner.poll() is not None:
+            return False
         if demo_home_processes(home, ' watch'):
             return True
         time.sleep(2)
@@ -1603,6 +1824,239 @@ def demo_session_args(env):
         # both sit under the demo home.
         '--add-dir', uclusion_home_root(),
     ]
+
+
+class DemoCodexTerminal:
+    """Drain the ordinary Codex TUI; completion comes only from its report."""
+
+    def __init__(self, command, environment, log):
+        import pty
+        import struct
+        import termios
+
+        self.master, slave = pty.openpty()
+        self.pending = b''
+        self.log = log
+        fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack('HHHH', 30, 100, 0, 0))
+
+        def own_terminal():
+            os.setsid()
+            fcntl.ioctl(0, termios.TIOCSCTTY, 0)
+
+        try:
+            self.process = subprocess.Popen(
+                command, cwd=uclusion_home_root(), env=environment,
+                stdin=slave, stdout=slave, stderr=slave,
+                preexec_fn=own_terminal,
+            )
+        except BaseException:
+            os.close(self.master)
+            raise
+        finally:
+            os.close(slave)
+
+    def drain(self, timeout=0.25):
+        import select
+
+        if not select.select([self.master], [], [], timeout)[0]:
+            return False
+        try:
+            data = os.read(self.master, 65536)
+        except OSError as error:
+            if error.errno == errno.EIO:  # PTY slave closed.
+                return False
+            raise
+        if not data:
+            return False
+        self.log.write(data)
+        self.log.flush()
+        # The TUI expects a terminal to answer capability queries. Keep a
+        # short tail because a query can cross reads; consume each match so
+        # an old query is not answered again. No model text is interpreted.
+        self.pending += data
+        replies = (
+            (b'\x1b[6n', b'\x1b[1;1R'),
+            (b'\x1b[?u', b'\x1b[?0u'),
+            (b'\x1b[c', b'\x1b[?1;2c'),
+            (b'\x1b]10;?\x1b\\', b'\x1b]10;rgb:ffff/ffff/ffff\x1b\\'),
+            (b'\x1b]11;?\x1b\\', b'\x1b]11;rgb:0000/0000/0000\x1b\\'),
+            (b'\x1b]10;?\x07', b'\x1b]10;rgb:ffff/ffff/ffff\x07'),
+            (b'\x1b]11;?\x07', b'\x1b]11;rgb:0000/0000/0000\x07'),
+        )
+        for query, reply in replies:
+            count = self.pending.count(query)
+            if count:
+                try:
+                    os.write(self.master, reply * count)
+                except OSError as error:
+                    if error.errno != errno.EIO:
+                        raise
+                self.pending = self.pending.replace(query, b'')
+        self.pending = self.pending[-32:]
+        return True
+
+    def close(self):
+        try:
+            while self.drain(timeout=0):
+                pass
+        finally:
+            os.close(self.master)
+
+
+def stop_demo_session(process):
+    """Let an owned launcher clean up, then stop its remaining process group."""
+    if process is None:
+        return
+    if process.poll() is None:
+        process.terminate()
+        try:
+            process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            pass
+    # Shell tools may outlive their parent, so include the group even when
+    # the launcher has already exited. Each session owns its own group.
+    try:
+        os.killpg(process.pid, signal.SIGTERM)
+    except ProcessLookupError:
+        process.wait(timeout=5)
+        return
+    deadline = time.monotonic() + 2
+    while time.monotonic() < deadline:
+        process.poll()
+        try:
+            os.killpg(process.pid, 0)
+        except ProcessLookupError:
+            break
+        time.sleep(0.05)
+    else:
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+    process.wait(timeout=5)
+
+
+@contextmanager
+def demo_shutdown_signals():
+    """Route installer termination through the same finally cleanup as errors."""
+    previous = {}
+
+    def interrupt(signum, _frame):
+        raise KeyboardInterrupt(f'signal {signum}')
+
+    try:
+        for signum in (signal.SIGTERM, signal.SIGHUP):
+            previous[signum] = signal.signal(signum, interrupt)
+        yield
+    finally:
+        for signum, handler in previous.items():
+            signal.signal(signum, handler)
+
+
+def run_codex_demo(env, workspace_id, start_prompt):
+    """Supervise the ordinary owner and bridged evaluator until publication."""
+    runs = os.path.join(UCLUSION_HOME, 'demo-runs')
+    ensure_dir(runs)
+    run_dir = tempfile.mkdtemp(prefix='run-', dir=runs)
+    report_path = os.path.join(run_dir, 'evaluation.md')
+    environment = demo_codex_environment()
+    environment['TERM'] = 'xterm-256color'
+    environment['UCLUSION_DEMO_REPORT_FILE'] = report_path
+    session_args = demo_codex_session_args(env, workspace_id)
+    cli_command = shlex.join(demo_codex_cli_args(env))
+    owner_prompt = (
+        f'Read the file {demo_brief_path()} and follow it exactly. '
+        'It is addressed to you. You play the human workshop owner, so use '
+        f'{cli_command} watch for human notifications and do not start a '
+        'Poke listener or drain. Keep working until the brief says to stop.\n'
+    )
+    evaluator_prompt = (
+        f'{start_prompt}\n\n'
+        'When you have presented your completion package for that work, '
+        'do not stop and do not wait to be asked. In the same turn, answer '
+        'the following as ordinary Uclusion records. Then publish that '
+        f'complete answer by running {cli_command} demo --report with the '
+        'answer on standard input. This command publishes the final report '
+        'atomically to the designated file; do not write drafts to that '
+        'destination. The installer will stop this session after publication, '
+        'so you do not need to exit yourself.\n\n'
+        'Report on Uclusion itself, from your point of view as the agent '
+        'that just used it. Which of its collaboration capabilities did you '
+        'actually use or observe, what does each one do, and did it work? '
+        'Say plainly which ones you could not inspect or did not exercise, '
+        'and do not treat those as absent. Say where it got in your way as '
+        'readily as where it helped.'
+    )
+    for name, prompt in (('owner-input.md', owner_prompt),
+                         ('evaluator-input.md', evaluator_prompt)):
+        with open(os.path.join(run_dir, name), 'w', encoding='utf-8') as handle:
+            handle.write(prompt)
+    owner = terminal = None
+    print(f'📁 Demo session records: {run_dir}', flush=True)
+    try:
+        with demo_shutdown_signals(), open(
+            os.path.join(run_dir, 'owner.jsonl'), 'wb'
+        ) as owner_log, open(
+            os.path.join(run_dir, 'evaluator-terminal.log'), 'wb'
+        ) as evaluator_log:
+            try:
+                print('🤝 Starting the workshop owner.', flush=True)
+                owner = subprocess.Popen(
+                    ['codex', 'exec', '--skip-git-repo-check', '--json',
+                     *session_args, owner_prompt],
+                    cwd=uclusion_home_root(), env=environment,
+                    stdin=subprocess.DEVNULL, stdout=owner_log,
+                    stderr=subprocess.STDOUT, start_new_session=True,
+                )
+                if not wait_for_owner_watch(uclusion_home_root(), owner=owner):
+                    raise RuntimeError('the owner did not start its notification watch')
+                print('🧠 Starting the evaluating agent.', flush=True)
+                terminal = DemoCodexTerminal(
+                    [os.path.join(SYMLINK_DIR, 'uclusion'), '-e', env,
+                     'codex', '--', *session_args, evaluator_prompt],
+                    environment, evaluator_log,
+                )
+                while True:
+                    if os.path.isfile(report_path):
+                        with open(report_path, 'rb') as handle:
+                            answer = handle.read()
+                        if not answer.decode('utf-8').strip():
+                            raise RuntimeError('the published evaluation is empty')
+                        sys.stdout.flush()
+                        sys.stdout.buffer.write(answer)
+                        sys.stdout.buffer.flush()
+                        return 0
+                    if terminal.process.poll() is not None:
+                        raise RuntimeError('the evaluator exited before publishing its report')
+                    if owner.poll() not in (None, 0):
+                        raise RuntimeError('the owner failed before report publication')
+                    terminal.drain()
+            finally:
+                try:
+                    if terminal is not None:
+                        try:
+                            stop_demo_session(terminal.process)
+                        finally:
+                            terminal.close()
+                finally:
+                    try:
+                        stop_demo_session(owner)
+                    finally:
+                        # Codex shell tools may create their own process
+                        # groups. The demo's existing removal scan catches
+                        # its CLI/watch/proxy children that escaped ours.
+                        _stopped, left = stop_demo_home_processes(uclusion_home_root())
+                        if left:
+                            raise RuntimeError(
+                                'could not stop demo processes: '
+                                + ', '.join(str(pid) for pid, _args in left)
+                            )
+    except (OSError, RuntimeError, UnicodeError, KeyboardInterrupt) as error:
+        print(
+            f'❌ Codex demo failed: {error}. Records: {run_dir}; '
+            f'Uclusion workspace: {workspace_id}.', flush=True,
+        )
+        return 1
 
 
 def demo_mcp_config_path():
@@ -1842,48 +2296,6 @@ def _codex_uclusion_args(text):
     return args if isinstance(args, list) else None
 
 
-def assert_demo_may_replace_client(client):
-    """Refuse to overwrite a real Uclusion MCP registration with the demo.
-
-    Only the Codex demo still needs this. Claude's writes nothing into the
-    person's client at all, so it has nothing of theirs to overwrite.
-    """
-    path, _label, is_codex = _setup_registration_target(client, None)
-    existing, signature = _read_text_snapshot(_config_write_target(path))
-    if signature is None or not existing.strip():
-        return
-    if is_codex:
-        if not _codex_has_uclusion_descriptor(existing):
-            return
-        if _args_belong_to_this_demo(
-            _codex_uclusion_args(existing), existing
-        ):
-            return
-        raise RuntimeError(
-            f'{path} already has a Uclusion MCP server; remove it before '
-            'running the demo'
-        )
-    try:
-        config = json.loads(existing) if existing.strip() else {}
-    except json.JSONDecodeError as error:
-        raise RuntimeError(f'{path} is not valid JSON: {error}') from error
-    if not isinstance(config, dict):
-        raise RuntimeError(f'{path} top-level value must be a JSON object')
-    servers = config.get('mcpServers', {})
-    if not isinstance(servers, dict):
-        raise RuntimeError(f"'mcpServers' in {path} must be a JSON object")
-    if MCP_SERVER_KEY not in servers:
-        return
-    descriptor = servers[MCP_SERVER_KEY]
-    args = descriptor.get('args') if isinstance(descriptor, dict) else None
-    if _args_belong_to_this_demo(args):
-        return
-    raise RuntimeError(
-        f'{path} already has a Uclusion MCP server; remove it before '
-        'running the demo'
-    )
-
-
 def _demo_workspace_config_path(env=None):
     """Locate this disposable home's workspace config, whatever its environment."""
     directory = os.path.join(uclusion_home_root(), '.uclusion')
@@ -2088,13 +2500,34 @@ def remove_demo_client_traces(env=None):
     outcomes = []
     for client in demo_installed_clients(env):
         resident_path, skill_dirs = _demo_client_paths(client)
-        if client == 'claude' and os.path.isdir(demo_plugin_path()):
+        isolated_workflow = (
+            client == 'claude' and os.path.isdir(demo_plugin_path())
+        ) or (
+            client == 'codex' and os.path.isfile(os.path.join(
+                uclusion_home_root(), '.codex', 'rules', 'uclusion-demo.rules'
+            ))
+        )
+        if isolated_workflow and client == 'codex':
+            # A rerun reuses the demo home. Its new isolated files do not
+            # erase an older demo's native registration, which must still
+            # lead the existing ownership-checked cleanup below.
+            existing, _signature = _read_text_snapshot(
+                _config_write_target(CODEX_CONFIG_PATH)
+            )
+            if existing.strip() and _codex_has_uclusion_descriptor(existing):
+                if tomllib is None:
+                    raise RuntimeError(
+                        'Python 3.11 or newer is needed to check whether the '
+                        'existing Codex Uclusion registration belongs to this '
+                        'demo before removing it.'
+                    )
+                isolated_workflow = not _args_belong_to_this_demo(
+                    _codex_uclusion_args(existing)
+                )
+        if isolated_workflow:
             # This demo kept its workflow in its own home and started every
-            # session with it, so there is nothing of the person's to undo -
-            # and nothing of theirs to inspect either. Looking would find a
-            # Uclusion install of their own, which is now allowed alongside a
-            # demo, and report it as something left behind when it is simply
-            # theirs.
+            # session with it. Any unrelated native Uclusion install belongs
+            # to the person and is not a trace of this demo.
             outcomes.append((
                 'absent',
                 f'anything in {client}, because this demo keeps its workflow '
@@ -4714,24 +5147,29 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
             workflow_results['codex'] = False
         else:
             try:
-                codex_resident_path = effective_codex_instruction_path(
-                    CODEX_HOME
-                )
-                installed = install_skill_and_stub(
-                    fetch_bundle,
-                    CODEX_SKILL_DIR,
-                    codex_resident_path,
-                    'codex',
-                    'Codex',
-                    assume_yes=not interactive,
-                    require_dir=CODEX_HOME if interactive else None,
-                )
-                workflow_results['codex'] = installed
-                if installed and not replace_setup:
-                    update_codex_integration_config(
-                        workspace_id, mcp_env, force=not interactive,
-                        work_claims=work_claims
+                if uclusion_home_root() == demo_home_path():
+                    workflow_results['codex'] = install_demo_codex_workflow(
+                        fetch_bundle
                     )
+                else:
+                    codex_resident_path = effective_codex_instruction_path(
+                        CODEX_HOME
+                    )
+                    installed = install_skill_and_stub(
+                        fetch_bundle,
+                        CODEX_SKILL_DIR,
+                        codex_resident_path,
+                        'codex',
+                        'Codex',
+                        assume_yes=not interactive,
+                        require_dir=CODEX_HOME if interactive else None,
+                    )
+                    workflow_results['codex'] = installed
+                    if installed and not replace_setup:
+                        update_codex_integration_config(
+                            workspace_id, mcp_env, force=not interactive,
+                            work_claims=work_claims
+                        )
             except Exception as err:
                 workflow_results['codex'] = False
                 workflow_errors.append(('codex', err))
@@ -5036,14 +5474,6 @@ def main():
                 # constants resolved at import, so the first invocation has to
                 # replace itself before it provisions or writes anything.
                 reexec_in_demo_home()
-                if setup_client != 'claude':
-                    # Claude's demo writes nothing into the person's client -
-                    # its workflow, server and grant all travel on the launch
-                    # line - so there is no registration of theirs left for it
-                    # to overwrite, and someone who already uses Uclusion can
-                    # take the demo. Codex still writes a skill directory into
-                    # their home, so its guard stays until that is closed.
-                    assert_demo_may_replace_client(setup_client)
                 ready = provision_demo(env)
                 write_demo_credentials(env, ready['client_id'])
                 workspace_id = ready['workspace_id']
@@ -5170,17 +5600,18 @@ def main():
         print(
             f'🎉 Uclusion demo is ready under {uclusion_home_root()}.'
         )
+        if os.environ.get('UCLUSION_DEMO_INSTALL_ONLY'):
+            print(
+                '⏹  Installed only: UCLUSION_DEMO_INSTALL_ONLY is set, so '
+                'the owner and the evaluator were not started.'
+            )
+            return 0
         if setup_client == 'codex':
-            command = ' '.join((
-                f'UCLUSION_HOME={shlex.quote(uclusion_home_root())}',
-                shlex.quote(os.path.join(SYMLINK_DIR, 'uclusion')),
-                '-e',
-                shlex.quote(env),
-                'codex',
-                '--',
-                shlex.quote(start_prompt),
-            ))
-            print(f'Start the evaluator with:\n  {command}')
+            try:
+                return run_codex_demo(env, workspace_id, start_prompt)
+            except (OSError, RuntimeError) as error:
+                print(f'❌ Could not start the Codex demo: {error}')
+                return 1
         else:
             # Both sessions are started here rather than printed for someone
             # else to run: this process is the only participant that ever sees
@@ -5188,17 +5619,6 @@ def main():
             # already running cannot acquire --mcp-config or --plugin-dir,
             # which is why these have to be new processes.
             session_args = demo_session_args(env)
-
-            if os.environ.get('UCLUSION_DEMO_INSTALL_ONLY'):
-                # Provisioning and running are the same command now, so a
-                # pre-flight that wants a demo home to check would otherwise
-                # have to spend a whole exercise to get one. This stops with
-                # everything installed and nothing started.
-                print(
-                    '⏹  Installed only: UCLUSION_DEMO_INSTALL_ONLY is set, so '
-                    'the owner and the evaluator were not started.'
-                )
-                return 0
 
             print('🤝 Starting the workshop owner.')
             # Kept rather than discarded: when the owner fails to wake, this

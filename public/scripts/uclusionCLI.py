@@ -2463,19 +2463,65 @@ def is_orphaned(initial_ppid):
     return os.getppid() != initial_ppid
 
 
-def cmd_demo(args):
-    """Undo a demo install, through the installer that created it.
+def publish_demo_report():
+    """Publish one complete evaluation into the active demo run."""
+    temporary_path = None
+    try:
+        report_path = os.environ.get('UCLUSION_DEMO_REPORT_FILE')
+        if not report_path or not os.environ.get('UCLUSION_HOME'):
+            raise ValueError('this session has no designated demo report')
+        report_dir = os.path.dirname(report_path)
+        run_name = os.path.basename(report_dir)
+        expected_dir = os.path.join(
+            os.path.realpath(uclusion_home_root()),
+            '.uclusion', 'demo-runs', run_name,
+        )
+        if (
+            not os.path.isabs(report_path)
+            or run_name in ('', '.', '..')
+            or os.path.basename(report_path) != 'evaluation.md'
+            or os.path.realpath(report_dir) != expected_dir
+        ):
+            raise ValueError('the report destination is outside this demo run')
 
-    Only ``--remove`` exists: a demo is created by the published install
-    command, so the CLI's half of it is the undo. The installer is handed
-    this home explicitly, because it is the one being removed and resolving
-    it again from the environment after the re-exec would be a different
-    question.
-    """
+        report = sys.stdin.buffer.read()
+        if not report.decode('utf-8').strip():
+            raise ValueError('the evaluation report is blank')
+        with tempfile.NamedTemporaryFile(
+            mode='wb', prefix='.evaluation-', suffix='.tmp',
+            dir=report_dir, delete=False,
+        ) as temporary:
+            temporary_path = temporary.name
+            temporary.write(report)
+            temporary.flush()
+            os.fsync(temporary.fileno())
+        # A hard link publishes the completed file without replacing a report
+        # that another invocation may have published while this one was writing.
+        os.link(temporary_path, report_path)
+    except FileExistsError:
+        print('❌ This demo run already has an evaluation report.', file=sys.stderr)
+        return 1
+    except (OSError, ValueError) as error:
+        print(f'❌ Cannot publish the demo evaluation: {error}.', file=sys.stderr)
+        return 1
+    finally:
+        if temporary_path is not None:
+            try:
+                os.unlink(temporary_path)
+            except OSError:
+                pass
+    print('Published the complete demo evaluation.')
+    return 0
+
+
+def cmd_demo(args):
+    """Publish a demo evaluation or undo its install through the installer."""
+    if args.report:
+        return publish_demo_report()
     if not args.remove:
         print(
-            "❌ 'uclusion demo' takes --remove; a demo is created by the "
-            'published install command.',
+            "❌ 'uclusion demo' takes --report or --remove; a demo is created "
+            'by the published install command.',
             file=sys.stderr,
         )
         return 1
@@ -3890,14 +3936,21 @@ def build_parser():
 
     demo_parser = subparsers.add_parser(
         'demo',
-        help='Undo the demo install in this disposable home.',
+        help='Publish a demo evaluation or undo the disposable demo install.',
     )
-    demo_parser.add_argument(
+    demo_action = demo_parser.add_mutually_exclusive_group()
+    demo_action.add_argument(
         '--remove',
         action='store_true',
         help='Undo every trace the demo wrote to this client and delete the '
              'disposable home. Anything that is not this demo\'s is left '
              'alone and reported.',
+    )
+    demo_action.add_argument(
+        '--report',
+        action='store_true',
+        help='Read the complete UTF-8 evaluation from stdin and publish it to '
+             'the report file designated for this demo run.',
     )
     demo_parser.set_defaults(func=cmd_demo)
 

@@ -3652,6 +3652,21 @@ def validate_collaborators(arguments):
         raise CLIArgumentError('email addresses must be unique')
 
 
+def validate_add_info(arguments):
+    create_mode = 'short_code_id' in arguments
+    update_mode = 'update_info_short_code_id' in arguments
+    if create_mode == update_mode:
+        raise CLIArgumentError(
+            'provide exactly one of short_code_id or update_info_short_code_id'
+        )
+    if update_mode != ('update_info_version' in arguments):
+        raise CLIArgumentError(
+            'update_info_short_code_id and update_info_version must be supplied together'
+        )
+    if update_mode and arguments.get('for_human'):
+        raise CLIArgumentError('for_human cannot be used when updating information')
+
+
 def build_add_info_arguments(args):
     arguments = declared_mcp_arguments(args)
     if args.arguments_json is None and 'tz' not in arguments:
@@ -4438,7 +4453,7 @@ def build_parser():
     )
 
     add_info_parser = subparsers.add_parser(
-        'add_info', help='Add AI-authored information to a job, option, or comment.'
+        'add_info', help='Add information or replace active AI-authored information.'
     )
     add_info_parser.add_argument('legacy_short_code_id', nargs='?', help='Compatibility target short code.')
     add_info_parser.add_argument('legacy_info', nargs='?', help='Compatibility information Markdown.')
@@ -4446,8 +4461,15 @@ def build_parser():
         'legacy_parent_question_short_code_id', nargs='?',
         help='Compatibility enclosing question short code.',
     )
-    add_info_parser.add_argument('--short-code-id', help='Target short code.')
-    add_info_parser.add_argument('--info', help='Information Markdown.')
+    add_info_parser.add_argument('--short-code-id', help='Target short code for new information.')
+    add_info_parser.add_argument(
+        '--update-info-short-code-id', help='Existing AI-authored note, reply, or option Info to replace.'
+    )
+    add_info_parser.add_argument(
+        '--update-info-version', type=positive_int,
+        help='Positive version returned with the information body you read.',
+    )
+    add_info_parser.add_argument('--info', help='Complete information Markdown.')
     add_info_parser.add_argument(
         '--parent-question-short-code-id', help='Enclosing question for a nested target.'
     )
@@ -4458,6 +4480,8 @@ def build_parser():
         'add_info',
         (
             mcp_field('short_code_id', 'short_code_id', 'legacy_short_code_id'),
+            mcp_field('update_info_short_code_id', 'update_info_short_code_id'),
+            mcp_field('update_info_version', 'update_info_version'),
             mcp_field('info', 'info', 'legacy_info'),
             mcp_field(
                 'parent_question_short_code_id',
@@ -4467,7 +4491,8 @@ def build_parser():
             mcp_field('tz', 'tz'),
             mcp_field('uploaded_files', 'uploaded_files'),
         ),
-        ('short_code_id', 'info'),
+        ('info',),
+        validator=validate_add_info,
         builder=build_add_info_arguments,
     )
 

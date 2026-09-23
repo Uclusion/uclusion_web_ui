@@ -162,7 +162,7 @@ SCRIPT_FILES = (
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCLI.py':
-        '3d4dde85a7d513b2b5694b0be31c8b2a61dcbd1427f42967d58bc2219d4839b0',
+        '76b8399099174eb6b4f29692965482f7b911545941470ad72b5acdfba703dd0b',
     'uclusionMCPProxy.py':
         '474d2a2c96aeea97689331f47107ab5aea78662be25de650b4cb5ef9d071bb53',
     'uclusionSetupMCP.py':
@@ -340,7 +340,7 @@ WORKFLOW_ASSET_SHA256 = {
     'cursor_stub': 'c2e03afbaf55fd656b68478de9268955ef2af5813d3a2109ebce04ae0c8061bf',
     'skill': '3d9cfa25f2aa269063ea68b3e77649fccaf910badaf2edbff7db3166a55b7a03',
     'pokes_reference': '3a6878caf88071ccef078edef4623188623103020ed92c66041b0d21bd4a20ee',
-    'operations_reference': '70609c8be74ab4bf9f91a8401c2a676b5c57622d30239f59a1eb246efde73769',
+    'operations_reference': 'cb8079c624ad27d1459c96dff49e70d49397b954f0d85fe6a65d2325f7d90cc5',
     'completion_reference': '2f627b9e6156958ce7940f11b0281a4ee3295517b60eb339b0bc577dd59240c3',
     'audit_reference': '6e064e0baf27e4a17bd3a15060dbb15f8730de31f71eb8df0caba180852be71d',
     'claims_reference': '7e935792deaacbd02369590625f947c025e54cb84dd56da14d93eab55a8f2e4f',

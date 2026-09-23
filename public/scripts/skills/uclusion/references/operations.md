@@ -14,6 +14,18 @@ extra recap note. Reply on the exact comment being answered, not its thread
 root; flat root replies separate answers from their questions and cannot be
 re-threaded.
 
+To correct an existing active AI-authored ordinary note, reply or option Info,
+use `add_info` with `update_info_short_code_id`, `update_info_version` and the
+complete replacement `info`, omitting the creation target `short_code_id`.
+Supply the version returned with the body you actually read. Keep
+`parent_question_short_code_id` for a record inside a question. On conflict,
+reload and reconcile the current body; never retry with an unseen version.
+Replacement preserves identity and threading without saving the old body or
+adding a history note. Omitted attachment metadata keeps existing files.
+Human-authored records, capsules, reviews, standing view notes and machine
+audit records cannot use this form; retain their dedicated tools and
+protections. `for_human` applies only to creation.
+
 Use canonical short codes verbatim. A source-code comment that cites a question
 uses the question's full returned link when available. After review opens, a
 proposed commit message begins with the completed task/comment code. A job code

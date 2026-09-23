@@ -13,8 +13,9 @@ import { getMarketPresences } from '../../../contexts/MarketPresencesContext/mar
 import { marketPresencesContextHack } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { investibleContextHack } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { getMarketInfo } from '../../../utils/userFunctions';
-import { formInvestibleLink } from '../../../utils/marketIdPathFunctions';
+import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { commentsContextHack } from '../../../contexts/CommentsContext/CommentsContext';
+import { buildHashMentions } from './hashMentions';
 
 
 // static helper funcs
@@ -516,8 +517,8 @@ export function generateEditorOptions (id, config) {
       isolateCharacter: true,
       dataAttributes: ['id', 'value', 'denotationChar', 'link', 'target', 'externalId'],
       positioningStrategy: 'fixed',
-      // J-all-348: '#' mentions a job (Q-all-224 O-1). Job names and ticket codes need spaces,
-      // dashes and periods, which people mentions do not allow
+      // J-all-348: '#' mentions a job (Q-all-224 O-1). B-all-666 adds standalone comments.
+      // Names and ticket codes need spaces, dashes and periods, which people mentions do not allow
       mentionDenotationChars,
       allowedChars: (mentionChar) => mentionChar === '#' ? /^[a-zA-Z0-9_\- .]*$/ : /^[a-zA-Z0-9_]*$/,
       renderItem: function (item) {
@@ -534,37 +535,23 @@ export function generateEditorOptions (id, config) {
           mentionModule.mentionContainer.style.fontSize = mentionChar === '#' ? '16px' : '';
         }
         if (mentionChar === '#') {
-          // J-all-348 (Q-all-226 O-1): every job in the workspace, matched on name or ticket code
+          // J-all-348 (Q-all-226 O-1): every job in the workspace, matched on name or ticket code.
+          // B-all-666: the same list includes standalone comments (bugs and the other view-level kinds).
           const investiblesRaw = getMarketInvestibles(investibleContextHack, marketId) || [];
-          const jobs = [];
-          investiblesRaw.forEach((inv) => {
-            const marketInfo = getMarketInfo(inv, marketId);
-            if (marketInfo && !marketInfo.deleted) {
-              const { name, id } = inv.investible;
-              const ticketCode = marketInfo.ticket_code ? decodeURI(marketInfo.ticket_code) : '';
-              if (searchTerm.length === 0 || name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                ticketCode.toLowerCase().includes(searchTerm.toLowerCase())) {
-                // Q-all-227: the link is the same ticket code URL InvesibleCommentLinker copies,
-                // absolute because onSelect feeds it through the paste handler which only
-                // link-ifies absolute URLs
-                const link = `${window.location.protocol}//${window.location.host}${marketInfo.ticket_code ?
-                  `/${marketId}/${marketInfo.ticket_code}` : formInvestibleLink(marketId, id)}`;
-                jobs.push({ id, value: name, ticketCode, isJob: true, link });
-              }
-            }
-          });
+          const commentsRaw = getMarketComments(commentsContextHack || {}, marketId) || [];
+          const origin = `${window.location.protocol}//${window.location.host}`;
+          const mentions = buildHashMentions(investiblesRaw, commentsRaw, marketId, searchTerm, origin);
           // S-1 under Q-all-224: each list teaches the other trigger via a disabled hint row,
           // skipped when the other trigger is not enabled (S-all-115)
           const jobsHint = mentionDenotationChars.includes('@') ?
             [{ id: 'jobsMentionHint', value: 'use @ for people', disabled: true }] : [];
-          renderList([...jobsHint,
-            ..._.orderBy(jobs, [(job) => job.value.toLowerCase()])], searchTerm);
+          renderList([...jobsHint, ...mentions], searchTerm);
           return;
         }
         const participantsRaw = getMarketPresences(marketPresencesContextHack, marketId) || [];
         const participants = participantsRaw.filter((presence) => !_.isEmpty(presence.email));
         const peopleHint = mentionDenotationChars.includes('#') ?
-          [{ id: 'peopleMentionHint', value: 'use # for jobs', disabled: true }] : [];
+          [{ id: 'peopleMentionHint', value: 'use # for jobs and comments', disabled: true }] : [];
         if (searchTerm.length === 0) {
           renderList([...peopleHint, ...participants.map((presence) => {
             const { name, id, email, external_id } = presence;

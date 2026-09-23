@@ -73,7 +73,7 @@ class CodexDemoSetupTests(unittest.TestCase):
             {'name': 'Other.Server', 'enabled': False},
         ]
 
-    def session_args(self, inventory=None):
+    def session_args(self, inventory=None, response_stats=None):
         if not (self.config / 'bootstrap.md').exists():
             (self.config / 'bootstrap.md').write_text('Demo bootstrap\n')
         result = subprocess.CompletedProcess(
@@ -82,8 +82,26 @@ class CodexDemoSetupTests(unittest.TestCase):
         with mock.patch.object(INSTALL.shutil, 'which', return_value='/native/codex'), \
                 mock.patch.object(INSTALL, '_read_demo_codex_config', return_value=self.effective), \
                 mock.patch.object(INSTALL.subprocess, 'run', return_value=result) as run:
-            args = INSTALL.demo_codex_session_args('stage', 'demo-workspace')
+            args = INSTALL.demo_codex_session_args(
+                'stage', 'demo-workspace', response_stats
+            )
         return args, run.call_args.kwargs
+
+    def test_only_a_session_given_statistics_records_them(self):
+        # The evaluator's launch carries the flag; the owner's never does,
+        # and each is checked against what Codex actually selected.
+        stats = str(self.root / 'evaluator-stats.jsonl')
+        descriptor = INSTALL.runtime_mcp_descriptor('demo-workspace', 'stage')
+        descriptor['args'].extend(['--response-stats', stats])
+        inventory = [{'name': 'Uclusion', 'enabled': True, 'transport': descriptor}]
+        evaluator, _kwargs = self.session_args(inventory, response_stats=stats)
+        self.assertIn('--response-stats', ' '.join(evaluator))
+        self.assertIn(stats, ' '.join(evaluator))
+        owner, _kwargs = self.session_args()
+        self.assertNotIn('--response-stats', ' '.join(owner))
+        # A launch whose selected proxy lacks the flag is refused, not run.
+        with self.assertRaisesRegex(RuntimeError, 'demo proxy'):
+            self.session_args(response_stats=stats)
 
     def test_environment_retains_native_login_and_removes_parent_bridge_identity(self):
         with mock.patch.dict(os.environ, {

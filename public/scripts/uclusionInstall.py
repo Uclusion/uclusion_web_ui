@@ -1599,8 +1599,12 @@ def _read_demo_codex_config(codex, arguments, environment):
         process.stdout.close()
 
 
-def demo_codex_session_args(environment, workspace_id):
-    """Build and check launch-local settings shared by both Codex sessions."""
+def demo_codex_session_args(environment, workspace_id, response_stats=None):
+    """Build and check one Codex session's launch-local settings.
+
+    ``response_stats`` is given only for the evaluator, whose proxy then
+    records its response sizes; the owner's never does.
+    """
     child_environment = demo_codex_environment()
     codex = shutil.which('codex', path=child_environment['PATH'])
     if codex is None:
@@ -1638,6 +1642,8 @@ def demo_codex_session_args(environment, workspace_id):
     descriptor = runtime_mcp_descriptor(
         workspace_id, None if environment == 'production' else environment,
     )
+    if response_stats:
+        descriptor['args'].extend(['--response-stats', response_stats])
     server_overrides = [
         _toml_basic_string(name) + '={enabled=false}'
         for name in sorted(servers) if name != MCP_SERVER_KEY
@@ -1835,8 +1841,11 @@ def stop_demo_home_processes(home):
     return stopped, left
 
 
-def demo_session_args(env):
+def demo_session_args(env, mcp_config=None):
     """The flags every demo session is started with.
+
+    ``mcp_config`` replaces the demo's shared MCP config for one session; the
+    evaluator gets its own only when its response sizes are being recorded.
 
     Argv, not a shell line: values must not be shell-quoted. Passing
     shlex.quote output here made the client reject both --allowedTools rules
@@ -1845,7 +1854,7 @@ def demo_session_args(env):
     """
     demo_cli = workflow_cli_command(env)
     return [
-        '--mcp-config', demo_mcp_config_path(),
+        '--mcp-config', mcp_config or demo_mcp_config_path(),
         '--strict-mcp-config',
         '--plugin-dir', demo_plugin_path(),
         # The file form rather than --append-system-prompt "$(cat ...)": a
@@ -1989,7 +1998,7 @@ def demo_shutdown_signals():
             signal.signal(signum, handler)
 
 
-def run_codex_demo(env, workspace_id, start_prompt):
+def run_codex_demo(env, workspace_id, start_prompt, response_stats=None):
     """Supervise the ordinary owner and bridged evaluator until publication."""
     runs = os.path.join(UCLUSION_HOME, 'demo-runs')
     ensure_dir(runs)
@@ -1999,6 +2008,10 @@ def run_codex_demo(env, workspace_id, start_prompt):
     environment['TERM'] = 'xterm-256color'
     environment['UCLUSION_DEMO_REPORT_FILE'] = report_path
     session_args = demo_codex_session_args(env, workspace_id)
+    evaluator_session_args = (
+        demo_codex_session_args(env, workspace_id, response_stats)
+        if response_stats else session_args
+    )
     cli_command = shlex.join(demo_codex_cli_args(env))
     owner_prompt = (
         f'Read the file {demo_brief_path()} and follow it exactly. '
@@ -2055,7 +2068,7 @@ def run_codex_demo(env, workspace_id, start_prompt):
                 print('🧠 Starting the evaluating agent.', flush=True)
                 terminal = DemoCodexTerminal(
                     [os.path.join(SYMLINK_DIR, 'uclusion'), '-e', env,
-                     'codex', '--', *session_args, evaluator_prompt],
+                     'codex', '--', *evaluator_session_args, evaluator_prompt],
                     environment, evaluator_log,
                 )
                 while True:
@@ -2109,6 +2122,34 @@ def demo_mcp_config_path():
     session has no way to answer.
     """
     return os.path.join(UCLUSION_HOME, 'mcp.json')
+
+
+def demo_evaluator_mcp_config_path():
+    return os.path.join(UCLUSION_HOME, 'mcp-evaluator.json')
+
+
+def write_demo_evaluator_mcp_config(response_stats):
+    """The evaluator's MCP config when it records response sizes, else None.
+
+    Copied from the demo's shared config and differing only by the flag, so
+    the owner records nothing and the evaluator is otherwise identical. The
+    home is reused across runs, so a run that asks for no statistics removes
+    an earlier run's copy rather than recording into its old path.
+    """
+    path = demo_evaluator_mcp_config_path()
+    if not response_stats:
+        try:
+            os.remove(path)
+        except FileNotFoundError:
+            pass
+        return None
+    with open(demo_mcp_config_path(), encoding='utf-8') as handle:
+        config = json.load(handle)
+    server = config['mcpServers'][MCP_SERVER_KEY]
+    server['args'] = list(server['args']) + ['--response-stats', response_stats]
+    with open(path, 'w', encoding='utf-8') as handle:
+        handle.write(json.dumps(config, indent=2) + '\n')
+    return path
 
 
 def demo_runtime_dir():
@@ -5534,12 +5575,16 @@ def main():
             args.setup_receipt is not None,
             args.token_audit is not None,
             args.work_claims is not None,
-            args.response_stats is not None,
+            # A demo may record its evaluator's response sizes; only a path
+            # turns that on, so --no-response-stats has nothing to undo.
+            args.response_stats is not None
+            and not (mode == 'demo' and args.response_stats),
             args.force,
             args.script_version is not None,
         )):
-            allowed = '--clients' if mode == 'demo' else (
-                '--clients and optional --project'
+            allowed = (
+                '--clients and optional --response-stats PATH'
+                if mode == 'demo' else '--clients and optional --project'
             )
             parser.error(
                 f'{mode} mode accepts only {allowed}'
@@ -5669,7 +5714,11 @@ def main():
                 args.work_claims,
                 args.replace_setup,
                 args.setup_receipt,
-                response_stats=args.response_stats,
+                # The demo's shared registration is the owner's; statistics
+                # belong to the evaluator's own launch configuration.
+                response_stats=(
+                    None if bootstrap_mode == 'demo' else args.response_stats
+                ),
             )
         else:
             install_project_level(
@@ -5707,9 +5756,18 @@ def main():
                 'the owner and the evaluator were not started.'
             )
             return 0
+        if args.response_stats:
+            print(
+                '📊 The evaluating agent\'s MCP response sizes will be '
+                f'appended to {args.response_stats}; the owner\'s are not '
+                'recorded.'
+            )
         if setup_client == 'codex':
             try:
-                return run_codex_demo(env, workspace_id, start_prompt)
+                return run_codex_demo(
+                    env, workspace_id, start_prompt,
+                    response_stats=args.response_stats,
+                )
             except (OSError, RuntimeError) as error:
                 print(f'❌ Could not start the Codex demo: {error}')
                 return 1
@@ -5720,6 +5778,9 @@ def main():
             # already running cannot acquire --mcp-config or --plugin-dir,
             # which is why these have to be new processes.
             session_args = demo_session_args(env)
+            evaluator_session_args = demo_session_args(
+                env, write_demo_evaluator_mcp_config(args.response_stats),
+            )
 
             print('🤝 Starting the workshop owner.')
             # Kept rather than discarded: when the owner fails to wake, this
@@ -5780,7 +5841,7 @@ def main():
                 'helped.'
             )
             evaluation = subprocess.run(
-                ['claude'] + session_args,
+                ['claude'] + evaluator_session_args,
                 input=evaluator_prompt,
                 capture_output=True,
                 text=True,

@@ -2,6 +2,7 @@
 
 import importlib.util
 import inspect
+import json
 import os
 from pathlib import Path
 import stat
@@ -234,6 +235,82 @@ class DemoHomeTests(unittest.TestCase):
             os.path.join(cli.uclusion_home_root(), '.uclusion',
                          cli.DEMO_NOTIFICATION_LOG),
         )
+
+    def test_only_the_evaluator_records_response_sizes(self):
+        # The owner keeps the shared config; the evaluator's copy differs
+        # only by the flag, so nothing else about the two sessions diverges.
+        home = tempfile.TemporaryDirectory()
+        self.addCleanup(home.cleanup)
+        patcher = mock.patch.object(INSTALL, 'UCLUSION_HOME', home.name)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        shared = {'mcpServers': {INSTALL.MCP_SERVER_KEY: {
+            'command': 'python3', 'args': ['proxy.py', 'workspace', 'stage'],
+            'type': 'stdio',
+        }}}
+        Path(INSTALL.demo_mcp_config_path()).write_text(json.dumps(shared))
+        path = INSTALL.write_demo_evaluator_mcp_config('/tmp/eval.jsonl')
+        self.assertEqual(INSTALL.demo_evaluator_mcp_config_path(), path)
+        evaluator = json.loads(Path(path).read_text())
+        server = evaluator['mcpServers'][INSTALL.MCP_SERVER_KEY]
+        self.assertEqual(
+            ['proxy.py', 'workspace', 'stage', '--response-stats', '/tmp/eval.jsonl'],
+            server['args'],
+        )
+        self.assertEqual('stdio', server['type'])
+        self.assertEqual(shared, json.loads(
+            Path(INSTALL.demo_mcp_config_path()).read_text()
+        ))
+        args = INSTALL.demo_session_args('stage', path)
+        self.assertEqual(path, args[args.index('--mcp-config') + 1])
+        # The home is reused: a run without statistics must not keep
+        # recording into an earlier run's path.
+        self.assertIsNone(INSTALL.write_demo_evaluator_mcp_config(None))
+        self.assertFalse(Path(path).exists())
+        args = INSTALL.demo_session_args('stage', None)
+        self.assertEqual(
+            INSTALL.demo_mcp_config_path(), args[args.index('--mcp-config') + 1]
+        )
+
+    def test_the_claude_evaluator_is_launched_with_its_own_config(self):
+        source = inspect.getsource(INSTALL.main)
+        self.assertIn(
+            'write_demo_evaluator_mcp_config(args.response_stats)', source
+        )
+        self.assertIn("['claude'] + evaluator_session_args", source)
+        # The shared registration is the owner's and never records.
+        self.assertIn(
+            "None if bootstrap_mode == 'demo' else args.response_stats", source
+        )
+
+    def demo_guard(self, *argv):
+        # Past the argument guard, the next step is the demo home re-exec.
+        with mock.patch.object(INSTALL.sys, 'argv', ['uclusionInstall.py', *argv]), \
+                mock.patch.object(INSTALL, 'reexec_in_demo_home',
+                                  side_effect=RuntimeError('past the guard')), \
+                mock.patch('builtins.print') as printed, \
+                mock.patch.object(INSTALL.sys, 'stderr'):
+            try:
+                result = INSTALL.main()
+            except SystemExit as refusal:
+                return 'refused', refusal.code
+        return result, ' '.join(str(call.args[0]) for call in printed.call_args_list)
+
+    def test_demo_mode_accepts_a_statistics_path_and_nothing_else_new(self):
+        result, output = self.demo_guard(
+            'stage', 'demo', '--clients', 'claude',
+            '--response-stats', '/tmp/eval.jsonl',
+        )
+        self.assertEqual(1, result)
+        self.assertIn('past the guard', output)
+        for argv in (
+            ('stage', 'demo', '--clients', 'claude', '--no-response-stats'),
+            ('stage', 'setup', '--clients', 'claude',
+             '--response-stats', '/tmp/eval.jsonl'),
+            ('stage', 'demo', '--clients', 'claude', '--work-claims'),
+        ):
+            with self.subTest(argv=argv):
+                self.assertEqual(('refused', 2), self.demo_guard(*argv))
 
     def test_removal_refuses_a_home_something_is_still_using(self):
         # A session started against this home keeps its client and its

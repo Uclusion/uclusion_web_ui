@@ -54,8 +54,23 @@ class CodexDemoRunTests(unittest.TestCase):
             self.addCleanup(patch.stop)
         self.stop = self.mocks[-2]
 
-    def run_demo(self):
-        return INSTALL.run_codex_demo('stage', 'workspace', 'Start J-Demo-1.')
+    def run_demo(self, **kwargs):
+        return INSTALL.run_codex_demo('stage', 'workspace', 'Start J-Demo-1.', **kwargs)
+
+    def test_only_the_evaluator_is_launched_with_statistics(self):
+        self.mocks[4].side_effect = (
+            lambda _env, _workspace, response_stats=None:
+            ['-c', f'stats={response_stats}']
+        )
+        self.terminal.drain.side_effect = lambda: self.report.write_bytes(b'Report\n')
+        self.assertEqual(self.run_demo(response_stats='/tmp/eval.jsonl'), 0)
+        owner_command = next(
+            call.args[0] for call in INSTALL.subprocess.Popen.call_args_list
+            if call.args[0][:2] == ['codex', 'exec']
+        )
+        self.assertIn('stats=None', owner_command)
+        self.assertNotIn('stats=/tmp/eval.jsonl', owner_command)
+        self.assertIn('stats=/tmp/eval.jsonl', self.commands[0])
 
     def test_publication_preserves_bytes_and_stops_both_live_sessions(self):
         report = b'  Evaluation\r\nUnicode: \xe2\x9c\x93\n\n'

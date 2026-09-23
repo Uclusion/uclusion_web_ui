@@ -4,7 +4,7 @@ import {
   REPLY_TYPE,
   SUGGEST_CHANGE_TYPE
 } from '../../constants/comments';
-import { getSortedRoots } from './CommentBox';
+import { getSortedRoots, sortRootsByUpdatedAt } from './CommentBox';
 
 jest.mock('../../components/Comments/Comment', () => () => null);
 jest.mock('react-hotkeys-hook', () => ({
@@ -58,6 +58,16 @@ describe('getSortedRoots', () => {
 
   it('keeps latest-activity ordering available for responded comments', () => {
     const sorted = getSortedRoots(comments, searchResults, false, false, true);
+
+    expect(sorted.map((comment) => comment.id)).toEqual([
+      oldest.id,
+      newest.id,
+      middle.id,
+    ]);
+  });
+
+  it('orders resolved roots by each question updated_at, most recent first', () => {
+    const sorted = sortRootsByUpdatedAt([newest, middle, oldest]);
 
     expect(sorted.map((comment) => comment.id)).toEqual([
       oldest.id,

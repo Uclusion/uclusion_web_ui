@@ -126,6 +126,15 @@ export function getSortedRoots(allComments, searchResults, preserveOrder, isInbo
   return fullOrdered;
 }
 
+// B-all-662: the Debatable Resolved tab orders by the root's own updated_at,
+// most recent first. A later reply is not an update of the question.
+export function sortRootsByUpdatedAt(roots) {
+  return _.orderBy(roots || [], [
+    (root) => new Date(root.updated_at).getTime() || 0,
+    'id',
+  ], ['desc', 'asc']);
+}
+
 export function sortInProgress(roots, investibleComments) {
   const sorted = [];
   const inProgressSorted = [];

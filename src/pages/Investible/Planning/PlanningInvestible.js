@@ -5,7 +5,7 @@ import { IconButton, makeStyles, Menu, MenuItem, Tooltip, Typography, useMediaQu
 import { useHistory, useLocation } from 'react-router';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { FormattedMessage, useIntl } from 'react-intl';
-import CommentBox from '../../../containers/CommentBox/CommentBox';
+import CommentBox, { sortRootsByUpdatedAt } from '../../../containers/CommentBox/CommentBox';
 import {
   ISSUE_TYPE,
   JUSTIFY_TYPE,
@@ -653,7 +653,8 @@ function PlanningInvestible(props) {
     .concat(blockingCommentsSearched);
   // T-all-2298: split Debatable into Unresponded, Responded (a human added something later than
   // the AI), and Resolved
-  const resolvedAssistanceComments = assistanceCommentsSearched.filter((comment) => comment.resolved);
+  const resolvedAssistanceComments = sortRootsByUpdatedAt(
+    assistanceCommentsSearched.filter((comment) => comment.resolved));
   const unresolvedAssistanceComments = assistanceCommentsSearched.filter((comment) => !comment.resolved);
   const respondedAssistanceComments = unresolvedAssistanceComments.filter((comment) =>
     isAssistanceRespondedByHuman(comment, investibleComments, marketPresences, marketPresencesState, commentsState));
@@ -1278,6 +1279,7 @@ function PlanningInvestible(props) {
                 useInProgressSorting={sectionOpen === 'tasksSection'}
                 oldestFirst={sectionOpen === 'assistanceSection' && assistanceTab === 0}
                 simpleOrdering={sectionOpen === 'assistanceSection' && assistanceTab === 1}
+                preserveOrder={sectionOpen === 'assistanceSection' && assistanceTab === 2}
               />
             )}
           </>

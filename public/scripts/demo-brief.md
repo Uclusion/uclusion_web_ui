@@ -16,14 +16,16 @@ behavior. Do not evaluate Uclusion yourself or coach the evaluator's workflow.
 
 You receive human notifications through the CLI, not Pokes. Run
 `{{UCLUSION_CLI}} watch` and hold it open throughout. Each line it prints means
-only that something arrived. Do not end your turn until the evaluator has presented its
-completion package; nothing else is a reason to stop.
+only that something arrived. Do not end your turn until you have replied to
+the evaluator's completion package as described below.
 
 Read the selected job with `get_job`.
 
 If the evaluator has opened a review on it and presented its completion
-package, stop and take no further action. Do not select `all`, `none`, or any action
-number. A design update alone does not count.
+package, use `add_info` with that review's exact short code as `short_code_id`,
+`all` as the complete `info`, and `for_human: true`. After the reply succeeds,
+stop and take no further action. If your selection is already recorded on the
+review, stop without posting it again. A design update alone does not count.
 
 Otherwise do the first interaction below whose condition holds and which you
 have not already done, then wait. Alongside them, and after the vote, you may

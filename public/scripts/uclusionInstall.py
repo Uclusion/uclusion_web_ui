@@ -334,11 +334,11 @@ WORKFLOW_ASSET_PATHS = {
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
     'reading_reference': '6da00e9f78d3409516548ddf74a4210b00052cc982a392ab814d02f3cd1c4bb9',
-    'demo_brief': '32c0fe865d973d06628f19f08bedf7925136f53c65f4d4578bb3c2b53a703a35',
+    'demo_brief': 'e423b99fe8d5b5c9a2acffbd14bc7597703e8fc1c24a42338fa3a43e2e0e4a67',
     'claude_stub': '49c9682ed4bef4723084f8f4e6dbdbde4c52e5d8d1b0e27d1358d7050b946fec',
     'codex_stub': '7cc3b75aa1b7af3799e47962d7ce2beb43b4a8f52541bb571c0dc968eb808336',
     'cursor_stub': 'c2e03afbaf55fd656b68478de9268955ef2af5813d3a2109ebce04ae0c8061bf',
-    'skill': '3d9cfa25f2aa269063ea68b3e77649fccaf910badaf2edbff7db3166a55b7a03',
+    'skill': 'fac9dc904eed16c61e770ff18d0e6285172273eb92c473bb3d50cc2d84c0e5c1',
     'pokes_reference': '3a6878caf88071ccef078edef4623188623103020ed92c66041b0d21bd4a20ee',
     'operations_reference': 'cb8079c624ad27d1459c96dff49e70d49397b954f0d85fe6a65d2325f7d90cc5',
     'completion_reference': '2f627b9e6156958ce7940f11b0281a4ee3295517b60eb339b0bc577dd59240c3',
@@ -1523,9 +1523,9 @@ def install_demo_codex_workflow(fetch_bundle):
         + '\nWhen assigned the workshop owner role, follow the installed owner '
         'brief and watch human notifications through the demo CLI. Do not '
         'arm a listener, wait for or drain Pokes, call find_work, or take jobs. '
-        'Answer through human-role records until the evaluator presents its '
-        'completion package and opens review. These owner-role directions '
-        'override the normal work discovery and Poke delivery directions '
+        'Answer through human-role records, including the completion-package '
+        'reply on the review required by the owner brief, then stop. These '
+        'owner-role directions override the normal work discovery and Poke delivery directions '
         'above. They do not change the evaluator workflow.\n',
     )
     _write_staged_asset(
@@ -1975,9 +1975,15 @@ def run_codex_demo(env, workspace_id, start_prompt):
     )
     evaluator_prompt = (
         f'{start_prompt}\n\n'
-        'When you have presented your completion package for that work, '
-        'do not stop and do not wait to be asked. In the same turn, answer '
-        'the following as ordinary Uclusion records. Then publish that '
+        'After presenting your completion package, wait for the owner\'s '
+        'selection on the review and handle it through the normal workflow. '
+        'Do not begin the evaluation merely because you presented the package. '
+        'Once its selected actions, terminal record and final selected clear '
+        'are complete, call find_work as your last workflow step before the '
+        'evaluation. Do not take another job. In that same continuation turn, '
+        'answer the following as ordinary Uclusion records. If a package action '
+        'fails, follow the package stop rules, skip discovery, and report the '
+        'unfinished actions in your evaluation. Then publish that '
         f'complete answer by running {cli_command} demo --report with the '
         'answer on standard input. This command publishes the final report '
         'atomically to the designated file; do not write drafts to that '
@@ -5714,9 +5720,15 @@ def main():
             # session then ends, which is what makes this wait terminate.
             evaluator_prompt = (
                 f'{start_prompt}\n\n'
-                'When you have presented your completion package for that '
-                'work, do not stop and do not wait to be asked. In the same '
-                'turn, answer the following as ordinary Uclusion records, '
+                'After presenting your completion package, wait for the owner\'s '
+                'selection on the review and handle it through the normal workflow. '
+                'Do not begin the evaluation merely because you presented the package. '
+                'Once its selected actions, terminal record and final selected clear '
+                'are complete, call find_work as your last workflow step before the '
+                'evaluation. Do not take another job. In that same continuation turn, '
+                'answer the following as ordinary Uclusion records. If a package action '
+                'fails, follow the package stop rules, skip discovery, and report the '
+                'unfinished actions in your evaluation. Then '
                 'print that answer as the last thing you say, and then end '
                 'this session instead of returning to the Poke listener.\n\n'
                 'Report on Uclusion itself, from your point of view as the '

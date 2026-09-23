@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import argparse
+import calendar
 import hashlib
 import importlib.util
 import io
@@ -2629,15 +2630,19 @@ DEMO_CLIENT_ID_PREFIX = 'ai-demo:'
 # names are upper case; object ids are lower-case UUIDs.
 NOTIFICATION_TYPE_OBJECT_RE = re.compile(r'^([A-Z]+(?:_[A-Z]+)*)_(.+)$')
 DEMO_PROGRESS_WAIT_SECONDS = 100
-# A push fires on every insert, update and removal of the human's rows, so
-# types rather than a count mark progress; the count only places the estimate
-# between two milestones. Calibrated by replaying the exercise's records on
-# stage through the demo CLI (T-Marketing-271): the question with options
-# pushed NOT_FULLY_VOTED; the evaluator accepting the owner's suggestion
-# pushed UNREAD_RESOLVED; opening the completion review pushed
-# UNREAD_REVIEWABLE, and the owner's reply on it pushed that same row again
-# as it was removed. Moving the job to Reviewable pushed nothing. Each
-# milestone is (percent, pushes the replay had seen by then, what it means).
+# A push fires on every insert, update and removal of the human's rows, and
+# one change often pushes the same row twice in the same second. Pushes on one
+# row this close together are one event, so nothing is counted twice and a
+# row's second event is a genuinely later change to it.
+DEMO_EVENT_WINDOW_SECONDS = 3
+# Types rather than a count mark progress; the count of events only places
+# the estimate between two milestones. From the logs of a scripted replay and
+# a live Claude demo on stage (T-Marketing-271, T-Marketing-275): the
+# question with options is NOT_FULLY_VOTED; the evaluator accepting the
+# owner's suggestion is UNREAD_RESOLVED; the completion review opening is an
+# UNREAD_REVIEWABLE event, and the owner's reply on it a later event on that
+# same row. Moving the job to Reviewable pushes nothing. Each milestone is
+# (percent, events the live run had seen by then, what it means).
 DEMO_PROGRESS_START = (
     5, 0, 'the evaluator is reading its job; nothing has reached the owner yet',
 )
@@ -2645,13 +2650,13 @@ DEMO_PROGRESS_MILESTONES = (
     (25, 1, 'the evaluator has asked the owner a question with options'),
     (50, 3, 'the evaluator has taken the owner\'s suggested change into its '
             'option'),
-    (80, 8, 'the evaluator has opened its completion review for the owner'),
-    (90, 9, 'the owner has answered the completion review; the evaluator is '
-            'finishing up and writing its evaluation'),
+    (80, 10, 'the evaluator has opened its completion review for the owner'),
+    (90, 11, 'the owner has answered the completion review; the evaluator is '
+             'finishing up and writing its evaluation'),
 )
-# The replay saw one more push, the evaluator's final clear, after the last
-# milestone. Never 100: only the install command returning ends the run.
-DEMO_PROGRESS_TAIL_PUSHES = 2
+# Events after the last milestone: the evaluator's final clear and records.
+# Never 100: only the install command returning ends the run.
+DEMO_PROGRESS_TAIL_EVENTS = 2
 DEMO_PROGRESS_CEILING = 95
 
 
@@ -2731,18 +2736,40 @@ def read_demo_notification_log(path):
     return entries
 
 
-def demo_progress_milestone(entries):
-    """The last milestone the pushes show, and how many pushes it took."""
+def _push_seconds(stamp):
+    try:
+        return calendar.timegm(time.strptime(stamp, '%Y-%m-%dT%H:%M:%SZ'))
+    except ValueError:
+        return None
+
+
+def demo_progress_events(entries):
+    """The logged pushes with each burst on one row collapsed into one event."""
+    events, last_push = [], {}
+    for stamp, notification_type, object_id in entries:
+        row = (notification_type, object_id)
+        seconds = _push_seconds(stamp)
+        previous = last_push.get(row)
+        last_push[row] = seconds
+        if (seconds is not None and previous is not None
+                and seconds - previous <= DEMO_EVENT_WINDOW_SECONDS):
+            continue
+        events.append((stamp, notification_type, object_id))
+    return events
+
+
+def demo_progress_milestone(events):
+    """The last milestone the events show, and how many events it took."""
     reached, reached_after = -1, 0
     reviews = set()
-    for position, (_stamp, notification_type, object_id) in enumerate(entries, 1):
+    for position, (_stamp, notification_type, object_id) in enumerate(events, 1):
         if notification_type == 'NOT_FULLY_VOTED':
             candidate = 0
         elif notification_type == 'UNREAD_RESOLVED':
             candidate = 1
         elif notification_type == 'UNREAD_REVIEWABLE':
-            # The first push adds the review for the owner; a later push on
-            # the same row is the owner's reply taking it away.
+            # The first event adds the review for the owner; a later event
+            # on the same row is the owner's reply taking it away.
             candidate = 3 if object_id in reviews else 2
             reviews.add(object_id)
         else:
@@ -2754,21 +2781,22 @@ def demo_progress_milestone(entries):
 
 def demo_progress_estimate(entries):
     """(percent, last milestone) estimated from the exercise's pushes."""
-    reached, reached_after = demo_progress_milestone(entries)
+    events = demo_progress_events(entries)
+    reached, reached_after = demo_progress_milestone(events)
     if reached < 0:
-        percent, pushes_at, message = DEMO_PROGRESS_START
+        percent, events_at, message = DEMO_PROGRESS_START
     else:
-        percent, pushes_at, message = DEMO_PROGRESS_MILESTONES[reached]
+        percent, events_at, message = DEMO_PROGRESS_MILESTONES[reached]
     last = reached + 1 >= len(DEMO_PROGRESS_MILESTONES)
     if last:
         next_percent = DEMO_PROGRESS_CEILING
-        next_pushes = pushes_at + DEMO_PROGRESS_TAIL_PUSHES
+        next_events = events_at + DEMO_PROGRESS_TAIL_EVENTS
     else:
-        next_percent, next_pushes = DEMO_PROGRESS_MILESTONES[reached + 1][:2]
-    # Pushes since the last milestone move the estimate toward the next one,
-    # but never onto it: only that milestone's own push can do that.
-    span = max(1, next_pushes - pushes_at)
-    fraction = min((len(entries) - reached_after) / span, 0.8)
+        next_percent, next_events = DEMO_PROGRESS_MILESTONES[reached + 1][:2]
+    # Events since the last milestone move the estimate toward the next one,
+    # but never onto it: only that milestone's own event can do that.
+    span = max(1, next_events - events_at)
+    fraction = min((len(events) - reached_after) / span, 0.8)
     estimate = int(round((percent + (next_percent - percent) * fraction) / 5.0)) * 5
     if not last:
         estimate = min(estimate, next_percent - 5)
@@ -2777,9 +2805,7 @@ def demo_progress_estimate(entries):
 
 def demo_progress_line(entries):
     estimate, message = demo_progress_estimate(entries)
-    count = len(entries)
-    noun = 'notification change' if count == 1 else 'notification changes'
-    return f'About {estimate}% through: {message} ({count} {noun} so far).'
+    return f'About {estimate}% through: {message}.'
 
 
 def cmd_demo_progress(args):

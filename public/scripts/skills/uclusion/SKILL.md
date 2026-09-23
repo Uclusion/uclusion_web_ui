@@ -256,7 +256,8 @@ certainty. Ask about missing evidence, make suggestions first, then call
 `approve_job_or_option` with a 1–5 certainty and reason.
 
 If the job says the AI is a required approver, approval is mandatory once
-assistance is settled. Otherwise ask whether the human wants AI approval.
+assistance is settled. Otherwise ask "What action should I take on this job
+next?" as section 5 specifies. Do not ask about approval separately.
 
 ## 5. Execute and document
 
@@ -337,11 +338,7 @@ first, then reconcile in-progress work with the new authoritative body. Review
 cleanup is agent workflow, not backend review parsing or linkage.
 
 If initial work is ready but the job is not executable, leave its stage
-unchanged and ask the human whether to move the exact job to Doable. Only
-authorization satisfying the separate stage boundary above permits the
-`change_job_stage` call. After that authorization, change the stage, reload,
-sweep, and begin work in the same turn unless the human explicitly requested a
-stage-only change.
+unchanged and ask one question "What action should I take on this job next?" with options move to Doable and do an approval. Vote for move to Doable. Only an authorization permits the `change_job_stage` call.
 
 An executable stage authorizes implementation, not the form of testing. An
 explicit test plan in the job counts as human approval. Otherwise, before

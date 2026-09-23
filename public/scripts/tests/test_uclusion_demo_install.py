@@ -185,6 +185,56 @@ class DemoHomeTests(unittest.TestCase):
             source.index('Starting the workshop owner'),
         )
 
+    def test_the_progress_command_is_named_before_any_session_starts(self):
+        # The person's agent reads this output while the command runs; a
+        # command printed after the sessions start could arrive too late to
+        # follow them, and the pre-flight has to see it too.
+        source = inspect.getsource(INSTALL.main)
+        self.assertLess(
+            source.index('reset_demo_progress(env)'),
+            source.index('UCLUSION_DEMO_INSTALL_ONLY'),
+        )
+
+    def test_demo_output_is_line_buffered_from_the_start(self):
+        # Block buffering held every line back until the evaluator had
+        # finished whenever the output went to a file, which is where a
+        # backgrounded command's output goes (R-Marketing-788).
+        source = inspect.getsource(INSTALL.main)
+        self.assertLess(
+            source.index('reconfigure(line_buffering=True)'),
+            source.index('reexec_in_demo_home()'),
+        )
+
+    def test_a_new_run_starts_its_progress_from_nothing(self):
+        # The home is reused, so an old log would report a finished exercise.
+        home = tempfile.TemporaryDirectory()
+        self.addCleanup(home.cleanup)
+        patcher = mock.patch.object(INSTALL, 'UCLUSION_HOME', home.name)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        log = Path(INSTALL.demo_notification_log_path())
+        log.write_text('2026-09-23T21:29:00Z\tUNREAD_REVIEWABLE\trow\n')
+        with mock.patch('builtins.print') as printed:
+            INSTALL.reset_demo_progress('stage')
+        self.assertFalse(log.exists())
+        line = printed.call_args.args[0]
+        self.assertIn(
+            f'{INSTALL.workflow_cli_command("stage")} demo --progress --wait',
+            line,
+        )
+        # A missing log is the ordinary first run, not an error.
+        with mock.patch('builtins.print'):
+            INSTALL.reset_demo_progress('stage')
+
+    def test_the_installer_resets_the_log_the_owner_s_watch_writes(self):
+        cli = load_script('uclusionCLI')
+        self.assertEqual(INSTALL.DEMO_NOTIFICATION_LOG, cli.DEMO_NOTIFICATION_LOG)
+        self.assertEqual(
+            INSTALL.demo_notification_log_path(),
+            os.path.join(cli.uclusion_home_root(), '.uclusion',
+                         cli.DEMO_NOTIFICATION_LOG),
+        )
+
     def test_removal_refuses_a_home_something_is_still_using(self):
         # A session started against this home keeps its client and its
         # credentials inside it, and deleting underneath one fails later,
@@ -219,6 +269,11 @@ class DemoHomeTests(unittest.TestCase):
             f'-c mcp_servers={{Uclusion={{args=["{home}/.local/bin/uclusionMCPProxy.py"]}}}} '
             f'Read the brief and run {home}/.local/bin/uclusion -e stage watch',
             f'  1002 codex exec inspect files in {home}',
+            # The person's agent following the run: it only reads a log and
+            # ends on its own, and killing it would hand the agent a failed
+            # command just as the report arrives.
+            f'  1003 python3 {home}/.local/bin/uclusion -e stage demo '
+            '--progress --wait',
         ])
         with mock.patch.object(
             INSTALL.subprocess, 'run', return_value=mock.Mock(stdout=listing)

@@ -3,6 +3,7 @@
 import importlib.util
 import json
 from pathlib import Path
+import tempfile
 import unittest
 from unittest import mock
 
@@ -41,11 +42,14 @@ class FakeSocket:
         self.closed = True
 
 
-def notification_frame():
-    return json.dumps({'event_type': 'notification', 'object_id': 'market-1'})
+def notification_frame(type_object_id=None):
+    payload = {'event_type': 'notification', 'object_id': 'market-1'}
+    if type_object_id is not None:
+        payload['type_object_id'] = type_object_id
+    return json.dumps(payload)
 
 
-def run_watch(frames, **overrides):
+def run_watch(frames, secret_key_id='id', **overrides):
     sockets = []
 
     def make_socket(_url):
@@ -63,7 +67,7 @@ def run_watch(frames, **overrides):
             mock.patch.object(CLI, 'load_config',
                               return_value={'workspaceId': 'workspace-1'}), \
             mock.patch.object(CLI, 'get_credentials',
-                              return_value={'secret_key_id': 'id',
+                              return_value={'secret_key_id': secret_key_id,
                                             'secret_key': 'secret'}), \
             mock.patch('builtins.print') as printed:
         status = CLI.cmd_watch(args)
@@ -108,6 +112,64 @@ class WatchSubscriptionTests(unittest.TestCase):
         ]
         _status, _sockets, printed = run_watch(frames)
         self.assertEqual(1, printed.call_count)
+
+
+DEMO_CLIENT_ID = (
+    'ai-demo:3f2b8c1a-1111-4222-8333-944455556666:human_owner'
+)
+REVIEW_ROW = 'UNREAD_REVIEWABLE_8301f242-bdf4-44aa-ac22-badc0baaf89d'
+
+
+class DemoNotificationLogTests(unittest.TestCase):
+    """The owner's own watch keeps the record demo --progress estimates from."""
+
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.log = Path(temporary.name) / 'demo-notifications.log'
+        patcher = mock.patch.object(
+            CLI, 'demo_notification_log_path', return_value=str(self.log)
+        )
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def test_a_demo_watch_logs_the_type_and_object_of_each_push(self):
+        run_watch([notification_frame(REVIEW_ROW)],
+                  secret_key_id=DEMO_CLIENT_ID)
+        stamp, notification_type, object_id = (
+            self.log.read_text().rstrip('\n').split('\t')
+        )
+        self.assertEqual('UNREAD_REVIEWABLE', notification_type)
+        self.assertEqual('8301f242-bdf4-44aa-ac22-badc0baaf89d', object_id)
+        self.assertTrue(stamp.endswith('Z'), stamp)
+
+    def test_what_the_owner_sees_is_unchanged_in_a_demo(self):
+        _status, _sockets, printed = run_watch(
+            [notification_frame(REVIEW_ROW)], secret_key_id=DEMO_CLIENT_ID
+        )
+        line = printed.call_args.args[0]
+        self.assertTrue(line.startswith('notification '), line)
+        self.assertNotIn('UNREAD_REVIEWABLE', line)
+
+    def test_an_ordinary_install_writes_no_log(self):
+        run_watch([notification_frame(REVIEW_ROW)])
+        self.assertFalse(self.log.exists())
+
+    def test_an_unrecognised_row_is_still_logged(self):
+        # Losing a push would undercount the run; a push without a readable
+        # type still moves the count.
+        run_watch([notification_frame()], secret_key_id=DEMO_CLIENT_ID)
+        self.assertEqual('UNKNOWN', self.log.read_text().split('\t')[1])
+
+    def test_a_log_it_cannot_write_does_not_stop_the_watch(self):
+        with mock.patch.object(CLI, 'demo_notification_log_path',
+                               return_value=str(self.log.parent / 'x' / 'y')):
+            status, _sockets, printed = run_watch(
+                [notification_frame(REVIEW_ROW)],
+                secret_key_id=DEMO_CLIENT_ID,
+            )
+        self.assertEqual(0, status)
+        printed.assert_called_once()
 
 
 if __name__ == '__main__':

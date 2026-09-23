@@ -2519,13 +2519,19 @@ def publish_demo_report():
 
 
 def cmd_demo(args):
-    """Publish a demo evaluation or undo its install through the installer."""
+    """Publish, follow or undo a demo; the installer is what creates one."""
+    if args.wait and not args.progress:
+        print("❌ --wait only goes with 'uclusion demo --progress'.",
+              file=sys.stderr)
+        return 1
+    if args.progress:
+        return cmd_demo_progress(args)
     if args.report:
         return publish_demo_report()
     if not args.remove:
         print(
-            "❌ 'uclusion demo' takes --report or --remove; a demo is created "
-            'by the published install command.',
+            "❌ 'uclusion demo' takes --progress, --report or --remove; a demo "
+            'is created by the published install command.',
             file=sys.stderr,
         )
         return 1
@@ -2613,6 +2619,40 @@ WATCH_WEBSOCKET_URLS = {
     'stage': 'wss://stage.ws.uclusion.com/v1',
     'production': 'wss://production.ws.uclusion.com/v1',
 }
+# In a demo home the owner's watch also records what it saw, so the person's
+# agent can estimate how far the exercise has got without reading the job
+# (T-Marketing-271). The owner never clears a notification and its watch runs
+# from before the evaluator starts, so nothing is missed.
+DEMO_NOTIFICATION_LOG = 'demo-notifications.log'
+DEMO_CLIENT_ID_PREFIX = 'ai-demo:'
+# A push names its row as <NotificationEventType name>_<object id>. Type
+# names are upper case; object ids are lower-case UUIDs.
+NOTIFICATION_TYPE_OBJECT_RE = re.compile(r'^([A-Z]+(?:_[A-Z]+)*)_(.+)$')
+DEMO_PROGRESS_WAIT_SECONDS = 100
+# A push fires on every insert, update and removal of the human's rows, so
+# types rather than a count mark progress; the count only places the estimate
+# between two milestones. Calibrated by replaying the exercise's records on
+# stage through the demo CLI (T-Marketing-271): the question with options
+# pushed NOT_FULLY_VOTED; the evaluator accepting the owner's suggestion
+# pushed UNREAD_RESOLVED; opening the completion review pushed
+# UNREAD_REVIEWABLE, and the owner's reply on it pushed that same row again
+# as it was removed. Moving the job to Reviewable pushed nothing. Each
+# milestone is (percent, pushes the replay had seen by then, what it means).
+DEMO_PROGRESS_START = (
+    5, 0, 'the evaluator is reading its job; nothing has reached the owner yet',
+)
+DEMO_PROGRESS_MILESTONES = (
+    (25, 1, 'the evaluator has asked the owner a question with options'),
+    (50, 3, 'the evaluator has taken the owner\'s suggested change into its '
+            'option'),
+    (80, 8, 'the evaluator has opened its completion review for the owner'),
+    (90, 9, 'the owner has answered the completion review; the evaluator is '
+            'finishing up and writing its evaluation'),
+)
+# The replay saw one more push, the evaluator's final clear, after the last
+# milestone. Never 100: only the install command returning ends the run.
+DEMO_PROGRESS_TAIL_PUSHES = 2
+DEMO_PROGRESS_CEILING = 95
 
 
 def load_proxy_module():
@@ -2653,6 +2693,127 @@ def watch_notification_line(payload, bell):
     return f'\a{line}' if bell else line
 
 
+def demo_notification_log_path():
+    return os.path.join(uclusion_home_root(), '.uclusion', DEMO_NOTIFICATION_LOG)
+
+
+def is_demo_credential(credentials):
+    client_id = str((credentials or {}).get('secret_key_id') or '')
+    return client_id.lower().startswith(DEMO_CLIENT_ID_PREFIX)
+
+
+def log_demo_notification(path, payload):
+    """Append the push's type and object. A failed write never stops the watch."""
+    type_object_id = str(payload.get('type_object_id') or '')
+    match = NOTIFICATION_TYPE_OBJECT_RE.match(type_object_id)
+    notification_type, object_id = (
+        match.groups() if match else ('UNKNOWN', type_object_id or '-')
+    )
+    stamp = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+    try:
+        with open(path, 'a', encoding='utf-8') as handle:
+            handle.write(f'{stamp}\t{notification_type}\t{object_id}\n')
+    except OSError:
+        pass
+
+
+def read_demo_notification_log(path):
+    """The logged pushes as (stamp, type, object id), oldest first."""
+    entries = []
+    try:
+        with open(path, encoding='utf-8') as handle:
+            for line in handle:
+                fields = line.rstrip('\n').split('\t')
+                if len(fields) == 3:
+                    entries.append(tuple(fields))
+    except FileNotFoundError:
+        pass
+    return entries
+
+
+def demo_progress_milestone(entries):
+    """The last milestone the pushes show, and how many pushes it took."""
+    reached, reached_after = -1, 0
+    reviews = set()
+    for position, (_stamp, notification_type, object_id) in enumerate(entries, 1):
+        if notification_type == 'NOT_FULLY_VOTED':
+            candidate = 0
+        elif notification_type == 'UNREAD_RESOLVED':
+            candidate = 1
+        elif notification_type == 'UNREAD_REVIEWABLE':
+            # The first push adds the review for the owner; a later push on
+            # the same row is the owner's reply taking it away.
+            candidate = 3 if object_id in reviews else 2
+            reviews.add(object_id)
+        else:
+            continue
+        if candidate > reached:
+            reached, reached_after = candidate, position
+    return reached, reached_after
+
+
+def demo_progress_estimate(entries):
+    """(percent, last milestone) estimated from the exercise's pushes."""
+    reached, reached_after = demo_progress_milestone(entries)
+    if reached < 0:
+        percent, pushes_at, message = DEMO_PROGRESS_START
+    else:
+        percent, pushes_at, message = DEMO_PROGRESS_MILESTONES[reached]
+    last = reached + 1 >= len(DEMO_PROGRESS_MILESTONES)
+    if last:
+        next_percent = DEMO_PROGRESS_CEILING
+        next_pushes = pushes_at + DEMO_PROGRESS_TAIL_PUSHES
+    else:
+        next_percent, next_pushes = DEMO_PROGRESS_MILESTONES[reached + 1][:2]
+    # Pushes since the last milestone move the estimate toward the next one,
+    # but never onto it: only that milestone's own push can do that.
+    span = max(1, next_pushes - pushes_at)
+    fraction = min((len(entries) - reached_after) / span, 0.8)
+    estimate = int(round((percent + (next_percent - percent) * fraction) / 5.0)) * 5
+    if not last:
+        estimate = min(estimate, next_percent - 5)
+    return min(DEMO_PROGRESS_CEILING, max(percent, estimate)), message
+
+
+def demo_progress_line(entries):
+    estimate, message = demo_progress_estimate(entries)
+    count = len(entries)
+    noun = 'notification change' if count == 1 else 'notification changes'
+    return f'About {estimate}% through: {message} ({count} {noun} so far).'
+
+
+def cmd_demo_progress(args):
+    """Estimate from the owner's notification log; reads nothing else."""
+    _api_url, _json_path, credentials_path = get_env_paths(args.env)
+    with redirect_stdout(io.StringIO()):
+        credentials = get_credentials(credentials_path)
+    if not is_demo_credential(credentials):
+        print(
+            '❌ demo --progress only runs against the disposable demo install; '
+            'use the command the demo installer printed.',
+            file=sys.stderr,
+        )
+        return 1
+    path = demo_notification_log_path()
+    entries = read_demo_notification_log(path)
+    suffix = ''
+    if args.wait:
+        # Returns only when the estimate moves: every return costs the
+        # caller a model turn, and most pushes do not change what it would say.
+        deadline = time.monotonic() + DEMO_PROGRESS_WAIT_SECONDS
+        before = demo_progress_estimate(entries)
+        while (demo_progress_estimate(entries) == before
+               and time.monotonic() < deadline):
+            time.sleep(1)
+            entries = read_demo_notification_log(path)
+        if demo_progress_estimate(entries) == before:
+            suffix = (
+                f' No change in the last {DEMO_PROGRESS_WAIT_SECONDS} seconds.'
+            )
+    print(demo_progress_line(entries) + suffix, flush=True)
+    return 0
+
+
 def cmd_watch(args):
     """Watch this workspace's notifications for the human identity.
 
@@ -2673,6 +2834,9 @@ def cmd_watch(args):
     credentials = get_credentials(credentials_path)
     if credentials is None:
         return 1
+    demo_log = (
+        demo_notification_log_path() if is_demo_credential(credentials) else None
+    )
     proxy = load_proxy_module()
     websocket_url = WATCH_WEBSOCKET_URLS.get(
         args.env or 'production', WATCH_WEBSOCKET_URLS['production']
@@ -2717,6 +2881,8 @@ def cmd_watch(args):
                 awaiting_pong = False
                 if payload.get('event_type') != NOTIFICATION_EVENT_TYPE:
                     continue
+                if demo_log is not None:
+                    log_demo_notification(demo_log, payload)
                 print(watch_notification_line(payload, bell), flush=True)
                 if once:
                     return 0
@@ -3984,7 +4150,8 @@ def build_parser():
 
     demo_parser = subparsers.add_parser(
         'demo',
-        help='Publish a demo evaluation or undo the disposable demo install.',
+        help='Follow a running demo, publish its evaluation, or undo the '
+             'disposable demo install.',
     )
     demo_action = demo_parser.add_mutually_exclusive_group()
     demo_action.add_argument(
@@ -3999,6 +4166,19 @@ def build_parser():
         action='store_true',
         help='Read the complete UTF-8 evaluation from stdin and publish it to '
              'the report file designated for this demo run.',
+    )
+    demo_action.add_argument(
+        '--progress',
+        action='store_true',
+        help='Print one line estimating how far the running exercise has got, '
+             'from the notifications the owner has received. Reads only this '
+             'demo\'s local notification log.',
+    )
+    demo_parser.add_argument(
+        '--wait',
+        action='store_true',
+        help=f'With --progress: wait until the estimate changes, or up to '
+             f'{DEMO_PROGRESS_WAIT_SECONDS} seconds, before printing it.',
     )
     demo_parser.set_defaults(func=cmd_demo)
 

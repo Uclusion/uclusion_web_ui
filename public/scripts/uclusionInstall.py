@@ -162,7 +162,7 @@ SCRIPT_FILES = (
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCLI.py':
-        '76b8399099174eb6b4f29692965482f7b911545941470ad72b5acdfba703dd0b',
+        'cfe4669b406699864cd5b18a76170f53183ff91b76dd29d2d3dfa544eef13dc2',
     'uclusionMCPProxy.py':
         '474d2a2c96aeea97689331f47107ab5aea78662be25de650b4cb5ef9d071bb53',
     'uclusionSetupMCP.py':
@@ -1696,6 +1696,34 @@ def demo_brief_path():
     return os.path.join(UCLUSION_HOME, 'demo-brief.md')
 
 
+# The owner's `uclusion watch` appends each notification it sees to this log
+# in a demo home, and `uclusion demo --progress` estimates from it.
+DEMO_NOTIFICATION_LOG = 'demo-notifications.log'
+
+
+def demo_notification_log_path():
+    return os.path.join(UCLUSION_HOME, DEMO_NOTIFICATION_LOG)
+
+
+def reset_demo_progress(env):
+    """Start this run's progress from nothing, and say how to follow it.
+
+    The home is reused across runs, so an old log would report an exercise
+    that is already over. Printed before either session starts, because the
+    person's agent reads this output while the command is still running.
+    """
+    try:
+        os.remove(demo_notification_log_path())
+    except FileNotFoundError:
+        pass
+    print(
+        '👀 To follow the exercise while it runs, repeat '
+        f'`{workflow_cli_command(env)} demo --progress --wait`. It prints one '
+        'line estimating how far the exercise has got, from the notifications '
+        'the owner has received, and changes nothing.'
+    )
+
+
 def demo_home_processes(home, needle=None):
     """(pid, args) for live processes whose command line names this home.
 
@@ -1761,6 +1789,11 @@ def demo_home_processes(home, needle=None):
         if DEMO_REMOVE_MODE in args or DEMO_PURGE_MODE in args:
             continue
         if 'demo --remove' in args:
+            continue
+        # The person's agent follows the run with this; it only reads a log
+        # and ends on its own. Stopping it as the run ends would hand the
+        # agent a killed command just as the report arrives.
+        if 'demo --progress' in args:
             continue
         found.append((pid, args))
     return found
@@ -5519,6 +5552,12 @@ def main():
         try:
             setup_client = next(iter(clients))
             if mode == 'demo':
+                # The person's agent reads this output while the command is
+                # still running, often from a file once its client has moved
+                # the command to the background; block buffering would hold
+                # every line back until the evaluator had finished.
+                if hasattr(sys.stdout, 'reconfigure'):
+                    sys.stdout.reconfigure(line_buffering=True)
                 if setup_client not in DEMO_CLIENTS:
                     raise RuntimeError(
                         'the demo requires Poke AI delivery through '
@@ -5661,6 +5700,7 @@ def main():
         print(
             f'🎉 Uclusion demo is ready under {uclusion_home_root()}.'
         )
+        reset_demo_progress(env)
         if os.environ.get('UCLUSION_DEMO_INSTALL_ONLY'):
             print(
                 '⏹  Installed only: UCLUSION_DEMO_INSTALL_ONLY is set, so '

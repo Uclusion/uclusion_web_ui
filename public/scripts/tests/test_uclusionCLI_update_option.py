@@ -37,6 +37,19 @@ class UpdateOptionCLITests(unittest.TestCase):
                     self.assertEqual(args.func(args), 0)
                 call_tool.assert_called_once_with(credentials, 'update_option', expected)
 
+    def test_prefixed_option_code_needs_no_parent_question(self):
+        credentials = {'api_url': 'stage.example.com', 'api_token': 'test-token'}
+        command = ['update_option', '--option-id', 'Q-example-1_O-1', '--name', 'Nightly export',
+                   '--description', 'Export at 06:00 UTC.']
+        args = cli.build_parser().parse_args(command)
+        with mock.patch.object(cli, 'initialize', return_value=(credentials, {}, {})), \
+                mock.patch.object(cli, 'call_mcp_tool', return_value={'content': []}) as call_tool, \
+                redirect_stdout(io.StringIO()):
+            self.assertEqual(args.func(args), 0)
+        call_tool.assert_called_once_with(credentials, 'update_option', {
+            'option_id': 'Q-example-1_O-1', 'name': 'Nightly export', 'description': 'Export at 06:00 UTC.',
+        })
+
 
 if __name__ == '__main__':
     unittest.main()

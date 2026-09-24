@@ -4778,9 +4778,14 @@ def build_parser():
         'update_option', help='Replace an option while preserving its identity.'
     )
     update_option_parser.add_argument(
-        '--parent-question-short-code-id', help='Enclosing question short code.'
+        '--parent-question-short-code-id',
+        help='Enclosing question short code. Not needed when --option-id is prefixed.',
     )
-    update_option_parser.add_argument('--option-id', help='Local option short code.')
+    update_option_parser.add_argument(
+        '--option-id',
+        help='Option short code, prefixed with its question such as Q-all-1_O-1, or bare with '
+             '--parent-question-short-code-id.',
+    )
     update_option_parser.add_argument('--name', help='Complete replacement option name.')
     update_option_parser.add_argument('--description', help='Complete replacement Markdown description.')
     update_option_parser.add_argument(
@@ -4797,7 +4802,9 @@ def build_parser():
             mcp_field('description', 'description'),
             mcp_field('resolve_suggestion_short_code_id', 'resolve_suggestion_short_code_id'),
         ),
-        ('parent_question_short_code_id', 'option_id', 'name', 'description'),
+        # A prefixed --option-id names its question, and the server refuses a bare one
+        # that arrives without a parent.
+        ('option_id', 'name', 'description'),
     )
 
     find_work_parser = subparsers.add_parser('find_work', help='Return ordered available work.')

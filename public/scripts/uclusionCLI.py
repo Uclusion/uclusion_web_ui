@@ -4783,7 +4783,7 @@ def build_parser():
     )
     update_option_parser.add_argument(
         '--option-id',
-        help='Option short code, prefixed with its question such as Q-all-1_O-1, or bare with '
+        help='Option short code, prefixed with its question such as Q-example-1_O-1, or bare with '
              '--parent-question-short-code-id.',
     )
     update_option_parser.add_argument('--name', help='Complete replacement option name.')

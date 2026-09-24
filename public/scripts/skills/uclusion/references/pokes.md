@@ -220,7 +220,7 @@ whole job again. Never globally load a bare local code by itself.
 
 Codes inside a question repeat across questions, so reads render each one
 qualified by its question: `<question-code>_<local-code>`, such as
-`Q-all-1_O-1`. Cite that form. Any tool that takes a local code accepts it
+`Q-*_O-1`. Cite that form. Any tool that takes a local code accepts it
 without `parent_question_short_code_id`, and `get_job` with it returns the
 question's thread.
 

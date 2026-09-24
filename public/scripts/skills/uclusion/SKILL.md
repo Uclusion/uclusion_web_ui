@@ -72,8 +72,8 @@ skill owns event handling and the job workflow.
   reproduction, and measurement continue while it holds.
 - Treat every `change_job_stage` call as an explicit authorization boundary. A
   non-advisory human authorizes it only by directly instructing a transition
-  that names the exact job and destination stage, by affirmatively answering a
-  question that names that exact job and destination transition, or by a valid
+  that names the exact job and destination stage, by answering or delegating a
+  question for the exact job and destination transition, or by a valid
   `all` or numbered selection containing action 4 in the code-complete menu
   defined in `operations.md`. That menu may carry this authorization
   alongside its other expressly named permissions only when it names the exact

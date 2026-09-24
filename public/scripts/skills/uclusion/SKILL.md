@@ -310,7 +310,7 @@ It returns a complete draft or the unsupported reviewer-divergent choices as
 typed questions. This core skill alone files and resolves those questions and
 calls `set_design_capsule`. Have `$uclusion-design` cold-review and finish the
 draft before publication. After each create or permitted replacement, follow
-`references/reading.md` to confirm the selected target's current body before edits.
+`references/reading.md` to confirm the selected target's current capsule before edits.
 Do not use a later cold review to polish or rewrite a sent capsule.
 
 Replace a sent capsule only when new human input establishes a new contract.

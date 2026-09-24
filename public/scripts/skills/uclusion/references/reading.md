@@ -26,11 +26,20 @@ immutable historical version. A superseded capsule is not the target's current
 contract; follow the current reference instead. Reading a reply to a capsule
 loads discussion without repeating the capsule body.
 
-After a capsule create or replacement, reload the selected target's reference
-and explicitly fetch that current capsule to confirm the authoritative body
-before edits. On an assigned capsule's `Updated` event, use the explicit R-code
-thread read and reload Reports, then perform the core workflow's obsolete-review
-cleanup before continuing.
+After a capsule create or replacement, the R-code and version that
+`set_design_capsule` returns confirm the stored capsule: its body is the one you
+just sent, so do not fetch it again before edits. On an assigned capsule's
+`Updated` event, use the explicit R-code thread read and reload Reports, then
+perform the core workflow's obsolete-review cleanup before continuing.
+
+## After a write
+
+A write's result is the reload for what it produced. `ask_question` returns the
+question and option codes, the initial vote and the job's resulting stage;
+`update_option` names what it updated; `set_design_capsule` returns the stored
+R-code and version. Do not call `get_job` after them to see their output.
+`resolve` reports only what it resolved, so read the job when you need its
+stage. Rechecks before editing still apply, because others can change the job.
 
 ## Standing instructions by view
 

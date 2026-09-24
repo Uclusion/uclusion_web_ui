@@ -2521,17 +2521,19 @@ def publish_demo_report():
 
 def cmd_demo(args):
     """Publish, follow or undo a demo; the installer is what creates one."""
-    if args.wait and not args.progress:
-        print("❌ --wait only goes with 'uclusion demo --progress'.",
+    if args.wait and not (args.progress or args.result):
+        print("❌ --wait only goes with 'uclusion demo --progress' or '--result'.",
               file=sys.stderr)
         return 1
     if args.progress:
         return cmd_demo_progress(args)
+    if args.result:
+        return cmd_demo_result(args)
     if args.report:
         return publish_demo_report()
     if not args.remove:
         print(
-            "❌ 'uclusion demo' takes --progress, --report or --remove; a demo "
+            "❌ 'uclusion demo' takes --progress, --result, --report or --remove; a demo "
             'is created by the published install command.',
             file=sys.stderr,
         )
@@ -2625,6 +2627,10 @@ WATCH_WEBSOCKET_URLS = {
 # (T-Marketing-271). The owner never clears a notification and its watch runs
 # from before the evaluator starts, so nothing is missed.
 DEMO_NOTIFICATION_LOG = 'demo-notifications.log'
+# S-Marketing-77: the same names the installer's detached demo writes.
+DEMO_CURRENT_RUN_FILE = 'demo-current-run'
+DEMO_FAILURE_FILE = 'failure.txt'
+DEMO_SUPERVISOR_PID_FILE = 'supervisor.pid'
 DEMO_CLIENT_ID_PREFIX = 'ai-demo:'
 # A push names its row as <NotificationEventType name>_<object id>. Type
 # names are upper case; object ids are lower-case UUIDs.
@@ -2837,6 +2843,64 @@ def cmd_demo_progress(args):
                 f' No change in the last {DEMO_PROGRESS_WAIT_SECONDS} seconds.'
             )
     print(demo_progress_line(entries) + suffix, flush=True)
+    return 0
+
+
+def demo_supervisor_alive(run_dir):
+    try:
+        with open(os.path.join(run_dir, DEMO_SUPERVISOR_PID_FILE), encoding='utf-8') as handle:
+            pid = int(handle.read().strip())
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except (OSError, ValueError):
+        # No pid to check, or not ours to signal: cannot tell, so keep waiting.
+        return True
+    return True
+
+
+def cmd_demo_result(args):
+    """S-Marketing-77: print the evaluating agent's published report; reads only files."""
+    _api_url, _json_path, credentials_path = get_env_paths(args.env)
+    with redirect_stdout(io.StringIO()):
+        credentials = get_credentials(credentials_path)
+    if not is_demo_credential(credentials):
+        print(
+            '❌ demo --result only runs against the disposable demo install; '
+            'use the command the demo installer printed.',
+            file=sys.stderr,
+        )
+        return 1
+    try:
+        with open(os.path.join(uclusion_home_root(), '.uclusion', DEMO_CURRENT_RUN_FILE),
+                  encoding='utf-8') as handle:
+            run_dir = handle.read().strip()
+    except FileNotFoundError:
+        print('❌ No demo exercise has been started from this install.', file=sys.stderr)
+        return 1
+    report = os.path.join(run_dir, 'evaluation.md')
+    failure = os.path.join(run_dir, DEMO_FAILURE_FILE)
+    # Bounded like --progress --wait, so no call of it outlasts a client's command timeout.
+    deadline = time.monotonic() + (DEMO_PROGRESS_WAIT_SECONDS if args.wait else 0)
+    while True:
+        if os.path.isfile(report):
+            with open(report, 'rb') as handle:
+                sys.stdout.flush()
+                sys.stdout.buffer.write(handle.read())
+                sys.stdout.buffer.flush()
+            return 0
+        if os.path.isfile(failure):
+            with open(failure, encoding='utf-8') as handle:
+                print(f'❌ {handle.read().strip()}', flush=True)
+            return 1
+        if not demo_supervisor_alive(run_dir):
+            print(f'❌ The exercise stopped without publishing a report. Records: {run_dir}',
+                  flush=True)
+            return 1
+        if time.monotonic() >= deadline:
+            break
+        time.sleep(1)
+    print('⏳ The evaluating agent has not published its report yet; run this again.', flush=True)
     return 0
 
 
@@ -4038,6 +4102,7 @@ def add_mcp_common_arguments(command_parser):
 
 FOR_HUMAN_TOOLS = frozenset({
     'add_info', 'approve_job_or_option', 'make_suggestion', 'ask_question', 'add_options',
+    'move_suggestion_to_task',
 })
 
 
@@ -4194,6 +4259,12 @@ def build_parser():
              'the report file designated for this demo run.',
     )
     demo_action.add_argument(
+        '--result',
+        action='store_true',
+        help="Print the evaluating agent's report once it is published, or say why there is "
+             'none. Reads only this demo run\'s files.',
+    )
+    demo_action.add_argument(
         '--progress',
         action='store_true',
         help='Print one line estimating how far the running exercise has got, '
@@ -4204,7 +4275,8 @@ def build_parser():
         '--wait',
         action='store_true',
         help=f'With --progress: wait until the estimate changes, or up to '
-             f'{DEMO_PROGRESS_WAIT_SECONDS} seconds, before printing it.',
+             f'{DEMO_PROGRESS_WAIT_SECONDS} seconds, before printing it. With --result: '
+             f'wait for the report, or up to {DEMO_PROGRESS_WAIT_SECONDS} seconds.',
     )
     demo_parser.set_defaults(func=cmd_demo)
 
@@ -4552,6 +4624,21 @@ def build_parser():
             mcp_field('severity', 'severity', transform=severity_code),
         ),
         ('task_short_code_id', 'severity'),
+    )
+
+    move_suggestion_parser = subparsers.add_parser(
+        'move_suggestion_to_task',
+        help="Turn an open suggestion on a job into a task of that job, as the person's own "
+             'decision; requires --for-human.',
+    )
+    move_suggestion_parser.add_argument(
+        '--suggestion-short-code-id', help='Suggestion short code to make a task of its job.',
+    )
+    configure_mcp_parser(
+        move_suggestion_parser,
+        'move_suggestion_to_task',
+        (mcp_field('suggestion_short_code_id', 'suggestion_short_code_id'),),
+        ('suggestion_short_code_id',),
     )
 
     resolve_parser = subparsers.add_parser(

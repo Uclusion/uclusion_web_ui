@@ -162,7 +162,7 @@ SCRIPT_FILES = (
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCLI.py':
-        '3e1521e90594d27b336c9a92eef8097e28103171a722acba0072773b4f867116',
+        '707a71541f39f96769bae68333a840275ad81afdf4279c62529cacef16dadcd6',
     'uclusionMCPProxy.py':
         '474d2a2c96aeea97689331f47107ab5aea78662be25de650b4cb5ef9d071bb53',
     'uclusionSetupMCP.py':
@@ -273,6 +273,13 @@ RUNTIME_CLEANUP_MODE = '--uclusion-cleanup-after-setup'
 # the second mode to delete the disposable home it is running out of.
 DEMO_REMOVE_MODE = '--uclusion-demo-remove'
 DEMO_PURGE_MODE = '--uclusion-demo-purge'
+# S-Marketing-77: the demo command hands the exercise to a copy of this installer
+# running in this mode, detached, so the command returns instead of blocking for
+# the length of the exercise. `uclusion demo --result` reads the run it names.
+DEMO_SUPERVISE_MODE = '--uclusion-demo-supervise'
+DEMO_CURRENT_RUN_FILE = 'demo-current-run'
+DEMO_FAILURE_FILE = 'failure.txt'
+DEMO_SUPERVISOR_PID_FILE = 'supervisor.pid'
 TOKEN_AUDIT_SYMLINK_PATH = os.path.join(SYMLINK_DIR, TOKEN_AUDIT_SYMLINK_NAME)
 CODEX_BRIDGE_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionCodexBridge.py')
 CODEX_HOME = os.path.abspath(os.path.expanduser(
@@ -334,7 +341,7 @@ WORKFLOW_ASSET_PATHS = {
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
     'reading_reference': '0a0ad304a344a5d8c06a700eaa0217d4200f01e4505094f59fe73612d1387304',
-    'demo_brief': 'e423b99fe8d5b5c9a2acffbd14bc7597703e8fc1c24a42338fa3a43e2e0e4a67',
+    'demo_brief': '0b7f19753523dcedb2327d4edd97dd15253c0ca1e41aba010db7363a7856cce4',
     'claude_stub': '49c9682ed4bef4723084f8f4e6dbdbde4c52e5d8d1b0e27d1358d7050b946fec',
     'codex_stub': '7cc3b75aa1b7af3799e47962d7ce2beb43b4a8f52541bb571c0dc968eb808336',
     'cursor_stub': 'c2e03afbaf55fd656b68478de9268955ef2af5813d3a2109ebce04ae0c8061bf',
@@ -1793,7 +1800,7 @@ def demo_home_processes(home, needle=None):
         # The person's agent follows the run with this; it only reads a log
         # and ends on its own. Stopping it as the run ends would hand the
         # agent a killed command just as the report arrives.
-        if 'demo --progress' in args:
+        if 'demo --progress' in args or 'demo --result' in args:
             continue
         found.append((pid, args))
     return found
@@ -1996,11 +2003,71 @@ def demo_shutdown_signals():
             signal.signal(signum, handler)
 
 
-def run_codex_demo(env, workspace_id, start_prompt, response_stats=None):
-    """Supervise the ordinary owner and bridged evaluator until publication."""
+def new_demo_run_dir():
     runs = os.path.join(UCLUSION_HOME, 'demo-runs')
     ensure_dir(runs)
-    run_dir = tempfile.mkdtemp(prefix='run-', dir=runs)
+    return tempfile.mkdtemp(prefix='run-', dir=runs)
+
+
+def demo_current_run_path():
+    return os.path.join(UCLUSION_HOME, DEMO_CURRENT_RUN_FILE)
+
+
+def record_demo_failure(run_dir, message):
+    """What `uclusion demo --result` prints when the exercise ends without a report."""
+    with open(os.path.join(run_dir, DEMO_FAILURE_FILE), 'w', encoding='utf-8') as handle:
+        handle.write(message + '\n')
+
+
+def start_demo_supervisor(env, client, workspace_id, start_prompt, response_stats=None):
+    """S-Marketing-77: start the exercise detached and return.
+
+    A prospect's agent that ran this command in the foreground waited out the
+    whole exercise and could lose it to its own command timeout. The copy runs
+    from the home's .local directory so the demo's process scan, and therefore
+    `demo --remove`, recognises it as this demo's.
+    """
+    run_dir = new_demo_run_dir()
+    supervisor = os.path.join(SYMLINK_DIR, 'uclusionDemoSupervisor.py')
+    shutil.copyfile(os.path.abspath(__file__), supervisor)
+    with open(demo_current_run_path(), 'w', encoding='utf-8') as handle:
+        handle.write(run_dir)
+    with open(os.path.join(run_dir, 'supervisor.log'), 'wb') as log:
+        process = subprocess.Popen(
+            [sys.executable, supervisor, DEMO_SUPERVISE_MODE, env, client, workspace_id, run_dir,
+             start_prompt, response_stats or ''],
+            cwd=uclusion_home_root(), stdin=subprocess.DEVNULL, stdout=log,
+            stderr=subprocess.STDOUT, start_new_session=True,
+        )
+    with open(os.path.join(run_dir, DEMO_SUPERVISOR_PID_FILE), 'w', encoding='utf-8') as handle:
+        handle.write(str(process.pid))
+    cli = workflow_cli_command(env)
+    print(f'📁 Demo session records: {run_dir}')
+    print('🚀 The workshop owner and the evaluating agent are starting on their own. The '
+          'exercise takes several minutes and needs nothing from anyone.')
+    print(f'📝 `{cli} demo --result --wait` prints the evaluating agent\'s report once it is '
+          'published. It returns within about 100 seconds either way, so repeat it until the '
+          'report appears.', flush=True)
+    return 0
+
+
+def supervise_demo(argv):
+    """The detached half of the demo command: run the exercise to its end."""
+    env, client, workspace_id, run_dir, start_prompt, response_stats = argv
+    runner = run_codex_demo if client == 'codex' else run_claude_demo
+    try:
+        return runner(env, workspace_id, start_prompt,
+                      response_stats=response_stats or None, run_dir=run_dir)
+    except (OSError, RuntimeError) as error:
+        message = f'Could not start the demo: {error}. Records: {run_dir}.'
+        record_demo_failure(run_dir, message)
+        print(f'❌ {message}', flush=True)
+        return 1
+
+
+def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir=None):
+    """Supervise the ordinary owner and bridged evaluator until publication."""
+    run_dir = run_dir or new_demo_run_dir()
     report_path = os.path.join(run_dir, 'evaluation.md')
     environment = demo_codex_environment()
     environment['TERM'] = 'xterm-256color'
@@ -2103,14 +2170,13 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None):
                                 + ', '.join(str(pid) for pid, _args in left)
                             )
     except (OSError, RuntimeError, UnicodeError, KeyboardInterrupt) as error:
-        print(
-            f'❌ Codex demo failed: {error}. Records: {run_dir}; '
-            f'Uclusion workspace: {workspace_id}.', flush=True,
-        )
+        message = f'Codex demo failed: {error}. Records: {run_dir}; Uclusion workspace: {workspace_id}.'
+        record_demo_failure(run_dir, message)
+        print(f'❌ {message}', flush=True)
         return 1
 
 
-def run_claude_demo(env, workspace_id, start_prompt, response_stats=None):
+def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_dir=None):
     """Supervise the Claude owner and evaluator until the evaluator publishes.
 
     S-Marketing-73: the report is the file the evaluator publishes with
@@ -2118,9 +2184,7 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None):
     expiry once woke the evaluator after its evaluation, and whatever that
     extra turn said would have replaced the report.
     """
-    runs = os.path.join(UCLUSION_HOME, 'demo-runs')
-    ensure_dir(runs)
-    run_dir = tempfile.mkdtemp(prefix='run-', dir=runs)
+    run_dir = run_dir or new_demo_run_dir()
     report_path = os.path.join(run_dir, 'evaluation.md')
     # Both sessions are started here rather than printed for someone else to
     # run: this process is the only participant that ever sees both, so
@@ -2249,11 +2313,11 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None):
                         for pid, _args in left:
                             print(f'  ⚠️  Could not stop process {pid}.', flush=True)
     except (OSError, RuntimeError, UnicodeError, KeyboardInterrupt) as error:
-        print(
-            f'❌ Claude demo failed: {error}. Records: {run_dir}; everything '
-            f'the exercise wrote is in demo workspace {workspace_id} and under '
-            f'{uclusion_home_root()} until that directory is removed.', flush=True,
-        )
+        message = (f'Claude demo failed: {error}. Records: {run_dir}; everything the exercise '
+                   f'wrote is in demo workspace {workspace_id} and under {uclusion_home_root()} '
+                   'until that directory is removed.')
+        record_demo_failure(run_dir, message)
+        print(f'❌ {message}', flush=True)
         return 1
     print(flush=True)
     sys.stdout.flush()
@@ -5694,6 +5758,8 @@ def main():
         except Exception as err:
             print(f'❌ Demo removal failed: {err}', file=sys.stderr)
             return 1
+    if len(sys.argv) > 1 and sys.argv[1] == DEMO_SUPERVISE_MODE:
+        return supervise_demo(sys.argv[2:])
     parser = build_parser()
     args = parser.parse_args()
     env = args.environment
@@ -5910,22 +5976,13 @@ def main():
                 f'appended to {args.response_stats}; the owner\'s are not '
                 'recorded.'
             )
-        if setup_client == 'codex':
-            try:
-                return run_codex_demo(
-                    env, workspace_id, start_prompt,
-                    response_stats=args.response_stats,
-                )
-            except (OSError, RuntimeError) as error:
-                print(f'❌ Could not start the Codex demo: {error}')
-                return 1
         try:
-            return run_claude_demo(
-                env, workspace_id, start_prompt,
+            return start_demo_supervisor(
+                env, setup_client, workspace_id, start_prompt,
                 response_stats=args.response_stats,
             )
-        except (OSError, RuntimeError) as error:
-            print(f'❌ Could not start the Claude demo: {error}')
+        except OSError as error:
+            print(f'❌ Could not start the demo: {error}')
             return 1
     else:
         print("🎉 Uclusion install complete.")

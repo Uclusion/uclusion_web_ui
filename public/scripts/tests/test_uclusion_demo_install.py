@@ -123,7 +123,12 @@ class DemoHomeTests(unittest.TestCase):
         # another agent to run is what this replaced, and an owner left
         # running fails silently, so the stop is part of the contract rather
         # than tidiness. Nothing passes between participants as a file.
-        self.assertIn('run_claude_demo(', inspect.getsource(INSTALL.main))
+        # S-Marketing-77: the demo command starts a detached supervisor, which is
+        # the one process that starts both sessions and stops them.
+        self.assertIn('start_demo_supervisor(', inspect.getsource(INSTALL.main))
+        supervise = inspect.getsource(INSTALL.supervise_demo)
+        self.assertIn('run_claude_demo', supervise)
+        self.assertIn('run_codex_demo', supervise)
         source = inspect.getsource(INSTALL.run_claude_demo)
         self.assertIn('wait_for_owner_watch(', source)
         self.assertIn('stop_demo_home_processes(', source)
@@ -235,11 +240,7 @@ class DemoHomeTests(unittest.TestCase):
         # It has to stop before anything is started, not after.
         self.assertLess(
             source.index('UCLUSION_DEMO_INSTALL_ONLY'),
-            source.index('return run_codex_demo('),
-        )
-        self.assertLess(
-            source.index('UCLUSION_DEMO_INSTALL_ONLY'),
-            source.index('return run_claude_demo('),
+            source.index('return start_demo_supervisor('),
         )
 
     def test_the_progress_command_is_named_before_any_session_starts(self):

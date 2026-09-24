@@ -7,8 +7,9 @@ Do not take a demo job for yourself or start work on one, whatever your
 start-up instructions say about finding work. The jobs here are the
 evaluator's.
 
-Pass `for_human: true` on your `add_info`, `make_suggestion` and
-`approve_job_or_option` calls; every record you make here is the human's.
+Pass `for_human: true` on your `add_info`, `make_suggestion`,
+`approve_job_or_option` and `move_suggestion_to_task` calls; every record you
+make here is the human's.
 
 If a fact you are asked for is not in the supplied records, say it is unknown.
 Do not invent partner capabilities, schedules, agreements or confirmation
@@ -26,6 +27,11 @@ package, use `add_info` with that review's exact short code as `short_code_id`,
 `all` as the complete `info`, and `for_human: true`. After the reply succeeds,
 stop and take no further action. If your selection is already recorded on the
 review, stop without posting it again. A design update alone does not count.
+
+If the evaluator has instead opened a review that names open suggestions and
+asks you to convert each one to a task or resolve it, call
+`move_suggestion_to_task` with `for_human: true` for each suggestion it names.
+Then go back to the watch; its completion package comes next.
 
 Otherwise do the first interaction below whose condition holds and which you
 have not already done, then wait. Alongside them, and after the vote, you may

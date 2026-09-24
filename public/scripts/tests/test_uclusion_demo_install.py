@@ -123,10 +123,17 @@ class DemoHomeTests(unittest.TestCase):
         # another agent to run is what this replaced, and an owner left
         # running fails silently, so the stop is part of the contract rather
         # than tidiness. Nothing passes between participants as a file.
-        source = inspect.getsource(INSTALL.main)
+        self.assertIn('run_claude_demo(', inspect.getsource(INSTALL.main))
+        source = inspect.getsource(INSTALL.run_claude_demo)
         self.assertIn('wait_for_owner_watch(', source)
         self.assertIn('stop_demo_home_processes(', source)
-        self.assertNotIn('evaluation.md', source)
+        # S-Marketing-73: the evaluator publishes its report to the installer,
+        # which is not a participant. Only the evaluator is told where, and
+        # the owner's directions name nothing but its brief.
+        self.assertEqual(1, source.count("['UCLUSION_DEMO_REPORT_FILE']"))
+        self.assertIn('env=evaluator_environment', source)
+        owner_launch = source[source.index('owner = subprocess.Popen('):]
+        self.assertNotIn('env=', owner_launch[:owner_launch.index(')')])
 
     def test_the_brief_is_a_file_in_the_home_not_an_address(self):
         # A session's grant holds the demo's tools and its CLI; nothing in it
@@ -136,7 +143,7 @@ class DemoHomeTests(unittest.TestCase):
         self.assertTrue(
             INSTALL.demo_brief_path().startswith(INSTALL.UCLUSION_HOME)
         )
-        source = inspect.getsource(INSTALL.main)
+        source = inspect.getsource(INSTALL.run_claude_demo)
         self.assertIn('demo_brief_path()', source)
         self.assertNotIn('demo_brief_url', source)
 
@@ -145,7 +152,7 @@ class DemoHomeTests(unittest.TestCase):
         # makes it, hands it a frame to write toward - which is the coaching
         # the demo is not allowed to do, and naming the project is what puts
         # the project in the room.
-        source = inspect.getsource(INSTALL.main)
+        source = inspect.getsource(INSTALL.run_claude_demo)
         self.assertIn('Report on Uclusion itself', source)
         for leak in ('compare your report', 'whoever is reading',
                      'Do not speculate about the project'):
@@ -166,13 +173,14 @@ class DemoHomeTests(unittest.TestCase):
         # Reads resolve inside the session's directory root, which is the
         # project the installer was run from, not the home under /tmp.
         self.assertIn('--add-dir', INSTALL.demo_session_args('stage'))
-        # main() must use that definition rather than assembling its own.
-        self.assertIn('demo_session_args(env)', inspect.getsource(INSTALL.main))
+        # The launch must use that definition rather than assembling its own.
+        self.assertIn('demo_session_args(env)', inspect.getsource(INSTALL.run_claude_demo))
 
     def test_the_owner_session_is_kept_for_diagnosis(self):
         # When the owner never wakes, its session is the only evidence of why.
-        source = inspect.getsource(INSTALL.main)
+        source = inspect.getsource(INSTALL.run_claude_demo)
         self.assertIn("'owner.log'", source)
+        self.assertIn("'evaluator.log'", source)
         self.assertNotIn('stdout=subprocess.DEVNULL', source)
 
     def test_a_demo_can_be_installed_without_running_the_exercise(self):
@@ -183,7 +191,11 @@ class DemoHomeTests(unittest.TestCase):
         # It has to stop before anything is started, not after.
         self.assertLess(
             source.index('UCLUSION_DEMO_INSTALL_ONLY'),
-            source.index('Starting the workshop owner'),
+            source.index('return run_codex_demo('),
+        )
+        self.assertLess(
+            source.index('UCLUSION_DEMO_INSTALL_ONLY'),
+            source.index('return run_claude_demo('),
         )
 
     def test_the_progress_command_is_named_before_any_session_starts(self):
@@ -273,14 +285,15 @@ class DemoHomeTests(unittest.TestCase):
         )
 
     def test_the_claude_evaluator_is_launched_with_its_own_config(self):
-        source = inspect.getsource(INSTALL.main)
-        self.assertIn(
-            'write_demo_evaluator_mcp_config(args.response_stats)', source
-        )
+        source = inspect.getsource(INSTALL.run_claude_demo)
+        self.assertIn('write_demo_evaluator_mcp_config(response_stats)', source)
         self.assertIn("['claude'] + evaluator_session_args", source)
+        self.assertIn('response_stats=args.response_stats',
+                      inspect.getsource(INSTALL.main))
         # The shared registration is the owner's and never records.
         self.assertIn(
-            "None if bootstrap_mode == 'demo' else args.response_stats", source
+            "None if bootstrap_mode == 'demo' else args.response_stats",
+            inspect.getsource(INSTALL.main),
         )
 
     def demo_guard(self, *argv):

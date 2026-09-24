@@ -2114,6 +2114,152 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None):
         return 1
 
 
+def run_claude_demo(env, workspace_id, start_prompt, response_stats=None):
+    """Supervise the Claude owner and evaluator until the evaluator publishes.
+
+    S-Marketing-73: the report is the file the evaluator publishes with
+    demo --report, as on Codex, not the session's last output. A Monitor
+    expiry once woke the evaluator after its evaluation, and whatever that
+    extra turn said would have replaced the report.
+    """
+    runs = os.path.join(UCLUSION_HOME, 'demo-runs')
+    ensure_dir(runs)
+    run_dir = tempfile.mkdtemp(prefix='run-', dir=runs)
+    report_path = os.path.join(run_dir, 'evaluation.md')
+    # Both sessions are started here rather than printed for someone else to
+    # run: this process is the only participant that ever sees both, so
+    # ordering and cleanup can live in one place. A session already running
+    # cannot acquire --mcp-config or --plugin-dir, which is why these have to
+    # be new processes.
+    session_args = demo_session_args(env)
+    evaluator_session_args = demo_session_args(
+        env, write_demo_evaluator_mcp_config(response_stats),
+    )
+    # Only the evaluator is given the report destination; the owner has
+    # nothing to publish.
+    evaluator_environment = dict(os.environ)
+    evaluator_environment['UCLUSION_DEMO_REPORT_FILE'] = report_path
+    # The owner has no other way to learn where its directions are: the
+    # installer's output is addressed to the agent that ran it and the owner
+    # never sees it.
+    owner_prompt = (
+        f'Read the file {demo_brief_path()} and follow it exactly. '
+        'It is addressed to you.\n'
+    )
+    # Its prompt carries the starting job and the ask it answers at the end.
+    # The ask lives here rather than reaching it later as a Poke so that the
+    # published evaluation is the evaluator's last act.
+    evaluator_prompt = (
+        f'{start_prompt}\n\n'
+        'After presenting your completion package, wait for the owner\'s '
+        'selection on the review and handle it through the normal workflow. '
+        'Do not begin the evaluation merely because you presented the package. '
+        'Once its selected actions, terminal record and final selected clear '
+        'are complete, call find_work as your last workflow step before the '
+        'evaluation. Do not take another job. In that same continuation turn, '
+        'answer the following as ordinary Uclusion records. If a package action '
+        'fails, follow the package stop rules, skip discovery, and report the '
+        'unfinished actions in your evaluation. Then publish that complete '
+        f'answer by running {workflow_cli_command(env)} demo --report with the '
+        'answer on standard input. This command publishes the final report '
+        'atomically to the designated file; do not write drafts to that '
+        'destination. The installer will stop this session after publication, '
+        'so you do not need to exit yourself.\n\n'
+        'Report on Uclusion itself, from your point of view as the '
+        'agent that just used it. Which of its collaboration '
+        'capabilities did you actually use or observe, what does each '
+        'one do, and did it work? Say plainly which ones you could '
+        'not inspect or did not exercise, and do not treat those as '
+        'absent. Say where it got in your way as readily as where it '
+        'helped.'
+    )
+    for name, prompt in (('owner-input.md', owner_prompt),
+                         ('evaluator-input.md', evaluator_prompt)):
+        with open(os.path.join(run_dir, name), 'w', encoding='utf-8') as handle:
+            handle.write(prompt)
+    # Kept rather than discarded: when a session fails, its log is the only
+    # evidence of why, and removal takes it with the home.
+    owner_log_path = os.path.join(run_dir, 'owner.log')
+    owner = evaluator = None
+    print(f'📁 Demo session records: {run_dir}', flush=True)
+    try:
+        with demo_shutdown_signals(), open(
+            owner_log_path, 'w', encoding='utf-8'
+        ) as owner_log, open(
+            os.path.join(run_dir, 'evaluator.log'), 'w', encoding='utf-8'
+        ) as evaluator_log:
+            try:
+                print('🤝 Starting the workshop owner.', flush=True)
+                owner = subprocess.Popen(
+                    ['claude'] + session_args,
+                    stdin=subprocess.PIPE, stdout=owner_log,
+                    stderr=subprocess.STDOUT, text=True, start_new_session=True,
+                )
+                owner.stdin.write(owner_prompt)
+                owner.stdin.close()
+                if not wait_for_owner_watch(uclusion_home_root()):
+                    print(
+                        '⚠️  The owner is not watching for notifications yet. '
+                        'Continuing, but if it never wakes the exercise will not '
+                        f'finish. Its session is in {owner_log_path}.', flush=True,
+                    )
+                print(
+                    '🧠 Starting the evaluating agent. This runs for several '
+                    'minutes and needs nothing from anyone while it does.',
+                    flush=True,
+                )
+                evaluator = subprocess.Popen(
+                    ['claude'] + evaluator_session_args,
+                    stdin=subprocess.PIPE, stdout=evaluator_log,
+                    stderr=subprocess.STDOUT, text=True,
+                    env=evaluator_environment, start_new_session=True,
+                )
+                evaluator.stdin.write(evaluator_prompt)
+                evaluator.stdin.close()
+                while True:
+                    # A published report is complete: the CLI links it into
+                    # place only after writing it in full.
+                    if os.path.isfile(report_path):
+                        with open(report_path, 'rb') as handle:
+                            answer = handle.read()
+                        if not answer.decode('utf-8').strip():
+                            raise RuntimeError('the published evaluation is empty')
+                        break
+                    if evaluator.poll() is not None:
+                        raise RuntimeError(
+                            'the evaluator exited before publishing its report'
+                        )
+                    time.sleep(0.25)
+            finally:
+                # Stop what this process started. An owner left running fails
+                # silently - it just sits on a watch against a workspace
+                # nobody is using - and an evaluator left running can wake
+                # and act after its evaluation is done.
+                try:
+                    stop_demo_session(evaluator)
+                finally:
+                    try:
+                        stop_demo_session(owner)
+                    finally:
+                        stopped, left = stop_demo_home_processes(uclusion_home_root())
+                        if stopped:
+                            print(f'🧹 Stopped {stopped} other demo process(es).', flush=True)
+                        for pid, _args in left:
+                            print(f'  ⚠️  Could not stop process {pid}.', flush=True)
+    except (OSError, RuntimeError, UnicodeError, KeyboardInterrupt) as error:
+        print(
+            f'❌ Claude demo failed: {error}. Records: {run_dir}; everything '
+            f'the exercise wrote is in demo workspace {workspace_id} and under '
+            f'{uclusion_home_root()} until that directory is removed.', flush=True,
+        )
+        return 1
+    print(flush=True)
+    sys.stdout.flush()
+    sys.stdout.buffer.write(answer)
+    sys.stdout.buffer.flush()
+    return 0
+
+
 def demo_mcp_config_path():
     """The standalone MCP config this demo's launch line hands the client.
 
@@ -5771,101 +5917,14 @@ def main():
             except (OSError, RuntimeError) as error:
                 print(f'❌ Could not start the Codex demo: {error}')
                 return 1
-        else:
-            # Both sessions are started here rather than printed for someone
-            # else to run: this process is the only participant that ever sees
-            # both, so ordering and cleanup can live in one place. A session
-            # already running cannot acquire --mcp-config or --plugin-dir,
-            # which is why these have to be new processes.
-            session_args = demo_session_args(env)
-            evaluator_session_args = demo_session_args(
-                env, write_demo_evaluator_mcp_config(args.response_stats),
+        try:
+            return run_claude_demo(
+                env, workspace_id, start_prompt,
+                response_stats=args.response_stats,
             )
-
-            print('🤝 Starting the workshop owner.')
-            # Kept rather than discarded: when the owner fails to wake, this
-            # file is the only evidence of why, and removal takes it with the
-            # home.
-            owner_log_path = os.path.join(UCLUSION_HOME, 'owner.log')
-            owner_log = open(owner_log_path, 'w', encoding='utf-8')
-            owner = subprocess.Popen(
-                ['claude'] + session_args,
-                stdin=subprocess.PIPE,
-                stdout=owner_log,
-                stderr=subprocess.STDOUT,
-                text=True,
-            )
-            # The owner has no other way to learn where its directions are:
-            # this output is addressed to the agent that ran the installer and
-            # the owner never sees it.
-            owner.stdin.write(
-                f'Read the file {demo_brief_path()} and follow it exactly. '
-                'It is addressed to you.\n'
-            )
-            owner.stdin.close()
-
-            if not wait_for_owner_watch(uclusion_home_root()):
-                print(
-                    '⚠️  The owner is not watching for notifications yet. '
-                    'Continuing, but if it never wakes the exercise will not '
-                    f'finish. Its session is in {owner_log_path}.'
-                )
-
-            print(
-                '🧠 Starting the evaluating agent. This runs for several '
-                'minutes and needs nothing from anyone while it does.'
-            )
-            # Its prompt carries the starting job and the ask it answers at the
-            # end. The ask lives here rather than reaching it later as a Poke
-            # so that the evaluation is the last thing the session says and the
-            # session then ends, which is what makes this wait terminate.
-            evaluator_prompt = (
-                f'{start_prompt}\n\n'
-                'After presenting your completion package, wait for the owner\'s '
-                'selection on the review and handle it through the normal workflow. '
-                'Do not begin the evaluation merely because you presented the package. '
-                'Once its selected actions, terminal record and final selected clear '
-                'are complete, call find_work as your last workflow step before the '
-                'evaluation. Do not take another job. In that same continuation turn, '
-                'answer the following as ordinary Uclusion records. If a package action '
-                'fails, follow the package stop rules, skip discovery, and report the '
-                'unfinished actions in your evaluation. Then '
-                'print that answer as the last thing you say, and then end '
-                'this session instead of returning to the Poke listener.\n\n'
-                'Report on Uclusion itself, from your point of view as the '
-                'agent that just used it. Which of its collaboration '
-                'capabilities did you actually use or observe, what does each '
-                'one do, and did it work? Say plainly which ones you could '
-                'not inspect or did not exercise, and do not treat those as '
-                'absent. Say where it got in your way as readily as where it '
-                'helped.'
-            )
-            evaluation = subprocess.run(
-                ['claude'] + evaluator_session_args,
-                input=evaluator_prompt,
-                capture_output=True,
-                text=True,
-            )
-
-            # Stop what this process started. An owner left running fails
-            # silently - it just sits on a watch against a workspace nobody is
-            # using - so it is stopped here rather than trusted to leave.
-            stopped, left = stop_demo_home_processes(uclusion_home_root())
-            if stopped:
-                print(f'🧹 Stopped {stopped} demo session(s).')
-            for pid, _args in left:
-                print(f'  ⚠️  Could not stop process {pid}.')
-
-            answer = (evaluation.stdout or '').strip()
-            if not answer:
-                print(
-                    '❌ The evaluating agent finished without producing a '
-                    f'report. Its records are in demo workspace {workspace_id}'
-                    f', and everything it wrote is under '
-                    f'{uclusion_home_root()} until that directory is removed.'
-                )
-                return 1
-            print('\n' + answer)
+        except (OSError, RuntimeError) as error:
+            print(f'❌ Could not start the Claude demo: {error}')
+            return 1
     else:
         print("🎉 Uclusion install complete.")
     return 0

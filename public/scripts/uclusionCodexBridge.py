@@ -2324,7 +2324,7 @@ def _auxiliary_root_request(
     return (
         method == "thread/start"
         and params.get("ephemeral") is True
-        and params.get("threadSource") == "system"
+        and params.get("threadSource") in ("system", "thread_title")
     ) or (method == "thread/fork" and _side_fork(params))
 
 
@@ -6557,6 +6557,7 @@ class _RelayConnection:
         candidate_primary_thread: Optional[Dict[str, Any]] = None
         if (
             pending.method in ROOT_SWITCH_METHODS
+            and not _auxiliary_root_request(pending.method, pending.params)
             and "result" in message
         ):
             result = message.get("result")

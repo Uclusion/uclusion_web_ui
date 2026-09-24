@@ -11,6 +11,9 @@ import time
 import unittest
 from unittest import mock
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import uclusionCLI as CLI
+
 
 spec = importlib.util.spec_from_file_location(
     'codex_demo_run', Path(__file__).resolve().parents[1] / 'uclusionInstall.py'
@@ -58,19 +61,20 @@ class CodexDemoRunTests(unittest.TestCase):
         return INSTALL.run_codex_demo('stage', 'workspace', 'Start J-Demo-1.', **kwargs)
 
     def test_only_the_evaluator_is_launched_with_statistics(self):
-        self.mocks[4].side_effect = (
-            lambda _env, _workspace, response_stats=None:
-            ['-c', f'stats={response_stats}']
-        )
-        self.terminal.drain.side_effect = lambda: self.report.write_bytes(b'Report\n')
-        self.assertEqual(self.run_demo(response_stats='/tmp/eval.jsonl'), 0)
-        owner_command = next(
-            call.args[0] for call in INSTALL.subprocess.Popen.call_args_list
-            if call.args[0][:2] == ['codex', 'exec']
-        )
-        self.assertIn('stats=None', owner_command)
-        self.assertNotIn('stats=/tmp/eval.jsonl', owner_command)
-        self.assertIn('stats=/tmp/eval.jsonl', self.commands[0])
+        for stats in (None, '/tmp/demo statistics/eval.jsonl'):
+            with self.subTest(stats=stats):
+                self.terminal.drain.side_effect = lambda: self.report.write_bytes(b'Report\n')
+                self.assertEqual(self.run_demo(response_stats=stats), 0)
+                owner_command = next(
+                    call.args[0] for call in reversed(INSTALL.subprocess.Popen.call_args_list)
+                    if call.args[0][:2] == ['codex', 'exec']
+                )
+                self.assertNotIn('--response-stats', owner_command)
+                # Parse the real launch boundary: flags hidden in Codex's MCP
+                # overrides are replaced by the uclusion codex launcher.
+                evaluator = CLI.parse_args(self.commands[-1][1:])
+                self.assertEqual(evaluator.response_stats, stats)
+                self.assertNotIn('--response-stats', evaluator.codex_args)
 
     def test_publication_preserves_bytes_and_stops_both_live_sessions(self):
         report = b'  Evaluation\r\nUnicode: \xe2\x9c\x93\n\n'

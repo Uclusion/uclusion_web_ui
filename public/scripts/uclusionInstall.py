@@ -168,7 +168,7 @@ SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionSetupMCP.py':
         'f91ea798847ec8f8cb3407dfcc8eb4ab36ffbaab0c9695fb6028b56b94549d51',
     'uclusionCodexBridge.py':
-        '6b030dbcea80567bb034f7541780050dccbc70efac747915016b5d01deca4eb8',
+        '3b47745dfe4f76d066c9942e9f48912315b0cbb1a23f80a0b5fd31bd6590f010',
     'uclusionTokenAudit.py':
         '371e49d36c8393048f8e500bace829c9031f59f504673bdc40b1c1af12453df8',
     'uclusionCursorPokeDrain.py':
@@ -1599,12 +1599,8 @@ def _read_demo_codex_config(codex, arguments, environment):
         process.stdout.close()
 
 
-def demo_codex_session_args(environment, workspace_id, response_stats=None):
-    """Build and check one Codex session's launch-local settings.
-
-    ``response_stats`` is given only for the evaluator, whose proxy then
-    records its response sizes; the owner's never does.
-    """
+def demo_codex_session_args(environment, workspace_id):
+    """Build and check the Codex demo sessions' launch-local settings."""
     child_environment = demo_codex_environment()
     codex = shutil.which('codex', path=child_environment['PATH'])
     if codex is None:
@@ -1642,8 +1638,6 @@ def demo_codex_session_args(environment, workspace_id, response_stats=None):
     descriptor = runtime_mcp_descriptor(
         workspace_id, None if environment == 'production' else environment,
     )
-    if response_stats:
-        descriptor['args'].extend(['--response-stats', response_stats])
     server_overrides = [
         _toml_basic_string(name) + '={enabled=false}'
         for name in sorted(servers) if name != MCP_SERVER_KEY
@@ -2012,10 +2006,9 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None):
     environment['TERM'] = 'xterm-256color'
     environment['UCLUSION_DEMO_REPORT_FILE'] = report_path
     session_args = demo_codex_session_args(env, workspace_id)
-    evaluator_session_args = (
-        demo_codex_session_args(env, workspace_id, response_stats)
-        if response_stats else session_args
-    )
+    evaluator_command = demo_codex_cli_args(env)
+    if response_stats:
+        evaluator_command.extend(['--response-stats', response_stats])
     cli_command = shlex.join(demo_codex_cli_args(env))
     owner_prompt = (
         f'Read the file {demo_brief_path()} and follow it exactly. '
@@ -2071,8 +2064,7 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None):
                     raise RuntimeError('the owner did not start its notification watch')
                 print('🧠 Starting the evaluating agent.', flush=True)
                 terminal = DemoCodexTerminal(
-                    [os.path.join(SYMLINK_DIR, 'uclusion'), '-e', env,
-                     'codex', '--', *evaluator_session_args, evaluator_prompt],
+                    [*evaluator_command, 'codex', '--', *session_args, evaluator_prompt],
                     environment, evaluator_log,
                 )
                 while True:

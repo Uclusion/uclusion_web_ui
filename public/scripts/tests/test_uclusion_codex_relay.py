@@ -2545,6 +2545,67 @@ class RelayIntegrationTests(unittest.TestCase):
             )
         self.assertFalse(self.relay.fatal_event.is_set())
 
+    def test_primary_connection_helper_cleanup_preserves_visible_root(self):
+        primary, upstream = self.initialized_connection()
+        send_client_json(primary, {
+            "id": "visible-root",
+            "method": "thread/start",
+            "params": {"cwd": "/workspace/project", "threadSource": "user"},
+        })
+        self.assertEqual("thread/start", upstream.sent.get(timeout=1)["method"])
+        upstream.respond({"id": "visible-root", "result": root_result("root-a")})
+        self.assertEqual("visible-root", read_server_json(primary)["id"])
+        original = self.authority.current_snapshot()
+
+        # Codex uses this same TUI connection for temporary feature threads.
+        # Older clients label them system; 0.156.1 labels titles thread_title.
+        for source, overlap in (
+            ("system", False), ("thread_title", False),
+            ("system", True), ("thread_title", True),
+        ):
+            with self.subTest(source=source, overlap=overlap):
+                helper = "helper-{}-{}".format(source, overlap)
+                send_client_json(primary, {
+                    "id": helper,
+                    "method": "thread/start",
+                    "params": {
+                        "cwd": "/workspace/project",
+                        "ephemeral": True,
+                        "threadSource": source,
+                    },
+                })
+                self.assertEqual("thread/start", upstream.sent.get(timeout=1)["method"])
+                if overlap:
+                    visible = "visible-" + helper
+                    send_client_json(primary, {
+                        "id": visible,
+                        "method": "thread/start",
+                        "params": {"cwd": "/workspace/project", "threadSource": "user"},
+                    })
+                    self.assertEqual("thread/start", upstream.sent.get(timeout=1)["method"])
+                result = root_result(helper)
+                result["thread"]["ephemeral"] = True
+                upstream.respond({"id": helper, "result": result})
+                self.assertEqual(helper, read_server_json(primary)["id"])
+                if overlap:
+                    upstream.respond({"id": visible, "result": root_result(visible)})
+                    self.assertEqual(visible, read_server_json(primary)["id"])
+                    original = self.authority.current_snapshot()
+                    self.assertEqual(visible, original.thread_id)
+                else:
+                    self.assertEqual(original, self.authority.current_snapshot())
+
+                send_client_json(primary, {
+                    "id": "cleanup-" + helper,
+                    "method": "thread/unsubscribe",
+                    "params": {"threadId": helper},
+                })
+                self.assertEqual("thread/unsubscribe", upstream.sent.get(timeout=1)["method"])
+                upstream.respond({"id": "cleanup-" + helper, "result": {}})
+                self.assertEqual("cleanup-" + helper, read_server_json(primary)["id"])
+                self.assertEqual(original, self.authority.current_snapshot())
+                self.assertFalse(self.relay.fatal_event.is_set())
+
     def test_nested_origin_fences_preserve_buffered_wire_order(self):
         primary, primary_upstream = self.initialized_connection()
         send_client_json(

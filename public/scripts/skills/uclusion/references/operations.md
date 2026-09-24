@@ -147,6 +147,13 @@ Selected actions run in numeric order and stop at the first failure, except
 that a selected clear runs last so it covers this attempt's own record.
 ```
 
+Actions 1 and 2 appear only when the work changed repository files. When the
+pass or bug fix changed none, leave both out of whichever menu applies instead
+of showing them as no-ops. Keep every other action's number, and use only
+shown numbers in the reply line's example, such as `3,4`, or `3` when the
+clear is the only action left. A job-finished or incomplete-task menu then
+offers 3 and 4, and the three-action and bug menus offer 3 alone.
+
 For action 1, use canonical short codes for commits, name every affected
 repository, and include its files when the list remains concise. Otherwise
 give its file count and a compact scope summary.

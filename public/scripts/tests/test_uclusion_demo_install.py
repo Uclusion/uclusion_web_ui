@@ -147,6 +147,41 @@ class DemoHomeTests(unittest.TestCase):
         self.assertIn('demo_brief_path()', source)
         self.assertNotIn('demo_brief_url', source)
 
+    def test_the_claude_owner_is_told_not_to_start_a_poke_listener(self):
+        # S-Marketing-74: its bootstrap says to arm Poke delivery, but the
+        # owner shares the evaluator's credential, so a listener would hand it
+        # the evaluator's AI events. The Codex owner is told the same.
+        home = tempfile.TemporaryDirectory()
+        self.addCleanup(home.cleanup)
+        launched = []
+
+        def launch(command, **kwargs):
+            process = mock.Mock()
+            process.poll.return_value = 0
+            launched.append(process)
+            return process
+
+        with mock.patch.object(INSTALL, 'UCLUSION_HOME', home.name), \
+                mock.patch.object(INSTALL, 'demo_session_args', return_value=[]), \
+                mock.patch.object(INSTALL, 'write_demo_evaluator_mcp_config'), \
+                mock.patch.object(INSTALL.subprocess, 'Popen', side_effect=launch), \
+                mock.patch.object(INSTALL, 'wait_for_owner_watch', return_value=True), \
+                mock.patch.object(INSTALL, 'stop_demo_session'), \
+                mock.patch.object(INSTALL, 'stop_demo_home_processes', return_value=(0, [])), \
+                mock.patch('builtins.print'):
+            INSTALL.run_claude_demo('stage', 'workspace', 'Start J-Demo-1.')
+            brief = INSTALL.demo_brief_path()
+        opening = launched[0].stdin.write.call_args.args[0]
+        self.assertTrue(opening.startswith(
+            f'Read the file {brief} and follow it exactly. It is addressed to you. '
+        ), opening)
+        self.assertIn(
+            'You play the human workshop owner, so use '
+            f'{INSTALL.workflow_cli_command("stage")} watch for human notifications '
+            'and do not start a Poke listener or drain.', opening)
+        codex = inspect.getsource(INSTALL.run_codex_demo)
+        self.assertIn("'Poke listener or drain.", codex)
+
     def test_the_evaluator_is_not_told_what_its_report_is_for(self):
         # Its scope is what it used. Naming the comparison, or the reader who
         # makes it, hands it a frame to write toward - which is the coaching

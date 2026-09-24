@@ -2141,10 +2141,14 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None):
     evaluator_environment['UCLUSION_DEMO_REPORT_FILE'] = report_path
     # The owner has no other way to learn where its directions are: the
     # installer's output is addressed to the agent that ran it and the owner
-    # never sees it.
+    # never sees it. S-Marketing-74: its bootstrap says to arm Poke delivery,
+    # but it shares the evaluator's credential, so a listener would hand it
+    # the evaluator's AI events - the Codex owner is told the same.
     owner_prompt = (
         f'Read the file {demo_brief_path()} and follow it exactly. '
-        'It is addressed to you.\n'
+        'It is addressed to you. You play the human workshop owner, so use '
+        f'{workflow_cli_command(env)} watch for human notifications and do not '
+        'start a Poke listener or drain.\n'
     )
     # Its prompt carries the starting job and the ask it answers at the end.
     # The ask lives here rather than reaching it later as a Poke so that the

@@ -88,6 +88,9 @@ class ClaudeDemoRunTests(unittest.TestCase):
         self.assertEqual(self.home / '.uclusion' / 'demo-runs', report.parent.parent)
         self.assertEqual(['claude', '--mcp-config', 'shared'], owner_command)
         self.assertTrue(owner_kwargs['start_new_session'] and evaluator_kwargs['start_new_session'])
+        # S-Marketing-75: both start in the demo home, not the person's project
+        self.assertEqual(str(self.home), owner_kwargs['cwd'])
+        self.assertEqual(str(self.home), evaluator_kwargs['cwd'])
 
     def test_the_prompt_asks_for_publication_and_the_run_keeps_its_inputs(self):
         self.evaluator_turn = lambda: self.report_path().write_text('Report')

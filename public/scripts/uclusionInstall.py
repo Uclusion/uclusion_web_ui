@@ -1854,6 +1854,10 @@ def demo_session_args(env, mcp_config=None):
     """
     demo_cli = workflow_cli_command(env)
     return [
+        # S-Marketing-75: none of the person's user-level settings, CLAUDE.md,
+        # skills or plugins. The sessions start in the demo home, so project
+        # and local mean that home, which holds none either. Login is kept.
+        '--setting-sources', 'project,local',
         '--mcp-config', mcp_config or demo_mcp_config_path(),
         '--strict-mcp-config',
         '--plugin-dir', demo_plugin_path(),
@@ -1864,9 +1868,9 @@ def demo_session_args(env, mcp_config=None):
         '--allowedTools',
         f'mcp__{MCP_SERVER_KEY}__*',
         f'Bash({demo_cli}:*)',
-        # Reads resolve inside the session's directory root, which is the
-        # project this was run from; the brief and the workflow references
-        # both sit under the demo home.
+        # The Claude sessions start in the demo home, where the brief and the
+        # workflow references sit; naming it keeps them readable from any
+        # directory a session is started in.
         '--add-dir', uclusion_home_root(),
     ]
 
@@ -2194,8 +2198,10 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None):
         ) as evaluator_log:
             try:
                 print('🤝 Starting the workshop owner.', flush=True)
+                # Started in the demo home, as the Codex sessions are, so no
+                # project's settings or CLAUDE.md reach them (S-Marketing-75).
                 owner = subprocess.Popen(
-                    ['claude'] + session_args,
+                    ['claude'] + session_args, cwd=uclusion_home_root(),
                     stdin=subprocess.PIPE, stdout=owner_log,
                     stderr=subprocess.STDOUT, text=True, start_new_session=True,
                 )
@@ -2213,7 +2219,7 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None):
                     flush=True,
                 )
                 evaluator = subprocess.Popen(
-                    ['claude'] + evaluator_session_args,
+                    ['claude'] + evaluator_session_args, cwd=uclusion_home_root(),
                     stdin=subprocess.PIPE, stdout=evaluator_log,
                     stderr=subprocess.STDOUT, text=True,
                     env=evaluator_environment, start_new_session=True,

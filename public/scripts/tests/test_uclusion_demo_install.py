@@ -204,9 +204,18 @@ class DemoHomeTests(unittest.TestCase):
             self.assertFalse(value.endswith("'"), value)
         self.assertIn('mcp__Uclusion__*', grant)
 
+    def test_sessions_load_none_of_the_person_s_own_settings(self):
+        # S-Marketing-75: anything in a customer's global directory, or in the
+        # project the installer was run from, could change how the demo's
+        # sessions behave. Project and local mean the demo home, where they start.
+        args = INSTALL.demo_session_args('stage')
+        self.assertEqual('project,local', args[args.index('--setting-sources') + 1])
+        source = inspect.getsource(INSTALL.run_claude_demo)
+        self.assertEqual(2, source.count("['claude'] + "))
+        self.assertEqual(2, source.count('cwd=uclusion_home_root()'))
+
     def test_sessions_can_reach_the_demo_home_they_are_told_to_read(self):
-        # Reads resolve inside the session's directory root, which is the
-        # project the installer was run from, not the home under /tmp.
+        # The brief and the workflow references sit under the demo home.
         self.assertIn('--add-dir', INSTALL.demo_session_args('stage'))
         # The launch must use that definition rather than assembling its own.
         self.assertIn('demo_session_args(env)', inspect.getsource(INSTALL.run_claude_demo))

@@ -55,8 +55,10 @@ in the review, so a wrong call is visible in the record instead of surfacing
 later as a transition the platform refuses.
 
 End every implementation review report with the completion menu that conclusion
-selects. After `ask_for_review` returns the review code or link, immediately print
-the same numbered menu in normal client chat and name that review. The review
+selects. After `ask_for_review` returns the review code or link, print the same
+numbered menu in normal client chat and name that review, as the final content
+of that turn's last message: a menu printed earlier in the turn is buried by
+what follows it. The review
 footer says the human may reply there or in the agent; the chat copy says the
 human may reply there or on the named review. Neither copy calls `ask_question`
 or creates a Uclusion question or assistance item. Use the applicable
@@ -126,8 +128,8 @@ that a selected clear runs last so it covers this attempt's own record.
 When a standalone bug's fix is complete, resolve it under the single-comment
 workflow and run the completion sweep that resolution triggers. Record the
 sweep result with `add_info` on that bug, end the same record with the bug
-completion menu, then immediately print the same numbered menu in normal client
-chat and name that bug. Resolving is itself the terminal transition and is
+completion menu, then print the same numbered menu in normal client chat and
+name that bug, as the final content of that turn's last message. Resolving is itself the terminal transition and is
 already the sweep trigger, so the bug menu carries no stage action and never
 offers the sweep. If the sweep could not run, report that, and still create the
 menu record on the bug and mirror it; a sweep failure never suppresses the
@@ -195,7 +197,8 @@ response does not authorize or repeat package work. A valid selection is final
 for that attempt. Do not ask again for granted or omitted actions, and offer a
 new package only after material work changes or an explicit human request.
 While awaiting a valid reply to any menu, retain any assigned lane and
-auto-take claim. This wait is not a review handoff: do not release the claim,
+auto-take claim, and end each later turn, whatever ended it, with one line
+naming the review or bug that holds the menu rather than the whole menu. This wait is not a review handoff: do not release the claim,
 begin work discovery, or start another job or bug.
 
 After every apparently valid reply, including `none`, reload the exact job or

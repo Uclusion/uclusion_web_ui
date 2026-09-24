@@ -377,7 +377,8 @@ Before review, turn unfinished or deferred actionable work into suggestions and
 reference those suggestions in the report. For any testable implementation pass
 in an assigned job in an executable stage, read `operations.md`, call
 `ask_for_review` with that pass's completion menu appended to its concise
-capsule-delta report, then immediately mirror the menu in normal client chat.
+capsule-delta report, then mirror the menu in normal client chat at the end of
+that turn, as `Ending a turn` says.
 The menu is selected by finish-state and whether the pass is task-based, not
 by stage; `operations.md` defines finished and the menus, and only the
 job-finished four-action menu carries Reviewable. The review is required and is
@@ -464,10 +465,14 @@ answer, so keep going on everything else.
 End when nothing can proceed without the human. Then say what you need from
 them, and why the current lane is blocked if it is.
 
-Present the completion package when work reaches it. Otherwise state the
-pending decision or completed task, applying `pokes.md`'s one-time hint and
-discovery triggers. A turn ending alone never calls `find_work` or repeats its
-list.
+Present the completion package when work reaches it, as the last thing the
+turn's final message says; a menu printed earlier in the turn is lost in the
+chat that follows it. Until a valid selection arrives, end every later turn,
+whatever ended it, including a Poke or a listener rearm, with one line naming
+the review or bug that holds the waiting menu, not the whole menu again. Never
+drop either to save context. Otherwise state the pending decision or completed
+task, applying `pokes.md`'s one-time hint and discovery triggers. A turn ending
+alone never calls `find_work` or repeats its list.
 
 ## Single-comment workflow
 

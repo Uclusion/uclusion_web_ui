@@ -87,8 +87,11 @@ skill owns event handling and the job workflow.
   exact job and destination transition. A completed post-review selection that
   omitted action 4 or selected `none` is final, so leave the stage unchanged
   without asking again.
-- Recheck assistance and stage immediately before editing. New assistance can
-  arrive at any time.
+- New assistance can arrive at any time, and arrives as a Poke. Handle every
+  delivered Poke before the next edit instead of rereading the job for it. A
+  client without Poke delivery, such as Cursor, cannot learn of changes that
+  way, so it rereads assistance and stage before editing, before a completion
+  menu, after a menu reply, and before and after a stage change.
 - Never silently make a judgment call a reasonable reviewer could choose
   differently. Ask one Uclusion question per decision. The standard
   completion package is one deliberately compound operational decision and
@@ -317,10 +320,10 @@ Replace a sent capsule only when new human input establishes a new contract.
 AI discoveries and implementation differences do not authorize a replacement;
 report those differences once in the review. Unsettled choices still require
 questions under step two. For a permitted replacement, finish drafting and
-cold review, reload the current R-code and version, then call
-`set_design_capsule` in update mode with
-`update_capsule_short_code_id`, `update_capsule_version`, and the complete
-replacement body. Never patch fragments or blindly retry a version conflict.
+cold review, then call `set_design_capsule` in update mode with the R-code and
+version you hold as `update_capsule_short_code_id` and
+`update_capsule_version`, and the complete replacement body. Never patch
+fragments or blindly retry a version conflict; reload the capsule on one.
 Replies remain discussion until new human input establishes a new contract
 and is folded into the body. A real replacement keeps the capsule R-code; its
 former body appears asynchronously as an ordinary unpinned note. Do not wait
@@ -330,10 +333,10 @@ Capsule writes are human-facing, not scratch storage. A create or replacement
 puts an inbox item in front of the current human assignees without email or
 Slack; explicit mentions keep their ordinary delivery behavior.
 
-After an AI replacement, reload Reports and resolve your still-open review
-whose body names that capsule R-code before further affected edits. A human
-body edit arrives as `Updated <capsule R-code> of <job short code>`. Reload the
-exact capsule with `thread_only: true` and Reports, resolve the matching review
+After an AI replacement, resolve each review its result lists in
+`open_ai_reviews_naming_capsule` before further affected edits. A human body
+edit arrives as `Updated <capsule R-code> of <job short code>`. Reload the
+exact capsule with `thread_only: true`, resolve your open review that names it
 first, then reconcile in-progress work with the new authoritative body. Review
 cleanup is agent workflow, not backend review parsing or linkage.
 
@@ -362,7 +365,7 @@ Before editing:
 1. Resolve every open question already answered by either a non-AI,
    non-advisory Approvable For vote or a clear non-AI, non-advisory reply.
 2. Resolve tasks already completed, duplicated, or no longer applicable.
-3. Reload assistance/stage if either could have changed.
+3. Handle every delivered Poke first.
 
 Implement active tasks and grouped tasks; do not redo resolved work. Resolve
 each task when written and tested. Commit, push and deployment are

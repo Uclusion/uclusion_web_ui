@@ -38,8 +38,9 @@ Delivery reaches only the session that armed it, so arm your own and never
 treat a listener you did not arm as delivery. Do not enumerate running
 processes looking for one, and never stop a listener another session is using.
 Each claimed line is an event; handle batches in order. If the stream ends,
-arm a new listener, whose cursor begins at that time. Never move a live
-listener outside the client when exiting.
+arm a new listener; it continues this session's cursor, so nothing that
+arrived in between is lost. Never move a live listener outside the client
+when exiting.
 
 When the monitor returns any `Start`, `Added`, `Updated`, or `Responded` line,
 or a request names Uclusion, Poke AI, find_work, or a Uclusion short code

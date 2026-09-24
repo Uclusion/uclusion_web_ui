@@ -285,6 +285,7 @@ class ConsumerResolutionTests(unittest.TestCase):
         patcher.start()
         self.addCleanup(patcher.stop)
         cli.os.environ.pop(cli.CONSUMER_ENV_VAR, None)
+        cli.os.environ.pop(cli.CLAUDE_SESSION_ENV_VAR, None)
 
     def test_explicit_consumer_beats_environment(self):
         cli.os.environ[cli.CONSUMER_ENV_VAR] = 'env-name'
@@ -305,6 +306,20 @@ class ConsumerResolutionTests(unittest.TestCase):
     def test_wait_falls_back_to_shared_default(self):
         self.assertEqual(cli.DEFAULT_CONSUMER,
                          cli.resolve_consumer(None, is_listener=False))
+
+    def test_claude_code_listener_keeps_its_sessions_cursor(self):
+        """Q-Marketing-198 O-1: every listener a session arms shares one cursor."""
+        cli.os.environ[cli.CLAUDE_SESSION_ENV_VAR] = 'cd2af58a'
+        first = cli.resolve_consumer(None, is_listener=True)
+        self.assertEqual(cli.SESSION_CONSUMER_PREFIX + 'claude-cd2af58a', first)
+        self.assertEqual(first, cli.resolve_consumer(None, is_listener=True))
+        self.assertEqual(cli.DEFAULT_CONSUMER, cli.resolve_consumer(None, is_listener=False))
+
+    def test_named_consumers_still_beat_the_claude_session(self):
+        cli.os.environ[cli.CLAUDE_SESSION_ENV_VAR] = 'cd2af58a'
+        self.assertEqual('mine', cli.resolve_consumer('mine', is_listener=True))
+        cli.os.environ[cli.CONSUMER_ENV_VAR] = 'env-name'
+        self.assertEqual('env-name', cli.resolve_consumer(None, is_listener=True))
 
 
 class BroadcastDeliveryTests(InboxTestCase):
@@ -333,6 +348,21 @@ class BroadcastDeliveryTests(InboxTestCase):
             'Responded J-all-10',
             cli.next_prompt('stage', 'w1', consumer),
         )
+
+    def test_rearmed_session_listener_delivers_what_arrived_in_between(self):
+        """Q-Marketing-198 O-1: nothing is lost between one listener ending and the next."""
+        with mock.patch.dict(cli.os.environ, {cli.CLAUDE_SESSION_ENV_VAR: 'cd2af58a'}):
+            cli.os.environ.pop(cli.CONSUMER_ENV_VAR, None)
+            self.enqueue('Start J-all-44', 'm1')
+            first_listener = cli.resolve_consumer(None, is_listener=True)
+            cli.start_new_consumer_at_arm_time('stage', 'w1', first_listener)
+            self.enqueue('Added T-all-45 of J-all-44', 'm2')
+            self.assertEqual('Added T-all-45 of J-all-44', cli.next_prompt('stage', 'w1', first_listener))
+            # The first listener has ended; this arrives before the next one is armed.
+            self.enqueue('Responded Q-all-46 of J-all-44', 'm3')
+            second_listener = cli.resolve_consumer(None, is_listener=True)
+            cli.start_new_consumer_at_arm_time('stage', 'w1', second_listener)
+            self.assertEqual('Responded Q-all-46 of J-all-44', cli.next_prompt('stage', 'w1', second_listener))
 
     def test_established_consumer_backlog_is_not_skipped(self):
         self.enqueue('Start J-all-44', 'm1')

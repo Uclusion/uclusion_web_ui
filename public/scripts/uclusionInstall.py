@@ -162,7 +162,7 @@ SCRIPT_FILES = (
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCLI.py':
-        '707a71541f39f96769bae68333a840275ad81afdf4279c62529cacef16dadcd6',
+        '6ee10ef5103f4a21df547f6ca27ff31d40c33a7f7bdaeeb6feae9db1232e35ee',
     'uclusionMCPProxy.py':
         '474d2a2c96aeea97689331f47107ab5aea78662be25de650b4cb5ef9d071bb53',
     'uclusionSetupMCP.py':
@@ -340,14 +340,14 @@ WORKFLOW_ASSET_PATHS = {
 # These digests bind the installer to one coherent workflow release. A host
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
-    'reading_reference': '0a0ad304a344a5d8c06a700eaa0217d4200f01e4505094f59fe73612d1387304',
+    'reading_reference': '3a0ff818454987caec4b1ca04678cc188508483f490ac750823c2009d4699b1d',
     'demo_brief': '0b7f19753523dcedb2327d4edd97dd15253c0ca1e41aba010db7363a7856cce4',
-    'claude_stub': '49c9682ed4bef4723084f8f4e6dbdbde4c52e5d8d1b0e27d1358d7050b946fec',
+    'claude_stub': 'c61be5b45daef4568f42d3e3ddc0f996c94953fb1a7c6928d151cf2622e90deb',
     'codex_stub': '7cc3b75aa1b7af3799e47962d7ce2beb43b4a8f52541bb571c0dc968eb808336',
     'cursor_stub': 'c2e03afbaf55fd656b68478de9268955ef2af5813d3a2109ebce04ae0c8061bf',
-    'skill': '60f7208e3b4d8c026fe1de2b7ca426a56101aa4897713525a1ad1a0a094cd6db',
-    'pokes_reference': '8cd81cb75b58cbb0d114523a18b73999e19788efd021d0c724328b0524e8cedb',
-    'operations_reference': '86b158b1a53ee5ac06e0221d329b139f3e3567a5a376bf8ffaedf3d9108d6591',
+    'skill': '635bd967370dfcf115547017c9e9c802375e778179da8ac73fd46a86e6e9fe79',
+    'pokes_reference': '749373918b258c9ec0c563821cd516812353bedbf8d6f0e176b554c880c0e5ae',
+    'operations_reference': '0c2adc5dea57a876a392ce7bc1fd325eea1d588aab38dd508a4b8441a8ada8b0',
     'completion_reference': '2f627b9e6156958ce7940f11b0281a4ee3295517b60eb339b0bc577dd59240c3',
     'audit_reference': '6e064e0baf27e4a17bd3a15060dbb15f8730de31f71eb8df0caba180852be71d',
     'claims_reference': '7e935792deaacbd02369590625f947c025e54cb84dd56da14d93eab55a8f2e4f',

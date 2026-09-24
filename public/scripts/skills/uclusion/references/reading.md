@@ -37,9 +37,12 @@ perform the core workflow's obsolete-review cleanup before continuing.
 A write's result is the reload for what it produced. `ask_question` returns the
 question and option codes, the initial vote and the job's resulting stage;
 `update_option` names what it updated; `set_design_capsule` returns the stored
-R-code and version. Do not call `get_job` after them to see their output.
-`resolve` reports only what it resolved, so read the job when you need its
-stage. Rechecks before editing still apply, because others can change the job.
+R-code and version and, for a replacement, the open reviews that name it;
+`ask_for_review` lists the job's open questions and suggestions;
+`change_job_stage` states the stage afterwards. Do not call `get_job` after
+them to see their output. `resolve` reports only what it resolved; when you
+need the stage afterwards, call `get_job` with `stage_only: true`. Others'
+changes arrive as Pokes, so handle those instead of rereading the job.
 
 ## Standing instructions by view
 

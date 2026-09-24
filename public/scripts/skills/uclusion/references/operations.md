@@ -71,14 +71,16 @@ pass that opened no tasks at all. State which conclusion you reached, and why,
 in the review, so a wrong call is visible in the record instead of surfacing
 later as a transition the platform refuses.
 
-Before writing any job's menu, also reload the job's open suggestions. No job
-package is offered while one is open: each is unfinished or deferred work, and
-moving the job to Reviewable resolves it, so the work is lost. When any is
-open, open the review with its report but no menu. End the report, and the
+Before writing any job's menu, also check the job's open suggestions: the
+ones you hold from your reads and Pokes, and then the `open_suggestions` that
+the `ask_for_review` result lists. No job package is offered while one is
+open: each is unfinished or deferred work, and moving the job to Reviewable
+resolves it, so the work is lost. When any is open, open the review with its
+report but no menu, or rewrite it without one if its result lists any. End the report, and the
 chat copy that ends the turn, by naming each open suggestion, including those
 this pass created, and asking the human to convert it to a task or resolve it.
 Retain the lane, and end each later turn by naming the review and the
-suggestions still open. When a reload shows none open, rewrite the review with
+suggestions still open. When Pokes show none open, rewrite the review with
 `update_review_short_code_id` to append the menu its conclusion now selects,
 since a converted suggestion is an open task, and print that menu at the end
 of the turn. A standalone bug holds no suggestions, so its menu is unaffected.
@@ -202,10 +204,10 @@ auto-take claim, and end each later turn, whatever ended it, with one line
 naming the review or bug that holds the menu rather than the whole menu. This wait is not a review handoff: do not release the claim,
 begin work discovery, or start another job or bug.
 
-After every apparently valid reply, including `none`, reload the exact job or
-bug, its assistance, and the exact package thread before acting. Reconcile the
-first valid human package-thread response and every existing AI terminal
-package record. An earlier governing package-thread selection or terminal
+After every apparently valid reply, including `none`, read the reply its Poke
+names before acting; a chat reply needs no read. Reconcile the first valid
+human package-thread response and every existing AI terminal package record
+you hold from Pokes and your own writes. An earlier governing package-thread selection or terminal
 record takes precedence over a later response. An AI record preserves the
 governing human selection but supplies no authority by itself.
 
@@ -214,10 +216,10 @@ execution attempt when that reconciliation finds no earlier governing
 selection or terminal record. Do not call `add_info` or create any other AI
 selection receipt before attempting the package actions. If an interruption
 loses that unrecorded chat selection before its terminal record is created,
-require the human to repeat the selection, then reload and reconcile again.
+require the human to repeat the selection, then reconcile again.
 
 For a governing selection from either the package thread or normal client chat,
-finish the required reload and reconciliation, then attempt only its selected
+finish the required reconciliation, then attempt only its selected
 actions. A selected clear is the exception to numeric order and runs last, after
 every other selected action and after this attempt's terminal record, because a
 record written after the clear leaves a notification the human just asked to be
@@ -255,12 +257,12 @@ completion-time notification check.
 
 The Reviewable transition and its completion sweep are one coupled action for
 authorization: without permission for that exact transition, do neither. A
-failed stage change does not trigger a sweep. Immediately before the selected stage action, reload the exact job again and
-proceed only if it is still the assigned, unblocked Doable job. If that reload
-instead shows the exact assigned job has newly entered Reviewable, do not call
-`change_job_stage`; run the triggered completion sweep immediately, then handle
-any assistance. For any other state, stop at that action and preserve the
-current stage. After a successful stage change, finish the sweep in the same
+failed stage change does not trigger a sweep. Take the selected stage action
+by calling `change_job_stage` with `from_stage` Doable; it refuses when the job
+is no longer in Doable and names the stage it is in. If the refusal names
+Reviewable, the exact assigned job has newly entered Reviewable: run the
+triggered completion sweep immediately, then handle any assistance. For any
+other stage, stop at that action and preserve the current stage. After a successful stage change, finish the sweep in the same
 turn before any lane handoff, work discovery, or other job starts. If the sweep
 fails, leave the job in Reviewable, report the failure, and block any lane
 switch until the sweep succeeds. An incomplete failed sweep remains work from

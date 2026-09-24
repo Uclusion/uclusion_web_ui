@@ -58,6 +58,7 @@ DEFAULT_CONSUMER = 'default'
 CODEX_BRIDGE_CONSUMER_PREFIX = 'codex-bridge:'
 SESSION_CONSUMER_PREFIX = 'session-'
 CONSUMER_ENV_VAR = 'UCLUSION_CONSUMER'
+CLAUDE_SESSION_ENV_VAR = 'CLAUDE_CODE_SESSION_ID'
 
 
 def generate_session_consumer():
@@ -84,6 +85,12 @@ def resolve_consumer(explicit_consumer, is_listener):
     if env_consumer:
         return env_consumer
     if is_listener:
+        # Q-Marketing-198 O-1: a Claude Code session re-arms its listener when the last one
+        # ends. Keying the cursor on the session, not the process, lets the new listener
+        # deliver what arrived in between instead of starting past it.
+        claude_session = os.environ.get(CLAUDE_SESSION_ENV_VAR)
+        if claude_session:
+            return SESSION_CONSUMER_PREFIX + 'claude-' + claude_session
         return generate_session_consumer()
     return DEFAULT_CONSUMER
 CODEX_BRIDGE_SYMLINK = os.path.join(
@@ -4949,13 +4956,18 @@ def build_parser():
     )
     change_stage_parser.add_argument('--job-id', help='Job short code.')
     change_stage_parser.add_argument(
+        '--from-stage',
+        help='The stage the job is moving from, as your last read or write showed it; '
+             'the move is refused if the job is no longer in it.'
+    )
+    change_stage_parser.add_argument(
         '--stage', choices=['Approvable', 'Doable', 'Backlog', 'Reviewable', 'Skippable']
     )
     configure_mcp_parser(
         change_stage_parser,
         'change_job_stage',
-        (mcp_field('job_id', 'job_id'), mcp_field('stage', 'stage')),
-        ('job_id', 'stage'),
+        (mcp_field('job_id', 'job_id'), mcp_field('from_stage', 'from_stage'), mcp_field('stage', 'stage')),
+        ('job_id', 'from_stage', 'stage'),
     )
 
     ask_review_parser = subparsers.add_parser(

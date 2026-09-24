@@ -40,9 +40,26 @@ governing reply when it arrives there, and the terminal record: the exact
 review for a job, and the exact resolved bug for a bug. Everything below
 applies to both packages except where it names a stage or a review.
 
-When the core workflow identifies a testable implementation pass in an assigned
-job in an executable stage, open the exact job's review with the current
-capsule-delta report. Do not ask permission first. The review is required
+A job gets one review, and it opens once every task you were asked to do in
+that assigned job, in an executable stage, is written and tested. It is not
+opened after each pass. Its capsule-delta report names each task and its
+current capsule. Another open task, such as the human's own, only leaves the
+job unfinished. Do not ask permission first.
+
+A finished task that is not related enough to the rest of its job leaves it
+for its own review instead of waiting on the others. You judge relatedness and
+say why in that task's review. Once the task is written and tested, call
+`add_job` with its code in `task_short_code_ids`, `view_short_code_id` naming
+its job, a name taken from the task, and a description naming the job it came
+from. This is the human's standing request for that move, so it needs no other
+permission. The task keeps its code, thread and capsule. The new job starts in
+the stage its job was in, so the job-finished menu applies there. If the
+result says it started in the initial stage, it is not executable: ask about
+its next stage as the core workflow says. The new job joins your assignment
+beside the one it came from, so its menu wait does not stop work on the tasks
+that remain there.
+
+Open the review with the current capsule-delta report. The review is required
 durable documentation and generates the notification that brings the work to
 the human's attention. Opening it does not change the job stage.
 
@@ -67,10 +84,10 @@ since a converted suggestion is an open task, and print that menu at the end
 of the turn. A standalone bug holds no suggestions, so its menu is unaffected.
 
 End every implementation review report with the completion menu that conclusion
-selects, unless the job has an open suggestion, as below. After `ask_for_review` returns the review code or link, print the same
-numbered menu in normal client chat and name that review, as the final content
-of that turn's last message: a menu printed earlier in the turn is buried by
-what follows it. The review
+selects, unless the job has an open suggestion, as below. After `ask_for_review`
+returns the review code or link, print the same numbered menu in normal client
+chat and name that review, as the final content of that turn's last message: a
+menu printed earlier in the turn is buried by what follows it. The review
 footer says the human may reply there or in the agent; the chat copy says the
 human may reply there or on the named review. Neither copy calls `ask_question`
 or creates a Uclusion question or assistance item. Use the applicable
@@ -78,9 +95,8 @@ user-facing menu below, substituting the exact job, review, repositories, and
 current reviewed scope.
 
 For a pass that finishes the job while it is in Doable, name the exact
-Doable-to-Reviewable transition and use the menu below. Resolve any task
-the pass completed before presenting it, so its action 4 is that transition
-rather than a resolve:
+Doable-to-Reviewable transition and use the menu below. Every task the pass
+completed is already resolved, so its action 4 is that transition:
 
 ```text
 <job> has been reviewed. Choose completion actions:
@@ -96,28 +112,6 @@ Put the selection alone on the first nonblank line.
 Selected actions run in numeric order and stop at the first failure, except
 that a selected clear runs last so it covers this attempt's own record.
 Action 4 is indivisible.
-```
-
-For a pass whose selected executable target is a task, including a grouped
-task normalized to its top-level parent, and that does not finish the job,
-do not resolve that task before the menu. If that task is the job's last
-remaining work this is not your menu: resolve it once its code is written
-and tested, then use the job-finished menu above when the job is Doable, or
-the three-action menu below when it is already Reviewable. Otherwise use:
-
-```text
-<job> has been reviewed. Choose completion actions:
-
-1. Commit only its reviewed changes in:
-    - <repository>: <concise file list, or file count and compact scope>.
-2. Push only those commits.
-3. Clear only the notifications produced by <clear scope>.
-4. Resolve <task>.
-
-Reply `all`, `none`, or numbers such as `1,2,4` here, or <in the agent/on review R-code>.
-Put the selection alone on the first nonblank line.
-Selected actions run in numeric order and stop at the first failure, except
-that a selected clear runs last so it covers this attempt's own record.
 ```
 
 For any other pass that does not finish the job, and for a finishing pass on a
@@ -165,28 +159,25 @@ Actions 1 and 2 appear only when the work changed repository files. When the
 pass or bug fix changed none, leave both out of whichever menu applies instead
 of showing them as no-ops. Keep every other action's number, and use only
 shown numbers in the reply line's example, such as `3,4`, or `3` when the
-clear is the only action left. A job-finished or incomplete-task menu then
-offers 3 and 4, and the three-action and bug menus offer 3 alone.
+clear is the only action left. A job-finished menu then offers 3 and 4, and
+the three-action and bug menus offer 3 alone.
 
 For action 1, use canonical short codes for commits, name every affected
 repository, and include its files when the list remains concise. Otherwise
 give its file count and a compact scope summary.
 
-Action 3's <clear scope> is the exact job when the pass finished it, the exact
-review just opened plus that exact task when the incomplete-task menu is used,
-and otherwise the exact review just opened plus any task that pass resolved.
+Action 3's <clear scope> is the exact job when the pass finished it, and
+otherwise the exact review just opened plus any task that pass resolved.
 The review always exists, because opening it is what produces the menu, so a
 resolved task is an addition when there is one and the wording still reads
 correctly when the pass resolved none. Naming the job includes its nested task
 and review notifications present at the fresh check; a bug menu names the exact
 bug's own notifications. More than one named code is one clear call per code.
 
-A four-action menu's action 4 is the one terminal state change shown. On the
-job-finished menu it couples the exact Reviewable transition and established
-completion sweep before any lane handoff, work discovery, or other-job work.
-On the incomplete-task menu it resolves only that named task and does not
-move the job or run the sweep. The three-action menu and the bug menu have
-no action 4.
+The job-finished menu's action 4 is the one terminal state change shown. It
+couples the exact Reviewable transition and established completion sweep before
+any lane handoff, work discovery, or other-job work. The three-action menu and
+the bug menu have no action 4.
 
 `all` selects every action shown, `none` selects no action, and a numbered reply
 selects exactly the shown actions whose numbers it contains. A response is
@@ -197,9 +188,7 @@ commas. Ignore later prose when interpreting the selection; do not infer
 authorization from numbers elsewhere. Perform selected actions in their listed
 relative order regardless of the order supplied. Only the job-finished
 four-action menu's `all` or numbered selection containing `4` authorizes the
-exact Reviewable transition and sweep. Only the incomplete-task four-action
-menu's `all` or numbered selection containing `4` authorizes resolving that
-named task. Neither action 4 authorizes the other. Any response that lacks
+exact Reviewable transition and sweep. Any response that lacks
 the shown action's authority or exact grammar authorizes nothing and requires
 only a narrow clarification in the channel where it appeared.
 
@@ -266,10 +255,7 @@ completion-time notification check.
 
 The Reviewable transition and its completion sweep are one coupled action for
 authorization: without permission for that exact transition, do neither. A
-failed stage change does not trigger a sweep. Immediately before a selected
-task-resolve action, reload that exact task and resolve it if it is still open.
-If the reload shows it already resolved, that action is a successful no-op.
-Immediately before the selected stage action, reload the exact job again and
+failed stage change does not trigger a sweep. Immediately before the selected stage action, reload the exact job again and
 proceed only if it is still the assigned, unblocked Doable job. If that reload
 instead shows the exact assigned job has newly entered Reviewable, do not call
 `change_job_stage`; run the triggered completion sweep immediately, then handle
@@ -281,8 +267,7 @@ switch until the sweep succeeds. An incomplete failed sweep remains work from
 its original transition trigger and must be retried directly, without a new
 transition or package permission. Package permission applies only to the named
 job or bug, the changes covered by its review or its bug thread, their affected
-branches, that item's notifications, and resolving the named task when the
-incomplete-task menu's action 4 is selected. It does not authorize tests,
+branches, and that item's notifications. It does not authorize tests,
 builds, deployment, security work, force-push, unrelated dirty changes, another
 job or bug, a broader notification clear, completion-candidate mutation, or a
 conversation/context clear.
@@ -291,8 +276,8 @@ Stop at the first mandatory check or selected action that fails. Report what
 succeeded, what failed, and which selected actions remain; do not attempt later
 actions or roll back successful ones. A later retry resumes the incomplete
 work under the same selection without repeating completed irreversible work.
-Having no applicable commit, push, exact-item notification, or already-resolved
-task to act on is a successful no-op, not a failure.
+Having no applicable commit, push or exact-item notification to act on is a
+successful no-op, not a failure.
 
 ## Notifications
 

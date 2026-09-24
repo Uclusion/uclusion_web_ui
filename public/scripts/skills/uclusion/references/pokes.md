@@ -17,9 +17,8 @@ Call `find_work` at an unassigned session start, when an assignment ends, or
 when the human explicitly requests other work. A Poke, delivery rearm, or
 ordinary turn ending never triggers a call or another work list by itself.
 
-While a human-guided assignment waits for input or finishes an intermediate
-task's completion package, retain it and report the pending decision or
-completed task. At the first such wait or completed package in the session,
+While a human-guided assignment waits for input or a completion package,
+retain it and report the pending decision or completed task. At the first such wait or completed package in the session,
 say once: "You can ask me to find other work at any time." This is an
 informational hint, not a question or a `find_work` call. Carry whether it has
 been shown into the session summary so compaction does not repeat it. Further
@@ -95,7 +94,9 @@ written before a tool call.
 
 ## Assignment ownership
 
-A default session has at most one assigned job or bug. Reading, classifying, or
+A default session has at most one assigned job or bug, except that a finished
+task you move into a job of its own brings that job into the assignment beside
+the one it came from, as `operations.md` says. Reading, classifying, or
 reloading an object does not assign it. Assignment begins only when the human
 selects work in that session, including a numbered find-work selection, when a
 live `Start` arrives, or when an auto-take claim succeeds.

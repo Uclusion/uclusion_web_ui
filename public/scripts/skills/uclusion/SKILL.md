@@ -115,8 +115,8 @@ skill owns event handling and the job workflow.
   deployment, commit, and push gates remain independent. The required review
   is opened before permission is requested. Only a standard completion
   package may request commit, push, exact-item notification-clear, and
-  Reviewable or resolve-that-task as its fourth permission together; it never
-  grants a test, build, security, deployment, or omitted action.
+  Reviewable as its fourth permission together; it never grants a test, build,
+  security, deployment, or omitted action.
 - Use the exact short code returned by Uclusion in tool calls, chat, commit
   messages, and durable notes.
 
@@ -365,8 +365,7 @@ Before editing:
 3. Reload assistance/stage if either could have changed.
 
 Implement active tasks and grouped tasks; do not redo resolved work. Resolve
-each task when written and tested, except an incomplete task-based pass, which
-stays open so its package can offer resolve. Commit, push and deployment are
+each task when written and tested. Commit, push and deployment are
 separate gates and hold none of that; extra-environment verification is a new
 task. Use `add_info` on the relevant job/task for decisions, trade-offs,
 follow-ups, and anything a reviewer cannot reconstruct from the durable thread.
@@ -376,18 +375,20 @@ follow-ups, and anything a reviewer cannot reconstruct from the durable thread.
 Before review, turn unfinished or deferred actionable work into suggestions and
 reference those suggestions in the report. While any suggestion in the job is
 open, its review carries no menu; `operations.md` says how the human converts
-or resolves each first. For any testable implementation pass
-in an assigned job in an executable stage, read `operations.md`, call
-`ask_for_review` with that pass's completion menu appended to its concise
-capsule-delta report, then mirror the menu in normal client chat at the end of
-that turn, as `Ending a turn` says.
-The menu is selected by finish-state and whether the pass is task-based, not
-by stage; `operations.md` defines finished and the menus, and only the
+or resolves each first. A job gets one review, once every task you were asked
+to do in that assigned job, in an executable stage, is written and tested, not
+after each pass. A finished task not related enough to the rest of its job
+first moves into a job of its own for its own review, as `operations.md` says.
+Read `operations.md`, call `ask_for_review` with the completion menu appended
+to its concise capsule-delta report, then mirror the menu in normal client chat
+at the end of that turn, as `Ending a turn` says.
+The menu is selected by finish-state, not by stage; `operations.md` defines
+finished and the menus, and only the
 job-finished four-action menu carries Reviewable. The review is required and is
 never a selectable package action. This menu wait does not release a work claim
 or start lane-handoff discovery. For other testable review work, call
 `ask_for_review` with a concise capsule-delta report. Only one AI review may be
-open per job, so job and task capsule reviews are sequential.
+open per job.
 
 In Reviewable, inspect the author of the latest Reports comment:
 
@@ -443,9 +444,9 @@ confirmed; before then, do not apply this handoff checklist:
 - If `claim_work` is exposed and the lane's short code is claimed, release it
   per `claims.md`.
 - If blocked on a human, leave the exact dependency in Uclusion.
-- If testable, read `operations.md` and follow the review routing above. Any
-  implementation pass opens its review and mirrors the menu its completeness
-  selects before handing off. Retain its lane while waiting, then finish every
+- If testable, read `operations.md` and follow the review routing above. Once
+  the tasks you were asked to do are finished, open the review and mirror the
+  menu its completeness selects before handing off. Retain its lane while waiting, then finish every
   selected package action after a valid reply before work discovery.
 - If a standalone bug was resolved, read `operations.md` and `completion.md`,
   ensure the completion sweep for that resolution transition has run once, then

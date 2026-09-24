@@ -374,7 +374,9 @@ follow-ups, and anything a reviewer cannot reconstruct from the durable thread.
 ## 6. Request or perform review
 
 Before review, turn unfinished or deferred actionable work into suggestions and
-reference those suggestions in the report. For any testable implementation pass
+reference those suggestions in the report. While any suggestion in the job is
+open, its review carries no menu; `operations.md` says how the human converts
+or resolves each first. For any testable implementation pass
 in an assigned job in an executable stage, read `operations.md`, call
 `ask_for_review` with that pass's completion menu appended to its concise
 capsule-delta report, then mirror the menu in normal client chat at the end of

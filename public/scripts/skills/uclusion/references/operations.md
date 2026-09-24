@@ -54,8 +54,20 @@ pass that opened no tasks at all. State which conclusion you reached, and why,
 in the review, so a wrong call is visible in the record instead of surfacing
 later as a transition the platform refuses.
 
+Before writing any job's menu, also reload the job's open suggestions. No job
+package is offered while one is open: each is unfinished or deferred work, and
+moving the job to Reviewable resolves it, so the work is lost. When any is
+open, open the review with its report but no menu. End the report, and the
+chat copy that ends the turn, by naming each open suggestion, including those
+this pass created, and asking the human to convert it to a task or resolve it.
+Retain the lane, and end each later turn by naming the review and the
+suggestions still open. When a reload shows none open, rewrite the review with
+`update_review_short_code_id` to append the menu its conclusion now selects,
+since a converted suggestion is an open task, and print that menu at the end
+of the turn. A standalone bug holds no suggestions, so its menu is unaffected.
+
 End every implementation review report with the completion menu that conclusion
-selects. After `ask_for_review` returns the review code or link, print the same
+selects, unless the job has an open suggestion, as below. After `ask_for_review` returns the review code or link, print the same
 numbered menu in normal client chat and name that review, as the final content
 of that turn's last message: a menu printed earlier in the turn is buried by
 what follows it. The review

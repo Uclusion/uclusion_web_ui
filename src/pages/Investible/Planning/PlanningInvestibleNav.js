@@ -79,6 +79,8 @@ import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
 import PokeAIButton from '../../../components/Buttons/PokeAIButton';
 import useDoableStageGuard from '../../../components/AddNewWizards/JobStage/useDoableStageGuard';
 import { getUnresolvedAIQuestions } from '../../../utils/commentFunctions';
+import { nextStageDropdown } from '../../../utils/nextStageDropdown';
+import { updateComment } from '../../../api/comments';
 
 const useStyles = makeStyles(
   () => ({
@@ -699,14 +701,18 @@ export function MarketMetaData(props) {
   const [diffState] = useContext(DiffContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [messagesState] = useContext(NotificationsContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
   const diff = getDiff(diffState, investibleId);
-  const fullStagesFiltered = getStages(marketStagesState, marketId).filter((fullStage) => fullStage.id === stageId || 
+  const marketStages = getStages(marketStagesState, marketId);
+  const fullStagesFiltered = marketStages.filter((fullStage) => fullStage.id === stageId || 
   (!fullStage.move_on_comment && (isAssigned || _.isEmpty(assigned) || !isAcceptedStage(fullStage))));
+  const nextStage = (stagesInfo.isRequiresInput || stagesInfo.isInBlocked)
+    ? nextStageDropdown(getInvestibleComments(investibleId, marketId, commentsState), marketStages)
+    : undefined;
   const allowableStages = _.orderBy(fullStagesFiltered, (aStage) => {
     if (isFurtherWorkStage(aStage)) {
       return 0;
@@ -726,6 +732,20 @@ export function MarketMetaData(props) {
 
   function toggleDiffShow() {
     updatePageState({showDiff: !showDiff});
+  }
+
+  function changeCreationStage(stageId) {
+    if (!nextStage || stageId === nextStage.value) {
+      return;
+    }
+    setOperationRunning(true);
+    return Promise.all(nextStage.commentIds.map((commentId) => updateComment({
+      marketId, commentId, creationStageId: stageId,
+    }))).then((comments) => {
+      addMarketComments(commentsDispatch, marketId, comments);
+    }).finally(() => {
+      setOperationRunning(false);
+    });
   }
   const stageLink = formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId);
 
@@ -813,6 +833,7 @@ export function MarketMetaData(props) {
           <div style={{paddingTop: '1.2rem'}} />
         </>
       )}
+      <div style={{display: 'flex', gap: '1.5rem', flexWrap: 'wrap'}}>
       <FormControl>
         <b><FormattedMessage id={'allowedStagesDropdownLabel'}/></b>
         <Select
@@ -825,6 +846,23 @@ export function MarketMetaData(props) {
           })}
         </Select>
       </FormControl>
+      {nextStage && (
+        <FormControl>
+          <b><FormattedMessage id="nextStageDropdownLabel" /></b>
+          <Select
+            value={nextStage.value}
+            onChange={(event) => changeCreationStage(event.target.value)}
+            disabled={operationRunning !== false}
+          >
+            {nextStage.optionIds.map((optionId) => (
+              <MenuItem key={optionId} value={optionId}>
+                {marketStages.find((stage) => stage.id === optionId)?.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      )}
+      </div>
     </div>
   );
 }

@@ -484,6 +484,7 @@ const messages = defineMessages({
   planningNotDoingStageLabel: 'Skippable',
   planningBlockedStageLabel: 'Debatable',
   allowedStagesDropdownLabel: 'Stage',
+  nextStageDropdownLabel: 'Next stage',
   planningInvestibleAssignments: 'Assigned',
   requiredApprovers: 'Required approvers',
   addressed: 'Outside',

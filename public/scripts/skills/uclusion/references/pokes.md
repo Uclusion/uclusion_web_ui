@@ -216,7 +216,13 @@ with the parent after `of`, then locate the local item. The first load of a
 parent not yet read this session takes its whole scope. When that parent was
 already loaded, reload only the poked item, with `thread_only` for a comment
 parent or the covering `sections` for a job parent, instead of pulling the
-whole job again. Never globally load an inline option/local code by itself.
+whole job again. Never globally load a bare local code by itself.
+
+Codes inside a question repeat across questions, so reads render each one
+qualified by its question: `<question-code>_<local-code>`, such as
+`Q-all-1_O-1`. Cite that form. Any tool that takes a local code accepts it
+without `parent_question_short_code_id`, and `get_job` with it returns the
+question's thread.
 
 Added, Updated, and Responded are continuation events, not instructions to
 abandon or acquire work. Reload and incorporate matching assigned-lane state,

@@ -34,6 +34,7 @@ import { marketsContextHack } from '../../contexts/MarketsContext/MarketsContext
 import { commentsContextHack } from '../../contexts/CommentsContext/CommentsContext';
 import { MyLink } from './Utilities/LinkUtils';
 import { getLinkTargetName } from '../../utils/marketIdPathFunctions';
+import { listStart, ListStartKeyboard } from './Utilities/listStart';
 
 // https://github.com/derrickpelletier/react-loading-overlay/pull/57
 LoadingOverlay.propTypes = undefined;
@@ -49,6 +50,8 @@ Quill.register('modules/mention', QuillMention);
 Quill.register(CustomCodeBlock, true);
 Quill.register(MyLink);
 Quill.register(DividerBlot);
+Quill.register(listStart);
+Quill.register('modules/keyboard', ListStartKeyboard, true);
 // Custom toolbar formats render a blank button unless given an icon, so supply
 // one for the divider control here (once, at module load).
 const quillIcons = Quill.import('ui/icons');

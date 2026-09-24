@@ -7,6 +7,7 @@ import React from 'react'
 import Quill from 'quill'
 import matchTextPreservingSpaces from './matchTextPreservingSpaces';
 import matchTableHeaderCell from './matchTableHeaderCell';
+import { matchListStart } from './listStart';
 
 import { convertHTMLString } from '../ImageBlot';
 import { pushMessage } from '../../../utils/MessageBusUtils'
@@ -255,6 +256,7 @@ export function createEditor (id, editorContents, config, forceCreate) {
   const editor = new Quill(boxRef.current, editorOptions);
   editor.clipboard.addMatcher(Node.TEXT_NODE, matchTextPreservingSpaces);
   editor.clipboard.addMatcher('th', matchTableHeaderCell);
+  editor.clipboard.addMatcher('ol', matchListStart);
   if (isSetEditorContents) {
     // Unfortunately this will cause loss of focus
     editor.clipboard.dangerouslyPasteHTML(convertHTMLString(editorContents));

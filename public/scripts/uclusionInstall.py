@@ -2092,7 +2092,15 @@ def start_demo_supervisor(env, client, workspace_id, start_prompt, response_stat
           'exercise takes several minutes and needs nothing from anyone.')
     print(f'📝 `{cli} demo --result --wait` prints the evaluating agent\'s report once it is '
           'published. It returns within about 100 seconds either way, so repeat it until the '
-          'report appears.', flush=True)
+          'report appears.')
+    # S-Marketing-87: the prompt promises a removal that takes everything, so
+    # name the command that does, including what the client keeps outside.
+    kept = (
+        ', and the transcripts, task output and project entry Claude Code keeps for it'
+        if client == 'claude' else ''
+    )
+    print(f'🧹 `{cli} demo --remove` removes the demo: {uclusion_home_root()}{kept}.',
+          flush=True)
     return 0
 
 
@@ -2915,6 +2923,111 @@ def remove_demo_client_traces(env=None):
     return outcomes
 
 
+def _print_removal_outcomes(outcomes):
+    """Report each removal outcome; 1 when anything was left alone."""
+    status = 0
+    for state, detail in outcomes:
+        if state == 'removed':
+            print(f'  ✅ Removed {detail}')
+        elif state == 'absent':
+            print(f'  ⏭  Nothing to remove: {detail}')
+        else:
+            print(f'  ⚠️  Left alone: {detail}')
+            status = 1
+    return status
+
+
+# Claude Code names a project's folders after its path, and past this length
+# shortens the name with a hash of its own that removal cannot reproduce.
+CLAUDE_PROJECT_NAME_LIMIT = 200
+
+
+def claude_project_name(path):
+    """Claude Code's folder name for a project path, or None past its limit."""
+    name = re.sub(r'[^a-zA-Z0-9]', '-', path)
+    return name if len(name) <= CLAUDE_PROJECT_NAME_LIMIT else None
+
+
+def _claude_temp_roots():
+    """Where Claude Code may have put its per-user temp directory."""
+    roots = []
+    for root in (os.environ.get('CLAUDE_CODE_TMPDIR'), tempfile.gettempdir(), '/tmp'):
+        if root and os.path.abspath(root) not in roots:
+            roots.append(os.path.abspath(root))
+    return roots
+
+
+def _remove_claude_folder(folder, label):
+    if os.path.islink(folder) or not os.path.isdir(folder):
+        return 'kept', f'{folder}, which is not a plain directory'
+    try:
+        shutil.rmtree(folder)
+    except OSError as err:
+        return 'kept', f'{folder} ({err})'
+    return 'removed', f'{label} in {folder}'
+
+
+def _remove_demo_claude_project_entries(paths):
+    """Drop only the .claude.json project entries keyed by the demo home."""
+    path = CLAUDE_JSON_PATH
+    absent = ('absent', f'a project entry for the demo in {path}')
+    try:
+        target = _config_write_target(path)
+        existing, signature = _read_text_snapshot(target)
+        if signature is None or not existing.strip():
+            return absent
+        try:
+            config = json.loads(existing)
+        except json.JSONDecodeError as err:
+            return 'kept', f'{path}, which is not valid JSON: {err}'
+        projects = config.get('projects') if isinstance(config, dict) else None
+        keys = [key for key in paths if isinstance(projects, dict) and key in projects]
+        if not keys:
+            return absent
+        for key in keys:
+            del projects[key]
+        updated = json.dumps(config, indent=2) + '\n'
+        try:
+            with config_file_lock(path):
+                atomic_write_text(path, updated, existing, target, signature)
+        finally:
+            # The lock is ours by name and would otherwise be a new trace.
+            _remove_demo_config_lock(path)
+    except (OSError, RuntimeError) as err:
+        return 'kept', f'the demo\'s project entry in {path} ({err})'
+    return 'removed', f'the demo\'s project entry from {path}'
+
+
+def remove_demo_claude_session_traces(home):
+    """S-Marketing-87: take back what Claude Code kept for the demo home.
+
+    The demo's sessions run in its home, so Claude Code files their
+    transcripts, their task output and a project entry under that path, all
+    outside the home. Only names derived from this home's own path are touched.
+    """
+    paths = list(dict.fromkeys((home, os.path.realpath(home))))
+    names = [claude_project_name(path) for path in paths]
+    if None in names:
+        return [('kept', f'Claude Code\'s folders for {home}, whose name it '
+                         'shortens with a hash')]
+    uid = os.getuid() if hasattr(os, 'getuid') else 0
+    places = (
+        ('the demo sessions\' transcripts',
+         [os.path.join(CLAUDE_CONFIG_HOME, 'projects', name) for name in names]),
+        ('the demo sessions\' task output',
+         [os.path.join(root, f'claude-{uid}', name)
+          for root in _claude_temp_roots() for name in names]),
+    )
+    outcomes = []
+    for label, folders in places:
+        found = [folder for folder in dict.fromkeys(folders) if os.path.lexists(folder)]
+        outcomes.extend(_remove_claude_folder(folder, label) for folder in found)
+        if not found:
+            outcomes.append(('absent', label))
+    outcomes.append(_remove_demo_claude_project_entries(paths))
+    return outcomes
+
+
 def remove_demo_install(argv):
     """Undo the client-side traces, then hand the home to a staged copy."""
     env = argv[0] if argv else None
@@ -2927,15 +3040,7 @@ def remove_demo_install(argv):
         )
         return 1
     print(f'🧹 Removing the Uclusion demo installed under {home}.')
-    status = 0
-    for state, detail in remove_demo_client_traces(env):
-        if state == 'removed':
-            print(f'  ✅ Removed {detail}')
-        elif state == 'absent':
-            print(f'  ⏭  Nothing to remove: {detail}')
-        else:
-            print(f'  ⚠️  Left alone: {detail}')
-            status = 1
+    status = _print_removal_outcomes(remove_demo_client_traces(env))
     # Nothing records the sessions a run started, so removal has to look for
     # them. A session started against this home keeps its client and its
     # credentials inside it, and deleting underneath one does not fail
@@ -2953,6 +3058,8 @@ def remove_demo_install(argv):
             file=sys.stderr,
         )
         return 1
+    # Only now, with no session left to write them again.
+    status = _print_removal_outcomes(remove_demo_claude_session_traces(home)) or status
 
     # The rest of this process lives inside the directory it is about to
     # delete, so it continues from a copy outside it.

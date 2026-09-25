@@ -79,7 +79,8 @@ describe('doesCommentResolutionRestoreStage', () => {
     )).toBe(false);
   });
 
-  it('ignores an AI question created outside an executable lane', () => {
+  it('counts an open AI question whichever stage it was opened in', () => {
+    // B-all-673: like an assignee's question, it locks while the job is in a locking lane
     const currentQuestion = assistanceComment('current-question', humanUserId);
     const backlogAIQuestion = assistanceComment('backlog-ai-question', aiUserId);
     backlogAIQuestion.creation_stage_id = 'backlog-stage';
@@ -90,7 +91,23 @@ describe('doesCommentResolutionRestoreStage', () => {
       workflowAssigned,
       activePresences,
       stageContext
-    )).toBe(true);
+    )).toBe(false);
+  });
+
+  it('keeps an AI question created in Approvable as a blocker', () => {
+    // B-all-673: no one should approve a job while an AI question is open
+    const approvableStages = [...stages, { id: 'approvable-stage', name: 'Approvable', allows_investment: true }];
+    const currentQuestion = assistanceComment('current-question', humanUserId);
+    const approvableAIQuestion = assistanceComment('approvable-ai-question', aiUserId);
+    approvableAIQuestion.creation_stage_id = 'approvable-stage';
+
+    expect(doesCommentResolutionRestoreStage(
+      currentQuestion,
+      [currentQuestion, approvableAIQuestion],
+      workflowAssigned,
+      activePresences,
+      { stages: approvableStages, currentStage: stages[1], formerStageId: 'approvable-stage' }
+    )).toBe(false);
   });
 
   it('keeps an AI question as a blocker while stage context is unavailable', () => {

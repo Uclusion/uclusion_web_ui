@@ -208,14 +208,14 @@ marker as authoritative; do not infer authority from other metadata. Advisory
 input can change the AI's reasoning or vote and sends a Responded Poke, but
 cannot make the question answerable or unlock execution.
 
-An open AI-authored question created from Doable or Reviewable moves the job to
-Requires Input. A primary, non-advisory reply or vote makes it answerable, but
-the job stays locked until the AI calls `resolve`. A human may instead Resolve
-the question directly; that delegates the choice to the AI, does not silently
-select an option, and restores the prior executable stage. Record a new
-non-obvious delegated choice in the applicable capsule when writing it, or
-use `add_info` on the job/task only if missing from the durable thread. Do not
-reopen or write inside the resolved question.
+An open AI-authored question moves a job in Approvable, Doable or Reviewable to
+Requires Input, whichever stage the question was opened in. A primary,
+non-advisory reply or vote makes it answerable, but the job stays locked until
+the AI calls `resolve`. A human may instead Resolve the question directly; that
+delegates the choice to the AI, does not silently select an option, and restores
+the prior stage. Record a new non-obvious delegated choice in the applicable
+capsule when writing it, or use `add_info` on the job/task only if missing from
+the durable thread. Do not reopen or write inside the resolved question.
 
 Standalone AI-authored view-level questions have no advisory gate: any clear
 non-AI reply or Approvable For vote answers. AI votes never answer an

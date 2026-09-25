@@ -373,36 +373,21 @@ export function getWorkflowStageContext(marketStagesState, marketId, currentStag
   };
 }
 
-function aiQuestionWasOpenedForExecution(comment, stageContext) {
+function aiQuestionLaneLocks(stageContext) {
   if (!stageContext) {
     return true;
   }
   const { stages = [], currentStage = {}, formerStageId } = stageContext;
-  const isExecutable = (stage) => ['Doable', 'Reviewable'].includes(stage?.name);
-  const isRequiresInput = (stage) => stage?.move_on_comment && !stage?.allows_issues;
+  // B-all-673: like an assignee's question, an AI question locks whenever the job is in one of these
+  // lanes, whichever stage it was opened in. Approvable counts, since no one should approve with it open.
+  const locksOnAIQuestion = (stage) => ['Approvable', 'Doable', 'Reviewable'].includes(stage?.name);
   if (!currentStage.id) {
     // Stage definitions can arrive after comments. Conservatively keep the AI question as a
-    // blocker until sync supplies enough context to classify its creation lane.
+    // blocker until sync supplies enough context to classify the job's lane.
     return true;
   }
   const formerStage = stages.find((stage) => stage.id === formerStageId);
-  const laneIsExecutable = isExecutable(currentStage) ||
-    (currentStage.move_on_comment && isExecutable(formerStage));
-  if (!laneIsExecutable) {
-    return false;
-  }
-  const creationStageId = comment.creation_stage_id;
-  if (!creationStageId) {
-    return true;
-  }
-  if (creationStageId === currentStage.id) {
-    return isExecutable(currentStage) || isRequiresInput(currentStage);
-  }
-  if (creationStageId === formerStageId) {
-    return isExecutable(formerStage);
-  }
-  const creationStage = stages.find((stage) => stage.id === creationStageId);
-  return isExecutable(creationStage) || isRequiresInput(creationStage);
+  return locksOnAIQuestion(currentStage) || (currentStage.move_on_comment && locksOnAIQuestion(formerStage));
 }
 
 function getOpenWorkflowComments(comments, assigned, marketPresences, includeIssues = true, stageContext) {
@@ -414,7 +399,7 @@ function getOpenWorkflowComments(comments, assigned, marketPresences, includeIss
     ([QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type) &&
       (assigned || []).includes(comment.created_by)) ||
     (comment.comment_type === QUESTION_TYPE && aiUserIds.has(comment.created_by) &&
-      aiQuestionWasOpenedForExecution(comment, stageContext))
+      aiQuestionLaneLocks(stageContext))
   ));
 }
 

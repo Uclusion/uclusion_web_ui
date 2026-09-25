@@ -2638,6 +2638,8 @@ DEMO_NOTIFICATION_LOG = 'demo-notifications.log'
 DEMO_CURRENT_RUN_FILE = 'demo-current-run'
 DEMO_FAILURE_FILE = 'failure.txt'
 DEMO_SUPERVISOR_PID_FILE = 'supervisor.pid'
+DEMO_RUN_CHOICE_FILE = 'run-choice.json'
+DEMO_CLIENT_LABELS = {'claude': 'Claude Code', 'codex': 'Codex'}
 DEMO_CLIENT_ID_PREFIX = 'ai-demo:'
 # A push names its row as <NotificationEventType name>_<object id>. Type
 # names are upper case; object ids are lower-case UUIDs.
@@ -2866,6 +2868,24 @@ def demo_supervisor_alive(run_dir):
     return True
 
 
+def demo_run_choice_header(run_dir):
+    """S-Marketing-93: state the model and effort the person chose for this run.
+
+    The evaluator cannot see its own effort, so the installer's record of the
+    choice says it, above a report that stays as the evaluator wrote it.
+    """
+    try:
+        with open(os.path.join(run_dir, DEMO_RUN_CHOICE_FILE), encoding='utf-8') as handle:
+            choice = json.load(handle)
+    except (OSError, ValueError):
+        return None
+    if not isinstance(choice, dict) or not choice.get('model') or not choice.get('effort'):
+        return None
+    client = DEMO_CLIENT_LABELS.get(choice.get('client'), choice.get('client'))
+    return (f"Demo run: {client}, model {choice['model']}, effort {choice['effort']}, "
+            'as chosen by the person who ran it.\n')
+
+
 def cmd_demo_result(args):
     """S-Marketing-77: print the evaluating agent's published report; reads only files."""
     _api_url, _json_path, credentials_path = get_env_paths(args.env)
@@ -2891,6 +2911,9 @@ def cmd_demo_result(args):
     deadline = time.monotonic() + (DEMO_PROGRESS_WAIT_SECONDS if args.wait else 0)
     while True:
         if os.path.isfile(report):
+            header = demo_run_choice_header(run_dir)
+            if header:
+                print(header, flush=True)
             with open(report, 'rb') as handle:
                 sys.stdout.flush()
                 sys.stdout.buffer.write(handle.read())

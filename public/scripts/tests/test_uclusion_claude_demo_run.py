@@ -113,6 +113,15 @@ class ClaudeDemoRunTests(unittest.TestCase):
         self.assertTrue(prompt.startswith(f'Start J-Demo-1. {INSTALL.DEMO_SCRIPTED_OWNER}\n\n'))
         self.assertTrue(prompt.endswith(INSTALL.DEMO_SCRIPT_SEPARATION))
 
+    def test_both_sessions_run_at_the_person_s_choice(self):
+        # S-Marketing-93: they pay for the run, so the choice holds for both.
+        self.evaluator_turn = lambda: self.report_path().write_text('Report')
+        self.assertEqual(self.run_demo(model='opus', effort='xhigh'), 0)
+        for command, _kwargs in self.launches:
+            self.assertEqual(['--model', 'opus', '--effort', 'xhigh'], command[-4:])
+        prompt = (self.report_path().parent / 'evaluator-input.md').read_text()
+        self.assertIn(INSTALL.DEMO_EFFORT_NOTE, prompt)
+
     def test_what_the_session_says_after_publishing_is_not_the_report(self):
         def publish_then_wake():
             self.report_path().write_text('The evaluation')

@@ -364,6 +364,7 @@ class DemoHomeTests(unittest.TestCase):
     def test_demo_mode_accepts_a_statistics_path_and_nothing_else_new(self):
         result, output = self.demo_guard(
             'stage', 'demo', '--clients', 'claude',
+            '--model', 'opus', '--effort', 'xhigh',
             '--response-stats', '/tmp/eval.jsonl',
         )
         self.assertEqual(1, result)

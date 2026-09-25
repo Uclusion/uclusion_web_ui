@@ -97,6 +97,21 @@ class CodexDemoRunTests(unittest.TestCase):
         self.assertTrue(prompt.startswith(f'Start J-Demo-1. {INSTALL.DEMO_SCRIPTED_OWNER}\n\n'))
         self.assertTrue(prompt.endswith(INSTALL.DEMO_SCRIPT_SEPARATION))
 
+    def test_both_sessions_run_at_the_person_s_choice(self):
+        # S-Marketing-93: they pay for the run, so the choice holds for both.
+        self.terminal.drain.side_effect = lambda: self.report.write_bytes(b'Report\n')
+        self.assertEqual(self.run_demo(model='gpt-6', effort='high'), 0)
+        choice = ['-m', 'gpt-6', '-c', 'model_reasoning_effort="high"']
+        owner_command = next(
+            call.args[0] for call in reversed(INSTALL.subprocess.Popen.call_args_list)
+            if call.args[0][:2] == ['codex', 'exec']
+        )
+        evaluator_command = self.commands[-1]
+        for command in (owner_command[:-1], evaluator_command[:-1]):
+            self.assertEqual(choice, command[-4:])
+        prompt = (self.report.parent / 'evaluator-input.md').read_text()
+        self.assertIn(INSTALL.DEMO_EFFORT_NOTE, prompt)
+
     def test_draft_and_previous_run_do_not_signal_completion(self):
         old = self.home / '.uclusion/demo-runs/old/evaluation.md'
         old.parent.mkdir(parents=True)

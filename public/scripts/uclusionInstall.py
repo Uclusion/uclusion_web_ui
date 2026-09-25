@@ -162,7 +162,7 @@ SCRIPT_FILES = (
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCLI.py':
-        '3c26e93bf9b4f076c91e97c66c05c6111c1bc4f8fb9d9cc1a858d15e7ab2fa86',
+        '7a0e5ce672f1de0d24d469950eb211b774bf90545c253f31c927aa995e72ba80',
     'uclusionMCPProxy.py':
         '474d2a2c96aeea97689331f47107ab5aea78662be25de650b4cb5ef9d071bb53',
     'uclusionSetupMCP.py':
@@ -2033,9 +2033,36 @@ DEMO_SCRIPTED_OWNER = (
 DEMO_SCRIPT_SEPARATION = (
     ' Keep what Uclusion did apart from what the scripted owner supplied.'
 )
+# S-Marketing-93: the person running the demo pays for it, so they choose the
+# model and effort both sessions run at, and nothing is read from their own
+# settings. A session cannot see its own effort, so the run states it instead.
+DEMO_RUN_CHOICE_FILE = 'run-choice.json'
+DEMO_EFFORT_NOTE = (
+    'Do not state an effort level in your records or your report: you cannot '
+    'see yours, and the demo reports the model and effort this run used.'
+)
 
 
-def start_demo_supervisor(env, client, workspace_id, start_prompt, response_stats=None):
+def demo_choice_args(client, model, effort):
+    """The launch options that hold a demo session to the person's choice."""
+    arguments = []
+    if client == 'codex':
+        if model:
+            arguments.extend(['-m', model])
+        if effort:
+            arguments.extend([
+                '-c', 'model_reasoning_effort=' + _toml_basic_string(effort),
+            ])
+        return arguments
+    if model:
+        arguments.extend(['--model', model])
+    if effort:
+        arguments.extend(['--effort', effort])
+    return arguments
+
+
+def start_demo_supervisor(env, client, workspace_id, start_prompt, response_stats=None,
+                          model=None, effort=None):
     """S-Marketing-77: start the exercise detached and return.
 
     A prospect's agent that ran this command in the foreground waited out the
@@ -2048,10 +2075,12 @@ def start_demo_supervisor(env, client, workspace_id, start_prompt, response_stat
     shutil.copyfile(os.path.abspath(__file__), supervisor)
     with open(demo_current_run_path(), 'w', encoding='utf-8') as handle:
         handle.write(run_dir)
+    with open(os.path.join(run_dir, DEMO_RUN_CHOICE_FILE), 'w', encoding='utf-8') as handle:
+        json.dump({'client': client, 'model': model, 'effort': effort}, handle)
     with open(os.path.join(run_dir, 'supervisor.log'), 'wb') as log:
         process = subprocess.Popen(
             [sys.executable, supervisor, DEMO_SUPERVISE_MODE, env, client, workspace_id, run_dir,
-             start_prompt, response_stats or ''],
+             start_prompt, response_stats or '', model or '', effort or ''],
             cwd=uclusion_home_root(), stdin=subprocess.DEVNULL, stdout=log,
             stderr=subprocess.STDOUT, start_new_session=True,
         )
@@ -2069,11 +2098,12 @@ def start_demo_supervisor(env, client, workspace_id, start_prompt, response_stat
 
 def supervise_demo(argv):
     """The detached half of the demo command: run the exercise to its end."""
-    env, client, workspace_id, run_dir, start_prompt, response_stats = argv
+    env, client, workspace_id, run_dir, start_prompt, response_stats, model, effort = argv
     runner = run_codex_demo if client == 'codex' else run_claude_demo
     try:
         return runner(env, workspace_id, start_prompt,
-                      response_stats=response_stats or None, run_dir=run_dir)
+                      response_stats=response_stats or None, run_dir=run_dir,
+                      model=model or None, effort=effort or None)
     except (OSError, RuntimeError) as error:
         message = f'Could not start the demo: {error}. Records: {run_dir}.'
         record_demo_failure(run_dir, message)
@@ -2081,14 +2111,18 @@ def supervise_demo(argv):
         return 1
 
 
-def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir=None):
+def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir=None,
+                   model=None, effort=None):
     """Supervise the ordinary owner and bridged evaluator until publication."""
     run_dir = run_dir or new_demo_run_dir()
     report_path = os.path.join(run_dir, 'evaluation.md')
     environment = demo_codex_environment()
     environment['TERM'] = 'xterm-256color'
     environment['UCLUSION_DEMO_REPORT_FILE'] = report_path
-    session_args = demo_codex_session_args(env, workspace_id)
+    session_args = (
+        demo_codex_session_args(env, workspace_id)
+        + demo_choice_args('codex', model, effort)
+    )
     evaluator_command = demo_codex_cli_args(env)
     if response_stats:
         evaluator_command.extend(['--response-stats', response_stats])
@@ -2100,7 +2134,7 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
         'Poke listener or drain. Keep working until the brief says to stop.\n'
     )
     evaluator_prompt = (
-        f'{start_prompt} {DEMO_SCRIPTED_OWNER}\n\n'
+        f'{start_prompt} {DEMO_SCRIPTED_OWNER}\n\n{DEMO_EFFORT_NOTE}\n\n'
         'After presenting your completion package, wait for the owner\'s '
         'selection on the review and handle it through the normal workflow. '
         'Do not begin the evaluation merely because you presented the package. '
@@ -2192,7 +2226,8 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
         return 1
 
 
-def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_dir=None):
+def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_dir=None,
+                    model=None, effort=None):
     """Supervise the Claude owner and evaluator until the evaluator publishes.
 
     S-Marketing-73: the report is the file the evaluator publishes with
@@ -2207,10 +2242,11 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_di
     # ordering and cleanup can live in one place. A session already running
     # cannot acquire --mcp-config or --plugin-dir, which is why these have to
     # be new processes.
-    session_args = demo_session_args(env)
+    choice_args = demo_choice_args('claude', model, effort)
+    session_args = demo_session_args(env) + choice_args
     evaluator_session_args = demo_session_args(
         env, write_demo_evaluator_mcp_config(response_stats),
-    )
+    ) + choice_args
     # Only the evaluator is given the report destination; the owner has
     # nothing to publish.
     evaluator_environment = dict(os.environ)
@@ -2230,7 +2266,7 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_di
     # The ask lives here rather than reaching it later as a Poke so that the
     # published evaluation is the evaluator's last act.
     evaluator_prompt = (
-        f'{start_prompt} {DEMO_SCRIPTED_OWNER}\n\n'
+        f'{start_prompt} {DEMO_SCRIPTED_OWNER}\n\n{DEMO_EFFORT_NOTE}\n\n'
         'After presenting your completion package, wait for the owner\'s '
         'selection on the review and handle it through the normal workflow. '
         'Do not begin the evaluation merely because you presented the package. '
@@ -5287,6 +5323,16 @@ def build_parser():
     )
     parser.set_defaults(response_stats=None)
     parser.add_argument(
+        '--model',
+        help='Demo mode only, and required there: the model both demo sessions '
+             'run at, as the person running the demo chose it.',
+    )
+    parser.add_argument(
+        '--effort',
+        help='Demo mode only, and required there: the effort level both demo '
+             'sessions run at, as the person running the demo chose it.',
+    )
+    parser.add_argument(
         '--force',
         action='store_true',
         help='Change token audit or work claims on an existing install without '
@@ -5935,6 +5981,8 @@ def main():
     bootstrap_mode = (
         workspace_id if workspace_id in ('setup', 'demo') else None
     )
+    if bootstrap_mode != 'demo' and (args.model is not None or args.effort is not None):
+        parser.error('--model and --effort only go with demo mode')
     if bootstrap_mode is not None:
         mode = bootstrap_mode
         if view_id is not None:
@@ -5962,7 +6010,7 @@ def main():
             args.script_version is not None,
         )):
             allowed = (
-                '--clients and optional --response-stats PATH'
+                '--clients, --model, --effort and optional --response-stats PATH'
                 if mode == 'demo' else '--clients and optional --project'
             )
             parser.error(
@@ -5973,6 +6021,18 @@ def main():
                 'demo mode always uses its disposable home and does not '
                 'accept --project'
             )
+        if mode == 'demo':
+            missing = [
+                option for option, value in (
+                    ('--model', args.model), ('--effort', args.effort),
+                ) if not (value or '').strip()
+            ]
+            if missing:
+                parser.error(
+                    'demo mode requires ' + ' and '.join(missing) + '. Ask the '
+                    'person running the demo which model and effort level both '
+                    'of its sessions should use: they pay for the run.'
+                )
         try:
             setup_client = next(iter(clients))
             if mode == 'demo':
@@ -6150,6 +6210,7 @@ def main():
             return start_demo_supervisor(
                 env, setup_client, workspace_id, start_prompt,
                 response_stats=args.response_stats,
+                model=args.model.strip(), effort=args.effort.strip(),
             )
         except OSError as error:
             print(f'❌ Could not start the demo: {error}')

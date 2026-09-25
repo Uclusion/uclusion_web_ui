@@ -5,7 +5,7 @@
 # Usage:
 #   install.sh <workspaceId> <viewId> [environment] [--project] [--clients claude,cursor,codex]
 #   install.sh setup [environment] --clients <claude|cursor|codex> [--project]
-#   install.sh demo [environment] --clients <claude|codex>
+#   install.sh demo [environment] --clients <claude|codex> --model <model> --effort <level>
 #
 # Extra flags after the positional arguments are forwarded to uclusionInstall.py;
 # --clients makes the install non-interactive and --project configures the
@@ -25,7 +25,7 @@ if [ "$#" -gt 0 ] && { [ "$1" = "setup" ] || [ "$1" = "demo" ]; }; then
 elif [ "$#" -lt 2 ]; then
   echo "Usage: $0 <workspaceId> <viewId> [environment] [--project] [--clients claude,cursor,codex] [--force]" >&2
   echo "       $0 setup [environment] --clients <claude|cursor|codex> [--project]" >&2
-  echo "       $0 demo [environment] --clients <claude|codex>" >&2
+  echo "       $0 demo [environment] --clients <claude|codex> --model <model> --effort <level>" >&2
   echo "  environment: dev | stage | production (default: production)" >&2
   exit 64
 fi

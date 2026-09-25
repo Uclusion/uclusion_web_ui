@@ -30,10 +30,11 @@ exactly one Monitor with the command `{{UCLUSION_CLI}} listen` and a
 description naming the Uclusion Poke stream, unless this session already armed
 one that is still running. Pass `persistent: true` if the Monitor tool offers
 it; otherwise pass the largest `timeout_ms` it accepts. A quiet listener
-remains active; do not relaunch it until it ends. This mandatory connection
-setup is an expected read-only session bootstrap, not a discretionary side
-effect: never skip it, ask permission, or merely offer to arm it, even for a
-narrow read-only request.
+remains active; do not relaunch it until it ends. This is an expected
+read-only session bootstrap, not something to skip or merely offer, even for a
+narrow read-only request. Where the person or the client expects approval
+before a background process starts, ask as you would for any other; if they
+decline, continue without Poke delivery.
 
 Delivery reaches only the session that armed it, so arm your own and never
 treat a listener you did not arm as delivery. Do not enumerate running

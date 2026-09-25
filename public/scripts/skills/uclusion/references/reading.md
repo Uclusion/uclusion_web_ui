@@ -46,17 +46,16 @@ changes arrive as Pokes, so handle those instead of rereading the job.
 
 ## Standing instructions by view
 
-Job reads, including job-child threads, identify the workspace and view by
-stable IDs and list current standing-note R-codes and versions, or explicitly
-say the inventory is empty. Treat the listed notes as standing instructions.
+Job reads, including job-child threads, list the view's current standing-note
+R-codes and versions, or explicitly say the inventory is empty. Treat the listed notes as standing instructions.
 Before work in that view, fetch each listed version whose complete body is not
 in the current context with an explicit R-code thread read. It returns the
 note body and its actual version.
 
-Track the inventory by workspace/view identity in the current context. Reuse
-complete current notes across jobs in the same view. On a different view or
-changed inventory, fetch missing or changed notes and stop applying removed
-entries. If a fetch returns a newer version, use the complete returned version.
+Track the notes by R-code and version in the current context. Reuse a note
+whose listed version you hold in full, on any job that lists it. Fetch a listed
+note you lack or hold only at an older version, and stop applying a note no
+longer listed. If a fetch returns a newer version, use the complete returned version.
 Note edits do not wake the agent themselves; the next relevant read advertises
 them. There is no backend session cache.
 

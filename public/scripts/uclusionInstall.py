@@ -340,7 +340,7 @@ WORKFLOW_ASSET_PATHS = {
 # These digests bind the installer to one coherent workflow release. A host
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
-    'reading_reference': '3a0ff818454987caec4b1ca04678cc188508483f490ac750823c2009d4699b1d',
+    'reading_reference': '00c380dde70c2398302cc54f926a09f363cbc8d6b40bc7a03c5f265665bb6ed3',
     'demo_brief': '0b7f19753523dcedb2327d4edd97dd15253c0ca1e41aba010db7363a7856cce4',
     'claude_stub': 'c61be5b45daef4568f42d3e3ddc0f996c94953fb1a7c6928d151cf2622e90deb',
     'codex_stub': '7cc3b75aa1b7af3799e47962d7ce2beb43b4a8f52541bb571c0dc968eb808336',

@@ -2459,18 +2459,24 @@ def request_demo_json(url, payload):
 
 
 def provision_demo(env):
-    """Allocate a demo and wait for the ordinary client's workspace details."""
-    demo_id = str(uuid.uuid4())
+    """Allocate a demo and wait for the ordinary client's workspace details.
+
+    J-Marketing-43: the service hands out a demo it built in advance, so it names
+    the demo. Only the verifier's challenge goes out; the id comes back.
+    """
     verifier = secrets.token_urlsafe(32)
     challenge = base64.urlsafe_b64encode(
         hashlib.sha256(verifier.encode('ascii')).digest()
     ).decode('ascii').rstrip('=')
     base_url = f'https://sso.{get_api_base_url(env)}/ai-demo'
-    status, result = request_demo_json(base_url, {
-        'demo_id': demo_id,
-        'code_challenge': challenge,
-    })
-    if status not in (200, 202) or result.get('demo_id') != demo_id:
+    status, result = request_demo_json(base_url, {'code_challenge': challenge})
+    demo_id = result.get('demo_id') if isinstance(result, dict) else None
+    try:
+        if not isinstance(demo_id, str) or str(uuid.UUID(demo_id)) != demo_id:
+            raise ValueError(demo_id)
+    except ValueError:
+        demo_id = None
+    if status not in (200, 202) or demo_id is None:
         raise RuntimeError('the demo could not be allocated; start a fresh demo')
 
     print('⏳ Preparing the demo workspace...')

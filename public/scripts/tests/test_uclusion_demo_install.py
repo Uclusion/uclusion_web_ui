@@ -420,51 +420,56 @@ class DemoHomeTests(unittest.TestCase):
 
 
 class DemoProvisionTests(unittest.TestCase):
-    def test_provision_polls_until_ready(self):
-        ready = {
-            'demo_id': 'ignored until assigned',
-            'state': 'READY',
-            'workspace_id': 'workspace-1',
-            'view_id': 'view-1',
-            'client_id': (
-                'ai-demo:11111111-1111-4111-8111-111111111111:human_account-1'
-            ),
-            'starting_job_short_codes': ['J-Demo-1'],
-        }
+    DEMO_ID = '11111111-1111-4111-8111-111111111111'
+    READY = {
+        'demo_id': DEMO_ID,
+        'state': 'READY',
+        'workspace_id': 'workspace-1',
+        'view_id': 'view-1',
+        'client_id': 'ai-demo:11111111-1111-4111-8111-111111111111:human_account-1',
+        'starting_job_short_codes': ['J-Demo-1'],
+    }
 
-        def request(_url, payload):
+    def provision(self, start_state, polls_before_ready):
+        """Run provision_demo against a fake service; return the result and every request."""
+        sent = []
+
+        def request(url, payload):
+            sent.append((url, payload))
             if 'code_challenge' in payload:
-                return 202, {
-                    'demo_id': request.demo_id,
-                    'state': 'PROVISIONING',
-                }
-            if request.calls == 0:
-                request.calls += 1
-                return 202, {
-                    'demo_id': request.demo_id,
-                    'state': 'PROVISIONING',
-                    'retry_after_seconds': 0,
-                }
-            return 200, {**ready, 'demo_id': request.demo_id}
+                return (200 if start_state == 'READY' else 202), {'demo_id': self.DEMO_ID, 'state': start_state}
+            if request.polls < polls_before_ready:
+                request.polls += 1
+                return 202, {'demo_id': self.DEMO_ID, 'state': 'PROVISIONING', 'retry_after_seconds': 0}
+            return 200, dict(self.READY)
 
-        request.calls = 0
-        request.demo_id = None
-
-        def capture_uuid():
-            value = '11111111-1111-4111-8111-111111111111'
-            request.demo_id = value
-            return value
-
-        with mock.patch.object(
-            INSTALL.uuid, 'uuid4', side_effect=capture_uuid
-        ), mock.patch.object(
-            INSTALL, 'request_demo_json', side_effect=request
-        ), mock.patch.object(INSTALL.time, 'sleep') as sleep:
+        request.polls = 0
+        with mock.patch.object(INSTALL, 'request_demo_json', side_effect=request), \
+                mock.patch.object(INSTALL.time, 'sleep') as sleep:
             result = INSTALL.provision_demo('stage')
+        return result, sent, sleep
 
+    def test_start_sends_only_the_challenge_and_uses_the_assigned_id(self):
+        """J-Marketing-43: the service names a pre-built demo, so the installer does not."""
+        result, sent, sleep = self.provision('READY', 0)
+        start_url, start_payload = sent[0]
+        self.assertEqual({'code_challenge'}, set(start_payload))
+        self.assertEqual(f'{start_url}/{self.DEMO_ID}/status', sent[1][0])
         self.assertEqual(result['workspace_id'], 'workspace-1')
-        self.assertEqual(result['client_id'], ready['client_id'])
+        self.assertEqual(result['client_id'], self.READY['client_id'])
+        sleep.assert_not_called()
+
+    def test_empty_pool_still_polls_until_ready(self):
+        result, _sent, sleep = self.provision('PROVISIONING', 1)
+        self.assertEqual(result['workspace_id'], 'workspace-1')
         sleep.assert_called_once_with(0.25)
+
+    def test_a_start_reply_without_a_valid_demo_id_is_refused(self):
+        for reply in ({'state': 'READY'}, {'demo_id': 'not-a-uuid', 'state': 'READY'}):
+            with self.subTest(reply=reply), \
+                    mock.patch.object(INSTALL, 'request_demo_json', return_value=(200, reply)), \
+                    self.assertRaises(RuntimeError):
+                INSTALL.provision_demo('stage')
 
     def test_credentials_use_the_ready_client_id_and_public_demo_secret(self):
         with tempfile.TemporaryDirectory() as directory, mock.patch.object(

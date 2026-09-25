@@ -72,7 +72,8 @@ function AddCommentStep (props) {
   const inAssistanceStage = [requiresInputStage.id, blockingStage.id].includes(currentStageId);
   const inFurtherWorkStage = currentStageId === furtherWorkStage.id;
   const investibleComments = getInvestibleComments(investibleId, marketId, commentState);
-  const comments = useType === TODO_TYPE ? investibleComments?.filter((comment) =>
+  // B-all-675: a task made from an option is about that one option, so the job's other tasks don't show
+  const comments = useType === TODO_TYPE && !decisionInvestibleId ? investibleComments?.filter((comment) =>
     [TODO_TYPE, REPLY_TYPE].includes(comment.comment_type)) : undefined;
   const { useCompression } = formData;
   const isResolve = !_.isEmpty(resolveId);
@@ -138,6 +139,9 @@ function AddCommentStep (props) {
       });
   }
 
+  // B-all-675: a task from an option keeps its own draft. The job's shared task draft - even one left
+  // empty by the last task added - is stored state, which the editor prefers to the prefilled option link.
+  const draftName = `jobComment${useType}${decisionInvestibleId || ''}`;
   const movingJob = isAssistance && !inAssistanceStage && userIsAssigned;
   const optionUrl = `${formInvestibleLink(marketId, investibleId)}#option${decisionInvestibleId}`;
   const titleByType = {
@@ -280,7 +284,7 @@ function AddCommentStep (props) {
         fromInvestibleId={investibleId}
         fromDecisionInvestibleId={decisionInvestibleId}
         onSave={onSave}
-        nameDifferentiator={`jobComment${useType}`}
+        nameDifferentiator={draftName}
       />
     </WizardStepContainer>
   );

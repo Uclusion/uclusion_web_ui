@@ -4521,6 +4521,10 @@ def build_parser():
         help='Existing task to move out of its current job into the new job. Repeat for multiple tasks.',
     )
     add_job_parser.add_argument(
+        '--suggestion-short-code-id', action='append', dest='suggestion_short_code_ids',
+        help='Existing view level suggestion to move into the new job. Repeat for multiple suggestions.',
+    )
+    add_job_parser.add_argument(
         '--view-short-code-id', help='Existing job or bug whose view receives the job.',
     )
     configure_mcp_parser(
@@ -4532,6 +4536,7 @@ def build_parser():
             mcp_field('tasks', 'tasks'),
             mcp_field('bug_short_code_ids', 'bug_short_code_ids'),
             mcp_field('task_short_code_ids', 'task_short_code_ids'),
+            mcp_field('suggestion_short_code_ids', 'suggestion_short_code_ids'),
             mcp_field('view_short_code_id', 'view_short_code_id'),
         ),
         ('name', 'description'),

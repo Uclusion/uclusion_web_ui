@@ -47,5 +47,24 @@ class AddJobCLITestCase(unittest.TestCase):
                 self.assertEqual('Added job\n', output.getvalue())
 
 
+    def test_optional_suggestion_ids_forward(self):
+        # J-all-477
+        credentials = {'api_url': 'stage.example.com', 'api_token': 'test-token'}
+        command = ['add_job', '--name', 'Demo follow-ups', '--description', 'Gathered suggestions.',
+                   '--suggestion-short-code-id', 'S-example-1', '--suggestion-short-code-id', 'S-example-2']
+        args = cli.build_parser().parse_args(command)
+        result = {'content': [{'type': 'text', 'text': 'Added job'}]}
+        with mock.patch.object(
+            cli, 'initialize', return_value=(credentials, {}, {})
+        ), mock.patch.object(
+            cli, 'call_mcp_tool', return_value=result
+        ) as call_tool, redirect_stdout(io.StringIO()):
+            self.assertEqual(0, args.func(args))
+        call_tool.assert_called_once_with(credentials, 'add_job', {
+            'name': 'Demo follow-ups', 'description': 'Gathered suggestions.',
+            'suggestion_short_code_ids': ['S-example-1', 'S-example-2'],
+        })
+
+
 if __name__ == '__main__':
     unittest.main()

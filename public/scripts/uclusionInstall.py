@@ -1866,6 +1866,10 @@ def demo_session_args(env, mcp_config=None):
         # command substitution cannot be analysed statically, so an agent
         # asked to run that line has it refused.
         '--append-system-prompt-file', demo_bootstrap_path(),
+        # S-Marketing-92: text output is written only when a turn ends, and
+        # the supervisor stops both sessions before theirs do, so their logs
+        # stayed empty. Streamed output lands in them as it happens.
+        '--output-format', 'stream-json', '--verbose',
         '--allowedTools',
         f'mcp__{MCP_SERVER_KEY}__*',
         f'Bash({demo_cli}:*)',

@@ -232,6 +232,13 @@ class DemoHomeTests(unittest.TestCase):
         self.assertIn("'evaluator.log'", source)
         self.assertNotIn('stdout=subprocess.DEVNULL', source)
 
+    def test_the_sessions_write_their_logs_as_they_go(self):
+        # S-Marketing-92: text output arrives only when a turn ends, which the
+        # supervisor never lets either session reach, so both logs stayed empty.
+        args = INSTALL.demo_session_args('stage')
+        self.assertEqual('stream-json', args[args.index('--output-format') + 1])
+        self.assertIn('--verbose', args)
+
     def test_a_demo_can_be_installed_without_running_the_exercise(self):
         # Installing and running are one command now, so without this the
         # pre-flight would have to spend an exercise to get a home to check.

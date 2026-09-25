@@ -3271,8 +3271,12 @@ def _project_ancestor_dirs(start_dir):
     belonging to the current project.
     """
     start_dir = os.path.realpath(os.path.abspath(start_dir))
+    # S-all-338: the home directory's project paths are the global install's,
+    # so the home directory is never a project root of its own.
+    home = os.path.realpath(os.path.expanduser('~'))
     boundary = _repository_root(start_dir)
-    yield start_dir
+    if start_dir != home:
+        yield start_dir
     if boundary is None:
         return
     current = start_dir
@@ -3285,7 +3289,8 @@ def _project_ancestor_dirs(start_dir):
         if parent == current or not inside_boundary:
             return
         current = parent
-        yield current
+        if current != home:
+            yield current
 
 
 def get_project_install_root(env=None, start_dir=None):

@@ -162,7 +162,7 @@ SCRIPT_FILES = (
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCLI.py':
-        '127a59ea6da84a56cf6e41e983d200028f3b094dc81f6a6dd30cf296f95fb797',
+        '3c26e93bf9b4f076c91e97c66c05c6111c1bc4f8fb9d9cc1a858d15e7ab2fa86',
     'uclusionMCPProxy.py':
         '474d2a2c96aeea97689331f47107ab5aea78662be25de650b4cb5ef9d071bb53',
     'uclusionSetupMCP.py':
@@ -3398,10 +3398,31 @@ def configure_claude_token_audit(settings_path, enabled, environment,
             remove_owned_values()
             source = 'transcript'
             next_owned = {}
-            print(
-                "  ℹ️  Preserving existing Claude telemetry policy; "
-                "using transcript fallback."
+            foreign = [
+                key for key in (env if isinstance(env, dict) else {})
+                if _is_claude_token_audit_policy_key(key)
+            ] + [key for key in CLAUDE_TOKEN_AUDIT_SETTINGS_POLICY_KEYS
+                 if key in config]
+            stray_port = (
+                _loopback_logs_port(env.get('OTEL_EXPORTER_OTLP_LOGS_ENDPOINT'))
+                if env_is_object and foreign == ['OTEL_EXPORTER_OTLP_LOGS_ENDPOINT']
+                else None
             )
+            if stray_port is not None and stray_port != port:
+                # S-all-338: a lone endpoint shaped like ours is most likely
+                # left over from an earlier install, not a policy of the user's.
+                print(
+                    "  ⚠️  Claude settings set OTEL_EXPORTER_OTLP_LOGS_ENDPOINT="
+                    f"{env['OTEL_EXPORTER_OTLP_LOGS_ENDPOINT']}, which is not "
+                    f"Uclusion's receiver (port {port}), so usage will be read "
+                    "from the transcript. Remove that key and run "
+                    "`uclusion update` again to use OpenTelemetry instead."
+                )
+            else:
+                print(
+                    "  ℹ️  Preserving existing Claude telemetry policy; "
+                    "using transcript fallback."
+                )
         else:
             source = 'otel'
             next_owned = claude_token_audit_env(port)
@@ -3449,6 +3470,121 @@ def configure_claude_token_audit(settings_path, enabled, environment,
     if not available:
         result['available'] = False
     return result
+
+
+HOME_PROJECT_MCP_JSON_PATH = os.path.join(USER_HOME, '.mcp.json')
+HOME_PROJECT_CLAUDE_SETTINGS_PATH = os.path.join(
+    USER_HOME, '.claude', 'settings.local.json'
+)
+
+
+def is_home_directory(path):
+    """S-all-338: whether ``path`` is the user's home directory."""
+    return os.path.realpath(path) == os.path.realpath(USER_HOME)
+
+
+def project_dir_or_global(project_dir):
+    """A project install in the home directory is the global install.
+
+    The home directory's project paths are the global ones, or sit beside them
+    where Claude Code prefers them: its skills are the global skills, while
+    ~/.mcp.json and ~/.claude/settings.local.json would add a second
+    registration and a second token-audit setup (S-all-338, Q-all-783).
+    """
+    if project_dir is not None and is_home_directory(project_dir):
+        print(f"ℹ️  {project_dir} is your home directory, so this is the "
+              "global install.")
+        return None
+    return project_dir
+
+
+def _loopback_logs_port(value):
+    """The port of a localhost OTel logs endpoint of the form Uclusion writes."""
+    if not isinstance(value, str):
+        return None
+    match = re.fullmatch(r'http://127\.0\.0\.1:(\d+)/v1/logs', value)
+    return int(match.group(1)) if match else None
+
+
+def _remove_home_project_registration():
+    """Drop the Uclusion server from ~/.mcp.json, and the file if that empties it."""
+    path = HOME_PROJECT_MCP_JSON_PATH
+    target = _config_write_target(path)
+    existing, signature = _read_text_snapshot(target)
+    if signature is None or not existing.strip():
+        return None
+    try:
+        config = json.loads(existing)
+    except json.JSONDecodeError:
+        return None
+    servers = config.get('mcpServers') if isinstance(config, dict) else None
+    if not isinstance(servers, dict) or MCP_SERVER_KEY not in servers:
+        return None
+    del servers[MCP_SERVER_KEY]
+    if not servers:
+        config.pop('mcpServers', None)
+    if not config:
+        os.remove(path)
+        return f'{path}, which held only the Uclusion MCP server'
+    updated = json.dumps(config, indent=2) + '\n'
+    with config_file_lock(path):
+        atomic_write_text(path, updated, existing, target, signature)
+    return f'the Uclusion MCP server from {path}'
+
+
+def _remove_home_project_token_audit():
+    """Drop Uclusion's audit hooks and exactly matching telemetry values."""
+    path = HOME_PROJECT_CLAUDE_SETTINGS_PATH
+    target = _config_write_target(path)
+    existing, signature = _read_text_snapshot(target)
+    if signature is None or not existing.strip():
+        return None
+    try:
+        config = json.loads(existing)
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(config, dict):
+        return None
+    changed = False
+    hooks = config.get('hooks')
+    if isinstance(hooks, dict):
+        before = json.dumps(hooks, sort_keys=True)
+        _remove_claude_token_audit_hooks(hooks)
+        if json.dumps(hooks, sort_keys=True) != before:
+            changed = True
+            if not hooks:
+                config.pop('hooks', None)
+    env = config.get('env')
+    if isinstance(env, dict):
+        port = _loopback_logs_port(env.get('OTEL_EXPORTER_OTLP_LOGS_ENDPOINT'))
+        owned = claude_token_audit_env(port) if port is not None else {}
+        # Only a complete, unedited copy of what Uclusion writes is Uclusion's.
+        if owned and all(env.get(key) == value for key, value in owned.items()):
+            for key in owned:
+                env.pop(key, None)
+            changed = True
+            if not env:
+                config.pop('env', None)
+    if not changed:
+        return None
+    updated = json.dumps(config, indent=2) + '\n'
+    with config_file_lock(path):
+        atomic_write_text(path, updated, existing, target, signature)
+    return f"Uclusion's token-audit hooks and telemetry settings from {path}"
+
+
+def remove_home_project_leftovers():
+    """Remove what a project install in the home directory added beside the global one."""
+    removed = [
+        outcome for outcome in (
+            _remove_home_project_registration(),
+            _remove_home_project_token_audit(),
+        ) if outcome is not None
+    ]
+    for outcome in removed:
+        print(f"  🧹 Removed {outcome}, left by a project install in your home "
+              "directory. The global install covers it.")
+    return removed
 
 
 def build_codex_mcp_block(workspace_id=None, env=None, work_claims=False,
@@ -4041,7 +4177,7 @@ def prompt_install_scope():
     if not path:
         print("  ⏭  No path given; using a global install.")
         return None
-    return os.path.abspath(os.path.expanduser(path))
+    return project_dir_or_global(os.path.abspath(os.path.expanduser(path)))
 
 
 def validate_workflow_bundle(bundle):
@@ -5448,13 +5584,15 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                 response_stats=response_stats,
             )
         else:
-            register_mcp_json(
+            registered = register_mcp_json(
                 CLAUDE_JSON_PATH, 'Claude Code', workspace_id, mcp_env,
                 require_existing=interactive,
                 token_audit=claude_registration_audit,
                 token_audit_client='claude', work_claims=work_claims,
                 response_stats=response_stats,
             )
+            if registered:
+                remove_home_project_leftovers()
     if claude_selected:
         if not claude_detected:
             workflow_results['claude'] = False
@@ -5851,7 +5989,9 @@ def main():
                     + ', '.join(ready.get('starting_job_short_codes', []))
                 )
             else:
-                project_dir = os.getcwd() if args.project else None
+                project_dir = project_dir_or_global(
+                    os.getcwd() if args.project else None
+                )
                 expected = bootstrap_registration_expected(
                     env, setup_client, project_dir
                 )
@@ -5886,7 +6026,10 @@ def main():
         parser.error('--replace-setup requires exactly one --clients value')
 
     try:
-        confirm_dir = os.getcwd() if args.project else None
+        requested_project_dir = project_dir_or_global(
+            os.getcwd() if args.project else None
+        )
+        confirm_dir = requested_project_dir
         if not confirm_existing_feature_changes(
             args.force,
             env,
@@ -5897,7 +6040,7 @@ def main():
             print('⏭  Existing install was left unchanged.')
             return 0
         if args.replace_setup:
-            setup_project_dir = os.getcwd() if args.project else None
+            setup_project_dir = requested_project_dir
             setup_client = next(iter(clients))
             _assert_setup_receipt_target(
                 args.setup_receipt,
@@ -5924,7 +6067,7 @@ def main():
             install_scripts(env, script_version)
         if clients is not None:
             # Non-interactive: the web setup page's selector chose everything already
-            project_dir = os.getcwd() if args.project else None
+            project_dir = requested_project_dir
         else:
             project_dir = prompt_install_scope()
         if project_dir is None:

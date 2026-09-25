@@ -16,6 +16,16 @@ SPEC = importlib.util.spec_from_file_location('uclusion_install_under_test', MOD
 INSTALL = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(INSTALL)
 
+# S-all-338: install_global also removes a home-directory project install's
+# leftovers. Point those paths into scratch so no test reaches the real home.
+_HOME_PROJECT_SCRATCH = tempfile.TemporaryDirectory()
+INSTALL.HOME_PROJECT_MCP_JSON_PATH = os.path.join(
+    _HOME_PROJECT_SCRATCH.name, '.mcp.json'
+)
+INSTALL.HOME_PROJECT_CLAUDE_SETTINGS_PATH = os.path.join(
+    _HOME_PROJECT_SCRATCH.name, '.claude', 'settings.local.json'
+)
+
 
 class WorkflowProtocolContractTests(unittest.TestCase):
     @classmethod

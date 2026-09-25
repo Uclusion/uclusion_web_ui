@@ -342,7 +342,7 @@ WORKFLOW_ASSET_PATHS = {
 WORKFLOW_ASSET_SHA256 = {
     'reading_reference': '00c380dde70c2398302cc54f926a09f363cbc8d6b40bc7a03c5f265665bb6ed3',
     'demo_brief': '0b7f19753523dcedb2327d4edd97dd15253c0ca1e41aba010db7363a7856cce4',
-    'claude_stub': 'c61be5b45daef4568f42d3e3ddc0f996c94953fb1a7c6928d151cf2622e90deb',
+    'claude_stub': '4032e627dbe5b29d287fff25c02042e9c6c93835dbd953d2007c2d3803a2275d',
     'codex_stub': '7cc3b75aa1b7af3799e47962d7ce2beb43b4a8f52541bb571c0dc968eb808336',
     'cursor_stub': 'c2e03afbaf55fd656b68478de9268955ef2af5813d3a2109ebce04ae0c8061bf',
     'skill': '635bd967370dfcf115547017c9e9c802375e778179da8ac73fd46a86e6e9fe79',

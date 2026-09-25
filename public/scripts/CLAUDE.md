@@ -26,9 +26,10 @@ available.
 
 At the start of every session, before acting on the first user request—even
 when that request is unrelated to Uclusion—establish Poke AI delivery. Arm
-exactly one Monitor with the command `{{UCLUSION_CLI}} listen`,
-`persistent: true`, and a description naming the Uclusion Poke stream, unless
-this session already armed one that is still running. A quiet listener
+exactly one Monitor with the command `{{UCLUSION_CLI}} listen` and a
+description naming the Uclusion Poke stream, unless this session already armed
+one that is still running. Pass `persistent: true` if the Monitor tool offers
+it; otherwise pass the largest `timeout_ms` it accepts. A quiet listener
 remains active; do not relaunch it until it ends. This mandatory connection
 setup is an expected read-only session bootstrap, not a discretionary side
 effect: never skip it, ask permission, or merely offer to arm it, even for a
@@ -37,9 +38,9 @@ narrow read-only request.
 Delivery reaches only the session that armed it, so arm your own and never
 treat a listener you did not arm as delivery. Do not enumerate running
 processes looking for one, and never stop a listener another session is using.
-Each claimed line is an event; handle batches in order. If the stream ends,
-arm a new listener; it continues this session's cursor, so nothing that
-arrived in between is lost. Never move a live listener outside the client
+Each claimed line is an event; handle batches in order. If the stream ends or
+the Monitor's expiry notice arrives, arm a new listener; it continues this
+session's cursor, so nothing that arrived in between is lost. Never move a live listener outside the client
 when exiting.
 
 When the monitor returns any `Start`, `Added`, `Updated`, or `Responded` line,

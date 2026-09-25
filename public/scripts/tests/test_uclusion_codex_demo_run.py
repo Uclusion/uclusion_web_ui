@@ -88,6 +88,15 @@ class CodexDemoRunTests(unittest.TestCase):
         self.terminal.close.assert_called_once()
         self.assertIn('codex', self.commands[0])
 
+    def test_the_evaluator_is_told_its_owner_is_scripted(self):
+        # S-Marketing-88: the owner's records show as the human's, so the
+        # evaluator must hear otherwise before it starts and keep them apart.
+        self.terminal.drain.side_effect = lambda: self.report.write_bytes(b'Report\n')
+        self.assertEqual(self.run_demo(), 0)
+        prompt = (self.report.parent / 'evaluator-input.md').read_text()
+        self.assertTrue(prompt.startswith(f'Start J-Demo-1. {INSTALL.DEMO_SCRIPTED_OWNER}\n\n'))
+        self.assertTrue(prompt.endswith(INSTALL.DEMO_SCRIPT_SEPARATION))
+
     def test_draft_and_previous_run_do_not_signal_completion(self):
         old = self.home / '.uclusion/demo-runs/old/evaluation.md'
         old.parent.mkdir(parents=True)

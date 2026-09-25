@@ -104,6 +104,15 @@ class ClaudeDemoRunTests(unittest.TestCase):
         self.assertIn('Read the file', (run / 'owner-input.md').read_text())
         self.assertTrue((run / 'owner.log').exists() and (run / 'evaluator.log').exists())
 
+    def test_the_evaluator_is_told_its_owner_is_scripted(self):
+        # S-Marketing-88: the owner's records show as the human's, so the
+        # evaluator must hear otherwise before it starts and keep them apart.
+        self.evaluator_turn = lambda: self.report_path().write_text('Report')
+        self.assertEqual(self.run_demo(), 0)
+        prompt = (self.report_path().parent / 'evaluator-input.md').read_text()
+        self.assertTrue(prompt.startswith(f'Start J-Demo-1. {INSTALL.DEMO_SCRIPTED_OWNER}\n\n'))
+        self.assertTrue(prompt.endswith(INSTALL.DEMO_SCRIPT_SEPARATION))
+
     def test_what_the_session_says_after_publishing_is_not_the_report(self):
         def publish_then_wake():
             self.report_path().write_text('The evaluation')

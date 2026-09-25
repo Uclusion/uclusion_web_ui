@@ -2023,6 +2023,18 @@ def record_demo_failure(run_dir, message):
         handle.write(message + '\n')
 
 
+# S-Marketing-88: the owner's records show as the human's, so an evaluator
+# that is not told otherwise credits replies written in advance to a person.
+DEMO_SCRIPTED_OWNER = (
+    "This job's owner shows as the human in this workspace, but it is a "
+    'scripted stand-in run by the demo: its replies and votes follow a plan '
+    'written in advance.'
+)
+DEMO_SCRIPT_SEPARATION = (
+    ' Keep what Uclusion did apart from what the scripted owner supplied.'
+)
+
+
 def start_demo_supervisor(env, client, workspace_id, start_prompt, response_stats=None):
     """S-Marketing-77: start the exercise detached and return.
 
@@ -2088,7 +2100,7 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
         'Poke listener or drain. Keep working until the brief says to stop.\n'
     )
     evaluator_prompt = (
-        f'{start_prompt}\n\n'
+        f'{start_prompt} {DEMO_SCRIPTED_OWNER}\n\n'
         'After presenting your completion package, wait for the owner\'s '
         'selection on the review and handle it through the normal workflow. '
         'Do not begin the evaluation merely because you presented the package. '
@@ -2108,7 +2120,7 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
         'actually use or observe, what does each one do, and did it work? '
         'Say plainly which ones you could not inspect or did not exercise, '
         'and do not treat those as absent. Say where it got in your way as '
-        'readily as where it helped.'
+        'readily as where it helped.' + DEMO_SCRIPT_SEPARATION
     )
     for name, prompt in (('owner-input.md', owner_prompt),
                          ('evaluator-input.md', evaluator_prompt)):
@@ -2218,7 +2230,7 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_di
     # The ask lives here rather than reaching it later as a Poke so that the
     # published evaluation is the evaluator's last act.
     evaluator_prompt = (
-        f'{start_prompt}\n\n'
+        f'{start_prompt} {DEMO_SCRIPTED_OWNER}\n\n'
         'After presenting your completion package, wait for the owner\'s '
         'selection on the review and handle it through the normal workflow. '
         'Do not begin the evaluation merely because you presented the package. '
@@ -2239,7 +2251,7 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_di
         'one do, and did it work? Say plainly which ones you could '
         'not inspect or did not exercise, and do not treat those as '
         'absent. Say where it got in your way as readily as where it '
-        'helped.'
+        'helped.' + DEMO_SCRIPT_SEPARATION
     )
     for name, prompt in (('owner-input.md', owner_prompt),
                          ('evaluator-input.md', evaluator_prompt)):

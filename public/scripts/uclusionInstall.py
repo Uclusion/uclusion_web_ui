@@ -2470,6 +2470,11 @@ def provision_demo(env):
     ).decode('ascii').rstrip('=')
     base_url = f'https://sso.{get_api_base_url(env)}/ai-demo'
     status, result = request_demo_json(base_url, {'code_challenge': challenge})
+    if status == 429:
+        # Q-Marketing-204: the service limits how many demos one network starts an hour.
+        message = result.get('message') if isinstance(result, dict) else None
+        raise RuntimeError(message if isinstance(message, str) and message else
+                           'too many demos were started from this network in the last hour; try again later')
     demo_id = result.get('demo_id') if isinstance(result, dict) else None
     try:
         if not isinstance(demo_id, str) or str(uuid.UUID(demo_id)) != demo_id:

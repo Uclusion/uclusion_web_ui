@@ -464,6 +464,15 @@ class DemoProvisionTests(unittest.TestCase):
         self.assertEqual(result['workspace_id'], 'workspace-1')
         sleep.assert_called_once_with(0.25)
 
+    def test_a_rate_limited_start_says_why(self):
+        """Q-Marketing-204: the person hears that their network started too many, not a generic failure."""
+        message = 'Too many demos were started from this network in the last hour. Try again later.'
+        with mock.patch.object(INSTALL, 'request_demo_json',
+                               return_value=(429, {'error_code': 'RATE_LIMITED', 'message': message})), \
+                self.assertRaises(RuntimeError) as caught:
+            INSTALL.provision_demo('stage')
+        self.assertEqual(message, str(caught.exception))
+
     def test_a_start_reply_without_a_valid_demo_id_is_refused(self):
         for reply in ({'state': 'READY'}, {'demo_id': 'not-a-uuid', 'state': 'READY'}):
             with self.subTest(reply=reply), \

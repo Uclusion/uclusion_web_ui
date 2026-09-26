@@ -201,14 +201,28 @@ The first word is contractual:
   one valid selection governs the package attempt, later duplicate or
   conflicting replies cannot authorize or repeat its package work.
 
+Job stage changes use `Updated <job-code> stage is now <stage-name>`, including
+the complete stage name when it contains spaces. Async sends this after the
+stored stage field changes; it reports that transition, even if another change
+moves the job again. Apply assignment routing first. For the assigned job,
+record the supplied transition without calling `get_job`, including
+`stage_only`, merely to discover or confirm that stage. Use the context already
+held and load only information the next action still needs, such as changed
+assistance or Reports. The message does not establish that other job content is
+unchanged, resolve known assistance, or replace a necessary effective-stage
+check. An ordinary `Updated <job-code>` without the suffix still follows the
+lookup rules below.
+
 A job moving into Doable is an `Updated` state transition, never a `Start`.
-Reload and resume it only when that job is already the session's assignment.
+Resume it only when that job is already the session's assignment and its other
+execution requirements are satisfied; load missing context when needed.
 An idle session or a session assigned elsewhere does not activate because the
 job became executable.
 
 A job moving into Reviewable is also an `Updated` state transition. For the
-assigned lane, compare the reloaded stage with the stage this session last
-observed. When it changes from any other stage into Reviewable, read
+assigned lane, compare the supplied stage, or the reloaded stage for an ordinary
+update, with the stage this session last observed. When it changes from any
+other stage into Reviewable, read
 `completion.md` and run both completion scans once before handling review. A
 successful in-session stage change to Reviewable follows the same rule. For an
 authorized in-session post-review transition, finish the sweep in that same
@@ -233,8 +247,9 @@ it remains resolved, does not retrigger the sweep or reopen its package.
 A legacy bare `Responded.` has no target. Reload only the outstanding
 dependency of the assigned lane. With no assignment, ignore it.
 
-Apply the assignment gate before lookup. For an accepted event, direct targets
-are globally resolvable. Call `get_job` with their exact short code. Compound
+Apply the assignment gate before lookup. Apart from the stage-bearing updates
+handled above, accepted direct targets are globally resolvable: call `get_job`
+with their exact short code. Compound
 targets have the form `<verb> <local-code> of <parent-code>`; call `get_job`
 with the parent after `of`, then locate the local item. The first load of a
 parent not yet read this session takes its whole scope. When that parent was
@@ -250,8 +265,9 @@ without `parent_question_short_code_id`, and `get_job` with it returns just
 that option or record, with its votes or replies.
 
 Added, Updated, and Responded are continuation events, not instructions to
-abandon or acquire work. Reload and incorporate matching assigned-lane state,
-then obey the current stage. A matching capsule body update replaces the
+abandon or acquire work. Incorporate a matching stage-bearing update as above;
+reload other matching assigned-lane changes, then obey the current stage.
+A matching capsule body update replaces the
 selected target's authoritative contract; perform its reload and review cleanup
 before continuing. Soft-deleted direct items reload as the enclosing job with
 the item absent.

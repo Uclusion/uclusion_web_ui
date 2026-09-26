@@ -404,10 +404,10 @@ Reviewable, apply the transition rule in `pokes.md` and finish its completion
 sweep. If this session moved the job into Reviewable, run the sweep immediately
 instead of waiting for its `Updated` Poke.
 
-A Poke only triggers reload; it does not otherwise change that direction. The
-exceptions are the resolved-bug and Reviewable-transition sweeps in `pokes.md`,
-and a current capsule's `Updated` event, which also requires the obsolete-review
-cleanup in the capsule section above.
+Handle a Poke through `pokes.md`, including its stage-bearing update rule; it
+does not otherwise change review direction. The exceptions are the resolved-bug
+and Reviewable-transition sweeps, and a current capsule's `Updated` event,
+which requires the obsolete-review cleanup in the capsule section above.
 
 The report names the exact current capsule R-code. A final job completion
 report covering separate task passes names each task and its exact current

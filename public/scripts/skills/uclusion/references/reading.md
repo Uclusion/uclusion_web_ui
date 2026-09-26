@@ -8,7 +8,11 @@ Call `get_job` with the selected short code. A first job read supplies its name,
 description, tasks, assistance and reports. For subsequent reads, use `sections`
 or `thread_only` to request what changed. Scoped job reads retain the job header,
 description, stage and votes; job-child thread reads retain the job and current
-stage. Scoping never permits acting from a remembered stage.
+stage. An `Updated` event that names a stage supplies the stored transition
+described in `pokes.md`; it does not replace newer stage information already
+held. Do not reread merely to confirm that transition. Still load missing
+context required for the next action and resolve any known assistance before
+execution.
 
 ## Capsule references and explicit bodies
 

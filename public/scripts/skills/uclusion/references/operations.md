@@ -281,6 +281,13 @@ work under the same selection without repeating completed irreversible work.
 Having no applicable commit, push or exact-item notification to act on is a
 successful no-op, not a failure.
 
+After a successful package for a finished job in Reviewable, release its
+session assignment under `pokes.md`'s Assignment ownership rule. Complete any
+selected clear and triggered sweep first; the terminal record alone is not
+the release boundary. Waiting for later human review or signoff does not keep
+that completed assignment active. An intermediate package retains the job
+while requested work remains.
+
 ## Notifications
 
 Call `get_notifications` whenever the human requests their inbox and at every

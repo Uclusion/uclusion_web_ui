@@ -33,8 +33,8 @@ skill owns event handling and the job workflow.
   Reviewable are routed by `pokes.md` or handled immediately after a successful
   in-session stage change. Opening an implementation review and waiting on its
   completion menu is expressly not a lane handoff; retain its assignment and
-  any work claim until the valid selection's current execution attempt reaches
-  a terminal outcome and its post-attempt record is confirmed.
+  any work claim through the package attempt. Apply `pokes.md`'s completion
+  boundary after success; a terminal failure still retains the assignment.
 
 ## Non-negotiable invariants
 
@@ -440,9 +440,9 @@ menu wait becomes a review handoff only after its valid selection's current
 execution attempt reaches a terminal outcome and its post-attempt record is
 confirmed; before then, do not apply this handoff checklist:
 
-- Ending an audit or execution interval does not clear a retained human-guided
-  assignment. It remains available for matching continuation events until
-  completion or an explicit human switch.
+- Ending an audit alone does not clear a human-guided assignment. A completed
+  Reviewable handoff releases it under `pokes.md`; pending work or package
+  actions retain it for matching continuation events.
 - First read `pokes.md` so the handoff includes assignment-aware work discovery.
 - If `claim_work` is exposed and the lane's short code is claimed, release it
   per `claims.md`.

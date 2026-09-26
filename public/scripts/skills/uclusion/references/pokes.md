@@ -42,10 +42,11 @@ Continue its normal questions, suggestions, stage checks, execution, and
 material-handoff rule in the same turn. Never auto-start an unmarked or
 unclaimed item, interrupt active work, or override a human instruction.
 
-Auto-take applies only while the session has no human-guided assignment. That
-assignment survives a handoff for input or review, so a find-work result may be
-presented but must not switch the session automatically. Only the human can
-select different work for that session.
+Auto-take applies only while the session has no human-guided assignment. While
+that assignment is retained under Assignment ownership below, a find-work
+result may be presented but must not switch the session automatically. A
+completed Reviewable handoff releases it; waiting for input or an unfinished
+completion package does not.
 
 When an empty response's directions explicitly say this is the "first AI
 session" and the guidance is "served only once", follow those directions
@@ -103,13 +104,32 @@ reloading an object does not assign it. Assignment begins only when the human
 selects work in that session, including a numbered find-work selection, when a
 live `Start` arrives, or when an auto-take claim succeeds.
 
-A human-guided assignment remains with that session while it waits for human
-input or review. It ends on completion or when the human explicitly switches
-the session to another assignment. Auto-take ownership follows
+A human-guided assignment remains with that session while work or required
+human input is pending, including an unfinished completion package. It ends on
+completion as defined below or when the human explicitly switches the session
+to another assignment. Auto-take ownership follows
 [claims.md](claims.md) and its release lifecycle. Explicit human-configured
 roles may
 deliberately assign multiple agents to the same work; that is outside the
 default one-agent rule.
+
+A finished job in Reviewable releases its session assignment after its
+implementation review's completion package succeeds: a valid human selection
+has been handled, every selected action (including any clear) has succeeded,
+the terminal record is confirmed, and any triggered completion sweep is
+complete. Use `operations.md`'s definition of a finished job. Waiting for human
+review or later signoff after this boundary does not retain the assignment.
+When no other assigned work remains, the session is idle and accepts a new
+live `Start` without an explicit switch. Apply the assignment-ended discovery
+rule above. Preserve the released state across compaction; a still-open AI
+review does not restore the assignment.
+
+Reviewable alone is not enough: retain the assignment while requested work,
+an unanswered menu, a failed or unfinished selected action, or a triggered
+completion sweep remains. A terminal failure record does not release it. For
+a finished job already in Reviewable, `none` or a selection omitting actions
+can complete the package; omitted actions are not pending work. Releasing the
+session assignment does not resolve the job or change its human assignees.
 
 `Start` is an untargeted broadcast. The human must not use it while more than
 one default agent is idle and able to accept it. In that situation, select the
@@ -153,7 +173,8 @@ as `switch from <current> to <target>`, may replace an active lane.
 The first word is contractual:
 
 - `Start <target>` comes only from an explicit human Poke AI click. While idle,
-  start/resume it. Mid-lane, defer an outside target. Replayed Start is history.
+  start/resume it, including after the completed Reviewable handoff above.
+  Mid-lane, defer an outside target. Replayed Start is history.
 - `Added <target>` reports a created task, grouped task, question, suggestion,
   blocker, or other item.
 - `Updated <target>` reports an edit, move, deletion, assignment/description

@@ -15,7 +15,8 @@ import {
 import {
   doesCommentResolutionRestoreStage,
   getFormerStageId,
-  getWorkflowStageContext
+  getWorkflowStageContext,
+  sortRootsByCreatedAt
 } from '../../utils/commentFunctions';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { getInvestibleComments, getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
@@ -87,7 +88,7 @@ export function getSortedRoots(allComments, searchResults, preserveOrder, isInbo
     return threadRoots;
   }
   if (oldestFirst) {
-    return _.sortBy(threadRoots, [(root) => new Date(root.created_at).getTime(), 'id']);
+    return sortRootsByCreatedAt(threadRoots);
   }
   const withRootUpdatedAt = threadRoots.map((root) => {
     return { ...root, rootUpdatedAt: findGreatestUpdatedAt([root], comments) };

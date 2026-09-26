@@ -15,8 +15,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import {
   formMarketAddCommentLink,
   formMarketAddInvestibleLink, MARKET_TODOS_HASH,
-  navigate,
-  removeHash
+  navigate
 } from '../../../utils/marketIdPathFunctions';
 import Chip from '@material-ui/core/Chip';
 import { CheckCircleOutline } from '@material-ui/icons';
@@ -270,16 +269,12 @@ function MarketTodos(props) {
         const rootComment = !rootId ? foundComment : searchComments.find((comment) => comment.id === rootId);
         if (rootComment) {
           const { notification_type: notificationType, resolved } = rootComment;
-          if (resolved) {
-            bugDispatch(setTab(3));
-          } else if (notificationType === RED_LEVEL) {
-            bugDispatch(setTab(0));
-          } else if (notificationType === YELLOW_LEVEL) {
-            bugDispatch(setTab(1));
-          } else {
-            bugDispatch(setTab(2));
+          const targetTab = resolved ? 3 : (notificationType === RED_LEVEL ? 0 :
+            (notificationType === YELLOW_LEVEL ? 1 : 2));
+          if (tabIndex !== targetTab) bugDispatch(setTab(targetTab));
+          if (tabIndex !== targetTab || pinned !== rootComment.id || !expansionState[rootComment.id]) {
+            bugDispatch(pin(rootComment.id));
           }
-          bugDispatch(pin(rootComment.id));
           const message = findMessageForCommentId(rootComment.id, messagesState.messages);
           if (message?.is_highlighted) {
             let event = DEHIGHLIGHT_EVENT;
@@ -288,7 +283,7 @@ function MarketTodos(props) {
             }
             pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: message.type_object_id });
           }
-          removeHash(history);
+          // ScrollContext consumes the object anchor after scrolling and highlighting it.
         }
       }
       if (foundCommentId || hash.includes(MARKET_TODOS_HASH)) {
@@ -298,7 +293,8 @@ function MarketTodos(props) {
       }
     }
     return () => {};
-  }, [comments, resolvedTodoComments, hash, hidden, history, messagesState, sectionOpen, setSectionOpen, isInbox]);
+  }, [comments, resolvedTodoComments, hash, hidden, history, messagesState, sectionOpen, setSectionOpen, isInbox,
+    tabIndex, pinned, expansionState]);
 
   useEffect(() => {
     if (openDefaultId && message?.type === UNASSIGNED_TYPE) {

@@ -7,6 +7,7 @@ import {
   ISSUE_TYPE,
   JUSTIFY_TYPE,
   QUESTION_TYPE,
+  REPLY_TYPE,
   REPORT_TYPE,
   SUGGEST_CHANGE_TYPE,
   TODO_TYPE
@@ -167,7 +168,8 @@ export default function CardType(props) {
     alwaysShowTypeChip = false,
     linker,
     notificationMessage,
-    notificationClearOnly
+    notificationClearOnly,
+    notificationDirect = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(type)
   } = props;
   const classes = useCardTypeStyles({ type, resolved, color });
   const intl = useIntl();
@@ -245,7 +247,8 @@ export default function CardType(props) {
       )}
       {linker}
       {notificationMessage && (
-        <NotificationMenuButton message={notificationMessage} clearOnly={notificationClearOnly} />
+        <NotificationMenuButton message={notificationMessage} clearOnly={notificationClearOnly}
+                                direct={notificationDirect} />
       )}
       {createdAt && (
         <Typography className={classes.timeElapsed} variant="body2">

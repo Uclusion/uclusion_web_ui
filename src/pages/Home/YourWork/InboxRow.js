@@ -12,8 +12,9 @@ import { formCommentLink, formWizardLink, navigate,
   preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
 import { calculateTitleExpansionPanel } from './InboxExpansionPanel';
 import WorkListItem from './WorkListItem';
+import { getNotificationDestination } from '../../../utils/notificationNavigation';
 import BlockedNotificationPanel from './BlockedNotificationPanel';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
@@ -184,6 +185,19 @@ function InboxRow(props) {
   // A direct inbox URL can request expansion before its named comment arrives. Keep it in the
   // ordinary grey row branch until the same sync predicate says the wizard can be classified.
   const safeExpansionOpen = expansionOpen && !item.isNotSynced;
+  const destination = !item.isNotSynced && getNotificationDestination(message, commentState, marketsState);
+  const destinationUrl = destination?.url;
+  const { id: notificationId, marketId: notificationMarketId, commentId: notificationCommentId } =
+    destination?.notification || {};
+  useEffect(() => {
+    if (safeExpansionOpen && destinationUrl) {
+      navigate(history, destinationUrl, false, true, {
+        notification: { id: notificationId, marketId: notificationMarketId, commentId: notificationCommentId }
+      });
+    }
+  }, [safeExpansionOpen, destinationUrl, notificationId, notificationMarketId,
+    notificationCommentId, history]);
+  item.destination = destination;
   // T-all-2445: rows associated with a job carry its condensed code; hovering it reveals the job name
   if (marketInfo.ticket_code) {
     item.ticketCode = transformTicketCode(decodeURI(marketInfo.ticket_code));
@@ -281,13 +295,13 @@ function InboxRow(props) {
   if (messageType === 'USER_POKED') {
     item.market = intl.formatMessage({id: 'pleaseUpgrade'});
   }
-  if (isStaleResolved) {
+  if (isStaleResolved && !destination) {
     // Per Q-all-104 a blocked wizard must explain why and offer dismiss plus a link to the resolved comment
     item.expansionPanel = <BlockedNotificationPanel message={message} explanationId="blockedNotificationResolved"
                                                     commentLink={rootCommentLink}/>;
   } else if (!item.isNotSynced) {
-    calculateTitleExpansionPanel({ item, openExpansion: safeExpansionOpen, intl, rootComment });
-    if (safeExpansionOpen && !item.expansionPanel) {
+    calculateTitleExpansionPanel({ item, openExpansion: safeExpansionOpen && !destination, intl, rootComment });
+    if (safeExpansionOpen && !destination && !item.expansionPanel) {
       item.expansionPanel = <BlockedNotificationPanel message={message}
                                                       explanationId="blockedNotificationGeneric"/>;
     }

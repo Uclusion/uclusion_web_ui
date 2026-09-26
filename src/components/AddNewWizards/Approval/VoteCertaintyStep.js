@@ -9,11 +9,13 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
+import useSubmissionNavigation from '../../../utils/useSubmissionNavigation';
 
 function VoteCertaintyStep(props) {
   const { market, investibleId, formData = {}, updateFormData = () => {}, isFor, showSwitch, currentReasonId, wasDeleted } = props;
   const [commentsState] = useContext(CommentsContext);
   const history = useHistory();
+  const submissionNavigation = useSubmissionNavigation();
   const { parent_comment_id: parentCommentId, parent_comment_market_id: parentMarketId } = market;
   const parentComment = getComment(commentsState, parentMarketId, parentCommentId) || {};
   const { investible_id: parentInvestibleId, group_id: parentGroupId } = parentComment;
@@ -51,8 +53,8 @@ function VoteCertaintyStep(props) {
       <AddEditVote
         marketId={market.id}
         wizardProps={{
-          ...props, finish: () =>
-            navigate(history, formCommentLink(parentMarketId, parentGroupId, parentInvestibleId, parentCommentId)),
+          ...props, finish: (result) =>
+            navigate(history, submissionNavigation(result)?.nextLink || formCommentLink(parentMarketId, parentGroupId, parentInvestibleId, parentCommentId)),
         }}
         investibleId={investibleId}
         currentReasonId={currentReasonId}

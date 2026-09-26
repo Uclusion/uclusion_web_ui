@@ -1,4 +1,5 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
+import { ScrollContext } from '../../../contexts/ScrollContext';
 import PropTypes from 'prop-types';
 import _, { isEmpty } from 'lodash';
 import { useHistory, useLocation } from 'react-router';
@@ -192,6 +193,7 @@ function DecisionInvestible(props) {
   const intl = useIntl();
   const history = useHistory();
   const location = useLocation();
+  const [hashFragment] = useContext(ScrollContext);
   const classes = useStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -236,6 +238,15 @@ function DecisionInvestible(props) {
   const [votingPageState, updateVotingPageState] =
     getPageReducerPage(votingPageStateFull, votingPageDispatch, investibleId, {useCompression: true});
   const { useCompression } = votingPageState;
+  const notification = location.state?.notification;
+  const expandedNotification = useRef();
+  useEffect(() => {
+    if (notification?.entryId && notification.entryId !== expandedNotification.current &&
+      notification.marketId === marketId && investmentReasons.some((reason) => reason.id === notification.commentId)) {
+      expandedNotification.current = notification.entryId;
+      updateVotingPageState({ useCompression: false });
+    }
+  }, [notification, marketId, investmentReasons, updateVotingPageState]);
   const { pathname } = location;
   const { marketId: typeObjectIdRaw, action } = decomposeMarketPath(pathname);
   const typeObjectId = action === 'inbox' ? typeObjectIdRaw : undefined;
@@ -490,7 +501,8 @@ function DecisionInvestible(props) {
     </div>;
 
   return (
-    <div style={{ marginLeft: !mobileLayout ? '2rem' : undefined, marginRight: !mobileLayout ? '2rem' : undefined }}
+    <div style={{ marginLeft: !mobileLayout ? '2rem' : undefined, marginRight: !mobileLayout ? '2rem' : undefined,
+      backgroundColor: hashFragment === `option${investibleId}` ? '#FBF6D8' : undefined }}
          id={`option${investibleId}`}>
       <div className={classes.root} id="optionMain">
         <CardType

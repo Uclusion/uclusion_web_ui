@@ -12,8 +12,8 @@ import InboxRow from './InboxRow';
 
 const mockWorkListItem = jest.fn(() => null);
 const mockCalculateTitleExpansionPanel = jest.fn(({ item, openExpansion }) => {
+  item.title = 'ReviewDesignTitle';
   if (openExpansion) {
-    item.title = 'ReviewDesignTitle';
     item.expansionPanel = 'design-panel';
   }
 });
@@ -197,10 +197,14 @@ describe('InboxRow synchronization guard', () => {
 
     expect(props.isNotSynced).toBe(false);
     expect(props.expansionOpen).toBe(true);
-    expect(props.expansionPanel).toBe('design-panel');
+    expect(props.expansionPanel).toBeUndefined();
+    expect(props.destination).toEqual({
+      url: '/comment',
+      notification: { id: message.type_object_id, marketId: 'market-id', commentId: 'capsule-id' }
+    });
     expect(props.title).toBe('ReviewDesignTitle');
     expect(mockCalculateTitleExpansionPanel).toHaveBeenCalledWith(expect.objectContaining({
-      openExpansion: true,
+      openExpansion: false,
       rootComment: capsule
     }));
   });

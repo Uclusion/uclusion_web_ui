@@ -300,13 +300,16 @@ function PlanningDialog(props) {
       commentType: REPORT_TYPE }),
     {enabled: !hidden && !inlineWizard}, [groupId, marketId, hidden, inlineWizard]);
 
+  const notification = location.state?.notification;
   useEffect(() => {
     if (hash && !hidden) { 
-      if (hash.includes('option')||hash.includes(DISCUSSION_HASH)) {
+      if (hash.startsWith('#option') || hash === `#${DISCUSSION_HASH}`) {
         if (sectionOpen !== 'discussionSection') {
           updatePageState({ sectionOpen: 'discussionSection', tabIndex: 3 });
         }
-        removeHash(history);
+        if (hash === `#${DISCUSSION_HASH}`) {
+          removeHash(history);
+        }
       } else if (hash.includes(ASSIGNED_HASH)) {
         if (sectionOpen !== 'storiesSection') {
           updatePageState({ sectionOpen: 'storiesSection', tabIndex: 0 });
@@ -322,7 +325,8 @@ function PlanningDialog(props) {
         const element = document.getElementById(hash.substring(1, hash.length));
         if (!element) {
           const comments = getMarketComments(commentsState, marketId) || [];
-          const found = comments.find((comment) => hash.includes(comment.id));
+          const found = comments.find((comment) => hash.includes(comment.id) ||
+            (comment.inline_market_id && comment.inline_market_id === notification?.marketId));
           if (!_.isEmpty(found)) {
             const rootComment = filterToRoot(comments, found.id);
             if (_.isEmpty(rootComment.investible_id)) {
@@ -338,7 +342,7 @@ function PlanningDialog(props) {
         }
       }
     }
-  }, [commentsState, groupId, hash, hidden, history, marketId, updatePageState, sectionOpen]);
+  }, [commentsState, groupId, hash, hidden, history, marketId, updatePageState, sectionOpen, notification?.marketId]);
 
   function openSubSection(subSection) {
     updatePageState({sectionOpen: subSection});

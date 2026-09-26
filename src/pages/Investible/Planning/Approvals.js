@@ -6,7 +6,7 @@ import AddIcon from '@material-ui/icons/Add';
 import { ExpandLess } from '@material-ui/icons';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { FormattedMessage } from 'react-intl';
-import { useHistory } from 'react-router';
+import { useHistory, useLocation } from 'react-router';
 import Voting from '../Decision/Voting';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import { APPROVAL_WIZARD_TYPE } from '../../../constants/markets';
@@ -15,6 +15,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { calculateInvestibleVoters } from '../../../utils/votingUtils';
 import { getVotesForInvestible } from '../../../utils/userFunctions';
+import { removeHash } from '../../../utils/marketIdPathFunctions';
 
 function Approvals(props) {
   const {
@@ -36,12 +37,15 @@ function Approvals(props) {
     yourPresence
   } = props;
   const history = useHistory();
+  const notification = useLocation().state?.notification;
   const [marketsState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [messagesState] = useContext(NotificationsContext);
   const approvalVoters = calculateInvestibleVoters(investibleId, marketId, marketsState,
     investiblesState, marketPresences, false);
-  const opensFromHash = !hidden && (hash?.startsWith('#cv') || hash?.startsWith('#approve'));
+  const opensNotifiedReply = !hidden && hash?.startsWith('#c') && notification?.marketId === marketId &&
+    investmentReasons?.some((reason) => reason.id === notification.commentId);
+  const opensFromHash = !hidden && (hash?.startsWith('#cv') || hash?.startsWith('#approve') || opensNotifiedReply);
   const [approvalsOpen, setApprovalsOpen] = useState(
     isInVoting || !_.isEmpty(approvalVoters) || opensFromHash
   );
@@ -57,9 +61,12 @@ function Approvals(props) {
   useEffect(() => {
     if (visible && opensFromHash) {
       setApprovalsOpen(true);
-      history.replace(window.location.pathname + window.location.search);
+      // Only the section marker is consumed here; concrete vote/reply anchors belong to ScrollContext.
+      if (hash === '#approve') {
+        removeHash(history);
+      }
     }
-  }, [history, opensFromHash, visible]);
+  }, [history, hash, opensFromHash, visible]);
 
   // B-all-600: a highlighted notification attached to a rendered vote keeps Approvals visible.
   const approvalsForcedOpen = (messagesState.messages || []).some((message) => message.is_highlighted &&

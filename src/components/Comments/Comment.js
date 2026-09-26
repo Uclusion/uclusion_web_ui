@@ -114,6 +114,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import { EditCommentContext } from '../../contexts/EditCommentContext/EditCommentContext';
 import { getDiff } from '../../contexts/DiffContext/diffContextHelper';
+import useCommentDiff from './useCommentDiff';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 import DiffDisplay from '../TextEditors/DiffDisplay';
 import LoadingDisplay from '../LoadingDisplay';
@@ -649,8 +650,7 @@ function Comment(props) {
   const {
     showDiff: storedShowDiff
   } = editState;
-  // Diffs are opt in everywhere - see B-all-518
-  const showDiff = storedShowDiff === true;
+  const [showDiff, toggleDiff] = useCommentDiff(comment, marketId, location, storedShowDiff, updateEditState);
   const myMessage = findMessageForCommentId(id, messagesState.messages);
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const inReviewStageId = inReviewStage.id;
@@ -684,7 +684,7 @@ function Comment(props) {
 
   function toggleDiffShow(event) {
     preventDefaultAndProp(event)
-    updateEditState({showDiff: !showDiff});
+    toggleDiff();
   }
 
   function toggleEdit(event) {
@@ -1149,7 +1149,6 @@ function Comment(props) {
                                             avatarClassName={classes.smallGravatar}
   />;
   const showLinker = !isInbox && !beingEdited && ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType);
-  // T-all-2447: the bell offers go-to or clear via NotificationMenuButton
   const notificationMessage = !replyEditId && myMessage?.type_object_id && !isInbox &&
   (investibleId || commentType !== TODO_TYPE || myMessage.type !== UNASSIGNED_TYPE) ? myMessage : undefined;
   const linkerShouldBeFirst = noAuthor && commentType === TODO_TYPE && investibleId;
@@ -1689,7 +1688,7 @@ function Comment(props) {
   // and an expand chevron - instead of the cramped avatar + name row.
   const compressedCommentCard = <div className={getCommentHighlightStyle()}
   style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '9px 12px',
-    backgroundColor: (theme.palette.type === 'dark' ? DARK_TEXT_BACKGROUND_COLOR : 'white'),
+    backgroundColor: showHighlight ? undefined : (theme.palette.type === 'dark' ? DARK_TEXT_BACKGROUND_COLOR : 'white'),
     cursor: 'pointer', width: '100%', maxWidth: '98%', marginTop: isSent === false || usePadding === false ? 0
       : '1rem' }} onClick={(event) => {
         if (!invalidEditEvent(event, history)) {

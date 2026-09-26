@@ -193,7 +193,8 @@ function WorkListItem(props) {
     isNotSynced = false,
     jobSweepActions,
     ticketCode,
-    ticketName
+    ticketName,
+    destination
   } = props;
   const history = useHistory();
   const classes = workListStyles();
@@ -246,7 +247,8 @@ function WorkListItem(props) {
             const originUrl = getCanonicalNavigationUrl(history.location.pathname, history.location.search);
             const existingUrls = (messagesState?.navigations || []).map((navigation) => navigation.url);
             messagesDispatch(addNavigation(originUrl, existingUrls.concat(originUrl)));
-            navigate(history, formInboxItemLinkFromId(id));
+            navigate(history, destination?.url || formInboxItemLinkFromId(id), false, false,
+              destination ? { notification: destination.notification } : undefined);
           }
         }>
           <Div key={`actions${id}`} className={isNotSynced ? 'MailListItem-read' : undefined}>

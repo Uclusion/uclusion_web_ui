@@ -419,7 +419,7 @@ function Reply(props) {
 
   const commentCard = <div className={getHighlightClass()}
                             style={{width: !enableEditing ? 'fit-content' : undefined, paddingRight: '1rem', borderRadius: '8px',
-                              backgroundColor: (isDark ? DARK_TEXT_BACKGROUND_COLOR : 'white')}}
+                              backgroundColor: isLinkedTo ? undefined : (isDark ? DARK_TEXT_BACKGROUND_COLOR : 'white')}}
                             id={`${isInbox ? 'inbox' : ''}${idPrepend}${comment.id}`}>
     <div onClick={(event) => {
       if (!invalidEditEvent(event, history)&&(replyBeingEdited || isInbox)) {
@@ -468,8 +468,7 @@ function Reply(props) {
           />
         )}
         {myMessage?.type_object_id && !isInbox && !replyBeingEdited && (
-          // T-all-2447: the bell offers go-to or clear via NotificationMenuButton
-          <NotificationMenuButton lightSurface message={myMessage}
+          <NotificationMenuButton lightSurface direct message={myMessage}
                                   unhighlightedColor={ACTION_BUTTON_COLOR}
                                   iconStyle={{marginLeft: '1rem'}} />
         )}

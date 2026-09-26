@@ -14,6 +14,7 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
 import JobDescription from '../../InboxWizards/JobDescription';
 import { TODO_TYPE } from '../../../constants/comments';
+import useSubmissionNavigation from '../../../utils/useSubmissionNavigation';
 
 export function hasDecisionComment(groupId, commentType, investibleId) {
   return hasCommentValue(groupId, undefined, 'DecisionCommentAdd', investibleId,
@@ -27,6 +28,7 @@ function AddCommentStep (props) {
   const [marketsState] = useContext(MarketsContext);
   const [commentsState] = useContext(CommentsContext);
   const history = useHistory();
+  const submissionNavigation = useSubmissionNavigation();
   const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('addDecisionCommentWizard');
   const [commentAddState, updateCommentAddState, commentAddStateReset] =
     getPageReducerPage(commentAddStateFull, commentAddDispatch, investibleId);
@@ -35,7 +37,12 @@ function AddCommentStep (props) {
   const parentComment = getComment(commentsState, parentMarketId, parentCommentId) || {};
   const { useCompression } = formData;
 
-  function onFinish() {
+  function onFinish(createdComment) {
+    const nextLink = submissionNavigation(createdComment)?.nextLink;
+    if (nextLink) {
+      navigate(history, nextLink);
+      return;
+    }
     if (parentComment.investible_id) {
       navigate(history,
         `${formInvestibleLink(parentMarketId, parentComment.investible_id)}#option${investibleId}`);
@@ -71,7 +78,7 @@ function AddCommentStep (props) {
       <CommentAdd
         nameKey="DecisionCommentAdd"
         type={commentType}
-        wizardProps={{...props, finish: onFinish, terminateLabel: 'DecisionCommmentWizardTerminate', isAddWizard: true,
+        wizardProps={{...props, terminateLabel: 'DecisionCommmentWizardTerminate', isAddWizard: true,
           isSent: true, onTerminate: onFinish}}
         commentAddState={commentAddState}
         updateCommentAddState={updateCommentAddState}

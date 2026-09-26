@@ -137,6 +137,7 @@ describe('Voting option Poke AI routing', () => {
       expect.objectContaining({ comment: reply }),
       expect.objectContaining({
         marketId: inlineMarketId,
+        idPrepend: 'c',
         pokeAIMarketId: 'parent-planning-market',
         pokeAIParentTicketCode: 'Q-all-500',
       })

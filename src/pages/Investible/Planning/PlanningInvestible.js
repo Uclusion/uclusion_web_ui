@@ -495,6 +495,7 @@ function PlanningInvestible(props) {
     investibleId, marketId);
   const isCollaborator = collaboratorIds.includes(userId);
 
+  const notification = location.state?.notification;
   useEffect(() => {
     // T-all-2298: pick the Debatable sub-tab holding this root so a followed link lands on it
     function assistanceTabFor(rootComment) {
@@ -514,7 +515,12 @@ function PlanningInvestible(props) {
       const element = document.getElementById(hash.substring(1, hash.length));
       // Check if already on the right tab and only change tab if not
       if (!element) {
-        if (hash.startsWith('#cv') || hash.startsWith('#approve')) {
+        const inlineQuestion = investibleComments.find((comment) =>
+          comment.inline_market_id && comment.inline_market_id === notification?.marketId);
+        if (inlineQuestion) {
+          openAssistance(inlineQuestion, compressionHash?.[inlineQuestion.id] === false ? undefined :
+            { compressionHash: { ...compressionHash, [inlineQuestion.id]: false } });
+        } else if (hash.startsWith('#cv') || hash.startsWith('#approve')) {
           updatePageState({ sectionOpen: 'descriptionVotingSection' });
         } else if (hash.startsWith('#start')) {
           updatePageState({ sectionOpen: 'tasksSection' });
@@ -538,6 +544,11 @@ function PlanningInvestible(props) {
             const rootComment = filterToRoot(investibleComments, found.id);
             if (!_.isEmpty(rootComment.investible_id)) {
               switch (rootComment.comment_type) {
+                case JUSTIFY_TYPE:
+                  if (sectionOpen !== 'descriptionVotingSection') {
+                    updatePageState({ sectionOpen: 'descriptionVotingSection' });
+                  }
+                  break;
                 case REPORT_TYPE:
                   if (rootComment.notification_type === 'BLUE') {
                     if (sectionOpen !== 'notesSection') {
@@ -585,7 +596,7 @@ function PlanningInvestible(props) {
       }
     }
   }, [investibleComments, hash, sectionOpen, updatePageState, hidden, history, compressionHash, reportsOpenRaw,
-    assistanceTab, investiblesState, marketPresences, marketPresencesState, commentsState]);
+    assistanceTab, investiblesState, marketPresences, marketPresencesState, commentsState, notification?.marketId]);
 
   let lockedByName
   if (lockedBy) {

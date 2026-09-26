@@ -17,10 +17,8 @@ import {
 import { deleteOrDehilightMessages, shouldRemoveMessage } from '../../api/users';
 import { addNavigation } from '../../contexts/NotificationsContext/notificationsContextReducer';
 
-// T-all-2447 / B-all-582: every notification bell offers navigation and clearing or marking read,
-// following the All Done button's menu-before-action pattern
 function NotificationMenuButton(props) {
-  const { message, lightSurface, unhighlightedColor, iconStyle, clearOnly } = props;
+  const { message, lightSurface, unhighlightedColor, iconStyle, clearOnly, direct } = props;
   const [anchorEl, setAnchorEl] = useState(null);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const history = useHistory();
@@ -37,15 +35,19 @@ function NotificationMenuButton(props) {
         lightSurface={lightSurface}
         onClick={(event) => {
           preventDefaultAndProp(event);
+          if (direct) {
+            return deleteOrDehilightMessages([message], messagesDispatch, true, false, true);
+          }
           setAnchorEl(anchorEl ? null : event.currentTarget);
         }}
+        disabled={direct && !canClear && !message.is_highlighted}
         icon={<Notifications fontSize='small'
                              htmlColor={message?.is_highlighted ? warningColor : useUnhighlightedColor}
                              style={iconStyle} />}
         size='small'
-        translationId='messagePresentCommentChoice'
+        translationId={direct ? (canClear ? 'notificationClear' : 'markRead') : 'messagePresentCommentChoice'}
       />
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)}
+      {!direct && <Menu anchorEl={anchorEl} open={Boolean(anchorEl)}
             onClose={(event) => {
               preventDefaultAndProp(event);
               setAnchorEl(null);
@@ -71,7 +73,7 @@ function NotificationMenuButton(props) {
         }}>
           {intl.formatMessage({ id: canClear ? 'notificationClear' : 'markRead' })}
         </MenuItem>
-      </Menu>
+      </Menu>}
     </>
   );
 }
@@ -80,6 +82,7 @@ NotificationMenuButton.propTypes = {
   message: PropTypes.object.isRequired,
   // In the inbox you are already at the notification, so hide navigation.
   clearOnly: PropTypes.bool,
+  direct: PropTypes.bool,
 };
 
 export default NotificationMenuButton;

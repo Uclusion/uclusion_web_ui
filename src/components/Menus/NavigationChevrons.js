@@ -6,7 +6,7 @@ import {
   ASSIGNED_HASH,
   formatGroupLinkWithSuffix,
   formCommentLink,
-  formInboxItemLink,
+  formInboxItemLink, formInboxItemLinkFromId,
   formInvestibleLink, formMarketLink,
   getCanonicalNavigationUrl, getJobBackOrigin, clearJobBackOrigin, clearNavigationOrigins, isReturnableNavigationUrl,
   rememberSeenNavigationUrl, navigate
@@ -38,6 +38,7 @@ import { SearchResultsContext } from '../../contexts/SearchResultsContext/Search
 import { findMessagesForTypeObjectId } from '../../utils/messageUtils';
 import { getOpenInvestibleComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import ReturnTop from '../../pages/Home/ReturnTop';
+import { getNotificationDestination } from '../../utils/notificationNavigation';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { WARNING_COLOR } from '../Buttons/ButtonConstants';
 import { getCurrentWorkspace, getGroupForInvestibleId } from '../../utils/redirectUtils';
@@ -146,6 +147,9 @@ export default function NavigationChevrons(props) {
     });
   });
   const currentNavUrl = getCanonicalNavigationUrl(pathname, search);
+  const currentNotification = location.state?.notification;
+  const currentNotificationUrl = currentNotification && formInboxItemLinkFromId(currentNotification.id);
+  const currentOriginUrl = currentNotificationUrl || currentNavUrl;
   const liveInboxUrls = allMessages.map((message) => formInboxItemLink(message));
   const rememberedInboxRoots = (navigations || []).map((navigation) => navigation.url)
     .filter(isInboxTopLevelNavigationUrl);
@@ -160,7 +164,7 @@ export default function NavigationChevrons(props) {
     return isInboxItemNavigationUrl(url) && !liveInboxUrls.includes(url);
   }
   const previous = _.find(orderedNavigations, (navigation) => {
-    if (navigation.url === currentNavUrl) {
+    if (navigation.url === currentNavUrl || navigation.url === currentNotificationUrl) {
       return false;
     }
     if (isRemovedNotificationUrl(navigation.url)) {
@@ -200,8 +204,8 @@ export default function NavigationChevrons(props) {
       }
     }
     const highlighted = highlightedMessages?.filter((message) => {
-      const messageUrl = formInboxItemLink(message);
-      return messageUrl !== resource && messageUrl !== currentNavUrl;
+      const messageUrl = getNotificationDestination(message, commentsState, marketsState)?.url || formInboxItemLink(message);
+      return message.type_object_id !== currentNotification?.id && messageUrl !== resource;
     }) || [];
     const highlightedMapped = addWorkspaceGroupAttribute(highlighted, groupsState);
     const highlightedOrdered = _.orderBy(highlightedMapped,
@@ -211,7 +215,9 @@ export default function NavigationChevrons(props) {
       ['desc', 'asc', 'desc']);
     if (!_.isEmpty(highlightedOrdered)) {
       const message = highlightedOrdered[0];
-      return { url: formInboxItemLink(message), message, kind: 'message' };
+      const destination = getNotificationDestination(message, commentsState, marketsState);
+      return { url: formInboxItemLink(message), useUrl: destination?.url,
+        notification: destination?.notification, message, kind: 'message' };
     }
     const onJob = action === 'dialog' && !_.isEmpty(pathInvestibleId);
     const onView = action === 'dialog' && _.isEmpty(pathInvestibleId);
@@ -261,9 +267,9 @@ export default function NavigationChevrons(props) {
       // notification cleared while you stood on it is not one either (T-all-2492).
       // Q-all-493: list roots enter the stack only through a direct row click, never Forward.
       if (!isInboxTopLevelNavigationUrl(currentNavUrl)
-        && (!isInboxNavigationUrl(currentNavUrl) || _.isEmpty(previous))
-        && !isRemovedNotificationUrl(currentNavUrl)) {
-        messagesDispatch(addNavigation(currentNavUrl, allExistingUrls));
+        && (!isInboxNavigationUrl(currentOriginUrl) || _.isEmpty(previous))
+        && !isRemovedNotificationUrl(currentOriginUrl)) {
+        messagesDispatch(addNavigation(currentOriginUrl, allExistingUrls));
       }
     } else {
       messagesDispatch(addNavigation(currentNavUrl, allExistingUrls));
@@ -272,7 +278,8 @@ export default function NavigationChevrons(props) {
     if (nextUrl.message) {
       dehighlightMessage(nextUrl.message, messagesDispatch);
     }
-    navigate(history, nextUrl.useUrl || nextUrl.url);
+    navigate(history, nextUrl.useUrl || nextUrl.url, false, false,
+      nextUrl.notification ? { notification: nextUrl.notification } : undefined);
   }
 
   useLayoutEffect(() => {
@@ -281,7 +288,7 @@ export default function NavigationChevrons(props) {
     }
     const fromUrl = getJobBackOrigin();
     const onJob = action === 'dialog' && !_.isEmpty(pathInvestibleId);
-    if (onJob && fromUrl && fromUrl !== currentNavUrl) {
+    if (onJob && !currentNotification && fromUrl && fromUrl !== currentNavUrl) {
       // T-all-2492: the reducer drops a Back entry when its notification is removed, so this
       // origin must not put it back. Coming into a job from a notification that has since gone
       // leaves no return point at all, which is what disables Back.
@@ -290,12 +297,15 @@ export default function NavigationChevrons(props) {
       }
       clearJobBackOrigin();
     }
-    rememberSeenNavigationUrl(currentNavUrl);
-  }, [stillLoading, currentNavUrl, action, pathInvestibleId, allExistingUrls, liveInboxUrls, messagesDispatch]);
+    if (currentNotification) {
+      clearJobBackOrigin();
+    }
+    rememberSeenNavigationUrl(currentOriginUrl);
+  }, [stillLoading, currentNavUrl, action, pathInvestibleId, allExistingUrls, liveInboxUrls, messagesDispatch, currentNotification, currentOriginUrl]);
 
   useHotkeys(isMac ? 'ctrl+option+arrowRight' : 'ctrl+arrowRight', doNextNavigation,
     {enabled: !nextDisabled, enableOnContentEditable: true},
-    [history, nextUrl.message, nextUrl.url, nextUrl.useUrl, nextUrl.kind, currentNavUrl, previous?.url]);
+    [history, nextUrl.message, nextUrl.url, nextUrl.useUrl, nextUrl.kind, currentNavUrl, currentOriginUrl, nextUrl.notification, previous?.url]);
   useHotkeys(isMac ? 'ctrl+option+arrowLeft' : 'ctrl+arrowLeft', doPreviousNavigation,
     {enabled: !backDisabled, enableOnContentEditable: true},
     [history, previous?.url, currentNavUrl]);
@@ -347,7 +357,8 @@ export default function NavigationChevrons(props) {
     </Tooltip>
   ));
   if (!_.isEmpty(searchText)) {
-    const isInboxItem = ['inbox', 'outbox'].includes(action) && !_.isEmpty(pathMarketIdRaw);
+    const isInboxItem = currentNotification ||
+      (['inbox', 'outbox'].includes(action) && !_.isEmpty(pathMarketIdRaw));
     // Forward stays hidden in search, but a row opened from its filtered list keeps its Back origin.
     return isInboxItem && !mobileLayout ? (
       <>

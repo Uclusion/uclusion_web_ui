@@ -1,5 +1,5 @@
 import { getMarketInvestibles, refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
-import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
+import { getComment, getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import {
   getInCurrentVotingStage, getProposedOptionsStage
@@ -107,7 +107,11 @@ function Options(props) {
   const { tabIndex, selectedInvestibleIdTabZero, selectedInvestibleIdTabOne, investibleIdTabZeroWasSet,
     investibleIdTabOneWasSet } = pageState;
   const useTabIndex = selectedStageTab || tabIndex;
-  const foundInv = (inlineInvestibles || []).find((inv) => hash?.includes(inv.investible.id));
+  const notification = location.state?.notification;
+  const notifiedRoot = notification?.marketId === anInlineMarket.id
+    ? getComment(commentsState, anInlineMarket.id, notification.commentId) : undefined;
+  const foundInv = inlineInvestibles.find((inv) => hash?.includes(inv.investible.id) ||
+    (hash && inv.investible.id === notifiedRoot?.investible_id));
 
   function setUseSelectedInvestibleIdTabZero(id) {
     updatePageState({ selectedInvestibleIdTabZero: id, investibleIdTabZeroWasSet: true });
@@ -122,10 +126,10 @@ function Options(props) {
       const foundStageTab = foundInv ?
         (getMarketInfo(foundInv, anInlineMarket?.id)?.stage === proposedStage?.id ? 1 : 0) : undefined;
       // Only set once to avoid spinning
-      if (foundStageTab === 0 && !hash.includes(selectedInvestibleIdTabZero)) {
+      if (foundStageTab === 0 && foundInv.investible.id !== selectedInvestibleIdTabZero) {
         updatePageState({ selectedInvestibleIdTabZero: foundInv.investible.id, investibleIdTabZeroWasSet: true });
       } 
-      if (foundStageTab === 1 && !hash.includes(selectedInvestibleIdTabOne)) {
+      if (foundStageTab === 1 && foundInv.investible.id !== selectedInvestibleIdTabOne) {
         updatePageState({ selectedInvestibleIdTabOne: foundInv.investible.id, investibleIdTabOneWasSet: true });
       }
       if (tabIndex !== foundStageTab) {

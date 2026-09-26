@@ -16,18 +16,29 @@ function getSyncState(commentsState, messages=[message]) {
 
 describe('notification synchronization classification', () => {
   it('marks a missing notified comment as a known-dirty dependency', () => {
-    expect(getSyncState({})).toEqual({
+    [message, { ...message, comment_list: [commentId] }].forEach((notification) => {
+      expect(getSyncState({}, [notification])).toEqual({
+        syncedMessages: [],
+        dependencies: [{ marketId, commentId, version: 2 }]
+      });
+    });
+    // A loaded primary comment does not make a rollup's missing secondary comment ready.
+    expect(getSyncState({ [marketId]: [{ id: commentId, version: 2 }] }, [
+      { ...message, comment_list: [commentId, 'missing-secondary'] }
+    ])).toEqual({
       syncedMessages: [],
       dependencies: [{ marketId, commentId, version: 2 }]
     });
   });
 
   it('keeps an older local comment unsynced', () => {
-    expect(getSyncState({
-      [marketId]: [{ id: commentId, version: 1 }]
-    })).toEqual({
-      syncedMessages: [],
-      dependencies: [{ marketId, commentId, version: 2 }]
+    [message, { ...message, comment_list: [commentId] }].forEach((notification) => {
+      expect(getSyncState({
+        [marketId]: [{ id: commentId, version: 1 }]
+      }, [notification])).toEqual({
+        syncedMessages: [],
+        dependencies: [{ marketId, commentId, version: 2 }]
+      });
     });
   });
 
@@ -61,6 +72,7 @@ describe('notification synchronization classification', () => {
       ...message,
       type: 'NOT_FULLY_VOTED',
       type_object_id: `NOT_FULLY_VOTED_${inlineMarketId}`,
+      comment_list: [commentId],
       market_id: inlineMarketId,
       comment_market_id: marketId,
       investible_id: investibleId

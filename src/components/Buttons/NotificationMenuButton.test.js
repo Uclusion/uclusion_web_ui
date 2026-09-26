@@ -70,7 +70,7 @@ describe('NotificationMenuButton', () => {
     jest.useRealTimers();
   });
 
-  function renderMenu(message, clearOnly = false) {
+  function renderMenu(message, clearOnly = false, direct = false) {
     act(() => root.render(
       <MemoryRouter>
         <IntlProvider locale="en" messages={{
@@ -80,7 +80,7 @@ describe('NotificationMenuButton', () => {
           markRead: 'Mark read',
         }}>
           <NotificationsContext.Provider value={[{ navigations: [] }, messagesDispatch]}>
-            <NotificationMenuButton message={message} clearOnly={clearOnly} />
+            <NotificationMenuButton message={message} clearOnly={clearOnly} direct={direct} />
           </NotificationsContext.Provider>
         </IntlProvider>
       </MemoryRouter>
@@ -152,5 +152,27 @@ describe('NotificationMenuButton', () => {
     expect(removeWorkListItem).toHaveBeenCalledWith(message, messagesDispatch, undefined, forceDelete);
     expect(removeNotifications).toHaveBeenCalledWith([message.type_object_id], true);
     expect(messagesDispatch).not.toHaveBeenCalled();
+  });
+
+  it('acts directly for comment notifications while retaining required reminders', async () => {
+    const unread = { ...protectedMessage, type_object_id: 'UNREAD_REPLY_comment-id' };
+    renderMenu(unread, false, true);
+    expect(container.querySelector('button').id).toBe('notificationClear');
+    await act(async () => container.querySelector('button').click());
+    expect(removeNotifications).toHaveBeenCalledWith([unread.type_object_id], true);
+    expect(removeWorkListItem).toHaveBeenCalledWith(unread, messagesDispatch, undefined, false);
+    expect(document.querySelector('[role="menu"]')).toBeNull();
+
+    jest.clearAllMocks();
+    renderMenu(protectedMessage, false, true);
+    expect(container.querySelector('button').id).toBe('markRead');
+    await act(async () => container.querySelector('button').click());
+    expect(messagesDispatch).toHaveBeenCalledWith({
+      type: 'DEHIGHLIGHT_MESSAGES', messages: [protectedMessage.type_object_id], isPromise: false,
+    });
+    expect(removeWorkListItem).not.toHaveBeenCalled();
+    renderMenu({ ...protectedMessage, is_highlighted: false }, false, true);
+    expect(container.querySelector('button').disabled).toBe(true);
+    expect(document.querySelector('[role="menu"]')).toBeNull();
   });
 });

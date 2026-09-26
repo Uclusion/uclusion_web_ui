@@ -42,6 +42,7 @@ export function decomposeMarketPath(path) {
 
 let jobBackOrigin;
 let lastSeenNavigationUrl;
+let notificationEntryId = 0;
 
 export function getJobBackOrigin() {
   return jobBackOrigin || lastSeenNavigationUrl;
@@ -165,7 +166,10 @@ function resetPageScrollAfterNavigation(to) {
   }, 0);
 }
 
-export function navigate(history, to, insideUseEffect, doNotAddToHistory) {
+export function navigate(history, to, insideUseEffect, doNotAddToHistory, state) {
+  const navigationState = state?.notification ? {
+    ...state, notification: { ...state.notification, entryId: `${Date.now()}-${++notificationEntryId}` }
+  } : state;
   const {
     action: fromAction,
     marketId: fromMarketId,
@@ -178,14 +182,14 @@ export function navigate(history, to, insideUseEffect, doNotAddToHistory) {
       // Without the set timeout the use effect can be re-run before the push is complete
       // though not clear why that run wouldn't run it again.
       setTimeout(() => {
-        history.push(to);
+        history.push(to, navigationState);
         resetPageScrollAfterNavigation(to);
       }, 0);
     } else {
       if (doNotAddToHistory) {
-        history.replace(to);
+        history.replace(to, navigationState);
       } else {
-        history.push(to);
+        history.push(to, navigationState);
       }
       resetPageScrollAfterNavigation(to);
     }
@@ -483,7 +487,7 @@ export function formatGroupLinkWithSuffix(suffix, marketId, groupId) {
 }
 
 export function removeHash(history) {
-  history.replace(window.location.pathname + window.location.search);
+  history.replace(history.location.pathname + history.location.search, history.location.state);
 }
 
 export function navigateToOption(history, parentMarketId, parentInvestibleId, groupId, id) {

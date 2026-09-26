@@ -7,18 +7,15 @@ import WizardStepButtons from '../WizardStepButtons';
 import {
   getComment,
   getCommentRoot,
-  getMarketComments,
-  isDesignCapsule
+  getMarketComments
 } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import {
-  getAcceptedStage,
   getFullStage,
-  getFurtherWorkStage,
-  getInCurrentVotingStage
+  getFurtherWorkStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -56,13 +53,6 @@ function DecideUnblockStep(props) {
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage } = marketInfo;
   const currentStage = getFullStage(marketStagesState, marketId, stage) || {};
-  const doableStage = getAcceptedStage(marketStagesState, marketId);
-  const approvableStage = getInCurrentVotingStage(marketStagesState, marketId);
-  const isCapsule = isDesignCapsule(commentRoot);
-  const isDoable = stage && stage === doableStage?.id;
-  const isApprovable = stage && stage === approvableStage?.id;
-  const implementationTargetStage = isCapsule && (isDoable || isApprovable) ?
-    (isDoable ? approvableStage : doableStage) : undefined;
   const { useCompression } = formData;
 
   function myTerminate() {
@@ -104,11 +94,10 @@ function DecideUnblockStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        {intl.formatMessage({ id: isCapsule ? 'ReviewDesignTitle' : 'DecideUnblockTitle' })}
+        {intl.formatMessage({ id: 'DecideUnblockTitle' })}
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        {isCapsule ? intl.formatMessage({ id: 'ReviewDesignStage' }, { stage: currentStage.name }) :
-          'Choosing reply also gives you the option to resolve.'}
+        Choosing reply also gives you the option to resolve.
       </Typography>
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
                       useCompression={useCompression} inboxMessageId={commentId}
@@ -123,11 +112,10 @@ function DecideUnblockStep(props) {
           undefined, undefined, commentId, message.type_object_id))}
         nextShowEdit={hasReply(getComment(commentState, marketId, commentId))}
         spinOnClick={false}
-        showOtherNext={!isCapsule || !!implementationTargetStage}
-        otherNextLabel={isCapsule ? (isDoable ? 'pauseImplementation' : 'startImplementation') :
-          'DecideMoveToBacklog'}
-        onOtherNext={isCapsule ? () => changeStage(implementationTargetStage) : moveToBacklog}
-        onOtherNextDoAdvance={!isCapsule}
+        showOtherNext
+        otherNextLabel='DecideMoveToBacklog'
+        onOtherNext={moveToBacklog}
+        onOtherNextDoAdvance
         isOtherFinal
         onFinish={myTerminate}
         showTerminate={getShowTerminate(message)}

@@ -55,11 +55,11 @@ export function messageIsSynced(message, marketState, marketPresencesState, comm
   const useMarketId = commentMarketId || marketId;
   const voters = votedList?.map((item) => item.id);
   let checked = commentVersion;
-  if (!_.isEmpty(commentList)) {
-    const notFoundComment = commentList.find((item) =>
-      !checkComment(item.id, undefined, useMarketId, commentsState));
-    return _.isEmpty(notFoundComment);
-  } else if (!checkComment(commentId, commentVersion, useMarketId, commentsState)) {
+  if (!checkComment(commentId, commentVersion, useMarketId, commentsState)) {
+    return false;
+  }
+  // Rollups carry comment IDs, and do not replace the primary version or other sync checks.
+  if (commentList?.some((id) => id !== commentId && !checkComment(id, undefined, useMarketId, commentsState))) {
     return false;
   }
   if (parentCommentId && !checkComment(parentCommentId, undefined, useMarketId, commentsState,

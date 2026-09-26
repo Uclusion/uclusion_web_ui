@@ -78,6 +78,7 @@ jest.mock('@material-ui/icons', () => ({
 }));
 jest.mock('react-hotkeys-hook', () => ({ useHotkeys: () => undefined }));
 jest.mock('react-intl', () => ({
+  ...jest.requireActual('react-intl'),
   injectIntl: (Component) => Component,
   useIntl: () => ({ formatMessage: ({ id }) => id })
 }));
@@ -91,11 +92,13 @@ jest.mock('../../api/useInitialSyncComplete', () => ({
 jest.mock('../../contexts/MarketsContext/marketsContextHelper', () => ({
   getMarketDetailsForType: () => ({}),
   getNotHiddenMarketDetailsForUser: (marketsState) => marketsState,
-  marketTokenLoaded: (marketId, tokensHash) => Boolean(tokensHash[marketId])
+  marketTokenLoaded: (marketId, tokensHash) => Boolean(tokensHash[marketId]),
+  getMarket: (state, id) => state.marketDetails?.find((market) => market.id === id)
 }));
 jest.mock('../../contexts/NotificationsContext/notificationsContextHelper', () => ({
   dehighlightMessage: () => undefined,
-  getInboxTarget: () => '',
+  getInboxTarget: () => '/inbox',
+  getMessageId: (message) => message.type_object_id,
   getNotificationSyncState: (messages) => ({
     syncedMessages: [],
     dependencies: (messages || []).map((message) => ({
@@ -104,16 +107,18 @@ jest.mock('../../contexts/NotificationsContext/notificationsContextHelper', () =
       version: message.comment_version
     }))
   }),
-  isInboxItemNavigationUrl: (url = '') => url.startsWith('/inbox/'),
-  isInboxNavigationUrl: () => false,
-  isInboxTopLevelNavigationUrl: () => false
+  isInboxItemNavigationUrl: (url = '') => ['/inbox/', '/outbox/', 'outbox/'].some((prefix) => url.startsWith(prefix)),
+  isInboxNavigationUrl: (url = '') => ['/inbox', '/outbox', 'outbox/'].some((prefix) => url.startsWith(prefix)),
+  isInboxTopLevelNavigationUrl: (url = '') => ['/inbox', '/outbox'].includes(url.split(/[?#]/)[0])
 }));
 jest.mock('../../contexts/NotificationsContext/notificationsContextReducer', () => ({
-  addNavigation: () => ({}),
+  addNavigation: (url) => ({ type: 'ADD_NAVIGATION', url }),
   removeNavigation: (url) => ({ type: 'REMOVE_NAVIGATION', url })
 }));
 jest.mock('../../contexts/CommentsContext/commentsContextHelper', () => ({
-  getOpenInvestibleComments: () => []
+  getOpenInvestibleComments: () => [],
+  getComment: (state, marketId, id) => state[marketId]?.find((comment) => comment.id === id),
+  getCommentRoot: (state, marketId, id) => state[marketId]?.find((comment) => comment.id === id)
 }));
 jest.mock('../../contexts/InvestibesContext/investiblesContextHelper', () => ({
   getInvestibleName: () => undefined
@@ -138,12 +143,16 @@ jest.mock('../../utils/redirectUtils', () => ({
 jest.mock('../../pages/Home/ReturnTop', () => () => null);
 
 const navigation = jest.requireActual('../../utils/marketIdPathFunctions');
+const { getNotificationSyncState } = jest.requireActual(
+  '../../contexts/NotificationsContext/notificationsContextHelper');
 
 function navigationChevronsTree({
   tokensHash = { 'market-a': 'token-a' },
   navigations = [{ url: '/previous', time: 1 }],
   messages = [],
   syncedMessages = [],
+  commentsState = {},
+  searchText = '',
   stillLoading = false,
   messagesDispatch = jest.fn(),
   requestFreshness = () => Promise.resolve()
@@ -159,11 +168,11 @@ function navigationChevronsTree({
     }, messagesDispatch, true]}>
       <MarketsContext.Provider value={[marketsState, jest.fn(), tokensHash]}>
         <MarketPresencesContext.Provider value={[{}]}>
-          <CommentsContext.Provider value={[{}]}>
+          <CommentsContext.Provider value={[commentsState]}>
             <InvestiblesContext.Provider value={[{}]}>
               <MarketStagesContext.Provider value={[{}]}>
                 <MarketGroupsContext.Provider value={[{}]}>
-                  <SearchResultsContext.Provider value={[{ search: '' }]}>
+                  <SearchResultsContext.Provider value={[{ search: searchText }]}>
                     <LeaderContext.Provider value={[{}, jest.fn(), {
                       requestFreshness
                     }]}>
@@ -365,6 +374,64 @@ describe('NavigationChevrons', () => {
     expect(back.getAttribute('aria-disabled')).toBe('true');
     act(() => back.click());
     expect(requestFreshness).not.toHaveBeenCalled();
+  });
+
+  it('visits successive anchors on the same job and another job without replacing the real Back origin', () => {
+    const commentsState = { 'market-a': [
+      { id: 'first', version: 2, comment_type: 'QUESTION', investible_id: 'job-a' },
+      { id: 'second', version: 2, comment_type: 'REPORT', investible_id: 'job-a' },
+      { id: 'third', version: 2, comment_type: 'SUGGEST', investible_id: 'job-b' }
+    ] };
+    const messages = commentsState['market-a'].map((comment, index) => ({
+      type: 'UNREAD_COMMENT', type_object_id: `UNREAD_COMMENT_${comment.id}`,
+      comment_id: comment.id, market_id: 'market-a',
+      comment_list: [comment.id], comment_version: 2,
+      is_highlighted: index > 0, updated_at: 3 - index
+    }));
+    const origin = '/dialog/market-a/origin-job';
+    const messagesDispatch = jest.fn();
+    const history = {};
+    useHistory.mockReturnValue(history);
+    useLocation.mockReturnValue({ pathname: '/dialog/market-a/job-a', search: '', hash: '#cfirst',
+      state: { notification: { id: messages[0].type_object_id } } });
+    // Use the real shared classification with the production string-ID list before data arrives.
+    const oldComments = { 'market-a': commentsState['market-a'].map((comment) => ({ ...comment, version: 1 })) };
+    [{}, oldComments].forEach((pendingComments) => {
+      const { syncedMessages } = getNotificationSyncState(messages, {}, {}, pendingComments, {}, {});
+      act(() => root.render(navigationChevronsTree({ commentsState: pendingComments, messages, syncedMessages,
+        navigations: [{ url: origin, time: 1 }], messagesDispatch })));
+      const next = container.querySelector('#nextNavigation');
+      expect(next.disabled).toBe(true);
+      act(() => next.click());
+      expect(navigate).not.toHaveBeenCalled();
+    });
+    const { syncedMessages } = getNotificationSyncState(messages, {}, {}, commentsState, {}, {});
+    act(() => root.render(navigationChevronsTree({ commentsState, messages, syncedMessages,
+      navigations: [{ url: origin, time: 1 }], messagesDispatch })));
+    act(() => container.querySelector('#nextNavigation').click());
+    expect(navigate).toHaveBeenLastCalledWith(history, '/dialog/market-a/job-a#csecond', false, false,
+      { notification: { id: messages[1].type_object_id, marketId: 'market-a', commentId: 'second' } });
+    const nextMessages = messages.map((message) => ({ ...message,
+      is_highlighted: message.comment_id === 'third' }));
+    useLocation.mockReturnValue({ pathname: '/dialog/market-a/job-a', search: '', hash: '',
+      state: { notification: { id: messages[1].type_object_id } } });
+    act(() => root.render(navigationChevronsTree({ commentsState, messages: nextMessages,
+      syncedMessages: nextMessages, navigations: [{ url: origin, time: 1 }], messagesDispatch })));
+    act(() => container.querySelector('#nextNavigation').click());
+    expect(navigate).toHaveBeenLastCalledWith(history, '/dialog/market-a/job-b#cthird', false, false,
+      { notification: { id: messages[2].type_object_id, marketId: 'market-a', commentId: 'third' } });
+    expect(messagesDispatch.mock.calls.some(([action]) => action.type === 'ADD_NAVIGATION')).toBe(false);
+    act(() => container.querySelector('#backNavigation').click());
+    expect(navigate).toHaveBeenLastCalledWith(history, origin);
+
+    // A direct row opened from a filtered inbox keeps that actual list as its return point.
+    act(() => root.render(navigationChevronsTree({ commentsState, messages: nextMessages,
+      syncedMessages: nextMessages, searchText: 'report',
+      navigations: [{ url: '/inbox', time: 1 }], messagesDispatch })));
+    expect(container.querySelector('#nextNavigation')).toBeNull();
+    expect(container.querySelector('#backNavigation').disabled).toBe(false);
+    act(() => container.querySelector('#backNavigation').click());
+    expect(navigate).toHaveBeenLastCalledWith(history, '/inbox');
   });
 
 });

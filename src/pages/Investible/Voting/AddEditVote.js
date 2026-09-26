@@ -160,6 +160,7 @@ function AddEditVote(props) {
       resetEditor('', {placeholder: intl.formatMessage({ id: 'yourReason' })});
       commonQuick(result, commentsDispatch, marketId, commentsState, marketPresencesDispatch, undefined,
         messagesDispatch, setOperationRunning, voteMessage);
+      return result;
     });
   }
 

@@ -37,6 +37,7 @@ import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { PLANNING_TYPE } from '../../../constants/markets';
 import { FormattedMessage } from 'react-intl';
+import useSubmissionNavigation from '../../../utils/useSubmissionNavigation';
 
 export function hasReply(comment) {
   return hasCommentValue(comment?.group_id, comment, 'CommentAddReply', undefined,
@@ -50,6 +51,7 @@ function ReplyStep(props) {
   // the step no longer asks; without the param (stale links) the pills remain.
   const preChosenType = [REPLY_TYPE, REPORT_TYPE].includes(groupedType) ? groupedType : undefined;
   const history = useHistory();
+  const submissionNavigation = useSubmissionNavigation();
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -97,7 +99,7 @@ function ReplyStep(props) {
     if (message) {
       dismissWorkListItem(message, messagesDispatch);
     }
-    navigate(history, formCommentLink(createdComment.market_id, createdComment.group_id, createdComment.investible_id,
+    navigate(history, submissionNavigation(createdComment)?.nextLink || formCommentLink(createdComment.market_id, createdComment.group_id, createdComment.investible_id,
       createdComment.id));
   }
 

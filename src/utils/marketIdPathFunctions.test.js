@@ -1,4 +1,5 @@
-import { getLinkTargetName, getTicketRedirectUrl } from './marketIdPathFunctions';
+import { createMemoryHistory } from 'history';
+import { getLinkTargetName, getTicketRedirectUrl, navigate, removeHash } from './marketIdPathFunctions';
 
 const marketId = 'planning-market';
 const ticketCode = 'J-all-372';
@@ -77,4 +78,19 @@ describe('short code link hover names (S-all-321)', () => {
     expect(getLinkTargetName('https://example.com/elsewhere', ticketState,
       commentsState, investiblesState)).toBeUndefined();
   });
+});
+
+
+it('preserves a notification entry through scroll cleanup and gives a repeated entry a new identity', () => {
+  const history = createMemoryHistory({ initialEntries: ['/inbox'] });
+  const url = '/dialog/market/view#cnote';
+  const notification = { id: 'UNREAD_COMMENT_note', marketId: 'market', commentId: 'note' };
+  navigate(history, url, false, false, { notification });
+  const firstEntry = history.location.state.notification;
+  removeHash(history);
+  expect(history.location.hash).toBe('');
+  expect(history.location.state.notification).toEqual(firstEntry);
+  navigate(history, url, false, false, { notification });
+  expect(history.location.state.notification.entryId).not.toBe(firstEntry.entryId);
+  expect(history.location.state.notification).toEqual({ ...notification, entryId: expect.any(String) });
 });

@@ -44,6 +44,7 @@ import { DARK_TEXT_BACKGROUND_COLOR } from '../Buttons/ButtonConstants';
 import { formCommentLink } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { navigate } from '../../utils/marketIdPathFunctions';
+import useSubmissionNavigation from '../../utils/useSubmissionNavigation';
 
 const useStyles = makeStyles((theme) => ({
   visible: {
@@ -255,6 +256,7 @@ function CommentEdit(props) {
   const intl = useIntl();
   const theme = useTheme();
   const history = useHistory();
+  const submissionNavigation = useSubmissionNavigation();
   const editBox = useRef(null);
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { id, uploaded_files: initialUploadedFiles, comment_type: commentType, investible_id: investibleId,
@@ -338,6 +340,10 @@ function CommentEdit(props) {
         }
         setOperationRunning(false);
         handleSpinStop();
+        const destination = submissionNavigation(response);
+        if (destination) {
+          navigate(history, destination.nextLink || destination.respondedLink);
+        }
       })
   }
 

@@ -1,11 +1,12 @@
 import React from 'react';
+import { getDirectNotificationTitle } from '../../../utils/notificationNavigation';
 import _ from 'lodash';
 import {
   getMarketDetailsForType,
   getNotHiddenMarketDetailsForUser
 } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { Assignment, Block, BugReportOutlined, PersonAddOutlined } from '@material-ui/icons';
-import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../../constants/markets';
+import { DECISION_TYPE, PLANNING_TYPE } from '../../../constants/markets';
 import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { getInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import {
@@ -16,14 +17,12 @@ import {
 import { getUserInvestibles, getUserPendingAcceptanceInvestibles } from '../../Dialog/Planning/userUtils';
 import {
   getComment,
-  getMarketComments,
-  isDesignCapsule
+  getMarketComments
 } from '../../../contexts/CommentsContext/commentsContextHelper';
 import {
   ISSUE_TYPE,
   QUESTION_TYPE,
   REPLY_TYPE,
-  REPORT_TYPE,
   SUGGEST_CHANGE_TYPE,
   TODO_TYPE
 } from '../../../constants/comments';
@@ -34,21 +33,15 @@ import { Typography } from '@material-ui/core';
 import { PENDING_INDEX } from './InboxContext';
 import ApprovalWizard from '../../../components/InboxWizards/Approval/ApprovalWizard';
 import StatusWizard from '../../../components/InboxWizards/Status/StatusWizard';
-import AnswerWizard from '../../../components/InboxWizards/Answer/AnswerWizard';
-import VoteWizard from '../../../components/InboxWizards/Vote/VoteWizard';
-import AcceptRejectWizard from '../../../components/InboxWizards/AcceptReject/AcceptRejectWizard';
 import StartWizard from '../../../components/InboxWizards/Start/StartWizard';
 import ResolveWizard from '../../../components/InboxWizards/Resolve/ResolveWizard';
-import ReviewWizard from '../../../components/InboxWizards/Review/ReviewWizard';
 import BlockedWizard from '../../../components/InboxWizards/Unblock/BlockedWizard';
 import StageWizard from '../../../components/InboxWizards/Stage/StageWizard';
 import WaitingAssistanceWizard from '../../../components/InboxWizards/WaitingAssistance/WaitingAssistanceWizard';
 import AssignToOtherWizard from '../../../components/InboxWizards/AssignToOther/AssignToOtherWizard';
 import EstimateChangeWizard from '../../../components/InboxWizards/Monitor/EstimateChangeWizard';
-import ReplyWizard from '../../../components/InboxWizards/Reply/ReplyWizard';
 import OptionSubmittedWizard from '../../../components/InboxWizards/Submission/OptionSubmittedWizard';
 import UpgradeWizard from '../../../components/InboxWizards/Upgrade/UpgradeWizard';
-import ReplyResolveWizard from '../../../components/InboxWizards/ReplyResolve/ReplyResolveWizard';
 import NewGroupWizard from '../../../components/InboxWizards/NewGroup/NewGroupWizard';
 import RequestWorkWizard from '../../../components/InboxWizards/RequestWork/RequestWorkWizard';
 import RespondInOptionWizard from '../../../components/InboxWizards/OptionResponse/RespondInOptionWizard';
@@ -59,7 +52,6 @@ import TriageWizard from '../../../components/InboxWizards/Triage/TriageWizard';
 import InvestibleEditedWizard from '../../../components/InboxWizards/JobEdited/InvestibleEditedWizard';
 import Approval from '../../../components/CustomChip/Approval';
 import { getCommentPokeList, getHumanPresences, getInvestiblePokeList } from '../../../utils/pokeUtils';
-import NoteReviewWizard from '../../../components/InboxWizards/NoteReview/NoteReviewWizard';
 
 function setItem(item, isOpen, panel, titleId, intl) {
   if (isOpen) {
@@ -76,6 +68,11 @@ export function calculateTitleExpansionPanel(props) {
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId, market_type: marketType, isOutboxAccepted,
     decision_investible_id: decisionInvestibleId, comment_list: commentList } = message;
+  const directTitle = getDirectNotificationTitle(message, rootComment, isAssigned);
+  if (directTitle) {
+    item.title = intl.formatMessage({ id: directTitle });
+    return;
+  }
   if (messageType === 'USER_POKED') {
     setItem(item, openExpansion, <UpgradeWizard message={message} />,
       'DecidePayTitle', intl);
@@ -99,15 +96,7 @@ export function calculateTitleExpansionPanel(props) {
       undefined, intl);
     }
   } else if ([NOT_FULLY_VOTED_TYPE, UNREAD_JOB_APPROVAL_REQUEST].includes(messageType)) {
-    if (marketType === INITIATIVE_TYPE) {
-      setItem(item, openExpansion, <VoteWizard marketId={commentMarketId || marketId} commentId={commentId}
-                                               message={message} />,
-        'DecideVoteTitle', intl);
-    } else if (marketType === DECISION_TYPE || decisionInvestibleId) {
-      setItem(item, openExpansion, <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
-                                                 message={message} />,
-        'DecideAnswerTitle', intl);
-    } else if (marketType === PLANNING_TYPE) {
+    if (marketType === PLANNING_TYPE) {
       setItem(item, openExpansion, <ApprovalWizard investibleId={investibleId} marketId={marketId} message={message}
                                                    isPendingAcceptance={isPendingAcceptance}/>,
         isPendingAcceptance ? 'ApproveOwnAssignmentTitle' : 'AssignmentApprovalRowTitle', intl);
@@ -122,34 +111,10 @@ export function calculateTitleExpansionPanel(props) {
     setItem(item, openExpansion, <StatusWizard investibleId={investibleId} marketId={marketId} message={message} />,
       messageType === 'REPORT_REQUIRED' ? 'JobStatusTitle' : 'JobMovedTitle', intl);
   } else if (['ISSUE', 'UNREAD_COMMENT'].includes(messageType)) {
-    if (isDesignCapsule(rootComment)) {
-      setItem(item, openExpansion, <BlockedWizard marketId={commentMarketId || marketId} commentId={commentId}
-                                                  message={message} />,
-        'ReviewDesignTitle', intl);
-    // B-all-559: AI-authored view notes share MARKET_COMMENT with view issues, so use the loaded
-    // root's REPORT semantics before the generic blocker fallback.
-    } else if (messageType === 'UNREAD_COMMENT' && linkType === 'MARKET_COMMENT' &&
-      message.alert_type === 'AI_GENERATED' &&
-      rootComment?.comment_type === REPORT_TYPE && !rootComment.investible_id) {
-      setItem(item, openExpansion, <NoteReviewWizard marketId={commentMarketId || marketId} commentId={commentId}
-                                                          message={message} />,
-        'ReviewAINoteTitle', intl);
-    } else if (['INVESTIBLE_SUGGESTION', 'MARKET_SUGGESTION'].includes(linkType)) {
-      if (isAssigned) {
-        setItem(item, openExpansion, <AcceptRejectWizard commentId={commentId} marketId={marketId} message={message}/>,
-          'DecideAcceptRejectTitle', intl);
-      } else {
-        setItem(item, openExpansion, <ReplyResolveWizard commentId={commentId} marketId={marketId} message={message}/>,
-          'DecideIdeaTitle', intl);
-      }
-    } else if (['INLINE_STORY_COMMENT', 'INLINE_WORKSPACE_COMMENT'].includes(linkType)) {
+    if (['INLINE_STORY_COMMENT', 'INLINE_WORKSPACE_COMMENT'].includes(linkType)) {
       setItem(item, openExpansion, <RespondInOptionWizard marketId={commentMarketId || marketId} commentId={commentId}
                                                  message={message} />,
         'DecideResponseTitle', intl);
-    } else if (['INVESTIBLE_QUESTION', 'MARKET_QUESTION'].includes(linkType)) {
-      setItem(item, openExpansion, <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
-                                                 message={message} />,
-        'DecideAnswerTitle', intl);
     } else if ('INVESTIBLE_REVIEW' === linkType) {
       const isMultiple = !_.isEmpty(commentList?.find((aCommentId) => aCommentId !== commentId));
       setItem(item, openExpansion, <TaskedWizard marketId={marketId} message={message} />,
@@ -159,11 +124,7 @@ export function calculateTitleExpansionPanel(props) {
                                                   message={message} />,
         'DecideUnblockTitle', intl);
     }
-  } else if (['UNREAD_REPLY', 'REPLY_MENTION'].includes(messageType)) {
-    setItem(item, openExpansion, <ReplyWizard commentId={commentId} marketId={commentMarketId || marketId}
-                                                message={message} />,
-      messageType === 'REPLY_MENTION' ? 'unreadMention' : 'unreadReply', intl);
-  }else if (messageType === 'UNREAD_VOTE' && linkType === 'INVESTIBLE_VOTE') {
+  } else if (messageType === 'UNREAD_VOTE' && linkType === 'INVESTIBLE_VOTE') {
       // B-all-524: approval-arrived rows share StageWizard so the affirmative "Yes - Doable" is available
       setItem(item, openExpansion, <StageWizard marketId={marketId} investibleId={investibleId} message={message} />,
         'startJobQ', intl);
@@ -182,16 +143,7 @@ export function calculateTitleExpansionPanel(props) {
                                                                         message={message}/>,
           'DecideStartTitle', intl);
       }
-    } else if (linkType === 'INVESTIBLE_REVIEW') {
-      setItem(item, openExpansion, <ReviewWizard commentId={commentId} marketId={marketId} message={message} />,
-        'DecideReviewTitle', intl);
     }
-  } else if (messageType === 'UNREAD_OPTION') {
-    // The option lives in the inline decision market (commentMarketId). DecideAnswerStep walks up to that
-    // market's parent question so the whole question and its options (including the new one) show with voting.
-    setItem(item, openExpansion, <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
-                                               message={message} />,
-      'DecideAnswerTitle', intl);
   } else if (messageType === 'UNREAD_ESTIMATE') {
     setItem(item, openExpansion,
       item.expansionPanel = <EstimateChangeWizard investibleId={investibleId} marketId={marketId}

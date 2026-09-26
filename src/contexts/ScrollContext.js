@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useHistory, useLocation } from 'react-router';
 import { ASSIGNED_HASH, BACKLOG_HASH, decomposeMarketPath, DISCUSSION_HASH, removeHash } from '../utils/marketIdPathFunctions';
 
@@ -24,74 +24,73 @@ function ScrollProvider(props) {
   const history = useHistory();
   const location = useLocation();
   const { pathname, hash } = location;
-  const [hashFragment, setHashFragment] = useState(undefined);
-  const [processedPath, setProcessedPath] = useState(undefined);
+  const notificationEntryId = location.state?.notification?.entryId;
+  const [scrollTarget, setScrollTarget] = useState();
+  const [hashFragment, setHashFragment] = useState();
+  const processedPath = useRef();
   const [noHighlightId, setNoHighlightId] = useState(undefined);
 
   useLayoutEffect(() => {
-    // See https://github.com/rafrex/react-router-hash-link/blob/master/src/index.js
-    function getElAndScroll(originalScrollTarget) {
-      return (mutationsList, observer) => {
-        const element = document.getElementById(originalScrollTarget);
-        if (element !== null && window.getComputedStyle(element).display !== 'none') {
-          if (observer) observer.disconnect()
-          scrollToElement(element);
-          window.setTimeout(() => {
-            // Turn off the whatever effect is used to show the object was navigated to
-            setHashFragment(undefined);
-            setNoHighlightId(undefined);
-          }, 2000);
-          // Remove the hash from the URL so we don't end up scrolling again
-          // - use replace instead of push so back button works
-          console.info(`Replacing path after scrolling to ${originalScrollTarget}`);
-          removeHash(history);
-          return true;
-        }
-        return false;
+    if (!scrollTarget) return undefined;
+    let observer;
+    let observerTimeout;
+    let highlightTimeout;
+    function scrollIfVisible() {
+      const current = history.location;
+      if (current.pathname !== scrollTarget.pathname || current.hash !== `#${scrollTarget.fragment}` ||
+        current.state?.notification?.entryId !== scrollTarget.entryId) return false;
+      const element = document.getElementById(scrollTarget.fragment);
+      if (!element || element.getClientRects().length === 0) return false;
+      observer?.disconnect();
+      window.clearTimeout(observerTimeout);
+      scrollToElement(element);
+      // Highlight only once the actual destination is visible, as after creation.
+      setHashFragment(scrollTarget.fragment);
+      highlightTimeout = window.setTimeout(() => {
+        setScrollTarget(undefined);
+        setHashFragment(undefined);
+        setNoHighlightId(undefined);
+      }, 2000);
+      removeHash(history);
+      return true;
+    }
+    const scrollTimeout = window.setTimeout(() => {
+      if (!scrollIfVisible()) {
+        observer = new MutationObserver(scrollIfVisible);
+        observer.observe(document, { attributes: true, childList: true, subtree: true });
+        observerTimeout = window.setTimeout(() => {
+          observer.disconnect();
+          setScrollTarget(undefined);
+        }, 10000);
       }
-    }
-
-    function hashLinkScroll(myHashFragment) {
-      // Push onto callback queue so it runs after the DOM is updated
-      window.setTimeout(() => {
-        if (getElAndScroll(myHashFragment)() === false) {
-          const myObserver = new MutationObserver(getElAndScroll(myHashFragment));
-          myObserver.observe(document, {
-            attributes: true,
-            childList: true,
-            subtree: true,
-          });
-          // if the element doesn't show up in 10 seconds, stop checking
-          window.setTimeout(() => {
-            myObserver.disconnect()
-          }, 10000)
-        }
-      }, 0);
-    }
-    if (hashFragment) {
-      hashLinkScroll(hashFragment)
-    }
-  }, [hashFragment, history]);
+    }, 0);
+    // A second entry, including the same anchor, owns a fresh two-second highlight.
+    return () => {
+      observer?.disconnect();
+      window.clearTimeout(scrollTimeout);
+      window.clearTimeout(observerTimeout);
+      window.clearTimeout(highlightTimeout);
+    };
+  }, [scrollTarget, history]);
 
   useEffect(() => {
-    if (![`#${ASSIGNED_HASH}`, `#${BACKLOG_HASH}`, `#${DISCUSSION_HASH}`].includes(hash)) {
-      const myHashFragment = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined;
-      if (processedPath !== pathname || hashFragment !== myHashFragment) {
-        setProcessedPath(pathname);
-        const { action } = decomposeMarketPath(pathname);
-        if (!myHashFragment || (!['dialog', 'inbox', 'comment'].includes(action) && pathname !== '/')) {
-          //Scroll to the top if it's a new page and there is no anchor to scroll to
-          if (!hashFragment) {
-            window.scrollTo(0, 0);
-          }
-        } else if (myHashFragment !== hashFragment) {
-          setHashFragment(myHashFragment);
-        } 
-      }
+    const newPage = processedPath.current !== pathname;
+    processedPath.current = pathname;
+    if ([`#${ASSIGNED_HASH}`, `#${BACKLOG_HASH}`, `#${DISCUSSION_HASH}`].includes(hash)) return;
+    const fragment = hash?.substring(1);
+    const { action } = decomposeMarketPath(pathname);
+    if (fragment && (['dialog', 'inbox', 'comment'].includes(action) || pathname === '/')) {
+      setHashFragment(undefined);
+      setNoHighlightId(undefined);
+      setScrollTarget({ fragment, pathname, entryId: notificationEntryId });
+    } else if (newPage) {
+      setScrollTarget(undefined);
+      setHashFragment(undefined);
+      setNoHighlightId(undefined);
+      window.scrollTo(0, 0);
     }
-    return () => {
-    };
-  }, [pathname, hash, processedPath, history, hashFragment]);
+    // Removing the URL hash after scrolling keeps its highlight until the timer expires.
+  }, [pathname, hash, notificationEntryId]);
 
   return (
     <ScrollContext.Provider value={[hashFragment, noHighlightId, setNoHighlightId]}>

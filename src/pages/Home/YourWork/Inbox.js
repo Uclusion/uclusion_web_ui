@@ -1,4 +1,6 @@
 import WorkListItem from './WorkListItem';
+import { getNotificationDestination } from '../../../utils/notificationNavigation';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { Box, Checkbox, useMediaQuery, useTheme } from '@material-ui/core';
 import React, { useContext, useEffect, useReducer } from 'react';
 import { useIntl } from 'react-intl';
@@ -59,6 +61,7 @@ function Inbox(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [groupsState] = useContext(MarketGroupsContext);
   const [marketsState] = useContext(MarketsContext);
+  const [commentsState] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const history = useHistory();
   const theme = useTheme();
@@ -97,7 +100,9 @@ function Inbox(props) {
       if (itemMessage?.is_highlighted) {
         dehighlightMessage(itemMessage, messagesDispatch);
       }
-      navigate(history, itemMessage ? formInboxItemLink(itemMessage) : formInboxItemLinkFromId(itemId));
+      const destination = itemMessage && getNotificationDestination(itemMessage, commentsState, marketsState);
+      navigate(history, destination?.url || (itemMessage ? formInboxItemLink(itemMessage) : formInboxItemLinkFromId(itemId)),
+        false, false, destination ? { notification: destination.notification } : undefined);
     }
   }
 

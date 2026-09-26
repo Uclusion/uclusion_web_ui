@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { act } from 'react';
+import { createRoot } from 'react-dom/client';
 import ReactDOMServer from 'react-dom/server';
 import { IntlProvider } from 'react-intl';
 import { MemoryRouter } from 'react-router';
@@ -9,11 +10,13 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { REPLY_TYPE } from '../../../constants/comments';
+import { JUSTIFY_TYPE, REPLY_TYPE } from '../../../constants/comments';
 import DecisionInvestible from './DecisionInvestible';
+import { ScrollContext } from '../../../contexts/ScrollContext';
 
 const mockCommentBox = jest.fn(() => null);
 const mockVoting = jest.fn(() => null);
+const mockUpdatePageState = jest.fn();
 
 jest.mock('../../../containers/CommentBox/CommentBox', () => (props) => mockCommentBox(props));
 jest.mock('./Voting', () => (props) => mockVoting(props));
@@ -23,7 +26,7 @@ jest.mock('../../../utils/votingUtils', () => ({
 jest.mock('../../../components/PageState/pageStateHooks', () => ({
   getPageReducerPage: (state, dispatch, id, defaultState = {}) => [
     state[id] || defaultState,
-    jest.fn(),
+    mockUpdatePageState,
     jest.fn(),
   ],
   usePageStateReducer: () => [{}, jest.fn()],
@@ -53,7 +56,7 @@ jest.mock('@material-ui/core', () => ({
   useMediaQuery: () => false,
 }));
 
-function renderDecision() {
+function renderDecision(notification, hashFragment) {
   const noOp = jest.fn();
   const inlineMarketId = 'inline-option-market';
   const planningMarketId = 'parent-planning-market';
@@ -75,7 +78,7 @@ function renderDecision() {
         created_by: 'Created by',
         decisionInvestibleOthersVoting: 'Approvals',
       }}>
-        <MemoryRouter initialEntries={['/market/inline-option-market']}>
+        <MemoryRouter initialEntries={[{ pathname: '/market/inline-option-market', state: { notification } }]}>
           <InvestiblesContext.Provider value={[{}, noOp]}>
             <CommentsContext.Provider value={[{ [planningMarketId]: [parentComment] }, noOp]}>
               <DiffContext.Provider value={[{}, noOp]}>
@@ -108,7 +111,8 @@ function renderDecision() {
                           id: 'option-reply',
                           comment_type: REPLY_TYPE,
                           created_by: 'ai-user',
-                        }]}
+                          reply_id: 'vote-reason',
+                        }, ...(notification ? [{ id: 'vote-reason', comment_type: JUSTIFY_TYPE }] : [])]}
                         userId="human-user"
                         removeActions
                       />
@@ -123,17 +127,18 @@ function renderDecision() {
     </ThemeProvider>
   );
 
-  ReactDOMServer.renderToStaticMarkup(tree);
+  return <ScrollContext.Provider value={[hashFragment]}>{tree}</ScrollContext.Provider>;
 }
 
 describe('DecisionInvestible option Poke AI routing', () => {
   beforeEach(() => {
     mockCommentBox.mockClear();
     mockVoting.mockClear();
+    mockUpdatePageState.mockClear();
   });
 
   it('passes the parent planning market and question code to every comment and vote route', () => {
-    renderDecision();
+    ReactDOMServer.renderToStaticMarkup(renderDecision());
 
     expect(mockCommentBox).toHaveBeenCalled();
     mockCommentBox.mock.calls.forEach(([props]) => {
@@ -148,5 +153,25 @@ describe('DecisionInvestible option Poke AI routing', () => {
       pokeAIMarketId: 'parent-planning-market',
       pokeAIParentTicketCode: 'Q-all-500',
     }));
+
+    const previousActEnvironment = window.IS_REACT_ACT_ENVIRONMENT;
+    window.IS_REACT_ACT_ENVIRONMENT = true;
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    const notification = { id: 'UNREAD_REPLY_option-reply', entryId: 'entry-1',
+      marketId: 'inline-option-market', commentId: 'vote-reason' };
+    try {
+      act(() => root.render(renderDecision(notification, 'optionoption-id')));
+      expect(container.querySelector('#optionoption-id').style.backgroundColor).toBe('rgb(251, 246, 216)');
+      expect(mockUpdatePageState).toHaveBeenCalledWith({ useCompression: false });
+      mockUpdatePageState.mockClear();
+      // Rerenders and a later user collapse must not reapply the same notification entry.
+      act(() => root.render(renderDecision(notification)));
+      expect(container.querySelector('#optionoption-id').style.backgroundColor).toBe('');
+      expect(mockUpdatePageState).not.toHaveBeenCalled();
+    } finally {
+      act(() => root.unmount());
+      window.IS_REACT_ACT_ENVIRONMENT = previousActEnvironment;
+    }
   });
 });

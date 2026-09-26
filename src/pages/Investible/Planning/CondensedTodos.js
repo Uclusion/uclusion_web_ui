@@ -125,7 +125,7 @@ function CondensedTodos(props) {
           isInbox={isInbox}
           removeActions={isInbox && removeActions}
           stagePreventsActions={isInbox && removeActions}
-          idPrepend='condensed'
+          idPrepend={resolved ? 'c' : 'condensed'}
           inNotesTab={inNotesTab}
           // B-all-641: open tasks in the Tasks tab already show associated notes
           // when expanded. Resolved tasks only appear in this overview list, so

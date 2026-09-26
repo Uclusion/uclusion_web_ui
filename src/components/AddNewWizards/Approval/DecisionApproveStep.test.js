@@ -5,6 +5,8 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 import { QUESTION_TYPE } from '../../../constants/comments';
 import messages from '../../../config/locales/en';
 import DecisionApproveStep from './DecisionApproveStep';
@@ -50,6 +52,11 @@ function renderStep(parentResolved) {
     investible_id: 'parent-job',
     group_id: 'parent-view',
   };
+  const market = {
+    id: 'inline-market',
+    parent_comment_id: parentComment.id,
+    parent_comment_market_id: parentMarketId,
+  };
   const dispatch = jest.fn();
 
   ReactDOMServer.renderToStaticMarkup(
@@ -58,15 +65,11 @@ function renderStep(parentResolved) {
         <NotificationsContext.Provider value={[{ messages: [] }, dispatch]}>
           <MarketPresencesContext.Provider value={[{}, dispatch]}>
             <CommentsContext.Provider value={[{ [parentMarketId]: [parentComment] }, dispatch]}>
-              <DecisionApproveStep
-                market={{
-                  id: 'inline-market',
-                  parent_comment_id: parentComment.id,
-                  parent_comment_market_id: parentMarketId,
-                }}
-                investibleId="option-id"
-                formData={{ approveQuantity: 4 }}
-              />
+              <MarketsContext.Provider value={[{ marketDetails: [market] }, dispatch]}>
+                <SearchResultsContext.Provider value={[{ search: '', results: [], parentResults: [] }, jest.fn()]}>
+                  <DecisionApproveStep market={market} investibleId="option-id" formData={{ approveQuantity: 4 }}/>
+                </SearchResultsContext.Provider>
+              </MarketsContext.Provider>
             </CommentsContext.Provider>
           </MarketPresencesContext.Provider>
         </NotificationsContext.Provider>

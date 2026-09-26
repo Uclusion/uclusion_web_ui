@@ -200,9 +200,6 @@ function Voting(props) {
           const { name, email, id: userId, quantity, commentId, updatedAt } = voter;
           const isYourVote = userId === yourPresence.id;
           const myMessage = findMessageByInvestmentUserId(userId, investibleId, messagesState);
-          // T-all-2447: the bell offers go-to or clear via NotificationMenuButton.
-          // C-all-1567: it shows in the inbox too, where go-to is meaningless because you are
-          // already there, so the menu is clear only.
           const notificationMessage = myMessage?.type_object_id ? myMessage : undefined;
           const reason = investmentReasons.find((comment) => comment.id === commentId);
           const voteReplies = reason ? _.sortBy(marketComments.filter((comment) => comment.reply_id === reason.id),
@@ -244,6 +241,7 @@ function Voting(props) {
                     type={`certainty${Math.abs(quantity)}`}
                     notificationMessage={notificationMessage}
                     notificationClearOnly={isInbox}
+                    notificationDirect={!!market.parent_comment_id}
                     gravatar={<GravatarAndName email={email}
                                        name={name} typographyVariant="caption"
                                        typographyClassName={classes.createdBy}
@@ -357,7 +355,7 @@ function Voting(props) {
               </div>
               {!myUseCompression && !_.isEmpty(voteReplies) && (
                 <LocalCommentsContext.Provider value={{ comments: marketComments, marketId: market.id,
-                  idPrepend: '', pokeAIMarketId, pokeAIParentTicketCode }}>
+                  idPrepend: 'c', pokeAIMarketId, pokeAIParentTicketCode }}>
                   {/* The first Reply card carries its own 1.5rem top margin - cancel it so the thread sits
                       just below the vote's Reply button, and separate the thread from the next vote */}
                   <div style={{marginLeft: '0.5rem', marginTop: '-1.5rem', marginBottom: '1.5rem'}}>

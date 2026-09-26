@@ -208,6 +208,10 @@ export function onCommentsMove(fromCommentIds, messagesState, marketComments, in
   addMarketComments(commentsDispatch, marketId, [...movedComments, ...threads]);
 }
 
+export function sortRootsByCreatedAt(roots) {
+  return _.sortBy(roots, [(root) => new Date(root.created_at).getTime(), 'id']);
+}
+
 // T-all-2298 / B-all-510: an AI-authored assistance comment is "Responded" once a human reply,
 // inline-option comment, or human vote is more recent than the AI's latest comment activity there.
 // An AI option vote changes its choice; it does not ask the human for another response (B-all-542).

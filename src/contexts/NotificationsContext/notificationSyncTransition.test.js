@@ -30,6 +30,7 @@ const message = {
   market_id: MARKET_ID,
   group_id: GROUP_ID,
   comment_id: COMMENT_ID,
+  comment_list: [COMMENT_ID],
   comment_version: 2,
   is_highlighted: true,
   level: 'RED'

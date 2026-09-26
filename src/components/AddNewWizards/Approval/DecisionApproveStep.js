@@ -24,6 +24,7 @@ import { hasDecisionComment } from '../DecisionComment/AddCommentStep';
 import { findMessagesForCommentIds } from '../../../utils/messageUtils';
 import { dismissWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { toastErrorAndThrow } from '../../../utils/userMessage';
+import useSubmissionNavigation from '../../../utils/useSubmissionNavigation';
 
 function DecisionApproveStep(props) {
   const { market, updateFormData = () => {}, formData = {}, investibleId, hasOtherVote, currentReasonId } = props;
@@ -32,6 +33,7 @@ function DecisionApproveStep(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const history = useHistory();
+  const submissionNavigation = useSubmissionNavigation();
   const classes = useContext(WizardStylesContext);
   const editorName = getJobApproveEditorName(investibleId);
   const marketId = market.id;
@@ -81,7 +83,12 @@ function DecisionApproveStep(props) {
     };
     return updateInvestment(updateInfo, questionResolvedError).then((result) => {
       doQuick(result);
-      navigateToOption(history, parentMarketId, parentInvestibleId, parentGroupId, investibleId);
+      const nextLink = submissionNavigation(result)?.nextLink;
+      if (nextLink) {
+        navigate(history, nextLink);
+      } else {
+        navigateToOption(history, parentMarketId, parentInvestibleId, parentGroupId, investibleId);
+      }
     })
   }
 

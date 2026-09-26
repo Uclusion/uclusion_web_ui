@@ -112,7 +112,7 @@ completed is already resolved, so its action 4 is that transition:
 Reply `all`, `none`, or numbers such as `1,2,4` here, or <in the agent/on review R-code>.
 Put the selection alone on the first nonblank line.
 Selected actions run in numeric order and stop at the first failure, except
-that a selected clear runs last so it covers this attempt's own record.
+that a selected clear runs last, after this attempt's outcome is recorded.
 Action 4 is indivisible.
 ```
 
@@ -130,7 +130,7 @@ job already in Reviewable, use only the applicable three actions:
 Reply `all`, `none`, or numbers such as `1,2` here, or <in the agent/on review R-code>.
 Put the selection alone on the first nonblank line.
 Selected actions run in numeric order and stop at the first failure, except
-that a selected clear runs last so it covers this attempt's own record.
+that a selected clear runs last, after this attempt's outcome is recorded.
 ```
 
 When a standalone bug's fix is complete, resolve it under the single-comment
@@ -154,7 +154,7 @@ package. Use:
 Reply `all`, `none`, or numbers such as `1,2` here, or <in the agent/on B-code>.
 Put the selection alone on the first nonblank line.
 Selected actions run in numeric order and stop at the first failure, except
-that a selected clear runs last so it covers this attempt's own record.
+that a selected clear runs last, after this attempt's outcome is recorded.
 ```
 
 Actions 1 and 2 appear only when the work changed repository files. When the
@@ -174,7 +174,8 @@ The review always exists, because opening it is what produces the menu, so a
 resolved task is an addition when there is one and the wording still reads
 correctly when the pass resolved none. Naming the job includes its nested task
 and review notifications present at the fresh check; a bug menu names the exact
-bug's own notifications. More than one named code is one clear call per code.
+bug and its replies' notifications. More than one named code is one clear call
+per code.
 
 The job-finished menu's action 4 is the one terminal state change shown. It
 couples the exact Reviewable transition and established completion sweep before
@@ -221,13 +222,18 @@ require the human to repeat the selection, then reconcile again.
 For a governing selection from either the package thread or normal client chat,
 finish the required reconciliation, then attempt only its selected
 actions. A selected clear is the exception to numeric order and runs last, after
-every other selected action and after this attempt's terminal record, because a
-record written after the clear leaves a notification the human just asked to be
-rid of. After every other selected action succeeds, the first mandatory check or
+every other selected action and after this attempt's terminal record.
+After every other selected action succeeds, the first mandatory check or
 selected action fails, or `none` selects no action, use `add_info` in the exact
 package thread to create exactly one terminal record for that execution
-attempt, then perform the selected clear. That record names the clear among its
-remaining selected action numbers, since it is written before the clear runs; a
+attempt. When action 3 is selected, create that record with `is_silent: true`
+for both job and standalone bug packages, including failure and retry records.
+It remains in the thread without generating a notification that could arrive
+after the clear. When action 3 is omitted or the selection is `none`, omit
+`is_silent` and retain ordinary notification behavior. Once the record is
+confirmed, perform the selected clear unless an earlier check or action failed.
+That record names the clear among its remaining selected action numbers,
+since it is written before the clear runs; a
 failed clear is reported in chat and never creates a second record. Reply to the governing human response when the selection came from the
 package thread, or to that thread's root when it came from normal client chat.
 Record the source, canonical selection, completed action numbers, failed action
@@ -250,8 +256,8 @@ after the last selected commit or push and before any selected clear or
 Reviewable transition. List the exact item's matching notifications even when
 action 3 was omitted, but neither perform nor request an omitted clear again.
 The job or bug named in the menu prospectively identifies this clear scope,
-including a job's task or review notifications created before the fresh check
-and this attempt's own terminal record, which is created after it.
+including a job's task or review notifications and a standalone bug's reply
+notifications created before the fresh check.
 Opening the review, and resolving the bug, each also retains the ordinary
 completion-time notification check.
 

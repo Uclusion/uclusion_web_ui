@@ -37,9 +37,16 @@ suggestion, or an explicitly approved test or security plan. A hard source
 constraint or prior authoritative artifact may support a forced fact, but it
 cannot authorize a choice that a reasonable reviewer could make differently.
 
+A human's conversion of an AI-authored suggestion into a task is qualifying
+acceptance of the proposal as written. Cite that conversion and the proposal
+for the choices it specifies, even though the task retains its AI author.
+Do not re-ask those choices unless evidence found after conversion bears on
+them; name that evidence in the question. Choices the proposal leaves open
+still require qualifying human evidence.
+
 Use a descriptive inline link beside the sentence or bullet it supports. A
 detached evidence ledger, an unlinked source list, proximity to a different
-claim, AI-authored text, a job-level value approval, or an invitation to object
+claim, unaccepted AI-authored text, a job-level value approval, or an invitation to object
 later does not satisfy the gate.
 
 When a selected option supplies the evidence, the same claim block must name

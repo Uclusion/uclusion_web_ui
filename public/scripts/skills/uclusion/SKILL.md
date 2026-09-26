@@ -17,19 +17,17 @@ skill owns event handling and the job workflow.
 - For notifications, exports, creating artifacts and visual options,
   recording dependencies, view notes, commits, or context-clear
   boundaries, read [references/operations.md](references/operations.md).
-- When a standalone bug is resolved or an assigned job transitions into
-  Reviewable, read
-  [references/completion.md](references/completion.md).
+- When a standalone bug is resolved or an assigned job enters Reviewable,
+  read [references/completion.md](references/completion.md).
 - Read a tool's rules only when the session exposes that tool: `start_job_audit`
   routes to [references/audit.md](references/audit.md) before substantive
   planning, `claim_work` to [references/claims.md](references/claims.md), and
   `get_upload` to [references/uploads.md](references/uploads.md).
 - Before every lane handoff, apply `pokes.md`'s assignment-aware discovery
   rules; a retained assignment does not trigger a work list. Read
-  `operations.md` when resolving a
-  bug/job, opening review, or receiving sign-off and committing. On standalone
-  bug resolution, also read `completion.md` and apply its sweep before the
-  operations reference's remaining completion actions. Job transitions into
+  `operations.md` when resolving a bug/job, opening review, or receiving sign-off
+  and committing. On standalone bug resolution, also read `completion.md` and
+  apply its sweep before the remaining completion actions. Job transitions into
   Reviewable are routed by `pokes.md` or handled immediately after a successful
   in-session stage change. Opening an implementation review and waiting on its
   completion menu is expressly not a lane handoff; retain its assignment and
@@ -243,8 +241,10 @@ with `resolve_suggestion_short_code_id` naming that suggestion. This updates the
 canonical option and resolves the suggestion in one call; omit a separate
 acceptance reply. Never replace the option with `add_options`. For other accepted
 changes, record the plan, act, then resolve. A human Resolve on an AI-authored
-suggestion without reply or vote declines the mitigation and accepts the risk;
-do not recreate it.
+suggestion without reply or vote declines the mitigation and accepts the risk; do not recreate it.
+A human's conversion of an AI-authored suggestion into a task accepts its proposal
+as written. Do not re-ask a choice the suggestion already made, unless new evidence
+found after the conversion bears on it; then name that evidence in the question.
 
 Do not offer execution or approve the job while an unanswered question remains.
 You may ask whether to begin completely independent tasks first.

@@ -23,9 +23,9 @@ requires work claims. Human-guided selections do not require the tool.
   `claim_work` with operation `release` for the held short code. Claims a
   crashed agent leaves behind expire on their own, so never wait for another
   agent's claim beyond a denial. An implementation review and its
-  completion-menu wait are not a review handoff: keep that claim until
-  the valid selection's execution attempt reaches a terminal outcome and its
-  post-attempt record is confirmed.
+  completion-package wait are not a review handoff: keep that claim until
+  the reply's execution attempt reaches a terminal outcome and its record is
+  confirmed.
 - Classification lookups and triage reads never claim; merely reading an item
   must not block another agent.
 

@@ -3977,6 +3977,26 @@ def build_add_info_arguments(args):
     return arguments
 
 
+def build_clear_notifications_arguments(args):
+    """T-Marketing-295: a completion package's terminal record travels with its clear."""
+    record_fields = ('record_short_code_id', 'record_info', 'record_tz')
+    arguments = declared_mcp_arguments(args, extra_destinations=record_fields)
+    if args.arguments_json is not None:
+        return arguments
+    if args.record_short_code_id is None and args.record_info is None:
+        if args.record_tz is not None:
+            raise CLIArgumentError('--record-tz describes a record, so supply one')
+        return arguments
+    if not args.record_short_code_id or not (args.record_info or '').strip():
+        raise CLIArgumentError('a record needs both --record-short-code-id and a nonblank --record-info')
+    arguments['record'] = {
+        'short_code_id': args.record_short_code_id,
+        'info': args.record_info,
+        'tz': args.record_tz or local_timezone_name(),
+    }
+    return arguments
+
+
 def build_get_upload_arguments(args):
     destinations = (
         'legacy_file', 'input_file', 'legacy_content_type', 'content_type',
@@ -4739,11 +4759,22 @@ def build_parser():
         'clear_notifications', help='Clear notifications for one explicitly authorized object.'
     )
     clear_notifications_parser.add_argument('--short-code-id', help='Job or comment short code.')
+    clear_notifications_parser.add_argument(
+        '--record-short-code-id',
+        help="A completion package's terminal record: the thread item it replies on.",
+    )
+    clear_notifications_parser.add_argument(
+        '--record-info', help='The terminal record, posted silently before the clear.'
+    )
+    clear_notifications_parser.add_argument(
+        '--record-tz', help='Timezone for the record (defaults to the local timezone).'
+    )
     configure_mcp_parser(
         clear_notifications_parser,
         'clear_notifications',
         (mcp_field('short_code_id', 'short_code_id'),),
         ('short_code_id',),
+        builder=build_clear_notifications_arguments,
     )
 
     approve_canonical_parser = subparsers.add_parser(

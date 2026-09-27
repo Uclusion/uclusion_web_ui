@@ -23,7 +23,7 @@ say once: "You can ask me to find other work at any time." This is an
 informational hint, not a question or a `find_work` call. Carry whether it has
 been shown into the session summary so compaction does not repeat it. Further
 handoffs within that assignment do not repeat the hint or fetch work unless
-the human asks. A completion-menu wait still keeps its assignment and claim.
+the human asks. A completion-package wait still keeps its assignment and claim.
 
 Whenever presenting `find_work` results or any equivalent current-work list,
 render the complete result as a numbered list. Every numbered entry must include
@@ -114,10 +114,10 @@ deliberately assign multiple agents to the same work; that is outside the
 default one-agent rule.
 
 A finished job in Reviewable releases its session assignment after its
-implementation review's completion package succeeds: a valid human selection
-has been handled, every selected action (including any clear) has succeeded,
-the terminal record is confirmed, and any triggered completion sweep is
-complete. Use `operations.md`'s definition of a finished job. Waiting for human
+implementation review's completion package succeeds: the human's reply has been
+handled, every authorized action (including any clear) has succeeded, the
+terminal record is confirmed, and any triggered completion sweep is complete.
+Use `operations.md`'s definition of a finished job. Waiting for human
 review or later signoff after this boundary does not retain the assignment.
 When no other assigned work remains, the session is idle and accepts a new
 live `Start` without an explicit switch. Apply the assignment-ended discovery
@@ -125,10 +125,11 @@ rule above. Preserve the released state across compaction; a still-open AI
 review does not restore the assignment.
 
 Reviewable alone is not enough: retain the assignment while requested work,
-an unanswered menu, a failed or unfinished selected action, or a triggered
-completion sweep remains. A terminal failure record does not release it. For
-a finished job already in Reviewable, `none` or a selection omitting actions
-can complete the package; omitted actions are not pending work. Releasing the
+an unanswered package, a failed or unfinished authorized action, or a
+triggered completion sweep remains. A terminal failure record does not release
+it. For a finished job already in Reviewable, a reply declining some or all
+actions can complete the package; declined actions are not pending work.
+Releasing the
 session assignment does not resolve the job or change its human assignees.
 
 `Start` is an untargeted broadcast. The human must not use it while more than
@@ -187,19 +188,10 @@ The first word is contractual:
   semantic human reply, vote, or Resolve. Advisory responses also send it, so
   reload and inspect answerability; perform every action actually unblocked and
   keep waiting if the response is advisory or another dependency remains. A
-  response on the assigned item's current AI package thread is a separate case:
-  when that thread ends with the active completion menu from `operations.md` —
-  the job's current AI review, or the resolved bug's sweep record — reload its
-  exact thread and accept the first valid non-AI, non-advisory human
-  `all`, `none`, or numbered selection from either that thread or normal client
-  chat, using the exact first-nonblank-line grammar defined there. Before
-  acting, reconcile any governing package-thread selection, current
-  uninterrupted chat selection, and terminal package records as defined there.
-  Do not create a pre-action AI selection receipt; if an interruption loses an
-  unrecorded chat selection, require the human to repeat it. Such a response
-  creates no assistance and does not itself change stage or resolution. Once
-  one valid selection governs the package attempt, later duplicate or
-  conflicting replies cannot authorize or repeat its package work.
+  response on the assigned item's waiting completion package — the job's
+  current AI review, or the resolved bug's sweep record — is that package's
+  reply: read it and handle it as `operations.md`'s completion package says.
+  It creates no assistance and does not itself change stage or resolution.
 
 Job stage changes use `Updated <job-code> stage is now <stage-name>`, including
 the complete stage name when it contains spaces. Async sends this after the
@@ -239,9 +231,7 @@ assigned bug, compare its reloaded resolution state with the state this session
 last observed. When it changes from open to resolved, read `completion.md` and
 run both completion scans once. A successful in-session Resolve follows the
 same rule immediately. When this session completed that fix, the resolution
-also opens the bug's completion package: read `operations.md`, end the sweep
-record with the bug completion menu, and mirror that menu in normal client
-chat. Merely loading a bug already resolved, or receiving another update while
+also opens the bug's completion package in `operations.md`. Merely loading a bug already resolved, or receiving another update while
 it remains resolved, does not retrigger the sweep or reopen its package.
 
 A legacy bare `Responded.` has no target. Reload only the outstanding
@@ -249,12 +239,12 @@ dependency of the assigned lane. With no assignment, ignore it.
 
 Apply the assignment gate before lookup. Apart from the stage-bearing updates
 handled above, accepted direct targets are globally resolvable: call `get_job`
-with their exact short code. Compound
-targets have the form `<verb> <local-code> of <parent-code>`; call `get_job`
-with the parent after `of`, then locate the local item. The first load of a
-parent not yet read this session takes its whole scope. When that parent was
-already loaded, read only the poked item with `thread_only`, by its own code
-or, inside a question, its qualified code. That returns just the item and what
+with their exact short code. Compound targets have the form
+`<verb> <local-code> of <parent-code>`; call `get_job` with the parent after
+`of`, then locate the local item. The first load of a parent not yet read or
+written this session takes its whole scope. When that parent was already
+loaded, read only the poked item with `thread_only`, by its own code or,
+inside a question, its qualified code. That returns just the item and what
 hangs under it, not the whole thread or job again. Never globally load a bare
 local code by itself.
 

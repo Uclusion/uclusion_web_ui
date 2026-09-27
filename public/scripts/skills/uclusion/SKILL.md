@@ -26,13 +26,9 @@ skill owns event handling and the job workflow.
 - Before every lane handoff, apply `pokes.md`'s assignment-aware discovery
   rules; a retained assignment does not trigger a work list. Read
   `operations.md` when resolving a bug/job, opening review, or receiving sign-off
-  and committing. On standalone bug resolution, also read `completion.md` and
-  apply its sweep before the remaining completion actions. Job transitions into
-  Reviewable are routed by `pokes.md` or handled immediately after a successful
-  in-session stage change. Opening an implementation review and waiting on its
-  completion menu is expressly not a lane handoff; retain its assignment and
-  any work claim through the package attempt. Apply `pokes.md`'s completion
-  boundary after success; a terminal failure still retains the assignment.
+  and committing; its completion-package section is the package's only
+  statement, including its wait, which is not a lane handoff. On standalone bug
+  resolution, also read `completion.md` and apply its sweep first.
 
 ## Non-negotiable invariants
 
@@ -53,13 +49,10 @@ skill owns event handling and the job workflow.
   the complete assignment and delivery rules in `references/pokes.md`.
 - Record each question, suggestion, approval, vote, resolution and review
   through its Uclusion tool. Record new findings once; the existing artifact
-  is sufficient without an added recap note. The narrow completion
-  menu defined in `operations.md` is appended to each qualifying AI
-  implementation review and mirrored in chat, selected by whether the pass
-  finishes the job rather than by stage. Neither copy calls `ask_question` or
-  creates assistance. Chat may otherwise mirror an artifact but never replace
-  it. Other questions about the job, including redo direction, use
-  `ask_question`, not a local question tool.
+  is sufficient without an added recap note. Chat may mirror an artifact but
+  never replace it. Questions about the job, including redo direction, use
+  `ask_question`, not a local question tool; `operations.md`'s completion
+  package is the one exception.
 - Run the ordered workflow: read, ask questions, address suggestions, approve
   when applicable, execute only in an executable stage, then request review.
 - The job stage controls permission, not workflow position. Doable and
@@ -71,30 +64,25 @@ skill owns event handling and the job workflow.
 - Treat every `change_job_stage` call as an explicit authorization boundary. A
   non-advisory human authorizes it only by directly instructing a transition
   that names the exact job and destination stage, by answering or delegating a
-  question for the exact job and destination transition, or by a valid
-  `all` or numbered selection containing action 4 in the code-complete menu
-  defined in `operations.md`. That menu may carry this authorization
-  alongside its other expressly named permissions only when it names the exact
-  job and the Reviewable destination. A `Start` event and general work language
-  such as "analyze this," "take this up," "proceed," "go," or "fix it" never
-  authorize a stage change. Planning outcomes, replies or resolutions on other
+  question for the exact job and destination transition, or by `all` on a
+  completion package that lists that exact move (`operations.md`). A `Start`
+  event and general work language such as "analyze this," "take this up,"
+  "proceed," "go," or "fix it" never authorize a stage change. Planning outcomes, replies or resolutions on other
   questions, approvals or votes unrelated to that exact transition,
   recommendations, and capsule changes do not authorize one. Never infer stage
   authorization from surrounding work language. If a needed transition lacks
   exact authorization, leave the stage unchanged and ask the human about that
-  exact job and destination transition. A completed post-review selection that
-  omitted action 4 or selected `none` is final, so leave the stage unchanged
-  without asking again.
+  exact job and destination transition. A package reply that leaves the move
+  out is final, so leave the stage unchanged without asking again.
 - New assistance can arrive at any time, and arrives as a Poke. Handle every
   delivered Poke before the next edit instead of rereading the job for it. A
   client without Poke delivery, such as Cursor, cannot learn of changes that
   way, so it rereads assistance and stage before editing, before a completion
-  menu, after a menu reply, and before and after a stage change.
+  package, after a package reply, and before and after a stage change.
 - Never silently make a judgment call a reasonable reviewer could choose
-  differently. Ask one Uclusion question per decision. The standard
-  completion package is one deliberately compound operational decision and
-  the sole normal-client-chat permission exception; do not split its expressly
-  listed permissions into separate prompts.
+  differently. Ask one Uclusion question per decision. The completion package
+  is the one compound permission that chat may answer; never split it into
+  separate prompts.
 - Recording an AI-originated idea, question, or review needs no permission and
   is never offered or deferred. `make_suggestion`, `ask_question` and
   `ask_for_review` post as the AI; `add_job`, `add_task`, `add_bug` and
@@ -114,10 +102,9 @@ skill owns event handling and the job workflow.
   components.
 - A capsule is a contract, not permission. Stage, testing and build, security,
   deployment, commit, and push gates remain independent. The required review
-  is opened before permission is requested. Only a standard completion
-  package may request commit, push, exact-item notification-clear, and
-  Reviewable as its fourth permission together; it never grants a test, build,
-  security, deployment, or omitted action.
+  is opened before its completion package asks for commit, push, clear and any
+  Reviewable move together; it never grants a test, build, security,
+  deployment, or unlisted action.
 - Use the exact short code returned by Uclusion in tool calls, chat, commit
   messages, and durable notes.
 
@@ -144,7 +131,7 @@ top-level comment, use the single-comment workflow below.
 
 ## 2. Ask and resolve questions
 
-Except for the completion-permission menu defined in `operations.md`, call
+Except for the completion package defined in `operations.md`, call
 `ask_question` for ambiguity and judgment calls. Give options only for a real
 discrete choice. When facts, reproduction steps, observed behavior, or meaning
 are unknown, ask an open-ended question with no options. Never infer runtime
@@ -376,22 +363,11 @@ follow-ups, and anything a reviewer cannot reconstruct from the durable thread.
 ## 6. Request or perform review
 
 Before review, turn unfinished or deferred actionable work into suggestions and
-reference those suggestions in the report. While any suggestion in the job is
-open, its review carries no menu; `operations.md` says how the human converts
-or resolves each first. A job gets one review, once every task you were asked
-to do in that assigned job, in an executable stage, is written and tested, not
-after each pass. A finished task not related enough to the rest of its job
-first moves into a job of its own for its own review, as `operations.md` says.
-Read `operations.md`, call `ask_for_review` with the completion menu appended
-to its concise capsule-delta report, then mirror the menu in normal client chat
-at the end of that turn, as `Ending a turn` says.
-The menu is selected by finish-state, not by stage; `operations.md` defines
-finished and the menus, and only the
-job-finished four-action menu carries Reviewable. The review is required and is
-never a selectable package action. This menu wait does not release a work claim
-or start lane-handoff discovery. For other testable review work, call
-`ask_for_review` with a concise capsule-delta report. Only one AI review may be
-open per job.
+reference those suggestions in the report. When a job's review is due, what
+holds its package, and the package itself are in `operations.md`'s
+completion-package section; read it before `ask_for_review`. For other testable
+review work, call `ask_for_review` with a concise capsule-delta report. Only
+one AI review may be open per job.
 
 In Reviewable, inspect the author of the latest Reports comment:
 
@@ -414,15 +390,15 @@ report covering separate task passes names each task and its exact current
 capsule R-code, with deltas attributed to that capsule. It keeps those
 contracts separate and retains the limit of one open AI review per job.
 It does not restate unchanged capsule content. Under `Deltas`, say
-`No implementation deltas` or
-give one concise bullet for each actual omission, changed behavior, addition,
-scope expansion, or newly introduced decision. Name its observable effect and
-verification or approval status. Report implementation differences once here;
-only new human input establishing a new contract calls for a capsule
-replacement. Never hide a remaining choice in review prose; ask it as a
-question. End the report narrative with the AI product, exact model/version,
-and effort level. For an implementation review, append the completion menu
-after that provenance so the menu is the review's final content.
+`No implementation deltas` or give one concise bullet for each actual omission,
+changed behavior, addition, scope expansion, or newly introduced decision. Name
+its observable effect and verification or approval status. Report
+implementation differences once here; only new human input establishing a new
+contract calls for a capsule replacement. Never hide a remaining choice in
+review prose; ask it as a question. End the report narrative with the AI
+product, exact model/version, and, when you can see it, the effort level. For
+an implementation review, append the completion package after that provenance
+so the package is the review's final content.
 
 ## Durable progress checkpoints and material handoffs
 
@@ -435,27 +411,18 @@ A progress checkpoint is not a lane handoff, and neither is returning an
 ordinary model/chat turn; neither ends the active audit.
 
 At a genuine lane handoff for a blocking human dependency, review, completion,
-pause, or interruption, apply the rules below. An implementation review and its
-menu wait becomes a review handoff only after its valid selection's current
-execution attempt reaches a terminal outcome and its post-attempt record is
-confirmed; before then, do not apply this handoff checklist:
+pause, or interruption, apply the rules below. A completion package's wait is
+not one; its handoff comes once the reply's attempt has its terminal record:
 
-- Ending an audit alone does not clear a human-guided assignment. A completed
-  Reviewable handoff releases it under `pokes.md`; pending work or package
-  actions retain it for matching continuation events.
+- Ending an audit alone does not clear a human-guided assignment; `pokes.md`
+  says when a completed package releases it.
 - First read `pokes.md` so the handoff includes assignment-aware work discovery.
 - If `claim_work` is exposed and the lane's short code is claimed, release it
   per `claims.md`.
 - If blocked on a human, leave the exact dependency in Uclusion.
-- If testable, read `operations.md` and follow the review routing above. Once
-  the tasks you were asked to do are finished, open the review and mirror the
-  menu its completeness selects before handing off. Retain its lane while waiting, then finish every
-  selected package action after a valid reply before work discovery.
-- If a standalone bug was resolved, read `operations.md` and `completion.md`,
-  ensure the completion sweep for that resolution transition has run once, then
-  end that sweep record with the bug completion menu and mirror the menu in
-  chat. Finish every selected package action after a valid reply, then apply
-  the context-boundary rule.
+- If testable, or a standalone bug was resolved, carry out `operations.md`'s
+  completion package, after `completion.md`'s sweep for a bug, before work
+  discovery.
 - If a job is fully complete, read `operations.md` and apply its notification,
   commit, and context-boundary rules. Do not rerun the completion sweep for a
   later job Resolve, signoff, shipped confirmation, or commit.
@@ -471,12 +438,9 @@ answer, so keep going on everything else.
 End when nothing can proceed without the human. Then say what you need from
 them, and why the current lane is blocked if it is.
 
-Present the completion package when work reaches it, as the last thing the
-turn's final message says; a menu printed earlier in the turn is lost in the
-chat that follows it. Until a valid selection arrives, end every later turn,
-whatever ended it, including a Poke or a listener rearm, with one line naming
-the review or bug that holds the waiting menu, not the whole menu again. Never
-drop either to save context. Otherwise state the pending decision or completed
+Present the completion package, and later the one line naming it, as
+`operations.md` says, whatever ended the turn, including a Poke or a listener
+rearm; never drop either to save context. Otherwise state the pending decision or completed
 task, applying `pokes.md`'s one-time hint and discovery triggers. A turn ending
 alone never calls `find_work` or repeats its list.
 
@@ -491,10 +455,9 @@ A single-comment result has no Job header.
 - Question: use only `get_job`, `add_info`, and
   `approve_job_or_option` for its options.
 
-Use `add_info` for questions or progress. Resolving a bug triggers both its
-completion sweep and its completion package: read `operations.md`, end the
-sweep record with the bug completion menu, and mirror that menu in normal
-client chat. A proposed commit message begins with the comment short code.
+Use `add_info` for questions or progress. Resolving a bug triggers its
+completion sweep (`completion.md`) and its completion package
+(`operations.md`). A proposed commit message begins with the comment short code.
 When the next item is unrelated or unknown, apply the context-clear rule in
 operations.md.
 <!-- /uclusion-skill:v1 -->

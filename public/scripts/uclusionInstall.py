@@ -162,7 +162,7 @@ SCRIPT_FILES = (
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCLI.py':
-        'c77d11a70b8e4ba8a30a57fd2700cff9e42ea3412264e08b5230059f2713a58e',
+        '033b11d6552fce23c9095fa40d95d26a49b621cdabd62077e0dc95d80ca49048',
     'uclusionMCPProxy.py':
         '474d2a2c96aeea97689331f47107ab5aea78662be25de650b4cb5ef9d071bb53',
     'uclusionSetupMCP.py':
@@ -345,12 +345,12 @@ WORKFLOW_ASSET_SHA256 = {
     'claude_stub': '2bcf5034fba89fe87e4020e70adac26aecaf373b50efd0c3c8137a4eeec73830',
     'codex_stub': '7cc3b75aa1b7af3799e47962d7ce2beb43b4a8f52541bb571c0dc968eb808336',
     'cursor_stub': 'c2e03afbaf55fd656b68478de9268955ef2af5813d3a2109ebce04ae0c8061bf',
-    'skill': 'a63c73338573ca6bc8caabb373cfcd12278a76be4a7e6d3f1bebc6d8c84b8e08',
-    'pokes_reference': 'cc1a6d6a5eead60f97869b3bfebc47d472b314c7185090f0638aebd1dff04618',
-    'operations_reference': 'b2dd2fd2639ae888bcedcfe3566ffc9d7ec7e91335794f6f4154a239173ed3ce',
-    'completion_reference': '2f627b9e6156958ce7940f11b0281a4ee3295517b60eb339b0bc577dd59240c3',
+    'skill': '65f67b26f7f45c0373fe491b8c9c8de5a909723f308e5ed27fb48775410b8e7d',
+    'pokes_reference': '91d64cc779cc2b3e4d34c1820aae8a66d6eecbe2122d2e9a0eaf4cefb75cce2b',
+    'operations_reference': '967d43170a960ce4031275379013cd0b6357c07475973783e1676ef3b60c31cf',
+    'completion_reference': '3fb3dcbcc3d3215411848aab08ac367f22eadc068e2b03e56abf9a36d840c741',
     'audit_reference': '6e064e0baf27e4a17bd3a15060dbb15f8730de31f71eb8df0caba180852be71d',
-    'claims_reference': '7e935792deaacbd02369590625f947c025e54cb84dd56da14d93eab55a8f2e4f',
+    'claims_reference': '9fad91e1adc8a838cd34824544063aaf31afe7c38a2c92299f0c6ba2afeea192',
     'uploads_reference': 'd3fa9a9a9df21424068c26c840466c2d6aab78a3f85989007a529a09412233d3',
     'openai_metadata': 'ecf2759354ff3bbfd7178452a705650aff7a13352458bb20e1df122da7c30f40',
     'design_skill': '530da3be38712704b2853067e0f65f29404a02652dc134a5845ac45f4e63ac58',

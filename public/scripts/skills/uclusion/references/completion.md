@@ -71,10 +71,10 @@ Merge both scans by target into one numbered list. Use exactly this shape:
 Record that numbered result, or the explicit no-candidate result below, with
 `add_info` on the triggering source item and mirror it in chat. When the
 trigger was resolving a standalone bug, end that same record with the bug
-completion menu in `operations.md` and mirror the menu with it. The proposed
-actions are part of the completion-sweep result, not new suggestion artifacts.
-Do not call `make_suggestion`, `add_info`, or any other mutating tool on a
-candidate during the sweep.
+completion package in `operations.md` and mirror it with the result. The
+proposed actions are part of the completion-sweep result, not new suggestion
+artifacts. Do not call `make_suggestion`, `add_info`, or any other mutating
+tool on a candidate during the sweep.
 
 Use **dependency** as the category when there is no semantic finding, and
 include every matching blocker code. When one target has both kinds of finding,

@@ -3833,6 +3833,10 @@ def cmd_mcp(args):
     try:
         builder = getattr(args, 'mcp_builder', declared_mcp_arguments)
         arguments = builder(args)
+        if args.arguments_json is None:
+            validate_human_lane(arguments)
+            if 'initial_vote' in arguments:
+                validate_human_lane(arguments['initial_vote'], 'vote-')
     except CLIArgumentError as error:
         print(f'Error: {error}', file=sys.stderr)
         return 2
@@ -3866,6 +3870,13 @@ def validate_options(arguments, required):
         raise CLIArgumentError('at most 50 options may be supplied')
 
 
+def validate_human_lane(arguments, prefix=''):
+    if arguments.get('for_human') is True and not isinstance(arguments.get('is_my_lane'), bool):
+        raise CLIArgumentError(
+            f'--{prefix}for-human requires --{prefix}is-my-lane or --no-{prefix}is-my-lane'
+        )
+
+
 def validate_question(arguments):
     job_id = arguments['job_id']
     validate_options(arguments, job_id.upper().startswith('B-'))
@@ -3876,7 +3887,8 @@ def validate_required_options(arguments):
 
 
 def build_option_creation_arguments(args):
-    vote_fields = ('new_option_index', 'existing_option_id', 'certainty', 'reason', 'for_human')
+    vote_fields = ('new_option_index', 'existing_option_id', 'certainty', 'reason',
+                   'for_human', 'is_my_lane')
     arguments = declared_mcp_arguments(
         args, extra_destinations=tuple('vote_' + field for field in vote_fields)
     )
@@ -3892,8 +3904,8 @@ def build_option_creation_arguments(args):
         if vote:
             raise CLIArgumentError('initial vote arguments require options')
         return arguments
-    if set(vote) == {'for_human'}:
-        raise CLIArgumentError('--vote-for-human describes an initial vote, so supply one')
+    if vote and set(vote) <= {'for_human', 'is_my_lane'}:
+        raise CLIArgumentError('vote authorship flags describe an initial vote, so supply one')
     selectors = [field for field in ('new_option_index', 'existing_option_id') if field in vote]
     if len(selectors) != 1 or 'certainty' not in vote or not vote.get('reason', '').strip():
         raise CLIArgumentError('options require a vote target, --vote-certainty and a nonblank --vote-reason')
@@ -4141,6 +4153,21 @@ FOR_HUMAN_TOOLS = frozenset({
 })
 
 
+def add_lane_arguments(command_parser, prefix=''):
+    lane = command_parser.add_mutually_exclusive_group()
+    lane.add_argument(
+        f'--{prefix}is-my-lane', action='store_true', default=None,
+        help='Required choice for a human record: use this when working on or assigned this work '
+             'to suppress an echo Poke.',
+    )
+    lane.add_argument(
+        f'--no-{prefix}is-my-lane', action='store_false', default=None,
+        dest=prefix.replace('-', '_') + 'is_my_lane',
+        help='Use for human records outside your work so agents can receive their Pokes. '
+             'The demo owner uses this choice.',
+    )
+
+
 def configure_mcp_parser(command_parser, tool_name, fields=(), required=(),
                          validator=None, builder=None):
     add_mcp_common_arguments(command_parser)
@@ -4152,7 +4179,9 @@ def configure_mcp_parser(command_parser, tool_name, fields=(), required=(),
             help="Record this as the human's own, authored by them rather than by the AI user. "
                  'Use it only for what they told you to record.',
         )
-        fields = tuple(fields) + (mcp_field('for_human', 'for_human'),)
+        add_lane_arguments(command_parser)
+        fields = tuple(fields) + (mcp_field('for_human', 'for_human'),
+                                  mcp_field('is_my_lane', 'is_my_lane'))
     command_parser.set_defaults(
         func=cmd_mcp,
         mcp_name=tool_name,
@@ -4205,6 +4234,7 @@ def add_initial_vote_arguments(command_parser, allow_existing=False):
         help="Record the initial vote as the human's own. Ask them for the certainty and the "
              'reason first; a vote in their name carrying your reasoning misrepresents them.',
     )
+    add_lane_arguments(command_parser, 'vote-')
 
 
 def response_stats_path(value):

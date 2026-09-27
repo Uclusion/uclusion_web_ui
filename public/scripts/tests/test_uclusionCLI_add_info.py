@@ -34,9 +34,10 @@ class AddInfoCLITests(unittest.TestCase):
             ['R-1', 'Agreed.', 'Q-example-1'],
         ]:
             with self.subTest(command=command):
-                self.invoke(command + ['--for-human'], {
+                self.invoke(command + ['--for-human', '--is-my-lane'], {
                     'short_code_id': 'R-1', 'info': 'Agreed.',
                     'parent_question_short_code_id': 'Q-example-1', 'for_human': True,
+                    'is_my_lane': True,
                     'tz': 'America/Los_Angeles',
                 })
 

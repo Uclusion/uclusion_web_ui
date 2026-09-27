@@ -99,7 +99,9 @@ class InitialVoteCLITests(unittest.TestCase):
              {'suggestion': 'Name the 06:00 window.', 'for_human': True}),
         ]:
             with self.subTest(command=command[0]):
-                self.invoke(command, expected)
+                for lane in (True, False):
+                    flag = '--is-my-lane' if lane else '--no-is-my-lane'
+                    self.invoke(command + [flag], {**expected, 'is_my_lane': lane})
 
     def test_omitting_for_human_leaves_the_record_authored_by_the_agent(self):
         self.invoke(['make_suggestion', '--suggestion', 'Name the 06:00 window.'],
@@ -110,13 +112,49 @@ class InitialVoteCLITests(unittest.TestCase):
             'ask_question', '--job-id', 'J-example-1', '--question', 'Which approach?',
             '--option', 'First', 'First approach',
             '--vote-new-option-index', '0', '--vote-certainty', '4',
-            '--vote-reason', 'Fewest moving parts.', '--vote-for-human',
+            '--vote-reason', 'Fewest moving parts.', '--vote-for-human', '--no-vote-is-my-lane',
         ], {
             'job_id': 'J-example-1', 'question': 'Which approach?',
             'options': [{'name': 'First', 'description': 'First approach'}],
             'initial_vote': {'new_option_index': 0, 'certainty': 4,
-                             'reason': 'Fewest moving parts.', 'for_human': True},
+                             'reason': 'Fewest moving parts.', 'for_human': True,
+                             'is_my_lane': False},
         })
+
+    def test_human_lane_is_required_before_authentication(self):
+        self.invoke(['make_suggestion', '--suggestion', 'Amend the option.', '--for-human'])
+        command = [
+            'ask_question', '--job-id', 'J-example-1', '--question', 'Which approach?',
+            '--option', 'First', 'First approach',
+            '--vote-new-option-index', '0', '--vote-certainty', '4',
+            '--vote-reason', 'Fewest moving parts.', '--vote-for-human',
+        ]
+        self.invoke(command)
+        # The parent's lane choice cannot substitute for the nested vote's choice.
+        self.invoke(command + ['--for-human', '--is-my-lane'])
+
+    def test_parent_and_vote_lane_choices_are_independent(self):
+        for parent_lane, vote_lane in [(True, False), (False, True)]:
+            self.invoke([
+                'add_options', 'Q-example-1', '--option', 'First', 'First approach',
+                '--for-human', '--is-my-lane' if parent_lane else '--no-is-my-lane',
+                '--vote-new-option-index', '0', '--vote-certainty', '4',
+                '--vote-reason', 'Fewest moving parts.', '--vote-for-human',
+                '--vote-is-my-lane' if vote_lane else '--no-vote-is-my-lane',
+            ], {
+                'question_id': 'Q-example-1',
+                'options': [{'name': 'First', 'description': 'First approach'}],
+                'for_human': True, 'is_my_lane': parent_lane,
+                'initial_vote': {'new_option_index': 0, 'certainty': 4,
+                                 'reason': 'Fewest moving parts.', 'for_human': True,
+                                 'is_my_lane': vote_lane},
+            })
+
+    def test_json_retains_explicit_false_lane_and_rejects_mixed_sources(self):
+        arguments = {'suggestion': 'Amend the option.', 'for_human': True, 'is_my_lane': False}
+        command = ['make_suggestion', '--arguments-json', json.dumps(arguments)]
+        self.invoke(command, arguments)
+        self.invoke(command + ['--no-is-my-lane'])
 
     def test_vote_for_human_alone_is_not_a_vote(self):
         self.invoke([

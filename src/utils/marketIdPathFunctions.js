@@ -42,7 +42,24 @@ export function decomposeMarketPath(path) {
 
 let jobBackOrigin;
 let lastSeenNavigationUrl;
+let linkSourceAnchor;
 let notificationEntryId = 0;
+// A comment (c<id>) or an approval (cv<user id>); the job page opens the tab holding either.
+const LINK_SOURCE_ANCHOR_RE = /^cv?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * B-all-680: a link that stays on its job leaves no other page to return to, so remember the
+ * comment or approval it was clicked in. The next navigate makes that the job's Back origin.
+ */
+export function rememberLinkSource(element) {
+  linkSourceAnchor = undefined;
+  for (let node = element; node; node = node.parentElement) {
+    if (LINK_SOURCE_ANCHOR_RE.test(node.id || '')) {
+      linkSourceAnchor = node.id;
+      return;
+    }
+  }
+}
 
 export function getJobBackOrigin() {
   return jobBackOrigin || lastSeenNavigationUrl;
@@ -105,10 +122,12 @@ export function getCanonicalNavigationUrl(pathname, search) {
 }
 
 function rememberOriginIfEnteringJob(fromPathname, fromSearch, to) {
+  const sourceAnchor = linkSourceAnchor;
+  linkSourceAnchor = undefined;
   if (!to || typeof to !== 'string' || to.startsWith('http')) {
     return;
   }
-  const noHash = to.split('#')[0];
+  const [noHash, toHash] = to.split('#');
   const queryAt = noHash.indexOf('?');
   const toPathname = queryAt === -1 ? noHash : noHash.substring(0, queryAt);
   const toSearch = queryAt === -1 ? '' : noHash.substring(queryAt);
@@ -118,8 +137,13 @@ function rememberOriginIfEnteringJob(fromPathname, fromSearch, to) {
   }
   const fromUrl = navigationKey(fromPathname, fromSearch);
   const toUrl = navigationKey(toPathname, toSearch);
-  if (isReturnableNavigationUrl(fromUrl) && fromUrl !== toUrl) {
+  if (!isReturnableNavigationUrl(fromUrl)) {
+    return;
+  }
+  if (fromUrl !== toUrl) {
     jobBackOrigin = fromUrl;
+  } else if (sourceAnchor && toHash !== sourceAnchor) {
+    jobBackOrigin = `${fromUrl}#${sourceAnchor}`;
   }
 }
 

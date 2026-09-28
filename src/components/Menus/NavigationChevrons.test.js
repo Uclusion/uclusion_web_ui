@@ -267,6 +267,40 @@ describe('NavigationChevrons', () => {
       expect(history.location.pathname).toBe(sourceUrl);
     });
 
+    // B-all-680: an approval's link to a task on the same job used to leave Back on the view.
+    function linkInApproval() {
+      const approval = document.createElement('div');
+      approval.id = 'cv8bc6bb1f-d328-43a4-8d5c-39f7c34bafb8';
+      const link = document.createElement('a');
+      approval.appendChild(link);
+      return { approval, link };
+    }
+
+    it('returns to the approval after following its link to a task on the same job', () => {
+      const viewUrl = '/dialog/market-a?groupId=view-a';
+      const { approval, link } = linkInApproval();
+      const history = createMemoryHistory({ initialEntries: [sourceUrl] });
+      navigation.rememberSeenNavigationUrl(sourceUrl);
+      navigation.rememberLinkSource(link);
+      navigation.navigate(history, `${sourceUrl}#c64c46d50-c74c-484c-811f-e693e50a6bf8`);
+
+      const back = renderBack(history, [{ url: viewUrl, time: 1 },
+        { url: navigation.getJobBackOrigin(), time: 2 }]);
+      act(() => back.click());
+
+      expect(`${history.location.pathname}${history.location.hash}`).toBe(`${sourceUrl}#${approval.id}`);
+    });
+
+    it('still returns to the plain source job after a link into another job', () => {
+      const { link } = linkInApproval();
+      const history = createMemoryHistory({ initialEntries: [sourceUrl] });
+      navigation.rememberSeenNavigationUrl(sourceUrl);
+      navigation.rememberLinkSource(link);
+      navigation.navigate(history, destinationUrl);
+
+      expect(navigation.getJobBackOrigin()).toBe(sourceUrl);
+    });
+
     it('keeps Back disabled when a job alias was opened without an in-app source', () => {
       const history = createMemoryHistory({ initialEntries: [aliasUrl] });
       navigation.rememberSeenNavigationUrl(aliasUrl);

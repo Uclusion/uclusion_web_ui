@@ -292,7 +292,10 @@ function doAddNavigation(state, action) {
   const newNavigations = _.concat(prunedNavigations, {url, time: new Date().getTime()});
   const now = Date.now();
   const filteredNavigations = newNavigations.filter((aNavigation) => {
-    if (!allExistingUrls?.includes(aNavigation.url)) {
+    // B-all-680: a spot on a job (/dialog/<market>/<job>#c...) exists while its job does.
+    const [pageUrl] = aNavigation.url.split('#');
+    const isJobSpot = pageUrl !== aNavigation.url && pageUrl.startsWith('/dialog/');
+    if (!allExistingUrls?.includes(aNavigation.url) && !(isJobSpot && allExistingUrls?.includes(pageUrl))) {
       return false;
     }
     // remove more than a day old

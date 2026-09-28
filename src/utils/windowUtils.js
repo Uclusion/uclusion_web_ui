@@ -1,4 +1,4 @@
-import { navigate, preventDefaultAndProp } from './marketIdPathFunctions'
+import { navigate, preventDefaultAndProp, rememberLinkSource } from './marketIdPathFunctions'
 import _ from 'lodash';
 
 export function allImagesLoaded(node, imageFiles){
@@ -27,6 +27,7 @@ export function invalidEditEvent(event, history) {
   const isLink = event?.target?.localName === 'a';
   if (isLink && event?.target?.href?.includes(window.location.host)) {
     preventDefaultAndProp(event);
+    rememberLinkSource(event.target);
     // Hacky but the url can be modified on storage so intercept here
     navigate(history, `${event.target.pathname}${event.target.search}${event.target.hash}`);
   }

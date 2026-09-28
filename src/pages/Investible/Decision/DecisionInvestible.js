@@ -296,7 +296,7 @@ function DecisionInvestible(props) {
   }
 
   function mySetBeingEdited(event) {
-    if (!isEditableByUser() || invalidEditEvent(event, history)) {
+    if (!isEditableByUser() || invalidEditEvent(event)) {
       return;
     }
     const needsLock = lockedBy !== yourPresence?.id && !_.isEmpty(lockedBy);

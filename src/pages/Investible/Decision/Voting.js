@@ -210,7 +210,7 @@ function Voting(props) {
           const displayingDiff = showDiff && !!diff;
 
           function setBeingEdited(event) {
-            if (!invalidEditEvent(event, history)) {
+            if (!invalidEditEvent(event)) {
               navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, market.id, investibleId, groupId));
             }
           }

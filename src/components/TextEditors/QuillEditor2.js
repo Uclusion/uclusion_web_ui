@@ -35,6 +35,8 @@ import { commentsContextHack } from '../../contexts/CommentsContext/CommentsCont
 import { MyLink } from './Utilities/LinkUtils';
 import { getLinkTargetName } from '../../utils/marketIdPathFunctions';
 import { listStart, ListStartKeyboard } from './Utilities/listStart';
+import { useHistory } from 'react-router';
+import { handleRichTextLinkClick } from '../../utils/windowUtils';
 
 // https://github.com/derrickpelletier/react-loading-overlay/pull/57
 LoadingOverlay.propTypes = undefined;
@@ -114,6 +116,7 @@ function QuillEditor2 (props) {
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const intl = useIntl();
+  const history = useHistory();
   const theme = useTheme();
   const boundsId = getBoundsId(useCssId);
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
@@ -330,6 +333,7 @@ function QuillEditor2 (props) {
           className={noToolbar ? classes.root : classes.nothing}
           style={noToolbar ? containerReadOnlyStyle : containerStyle}
           id={useCssId}
+          onClick={noToolbar ? (event) => handleRichTextLinkClick(event, history) : undefined}
         >
           {noToolbar && (
             <div ref={boxRef} id={boundsId} style={editorStyle}/>

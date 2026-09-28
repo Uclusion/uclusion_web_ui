@@ -800,7 +800,7 @@ function PlanningInvestible(props) {
   }
 
   function mySetBeingEdited(event) {
-    if (!isEditableByUser() || invalidEditEvent(event, history)) {
+    if (!isEditableByUser() || invalidEditEvent(event)) {
       return;
     }
     const needsLock = !((isInReview || isInAccepted) && _.size(assigned) === 1) && lockedBy !== myPresence?.id;

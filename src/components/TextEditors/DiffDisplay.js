@@ -7,6 +7,8 @@ import { makeStyles } from '@material-ui/core';
 import { convertImageSrc } from './ImageBlot'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import _ from 'lodash'
+import { useHistory } from 'react-router'
+import { handleRichTextLinkClick } from '../../utils/windowUtils'
 
 const useStyles = makeStyles(
   () => {
@@ -29,6 +31,7 @@ const useStyles = makeStyles(
 function DiffDisplay(props) {
   const classes = useStyles();
   const ref = useRef(null);
+  const history = useHistory();
   const { id, isWhiteText = false } = props;
   const [diffState] = useContext(DiffContext);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
@@ -56,7 +59,8 @@ function DiffDisplay(props) {
       {/* B-all-472: same color contract as QuillEditor2 - black unless the surface behind is
           dark (isWhiteText). Inheriting the dark theme's white made diffs unreadable on the
           light comment and description cards. */}
-      <div ref={ref} className={classes.diffContainer} style={{color: isWhiteText ? 'white' : 'black'}}/>
+      <div ref={ref} className={classes.diffContainer} style={{color: isWhiteText ? 'white' : 'black'}}
+           onClick={(event) => handleRichTextLinkClick(event, history)}/>
     </div>
   );
 }

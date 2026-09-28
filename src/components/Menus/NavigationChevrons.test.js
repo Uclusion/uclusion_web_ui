@@ -14,6 +14,7 @@ import { LeaderContext } from '../../contexts/LeaderContext/LeaderContext';
 import { SyncedMessagesContext } from '../../contexts/SyncedMessagesContext/SyncedMessagesContext';
 import { navigate } from '../../utils/marketIdPathFunctions';
 import NavigationChevrons from './NavigationChevrons';
+import { handleRichTextLinkClick } from '../../utils/windowUtils';
 
 jest.mock('../../contexts/CommentsContext/CommentsContext', () => {
   const React = require('react');
@@ -268,21 +269,24 @@ describe('NavigationChevrons', () => {
     });
 
     // B-all-680: an approval's link to a task on the same job used to leave Back on the view.
-    function linkInApproval() {
+    // J-all-486: someone else's approval never handed that click to the app at all, so the link is
+    // clicked for real through the rich text handler, on the formatting inside it.
+    function clickLinkInApproval(history, to) {
       const approval = document.createElement('div');
       approval.id = 'cv8bc6bb1f-d328-43a4-8d5c-39f7c34bafb8';
-      const link = document.createElement('a');
-      approval.appendChild(link);
-      return { approval, link };
+      approval.innerHTML = `<a href="${to}"><strong>T-Marketing-274</strong></a>`;
+      approval.addEventListener('click', (event) => handleRichTextLinkClick(event, history));
+      document.body.appendChild(approval);
+      approval.querySelector('strong').click();
+      approval.remove();
+      return approval;
     }
 
     it('returns to the approval after following its link to a task on the same job', () => {
       const viewUrl = '/dialog/market-a?groupId=view-a';
-      const { approval, link } = linkInApproval();
       const history = createMemoryHistory({ initialEntries: [sourceUrl] });
       navigation.rememberSeenNavigationUrl(sourceUrl);
-      navigation.rememberLinkSource(link);
-      navigation.navigate(history, `${sourceUrl}#c64c46d50-c74c-484c-811f-e693e50a6bf8`);
+      const approval = clickLinkInApproval(history, `${sourceUrl}#c64c46d50-c74c-484c-811f-e693e50a6bf8`);
 
       const back = renderBack(history, [{ url: viewUrl, time: 1 },
         { url: navigation.getJobBackOrigin(), time: 2 }]);
@@ -292,12 +296,11 @@ describe('NavigationChevrons', () => {
     });
 
     it('still returns to the plain source job after a link into another job', () => {
-      const { link } = linkInApproval();
       const history = createMemoryHistory({ initialEntries: [sourceUrl] });
       navigation.rememberSeenNavigationUrl(sourceUrl);
-      navigation.rememberLinkSource(link);
-      navigation.navigate(history, destinationUrl);
+      clickLinkInApproval(history, destinationUrl);
 
+      expect(history.location.pathname).toBe(destinationUrl);
       expect(navigation.getJobBackOrigin()).toBe(sourceUrl);
     });
 

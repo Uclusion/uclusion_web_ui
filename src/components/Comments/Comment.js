@@ -713,7 +713,7 @@ function Comment(props) {
   }
 
   function setBeingEdited(event) {
-    if (isReallyMobileLayout || invalidEditEvent(event, history)) {
+    if (isReallyMobileLayout || invalidEditEvent(event)) {
       return;
     }
     toggleEdit(event);
@@ -1267,7 +1267,7 @@ function Comment(props) {
                             className={getCommentHighlightStyle()}
                             ref={editBox}>
     <div onClick={(event) => {
-      if (!invalidEditEvent(event, history)) {
+      if (!invalidEditEvent(event)) {
         if (isInbox && isSent) {
           navigate(history, formCommentLink(marketId, groupId, investibleId, id));
         }
@@ -1691,7 +1691,7 @@ function Comment(props) {
     backgroundColor: showHighlight ? undefined : (theme.palette.type === 'dark' ? DARK_TEXT_BACKGROUND_COLOR : 'white'),
     cursor: 'pointer', width: '100%', maxWidth: '98%', marginTop: isSent === false || usePadding === false ? 0
       : '1rem' }} onClick={(event) => {
-        if (!invalidEditEvent(event, history)) {
+        if (!invalidEditEvent(event)) {
           if (isInbox) {
             navigate(history, formCommentLink(marketId, groupId, investibleId, id));
           } else {

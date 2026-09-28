@@ -281,7 +281,7 @@ function Reply(props) {
   }
 
   function setBeingEdited(event) {
-    if (mobileLayout || invalidEditEvent(event, history)) {
+    if (mobileLayout || invalidEditEvent(event)) {
       return;
     }
     handleEditClick(event);
@@ -422,7 +422,7 @@ function Reply(props) {
                               backgroundColor: isLinkedTo ? undefined : (isDark ? DARK_TEXT_BACKGROUND_COLOR : 'white')}}
                             id={`${isInbox ? 'inbox' : ''}${idPrepend}${comment.id}`}>
     <div onClick={(event) => {
-      if (!invalidEditEvent(event, history)&&(replyBeingEdited || isInbox)) {
+      if (!invalidEditEvent(event)&&(replyBeingEdited || isInbox)) {
         navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
       }
     }}>

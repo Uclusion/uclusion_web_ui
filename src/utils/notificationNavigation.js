@@ -1,4 +1,5 @@
-import { QUESTION_TYPE, REPLY_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE } from '../constants/comments';
+import _ from 'lodash';
+import { ISSUE_TYPE, QUESTION_TYPE, REPLY_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE } from '../constants/comments';
 import { getComment, getCommentRoot, isDesignCapsule } from '../contexts/CommentsContext/commentsContextHelper';
 import { getMarket } from '../contexts/MarketsContext/marketsContextHelper';
 import { formCommentLink } from './marketIdPathFunctions';
@@ -14,8 +15,8 @@ export function isDirectCommentNotification(message, comment) {
       [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment?.comment_type));
 }
 
-// Keep notification identity separate from the page/anchor that displays its object.
-export function getNotificationDestination(message, commentsState, marketsState) {
+// The comment a notification is about; an option's notification is about its question.
+function getNotificationComment(message, marketsState) {
   let marketId = message.comment_market_id || message.market_id;
   let commentId = message.comment_id;
   const market = getMarket(marketsState, marketId);
@@ -23,6 +24,12 @@ export function getNotificationDestination(message, commentsState, marketsState)
     marketId = market.parent_comment_market_id;
     commentId = market.parent_comment_id;
   }
+  return { market, marketId, commentId };
+}
+
+// Keep notification identity separate from the page/anchor that displays its object.
+export function getNotificationDestination(message, commentsState, marketsState) {
+  const { market, marketId, commentId } = getNotificationComment(message, marketsState);
   const comment = getComment(commentsState, marketId, commentId);
   const root = getCommentRoot(commentsState, marketId, commentId);
   if (!root || !isDirectCommentNotification(message, comment)) {
@@ -65,4 +72,34 @@ export function getDirectNotificationTitle(message, rootComment, isAssigned) {
       (isAssigned ? 'DecideAcceptRejectTitle' : 'DecideIdeaTitle');
   }
   return 'DecideAnswerTitle';
+}
+
+/**
+ * B-all-681: Next message keeps the inbox's order across jobs, but within one job its open questions,
+ * suggestions and blockers come in the Unresponded order, oldest created first (B-all-601). Only the places
+ * those notifications already hold are reordered, so everything else stays where it was.
+ */
+export function unrespondedOrderWithinJobs(orderedMessages, commentsState, marketsState) {
+  const roots = orderedMessages.map((message) => {
+    const { marketId, commentId } = getNotificationComment(message, marketsState);
+    const root = getCommentRoot(commentsState, marketId, commentId);
+    const isUnresponded = root?.investible_id && !root.resolved &&
+      [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(root.comment_type);
+    return isUnresponded ? root : undefined;
+  });
+  const placesByJob = {};
+  roots.forEach((root, index) => {
+    if (root) {
+      (placesByJob[root.investible_id] = placesByJob[root.investible_id] || []).push(index);
+    }
+  });
+  const reordered = [...orderedMessages];
+  Object.values(placesByJob).forEach((places) => {
+    const oldestFirst = _.sortBy(places, [(index) => new Date(roots[index].created_at).getTime(),
+      (index) => roots[index].id]);
+    places.forEach((place, position) => {
+      reordered[place] = orderedMessages[oldestFirst[position]];
+    });
+  });
+  return reordered;
 }

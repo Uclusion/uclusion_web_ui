@@ -1,4 +1,4 @@
-import { getNotificationDestination } from './notificationNavigation';
+import { getNotificationDestination, unrespondedOrderWithinJobs } from './notificationNavigation';
 
 const marketId = 'workspace';
 const question = { id: 'question', comment_type: 'QUESTION', investible_id: 'job', group_id: 'view' };
@@ -48,3 +48,42 @@ it('opens inline question requests, new options and option replies on their cont
     notification: { id: message.type_object_id, marketId: 'inline', commentId: optionComment.id }
   });
 });
+
+// B-all-681: within one job, Next message follows the Unresponded order, oldest created first.
+describe('unrespondedOrderWithinJobs', () => {
+  const root = (id, createdAt, extra = {}) => ({ id, comment_type: 'QUESTION', investible_id: 'job',
+    created_at: createdAt, ...extra });
+  const notified = (id, type = 'UNREAD_COMMENT') => ({ type, type_object_id: `${type}_${id}`,
+    market_id: marketId, comment_id: id });
+  const older = root('older', '2026-09-01T00:00:00Z');
+  const newer = root('newer', '2026-09-02T00:00:00Z');
+  const olderReply = { id: 'older-reply', comment_type: 'REPLY', reply_id: older.id, investible_id: 'job',
+    created_at: '2026-09-03T00:00:00Z' };
+  const order = (messages, comments) =>
+    unrespondedOrderWithinJobs(messages, { [marketId]: comments }, {}).map((item) => item.comment_id);
+
+  it('opens the oldest created question first, whatever the update order', () => {
+    expect(order([notified('newer'), notified('older')], [older, newer])).toEqual(['older', 'newer']);
+  });
+
+  it('sorts a reply notification with its question', () => {
+    expect(order([notified('newer'), notified('older-reply', 'UNREAD_REPLY')], [older, newer, olderReply]))
+      .toEqual(['older-reply', 'newer']);
+  });
+
+  it('counts suggestions and blockers but not resolved questions', () => {
+    const suggestion = root('suggestion', '2026-08-01T00:00:00Z', { comment_type: 'SUGGEST' });
+    const blocker = root('blocker', '2026-08-02T00:00:00Z', { comment_type: 'ISSUE' });
+    const resolved = root('resolved', '2026-07-01T00:00:00Z', { resolved: true });
+    expect(order([notified('newer'), notified('resolved'), notified('blocker'), notified('suggestion')],
+      [newer, resolved, blocker, suggestion])).toEqual(['suggestion', 'resolved', 'blocker', 'newer']);
+  });
+
+  it('keeps other notifications and other jobs where they were', () => {
+    const otherJob = root('other-job', '2026-01-01T00:00:00Z', { investible_id: 'other' });
+    const task = root('task', '2026-01-01T00:00:00Z', { comment_type: 'TODO' });
+    expect(order([notified('newer'), notified('task'), notified('other-job'), notified('older')],
+      [older, newer, task, otherJob])).toEqual(['older', 'task', 'other-job', 'newer']);
+  });
+});
+

@@ -38,7 +38,7 @@ import { SearchResultsContext } from '../../contexts/SearchResultsContext/Search
 import { findMessagesForTypeObjectId } from '../../utils/messageUtils';
 import { getOpenInvestibleComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import ReturnTop from '../../pages/Home/ReturnTop';
-import { getNotificationDestination } from '../../utils/notificationNavigation';
+import { getNotificationDestination, unrespondedOrderWithinJobs } from '../../utils/notificationNavigation';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { WARNING_COLOR } from '../Buttons/ButtonConstants';
 import { getCurrentWorkspace, getGroupForInvestibleId } from '../../utils/redirectUtils';
@@ -208,11 +208,11 @@ export default function NavigationChevrons(props) {
       return message.type_object_id !== currentNotification?.id && messageUrl !== resource;
     }) || [];
     const highlightedMapped = addWorkspaceGroupAttribute(highlighted, groupsState);
-    const highlightedOrdered = _.orderBy(highlightedMapped,
+    const highlightedOrdered = unrespondedOrderWithinJobs(_.orderBy(highlightedMapped,
       [function isGroupInvite(msg) {
         return msg.type_object_id.includes('UNREAD_GROUP_');
       }, 'groupAttr', 'updated_at'],
-      ['desc', 'asc', 'desc']);
+      ['desc', 'asc', 'desc']), commentsState, marketsState);
     if (!_.isEmpty(highlightedOrdered)) {
       const message = highlightedOrdered[0];
       const destination = getNotificationDestination(message, commentsState, marketsState);

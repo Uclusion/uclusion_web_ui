@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useReducer } from 'react'
-import reducer, { initializeState } from './investiblesContextReducer'
+import reducer, { initializeState, revertPendingStageGuesses } from './investiblesContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import beginListening from './investiblesContextMessages'
 import { DiffContext } from '../DiffContext/DiffContext'
@@ -59,6 +59,7 @@ function InvestiblesProvider(props) {
         replaceDerivedState(hydratedState, index, ticketsDispatch);
         dispatch(initializeState(hydratedState));
       });
+      revertPendingStageGuesses(hydratedState, dispatch);
       return hydratedState;
     });
   }, [index, ticketsDispatch]);

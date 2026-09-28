@@ -55,12 +55,12 @@ import {
 import { red } from '@material-ui/core/colors';
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
 import {
-  addInvestible,
   getInvestible,
   getMarketInvestibles
 } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import {
+  getFullStage,
   getFurtherWorkStage,
   getInReviewStage, getNotDoingStage,
   getProposedOptionsStage
@@ -816,18 +816,11 @@ function Comment(props) {
         if (inlineMarketId) {
           removeInlineMarketMessages(inlineMarketId, investiblesState, commentsState, messagesState, messagesDispatch);
         }
-        if (resolvedStageId) {
-          const newInfo = {
-            ...marketInfo,
-            stage: resolvedStageId,
-            last_stage_change_date: comment.updated_at,
-          };
-          const newInfos = _.unionBy([newInfo], investible.market_infos, 'id');
-          const newInvestible = {
-            investible: investible.investible,
-            market_infos: newInfos
-          };
-          addInvestible(investiblesDispatch, () => {}, newInvestible);
+        const resolvedStage = resolvedStageId && getFullStage(marketStagesState, marketId, resolvedStageId);
+        if (resolvedStage) {
+          // J-all-487: the shared guess, which is put back if the server does not confirm it
+          changeInvestibleStage(resolvedStage, assigned, comment.updated_at, marketInfo, investible.market_infos,
+            investible.investible, investiblesDispatch);
         }
         setOperationRunning(false);
         if (isInbox || criticalCommentsNumber === 1) {

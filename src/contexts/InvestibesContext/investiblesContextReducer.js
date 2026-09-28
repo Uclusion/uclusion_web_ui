@@ -11,6 +11,7 @@ import { queuePersistenceWrite } from '../../api/crossTabFreshness';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_INVESTIBLES = 'UPDATE_INVESTIBLES';
 const UPDATE_FROM_VERSIONS = 'UPDATE_FROM_VERSIONS';
+const REVERT_STAGE_GUESS = 'REVERT_STAGE_GUESS';
 
 /** Possible messages to reducer * */
 
@@ -33,6 +34,32 @@ export function versionsUpdateInvestibles(investibles) {
     type: UPDATE_FROM_VERSIONS,
     investibles,
   };
+}
+
+// J-all-487: put a job's stage guess back when no copy of the job came from the server by its deadline
+export function revertStageGuess(investibleId, marketInfoId, deadline) {
+  return {
+    type: REVERT_STAGE_GUESS,
+    investibleId,
+    marketInfoId,
+    deadline,
+  };
+}
+
+/**
+ * J-all-487: a stage guess still waiting on the server when the page closed is checked once the
+ * investibles load from storage, at once if its deadline has passed.
+ */
+export function revertPendingStageGuesses(state, dispatch) {
+  Object.values(state || {}).forEach((inv) => {
+    (inv?.market_infos || []).forEach((marketInfo) => {
+      const { stage_guess: stageGuess } = marketInfo;
+      if (stageGuess) {
+        setTimeout(() => dispatch(revertStageGuess(inv.investible.id, marketInfo.id, stageGuess.deadline)),
+          Math.max(0, stageGuess.deadline - Date.now()));
+      }
+    });
+  });
 }
 
 
@@ -60,12 +87,31 @@ function doUpdateInvestibles(state, action) {
   return { ...removeInitializing(state), ...investibleHash }
 }
 
+// A copy of the job from the server replaces the guessed market info and its stage_guess with it, so
+// only a guess still carrying this deadline was never answered. The copy put back keeps the version
+// from before the guess, so the version check still refuses it against anything newer.
+function doRevertStageGuess(state, action) {
+  const { investibleId, marketInfoId, deadline } = action;
+  const inv = state[investibleId];
+  const marketInfo = inv?.market_infos?.find((aMarketInfo) => aMarketInfo.id === marketInfoId);
+  if (marketInfo?.stage_guess?.deadline !== deadline) {
+    return state;
+  }
+  const revertedInvestible = {
+    ...inv,
+    market_infos: _.unionBy([marketInfo.stage_guess.before], inv.market_infos, 'id')
+  };
+  return doUpdateInvestibles(state, { investibles: [revertedInvestible] });
+}
+
 function computeNewState(state, action) {
   switch (action.type) {
     case UPDATE_INVESTIBLES:
       return doUpdateInvestibles(state, action, true);
     case UPDATE_FROM_VERSIONS:
       return doUpdateInvestibles(state, action);
+    case REVERT_STAGE_GUESS:
+      return doRevertStageGuess(state, action);
     case INITIALIZE_STATE:
       return action.newState;
     default:

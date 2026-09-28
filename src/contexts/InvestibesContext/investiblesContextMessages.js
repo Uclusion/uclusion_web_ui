@@ -11,6 +11,7 @@ import { PUSH_INVESTIBLES_CHANNEL, VERSIONS_EVENT } from '../../api/versionedFet
 export const LOCK_INVESTIBLE_CHANNEL = 'LockInvestibleChannel';
 export const LOCK_INVESTIBLE = 'LockInvestible';
 export const LOAD_EVENT = 'LoadEvent';
+export const REVERT_STAGE_GUESS_EVENT = 'RevertStageGuessEvent';
 
 function beginListening(dispatch, diffDispatch) {
   registerListener(PUSH_INVESTIBLES_CHANNEL, 'pushInvestibleStart', (data) => {
@@ -20,6 +21,8 @@ function beginListening(dispatch, diffDispatch) {
         return refreshInvestibles(dispatch, diffDispatch, investibles, true);
       case LOAD_EVENT:
         return refreshInvestibles(dispatch, diffDispatch, investibles, false);
+      case REVERT_STAGE_GUESS_EVENT:
+        return dispatch(data.payload.revert);
       default:
         // console.debug(`Ignoring push event ${event}`);
     }

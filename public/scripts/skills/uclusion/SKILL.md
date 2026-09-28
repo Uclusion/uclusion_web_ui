@@ -15,8 +15,8 @@ skill owns event handling and the job workflow.
 - For Pokes, idle work discovery, auto-take, delivery behavior, lookup routing,
   or update notices, read [references/pokes.md](references/pokes.md).
 - For notifications, exports, creating artifacts and visual options,
-  recording dependencies, view notes, commits, or context-clear
-  boundaries, read [references/operations.md](references/operations.md).
+  recording dependencies, view notes, commits, reopening resolved work, or
+  context-clear boundaries, read [references/operations.md](references/operations.md).
 - When a standalone bug is resolved or an assigned job enters Reviewable,
   read [references/completion.md](references/completion.md).
 - Read a tool's rules only when the session exposes that tool: `start_job_audit`
@@ -178,8 +178,8 @@ evidence or a changed requirement, and name what changed.
 
 ### Recording the human's own records
 
-`add_info`, `approve_job_or_option`, `make_suggestion`, `ask_question`, `add_options`
-and `move_suggestion_to_task` take `for_human`, as does any `initial_vote` they carry.
+`add_info`, `approve_job_or_option`, `make_suggestion`, `ask_question`, `add_options`,
+`move_suggestion_to_task` and `reopen` take `for_human`, as does any `initial_vote` they carry.
 Set it only for what the person told you to record; the record is theirs and its vote counts. Never put your reasoning under their name: ask for their certainty and reason first.
 With `for_human: true`, require boolean `is_my_lane`: true when working on or assigned that work, to avoid an echo Poke; false otherwise, so agents can receive it and potentially take up the work.
 Choose independently for each nested `initial_vote`. The demo owner plays the human and uses false.

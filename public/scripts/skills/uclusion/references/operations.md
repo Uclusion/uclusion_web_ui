@@ -147,6 +147,28 @@ After a successful package for a finished job now in Reviewable, release the
 assignment under `pokes.md`'s Assignment ownership rule, once any clear and
 triggered sweep are complete. An unfinished package keeps it.
 
+## Reopening resolved work
+
+`reopen` reopens a resolved bug, task, question, suggestion or blocker; a job
+changes stage through `change_job_stage` instead. On your own, reopen only a
+bug or task whose fix is shown to still fail, by a human's report or a failed
+verification, and say why in a reply on it. Reopen a question, suggestion or
+blocker only on a human's instruction, and never a question they resolved to
+delegate; ask a new question instead.
+
+A human's report that a fix still fails is their request to reopen it, so pass
+`for_human: true` with `is_my_lane` as the core skill describes. A failure your
+own verification finds is yours, so omit `for_human`. The server moves the job
+as it would for whoever reopened: a task an assignee reopens on a Reviewable job
+returns it to Doable, and one reopened by anyone else, the AI included, sends it
+to Approvable, where the usual next-action question applies.
+
+A reopened item is open work again. A reopened task leaves its job unfinished
+until the task resolves again. A reopened standalone bug's next resolution is a
+new open-to-resolved transition, so its completion sweep runs again and, for a
+fix you completed, a new completion package opens. What an earlier package did
+stands; nothing is rolled back.
+
 ## Notifications
 
 Call `get_notifications` whenever the human asks for their inbox and at every

@@ -4169,7 +4169,7 @@ def add_mcp_common_arguments(command_parser):
 
 FOR_HUMAN_TOOLS = frozenset({
     'add_info', 'approve_job_or_option', 'make_suggestion', 'ask_question', 'add_options',
-    'move_suggestion_to_task',
+    'move_suggestion_to_task', 'reopen',
 })
 
 
@@ -4745,6 +4745,24 @@ def build_parser():
         'resolve',
         (
             mcp_field('short_code_id', 'short_code_id', 'legacy_short_code_id'),
+            mcp_field('parent_question_short_code_id', 'parent_question_short_code_id'),
+        ),
+        ('short_code_id',),
+    )
+
+    reopen_parser = subparsers.add_parser(
+        'reopen', help='Reopen a resolved bug, task, question, suggestion or blocker through MCP.'
+    )
+    reopen_parser.add_argument('--short-code-id', help='Short code of the resolved comment.')
+    reopen_parser.add_argument(
+        '--parent-question-short-code-id',
+        help='Enclosing question short code for a local option or nested item.',
+    )
+    configure_mcp_parser(
+        reopen_parser,
+        'reopen',
+        (
+            mcp_field('short_code_id', 'short_code_id'),
             mcp_field('parent_question_short_code_id', 'parent_question_short_code_id'),
         ),
         ('short_code_id',),

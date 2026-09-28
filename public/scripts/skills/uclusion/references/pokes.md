@@ -233,6 +233,9 @@ run both completion scans once. A successful in-session Resolve follows the
 same rule immediately. When this session completed that fix, the resolution
 also opens the bug's completion package in `operations.md`. Merely loading a bug already resolved, or receiving another update while
 it remains resolved, does not retrigger the sweep or reopen its package.
+After a `reopen`, the bug is open again, so its next resolution is a new
+transition that runs the sweep and, for a fix this session completed, opens a
+new package.
 
 A legacy bare `Responded.` has no target. Reload only the outstanding
 dependency of the assigned lane. With no assignment, ignore it.

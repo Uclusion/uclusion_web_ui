@@ -199,6 +199,7 @@ function DecisionInvestible(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const wizardClasses = wizardStyles();
   const investibleId = fullInvestible?.investible?.id;
+  const isHighlighted = hashFragment === `option${investibleId}`;
   const voters = useInvestibleVoters(marketPresences, investibleId, market?.id, false);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
@@ -439,7 +440,9 @@ function DecisionInvestible(props) {
           variant="h3" component="h1">
           {name}
         </Typography>
-        <DescriptionOrDiff id={investibleId} darkModeNoBackground={theme.palette.type === 'dark'} 
+        {/* B-all-682: like a highlighted comment, drop the body's own background so the yellow shows behind it */}
+        <DescriptionOrDiff id={investibleId} darkModeNoBackground={theme.palette.type === 'dark'}
+            backgroundColor={isHighlighted ? 'transparent' : undefined}
             isWhiteText={theme.palette.type === 'dark'} description={description} showDiff={showDiff}/>
       </div>
     )}
@@ -502,7 +505,7 @@ function DecisionInvestible(props) {
 
   return (
     <div style={{ marginLeft: !mobileLayout ? '2rem' : undefined, marginRight: !mobileLayout ? '2rem' : undefined,
-      backgroundColor: hashFragment === `option${investibleId}` ? '#FBF6D8' : undefined }}
+      backgroundColor: isHighlighted ? '#FBF6D8' : undefined }}
          id={`option${investibleId}`}>
       <div className={classes.root} id="optionMain">
         <CardType

@@ -29,8 +29,8 @@ import AssignmentIcon from '@material-ui/icons/Assignment'
 import HowToVoteIcon from '@material-ui/icons/HowToVote'
 import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
 import UsefulRelativeTime from './TextFields/UseRelativeTime'
-import { Typography, useMediaQuery, useTheme } from '@material-ui/core'
-import { Block, Notes } from '@material-ui/icons';
+import { IconButton, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { Block, Notes, Notifications } from '@material-ui/icons';
 import NotificationMenuButton from './Buttons/NotificationMenuButton';
 import LightbulbOutlined from './CustomChip/LightbulbOutlined';
 import CommentTypeChip from './Comments/CommentTypeChip';
@@ -169,6 +169,7 @@ export default function CardType(props) {
     linker,
     notificationMessage,
     notificationClearOnly,
+    reserveNotificationSpace = false,
     notificationDirect = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(type)
   } = props;
   const classes = useCardTypeStyles({ type, resolved, color });
@@ -246,9 +247,14 @@ export default function CardType(props) {
         )
       )}
       {linker}
-      {notificationMessage && (
+      {notificationMessage ? (
         <NotificationMenuButton message={notificationMessage} clearOnly={notificationClearOnly}
                                 direct={notificationDirect} />
+      ) : reserveNotificationSpace && (
+        // B-all-684: an invisible bell-sized slot keeps the author where it sits when the bell shows
+        <IconButton size='small' disabled tabIndex={-1} aria-hidden='true' style={{ visibility: 'hidden' }}>
+          <Notifications fontSize='small' />
+        </IconButton>
       )}
       {createdAt && (
         <Typography className={classes.timeElapsed} variant="body2">
@@ -266,6 +272,8 @@ export default function CardType(props) {
 CardType.propTypes = {
   label: PropTypes.node,
   alwaysShowTypeChip: PropTypes.bool,
+  // Callers that can show a notification bell keep its space when there is none.
+  reserveNotificationSpace: PropTypes.bool,
   subtype: PropTypes.oneOf([
     IN_VOTING,
     IN_VERIFIED,

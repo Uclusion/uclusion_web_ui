@@ -1153,12 +1153,14 @@ function Comment(props) {
               subtype={bugSubtype || (commentType === REPLY_TYPE ?
                 TODO_TYPE : (isNote ? NOTE :undefined))} linker={(reallyNoAuthor || isMarketTodo) && showLinker && linker}
               label={overrideLabel} color={color} compressed={useCompression} notificationMessage={notificationMessage}
+              reserveNotificationSpace
               gravatar={noAuthor || mobileLayout || isDisplayOfSubTask ? undefined : gravatarWithName}
     />
   ): (
     <CardType className={classes.commentType} type={commentType} resolved={resolved} compact compressed={useCompression}
               subtype={bugSubtype}
               gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName} notificationMessage={notificationMessage}
+              reserveNotificationSpace
               alwaysShowTypeChip={compressAll}
               linker={(linkerShouldBeFirst || reallyNoAuthor || isMarketTodo) && showLinker && linker}
     />

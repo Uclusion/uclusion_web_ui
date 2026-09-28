@@ -240,6 +240,7 @@ function Voting(props) {
                     className={classes.cardType}
                     type={`certainty${Math.abs(quantity)}`}
                     notificationMessage={notificationMessage}
+                    reserveNotificationSpace
                     notificationClearOnly={isInbox}
                     notificationDirect={!!market.parent_comment_id}
                     gravatar={<GravatarAndName email={email}

@@ -15,8 +15,15 @@ export function updateInvestible(updateInfo) {
     groupId,
     isVisible,
     labelList,
-    version
+    version,
+    formerStageId
   } = updateInfo;
+  if (formerStageId) {
+    // J-all-488: where a Debatable job returns once everything open on it is resolved
+    return getMarketClient(marketId)
+      .then((client) => client.investibles.updateFormerStage(investibleId, formerStageId))
+      .catch((error) => toastErrorAndThrow(error, 'errorInvestibleUpdateFailed'));
+  }
   if (assignments) {
     return getMarketClient(marketId)
       .then((client) => client.investibles.updateAssignments(investibleId, assignments))

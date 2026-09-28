@@ -79,8 +79,7 @@ import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
 import PokeAIButton from '../../../components/Buttons/PokeAIButton';
 import useDoableStageGuard from '../../../components/AddNewWizards/JobStage/useDoableStageGuard';
 import { getUnresolvedAIQuestions } from '../../../utils/commentFunctions';
-import { nextStageDropdown } from '../../../utils/nextStageDropdown';
-import { updateComment } from '../../../api/comments';
+import { nextStageField } from '../../../utils/nextStageField';
 
 const useStyles = makeStyles(
   () => ({
@@ -334,6 +333,7 @@ export default function PlanningInvestibleNav(props) {
         updatePageState={updatePageState}
         requiresCloseComments={requiresCloseComments}
         stageId={stage}
+        formerStageId={marketInfo.former_stage_id}
         assigned={assigned}
         isAssigned={isAssigned}
         isSingleUser={isSingleUser}
@@ -685,6 +685,7 @@ export function MarketMetaData(props) {
     updatePageState,
     requiresCloseComments,
     stageId,
+    formerStageId,
     assigned,
     isAssigned,
     isSingleUser,
@@ -698,7 +699,7 @@ export function MarketMetaData(props) {
   const history = useHistory();
   const [themeMode] = useContext(ThemeModeContext);
   const isDark = themeMode === 'dark';
-  const [diffState] = useContext(DiffContext);
+  const [diffState, diffDispatch] = useContext(DiffContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [messagesState] = useContext(NotificationsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
@@ -710,9 +711,8 @@ export function MarketMetaData(props) {
   const marketStages = getStages(marketStagesState, marketId);
   const fullStagesFiltered = marketStages.filter((fullStage) => fullStage.id === stageId || 
   (!fullStage.move_on_comment && (isAssigned || _.isEmpty(assigned) || !isAcceptedStage(fullStage))));
-  const nextStage = (stagesInfo.isRequiresInput || stagesInfo.isInBlocked)
-    ? nextStageDropdown(getInvestibleComments(investibleId, marketId, commentsState), marketStages)
-    : undefined;
+  const nextStage = nextStageField(getFullStage(marketStagesState, marketId, stageId), formerStageId, assigned,
+    marketId, marketStagesState);
   const allowableStages = _.orderBy(fullStagesFiltered, (aStage) => {
     if (isFurtherWorkStage(aStage)) {
       return 0;
@@ -734,18 +734,17 @@ export function MarketMetaData(props) {
     updatePageState({showDiff: !showDiff});
   }
 
-  function changeCreationStage(stageId) {
-    if (!nextStage || stageId === nextStage.value) {
+  // J-all-488: sets where the server returns this Debatable job once everything open on it is resolved
+  function changeNextStage(nextStageId) {
+    if (!nextStage || nextStageId === nextStage.value) {
       return;
     }
     setOperationRunning(true);
-    return Promise.all(nextStage.commentIds.map((commentId) => updateComment({
-      marketId, commentId, creationStageId: stageId,
-    }))).then((comments) => {
-      addMarketComments(commentsDispatch, marketId, comments);
-    }).finally(() => {
-      setOperationRunning(false);
-    });
+    return updateInvestible({ marketId, investibleId, formerStageId: nextStageId })
+      .then((fullInvestible) => refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]))
+      .finally(() => {
+        setOperationRunning(false);
+      });
   }
   const stageLink = formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId);
 
@@ -833,7 +832,8 @@ export function MarketMetaData(props) {
           <div style={{paddingTop: '1.2rem'}} />
         </>
       )}
-      <div style={{display: 'flex', gap: '1.5rem', flexWrap: 'wrap'}}>
+      {/* J-all-488: Next stage sits under Stage, never beside it */}
+      <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '1rem'}}>
       <FormControl>
         <b><FormattedMessage id={'allowedStagesDropdownLabel'}/></b>
         <Select
@@ -851,12 +851,12 @@ export function MarketMetaData(props) {
           <b><FormattedMessage id="nextStageDropdownLabel" /></b>
           <Select
             value={nextStage.value}
-            onChange={(event) => changeCreationStage(event.target.value)}
+            onChange={(event) => changeNextStage(event.target.value)}
             disabled={operationRunning !== false}
           >
             {nextStage.optionIds.map((optionId) => (
               <MenuItem key={optionId} value={optionId}>
-                {marketStages.find((stage) => stage.id === optionId)?.name}
+                {getStageNameForId(marketStagesState, marketId, optionId, intl)}
               </MenuItem>
             ))}
           </Select>

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
@@ -46,27 +46,27 @@ function StartReviewStep(props) {
   const roots = investibleComments.filter((comment) => comment.comment_type === TODO_TYPE);
   const comments = getCommentThreads(roots, investibleComments);
 
-  function finishMoved(comment) {
-    if (comment) {
-      navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
-    } else {
-      navigate(history, formMarketLink(marketId, groupId));
+  const onSave = useCallback((comment) => {
+    function finishMoved() {
+      if (comment) {
+        navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
+      } else {
+        navigate(history, formMarketLink(marketId, groupId));
+      }
     }
-  }
 
-  function clearInboxIfRequested() {
-    // CloseCommentsStep leaves this clear for a team job, because requiresAction is still true there.
-    if (clearNotifications && isInReviewStage(fullMoveStage)) {
-      return deleteOrDehilightMessages(findMessagesForInvestibleId(investibleId, messagesState.messages)
-        .filter((message) => isInInbox(message)), messagesDispatch, true, false, true);
+    function clearInboxIfRequested() {
+      // CloseCommentsStep leaves this clear for a team job, because requiresAction is still true there.
+      if (clearNotifications && isInReviewStage(fullMoveStage)) {
+        return deleteOrDehilightMessages(findMessagesForInvestibleId(investibleId, messagesState.messages)
+          .filter((message) => isInInbox(message)), messagesDispatch, true, false, true);
+      }
+      return Promise.resolve(true);
     }
-    return Promise.resolve(true);
-  }
 
-  function onSave(comment) {
     // B-all-672: the stage dropdown, or an earlier wizard step, already moved the job.
     if (info?.stage === fullMoveStage.id) {
-      return clearInboxIfRequested().then(() => finishMoved(comment));
+      return clearInboxIfRequested().then(() => finishMoved());
     }
     if (!comment) {
       setOperationRunning(true);
@@ -82,16 +82,20 @@ function StartReviewStep(props) {
     if (assignId) {
       moveInfo.stageInfo.assignments = [assignId];
     }
-    const fullCurrentStage = getFullStage(marketStagesState, marketId, info.stage)
+    const fullCurrentStage = getFullStage(marketStagesState, marketId, info.stage);
     return stageChangeInvestible(moveInfo)
       .then((newInv) => {
         onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, marketId, commentsState,
           commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
           fullCurrentStage, marketPresencesDispatch);
-        return clearInboxIfRequested().then(() => finishMoved(comment));
+        return clearInboxIfRequested().then(() => finishMoved());
       })
       .finally(() => setOperationRunning(false));
-  }
+  }, [
+    assignId, clearNotifications, commentsDispatch, commentsState, fullMoveStage, groupId, history,
+    info, investibleId, investiblesDispatch, marketId, marketPresencesDispatch, marketStagesState,
+    messagesDispatch, messagesState.messages, setOperationRunning,
+  ]);
 
   // C-all-2248: do not ask what finished. A leftover review link still moves the job and leaves.
   const startedReviewFinish = useRef(false);
@@ -103,7 +107,7 @@ function StartReviewStep(props) {
     }
     startedReviewFinish.current = true;
     onSave();
-  }, [finishingReview]);
+  }, [finishingReview, onSave]);
   if (finishingReview) {
     return React.Fragment;
   }

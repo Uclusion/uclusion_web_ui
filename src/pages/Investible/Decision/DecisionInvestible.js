@@ -504,7 +504,10 @@ function DecisionInvestible(props) {
     </div>;
 
   return (
-    <div style={{ marginLeft: !mobileLayout ? '2rem' : undefined, marginRight: !mobileLayout ? '2rem' : undefined,
+    // B-all-687: the yellow flash uses the bug body's 20px left inset so it is not
+    // against the words, and the option under its row uses the bug's 0.5rem.
+    <div style={{ marginLeft: !mobileLayout ? '0.5rem' : undefined, marginRight: !mobileLayout ? '2rem' : undefined,
+      paddingLeft: '20px',
       backgroundColor: isHighlighted ? '#FBF6D8' : undefined }}
          id={`option${investibleId}`}>
       <div className={classes.root} id="optionMain">

@@ -162,7 +162,10 @@ describe('DecisionInvestible option Poke AI routing', () => {
       marketId: 'inline-option-market', commentId: 'vote-reason' };
     try {
       act(() => root.render(renderDecision(notification, 'optionoption-id')));
-      expect(container.querySelector('#optionoption-id').style.backgroundColor).toBe('rgb(251, 246, 216)');
+      const highlighted = container.querySelector('#optionoption-id');
+      expect(highlighted.style.backgroundColor).toBe('rgb(251, 246, 216)');
+      expect(highlighted.style.paddingLeft).toBe('20px');
+      expect(highlighted.style.marginLeft).toBe('0.5rem');
       expect(mockUpdatePageState).toHaveBeenCalledWith({ useCompression: false });
       mockUpdatePageState.mockClear();
       // Rerenders and a later user collapse must not reapply the same notification entry.

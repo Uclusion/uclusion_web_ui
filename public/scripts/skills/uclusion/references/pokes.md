@@ -80,7 +80,14 @@ listener re-armed in the same session continues that cursor, so Pokes that
 arrived between listeners are still delivered. A Cursor listener exits at its
 duration limit after printing `Uclusion listener rearm` and its consumer name.
 The next listener passes that name with `--consumer`, so Pokes that arrived
-between listeners are still delivered. Older output marked `(replayed)`
+between listeners are still delivered. Starting a Cursor listener stops every
+other Cursor listener, any other process running `listen` with
+`--max-seconds`. A listener with no time limit keeps running. When the person
+types in a Cursor chat whose listener is not running, that chat arms one, and
+that start stops the listener in the chat they left. If a Cursor listener
+exits without printing `Uclusion listener rearm`, another chat took over. Do
+not arm a replacement because of that exit. The chat that still owns the listener
+still rearms when it prints that line. Older output marked `(replayed)`
 is history: drop it without reload, action, or user-facing narration. Never add
 `--ignore-existing-pokes` or `--deliver-existing-pokes` unless the human
 explicitly asks. Ignoring advances only that cursor past retained rows.
@@ -88,8 +95,9 @@ Delivering existing Pokes emits retained history as an unmarked private copy,
 without changing other consumers; handle that copy exactly as the human's ask
 directs, never as an automatic live Start. Neither flag deletes inbox rows.
 
-Delivery is broadcast per session; every live session may receive the same
-line. Broadcast is transport, not assignment. Incorporate state only under the
+Delivery is broadcast to each armed listener; every armed listener may receive
+the same line. Cursor keeps a single listener, on the chat the person is
+typing in. Broadcast is transport, not assignment. Incorporate state only under the
 assignment rules below and never race or coordinate through the inbox. Never
 read, edit, or delete the inbox database.
 

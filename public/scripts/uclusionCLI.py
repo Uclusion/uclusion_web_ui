@@ -3020,14 +3020,99 @@ def cmd_watch(args):
     return 0
 
 
+def is_cursor_listener_argv(argv):
+    """A Cursor listener is ``listen`` started with a time limit."""
+    return 'listen' in argv and '--max-seconds' in argv
+
+
+def other_cursor_listener_pids(my_pid, parent_pid, processes):
+    """Other Cursor listeners. This process and its parent stay up."""
+    protected = {my_pid, parent_pid}
+    return [
+        pid
+        for pid, argv in processes
+        if pid not in protected and is_cursor_listener_argv(argv)
+    ]
+
+
+def argvs_from_ps_listing(listing):
+    """``(pid, argv)`` pairs from ``ps`` pid and command columns."""
+    found = []
+    for line in listing.splitlines():
+        pid_text, _, command = line.strip().partition(' ')
+        if not command:
+            continue
+        try:
+            pid = int(pid_text)
+        except ValueError:
+            continue
+        found.append((pid, command.split()))
+    return found
+
+
+def read_proc_argvs():
+    """``(pid, argv)`` pairs from readable ``/proc`` command lines."""
+    found = []
+    try:
+        names = os.listdir('/proc')
+    except OSError:
+        return found
+    for name in names:
+        if not name.isdigit():
+            continue
+        try:
+            with open(os.path.join('/proc', name, 'cmdline'), 'rb') as handle:
+                raw = handle.read()
+        except OSError:
+            continue
+        argv = [
+            part.decode('utf-8', 'replace')
+            for part in raw.split(b'\0')
+            if part
+        ]
+        if argv:
+            found.append((int(name), argv))
+    return found
+
+
+def read_process_argvs():
+    """Command lines of live processes. ``/proc`` when present, otherwise ``ps``."""
+    if os.path.isdir('/proc'):
+        return read_proc_argvs()
+    try:
+        listing = subprocess.run(
+            ['ps', '-axww', '-o', 'pid=,command='],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        ).stdout
+    except (OSError, subprocess.SubprocessError):
+        return []
+    return argvs_from_ps_listing(listing or '')
+
+
+def stop_other_cursor_listeners():
+    """Stop every other Cursor listener. An unlimited listener stays up."""
+    victims = other_cursor_listener_pids(
+        os.getpid(), os.getppid(), read_process_argvs()
+    )
+    for pid in victims:
+        try:
+            os.kill(pid, signal.SIGTERM)
+        except OSError:
+            continue
+
+
 def cmd_listen(args):
     """Stream Poke AI prompts, one flushed line per prompt.
 
     B-all-507: for harnesses that raise stdout lines from a still-running
     process as events (Claude Code's Monitor), each claimed prompt prints
     as one line and the loop keeps listening. There is no completion notice
-    and no relaunch choreography. ``--max-seconds`` is optional. When it
-    elapses, the last
+    and no relaunch choreography. ``--max-seconds`` is optional. When it is
+    set, this process first stops every other process whose arguments include
+    both ``listen`` and ``--max-seconds``, except itself and its parent. When
+    the limit elapses, the last
     line is ``Uclusion listener rearm`` plus the consumer name, and the
     process exits. Prompts not yet printed stay queued for the next
     listener that passes the same ``--consumer``. Omitting the flag leaves
@@ -3059,6 +3144,10 @@ def cmd_listen(args):
         start_new_consumer_at_arm_time(environment, workspace_id, consumer)
     if getattr(args, 'ignore_existing_pokes', False):
         ignore_existing_prompts(environment, workspace_id, consumer)
+    # The cursor is recorded first so a poke that arrives while the other
+    # listeners are stopping is still ahead of this listener.
+    if max_seconds is not None:
+        stop_other_cursor_listeners()
     deadline = None if max_seconds is None else time.monotonic() + max_seconds
     next_update_check = time.monotonic()
     initial_ppid = os.getppid()

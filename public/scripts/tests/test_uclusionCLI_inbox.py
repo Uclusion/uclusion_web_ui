@@ -269,9 +269,12 @@ class ListenCommandCutoffTests(unittest.TestCase):
             cli, 'next_prompt', side_effect=fake_next_prompt
         ), mock.patch.object(
             cli, 'check_wait_update_notice', return_value=None
-        ), mock.patch.object(cli.time, 'sleep'):
+        ), mock.patch.object(
+            cli, 'stop_other_cursor_listeners'
+        ) as stop_others, mock.patch.object(cli.time, 'sleep'):
             with self.assertRaises(StopListening):
                 cli.cmd_listen(args)
+        stop_others.assert_not_called()
         return calls
 
     def test_listen_flag_applies_cutoff_before_first_claim(self):
@@ -321,13 +324,15 @@ class ListenMaxSecondsTests(unittest.TestCase):
         ), mock.patch.object(
             cli, 'is_orphaned', return_value=False
         ), mock.patch.object(
+            cli, 'stop_other_cursor_listeners'
+        ) as stop_others, mock.patch.object(
             cli.time, 'monotonic', side_effect=clock
         ), mock.patch.object(cli.time, 'sleep'), redirect_stdout(stdout):
             result = cli.cmd_listen(args)
-        return result, stdout.getvalue(), claims
+        return result, stdout.getvalue(), claims, stop_others
 
     def test_limit_prints_rearm_without_taking_a_later_prompt(self):
-        result, output, claims = self.run_listen(
+        result, output, claims, stop_others = self.run_listen(
             1500,
             ['Added T-1 of J-1', 'Responded J-1'],
             # Deadline, the update clock, the first loop check, then the limit.
@@ -339,22 +344,63 @@ class ListenMaxSecondsTests(unittest.TestCase):
             'Added T-1 of J-1\nUclusion listener rearm session-cursor-1\n',
         )
         self.assertEqual(claims, [('stage', 'w1', 'session-cursor-1')])
+        stop_others.assert_called_once_with()
 
     def test_limit_already_reached_claims_nothing(self):
-        result, output, claims = self.run_listen(
+        result, output, claims, stop_others = self.run_listen(
             1500, ['Added T-1 of J-1'], iter([0, 0, 1500])
         )
         self.assertEqual(result, 0)
         self.assertEqual(output, 'Uclusion listener rearm session-cursor-1\n')
         self.assertEqual(claims, [])
+        stop_others.assert_called_once_with()
 
     def test_non_positive_limit_exits_before_claiming(self):
-        result, output, claims = self.run_listen(
+        result, output, claims, stop_others = self.run_listen(
             0, ['Added T-1 of J-1'], iter([])
         )
         self.assertEqual(result, 1)
         self.assertIn('--max-seconds must be greater than zero', output)
         self.assertEqual(claims, [])
+        stop_others.assert_not_called()
+
+
+class CursorListenerStopTests(unittest.TestCase):
+    def test_ps_listing_splits_pid_and_arguments(self):
+        listing = (
+            '  10 /usr/bin/uclusion -e stage listen --max-seconds 1500\n'
+            'not-a-pid ignored\n'
+            '  11 \n'
+        )
+        self.assertEqual(
+            cli.argvs_from_ps_listing(listing),
+            [(10, ['/usr/bin/uclusion', '-e', 'stage', 'listen', '--max-seconds', '1500'])],
+        )
+
+    def test_only_other_limited_listeners_are_selected(self):
+        processes = [
+            (10, ['uclusion', '-e', 'stage', 'listen', '--max-seconds', '1500']),
+            (11, ['uclusion', '-e', 'stage', 'listen']),
+            (12, ['bash', '-lc', 'uclusion -e stage listen --max-seconds 1500']),
+            (13, ['uclusion', 'listen', '--max-seconds', '1500']),
+            (14, ['bash', 'uclusion', 'listen', '--max-seconds', '1500']),
+        ]
+        self.assertEqual(cli.other_cursor_listener_pids(13, 14, processes), [10])
+
+    def test_stop_signals_the_selected_listener(self):
+        processes = [
+            (10, ['uclusion', 'listen', '--max-seconds', '1500']),
+            (13, ['uclusion', 'listen', '--max-seconds', '1500']),
+        ]
+        with mock.patch.object(
+            cli, 'read_process_argvs', return_value=processes
+        ), mock.patch.object(
+            cli.os, 'getpid', return_value=13
+        ), mock.patch.object(
+            cli.os, 'getppid', return_value=14
+        ), mock.patch.object(cli.os, 'kill') as kill:
+            cli.stop_other_cursor_listeners()
+        kill.assert_called_once_with(10, cli.signal.SIGTERM)
 
 
 class ConsumerResolutionTests(unittest.TestCase):

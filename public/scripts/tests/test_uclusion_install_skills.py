@@ -267,6 +267,10 @@ class ResidentStubContractTests(unittest.TestCase):
         self.assertIn('--consumer', stub)
         self.assertIn('Do not set `UCLUSION_CONSUMER`', stub)
         self.assertRegex(stub, r'(?i)do not run `uclusion\s+wait`')
+        self.assertRegex(stub, r'stops\s+every other Cursor listener')
+        self.assertIn('a turn the person typed in this chat', stub)
+        self.assertRegex(stub, r'Do not arm\s+a replacement')
+        self.assertRegex(stub, r'do\s+not ask again in this chat')
 
 class WorkflowBundleFetcherTests(unittest.TestCase):
     class Response:

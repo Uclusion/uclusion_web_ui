@@ -19,10 +19,12 @@ skill owns event handling and the job workflow.
   context-clear boundaries, read [references/operations.md](references/operations.md).
 - When a standalone bug is resolved or an assigned job enters Reviewable,
   read [references/completion.md](references/completion.md).
-- Read a tool's rules only when the session exposes that tool: `start_job_audit`
-  routes to [references/audit.md](references/audit.md) before substantive
-  planning, `claim_work` to [references/claims.md](references/claims.md), and
-  `get_upload` to [references/uploads.md](references/uploads.md).
+- When the session lists `start_job_audit`, including as a deferred tool, read
+  [references/audit.md](references/audit.md) and start the audit for the assigned
+  job before substantive planning. Read a tool's rules only when the session
+  exposes that tool: `claim_work` routes to
+  [references/claims.md](references/claims.md), and `get_upload` to
+  [references/uploads.md](references/uploads.md).
 - Before every lane handoff, apply `pokes.md`'s assignment-aware discovery
   rules; a retained assignment does not trigger a work list. Read
   `operations.md` when resolving a bug/job, opening review, or receiving sign-off
@@ -128,6 +130,10 @@ For assigned work, read [references/reading.md](references/reading.md) before
 versions and refresh after compaction. References alone do not load a contract
 or standing instructions. If the result has no Job header and contains one
 top-level comment, use the single-comment workflow below.
+
+When the session lists `start_job_audit`, including as a deferred tool, read
+[references/audit.md](references/audit.md) and start the audit for the assigned
+job before substantive planning.
 
 ## 2. Ask and resolve questions
 

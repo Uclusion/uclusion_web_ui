@@ -63,19 +63,19 @@ skill owns event handling and the job workflow.
   resolved and the job returns to Doable or Reviewable. That lock covers
   implementation edits to this job and nothing more, so investigation,
   reproduction, and measurement continue while it holds.
-- Treat every `change_job_stage` call as an explicit authorization boundary. A
-  non-advisory human authorizes it only by directly instructing a transition
+- The final implementation review's Doable-to-Reviewable transition, including
+  recovery after a confirmed review publication, is authorized by the review
+  workflow in `operations.md`. Every other stage change requires a
+  non-advisory human to authorize it by directly instructing a transition
   that names the exact job and destination stage, by answering or delegating a
-  question for the exact job and destination transition, or by `all` on a
-  completion package that lists that exact move (`operations.md`). A `Start`
+  question for the exact job and destination transition. A `Start`
   event and general work language such as "analyze this," "take this up,"
   "proceed," "go," or "fix it" never authorize a stage change. Planning outcomes, replies or resolutions on other
   questions, approvals or votes unrelated to that exact transition,
   recommendations, and capsule changes do not authorize one. Never infer stage
   authorization from surrounding work language. If a needed transition lacks
   exact authorization, leave the stage unchanged and ask the human about that
-  exact job and destination transition. A package reply that leaves the move
-  out is final, so leave the stage unchanged without asking again.
+  exact job and destination transition.
 - New assistance can arrive at any time, and arrives as a Poke. Handle every
   delivered Poke before the next edit instead of rereading the job for it. A
   client with no listener armed cannot learn of changes that way, so it
@@ -104,8 +104,8 @@ skill owns event handling and the job workflow.
   components.
 - A capsule is a contract, not permission. Stage, testing and build, security,
   deployment, commit, and push gates remain independent. The required review
-  is opened before its completion package asks for commit, push, clear and any
-  Reviewable move together; it never grants a test, build, security,
+  is opened before its completion package asks for commit, push and clear
+  together; entering Reviewable never grants a test, build, security,
   deployment, or unlisted action.
 - Use the exact short code returned by Uclusion in tool calls, chat, commit
   messages, and durable notes.
@@ -202,7 +202,7 @@ cannot make the question answerable or unlock execution.
 An open AI-authored question moves a job in Approvable, Doable or Reviewable to
 Requires Input, whichever stage the question was opened in. A primary,
 non-advisory reply or vote makes it answerable, but the job stays locked until
-the AI calls `resolve`. A human may instead Resolve the question directly; that
+the AI resolves the question. A human may instead Resolve the question directly; that
 delegates the choice to the AI, does not silently select an option, and restores
 the prior stage. Record a new non-obvious delegated choice in the applicable
 capsule when writing it, or use `add_info` on the job/task only if missing from
@@ -214,9 +214,11 @@ AI-authored question. If every answering vote is 50/100 certainty or lower,
 add a better option when one exists, otherwise add information that can raise
 certainty; with neither, proceed with the recorded answer.
 
-Resolve an answered question immediately when no further operation inside it
-is needed. Do not resolve and then reply or vote inside it. Clarify ambiguous
-replies. Only Approvable options count or accept votes. If later work would say
+Finish any reply or vote before resolving a question. When its answer establishes
+a capsule change, compose and cold-review that contract while the question stays
+open, then pass its code in `set_design_capsule`'s `resolve_question_short_code_ids`.
+Use `resolve` when no capsule change is needed; omit questions the human already
+resolved. Clarify ambiguous replies. Only Approvable options count or accept votes. If later work would say
 "flag if you prefer" or "verify this choice," stop: that was an unasked
 step-two question.
 
@@ -362,14 +364,18 @@ Before editing:
 
 Implement active tasks and grouped tasks; do not redo resolved work. Resolve
 each task when written and tested. Commit, push and deployment are
-separate gates and hold none of that; extra-environment verification is a new
-task. Use `add_info` on the relevant job/task for decisions, trade-offs,
+separate gates and hold none of that. Record remaining commits, pushes,
+deployment and already-agreed verification in other environments as Review
+work in the report; they do not keep completed implementation in Doable or
+automatically need a new task. Failures requiring implementation follow the
+normal new/reopened-work rules. Use `add_info` on the relevant job/task for decisions, trade-offs,
 follow-ups, and anything a reviewer cannot reconstruct from the durable thread.
 
 ## 6. Request or perform review
 
-Before review, turn unfinished or deferred actionable work into suggestions and
-reference those suggestions in the report. When a job's review is due, what
+Before review, turn unfinished or deferred implementation work into suggestions
+and reference those suggestions in the report. Record the remaining Review
+work described above directly in the report. When a job's review is due, what
 holds its package, and the package itself are in `operations.md`'s
 completion-package section; read it before `ask_for_review`. For other testable
 review work, call `ask_for_review` with a concise capsule-delta report. Only
@@ -378,7 +384,8 @@ one AI review may be open per job.
 In Reviewable, inspect the author of the latest Reports comment:
 
 - From AI user: humans are reviewing AI work. Do not review it again; act only
-  on explicit feedback or a stage change.
+  on explicit feedback, a stage change, or already-authorized Review work
+  recorded in the report.
 - From a human: review the human's work and reply through Uclusion.
 
 Before interpreting the report for a job that just transitioned into

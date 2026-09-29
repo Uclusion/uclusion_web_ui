@@ -5,7 +5,9 @@
 
 Run both scans when a standalone bug is resolved or whenever a job transitions
 into Reviewable. Reviewable is a reliable handoff signal, not proof that the job
-is final: if the job leaves Reviewable and later returns, that later transition
+is final or that remaining deployment and other-environment verification has
+run. A transition returned by `ask_for_review` is the same trigger. If the job
+leaves Reviewable and later returns, that later transition
 runs a new sweep. Merely loading a job that is already Reviewable, or receiving
 another update while it remains there, is not a trigger.
 

@@ -230,8 +230,8 @@ assigned lane, compare the supplied stage, or the reloaded stage for an ordinary
 update, with the stage this session last observed. When it changes from any
 other stage into Reviewable, read
 `completion.md` and run both completion scans once before handling review. A
-successful in-session stage change to Reviewable follows the same rule. For an
-authorized in-session post-review transition, finish the sweep in that same
+successful in-session stage change to Reviewable follows the same rule,
+including the transition returned by `ask_for_review`. Finish the sweep in that same
 turn before lane handoff, work discovery, or starting another job. Merely
 loading a job already in Reviewable, or receiving another update while it stays
 there, does not retrigger the sweep. After the job leaves Reviewable, a later

@@ -42,11 +42,27 @@ A write's result is the reload for what it produced. `ask_question` returns the
 question and option codes, the initial vote and the job's resulting stage;
 `update_option` names what it updated; `set_design_capsule` returns the stored
 R-code and version and, for a replacement, the open reviews that name it;
-`ask_for_review` lists the job's open questions and suggestions;
+`ask_for_review` returns the saved review receipt, the job's open questions
+and suggestions, and its notification snapshot. When implementation is
+declared complete it also reports the conditional Reviewable transition.
+Inspect each outcome separately: a failed inventory, transition or notification
+check does not erase a successful review. Reconcile unconfirmed writes and
+retry only unfinished steps as `operations.md` describes;
 `change_job_stage` states the stage afterwards. Do not call `get_job` after
 them to see their output. `resolve` reports only what it resolved; when you
 need the stage afterwards, call `get_job` with `stage_only: true`. Others'
 changes arrive as Pokes, so handle those instead of rereading the job.
+
+When `set_design_capsule` also resolves selected questions, inspect the capsule
+receipt and each resolution outcome. A failed or uncertain publication resolves
+no questions; a later resolution failure leaves the published capsule in place
+and stops the remaining resolutions. Reconcile unconfirmed writes with scoped
+reads. Resume resolutions only after confirming the intended capsule was
+published; otherwise reconcile and publish that contract first. Once publication
+is confirmed, resolve only unfinished questions rather than replaying a stale
+capsule write. If the review-inventory lookup failed, load Reports for the
+existing obsolete-review cleanup. After the last operation, use `stage_only`
+before acting on the stage.
 
 ## Standing instructions by view
 

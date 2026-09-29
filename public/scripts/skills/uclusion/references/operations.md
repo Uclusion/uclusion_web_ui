@@ -47,7 +47,11 @@ do in that assigned job, in an executable stage, is written and tested; never
 after each pass. Another open task, such as the human's own, only leaves the
 job unfinished. The review is the capsule-delta report the core workflow
 describes, naming each task and its current capsule. Opening it is required
-documentation and brings the work to the human; it does not change the stage.
+documentation and brings the work to the human. When implementation of the
+whole job is complete, pass `implementation_complete: true` to `ask_for_review`
+to publish the review and conditionally move Doable to Reviewable together.
+For a partial review, omit that flag. No separate stage permission is needed
+for this final implementation handoff.
 
 A finished task not related enough to the rest of its job gets its own review
 instead; say why in that task's review. Once it is written and tested, call
@@ -59,9 +63,34 @@ stage; if the result says it started in the initial stage, ask about its next
 stage as the core workflow says. It joins your assignment beside the job it
 came from, so waiting on its package does not stop the tasks remaining there.
 
-A job is finished when everything its current capsule promises is built and
-tested and no open task remains; an empty task list alone never shows that.
-State in the review which you concluded and why.
+A job's implementation is finished when its agreed implementation is built,
+its initial verification is complete, and no open task remains; an empty task
+list alone never shows that. State in the review which you concluded and why.
+Commits, pushes, deployments and agreed verification in other environments
+belong to Review. List what remains and its approval status in the report,
+before the completion package; those actions retain their permission gates.
+Resolve completed implementation tasks first. Do not close unfinished work
+merely to make the transition eligible.
+
+The operation saves the review first, then checks current tasks, issues,
+questions and suggestions. Any open item prevents the requested move; other
+stages are preserved, and already Reviewable is a no-op. This is an inventory
+snapshot and a conditional stage write, not an atomic lock against concurrent
+work. Continue handling Pokes. Reviewable retains its existing asynchronous
+comment and notification cleanup.
+
+Inspect the separate review, inventory, transition and notification outcomes.
+A review write reported as unconfirmed may have saved it: inspect Reports, or
+the exact review on an update, before retrying publication. A later failure
+does not undo a saved review. Reconcile an uncertain stage
+write with a scoped read before retrying; never create a duplicate review to
+recover a later step. Once the review is confirmed and the job is still ready
+in Doable, retry only the transition with `change_job_stage`, `from_stage`
+Doable and destination Reviewable. A different stage or new open work stops
+that retry. Run the completion sweep immediately upon a confirmed transition,
+including one first confirmed during reconciliation. An already-Reviewable
+no-op alone is not another trigger. A failed sweep remains unfinished work
+and is retried without new permission before any lane switch.
 
 Each open suggestion on the job is unfinished or deferred work that moving the
 job to Reviewable would resolve and lose. Check the ones you hold and the
@@ -71,7 +100,8 @@ those this pass created, and asking the human to convert it to a task or
 resolve it; offer no package. End each later turn by naming the review and the
 suggestions still open. When Pokes show none open, rewrite the review with
 `update_review_short_code_id` to append the package, since a converted
-suggestion is an open task. A standalone bug holds no suggestions.
+suggestion is an open task. Include `implementation_complete: true` only if
+the whole job now qualifies. A standalone bug holds no suggestions.
 
 ### What the package says
 
@@ -84,9 +114,7 @@ what `all` does for this item, in this order:
 1. commit only the reviewed changes, naming each repository with its files, or
    with a file count and compact scope when a list would be long;
 2. push only those commits;
-3. only when the pass finishes a job that is in Doable: move that exact job
-   from Doable to Reviewable and immediately run its completion sweep;
-4. clear only this work's notifications: the exact job when the pass
+3. clear only this work's notifications: the exact job when the pass
    finishes it, otherwise the exact review plus each task the pass resolved,
    and for a bug the exact bug with its replies. This runs last, one call per
    code with the terminal record on the last, so nothing the attempt writes can
@@ -100,11 +128,10 @@ failure never suppresses the package. End with:
 ### The reply
 
 Only a reply from a non-AI, non-advisory human counts, on the package thread
-or in normal client chat. `all` authorizes exactly the listed actions,
-including a listed Reviewable move. Any other reply is an ordinary instruction
-under the core workflow's authorization rules: it authorizes a stage change
-only when it names the exact job and destination, and an ambiguous reply gets
-one narrow clarification where it appeared. A reply declining everything
+or in normal client chat. `all` authorizes exactly the listed actions.
+Any other reply is an ordinary instruction under the core workflow's
+authorization rules; an ambiguous reply gets one narrow clarification where
+it appeared. A reply declining everything
 completes the package with no action. A later reply is a new instruction and
 never repeats work that has already completed. The package never authorizes
 tests, builds, deployment, security work, force-push, unrelated changes,
@@ -121,16 +148,8 @@ A reply that arrives by Poke is read before acting; a chat reply needs no read.
 Perform the authorized actions in the listed order and stop at the first
 failure, without rolling back what succeeded. Having nothing to commit, push or
 clear is a successful no-op. Whenever any action is authorized, make one
-fresh notification check after the last commit or push and before the stage
-move and clear, and list the item's matches.
-
-The stage move and its sweep are one action: never one without the other. For
-the move, call `change_job_stage` with `from_stage` Doable. A refusal naming
-Reviewable means the job has already entered it, so run the sweep now; any
-other refusal stops there with the stage preserved. After a successful move,
-finish the sweep in the same turn before any handoff, discovery or other job. A
-failed sweep leaves the job in Reviewable and is retried directly, without new
-permission, before any lane switch.
+fresh notification check after the last commit or push and before the clear,
+and list the item's matches.
 
 Write exactly one terminal record for each attempt, on the package thread,
 replying to the human's reply when it came from there and to the thread's root
@@ -145,7 +164,8 @@ writes one new record.
 
 After a successful package for a finished job now in Reviewable, release the
 assignment under `pokes.md`'s Assignment ownership rule, once any clear and
-triggered sweep are complete. An unfinished package keeps it.
+triggered sweep are complete and no requested Review work remains. An
+unfinished package keeps it.
 
 ## Reopening resolved work
 
@@ -171,9 +191,14 @@ stands; nothing is rolled back.
 
 ## Notifications
 
-Call `get_notifications` whenever the human asks for their inbox and at every
-completion moment: opening a review, resolving a bug or job, or receiving
-sign-off and committing. A failed check never delays or suppresses a package.
+`ask_for_review` performs the review-opening notification check and returns
+the current inventory scoped to the enclosing job. Use that result instead
+of a separate `get_notifications` call. Asynchronous delivery can omit the
+new review's notification from that snapshot. A failed check is reported
+separately from the saved review; it never delays or suppresses a package.
+Call `get_notifications` when the human asks for their inbox, when resolving
+a bug or job, and when receiving sign-off and committing. Keep the fresh
+check after the package reply and any commit/push.
 The package is its item's only clear offer. Outside a package, list the
 notifications for the item just worked and ask before clearing those exact
 ones, making no call when nothing matches. `clear_notifications` takes one

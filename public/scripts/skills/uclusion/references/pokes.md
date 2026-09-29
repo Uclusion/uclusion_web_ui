@@ -83,8 +83,11 @@ The next listener passes that name with `--consumer`, so Pokes that arrived
 between listeners are still delivered. Starting a Cursor listener stops every
 other Cursor listener, any other process running `listen` with
 `--max-seconds`. A listener with no time limit keeps running. When the person
-types in a Cursor chat whose listener is not running, that chat arms one, and
-that start stops the listener in the chat they left. If a Cursor listener
+types in a Cursor chat, that chat arms one unless this chat already armed one
+that is still running. A listener this chat did not arm does not count,
+including one still running in another chat or listed in the shared terminals
+folder. Do not scan terminals or processes to adopt one. That start stops the
+listener in the chat they left. If a Cursor listener
 exits without printing `Uclusion listener rearm`, another chat took over. Do
 not arm a replacement because of that exit. The chat that still owns the listener
 still rearms when it prints that line. Older output marked `(replayed)`

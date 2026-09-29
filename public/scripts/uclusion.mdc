@@ -30,10 +30,12 @@ available.
 
 Before acting on a turn the person typed in this chat, including the first
 request of a session and a return to an older chat, even when that request is
-unrelated to Uclusion, establish Poke AI delivery when this chat does not
-already have a listener still running. Arm exactly one background command,
-`{{UCLUSION_CLI}} listen --max-seconds 1500`. Starting that command stops
-every other Cursor listener. Watch its stdout for a line beginning `Start `,
+unrelated to Uclusion, establish Poke AI delivery. Arm exactly one background
+command, `{{UCLUSION_CLI}} listen --max-seconds 1500`, unless this chat already
+armed one that is still running. A listener this chat did not arm does not
+count, including one still running in another chat or listed in the shared
+terminals folder. Do not scan terminals or processes to adopt one. Starting
+that command stops every other Cursor listener. Watch its stdout for a line beginning `Start `,
 `Added `, `Updated `, `Responded `, `[Uclusion update notice`, or
 `Uclusion listener rearm `. A matching line starts the next turn in this same
 chat. Read that line from the command output and handle delivered lines in

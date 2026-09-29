@@ -271,6 +271,16 @@ class ResidentStubContractTests(unittest.TestCase):
         self.assertIn('a turn the person typed in this chat', stub)
         self.assertRegex(stub, r'Do not arm\s+a replacement')
         self.assertRegex(stub, r'do\s+not ask again in this chat')
+        # A new chat can see another chat's listener in the shared terminals
+        # folder. That process delivers nothing to the new chat, so the rule
+        # must not treat it as a reason to skip arming.
+        self.assertRegex(stub, r'(?i)this chat did not arm')
+        self.assertRegex(stub, r'(?i)shared\s+terminals folder')
+        self.assertRegex(stub, r'(?i)Do not scan terminals or processes to adopt one')
+        self.assertNotRegex(
+            stub,
+            r'does not\s+already have a listener still running',
+        )
 
 class WorkflowBundleFetcherTests(unittest.TestCase):
     class Response:

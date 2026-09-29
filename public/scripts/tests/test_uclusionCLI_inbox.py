@@ -143,6 +143,16 @@ class IgnoreExistingPokesParserTests(unittest.TestCase):
         )
         self.assertTrue(args.ignore_existing_pokes)
 
+    def test_listen_max_seconds_defaults_to_unlimited(self):
+        args = cli.build_parser().parse_args(['-e', 'stage', 'listen'])
+        self.assertIsNone(args.max_seconds)
+
+    def test_listen_max_seconds_parses(self):
+        args = cli.build_parser().parse_args(
+            ['-e', 'stage', 'listen', '--max-seconds', '1500']
+        )
+        self.assertEqual(args.max_seconds, 1500)
+
     def test_deliver_flag_defaults_false_and_parses(self):
         args = cli.build_parser().parse_args(['-e', 'stage', 'listen'])
         self.assertFalse(args.deliver_existing_pokes)
@@ -277,6 +287,74 @@ class ListenCommandCutoffTests(unittest.TestCase):
     def test_listen_without_flag_never_applies_cutoff(self):
         calls = self.run_listen(ignore_existing_pokes=False)
         self.assertEqual(calls, [('claim', 'stage', 'w1', 'default')])
+
+
+class ListenMaxSecondsTests(unittest.TestCase):
+    def run_listen(self, max_seconds, prompts, clock):
+        args = SimpleNamespace(
+            env='stage',
+            consumer='session-cursor-1',
+            ignore_existing_pokes=False,
+            deliver_existing_pokes=False,
+            max_seconds=max_seconds,
+        )
+        claims = []
+
+        def fake_next_prompt(environment, workspace_id, consumer):
+            claims.append((environment, workspace_id, consumer))
+            if not prompts:
+                return None
+            return prompts.pop(0)
+
+        stdout = io.StringIO()
+        with mock.patch.object(
+            cli, 'get_env_paths',
+            return_value=('api', 'stage_uclusion.json', 'creds'),
+        ), mock.patch.object(
+            cli, 'load_config', return_value={'workspaceId': 'w1'}
+        ), mock.patch.object(
+            cli, 'start_new_consumer_at_arm_time'
+        ), mock.patch.object(
+            cli, 'next_prompt', side_effect=fake_next_prompt
+        ), mock.patch.object(
+            cli, 'check_wait_update_notice', return_value=None
+        ), mock.patch.object(
+            cli, 'is_orphaned', return_value=False
+        ), mock.patch.object(
+            cli.time, 'monotonic', side_effect=clock
+        ), mock.patch.object(cli.time, 'sleep'), redirect_stdout(stdout):
+            result = cli.cmd_listen(args)
+        return result, stdout.getvalue(), claims
+
+    def test_limit_prints_rearm_without_taking_a_later_prompt(self):
+        result, output, claims = self.run_listen(
+            1500,
+            ['Added T-1 of J-1', 'Responded J-1'],
+            # Deadline, the update clock, the first loop check, then the limit.
+            iter([0, 0, 0, 1500]),
+        )
+        self.assertEqual(result, 0)
+        self.assertEqual(
+            output,
+            'Added T-1 of J-1\nUclusion listener rearm session-cursor-1\n',
+        )
+        self.assertEqual(claims, [('stage', 'w1', 'session-cursor-1')])
+
+    def test_limit_already_reached_claims_nothing(self):
+        result, output, claims = self.run_listen(
+            1500, ['Added T-1 of J-1'], iter([0, 0, 1500])
+        )
+        self.assertEqual(result, 0)
+        self.assertEqual(output, 'Uclusion listener rearm session-cursor-1\n')
+        self.assertEqual(claims, [])
+
+    def test_non_positive_limit_exits_before_claiming(self):
+        result, output, claims = self.run_listen(
+            0, ['Added T-1 of J-1'], iter([])
+        )
+        self.assertEqual(result, 1)
+        self.assertIn('--max-seconds must be greater than zero', output)
+        self.assertEqual(claims, [])
 
 
 class ConsumerResolutionTests(unittest.TestCase):

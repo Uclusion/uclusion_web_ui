@@ -3021,13 +3021,17 @@ def cmd_watch(args):
 
 
 def cmd_listen(args):
-    """Stream Poke AI prompts indefinitely, one flushed line per prompt.
+    """Stream Poke AI prompts, one flushed line per prompt.
 
     B-all-507: for harnesses that raise stdout lines from a still-running
-    process as events (Claude Code's Monitor), delivery needs no exit at
-    all — each claimed prompt prints as one line and the loop keeps
-    listening, so there is no timeout, no completion notice, and no
-    relaunch choreography. The update watch piggybacks exactly as in
+    process as events (Claude Code's Monitor), each claimed prompt prints
+    as one line and the loop keeps listening. There is no completion notice
+    and no relaunch choreography. ``--max-seconds`` is optional. When it
+    elapses, the last
+    line is ``Uclusion listener rearm`` plus the consumer name, and the
+    process exits. Prompts not yet printed stay queued for the next
+    listener that passes the same ``--consumer``. Omitting the flag leaves
+    this loop running. The update watch piggybacks exactly as in
     ``wait`` but emits the notice as a stream line and keeps running; the
     shared state file already guarantees each release is announced once.
     ``--ignore-existing-pokes`` (B-all-515) advances this consumer past the
@@ -3047,14 +3051,22 @@ def cmd_listen(args):
 
     environment = args.env or 'production'
     consumer = resolve_consumer(args.consumer, is_listener=True)
+    max_seconds = getattr(args, 'max_seconds', None)
+    if max_seconds is not None and max_seconds <= 0:
+        print('⚠️ Warning: --max-seconds must be greater than zero.')
+        return 1
     if not getattr(args, 'deliver_existing_pokes', False):
         start_new_consumer_at_arm_time(environment, workspace_id, consumer)
     if getattr(args, 'ignore_existing_pokes', False):
         ignore_existing_prompts(environment, workspace_id, consumer)
+    deadline = None if max_seconds is None else time.monotonic() + max_seconds
     next_update_check = time.monotonic()
     initial_ppid = os.getppid()
     while True:
         if is_orphaned(initial_ppid):
+            return 0
+        if deadline is not None and time.monotonic() >= deadline:
+            print(f'Uclusion listener rearm {consumer}', flush=True)
             return 0
         prompt = next_prompt(environment, workspace_id, consumer)
         if prompt is not None:
@@ -4433,9 +4445,18 @@ def build_parser():
 
     listen_parser = subparsers.add_parser(
         'listen',
-        help='Stream Poke AI prompts indefinitely, one line per prompt, for AI '
-             'clients that consume stdout lines as events without the process '
-             'exiting (e.g. under Claude Code\'s persistent Monitor).',
+        help='Stream Poke AI prompts, one line per prompt, for AI clients '
+             'that consume stdout lines as events. Omit --max-seconds to '
+             'stream until the process is stopped.',
+    )
+    listen_parser.add_argument(
+        '--max-seconds',
+        type=float,
+        default=None,
+        help='Exit after this many seconds. The last line is '
+             '"Uclusion listener rearm" plus this listener\'s consumer name. '
+             'Prompts not yet printed stay queued for the next listener that '
+             'passes the same --consumer.',
     )
     listen_parser.add_argument(
         '--consumer',

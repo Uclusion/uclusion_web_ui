@@ -150,9 +150,6 @@ SCRIPT_FILES = (
     ('uclusionSetupMCP.py', 'uclusionSetupMCP.py', 'uclusionSetupMCP.py'),
     ('uclusionCodexBridge.py', 'uclusionCodexBridge.py', 'uclusionCodexBridge.py'),
     ('uclusionTokenAudit.py', 'uclusionTokenAudit.py', TOKEN_AUDIT_SYMLINK_NAME),
-    # Retained for compatibility while workflow refreshes remove old hooks.
-    ('uclusionCursorPokeDrain.py', 'uclusionCursorPokeDrain.py',
-     CURSOR_POKE_DRAIN_SYMLINK_NAME),
 )
 # Setup has no account credential with which to resolve
 # ``script_reinstall_version``. The downloaded installer is therefore its own
@@ -162,7 +159,7 @@ SCRIPT_FILES = (
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCLI.py':
-        '32063c0183d265211c41568ec4b0592a72b9a4c8f2fc993543a03c65079890bb',
+        '2bcc90e7c95a00ed94e8a3e74b4e54fb5eb5b8428fab3382c41968ab60b91f07',
     'uclusionMCPProxy.py':
         '474d2a2c96aeea97689331f47107ab5aea78662be25de650b4cb5ef9d071bb53',
     'uclusionSetupMCP.py':
@@ -171,8 +168,6 @@ SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
         '3b47745dfe4f76d066c9942e9f48912315b0cbb1a23f80a0b5fd31bd6590f010',
     'uclusionTokenAudit.py':
         '371e49d36c8393048f8e500bace829c9031f59f504673bdc40b1c1af12453df8',
-    'uclusionCursorPokeDrain.py':
-        '89e1f0bbbb8caaf5cc43b7fb399a9f0557b8c89c13c5e6f0e38ef5330f1518ca',
 }
 
 USER_HOME = os.path.expanduser('~')
@@ -344,9 +339,9 @@ WORKFLOW_ASSET_SHA256 = {
     'demo_brief': '63c80d0ebfed53489fe37d0b715f9af294d9729f526e08659bafd2639598becb',
     'claude_stub': '2bcf5034fba89fe87e4020e70adac26aecaf373b50efd0c3c8137a4eeec73830',
     'codex_stub': '7cc3b75aa1b7af3799e47962d7ce2beb43b4a8f52541bb571c0dc968eb808336',
-    'cursor_stub': 'c2e03afbaf55fd656b68478de9268955ef2af5813d3a2109ebce04ae0c8061bf',
-    'skill': '73f968ed74ef01b1c2c634c11b73f8363d20a7deb4a5b29024f9c5ee5cd5dc6b',
-    'pokes_reference': 'c8cd27ad86eb6803212509b4dcd15060a5aefa18a540ef457144b919e9fe7c43',
+    'cursor_stub': 'b2a8969c0b0b3466caa79e8574730c4e7cf737df523cfbdf82ec3dc71cf4bd3e',
+    'skill': 'a5896578a47920483bc25f1c45d935cb46e8f3bfb2dc3149f9fad84e5414affb',
+    'pokes_reference': '9ba01d836d78a5e81b91dfab0c04348a75a03eb9e880040f0dd19e7f827c804c',
     'operations_reference': 'a500561561010995cd55807ff3eee370fb05a8675354de86dae4cca231823cdf',
     'completion_reference': '3fb3dcbcc3d3215411848aab08ac367f22eadc068e2b03e56abf9a36d840c741',
     'audit_reference': '6e064e0baf27e4a17bd3a15060dbb15f8730de31f71eb8df0caba180852be71d',
@@ -949,6 +944,7 @@ def install_scripts(env, script_version, *, setup_bootstrap=False):
             _prepare_public_links_for_atomic_switch()
             create_symlink(version_dir_name, _current_link_path())
             _repair_all_public_links()
+            remove_retired_cursor_poke_drain_command()
         finally:
             if staging_dir is not None:
                 shutil.rmtree(staging_dir, ignore_errors=True)
@@ -3248,6 +3244,19 @@ def _is_cursor_poke_drain_hook(entry):
     return os.path.normcase(os.path.normpath(command)) == os.path.normcase(
         os.path.normpath(expected)
     )
+
+
+def remove_retired_cursor_poke_drain_command():
+    """Remove the retired public command when it is still a symlink.
+
+    A regular file at that path is left alone.
+    """
+    link_path = _public_link_path(CURSOR_POKE_DRAIN_SYMLINK_NAME)
+    if not os.path.islink(link_path):
+        return False
+    os.remove(link_path)
+    print(f"  🧹 Removed retired command {link_path}")
+    return True
 
 
 def remove_cursor_poke_drain_hook(hooks_path=CURSOR_HOOKS_PATH):

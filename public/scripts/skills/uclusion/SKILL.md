@@ -76,8 +76,8 @@ skill owns event handling and the job workflow.
   out is final, so leave the stage unchanged without asking again.
 - New assistance can arrive at any time, and arrives as a Poke. Handle every
   delivered Poke before the next edit instead of rereading the job for it. A
-  client without Poke delivery, such as Cursor, cannot learn of changes that
-  way, so it rereads assistance and stage before editing, before a completion
+  client with no listener armed cannot learn of changes that way, so it
+  rereads assistance and stage before editing, before a completion
   package, after a package reply, and before and after a stage change.
 - Never silently make a judgment call a reasonable reviewer could choose
   differently. Ask one Uclusion question per decision. The completion package

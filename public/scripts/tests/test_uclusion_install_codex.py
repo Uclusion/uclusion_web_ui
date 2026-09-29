@@ -174,14 +174,10 @@ class CodexIntegrationConfigTests(unittest.TestCase):
             INSTALL.SCRIPT_FILES,
         )
 
-    def test_cursor_poke_drain_script_is_part_of_release(self):
-        self.assertIn(
-            (
-                'uclusionCursorPokeDrain.py',
-                'uclusionCursorPokeDrain.py',
-                INSTALL.CURSOR_POKE_DRAIN_SYMLINK_NAME,
-            ),
-            INSTALL.SCRIPT_FILES,
+    def test_cursor_poke_drain_script_is_not_part_of_release(self):
+        self.assertNotIn(
+            'uclusionCursorPokeDrain.py',
+            [source for source, _installed, _symlink in INSTALL.SCRIPT_FILES],
         )
 
     def test_legacy_hook_cleanup_is_idempotent_and_preserves_other_config(self):
@@ -1808,6 +1804,27 @@ class CursorPokeDrainHookRemovalTests(unittest.TestCase):
                 ],
                 config['hooks']['stop'],
             )
+
+    def test_retired_drain_command_symlink_is_removed(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            link_path = os.path.join(temp_dir, 'uclusionCursorPokeDrain.py')
+            os.symlink('/tmp/retired-drain', link_path)
+            with mock.patch.object(INSTALL, 'SYMLINK_DIR', temp_dir):
+                self.assertTrue(
+                    INSTALL.remove_retired_cursor_poke_drain_command()
+                )
+            self.assertFalse(os.path.lexists(link_path))
+
+    def test_retired_drain_command_leaves_a_regular_file(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            file_path = os.path.join(temp_dir, 'uclusionCursorPokeDrain.py')
+            with open(file_path, 'w', encoding='utf-8') as handle:
+                handle.write('keep\n')
+            with mock.patch.object(INSTALL, 'SYMLINK_DIR', temp_dir):
+                self.assertFalse(
+                    INSTALL.remove_retired_cursor_poke_drain_command()
+                )
+            self.assertEqual('keep\n', open(file_path, encoding='utf-8').read())
 
 
 if __name__ == '__main__':

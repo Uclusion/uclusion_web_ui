@@ -255,6 +255,18 @@ class ResidentStubContractTests(unittest.TestCase):
         # session to the process list to adopt a listener belonging to another
         # conversation, which delivered nothing for that session's whole life.
         self.assertNotRegex(stub, r'(?i)process list')
+        self.assertNotIn('--max-seconds', stub)
+
+    def test_cursor_stub_arms_a_listener_that_exits_itself(self):
+        stub = self.bundle['cursor_stub']
+        self.assertIn(
+            INSTALL.WORKFLOW_ENV_PLACEHOLDER + ' listen --max-seconds 1500',
+            stub,
+        )
+        self.assertIn('Uclusion listener rearm ', stub)
+        self.assertIn('--consumer', stub)
+        self.assertIn('Do not set `UCLUSION_CONSUMER`', stub)
+        self.assertRegex(stub, r'(?i)do not run `uclusion\s+wait`')
 
 class WorkflowBundleFetcherTests(unittest.TestCase):
     class Response:

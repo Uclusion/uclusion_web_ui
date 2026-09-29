@@ -77,7 +77,10 @@ strategy, and never install or configure anything to obtain delivery.
 
 A session's first listener starts its cursor at arm time. A Claude Code
 listener re-armed in the same session continues that cursor, so Pokes that
-arrived between listeners are still delivered. Older output marked `(replayed)`
+arrived between listeners are still delivered. A Cursor listener exits at its
+duration limit after printing `Uclusion listener rearm` and its consumer name.
+The next listener passes that name with `--consumer`, so Pokes that arrived
+between listeners are still delivered. Older output marked `(replayed)`
 is history: drop it without reload, action, or user-facing narration. Never add
 `--ignore-existing-pokes` or `--deliver-existing-pokes` unless the human
 explicitly asks. Ignoring advances only that cursor past retained rows.

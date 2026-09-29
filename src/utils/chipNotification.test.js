@@ -6,9 +6,10 @@ import { MemoryRouter } from 'react-router';
 import { GmailTabItem, GmailTabs } from '../containers/Tab/Inbox';
 import { defaultTheme } from '../config/themes';
 import { SwimlaneOpenChip, firstDisplayedOpenItem } from '../pages/Dialog/Planning/swimlaneOpenChip';
-import { TODO_TYPE } from '../constants/comments';
+import { QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../constants/comments';
+import { getSortedRoots } from '../containers/CommentBox/commentOrder';
 import { pickNextMessageInSet } from './notificationNavigation';
-import { firstDisplayedCriticalBug } from './openChipNotification';
+import { firstDisplayedCriticalBug, firstDisplayedOpenDiscussion } from './openChipNotification';
 import { formCommentLink, navigate } from './marketIdPathFunctions';
 
 jest.mock('./marketIdPathFunctions', () => {
@@ -122,6 +123,45 @@ describe('new chip click', () => {
     act(() => chip.click());
 
     expect(opened).toHaveBeenCalledWith(expect.objectContaining({ id: 'noisy' }));
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('opens the first question or suggestion and does not switch the tab', () => {
+    const note = {
+      id: 'note', comment_type: REPORT_TYPE, updated_at: '2026-09-04T00:00:00Z',
+    };
+    const suggestion = {
+      id: 'suggestion', comment_type: SUGGEST_CHANGE_TYPE, updated_at: '2026-09-03T00:00:00Z',
+    };
+    const question = {
+      id: 'question', comment_type: QUESTION_TYPE, updated_at: '2026-09-01T00:00:00Z',
+    };
+    const sorted = getSortedRoots([question, note, suggestion],
+      { results: [], parentResults: [], search: '' });
+    const target = firstDisplayedOpenDiscussion(sorted);
+    const onChange = jest.fn();
+    const opened = jest.fn();
+    act(() => root.render(
+      <ThemeProvider theme={defaultTheme}>
+        <IntlProvider locale="en" messages={{ notificationGoToSuggestion: 'Go to suggestion' }}>
+          <GmailTabs value={0} onChange={onChange}>
+            <GmailTabItem label="Notes / Discussion" tag="2" tagLabel="open"
+              tagTooltipId="notificationGoToSuggestion"
+              onTagClick={() => opened(target)} />
+            <GmailTabItem label="Bugs" />
+          </GmailTabs>
+        </IntlProvider>
+      </ThemeProvider>
+    ));
+
+    const chip = Array.from(container.querySelectorAll('.MuiTabItem-tag'))
+      .find((node) => node.textContent.includes('open'));
+    expect(chip).toBeDefined();
+    act(() => chip.click());
+
+    expect(sorted[0].id).toBe('note');
+    expect(target.id).toBe('suggestion');
+    expect(opened).toHaveBeenCalledWith(expect.objectContaining({ id: 'suggestion' }));
     expect(onChange).not.toHaveBeenCalled();
   });
 });

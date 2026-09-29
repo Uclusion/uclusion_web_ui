@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Link, useMediaQuery, useTheme } from '@material-ui/core';
 import Screen from '../../../containers/Screen/Screen';
-import { firstDisplayedCriticalBug, openCriticalBug, useOpenChipNotification } from '../../../utils/openChipNotification';
+import { firstDisplayedCriticalBug, firstDisplayedOpenDiscussion, openCriticalBug, useOpenChipNotification } from '../../../utils/openChipNotification';
 import {
   ISSUE_TYPE,
   QUESTION_TYPE,
@@ -618,6 +618,8 @@ function PlanningDialog(props) {
   const tabCount1 = getTabCount(1);
   const tabCount2 = getTabCount(2);
   const tabCount3 = getTabCount(3);
+  const discussionOpenTarget = discussionTabCountIsOpen
+    ? firstDisplayedOpenDiscussion(sortedGroupRoots) : undefined;
 
   function onDragOverNext(event) {
     event.dataTransfer.dropEffect = 'move';
@@ -699,7 +701,12 @@ const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOr
                         tag={_.isEmpty(search) || _.isEmpty(todoGroupComments) ? tabCount2 : `${_.size(todoGroupComments)}` } />
           <GmailTabItem icon={iconOnlyTabs ? <LightbulbOutlined /> : undefined} toolTipId='discussionToolTip'
                         tagLabel={getTagLabel(_.isEmpty(search) ? tabCount3 : _.size(questionSuggestionGroupComments), 3)}
-                        onTagClick={_.isEmpty(tabNewMessages[3]) ? undefined : () => openChipNotification(tabNewMessages[3])}
+                        onTagClick={!_.isEmpty(tabNewMessages[3]) ? () => openChipNotification(tabNewMessages[3])
+                          : (discussionOpenTarget ? () => openCriticalBug(history, discussionOpenTarget) : undefined)}
+                        tagTooltipId={discussionOpenTarget && _.isEmpty(tabNewMessages[3])
+                          ? (discussionOpenTarget.comment_type === QUESTION_TYPE
+                            ? 'notificationGoToQuestion' : 'notificationGoToSuggestion')
+                          : undefined}
                         label={intl.formatMessage({id: 'planningDialogDiscussionLabel'})} tagColor='#E85757'
                         tag={_.isEmpty(search) || _.isEmpty(questionSuggestionGroupComments) ? tabCount3 :
                           `${_.size(questionSuggestionGroupComments)}`} />

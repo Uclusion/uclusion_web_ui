@@ -6,6 +6,7 @@ import { dehighlightMessage } from '../contexts/NotificationsContext/notificatio
 import { CommentsContext } from '../contexts/CommentsContext/CommentsContext';
 import { MarketsContext } from '../contexts/MarketsContext/MarketsContext';
 import { MarketGroupsContext } from '../contexts/MarketGroupsContext/MarketGroupsContext';
+import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../constants/comments';
 import { findMessagesForCommentIds } from './messageUtils';
 import { formCommentLink, formInboxItemLink, navigate } from './marketIdPathFunctions';
 import { getNotificationDestination, pickNextMessageInSet } from './notificationNavigation';
@@ -36,6 +37,12 @@ export function openCriticalBug(history, bug) {
     return;
   }
   navigate(history, formCommentLink(bug.market_id, bug.group_id, bug.investible_id, bug.id));
+}
+
+// First question or suggestion in the Notes / Discussion order. A note above them is not the target.
+export function firstDisplayedOpenDiscussion(sortedRoots) {
+  return (sortedRoots || []).find((comment) =>
+    comment.comment_type === QUESTION_TYPE || comment.comment_type === SUGGEST_CHANGE_TYPE);
 }
 
 // Same order as the Immediate bug list: most new notifications first, then newest update.

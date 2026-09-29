@@ -757,6 +757,28 @@ export function MarketMetaData(props) {
       // covers exactly Work Ready, Waiting/Approval and Tasks Complete) so send it to the assignment wizard.
       // Single user keeps auto-assigning the mover to themselves in the direct path below.
       const requiresAssignment = !isSingleUser && _.isEmpty(assigned) && fullMoveStage.allows_assignment;
+      const currentFullStage = getFullStage(marketStagesState, marketId, stageId) || {};
+      // onInvestibleStageChange treats this argument as the stage being left. Passing the destination
+      // reopens comments that Reviewable just closed (B-all-672).
+      function applyMovedStage(newInv) {
+        onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, marketId, commentsState,
+          commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined, currentFullStage,
+          marketPresencesDispatch);
+      }
+      function stageMoveInfo() {
+        const moveInfo = {
+          marketId,
+          investibleId,
+          stageInfo: {
+            current_stage_id: stageId,
+            stage_id: fullMoveStage.id
+          },
+        };
+        if (isSingleUser && !isAssigned && fullMoveStage.allows_assignment) {
+          moveInfo.stageInfo.assignments = [userId];
+        }
+        return moveInfo;
+      }
       if (requiresClose || requiresOtherAction || requiresAssignment) {
         let fullStageLink = `${stageLink}&stageId=${stageMoveId}`;
         if (isSingleUser && !isAssigned && isAcceptedStage(fullMoveStage)) {
@@ -770,52 +792,29 @@ export function MarketMetaData(props) {
         } else if (!requiresClose) {
           fullStageLink += '&isAssign=false';
         }
-        const approvalPromptOnly = !requiresClose && !requiresAssignment && !stagesInfo.isInBlocked &&
+        // The approval wizard does not move the job. Change the stage first, then open that prompt.
+        const moveBeforePrompt = !requiresClose && !requiresAssignment && !stagesInfo.isInBlocked &&
           fullMoveStage.allows_investment;
-        if (approvalPromptOnly) {
-          // The approval wizard does not move the job, so like drag and drop change the stage first
-          // and then prompt to add or update the approval
+        if (moveBeforePrompt) {
           setOperationRunning(true);
-          const moveInfo = {
-            marketId,
-            investibleId,
-            stageInfo: {
-              current_stage_id: stageId,
-              stage_id: fullMoveStage.id
-            },
-          };
-          return stageChangeInvestible(moveInfo)
+          return stageChangeInvestible(stageMoveInfo())
             .then((newInv) => {
-              onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, marketId, commentsState,
-                commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined, fullMoveStage,
-                marketPresencesDispatch);
-              setOperationRunning(false);
+              applyMovedStage(newInv);
               navigate(history, fullStageLink);
-            });
+            })
+            .finally(() => setOperationRunning(false));
         }
         navigate(history, fullStageLink);
       } else {
         setOperationRunning(true);
-        const moveInfo = {
-          marketId,
-          investibleId,
-          stageInfo: {
-            current_stage_id: stageId,
-            stage_id: fullMoveStage.id
-          },
-        };
-        if (isSingleUser && !isAssigned && fullMoveStage.allows_assignment) {
-          moveInfo.stageInfo.assignments = [userId];
-        }
-        return stageChangeInvestible(moveInfo)
+        return stageChangeInvestible(stageMoveInfo())
           .then((newInv) => {
-            onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, marketId, commentsState,
-              commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined, fullMoveStage, marketPresencesDispatch);
-            setOperationRunning(false);
+            applyMovedStage(newInv);
             if (!_.isEmpty(tasksInProgress) && fullMoveStage.allows_investment) {
               navigate(history, formWizardLink(IN_PROGRESS_WIZARD_TYPE, marketId, investibleId));
             }
-          });
+          })
+          .finally(() => setOperationRunning(false));
       }
     }
   }

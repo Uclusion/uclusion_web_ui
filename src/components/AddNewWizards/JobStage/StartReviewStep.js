@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
@@ -8,7 +8,7 @@ import { REPORT_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { useHistory } from 'react-router';
 import CommentAdd from '../../Comments/CommentAdd';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
-import { getFullStage, isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getFullStage, isInReviewStage, isNotDoingStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { stageChangeInvestible } from '../../../api/investibles';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
@@ -46,7 +46,28 @@ function StartReviewStep(props) {
   const roots = investibleComments.filter((comment) => comment.comment_type === TODO_TYPE);
   const comments = getCommentThreads(roots, investibleComments);
 
+  function finishMoved(comment) {
+    if (comment) {
+      navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
+    } else {
+      navigate(history, formMarketLink(marketId, groupId));
+    }
+  }
+
+  function clearInboxIfRequested() {
+    // CloseCommentsStep leaves this clear for a team job, because requiresAction is still true there.
+    if (clearNotifications && isInReviewStage(fullMoveStage)) {
+      return deleteOrDehilightMessages(findMessagesForInvestibleId(investibleId, messagesState.messages)
+        .filter((message) => isInInbox(message)), messagesDispatch, true, false, true);
+    }
+    return Promise.resolve(true);
+  }
+
   function onSave(comment) {
+    // B-all-672: the stage dropdown, or an earlier wizard step, already moved the job.
+    if (info?.stage === fullMoveStage.id) {
+      return clearInboxIfRequested().then(() => finishMoved(comment));
+    }
     if (!comment) {
       setOperationRunning(true);
     }
@@ -67,20 +88,24 @@ function StartReviewStep(props) {
         onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, marketId, commentsState,
           commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
           fullCurrentStage, marketPresencesDispatch);
-        // T-all-2439: the All Done flow can also clear this user's notifications for the job
-        const clearPromise = clearNotifications && isInReviewStage(fullMoveStage) ?
-          deleteOrDehilightMessages(findMessagesForInvestibleId(investibleId, messagesState.messages)
-            .filter((message) => isInInbox(message)), messagesDispatch, true, false, true) : Promise.resolve(true);
-        return clearPromise.then(() => {
-          if (comment) {
-            navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
-          } else {
-            // Nothing to see in the investible so go to swimlanes
-            navigate(history, formMarketLink(marketId, groupId));
-          }
-        });
+        return clearInboxIfRequested().then(() => finishMoved(comment));
       })
       .finally(() => setOperationRunning(false));
+  }
+
+  // C-all-2248: do not ask what finished. A leftover review link still moves the job and leaves.
+  const startedReviewFinish = useRef(false);
+  const finishingReview = Boolean(fullMoveStage) && isInReviewStage(fullMoveStage)
+    && !isNotDoingStage(fullMoveStage);
+  useEffect(() => {
+    if (!finishingReview || startedReviewFinish.current) {
+      return;
+    }
+    startedReviewFinish.current = true;
+    onSave();
+  }, [finishingReview]);
+  if (finishingReview) {
+    return React.Fragment;
   }
 
   return (
@@ -89,7 +114,7 @@ function StartReviewStep(props) {
       isLarge
     >
       <Typography className={classes.introText} style={{marginBottom: 'unset'}}>
-        {isInReviewStage(fullMoveStage) ? 'What was finished?' : 'Why are you not doing?'}
+        Why are you not doing?
       </Typography>
       <CondensedTodos comments={roots} investibleComments={comments} isInbox marketId={marketId} hideTabs
                       defaultToOpenComments={false} />

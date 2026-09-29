@@ -6,6 +6,7 @@ import { createMemoryHistory } from 'history';
 import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 import messages from '../../../config/locales/en';
 import { stageChangeInvestible } from '../../../api/investibles';
+import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
@@ -58,6 +59,8 @@ const currentStage = { id: 'approvable', name: 'Approvable', allows_assignment: 
   allows_investment: true, allows_tasks: true };
 const doableStage = { id: 'doable', name: 'Doable', allows_assignment: true,
   assignee_enter_only: true, allows_tasks: true };
+const reviewableStage = { id: 'reviewable', name: 'Reviewable', allows_assignment: true,
+  close_comments_on_entrance: true, allows_tasks: false };
 const marketInfo = { market_id: marketId, group_id: groupId, stage: currentStage.id, assigned: ['human'] };
 const job = { investible: { id: investibleId }, market_infos: [marketInfo] };
 const presences = [{ id: 'ai', email: '' },
@@ -95,7 +98,7 @@ function renderStep(Component, comments, props = {}) {
     [InvestiblesContext, { [investibleId]: { ...job, market_infos: [stepMarketInfo] } }],
     [MarketPresencesContext, { [marketId]: presences }],
     [MarketsContext, { marketDetails: [{ id: marketId }] }],
-    [MarketStagesContext, { [marketId]: [currentStage, doableStage] }],
+    [MarketStagesContext, { [marketId]: [currentStage, doableStage, reviewableStage] }],
     [NotificationsContext, {}],
     [OperationInProgressContext, false],
   ];
@@ -190,5 +193,64 @@ describe('entering Doable with unresolved AI questions', () => {
     expect(stageChangeInvestible).toHaveBeenCalledWith({ marketId, investibleId,
       stageInfo: { current_stage_id: currentStage.id, stage_id: doableStage.id,
         resolve_comment_ids: [unanswered.id], assignments: ['human'] } });
+  });
+});
+
+describe('moving Doable to Reviewable from the stage dropdown (B-all-672)', () => {
+  const doableInfo = { ...marketInfo, stage: doableStage.id, assigned: ['human'] };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    window.scrollTo = jest.fn();
+    stageChangeInvestible.mockResolvedValue({
+      ...job,
+      market_infos: [{ ...doableInfo, stage: reviewableStage.id }],
+    });
+  });
+
+  function openDropdown(props) {
+    return renderStep(MarketMetaData, [], {
+      marketInfo: doableInfo,
+      assigned: ['human'],
+      isAssigned: true,
+      userId: 'human',
+      stageId: doableStage.id,
+      stagesInfo: {},
+      pageState: {},
+      requiresCloseComments: () => false,
+      ...props,
+    });
+  }
+
+  it('moves a team job without opening the finished prompt', async () => {
+    const { history } = openDropdown({ isSingleUser: false });
+
+    await mockSelect.mock.calls.at(-1)[0].onChange({ target: { value: reviewableStage.id } });
+
+    expect(stageChangeInvestible).toHaveBeenCalledWith({ marketId, investibleId,
+      stageInfo: { current_stage_id: doableStage.id, stage_id: reviewableStage.id } });
+    expect(onInvestibleStageChange.mock.calls.at(-1)[10]).toBe(doableStage);
+    expect(history.location.pathname).toBe('/job');
+  });
+
+  it('moves a single-user job without opening a prompt', async () => {
+    const { history } = openDropdown({ isSingleUser: true });
+
+    await mockSelect.mock.calls.at(-1)[0].onChange({ target: { value: reviewableStage.id } });
+
+    expect(stageChangeInvestible).toHaveBeenCalledWith({ marketId, investibleId,
+      stageInfo: { current_stage_id: doableStage.id, stage_id: reviewableStage.id } });
+    expect(history.location.pathname).toBe('/job');
+  });
+
+  it('still asks to close open tasks before moving', async () => {
+    const { history } = openDropdown({ isSingleUser: false, requiresCloseComments: () => true });
+
+    mockSelect.mock.calls.at(-1)[0].onChange({ target: { value: reviewableStage.id } });
+
+    expect(stageChangeInvestible).not.toHaveBeenCalled();
+    const destination = new URLSearchParams(history.location.hash.slice(1));
+    expect(destination.get('stageId')).toBe(reviewableStage.id);
+    expect(destination.get('isAssign')).not.toBe('false');
   });
 });

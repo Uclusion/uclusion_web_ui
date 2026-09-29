@@ -83,6 +83,7 @@ function PlanningJobMenu(props) {
           setOperationRunning(false);
         });
     }
+    return Promise.resolve(false);
   }
 
   function setReadyToStart(isReadyToStart) {

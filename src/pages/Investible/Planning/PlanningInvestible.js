@@ -701,8 +701,8 @@ function PlanningInvestible(props) {
 
   function moveJobToReviewable(doClear) {
     const inReviewStageId = getInReviewStage(marketStagesState, marketId).id;
-    // If not single user then need wizard anyway for starting a review
-    if (_.isEmpty(mustResolveComments)&&isSingleUser) {
+    // C-all-2248: nothing left to ask once open tasks are already closed, so move directly.
+    if (_.isEmpty(mustResolveComments)) {
       // Menu choices do not use SpinningButton's automatic lock, while the no-notifications path does.
       // Taking ownership here covers both without locking the wizard-only branches below.
       setOperationRunning('allDone');
@@ -729,13 +729,8 @@ function PlanningInvestible(props) {
         .finally(() => setOperationRunning(false));
     }
     const clearSuffix = doClear ? '&clearNotifications=true' : '';
-    if (_.isEmpty(mustResolveComments)) {
-      navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId,
-        investibleId)}&stageId=${inReviewStageId}&isAssign=false${clearSuffix}`);
-    } else {
-      navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId,
-        investibleId)}&stageId=${inReviewStageId}${clearSuffix}`);
-    }
+    navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId,
+      investibleId)}&stageId=${inReviewStageId}${clearSuffix}`);
   }
   newInvestibleMessages.forEach((message) => {
     if (message.market_id !== marketId) {
@@ -1168,7 +1163,7 @@ function PlanningInvestible(props) {
                   <>
                     <SpinningButton id='allDone' className={wizardClasses.actionNext} iconColor="black"
                                     toolTipId='allDone' icon={DoneAll}
-                                    doSpin={_.isEmpty(mustResolveComments)&&isSingleUser&&_.isEmpty(jobInboxMessages)}
+                                    doSpin={_.isEmpty(mustResolveComments)&&_.isEmpty(jobInboxMessages)}
                                     onClick={(event) => {
                                       // T-all-2439: with notifications still on the job, hitting All Done
                                       // offers to also clear them (this user's only - see Q-all-366)

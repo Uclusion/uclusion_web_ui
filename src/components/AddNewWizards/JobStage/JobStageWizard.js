@@ -30,10 +30,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 
 export function requiresAction(fullMoveStage, isSingleUser, isBlocked) {
   if (!_.isEmpty(fullMoveStage)&&!isNotDoingStage(fullMoveStage)) {
-    // Not prompting for review if single user
-    if (fullMoveStage.close_comments_on_entrance && !isSingleUser) {
-      return true;
-    }
+    // C-all-2248: the assistant records what finished, so Reviewable does not open that prompt.
     // Not prompting for certainty if single user - team prompts to add or update approval even with an
     // existing vote so the flow matches drag and drop and can chain to the remove in progress wizard
     if (fullMoveStage.allows_investment && !isSingleUser) {

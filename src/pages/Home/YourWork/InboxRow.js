@@ -5,10 +5,11 @@ import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper
 import {
   getComment,
   getCommentRoot,
+  getInvestibleComments,
   isDesignCapsule
 } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { stripHTML, transformTicketCode } from '../../../utils/stringFunctions';
-import { formCommentLink, formWizardLink, navigate,
+import { formCommentLink, formMarketLink, formWizardLink, navigate,
   preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
 import { calculateTitleExpansionPanel } from './InboxExpansionPanel';
 import WorkListItem from './WorkListItem';
@@ -55,7 +56,9 @@ import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/Marke
 import _ from 'lodash';
 import Approval from '../../../components/CustomChip/Approval';
 import EditNote from '../../../components/CustomChip/EditNote';
-import { QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
+import { stageChangeInvestible } from '../../../api/investibles';
+import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 
 function getPriorityIcon(message, isAssigned, isMentioned, originalComment) {
   const { level, link_type: linkType, is_highlighted: isHighlighted, decision_investible_id: decisionInvestibleId,
@@ -150,11 +153,11 @@ function InboxRow(props) {
   const theme = useTheme();
   const history = useHistory();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const [commentState] = useContext(CommentsContext);
-  const [investiblesState] = useContext(InvestiblesContext);
+  const [commentState, commentsDispatch] = useContext(CommentsContext);
+  const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [groupState] = useContext(MarketGroupsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -206,8 +209,8 @@ function InboxRow(props) {
 
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   // C-all-1372: per job sweep controls on hover, following the existing trash can pattern (S-1
-  // of Q-all-368). Clearing is this user's inbox only (Q-all-366); the move actions reuse the
-  // All Done wizard so review reports and must-resolve comments are handled the same way
+  // of Q-all-368). Clearing is this user's inbox only (Q-all-366). Open tasks still confirm
+  // before the move; the finished-work prompt is not part of this (C-all-2248).
   if (!_.isEmpty(inv) && market.market_type === PLANNING_TYPE && !_.isEmpty(assigned)) {
     const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
     const jobSweepActions = [{
@@ -224,12 +227,42 @@ function InboxRow(props) {
     if (stage !== inReviewStage.id) {
       const wizardLink = `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId,
         investibleId)}&stageId=${inReviewStage.id}`;
+      function moveInboxJobToReviewable(doClear) {
+        const investibleComments = getInvestibleComments(investibleId, marketId, commentState);
+        const mustResolveComments = investibleComments.filter((comment) => !comment.resolved && (
+          [ISSUE_TYPE, TODO_TYPE].includes(comment.comment_type) ||
+          ([QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type) &&
+            (assigned || []).includes(comment.created_by))));
+        if (!_.isEmpty(mustResolveComments)) {
+          const clearSuffix = doClear ? '&clearNotifications=true' : '';
+          navigate(history, `${wizardLink}${clearSuffix}`);
+          return;
+        }
+        setOperationRunning(true);
+        return stageChangeInvestible({
+          marketId,
+          investibleId,
+          stageInfo: {
+            current_stage_id: stage,
+            stage_id: inReviewStage.id,
+          },
+        }).then((newInv) => {
+          onInvestibleStageChange(inReviewStage.id, newInv, investibleId, marketId, commentState,
+            commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined, fullStage,
+            marketPresencesDispatch);
+          const clearPromise = doClear ? deleteOrDehilightMessages(
+            findMessagesForInvestibleId(investibleId, messagesState.messages)
+              .filter((jobMessage) => isInInbox(jobMessage)), messagesDispatch, true, false, true)
+            : Promise.resolve(true);
+          return clearPromise.then(() => navigate(history, formMarketLink(marketId, marketInfo.group_id)));
+        }).finally(() => setOperationRunning(false));
+      }
       jobSweepActions.push({
         translationId: 'inboxMoveJobReviewable',
         icon: <DoneAllIcon />,
         onClick: (event) => {
           preventDefaultAndProp(event);
-          navigate(history, wizardLink);
+          return moveInboxJobToReviewable(false);
         }
       });
       jobSweepActions.push({
@@ -237,7 +270,7 @@ function InboxRow(props) {
         icon: <DoneOutlineIcon />,
         onClick: (event) => {
           preventDefaultAndProp(event);
-          navigate(history, `${wizardLink}&clearNotifications=true`);
+          return moveInboxJobToReviewable(true);
         }
       });
     }

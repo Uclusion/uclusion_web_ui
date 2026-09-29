@@ -313,14 +313,6 @@ function PlanningIdeas(props) {
         } else {
           link = `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}&assignId=${presenceId}`;
         }
-      } else if (!isAutonomous) {
-        if (_.isEmpty(assigned)) {
-          // Go to change stage add review step with divId destination
-          link = `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}&isAssign=false&assignId=${presenceId}`;
-        } else {
-          // Go to change stage add review step with divId destination
-          link = `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}&isAssign=false`;
-        }
       }
     } else if (isBlockedStage(fullCurrentStage) || isRequiredInputStage(fullCurrentStage)) {
       if (isAutonomous || !_.isEmpty(assigned)) {

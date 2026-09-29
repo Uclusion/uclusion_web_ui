@@ -2,7 +2,8 @@ import reducer, {
   revertPendingStageGuesses,
   versionsUpdateInvestibles
 } from '../contexts/InvestibesContext/investiblesContextReducer';
-import { changeInvestibleStage, STAGE_GUESS_CONFIRM_MS } from './commentFunctions';
+import { QUESTION_TYPE, TODO_TYPE } from '../constants/comments';
+import { changeInvestibleStage, changeInvestibleStageOnCommentOpen, STAGE_GUESS_CONFIRM_MS } from './commentFunctions';
 
 jest.mock('./LocalForageHelper', () => jest.fn());
 jest.mock('../contexts/InvestibesContext/InvestiblesContext', () => ({
@@ -10,7 +11,8 @@ jest.mock('../contexts/InvestibesContext/InvestiblesContext', () => ({
 }));
 jest.mock('../contexts/LeaderContext/LeaderContext', () => ({ leaderContextHack: { isLeader: false } }));
 
-// J-all-487: the page's stage guess stands only until the server answers or 5 seconds pass.
+// J-all-487: a timed stage guess stands only until the server answers or 15 seconds pass.
+// A task opened on Reviewable keeps the stage the page showed.
 describe('stage guess confirm or revert', () => {
   const approvable = { id: 'approvable', name: 'Approvable' };
   const doable = { id: 'doable', name: 'Doable' };
@@ -98,5 +100,71 @@ describe('stage guess confirm or revert', () => {
 
     jest.advanceTimersByTime(3000);
     expect(state['job-2'].market_infos[0].stage).toBe('requires-input');
+  });
+});
+
+describe('a task opened on Reviewable', () => {
+  const stages = {
+    'market-1': [
+      { id: 'approvable', name: 'Approvable', allows_investment: true, allows_tasks: true },
+      { id: 'doable', name: 'Doable', assignee_enter_only: true, allows_tasks: true },
+      { id: 'reviewable', name: 'Reviewable', allows_tasks: false },
+      { id: 'requires-input', name: 'Requires Input', move_on_comment: true, allows_issues: false }
+    ]
+  };
+  let state;
+
+  function dispatch(action) {
+    state = reducer(state, action);
+  }
+
+  function openComment(commentType, presenceId) {
+    const info = { id: 'info-1', market_id: 'market-1', stage: 'reviewable', assigned: ['user-1'], version: 1 };
+    const investible = { id: 'job-1', version: 1 };
+    state = { 'job-1': { investible, market_infos: [info] } };
+    changeInvestibleStageOnCommentOpen(false, false, stages, [info], investible, dispatch, {
+      id: 'comment-1', comment_type: commentType, market_id: 'market-1', updated_at: '2026-09-29T16:00:00Z'
+    }, { id: presenceId });
+  }
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('keeps Doable when an assigned person adds or moves a task', () => {
+    openComment(TODO_TYPE, 'user-1');
+    expect(state['job-1'].market_infos[0].stage).toBe('doable');
+    expect(state['job-1'].market_infos[0].stage_guess).toBeUndefined();
+
+    revertPendingStageGuesses(state, dispatch);
+    jest.advanceTimersByTime(STAGE_GUESS_CONFIRM_MS);
+    expect(state['job-1'].market_infos[0].stage).toBe('doable');
+  });
+
+  it('keeps Approvable when someone who is not assigned adds or moves a task', () => {
+    openComment(TODO_TYPE, 'user-2');
+    expect(state['job-1'].market_infos[0].stage).toBe('approvable');
+    expect(state['job-1'].market_infos[0].stage_guess).toBeUndefined();
+
+    jest.advanceTimersByTime(STAGE_GUESS_CONFIRM_MS);
+    expect(state['job-1'].market_infos[0].stage).toBe('approvable');
+  });
+
+  it('still reverts a question that moves the job', () => {
+    const info = { id: 'info-1', market_id: 'market-1', stage: 'doable', assigned: ['user-1'], version: 1 };
+    const investible = { id: 'job-1', version: 1 };
+    state = { 'job-1': { investible, market_infos: [info] } };
+    changeInvestibleStageOnCommentOpen(false, true, stages, [info], investible, dispatch, {
+      id: 'question-1', comment_type: QUESTION_TYPE, market_id: 'market-1', updated_at: '2026-09-29T16:00:00Z'
+    }, { id: 'user-1' });
+
+    expect(state['job-1'].market_infos[0].stage).toBe('requires-input');
+    expect(state['job-1'].market_infos[0].stage_guess).toBeDefined();
+    jest.advanceTimersByTime(STAGE_GUESS_CONFIRM_MS);
+    expect(state['job-1'].market_infos[0].stage).toBe('doable');
   });
 });

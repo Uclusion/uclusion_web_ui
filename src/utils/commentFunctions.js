@@ -96,12 +96,12 @@ export function getThreadIds(parents, comments) {
   return commentIds;
 }
 
-// J-all-487: how long a stage guess waits for a copy of the job from the server before it is put back.
-// Decided in https://stage.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/C-all-2222
-export const STAGE_GUESS_CONFIRM_MS = 5000;
+// J-all-487: how long a timed stage guess waits for a copy of the job from the server before it is put back.
+// https://stage.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/T-all-2565
+export const STAGE_GUESS_CONFIRM_MS = 15000;
 
 export function changeInvestibleStage(newStage, assigned, updatedAt, info, market_infos, rootInvestible,
-  investibleDispatch) {
+  investibleDispatch, skipConfirm) {
   const deadline = Date.now() + STAGE_GUESS_CONFIRM_MS;
   const newInfo = {
     ...info,
@@ -112,7 +112,8 @@ export function changeInvestibleStage(newStage, assigned, updatedAt, info, marke
     former_stage_id: info?.stage,
     last_stage_change_date: updatedAt
   };
-  const isGuess = !!info?.id && !!rootInvestible?.id;
+  // T-all-2564: a task opened on Reviewable is not a timed guess. Reviewable cannot keep that task.
+  const isGuess = !skipConfirm && !!info?.id && !!rootInvestible?.id;
   if (isGuess) {
     // J-all-487: this stage is the page's guess until a copy of the job from the server replaces it.
     // A guess on top of a pending guess keeps the server's copy to put back.
@@ -317,6 +318,7 @@ export function changeInvestibleStageOnCommentOpen(investibleBlocks, investibleR
   const [info] = (market_infos || []);
   const { stage, assigned } = (info || {});
   let newStage;
+  let skipConfirm = false;
   if (investibleBlocks || investibleRequiresInput) {
     const requiresInputStage = getRequiredInputStage(marketStagesState, comment.market_id) || {};
     const blockingStage = getBlockedStage(marketStagesState, comment.market_id) || {};
@@ -324,6 +326,8 @@ export function changeInvestibleStageOnCommentOpen(investibleBlocks, investibleR
   } else if (comment.comment_type === TODO_TYPE) {
     const fullStage = getFullStage(marketStagesState, comment.market_id, stage);
     if (isInReviewStage(fullStage)) {
+      // T-all-2564 / Q-all-834 O-3: keep this move. A timer would put an open task back on Reviewable.
+      skipConfirm = true;
       if (assigned?.includes(myPresence?.id)) {
         newStage = getAcceptedStage(marketStagesState, comment.market_id) || {};
       } else {
@@ -333,7 +337,7 @@ export function changeInvestibleStageOnCommentOpen(investibleBlocks, investibleR
   }
   if (newStage) {
     changeInvestibleStage(newStage, assigned, comment.updated_at, info, market_infos, rootInvestible,
-      investibleDispatch);
+      investibleDispatch, skipConfirm);
   }
 }
 

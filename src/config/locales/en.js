@@ -1264,6 +1264,7 @@ const messages = defineMessages({
   messagePresentComment: 'Click to go to notification',
   messagePresentCommentChoice: 'Click to go to or clear notification',
   notificationGoTo: 'Go to notification',
+  notificationGoToBug: 'Go to bug',
   notificationClear: 'Clear notification',
   issuePresent: 'Blocking issue',
   nonBlockIssuePresent: 'Issue',

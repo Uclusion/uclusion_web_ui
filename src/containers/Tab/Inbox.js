@@ -8,6 +8,7 @@ import { useIntl } from 'react-intl';
 import { useButtonColors, COUNT_COLOR, DARK_ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants';
 import { outlinedChipStyle, variantForColor } from '../../components/CustomChip/chipStyles';
 import { ThemeModeContext } from '../../contexts/ThemeModeContext';
+import { preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 
 const useTabHoverStyles = makeStyles(({ palette }) => ({
   tabRoot: {
@@ -37,7 +38,7 @@ const useIndicatorStyles = makeStyles({
 
 export function GmailTabItem(props) {
   const { color='#2F80ED', label, tag, tagLabel, hasChip=true, tagColor=COUNT_COLOR, toolTipId, icon,
-    ...other } = props;
+    onTagClick, tagTooltipId, ...other } = props;
   const [themeMode] = useContext(ThemeModeContext);
   const isDark = themeMode === 'dark';
   const theme = useTheme();
@@ -49,6 +50,19 @@ export function GmailTabItem(props) {
   const useLabel = mobileLayout ? '' : (toolTipId ? <Tooltip
     title={intl.formatMessage({ id: toolTipId })}><div>{label}</div></Tooltip> : label);
   const defaultColor = isDark ? '#ffffff' : '#000000';
+  const tagNode = (
+    <span className={'MuiTabItem-tag'} onClick={onTagClick ? (event) => {
+      preventDefaultAndProp(event);
+      onTagClick();
+    } : undefined} style={{
+      ...(hasChip ? outlinedChipStyle(variantForColor(tagColor), isDark)
+        : {backgroundColor: 'unset', color: defaultColor}),
+      borderRadius: 22, paddingLeft: '7px', paddingRight: '7px',
+      marginLeft: mobileLayout ? '-8px' : undefined,
+      cursor: onTagClick ? 'pointer' : undefined}}>
+      {tag} {useTagLabel}
+    </span>
+  );
   return (
     <Tab
       disableTouchRipple
@@ -59,12 +73,9 @@ export function GmailTabItem(props) {
       style={{maxWidth: '16rem', width: '12rem'}}
       label={
         <div className={'MuiTabItem-label'} style={{color: defaultColor, opacity: 0.6}}>
-          {useLabel} {tag && <span className={'MuiTabItem-tag'} style={{
-          ...(hasChip ? outlinedChipStyle(variantForColor(tagColor), isDark)
-            : {backgroundColor: 'unset', color: defaultColor}),
-          borderRadius: 22, paddingLeft: '7px', paddingRight: '7px',
-          marginLeft: mobileLayout ? '-8px' : undefined}}>
-          {tag} {useTagLabel}</span>}
+          {useLabel} {tag && (onTagClick ? (
+            <Tooltip title={intl.formatMessage({ id: tagTooltipId || 'notificationGoTo' })}>{tagNode}</Tooltip>
+          ) : tagNode)}
         </div>
       }
     />

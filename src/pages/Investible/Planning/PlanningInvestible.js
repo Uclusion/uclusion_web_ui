@@ -94,7 +94,8 @@ import { deleteOrDehilightMessages } from '../../../api/users';
 import { isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { DARK_ACTION_BUTTON_COLOR, DARK_TEXT_BACKGROUND_COLOR, useButtonColors } from '../../../components/Buttons/ButtonConstants';
 import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
-import { countAssistanceRootsWithNewMessages } from './assistanceNotificationCounts';
+import { assistanceNewMessages, countAssistanceRootsWithNewMessages } from './assistanceNotificationCounts';
+import { useOpenChipNotification } from '../../../utils/openChipNotification';
 import { useSyncedMessages } from '../../../contexts/SyncedMessagesContext/SyncedMessagesContext';
 import NotificationMenuButton from '../../../components/Buttons/NotificationMenuButton';
 import Approvals from './Approvals';
@@ -361,6 +362,7 @@ export function countUnresolved(comments, search) {
  */
 function PlanningInvestible(props) {
   const history = useHistory();
+  const openChipNotification = useOpenChipNotification();
   const location = useLocation();
   const intl = useIntl();
   const {
@@ -759,22 +761,27 @@ function PlanningInvestible(props) {
         bucketMessages.push(message);
       }
     });
-    return _.size(bucketMessages.filter((message) => isInInbox(message)));
+    return bucketMessages.filter((message) => isInInbox(message));
   }
+  const assistanceTabNewMessageSets = assistanceTabComments.map((bucket, index) => index === 0 ?
+    assistanceNewMessages(bucket, investibleComments, syncedMessages) : countBucketNewMessages(bucket));
   const assistanceTabNewCounts = assistanceTabComments.map((bucket, index) => index === 0 ?
     countAssistanceRootsWithNewMessages(bucket, investibleComments, syncedMessages) :
-    countBucketNewMessages(bucket));
+    _.size(assistanceTabNewMessageSets[index]));
   const newTodoMessages = findMessagesForCommentIds(openTodoCommentsSearchedAll?.map((comment) => comment.id),
     syncedMessages, true);
   // Do not include each unread task as its own message
-  const numNewTodoMessages = _.size(newTodoMessages.filter((message) => isInInbox(message)));
+  const inboxNewTodoMessages = newTodoMessages.filter((message) => isInInbox(message));
+  const numNewTodoMessages = _.size(inboxNewTodoMessages);
   const newNotesMessages = findMessagesForCommentIds(notesCommentsAllSearched?.map((comment) => comment.id), 
   syncedMessages, true);
+  const inboxNewNotesMessages = newNotesMessages.filter((message) => isInInbox(message));
   const newNotOverviewMessages = newTodoMessages.concat(newAssistanceMessages).concat(newNotesMessages);
   const newOverviewMessages = newInvestibleMessages.filter((message) => isInInbox(message) && 
     !newNotOverviewMessages.includes(message));
   const numNewOverviewMessages = _.size(newOverviewMessages);
-  const numNewNotesMessages = _.size(newNotesMessages.filter((message) => isInInbox(message)));
+  const numNewNotesMessages = _.size(inboxNewNotesMessages);
+  const assistanceChipMessages = assistanceNewMessages(assistanceCommentsSearched, investibleComments, syncedMessages);
   const replies = investibleComments.filter((comment => comment.comment_type === REPLY_TYPE));
   let allowedCommentTypes = [];
   let sectionComments = [];
@@ -924,6 +931,7 @@ function PlanningInvestible(props) {
         {/* C-all-994 (Q-all-138, O-4): clean text tabs on desktop; icons only on
            mobile, where the label is blanked for space - refined to outlined icons. */}
         <GmailTabItem icon={mobileLayout ? <InfoOutlined /> : undefined} tagLabel={numNewOverviewMessages > 0 && _.isEmpty(search) ? 'new' : getTagLabel('total')}
+                      onTagClick={hasNewOverviewMessages ? () => openChipNotification(newOverviewMessages) : undefined}
                       label={intl.formatMessage({id: 'descriptionVotingLabel'})}
                       toolTipId='jobOverviewToolTip' tagColor={hasNewOverviewMessages ? warningColor : undefined}
                       tag={descriptionSectionResults === 0 ? 
@@ -931,16 +939,19 @@ function PlanningInvestible(props) {
                           : `${descriptionSectionResults}`} />
         <GmailTabItem icon={mobileLayout ? <AssignmentOutlined /> : undefined} label={intl.formatMessage({id: 'openTasksSection'})}
                       tagColor={hasNewTodoMessages ? warningColor : undefined}
+                      onTagClick={hasNewTodoMessages ? () => openChipNotification(inboxNewTodoMessages) : undefined}
                       toolTipId='jobTasksToolTip' tagLabel={hasNewTodoMessages && _.isEmpty(search) ? 'new' : getTagLabel('total')}
                       tag={hasNewTodoMessages && _.isEmpty(search) ? `${numNewTodoMessages}` : countUnresolved(openTodoCommentsSearched, search)} />
         {displayAssistanceSection && (
           <GmailTabItem icon={mobileLayout ? <ContactSupportOutlined /> : undefined} toolTipId='jobAssistanceToolTip'
                         label={intl.formatMessage({id: 'requiresInputStageLabel'})}
+                        onTagClick={hasNewAssistanceMessages ? () => openChipNotification(assistanceChipMessages) : undefined}
                         tagColor={hasNewAssistanceMessages ? warningColor : undefined} tag={assistanceTag}
                         tagLabel={hasNewAssistanceMessages && _.isEmpty(search) ? 'new' : getTagLabel('open')} />
         )}
         <GmailTabItem icon={mobileLayout ? <NoteOutlined /> : undefined} label={intl.formatMessage({id: 'notesSection'})}
                       tagColor={hasNewNotesMessages ? warningColor : undefined}
+                      onTagClick={hasNewNotesMessages ? () => openChipNotification(inboxNewNotesMessages) : undefined}
                       toolTipId='jobNotesToolTip' tagLabel={hasNewNotesMessages && _.isEmpty(search) ? 'new' : getTagLabel('total')}
                       tag={hasNewNotesMessages && _.isEmpty(search) ? `${numNewNotesMessages}` : 
                       (!_.isEmpty(search) && _.size(notesCommentsSearched) > 0 ? _.size(notesCommentsSearched) : undefined)} />
@@ -1211,6 +1222,8 @@ function PlanningInvestible(props) {
                    message and search match counts */}
                 <GmailTabItem label={intl.formatMessage({ id: 'assistanceUnresponded' })} color='black'
                               toolTipId={isMac ? 'unrespondedNavigationMac' : 'unrespondedNavigation'}
+                              onTagClick={assistanceTabNewCounts[0] > 0 && _.isEmpty(search)
+                                ? () => openChipNotification(assistanceTabNewMessageSets[0]) : undefined}
                               tagColor={assistanceTabNewCounts[0] > 0 ? warningColor : undefined}
                               tagLabel={assistanceTabNewCounts[0] > 0 && _.isEmpty(search) ? 'new' :
                                 getTagLabel('total')}
@@ -1218,6 +1231,8 @@ function PlanningInvestible(props) {
                                 `${assistanceTabNewCounts[0]}` : (_.size(unrespondedAssistanceComments) > 0 ?
                                   `${_.size(unrespondedAssistanceComments)}` : undefined)} />
                 <GmailTabItem label={intl.formatMessage({ id: 'assistanceResponded' })} color='black'
+                              onTagClick={assistanceTabNewCounts[1] > 0 && _.isEmpty(search)
+                                ? () => openChipNotification(assistanceTabNewMessageSets[1]) : undefined}
                               tagColor={assistanceTabNewCounts[1] > 0 ? warningColor : undefined}
                               tagLabel={assistanceTabNewCounts[1] > 0 && _.isEmpty(search) ? 'new' :
                                 getTagLabel('total')}
@@ -1225,6 +1240,8 @@ function PlanningInvestible(props) {
                                 `${assistanceTabNewCounts[1]}` : (_.size(respondedAssistanceComments) > 0 ?
                                   `${_.size(respondedAssistanceComments)}` : undefined)} />
                 <GmailTabItem label={intl.formatMessage({ id: 'assistanceResolved' })} color='black'
+                              onTagClick={assistanceTabNewCounts[2] > 0 && _.isEmpty(search)
+                                ? () => openChipNotification(assistanceTabNewMessageSets[2]) : undefined}
                               tagColor={assistanceTabNewCounts[2] > 0 ? warningColor : undefined}
                               tagLabel={assistanceTabNewCounts[2] > 0 && _.isEmpty(search) ? 'new' :
                                 getTagLabel('total')}

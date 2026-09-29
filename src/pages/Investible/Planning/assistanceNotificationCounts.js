@@ -16,3 +16,25 @@ export function countAssistanceRootsWithNewMessages(bucketComments, investibleCo
     return hasThreadMessage || hasInlineMessage;
   }).length;
 }
+
+export function assistanceNewMessages(bucketComments, investibleComments, messagesIn) {
+  const messages = messagesIn || [];
+  const found = [];
+  const seen = new Set();
+  function add(message) {
+    if (message && !seen.has(message.type_object_id)) {
+      seen.add(message.type_object_id);
+      found.push(message);
+    }
+  }
+  (bucketComments || []).forEach((rootComment) => {
+    const threadIds = [rootComment.id].concat((investibleComments || []).filter((comment) =>
+      comment.comment_type === REPLY_TYPE && comment.root_comment_id === rootComment.id).map((comment) => comment.id));
+    findMessagesForCommentIds(threadIds, messages, true).filter(isInInbox).forEach(add);
+    if (rootComment.inline_market_id) {
+      messages.filter((message) => message.is_highlighted
+        && message.market_id === rootComment.inline_market_id && isInInbox(message)).forEach(add);
+    }
+  });
+  return found;
+}

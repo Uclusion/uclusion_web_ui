@@ -20,6 +20,7 @@ import { getPageReducerPage, usePageStateReducer } from '../../components/PageSt
 import GravatarGroup from '../../components/Avatars/GravatarGroup';
 import { DARK_ACTION_BUTTON_COLOR, useButtonColors } from '../../components/Buttons/ButtonConstants';
 import { getInboxCount, getInboxTarget, isInInbox } from '../../contexts/NotificationsContext/notificationsContextHelper';
+import { useOpenChipNotification } from '../../utils/openChipNotification';
 import { useSyncedMessages } from '../../contexts/SyncedMessagesContext/SyncedMessagesContext';
 import OutboxIcon from '../../components/CustomChip/Outbox';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
@@ -90,6 +91,7 @@ function OtherWorkspaceMenus(props) {
   const [presenceAnchor, setPresenceAnchor] = useState(null);
   const [presenceMenuId, setPresenceMenuId] = useState(undefined);
   const history = useHistory();
+  const openChipNotification = useOpenChipNotification();
   const classes = useStyles();
   const [themeMode] = useContext(ThemeModeContext);
   const isDark = themeMode === 'dark';
@@ -285,7 +287,11 @@ function OtherWorkspaceMenus(props) {
                   }
                 }}
                 suffix={num > 0 ?
-                  <NotificationCountChips num={num} numSuffix={numSuffix} />
+                  <NotificationCountChips num={num} numSuffix={numSuffix}
+                    onChipClick={numSuffix === 'new' ? () => openChipNotification(
+                      (syncedMessages || []).filter((message) => message.is_highlighted && isInInbox(message)))
+                      : undefined}
+                    chipTooltipId={numSuffix === 'new' ? 'notificationGoTo' : undefined} />
                     : undefined}
                 onClick={(event) => {
                   preventDefaultAndProp(event);

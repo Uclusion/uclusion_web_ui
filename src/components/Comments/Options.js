@@ -26,6 +26,7 @@ import { moveInvestibleToCurrentVoting } from '../../api/investibles';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { ACTIVE_STAGE } from '../../constants/markets';
 import { useLocation } from 'react-router';
+import { useOpenChipNotification } from '../../utils/openChipNotification';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks';
 
@@ -64,6 +65,7 @@ function Options(props) {
   const [commentsState] = useContext(CommentsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState] = useContext(NotificationsContext);
+  const openChipNotification = useOpenChipNotification();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [pageStateFull, pageDispatch] = usePageStateReducer('options');
   const underConsiderationStage = getInCurrentVotingStage(marketStagesState, anInlineMarket.id);
@@ -192,8 +194,10 @@ function Options(props) {
   const proposed = getInlineInvestiblesForStage(proposedStage);
   // B-all-471: isNew was called without messagesState here, so the red "new" tag on the
   // Approvable Options tab could never show even when a row was bolded as new.
+  const votingNewMessages = underConsideration.flatMap((inv) => getNewMessages(inv, messagesState));
   const unreadCount = _.size(underConsideration.filter((inv) => isNew(inv, messagesState)));
   // B-all-480: proposed options can have notifications too, so that tab gets a new message count
+  const proposedNewMessages = proposed.flatMap((inv) => getNewMessages(inv, messagesState));
   const unreadProposedCount = _.size(proposed.filter((inv) => isNew(inv, messagesState)));
   const htmlColor = _.isEmpty(underConsideration) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
   const tabInvestibles = useTabIndex === 0 ? underConsideration : proposed;
@@ -212,11 +216,13 @@ function Options(props) {
           {/* B-all-480: no content counts on option tabs - options are not worked down, so only
              the new message count displays */}
           <GmailTabItem icon={<ThumbsUpDownIcon htmlColor={htmlColor} />} onDrop={onDropApprovable}
+                        onTagClick={unreadCount > 0 ? () => openChipNotification(votingNewMessages) : undefined}
                         label={intl.formatMessage({id: 'decisionDialogCurrentVotingLabel'})}
                         color='black' tagLabel={unreadCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
                         tagColor={unreadCount > 0 ? '#E85757' : undefined} toolTipId='votedOptionsToolTip'
                         tag={unreadCount > 0 ? `${unreadCount}` : undefined} />
           <GmailTabItem icon={<Block />} onDrop={onDropProposed} toolTipId='proposedOptionsToolTip'
+                        onTagClick={unreadProposedCount > 0 ? () => openChipNotification(proposedNewMessages) : undefined}
                         label={intl.formatMessage({id: 'decisionDialogProposedOptionsLabel'})}
                         tagLabel={unreadProposedCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
                         tagColor={unreadProposedCount > 0 ? '#E85757' : undefined}

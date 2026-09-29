@@ -4,6 +4,7 @@ import { Checkbox, IconButton, Tooltip, Typography, useMediaQuery, useTheme } fr
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
+import { useOpenChipNotification } from '../../../utils/openChipNotification';
 import Comment from '../../../components/Comments/Comment';
 import { TODO_TYPE } from '../../../constants/comments';
 import { alterComments, reopenComment, resolveComment } from '../../../api/comments';
@@ -57,6 +58,7 @@ function CondensedTodos(props) {
     inNotesTab = false
   } = props
   const classes = todoClasses();
+  const openChipNotification = useOpenChipNotification();
   const intl = useIntl();
   const history = useHistory();
   const [themeMode] = useContext(ThemeModeContext);
@@ -283,6 +285,8 @@ function CondensedTodos(props) {
           {/* B-all-480: resolved count only grows so it does not display - only new message and
              search match counts */}
           <GmailTabItem label={intl.formatMessage({id: 'closedComments'})}
+                        onTagClick={hasResolvedTodoMessages && !isSearch
+                          ? () => openChipNotification(resolvedTodoMessages) : undefined}
                         tagColor={hasResolvedTodoMessages ? warningColor : undefined}
                         color='black'
                         tagLabel={isSearch ? intl.formatMessage({ id: 'match' }) : intl.formatMessage({id: 'new'})}

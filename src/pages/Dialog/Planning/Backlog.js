@@ -26,6 +26,7 @@ import { Box, IconButton, Typography } from '@material-ui/core';
 import { Block, KeyboardArrowLeft } from '@material-ui/icons';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import { getNewMessages, isNew } from '../../../components/Comments/Options';
+import { useOpenChipNotification } from '../../../utils/openChipNotification';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
@@ -56,6 +57,7 @@ function Backlog(props) {
   const wizardClasses = wizardStyles();
   const { openInlineWizard } = useInlineWizardLaunch();
   const history = useHistory();
+  const openChipNotification = useOpenChipNotification();
   const [marketsState] = useContext(MarketsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -85,6 +87,7 @@ function Backlog(props) {
   const yellowChip = <Chip color="primary" size='small' className={classes.chipStyleYellow} />;
   const blueChip = <Chip color="primary" size='small' className={classes.chipStyleBlue} />;
   const yellowCount = _.size(furtherWorkReadyToStart);
+  const readyNewMessages = (furtherWorkReadyToStart || []).flatMap((inv) => getNewMessages(inv, messagesState));
   const unreadYellowCount = _.size(furtherWorkReadyToStart.filter((inv) => isNew(inv, messagesState)));
   const unreadBlueCount = _.size(furtherWorkInvestibles);
 
@@ -218,7 +221,8 @@ function Backlog(props) {
           indicatorColors={['#e6e969', '#2F80ED', '#bdbdbd']}
           style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
           <GmailTabItem icon={yellowChip} label={intl.formatMessage({id: 'readyToStartHeader'})}
-                        color='black' tagColor={unreadYellowCount > 0 ? '#E85757' : undefined}
+                        color='black' onTagClick={unreadYellowCount > 0 ? () => openChipNotification(readyNewMessages) : undefined}
+                        tagColor={unreadYellowCount > 0 ? '#E85757' : undefined}
                         tag={unreadYellowCount > 0 ? `${unreadYellowCount}` :
                           (yellowCount > 0 ? `${yellowCount}` : undefined)}
                         tagLabel={unreadYellowCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}

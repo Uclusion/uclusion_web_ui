@@ -64,6 +64,9 @@ import { fixName, getMarketInfo } from '../../utils/userFunctions';
 import Gravatar from '../../components/Avatars/Gravatar';
 import OtherWorkspaceMenus from '../../pages/Home/OtherWorkspaceMenus';
 import { findMessagesForGroupId } from '../../utils/messageUtils';
+import {
+  firstDisplayedCriticalBug, openCriticalBug, useOpenChipNotification
+} from '../../utils/openChipNotification';
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { INDEX_COMMENT_TYPE, INDEX_INVESTIBLE_TYPE } from '../../contexts/SearchIndexContext/searchIndexContextMessages';
@@ -226,7 +229,7 @@ export function getActiveGroupId(myPresence, groupsState, marketId, marketPresen
 export function getSidebarGroups(isDark, navListItemTextArray, groupsState, marketPresencesState, groupPresencesState,
   history, market, useGroupId, groupId, classes, useHoverFunctions, search, results, openMenuItems=[], inactiveGroups=[], pathname, resetFunction,
   mobileLayout, syncedMessages, commentsState, investiblesState, investibleId, syncComplete = true,
-  navigateFromLeftNav = (navigation) => navigation()) {
+  navigateFromLeftNav = (navigation) => navigation(), openChipNotification, notificationMessages) {
   const marketId = market.id;
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const itemsSorted = _.sortBy(groupsState[marketId],
@@ -252,6 +255,8 @@ export function getSidebarGroups(isDark, navListItemTextArray, groupsState, mark
     let num = undefined;
     let numSuffix = undefined;
     let hasCritical = false;
+    let onChipClick = undefined;
+    let chipTooltipId = undefined;
     if (!_.isEmpty(search)) {
       const groupResults = (results || []).filter((item) => item.groupId === group.id);
       const groupLevelResults = []
@@ -289,16 +294,25 @@ export function getSidebarGroups(isDark, navListItemTextArray, groupsState, mark
         numSuffix = 'new';
       }
       let count = groupMessages.length;
+      const immediateBugs = getMarketComments(commentsState, marketId, group.id).filter((comment) =>
+        comment.comment_type === TODO_TYPE && !comment.investible_id && !comment.resolved &&
+        comment.notification_type === RED_LEVEL);
       if (numSuffix === 'total' && groupPresences.find((presence) => presence.id === myPresence.id)) {
         // B-all-529: a member otherwise gets no signal to enter the view when it holds open
         // critical bugs - non-members opted out of the view's bugs by not joining
-        const criticalBugs = getMarketComments(commentsState, marketId, group.id).filter((comment) =>
-          comment.comment_type === TODO_TYPE && !comment.investible_id && !comment.resolved &&
-          comment.notification_type === RED_LEVEL &&
+        const criticalBugs = immediateBugs.filter((comment) =>
           !groupMessages.find((message) => message.comment_id === comment.id));
         count += criticalBugs.length;
         // B-all-538: a count that includes critical bugs must read as critical, not routine
         hasCritical = !_.isEmpty(criticalBugs);
+      }
+      if (numSuffix === 'new') {
+        onChipClick = () => openChipNotification(groupMessages);
+        chipTooltipId = 'notificationGoTo';
+      } else if (hasCritical) {
+        const bug = firstDisplayedCriticalBug(immediateBugs, notificationMessages);
+        onChipClick = () => openCriticalBug(history, bug);
+        chipTooltipId = 'notificationGoToBug';
       }
       if (count > 0) {
         num = count;
@@ -307,7 +321,7 @@ export function getSidebarGroups(isDark, navListItemTextArray, groupsState, mark
     const groupName = market.object_type === DEMO_TYPE && group.name === 'Single' && isGravatarDisplay ? singlePresence.name : group.name;
     return {icon: myIcon, complexIcon: isGravatarDisplay, iconColor: isDark ? DARK_ACTION_BUTTON_COLOR : 'black', 
       endIcon: outsetAvailable ? MoreVert : undefined,
-      text: groupName, num, numSuffix, hasCritical,
+      text: groupName, num, numSuffix, hasCritical, onChipClick, chipTooltipId,
       isBold: isChosen, openMenuItems: isChosen ? openMenuItems : undefined,
       isBlue: groupId === group.id || pathname === '/',
       resetFunction: isChosen ? resetFunction : undefined,
@@ -376,6 +390,7 @@ function Screen(props) {
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [marketsState] = useContext(MarketsContext);
   const [commentsState] = useContext(CommentsContext);
+  const openChipNotification = useOpenChipNotification();
   const { results, search } = searchResults;
   const {
     hidden = false,
@@ -497,7 +512,8 @@ function Screen(props) {
     getSidebarGroups(isDark, navListItemTextArray, groupsState, marketPresencesState, groupPresencesState,
       history, defaultMarket, useGroupId || pathGroupId || hashGroupId, groupId, classes, useHoverFunctions, search,
       results, openMenuItems, inactiveGroups, pathname, resetFunction, mobileLayout, syncedMessages, commentsState,
-      investiblesState, investibleId, initialSyncComplete, navigateFromLeftNav);
+      investiblesState, investibleId, initialSyncComplete, navigateFromLeftNav, openChipNotification,
+      messagesState.messages);
   }
   const composeChosen = action === 'wizard' && type === COMPOSE_WIZARD_TYPE.toLowerCase();
   const navigationMenu = isDemoLoading ? {} :

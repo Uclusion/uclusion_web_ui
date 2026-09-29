@@ -32,13 +32,12 @@ import { getWorkspaceData } from '../../pages/Home/YourWork/InboxExpansionPanel'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
-import { addWorkspaceGroupAttribute } from '../../pages/Home/YourWork/InboxContext';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
 import { findMessagesForTypeObjectId } from '../../utils/messageUtils';
 import { getOpenInvestibleComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import ReturnTop from '../../pages/Home/ReturnTop';
-import { getNotificationDestination, unrespondedOrderWithinJobs } from '../../utils/notificationNavigation';
+import { getNotificationDestination, orderLikeNextMessage } from '../../utils/notificationNavigation';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { WARNING_COLOR } from '../Buttons/ButtonConstants';
 import { getCurrentWorkspace, getGroupForInvestibleId } from '../../utils/redirectUtils';
@@ -207,12 +206,7 @@ export default function NavigationChevrons(props) {
       const messageUrl = getNotificationDestination(message, commentsState, marketsState)?.url || formInboxItemLink(message);
       return message.type_object_id !== currentNotification?.id && messageUrl !== resource;
     }) || [];
-    const highlightedMapped = addWorkspaceGroupAttribute(highlighted, groupsState);
-    const highlightedOrdered = unrespondedOrderWithinJobs(_.orderBy(highlightedMapped,
-      [function isGroupInvite(msg) {
-        return msg.type_object_id.includes('UNREAD_GROUP_');
-      }, 'groupAttr', 'updated_at'],
-      ['desc', 'asc', 'desc']), commentsState, marketsState);
+    const highlightedOrdered = orderLikeNextMessage(highlighted, groupsState, commentsState, marketsState);
     if (!_.isEmpty(highlightedOrdered)) {
       const message = highlightedOrdered[0];
       const destination = getNotificationDestination(message, commentsState, marketsState);

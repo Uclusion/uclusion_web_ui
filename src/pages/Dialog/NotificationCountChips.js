@@ -8,6 +8,7 @@ import { ReportOutlined } from '@material-ui/icons';
 import Approval from '../../components/CustomChip/Approval'
 import { outlinedChipStyle } from '../../components/CustomChip/chipStyles'
 import { ThemeModeContext } from '../../contexts/ThemeModeContext';
+import { preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 
 
 const useStyles = makeStyles(() => ({
@@ -31,7 +32,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 function NotificationCountChips(props) {
-  const { id, mentions, approvals,  num, numSuffix, hasCritical } = props;
+  const { id, mentions, approvals,  num, numSuffix, hasCritical, onChipClick, chipTooltipId } = props;
   const classes = useStyles();
   const intl = useIntl();
   const [themeMode] = useContext(ThemeModeContext);
@@ -40,9 +41,16 @@ function NotificationCountChips(props) {
   if (num > 0 && numSuffix) {
     const isNew = numSuffix === 'new';
     return <Tooltip key={`countExplanation${numSuffix}`}
-    title={intl.formatMessage({ id: numSuffix })}>
-      <Chip label={`${num}`} size="small" classes={{labelSmall: num === 1 ? classes.oneChipStyle : classes.numChipStyle}}
+    title={intl.formatMessage({ id: chipTooltipId || numSuffix })}>
+      <Chip component={onChipClick ? 'span' : 'div'} label={`${num}`} size="small"
+      classes={{labelSmall: num === 1 ? classes.oneChipStyle : classes.numChipStyle}}
+      onClick={onChipClick ? (event) => {
+        preventDefaultAndProp(event);
+        onChipClick();
+      } : undefined}
+      onMouseDown={onChipClick ? (event) => event.stopPropagation() : undefined}
       style={{ marginLeft: '5px', backgroundClip: 'padding-box', height: '20px',
+      cursor: onChipClick ? 'pointer' : undefined,
       ...outlinedChipStyle(isNew || hasCritical ? 'red' : 'teal', isDark) }}/>
     </Tooltip>;
   }

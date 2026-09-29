@@ -2,7 +2,8 @@ import _ from 'lodash';
 import { ISSUE_TYPE, QUESTION_TYPE, REPLY_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE } from '../constants/comments';
 import { getComment, getCommentRoot, isDesignCapsule } from '../contexts/CommentsContext/commentsContextHelper';
 import { getMarket } from '../contexts/MarketsContext/marketsContextHelper';
-import { formCommentLink } from './marketIdPathFunctions';
+import { addWorkspaceGroupAttribute } from '../pages/Home/YourWork/InboxContext';
+import { formCommentLink, formInboxItemLink } from './marketIdPathFunctions';
 
 const commentNotifications = ['ISSUE', 'UNREAD_COMMENT', 'UNREAD_REPLY', 'REPLY_MENTION',
   'UNREAD_RESOLVED', 'UNREAD_VOTE', 'NOT_FULLY_VOTED', 'UNREAD_JOB_APPROVAL_REQUEST', 'UNREAD_OPTION',
@@ -102,4 +103,29 @@ export function unrespondedOrderWithinJobs(orderedMessages, commentsState, marke
     });
   });
   return reordered;
+}
+
+// The order Next message uses: group invites, then view, newest update first, then the
+// within-job Unresponded reorder above.
+export function orderLikeNextMessage(messages, groupsState, commentsState, marketsState) {
+  const mapped = addWorkspaceGroupAttribute(messages || [], groupsState);
+  return unrespondedOrderWithinJobs(_.orderBy(mapped, [
+    (msg) => msg.type_object_id.includes('UNREAD_GROUP_'),
+    'groupAttr',
+    'updated_at',
+  ], ['desc', 'asc', 'desc']), commentsState, marketsState);
+}
+
+// The notification in this set that Next message would open next. If you are already on one,
+// that one is skipped while another remains.
+export function pickNextMessageInSet(messages, groupsState, commentsState, marketsState,
+  currentNotificationId, resource) {
+  const list = messages || [];
+  const eligible = list.filter((message) => {
+    const messageUrl = getNotificationDestination(message, commentsState, marketsState)?.url
+      || formInboxItemLink(message);
+    return message.type_object_id !== currentNotificationId && messageUrl !== resource;
+  });
+  const pool = _.isEmpty(eligible) ? list : eligible;
+  return orderLikeNextMessage(pool, groupsState, commentsState, marketsState)[0];
 }

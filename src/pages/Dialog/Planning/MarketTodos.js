@@ -4,6 +4,7 @@ import { Box, Checkbox, IconButton, Link, Typography, useMediaQuery, useTheme } 
 import _ from 'lodash';
 import { useIntl } from 'react-intl';
 import { useHistory, useLocation } from 'react-router';
+import { useOpenChipNotification } from '../../../utils/openChipNotification';
 import { darken, makeStyles } from '@material-ui/core/styles';
 import { yellow } from '@material-ui/core/colors';
 import Comment from '../../../components/Comments/Comment';
@@ -183,6 +184,7 @@ function MarketTodos(props) {
   const { openInlineWizard } = useInlineWizardLaunch();
   const intl = useIntl();
   const history = useHistory();
+  const openChipNotification = useOpenChipNotification();
   const theme = useTheme();
   const location = useLocation();
   const { hash } = location;
@@ -230,9 +232,19 @@ function MarketTodos(props) {
   const commentsForCurrentTab = isResolvedTab ? resolvedTodoComments : comments;
   // S-all-199: badge unread replies at any depth too - only the counts fold threads in,
   // the row lists stay roots
-  const unreadRedCount = getUnreadCount(getThreads(redComments, comments), messagesState.messages);
-  const unreadYellowCount = getUnreadCount(getThreads(yellowComments, comments), messagesState.messages);
-  const unreadBlueCount = getUnreadCount(getThreads(blueComments, comments), messagesState.messages);
+  const redThreads = getThreads(redComments, comments);
+  const yellowThreads = getThreads(yellowComments, comments);
+  const blueThreads = getThreads(blueComments, comments);
+  const unreadRedCount = getUnreadCount(redThreads, messagesState.messages);
+  const unreadYellowCount = getUnreadCount(yellowThreads, messagesState.messages);
+  const unreadBlueCount = getUnreadCount(blueThreads, messagesState.messages);
+  function highlightedFor(commentList) {
+    return findMessagesForCommentIds((commentList || []).map((comment) => comment.id), messagesState.messages, true);
+  }
+  const redNewMessages = highlightedFor(redThreads);
+  const yellowNewMessages = highlightedFor(yellowThreads);
+  const blueNewMessages = highlightedFor(blueThreads);
+  const resolvedNewMessages = highlightedFor(resolvedTodoComments);
   // resolvedTodoComments bundles resolved bug roots AND their replies, so this counts unread notifications
   // on either - including a reply that raced ahead of the bug being resolved (T-all-2237).
   const unreadResolvedCount = getUnreadCount(resolvedTodoComments, messagesState.messages);
@@ -507,28 +519,31 @@ function MarketTodos(props) {
           indicatorColors={[warningColor, '#e6e969', '#2F80ED', '#bdbdbd']}
           style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
           <GmailTabItem icon={immediateTodosChip} label={intl.formatMessage({id: 'immediate'})}
-                        color='black' tagLabel={unreadRedCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
+                        color='black' onTagClick={unreadRedCount > 0 ? () => openChipNotification(redNewMessages) : undefined}
+                        tagLabel={unreadRedCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
                         tagColor={unreadRedCount > 0 ? warningColor : undefined}
                         tag={unreadRedCount > 0 ? `${unreadRedCount}` :
                           (_.size(redComments) > 0 ? `${_.size(redComments)}` : undefined)}
                         onDrop={onDropImmediate} toolTipId='immediateToolTip'
                         onDragOver={(event)=>event.preventDefault()}/>
           <GmailTabItem icon={yellowChip} label={intl.formatMessage({id: 'able'})}
-                        color='black' tagColor={unreadYellowCount > 0 ? warningColor : undefined}
+                        color='black' onTagClick={unreadYellowCount > 0 ? () => openChipNotification(yellowNewMessages) : undefined}
+                        tagColor={unreadYellowCount > 0 ? warningColor : undefined}
                         tagLabel={unreadYellowCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
                         tag={unreadYellowCount > 0 ? `${unreadYellowCount}` :
                           (_.size(yellowComments) > 0 ? `${_.size(yellowComments)}` : undefined)}
                         onDrop={onDropAble} toolTipId='normalToolTip'
                         onDragOver={(event)=>event.preventDefault()} />
           <GmailTabItem icon={blueChip} label={intl.formatMessage({id: 'convenient'})}
-                        color='black' tagColor={unreadBlueCount > 0 ? warningColor : undefined}
+                        color='black' onTagClick={unreadBlueCount > 0 ? () => openChipNotification(blueNewMessages) : undefined}
+                        tagColor={unreadBlueCount > 0 ? warningColor : undefined}
                         tagLabel={unreadBlueCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
                         tag={unreadBlueCount > 0 ? `${unreadBlueCount}` :
                           (_.size(blueComments) > 0 ? `${_.size(blueComments)}` : undefined)}
                         onDrop={onDropConvenient} toolTipId='minorToolTip'
                         onDragOver={(event)=>event.preventDefault()} />
           <GmailTabItem icon={<CheckCircleOutline />} label={intl.formatMessage({id: 'resolvedBugsHeader'})}
-                        color='black'
+                        color='black' onTagClick={unreadResolvedCount > 0 ? () => openChipNotification(resolvedNewMessages) : undefined}
                         tagColor={unreadResolvedCount > 0 ? warningColor : undefined}
                         tagLabel={unreadResolvedCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
                         tag={unreadResolvedCount > 0 ? `${unreadResolvedCount}` : undefined}

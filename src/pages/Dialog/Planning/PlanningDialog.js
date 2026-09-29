@@ -8,6 +8,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Link, useMediaQuery, useTheme } from '@material-ui/core';
 import Screen from '../../../containers/Screen/Screen';
+import { useOpenChipNotification } from '../../../utils/openChipNotification';
 import {
   ISSUE_TYPE,
   QUESTION_TYPE,
@@ -131,6 +132,7 @@ function PlanningDialog(props) {
   const [searchResults] = useContext(SearchResultsContext);
   const { results, parentResults, search } = searchResults;
   const history = useHistory();
+  const openChipNotification = useOpenChipNotification();
   const location = useLocation();
   const { hash } = location;
   const intl = useIntl();
@@ -523,6 +525,7 @@ function PlanningDialog(props) {
   let bugTabCountIsImmediate = false;
   // Same pattern for the autonomous Discussion badge: open question/suggestion count vs unread (B-all-508).
   let discussionTabCountIsOpen = false;
+  const tabNewMessages = [[], [], [], []];
   function getTabCount(tabIndex) {
     if (!_.isEmpty(search)) {
       return undefined;
@@ -537,6 +540,7 @@ function PlanningDialog(props) {
         marketId) || []).map((investible) => investible.investible.id));
       const numNewMessagesRaw = findMessagesForInvestibleIds(investibleIds, syncedMessages, true)||[];
       const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
+      tabNewMessages[0] = numNewMessages;
       if (!_.isEmpty(numNewMessages)) {
         return `${_.size(numNewMessages)}`;
       }
@@ -546,6 +550,7 @@ function PlanningDialog(props) {
       investibleIds = investibleIds.concat((furtherWorkInvestibles||[]).map((investible)=>investible.investible.id));
       const numNewMessagesRaw = findMessagesForInvestibleIds(investibleIds, syncedMessages, true)||[];
       const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
+      tabNewMessages[1] = numNewMessages;
       if (!_.isEmpty(numNewMessages)) {
         return `${_.size(numNewMessages)}`;
       }
@@ -561,6 +566,7 @@ function PlanningDialog(props) {
         .concat((resolvedTodoGroupComments || []).map((comment) => comment.id));
       const numNewMessagesRaw = findMessagesForCommentIds(commentIds, syncedMessages, true);
       const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
+      tabNewMessages[2] = numNewMessages;
       if (!_.isEmpty(numNewMessages)) {
         bugTabCountIsImmediate = false;
         return `${_.size(numNewMessages)}`;
@@ -579,6 +585,7 @@ function PlanningDialog(props) {
       const commentIds = discussionRootIds.concat(discussionReplyIds);
       const numNewMessagesRaw = findMessagesForCommentIds(commentIds, syncedMessages, true);
       const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
+      tabNewMessages[3] = numNewMessages;
       if (!_.isEmpty(numNewMessages)) {
         discussionTabCountIsOpen = false;
         return `${_.size(numNewMessages)}`;
@@ -672,18 +679,22 @@ const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOr
           indicatorColors={['#2F80ED', '#2F80ED', '#2F80ED', '#2F80ED']}>
           <GmailTabItem icon={iconOnlyTabs ? <AssignmentIndOutlined /> : undefined} onDrop={onDropAssigned}
                         tagLabel={getTagLabel(_.isEmpty(search) ? tabCount0 : jobsSearchResults)}
+                        onTagClick={_.isEmpty(tabNewMessages[0]) ? undefined : () => openChipNotification(tabNewMessages[0])}
                         onDragOver={(event)=>event.preventDefault()} toolTipId='statusJobsToolTip' tagColor='#E85757'
                         label={intl.formatMessage({id: 'planningDialogNavStoriesLabel'})}
                         tag={_.isEmpty(search) || jobsSearchResults === 0 ? tabCount0 : `${jobsSearchResults}`} />
           <GmailTabItem icon={iconOnlyTabs ? <AssignmentOutlined /> : undefined} onDrop={onDropBacklog} tagLabel={getTagLabel(_.isEmpty(search) ? tabCount1 : backlogSearchResults)}
+                        onTagClick={_.isEmpty(tabNewMessages[1]) ? undefined : () => openChipNotification(tabNewMessages[1])}
                         onDragOver={(event)=>event.preventDefault()} toolTipId='backlogJobsToolTip' tagColor='#E85757'
                         label={intl.formatMessage({id: 'planningDialogBacklog'})}
                         tag={_.isEmpty(search) || backlogSearchResults === 0 ? tabCount1 : `${backlogSearchResults}`} />
           <GmailTabItem icon={iconOnlyTabs ? <BugReportOutlined /> : undefined} label={intl.formatMessage({id: 'todoSection'})}
                         toolTipId='bugsToolTip' tagLabel={getTagLabel(_.isEmpty(search) ? tabCount2 : _.size(todoGroupComments), 2)} tagColor='#E85757'
+                        onTagClick={_.isEmpty(tabNewMessages[2]) ? undefined : () => openChipNotification(tabNewMessages[2])}
                         tag={_.isEmpty(search) || _.isEmpty(todoGroupComments) ? tabCount2 : `${_.size(todoGroupComments)}` } />
           <GmailTabItem icon={iconOnlyTabs ? <LightbulbOutlined /> : undefined} toolTipId='discussionToolTip'
                         tagLabel={getTagLabel(_.isEmpty(search) ? tabCount3 : _.size(questionSuggestionGroupComments), 3)}
+                        onTagClick={_.isEmpty(tabNewMessages[3]) ? undefined : () => openChipNotification(tabNewMessages[3])}
                         label={intl.formatMessage({id: 'planningDialogDiscussionLabel'})} tagColor='#E85757'
                         tag={_.isEmpty(search) || _.isEmpty(questionSuggestionGroupComments) ? tabCount3 :
                           `${_.size(questionSuggestionGroupComments)}`} />

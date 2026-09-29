@@ -18,7 +18,7 @@ import { SearchResultsContext } from '../../contexts/SearchResultsContext/Search
 function processRegularItem(properties) {
   const {history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, isBlue, complexIcon,
     index, openMenuItems, isSubMenu, onEnterFunc, onLeaveFunc, endIcon: EndIcon, linkHref, resetFunction, tipText, idPrepend='',
-    numSuffix='', hasCritical, sidebarColor, sidebarSelectedColor, isDark, navigateFromLeftNav} = properties;
+    numSuffix='', hasCritical, onChipClick, chipTooltipId, sidebarColor, sidebarSelectedColor, isDark, navigateFromLeftNav} = properties;
   if (!text) {
     return React.Fragment
   }
@@ -71,7 +71,8 @@ function processRegularItem(properties) {
                 }}
                 key={key} id={`${useIdPrepend}${textNoSpaces}`}
                 suffix={num > 0 ?
-                 <NotificationCountChips num={num} numSuffix={numSuffix} hasCritical={hasCritical} />
+                 <NotificationCountChips num={num} numSuffix={numSuffix} hasCritical={hasCritical}
+                   onChipClick={onChipClick} chipTooltipId={chipTooltipId} />
                   : (EndIcon ? <IconButton id={`end${useIdPrepend}${textNoSpaces}`} size="small" 
                     style={{transform: 'translateX(5px)'}}
                   onClick={(event) => onClickFunc(event)}>
@@ -112,8 +113,8 @@ function processRegularItem(properties) {
       {!_.isEmpty(openMenuItems) && (
         <div style={{paddingLeft: '1rem', backgroundColor: sidebarColor}} key="openMenuItems">
           {openMenuItems.map((subItem, index) => {
-            const { text, target, num, icon: Icon, onClickFunc, isBold } = subItem
-            return processRegularItem({history, text, target, num, Icon, onClickFunc,
+            const { text, target, num, numSuffix, hasCritical, onChipClick, chipTooltipId, icon: Icon, onClickFunc, isBold } = subItem
+            return processRegularItem({history, text, target, num, numSuffix, hasCritical, onChipClick, chipTooltipId, Icon, onClickFunc,
               isBold, index, isSubMenu: true, sidebarColor, sidebarSelectedColor, isDark,
               navigateFromLeftNav})
           })}
@@ -172,9 +173,9 @@ export default function Sidebar(props) {
                     }}
                       key="views" open >
                       {firstFiveNavListItemTextArray?.map((navItem, topIndex) => {
-                        const { text, target, num, numSuffix, hasCritical, icon: Icon, complexIcon, onClickFunc, isBold, isBlue, openMenuItems,
+                        const { text, target, num, numSuffix, hasCritical, onChipClick, chipTooltipId, icon: Icon, complexIcon, onClickFunc, isBold, isBlue, openMenuItems,
                           onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref, iconColor } = navItem;
-                        return processRegularItem({history, text, target, num, numSuffix, hasCritical, Icon, complexIcon, onClickFunc, isBold,
+                        return processRegularItem({history, text, target, num, numSuffix, hasCritical, onChipClick, chipTooltipId, Icon, complexIcon, onClickFunc, isBold,
                           isBlue, linkHref, index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction,
                           tipText, idPrepend, sidebarColor, sidebarSelectedColor, iconColor, isDark,
                           navigateFromLeftNav})
@@ -194,9 +195,9 @@ export default function Sidebar(props) {
                         </MenuItem>
                       )}
                       {viewsOpen && moreFiveNavListItemTextArray?.map((navItem, topIndex) => {
-                        const { text, target, num, numSuffix, hasCritical, icon: Icon, complexIcon, onClickFunc, isBold, isBlue, openMenuItems,
+                        const { text, target, num, numSuffix, hasCritical, onChipClick, chipTooltipId, icon: Icon, complexIcon, onClickFunc, isBold, isBlue, openMenuItems,
                           onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref, iconColor } = navItem;
-                        return processRegularItem({history, text, target, num, numSuffix, hasCritical, Icon, complexIcon, onClickFunc, isBold,
+                        return processRegularItem({history, text, target, num, numSuffix, hasCritical, onChipClick, chipTooltipId, Icon, complexIcon, onClickFunc, isBold,
                           isBlue, linkHref, index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction,
                           tipText, idPrepend, sidebarColor, sidebarSelectedColor, iconColor, isDark,
                           navigateFromLeftNav})

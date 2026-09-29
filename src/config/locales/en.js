@@ -1063,7 +1063,6 @@ const messages = defineMessages({
   approveAndGotoJob: 'Approve and go to job',
   stageAndGotoJob: 'Move and go to job',
   modifyTasks: 'Modify tasks',
-  startReview: 'Start review',
   voteFor: 'Vote for',
   voteAgainst: 'Vote against',
   clearVotes: 'Your other approval will be cleared',
@@ -1541,7 +1540,6 @@ const messages = defineMessages({
   SUGGESTApproveWizard: 'Create suggestion',
   REPORTApproveWizard: 'Create report',
   NOTEApproveWizard: 'Create note',
-  CommentAddStartReviewREPORT: 'Create report',
   TODOApproveWizard: 'Create task',
 
   //Status Wizard

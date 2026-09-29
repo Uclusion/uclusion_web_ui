@@ -11,7 +11,8 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { stageChangeInvestible } from '../../../api/investibles';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { getFullStage, isAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getFullStage, isAcceptedStage, isInReviewStage, isNotDoingStage }
+  from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
@@ -63,6 +64,7 @@ function JobAssignStep (props) {
   }
 
   const isCloseComments = (isRequiresInput() || isBlocked()) && !fullMoveStage.close_comments_on_entrance;
+  const leavingForReview = isInReviewStage(fullMoveStage) && !isNotDoingStage(fullMoveStage);
   function assignJob() {
     if (isCloseComments) {
       // No op go to CloseCommentsStep
@@ -117,6 +119,7 @@ function JobAssignStep (props) {
           validForm={validForm}
           showNext
           isFinal={!requiresAction(fullMoveStage)}
+          onNextDoAdvance={!leavingForReview && !isNotDoingStage(fullMoveStage)}
           showTerminate
           onNext={assignJob}
           skipNextStep={!isCloseComments}

@@ -20,12 +20,13 @@ import JobDescription from '../../InboxWizards/JobDescription';
 import {
   getAcceptedStage,
   getFullStage,
-  isFurtherWorkStage
+  isFurtherWorkStage,
+  isInReviewStage,
+  isNotDoingStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import StartReviewStep from './StartReviewStep';
 import JobReadyStep from './JobReadyStep';
 import { stageChangeInvestible } from '../../../api/investibles';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
@@ -33,6 +34,9 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { IN_PROGRESS_WIZARD_TYPE } from '../../../constants/markets';
 import useDoableStageGuard from './useDoableStageGuard';
+import { isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { findMessagesForInvestibleId } from '../../../utils/messageUtils';
+import { deleteOrDehilightMessages } from '../../../api/users';
 
 function StageActionStep(props) {
   const { marketId, groupId, updateFormData = () => {}, formData = {}, investibleId, currentReasonId, assignId } = props;
@@ -62,9 +66,60 @@ function StageActionStep(props) {
     return React.Fragment;
   }
 
+  function clearInboxIfRequested() {
+    if (formData.clearNotifications && isInReviewStage(fullMoveStage)) {
+      return deleteOrDehilightMessages(findMessagesForInvestibleId(investibleId, messagesState.messages)
+        .filter((message) => isInInbox(message)), messagesDispatch, true, false, true);
+    }
+    return Promise.resolve(true);
+  }
+
+  function finishReview() {
+    const myFinish = props.myFinish || (() => {});
+    if (currentStageId === fullMoveStage.id) {
+      return clearInboxIfRequested().then(() => myFinish(fullMoveStage));
+    }
+    setOperationRunning(true);
+    const moveInfo = {
+      marketId,
+      investibleId,
+      stageInfo: {
+        current_stage_id: currentStageId,
+        stage_id: fullMoveStage.id,
+      },
+    };
+    if (assignId) {
+      moveInfo.stageInfo.assignments = [assignId];
+    }
+    const fullCurrentStage = getFullStage(marketStagesState, marketId, currentStageId);
+    return stageChangeInvestible(moveInfo)
+      .then((newInv) => {
+        onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, marketId, commentsState,
+          commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
+          fullCurrentStage, marketPresencesDispatch);
+        return clearInboxIfRequested().then(() => myFinish(fullMoveStage));
+      })
+      .finally(() => setOperationRunning(false));
+  }
+
   if (fullMoveStage.close_comments_on_entrance) {
+    if (isNotDoingStage(fullMoveStage)) {
+      return React.Fragment;
+    }
     return (
-      <StartReviewStep inv={inv} currentStageId={stage} {...props} />
+      <WizardStepContainer
+        {...props}
+        isLarge
+      >
+        <WizardStepButtons
+          {...props}
+          onNext={finishReview}
+          isFinal
+          showTerminate
+          onTerminate={() => navigate(history, formInvestibleLink(marketId, investibleId))}
+          terminateLabel="JobWizardGotoJob"
+        />
+      </WizardStepContainer>
     );
   }
 

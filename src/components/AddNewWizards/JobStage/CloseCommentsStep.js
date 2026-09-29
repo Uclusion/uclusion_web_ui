@@ -66,6 +66,7 @@ function CloseCommentsStep(props) {
     !_.isEmpty(unresolvedComments.filter((comment) => comment.comment_type === TODO_TYPE));
   const isSingleSuggest = _.size(mustResolveComments) === 1 &&
     mustResolveComments[0].comment_type === SUGGEST_CHANGE_TYPE;
+  const leavingForReview = isInReviewStage(fullMoveStage) && !isNotDoingStage(fullMoveStage);
 
   function move(isResolve=true) {
     // Do not rely on async to close the comments cause want this user to be updated by and not auto opened if return
@@ -161,6 +162,7 @@ function CloseCommentsStep(props) {
         showNext
         nextLabel={isSingleSuggest ? 'issueResolveLabel' : undefined}
         isFinal={!requiresAction(fullMoveStage)}
+        onNextDoAdvance={!leavingForReview && !isNotDoingStage(fullMoveStage)}
         showOtherNext={isSingleSuggest}
         showTerminate
         onNext={move}

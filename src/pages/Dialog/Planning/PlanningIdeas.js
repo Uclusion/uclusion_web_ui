@@ -42,6 +42,8 @@ import {
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
+import { firstDisplayedOpenItem, SwimlaneOpenChip } from './swimlaneOpenChip';
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 import { doRemoveEdit, doShowEdit } from './userUtils'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
@@ -691,6 +693,8 @@ function StageInvestible(props) {
   const [marketsState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [commentsState] = useContext(CommentsContext);
+  const [searchResults] = useContext(SearchResultsContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const classes = generalStageStyles();
   const planClasses = usePlanFormStyles();
@@ -747,19 +751,9 @@ function StageInvestible(props) {
     return undefined;
   }
 
-  function getCountChip(labelNum, toolTipId, chipColor = 'orange') {
-    if (labelNum <= 0) {
-      return undefined;
-    }
+  function getCountChip(labelNum, toolTipId, chipColor = 'orange', target) {
     return (
-      <Tooltip title={intl.formatMessage({ id: toolTipId })}>
-        <span className={'MuiTabItem-tag'} style={{...outlinedChipStyle(chipColor, theme.palette.type === 'dark'),
-          marginRight: '0.5rem',
-          borderRadius: 22, paddingLeft: '8px', paddingRight: '8px', paddingTop: '2px', paddingBottom: '2px',
-          display: 'inline-flex', alignItems: 'center', fontSize: '0.75rem', lineHeight: 1.2}}>
-          {labelNum} {intl.formatMessage({ id: 'open' })}
-        </span>
-      </Tooltip>
+      <SwimlaneOpenChip labelNum={labelNum} toolTipId={toolTipId} chipColor={chipColor} target={target} />
     );
   }
   const recordPositionToggle = (event) => {
@@ -774,13 +768,20 @@ function StageInvestible(props) {
   const hasHighlightedNotifications = !_.isEmpty(
     findMessagesForInvestibleId(id, syncedMessages).filter((message) => isInInbox(message) && message.is_highlighted)
   );
+  const openItemContext = {
+    searchResults, investiblesState, marketPresencesState, commentsState, marketPresences,
+  };
+  const taskTarget = firstDisplayedOpenItem(comments, id, [TODO_TYPE], 'tasks', openItemContext);
+  const assistanceTarget = firstDisplayedOpenItem(comments, id, [QUESTION_TYPE, SUGGEST_CHANGE_TYPE],
+    'assistance', openItemContext);
   const countChip = mobileLayout ? undefined :
     getCountChip(isVoting ? numQuestionsSuggestions : numOpenTasks, isVoting ? 'inputRequiredCountExplanation':
-      'openTasksCountExplanation', isRequiredInputCard && hasHighlightedNotifications ? 'red' : 'orange');
+      'openTasksCountExplanation', isRequiredInputCard && hasHighlightedNotifications ? 'red' : 'orange',
+      isVoting ? assistanceTarget : taskTarget);
   // B-all-497: a non-assignee question or suggestion does not move a Reviewable job to Debatable,
   // so without its own chip and preview bars it was invisible in the swimlanes
   const assistanceChip = mobileLayout || !isReview ? undefined :
-    getCountChip(numQuestionsSuggestions, 'inputRequiredCountExplanation');
+    getCountChip(numQuestionsSuggestions, 'inputRequiredCountExplanation', 'orange', assistanceTarget);
   const messagesChip = mobileLayout || (isRequiredInputCard && countChip) ? undefined : getMessagesChip();
   const isSameGroup = groupId === viewGroupId;
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId);

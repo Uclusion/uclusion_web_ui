@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Link, useMediaQuery, useTheme } from '@material-ui/core';
 import Screen from '../../../containers/Screen/Screen';
-import { useOpenChipNotification } from '../../../utils/openChipNotification';
+import { firstDisplayedCriticalBug, openCriticalBug, useOpenChipNotification } from '../../../utils/openChipNotification';
 import {
   ISSUE_TYPE,
   QUESTION_TYPE,
@@ -93,6 +93,7 @@ import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper
 import { useHotkeys } from 'react-hotkeys-hook';
 import { findMessagesForCommentIds, findMessagesForInvestibleIds } from '../../../utils/messageUtils';
 import { useSyncedMessages } from '../../../contexts/SyncedMessagesContext/SyncedMessagesContext';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { RED_LEVEL } from '../../../constants/notifications';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
@@ -133,6 +134,7 @@ function PlanningDialog(props) {
   const { results, parentResults, search } = searchResults;
   const history = useHistory();
   const openChipNotification = useOpenChipNotification();
+  const [messagesState] = useContext(NotificationsContext);
   const location = useLocation();
   const { hash } = location;
   const intl = useIntl();
@@ -690,7 +692,10 @@ const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOr
                         tag={_.isEmpty(search) || backlogSearchResults === 0 ? tabCount1 : `${backlogSearchResults}`} />
           <GmailTabItem icon={iconOnlyTabs ? <BugReportOutlined /> : undefined} label={intl.formatMessage({id: 'todoSection'})}
                         toolTipId='bugsToolTip' tagLabel={getTagLabel(_.isEmpty(search) ? tabCount2 : _.size(todoGroupComments), 2)} tagColor='#E85757'
-                        onTagClick={_.isEmpty(tabNewMessages[2]) ? undefined : () => openChipNotification(tabNewMessages[2])}
+                        onTagClick={!_.isEmpty(tabNewMessages[2]) ? () => openChipNotification(tabNewMessages[2])
+                          : (bugTabCountIsImmediate ? () => openCriticalBug(history,
+                            firstDisplayedCriticalBug(criticalTodoGroupComments, messagesState.messages)) : undefined)}
+                        tagTooltipId={bugTabCountIsImmediate && _.isEmpty(tabNewMessages[2]) ? 'notificationGoToBug' : undefined}
                         tag={_.isEmpty(search) || _.isEmpty(todoGroupComments) ? tabCount2 : `${_.size(todoGroupComments)}` } />
           <GmailTabItem icon={iconOnlyTabs ? <LightbulbOutlined /> : undefined} toolTipId='discussionToolTip'
                         tagLabel={getTagLabel(_.isEmpty(search) ? tabCount3 : _.size(questionSuggestionGroupComments), 3)}

@@ -455,7 +455,10 @@ A single-comment result has no Job header.
 - Question: use only `get_job`, `add_info`, and
   `approve_job_or_option` for its options.
 
-Use `add_info` for questions or progress. Resolving a bug triggers its
+Use `add_info` for a question or for progress that is not part of resolving a bug.
+When resolving a bug, pass its progress note as `progress_note` on that same
+`resolve` call, with `tz`, instead of a later `add_info`. The completion package
+record in `operations.md` stays its own step. Resolving a bug triggers its
 completion sweep (`completion.md`) and its completion package
 (`operations.md`). A proposed commit message begins with the comment short code.
 When the next item is unrelated or unknown, apply the context-clear rule in

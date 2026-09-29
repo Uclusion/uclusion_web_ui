@@ -4071,6 +4071,13 @@ def validate_add_info(arguments):
         raise CLIArgumentError('for_human cannot be used when updating information')
 
 
+def build_resolve_arguments(args):
+    arguments = declared_mcp_arguments(args)
+    if args.arguments_json is None and arguments.get('progress_note') and 'tz' not in arguments:
+        arguments['tz'] = local_timezone_name()
+    return arguments
+
+
 def build_add_info_arguments(args):
     arguments = declared_mcp_arguments(args)
     if args.arguments_json is None and 'tz' not in arguments:
@@ -4850,14 +4857,25 @@ def build_parser():
         '--parent-question-short-code-id',
         help='Enclosing question short code for a local option or nested item.',
     )
+    resolve_parser.add_argument(
+        '--progress-note',
+        help='Progress note recorded on the same object in this call.',
+    )
+    resolve_parser.add_argument(
+        '--tz',
+        help='Timezone for the progress note (defaults to the local timezone).',
+    )
     configure_mcp_parser(
         resolve_parser,
         'resolve',
         (
             mcp_field('short_code_id', 'short_code_id', 'legacy_short_code_id'),
             mcp_field('parent_question_short_code_id', 'parent_question_short_code_id'),
+            mcp_field('progress_note', 'progress_note'),
+            mcp_field('tz', 'tz'),
         ),
         ('short_code_id',),
+        builder=build_resolve_arguments,
     )
 
     reopen_parser = subparsers.add_parser(

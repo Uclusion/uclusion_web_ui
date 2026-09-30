@@ -2670,7 +2670,7 @@ DEMO_PROGRESS_MILESTONES = (
              'finishing up and writing its evaluation'),
 )
 # Events after the last milestone: the evaluator's final clear and records.
-# Never 100: only the install command returning ends the run.
+# Notification estimates stay below 100; only a published report completes them.
 DEMO_PROGRESS_TAIL_EVENTS = 2
 DEMO_PROGRESS_CEILING = 95
 
@@ -2823,8 +2823,26 @@ def demo_progress_line(entries):
     return f'About {estimate}% through: {message}.'
 
 
+def demo_current_run_dir():
+    """Select the run the installer named, once per command invocation."""
+    try:
+        with open(os.path.join(uclusion_home_root(), '.uclusion', DEMO_CURRENT_RUN_FILE),
+                  encoding='utf-8') as handle:
+            return handle.read().strip()
+    except FileNotFoundError:
+        return None
+
+
+def demo_published_report(run_dir):
+    """Return this run's complete published report, never a draft or older run."""
+    if run_dir is None:
+        return None
+    report = os.path.join(run_dir, 'evaluation.md')
+    return report if os.path.isfile(report) else None
+
+
 def cmd_demo_progress(args):
-    """Estimate from the owner's notification log; reads nothing else."""
+    """Estimate from local notifications until this run publishes its report."""
     _api_url, _json_path, credentials_path = get_env_paths(args.env)
     with redirect_stdout(io.StringIO()):
         credentials = get_credentials(credentials_path)
@@ -2835,23 +2853,30 @@ def cmd_demo_progress(args):
             file=sys.stderr,
         )
         return 1
+    run_dir = demo_current_run_dir()
     path = demo_notification_log_path()
     entries = read_demo_notification_log(path)
+    report = demo_published_report(run_dir)
     suffix = ''
-    if args.wait:
-        # Returns only when the estimate moves: every return costs the
-        # caller a model turn, and most pushes do not change what it would say.
+    if args.wait and report is None:
+        # Return when the estimate moves or the report is published: every
+        # return costs a model turn, and most pushes do not change the estimate.
         deadline = time.monotonic() + DEMO_PROGRESS_WAIT_SECONDS
         before = demo_progress_estimate(entries)
-        while (demo_progress_estimate(entries) == before
+        while (report is None and demo_progress_estimate(entries) == before
                and time.monotonic() < deadline):
             time.sleep(1)
             entries = read_demo_notification_log(path)
-        if demo_progress_estimate(entries) == before:
+            report = demo_published_report(run_dir)
+        if report is None and demo_progress_estimate(entries) == before:
             suffix = (
                 f' No change in the last {DEMO_PROGRESS_WAIT_SECONDS} seconds.'
             )
-    print(demo_progress_line(entries) + suffix, flush=True)
+    if report is not None:
+        print('100% through: the evaluation is published. '
+              'Use demo --result to read the report.', flush=True)
+    else:
+        print(demo_progress_line(entries) + suffix, flush=True)
     return 0
 
 
@@ -2898,19 +2923,16 @@ def cmd_demo_result(args):
             file=sys.stderr,
         )
         return 1
-    try:
-        with open(os.path.join(uclusion_home_root(), '.uclusion', DEMO_CURRENT_RUN_FILE),
-                  encoding='utf-8') as handle:
-            run_dir = handle.read().strip()
-    except FileNotFoundError:
+    run_dir = demo_current_run_dir()
+    if run_dir is None:
         print('❌ No demo exercise has been started from this install.', file=sys.stderr)
         return 1
-    report = os.path.join(run_dir, 'evaluation.md')
     failure = os.path.join(run_dir, DEMO_FAILURE_FILE)
     # Bounded like --progress --wait, so no call of it outlasts a client's command timeout.
     deadline = time.monotonic() + (DEMO_PROGRESS_WAIT_SECONDS if args.wait else 0)
     while True:
-        if os.path.isfile(report):
+        report = demo_published_report(run_dir)
+        if report is not None:
             header = demo_run_choice_header(run_dir)
             if header:
                 print(header, flush=True)
@@ -4461,13 +4483,13 @@ def build_parser():
         '--progress',
         action='store_true',
         help='Print one line estimating how far the running exercise has got, '
-             'from the notifications the owner has received. Reads only this '
-             'demo\'s local notification log.',
+             'or 100%% when this run publishes its evaluation. Reads only local '
+             'demo files.',
     )
     demo_parser.add_argument(
         '--wait',
         action='store_true',
-        help=f'With --progress: wait until the estimate changes, or up to '
+        help=f'With --progress: wait until the estimate changes or the report is published, or up to '
              f'{DEMO_PROGRESS_WAIT_SECONDS} seconds, before printing it. With --result: '
              f'wait for the report, or up to {DEMO_PROGRESS_WAIT_SECONDS} seconds.',
     )

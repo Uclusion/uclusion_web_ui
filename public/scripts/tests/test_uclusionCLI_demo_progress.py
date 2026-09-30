@@ -1,4 +1,4 @@
-"""demo --progress estimates a running exercise from the owner's watch log."""
+"""demo --progress estimates from notifications until its report is published."""
 
 import io
 import sys
@@ -147,9 +147,13 @@ class DemoProgressCommandTests(unittest.TestCase):
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
-        self.log = Path(temporary.name) / 'demo-notifications.log'
+        self.home = Path(temporary.name)
+        self.run_dir = self.home / '.uclusion' / 'demo-runs' / 'current'
+        self.run_dir.mkdir(parents=True)
+        self.current_run = self.home / '.uclusion' / cli.DEMO_CURRENT_RUN_FILE
+        self.log = self.home / '.uclusion' / cli.DEMO_NOTIFICATION_LOG
         for target, value in (
-            ('demo_notification_log_path', str(self.log)),
+            ('uclusion_home_root', str(self.home)),
             ('get_credentials', {'secret_key_id': DEMO_CLIENT_ID,
                                  'secret_key': 'secret'}),
         ):
@@ -176,7 +180,7 @@ class DemoProgressCommandTests(unittest.TestCase):
         self.assertEqual(1, len(stdout.splitlines()))
         self.assertIn('About 80% through', stdout)
 
-    def test_it_reads_nothing_but_the_log(self):
+    def test_it_reads_only_local_demo_files(self):
         # A job read costs the caller tokens and a script cannot tell what
         # the job's text means; the estimate never goes to the network.
         self.write(LIVE[:4])
@@ -186,6 +190,82 @@ class DemoProgressCommandTests(unittest.TestCase):
         self.assertEqual(0, result)
         call.assert_not_called()
         login.assert_not_called()
+
+    def test_a_published_report_returns_completion_immediately(self):
+        self.write(LIVE[:16])
+        self.current_run.write_text(str(self.run_dir))
+        (self.run_dir / 'evaluation.md').write_text('The complete evaluator report.')
+        (self.run_dir / cli.DEMO_FAILURE_FILE).write_text('Later cleanup failure.')
+        for flags in (('--progress',), ('--progress', '--wait')):
+            with self.subTest(flags=flags), mock.patch.object(cli.time, 'sleep') as sleep:
+                result, stdout, stderr = self.run_demo(*flags)
+            self.assertEqual(0, result, stderr)
+            self.assertEqual(1, len(stdout.splitlines()))
+            self.assertIn('100%', stdout)
+            self.assertIn('evaluation is published', stdout)
+            self.assertIn('demo --result', stdout)
+            self.assertNotIn('No change', stdout)
+            self.assertNotIn('The complete evaluator report.', stdout)
+            sleep.assert_not_called()
+
+    def test_wait_returns_when_the_report_appears_without_new_notifications(self):
+        self.write(LIVE[:16])
+        self.current_run.write_text(str(self.run_dir))
+
+        def publish(_seconds):
+            (self.run_dir / 'evaluation.md').write_text('Complete evaluation.')
+
+        with mock.patch.object(cli.time, 'sleep', side_effect=publish) as sleep:
+            result, stdout, stderr = self.run_demo('--progress', '--wait')
+        self.assertEqual(0, result, stderr)
+        sleep.assert_called_once_with(1)
+        self.assertIn('100%', stdout)
+        self.assertIn('evaluation is published', stdout)
+        self.assertNotIn('No change', stdout)
+
+    def test_wait_uses_only_the_selected_run_s_published_report(self):
+        self.write(LIVE[:16])
+        self.current_run.write_text(str(self.run_dir))
+        previous = self.run_dir.with_name('previous')
+        previous.mkdir()
+        (previous / 'evaluation.md').write_text('An earlier report.')
+        (self.run_dir / '.evaluation-draft.tmp').write_text('An unfinished draft.')
+        waits = []
+
+        def publish(_seconds):
+            waits.append(1)
+            if len(waits) == 1:
+                # Another invocation can select a different run, but this
+                # wait still follows the one it selected at the start.
+                self.current_run.write_text(str(previous))
+            else:
+                (self.run_dir / 'evaluation.md').write_text('This run is complete.')
+
+        with mock.patch.object(cli.time, 'sleep', side_effect=publish):
+            result, stdout, stderr = self.run_demo('--progress', '--wait')
+        self.assertEqual(0, result, stderr)
+        self.assertEqual(2, len(waits))
+        self.assertIn('100%', stdout)
+        self.assertIn('evaluation is published', stdout)
+
+    def test_without_a_report_progress_keeps_its_existing_behavior(self):
+        self.write(LIVE[:16])
+        (self.run_dir / cli.DEMO_FAILURE_FILE).write_text('The evaluator stopped.')
+        for selected_run in (False, True):
+            if selected_run:
+                self.current_run.write_text(str(self.run_dir))
+            for flags in (('--progress',), ('--progress', '--wait')):
+                clock = iter(range(0, 10000, 30))
+                with self.subTest(selected_run=selected_run, flags=flags), \
+                        mock.patch.object(cli.time, 'sleep'), \
+                        mock.patch.object(cli.time, 'monotonic', side_effect=lambda: next(clock)), \
+                        mock.patch.object(cli, 'demo_supervisor_alive', return_value=False) as alive:
+                    result, stdout, stderr = self.run_demo(*flags)
+                self.assertEqual(0, result, stderr)
+                self.assertIn('About 90% through', stdout)
+                self.assertNotIn('100%', stdout)
+                self.assertEqual('--wait' in flags, 'No change' in stdout)
+                alive.assert_not_called()
 
     def test_it_refuses_outside_a_demo_install(self):
         for credentials in (None, {'secret_key_id': 'person-client',

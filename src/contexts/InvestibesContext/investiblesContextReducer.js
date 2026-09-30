@@ -6,7 +6,7 @@ import _ from 'lodash'
 import { removeInitializing } from '../../components/localStorageUtils'
 import { addByIdAndVersion } from '../ContextUtils'
 import { leaderContextHack } from '../LeaderContext/LeaderContext';
-import { queuePersistenceWrite } from '../../api/crossTabFreshness';
+import { queuePersistenceWrite, requestFreshness } from '../../api/crossTabFreshness';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_INVESTIBLES = 'UPDATE_INVESTIBLES';
@@ -46,6 +46,23 @@ export function revertStageGuess(investibleId, marketInfoId, deadline) {
   };
 }
 
+export function scheduleStageGuessCheck(investibleId, marketInfo, dispatch) {
+  const { before, deadline } = marketInfo.stage_guess;
+  const remaining = Math.max(0, deadline - Date.now());
+  if (remaining > 0) {
+    // Use the leader's ordinary version discovery before the delayed server push arrives.
+    // The expected next version keeps an unchanged server row from undoing the guess early.
+    requestFreshness({ reason: 'push', push: {
+      marketId: marketInfo.market_id,
+      objectType: 'market_investible',
+      objectIdOneTwo: `${marketInfo.id}_${investibleId}`,
+      version: before.version + 1,
+      stageGuessDeadline: deadline
+    } }).catch(() => console.warn('Unable to request stage guess refresh'));
+  }
+  setTimeout(() => dispatch(revertStageGuess(investibleId, marketInfo.id, deadline)), remaining);
+}
+
 /**
  * J-all-487: a stage guess still waiting on the server when the page closed is checked once the
  * investibles load from storage, at once if its deadline has passed.
@@ -55,8 +72,7 @@ export function revertPendingStageGuesses(state, dispatch) {
     (inv?.market_infos || []).forEach((marketInfo) => {
       const { stage_guess: stageGuess } = marketInfo;
       if (stageGuess) {
-        setTimeout(() => dispatch(revertStageGuess(inv.investible.id, marketInfo.id, stageGuess.deadline)),
-          Math.max(0, stageGuess.deadline - Date.now()));
+        scheduleStageGuessCheck(inv.investible.id, marketInfo, dispatch);
       }
     });
   });

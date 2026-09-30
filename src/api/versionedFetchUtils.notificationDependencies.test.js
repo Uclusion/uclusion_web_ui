@@ -476,6 +476,95 @@ describe('pushed changes hidden by the last audit signature', () => {
     expect(fetchComments).not.toHaveBeenCalled();
   });
 
+  it('refreshes a guessed job before any server push and waits for its actual version', async () => {
+    getVersions.mockResolvedValueOnce([]);
+
+    await refreshVersionsFromPush({ marketId: mockMarketId, objectType: 'market_investible',
+      objectIdOneTwo: 'job-info_job-id', version: 2, stageGuessDeadline: Date.now() + 20000 });
+    await flushWork();
+    expect(getVersions).toHaveBeenCalledWith([mockMarketId], false);
+    expect(fetchInvestibles).not.toHaveBeenCalled();
+
+    jest.advanceTimersByTime(2000);
+    await flushWork();
+    jest.advanceTimersByTime(5000);
+    await flushWork();
+    jest.advanceTimersByTime(2500);
+
+    expect(fetchInvestibles).toHaveBeenCalledTimes(1);
+    expect(pushMessage).toHaveBeenCalledWith('InvestiblesChannel', expect.objectContaining({
+      investibles: [job]
+    }));
+    await refreshVersionsNow();
+    expect(getVersions).toHaveBeenCalledTimes(2);
+  });
+
+  it('expires a restored guess at its original deadline and stops retrying it', async () => {
+    getVersions.mockResolvedValue([]);
+    const push = { marketId: mockMarketId, objectType: 'market_investible',
+      objectIdOneTwo: 'job-info_job-id', version: 2, stageGuessDeadline: Date.now() + 20000 };
+    await refreshVersionsFromPush(push);
+    await flushWork();
+    jest.advanceTimersByTime(10000);
+    await flushWork();
+    await refreshVersionsFromPush(push);
+    await flushWork();
+
+    jest.advanceTimersByTime(9999);
+    await flushWork();
+    const beforeDeadline = getVersions.mock.calls.length;
+    await refreshVersionsNow();
+    expect(getVersions).toHaveBeenCalledTimes(beforeDeadline + 1);
+    jest.advanceTimersByTime(1);
+    await flushWork();
+
+    const afterDeadline = getVersions.mock.calls.length;
+    await refreshVersionsNow();
+    expect(getVersions).toHaveBeenCalledTimes(afterDeadline);
+    const afterExplicitRefresh = getChangedIds.mock.calls.length;
+    jest.advanceTimersByTime(100000);
+    await flushWork();
+    expect(getChangedIds).toHaveBeenCalledTimes(afterExplicitRefresh);
+  });
+
+  it('expires only its own guess while preserving a newer guess and an independent real push', async () => {
+    getVersions.mockResolvedValue([]);
+    const guess = { marketId: mockMarketId, objectType: 'market_investible',
+      objectIdOneTwo: 'job-info_job-id', version: 2 };
+    await refreshVersionsFromPush({ ...guess, stageGuessDeadline: Date.now() + 20000 });
+    await flushWork();
+    jest.advanceTimersByTime(10000);
+    await flushWork();
+    const newer = refreshVersionsFromPush({ ...guess, stageGuessDeadline: Date.now() + 20000 });
+    const realPush = refreshVersionsFromPush({ ...guess, marketId: 'other-market' });
+    await flushWork();
+    jest.advanceTimersByTime(5000);
+    await flushWork();
+
+    jest.advanceTimersByTime(5000);
+    await flushWork();
+    await Promise.all([newer, realPush]);
+    getVersions.mockClear();
+    await refreshVersionsNow();
+    expect(getVersions).toHaveBeenCalledWith([mockMarketId, 'other-market'], false);
+
+    jest.advanceTimersByTime(10000);
+    await flushWork();
+    getVersions.mockClear();
+    await refreshVersionsNow();
+    expect(getVersions).toHaveBeenCalledTimes(1);
+    expect(getVersions).toHaveBeenCalledWith(['other-market'], false);
+  });
+
+  it('does not queue an already-expired guess', async () => {
+    await refreshVersionsFromPush({ marketId: mockMarketId, objectType: 'market_investible',
+      objectIdOneTwo: 'job-info_job-id', version: 2, stageGuessDeadline: Date.now() });
+    await flushWork();
+    expect(getChangedIds).not.toHaveBeenCalled();
+    expect(getVersions).not.toHaveBeenCalled();
+    expect(fetchInvestibles).not.toHaveBeenCalled();
+  });
+
   it('retains a pushed resolution while editing and reconciles it after blur', async () => {
     const uninstall = installEditingPause();
     const editor = document.createElement('textarea');

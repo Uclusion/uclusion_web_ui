@@ -4,14 +4,19 @@ import reducer, {
 } from '../contexts/InvestibesContext/investiblesContextReducer';
 import { QUESTION_TYPE, TODO_TYPE } from '../constants/comments';
 import { changeInvestibleStage, changeInvestibleStageOnCommentOpen, STAGE_GUESS_CONFIRM_MS } from './commentFunctions';
+import { requestFreshness } from '../api/crossTabFreshness';
 
 jest.mock('./LocalForageHelper', () => jest.fn());
 jest.mock('../contexts/InvestibesContext/InvestiblesContext', () => ({
   INVESTIBLES_CONTEXT_NAMESPACE: 'investibles_context'
 }));
 jest.mock('../contexts/LeaderContext/LeaderContext', () => ({ leaderContextHack: { isLeader: false } }));
+jest.mock('../api/crossTabFreshness', () => ({
+  ...jest.requireActual('../api/crossTabFreshness'),
+  requestFreshness: jest.fn(() => Promise.resolve())
+}));
 
-// J-all-487: a timed stage guess stands only until the server answers or 15 seconds pass.
+// J-all-487: a timed stage guess stands only until the server answers or 20 seconds pass.
 // A task opened on Reviewable keeps the stage the page showed.
 describe('stage guess confirm or revert', () => {
   const approvable = { id: 'approvable', name: 'Approvable' };
@@ -41,6 +46,7 @@ describe('stage guess confirm or revert', () => {
 
   beforeEach(() => {
     jest.useFakeTimers();
+    requestFreshness.mockClear();
     state = { 'job-1': serverCopy('requires-input', 1) };
   });
 
@@ -57,8 +63,13 @@ describe('stage guess confirm or revert', () => {
   });
 
   it('puts back a guess the server never answers once the timer ends', () => {
+    const startedAt = Date.now();
     guess(approvable);
-    jest.advanceTimersByTime(STAGE_GUESS_CONFIRM_MS - 1);
+    expect(requestFreshness).toHaveBeenCalledWith({ reason: 'push', push: {
+      marketId: 'market-1', objectType: 'market_investible', objectIdOneTwo: 'info-1_job-1',
+      version: 2, stageGuessDeadline: startedAt + 20000
+    } });
+    jest.advanceTimersByTime(19999);
     expect(currentInfo().stage).toBe('approvable');
 
     jest.advanceTimersByTime(1);
@@ -94,6 +105,11 @@ describe('stage guess confirm or revert', () => {
     };
 
     revertPendingStageGuesses(state, dispatch);
+    expect(requestFreshness).toHaveBeenCalledTimes(1);
+    expect(requestFreshness).toHaveBeenCalledWith({ reason: 'push', push: {
+      marketId: 'market-1', objectType: 'market_investible', objectIdOneTwo: 'info-2_job-2',
+      version: 2, stageGuessDeadline: Date.now() + 3000
+    } });
     jest.advanceTimersByTime(0);
     expect(state['job-1'].market_infos[0].stage).toBe('requires-input');
     expect(state['job-2'].market_infos[0].stage).toBe('approvable');
@@ -129,6 +145,7 @@ describe('a task opened on Reviewable', () => {
 
   beforeEach(() => {
     jest.useFakeTimers();
+    requestFreshness.mockClear();
   });
 
   afterEach(() => {
@@ -138,6 +155,7 @@ describe('a task opened on Reviewable', () => {
   it('keeps Doable when an assigned person adds or moves a task', () => {
     openComment(TODO_TYPE, 'user-1');
     expect(state['job-1'].market_infos[0].stage).toBe('doable');
+    expect(requestFreshness).not.toHaveBeenCalled();
     expect(state['job-1'].market_infos[0].stage_guess).toBeUndefined();
 
     revertPendingStageGuesses(state, dispatch);
@@ -148,6 +166,7 @@ describe('a task opened on Reviewable', () => {
   it('keeps Approvable when someone who is not assigned adds or moves a task', () => {
     openComment(TODO_TYPE, 'user-2');
     expect(state['job-1'].market_infos[0].stage).toBe('approvable');
+    expect(requestFreshness).not.toHaveBeenCalled();
     expect(state['job-1'].market_infos[0].stage_guess).toBeUndefined();
 
     jest.advanceTimersByTime(STAGE_GUESS_CONFIRM_MS);

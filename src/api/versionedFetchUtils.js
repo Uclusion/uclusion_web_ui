@@ -410,19 +410,13 @@ export function stopRefreshRunner() {
   queuedDispatchers = undefined;
   queuedImmediateRelease = false;
   queuedAllowWhileEditing = false;
-  pushVerifyResume?.();
-  pushVerifyResume = undefined;
+  removePendingPushChecks(() => true);
   notificationVerifyResume?.();
   notificationVerifyResume = undefined;
-  if (pushVerifyTimer) {
-    clearTimeout(pushVerifyTimer);
-    pushVerifyTimer = undefined;
-  }
   if (notificationVerifyTimer) {
     clearTimeout(notificationVerifyTimer);
     notificationVerifyTimer = undefined;
   }
-  pendingPushChecks.splice(0, pendingPushChecks.length);
   pendingNotificationChecks.splice(0, pendingNotificationChecks.length);
 }
 
@@ -504,6 +498,21 @@ const pendingPushChecks = [];
 let pushVerifyTimer = undefined;
 let pushVerifyResume;
 
+function removePendingPushChecks(predicate) {
+  _.remove(pendingPushChecks, predicate).forEach((check) => clearTimeout(check.expiryTimer));
+  if (_.isEmpty(pendingPushChecks)) {
+    clearTimeout(pushVerifyTimer);
+    pushVerifyTimer = undefined;
+    pushVerifyResume?.();
+    pushVerifyResume = undefined;
+  }
+}
+
+function pruneExpiredStageGuessChecks() {
+  removePendingPushChecks((check) => check.stageGuessDeadline !== undefined &&
+    check.stageGuessDeadline <= Date.now());
+}
+
 function signatureForPush(push) {
   const { objectType, version, objectIdOneTwo } = push;
   // object_id_one_two is `${object_id_one}_${object_id_two}` for pair types (investment,
@@ -517,11 +526,13 @@ function signatureForPush(push) {
 }
 
 function verifyPendingPushes() {
+  pruneExpiredStageGuessChecks();
   if (_.isEmpty(pendingPushChecks)) {
     return;
   }
   return getStorageStates().then((storageStates) => {
-    _.remove(pendingPushChecks, (check) => {
+    pruneExpiredStageGuessChecks();
+    removePendingPushChecks((check) => {
       if (checkSignatureInStorage(check.marketId, check.signature, storageStates)) {
         return true;
       }
@@ -541,6 +552,10 @@ function verifyPendingPushes() {
     console.info(`Pushed object not in storage yet - retrying sync in ${delay}ms`);
     const retry = () => {
       pushVerifyTimer = undefined;
+      pruneExpiredStageGuessChecks();
+      if (_.isEmpty(pendingPushChecks)) {
+        return;
+      }
       if (isEditingPaused()) {
         pushVerifyResume = onEditingResumed(() => {
           pushVerifyResume();
@@ -568,11 +583,27 @@ function verifyPendingPushes() {
  * (object_type/market id/version/object_id_one_two per T-all-2259), refresh and then
  * verify that object landed in storage, retrying with backoff until it does.
  * @param push {objectType, marketId, version, objectIdOneTwo} - omit for pushes that
- *        do not carry a market object (e.g. notification events)
+ *        do not carry a market object (e.g. notification events). A local stage guess also
+ *        supplies stageGuessDeadline so only its own check expires with the guess.
  */
 export function refreshVersionsFromPush(push=undefined) {
+  const stageGuessDeadline = push?.stageGuessDeadline;
+  if (stageGuessDeadline !== undefined && stageGuessDeadline <= Date.now()) {
+    return Promise.resolve(false);
+  }
   if (push?.objectIdOneTwo && push?.version !== undefined && push?.marketId) {
-    pendingPushChecks.push({ marketId: push.marketId, signature: signatureForPush(push), attempts: 0 });
+    const signature = signatureForPush(push);
+    if (stageGuessDeadline !== undefined && pendingPushChecks.some((check) =>
+      check.marketId === push.marketId && check.stageGuessDeadline === stageGuessDeadline &&
+      _.isEqual(check.signature, signature))) {
+      return Promise.resolve(false);
+    }
+    const check = { marketId: push.marketId, signature, attempts: 0, stageGuessDeadline };
+    pendingPushChecks.push(check);
+    if (stageGuessDeadline !== undefined) {
+      check.expiryTimer = setTimeout(() => removePendingPushChecks((candidate) => candidate === check),
+        stageGuessDeadline - Date.now());
+    }
   }
   return refreshVersions().then((dirtyMarketCount) => {
     verifyPendingPushes();
@@ -893,6 +924,7 @@ async function doVersionRefresh(dispatchers, refreshIsCurrent) {
   pendingNotificationChecks.forEach((check) => forcedMarketIds.add(check.marketId));
   // The last audit may name an already-synced vote while a pushed resolution or stage
   // change is still missing. That exact missing signature remains evidence of dirty data.
+  pruneExpiredStageGuessChecks();
   pendingPushChecks.forEach((check) => {
     if (!checkSignatureInStorage(check.marketId, check.signature, storageStates)) {
       forcedMarketIds.add(check.marketId);

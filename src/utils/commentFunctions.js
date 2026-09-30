@@ -21,7 +21,7 @@ import {
 } from '../contexts/CommentsContext/commentsContextHelper';
 import { pushMessage } from './MessageBusUtils'
 import { LOAD_EVENT, REVERT_STAGE_GUESS_EVENT } from '../contexts/InvestibesContext/investiblesContextMessages'
-import { revertStageGuess } from '../contexts/InvestibesContext/investiblesContextReducer'
+import { scheduleStageGuessCheck } from '../contexts/InvestibesContext/investiblesContextReducer'
 import { INITIATIVE_TYPE } from '../constants/markets'
 import { createInitiative } from '../api/markets'
 import { addMarket } from '../contexts/MarketsContext/marketsContextHelper'
@@ -97,8 +97,8 @@ export function getThreadIds(parents, comments) {
 }
 
 // J-all-487: how long a timed stage guess waits for a copy of the job from the server before it is put back.
-// https://stage.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/T-all-2565
-export const STAGE_GUESS_CONFIRM_MS = 15000;
+// https://stage.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/T-all-2569
+export const STAGE_GUESS_CONFIRM_MS = 20000;
 
 export function changeInvestibleStage(newStage, assigned, updatedAt, info, market_infos, rootInvestible,
   investibleDispatch, skipConfirm) {
@@ -128,19 +128,16 @@ export function changeInvestibleStage(newStage, assigned, updatedAt, info, marke
     investible: rootInvestible,
     market_infos: newInfos
   };
-  const revert = isGuess ? revertStageGuess(rootInvestible.id, info.id, deadline) : undefined;
   if (investibleDispatch) {
     // no diff here, so no diff dispatch
     addInvestible(investibleDispatch, () => {}, newInvestible);
-    if (revert) {
-      setTimeout(() => investibleDispatch(revert), STAGE_GUESS_CONFIRM_MS);
-    }
   } else {
     pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: LOAD_EVENT, investibles: [newInvestible] });
-    if (revert) {
-      setTimeout(() => pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: REVERT_STAGE_GUESS_EVENT, revert }),
-        STAGE_GUESS_CONFIRM_MS);
-    }
+  }
+  if (isGuess) {
+    scheduleStageGuessCheck(rootInvestible.id, newInfo, investibleDispatch || ((revert) => {
+      pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: REVERT_STAGE_GUESS_EVENT, revert });
+    }));
   }
 }
 

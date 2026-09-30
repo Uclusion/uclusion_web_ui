@@ -338,7 +338,7 @@ class DemoHomeTests(unittest.TestCase):
 
     def test_the_claude_evaluator_is_launched_with_its_own_config(self):
         source = inspect.getsource(INSTALL.run_claude_demo)
-        self.assertIn('write_demo_evaluator_mcp_config(response_stats)', source)
+        self.assertIn('write_demo_evaluator_mcp_config(response_stats, evidence_dir)', source)
         self.assertIn("['claude'] + evaluator_session_args", source)
         self.assertIn('response_stats=args.response_stats',
                       inspect.getsource(INSTALL.main))

@@ -159,13 +159,13 @@ SCRIPT_FILES = (
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCLI.py':
-        'bad366b37722ef11b51b718bbe80005f6974bd7212fbdd53d150e0cf11e2bc12',
+        '363f7c80e0388fc3f535509f5705bebefb30021793c3bca2f44b312178b9c3e7',
     'uclusionMCPProxy.py':
-        '474d2a2c96aeea97689331f47107ab5aea78662be25de650b4cb5ef9d071bb53',
+        'ee16cf886c66c41c246de874480a456638a110828be4e24dff6898c721c52913',
     'uclusionSetupMCP.py':
         'f91ea798847ec8f8cb3407dfcc8eb4ab36ffbaab0c9695fb6028b56b94549d51',
     'uclusionCodexBridge.py':
-        '3b47745dfe4f76d066c9942e9f48912315b0cbb1a23f80a0b5fd31bd6590f010',
+        '43e69b88cbfa5a3186a04d53d423829babdb1b805db687b5083745cc2b486ed8',
     'uclusionTokenAudit.py':
         '371e49d36c8393048f8e500bace829c9031f59f504673bdc40b1c1af12453df8',
 }
@@ -2019,6 +2019,63 @@ def record_demo_failure(run_dir, message):
         handle.write(message + '\n')
 
 
+def snapshot_demo_evidence(run_dir, client):
+    """Keep the exact supplied Uclusion files with this run, before launch."""
+    directory = os.path.join(run_dir, 'evidence')
+    os.makedirs(directory, mode=0o700, exist_ok=True)
+    manifest = {'version': 1, 'client': client, 'files': [], 'gaps': []}
+    sources = [('inputs/evaluator-input.md', os.path.join(run_dir, 'evaluator-input.md')),
+               ('inputs/bootstrap.md', demo_bootstrap_path())]
+    skills_root = (os.path.join(uclusion_home_root(), '.agents', 'skills')
+                   if client == 'codex' else os.path.join(demo_plugin_path(), 'skills'))
+    for package in ('uclusion', DESIGN_SKILL_NAME):
+        for _key, relative in _skill_package_definition(package)[0]:
+            sources.append((os.path.join('inputs', 'skills', package, relative),
+                            os.path.join(skills_root, package, relative)))
+    script_root = os.path.dirname(os.path.realpath(__file__))
+    for source, installed, link in SCRIPT_FILES:
+        candidates = [os.path.join(script_root, name) for name in (installed, source, link)]
+        path = next((candidate for candidate in candidates if os.path.isfile(candidate)), candidates[0])
+        sources.append((os.path.join('source', source), path))
+    for name, source in sources:
+        try:
+            with open(source, 'rb') as handle:
+                content = handle.read()
+            destination = os.path.join(directory, name)
+            os.makedirs(os.path.dirname(destination), mode=0o700, exist_ok=True)
+            with open(destination, 'wb') as handle:
+                handle.write(content)
+            manifest['files'].append({
+                'path': name, 'source': source,
+                'sha256': hashlib.sha256(content).hexdigest(),
+            })
+        except OSError as error:
+            manifest['gaps'].append(f'{name}: {type(error).__name__}')
+    with open(os.path.join(directory, 'manifest.json'), 'w', encoding='utf-8') as handle:
+        json.dump(manifest, handle, indent=2)
+    with open(os.path.join(directory, 'README.md'), 'w', encoding='utf-8') as handle:
+        handle.write(
+            '# Evaluator disclosure\n\n'
+            'Inspect manifest.json for supplied input files, recorder source and missing-file gaps. '
+            'inputs/ snapshots the Uclusion startup prompt, bootstrap and installed workflow files; '
+            'it does not assert every workflow file was read. source/ contains the installed Uclusion scripts.\n\n'
+            'events-*.jsonl contains evaluator-only records with time_ns, kind and payload. '
+            'mcp_request and mcp_response payloads are the JSON-RPC text received by or emitted from '
+            'the proxy; parse that text to inspect tools/list definitions and tool calls/results. '
+            'poke_delivered records CLI output or Codex admission, with message and delivery identity. '
+            'Reconciled Codex deliveries may repeat an identity; they are not additional instructions.\n\n'
+            'A capture-failed file or manifest gaps means disclosure is incomplete. Missing MCP '
+            'responses or malformed/truncated event records also mean incomplete capture. '
+            'Files may still be growing until the demo supervisor finishes.\n\n'
+            'Coverage is Uclusion-supplied evaluator inputs, not a provider request transcript. '
+            'Provider instructions, inherited non-Uclusion client settings, native tool implementations '
+            'and arbitrary native tool output are not captured. The owner is excluded. '
+            'HTTP authentication headers and credential files are not part of this evidence. '
+            'Evidence stays in this demo run and is removed with the demo.\n'
+        )
+    return directory
+
+
 # S-Marketing-88: the owner's records show as the human's, so an evaluator
 # that is not told otherwise credits replies written in advance to a person.
 DEMO_SCRIPTED_OWNER = (
@@ -2169,6 +2226,9 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
                          ('evaluator-input.md', evaluator_prompt)):
         with open(os.path.join(run_dir, name), 'w', encoding='utf-8') as handle:
             handle.write(prompt)
+    evaluator_environment = dict(environment)
+    evaluator_environment['UCLUSION_DEMO_EVIDENCE_DIR'] = snapshot_demo_evidence(run_dir, 'codex')
+    environment.pop('UCLUSION_DEMO_EVIDENCE_DIR', None)
     owner = terminal = None
     print(f'📁 Demo session records: {run_dir}', flush=True)
     try:
@@ -2191,7 +2251,7 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
                 print('🧠 Starting the evaluating agent.', flush=True)
                 terminal = DemoCodexTerminal(
                     [*evaluator_command, 'codex', '--', *session_args, evaluator_prompt],
-                    environment, evaluator_log,
+                    evaluator_environment, evaluator_log,
                 )
                 while True:
                     if os.path.isfile(report_path):
@@ -2199,6 +2259,8 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
                             answer = handle.read()
                         if not answer.decode('utf-8').strip():
                             raise RuntimeError('the published evaluation is empty')
+                        from uclusionMCPProxy import demo_evidence_summary
+                        print(demo_evidence_summary(run_dir), end='', flush=True)
                         sys.stdout.flush()
                         sys.stdout.buffer.write(answer)
                         sys.stdout.buffer.flush()
@@ -2253,13 +2315,12 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_di
     # be new processes.
     choice_args = demo_choice_args('claude', model, effort)
     session_args = demo_session_args(env) + choice_args
-    evaluator_session_args = demo_session_args(
-        env, write_demo_evaluator_mcp_config(response_stats),
-    ) + choice_args
     # Only the evaluator is given the report destination; the owner has
     # nothing to publish.
     evaluator_environment = dict(os.environ)
     evaluator_environment['UCLUSION_DEMO_REPORT_FILE'] = report_path
+    owner_environment = dict(os.environ)
+    owner_environment.pop('UCLUSION_DEMO_EVIDENCE_DIR', None)
     # The owner has no other way to learn where its directions are: the
     # installer's output is addressed to the agent that ran it and the owner
     # never sees it. S-Marketing-74: its bootstrap says to arm Poke delivery,
@@ -2302,6 +2363,11 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_di
                          ('evaluator-input.md', evaluator_prompt)):
         with open(os.path.join(run_dir, name), 'w', encoding='utf-8') as handle:
             handle.write(prompt)
+    evidence_dir = snapshot_demo_evidence(run_dir, 'claude')
+    evaluator_environment['UCLUSION_DEMO_EVIDENCE_DIR'] = evidence_dir
+    evaluator_session_args = demo_session_args(
+        env, write_demo_evaluator_mcp_config(response_stats, evidence_dir),
+    ) + choice_args
     # Kept rather than discarded: when a session fails, its log is the only
     # evidence of why, and removal takes it with the home.
     owner_log_path = os.path.join(run_dir, 'owner.log')
@@ -2321,6 +2387,7 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_di
                     ['claude'] + session_args, cwd=uclusion_home_root(),
                     stdin=subprocess.PIPE, stdout=owner_log,
                     stderr=subprocess.STDOUT, text=True, start_new_session=True,
+                    env=owner_environment,
                 )
                 owner.stdin.write(owner_prompt)
                 owner.stdin.close()
@@ -2380,7 +2447,8 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_di
         record_demo_failure(run_dir, message)
         print(f'❌ {message}', flush=True)
         return 1
-    print(flush=True)
+    from uclusionMCPProxy import demo_evidence_summary
+    print(demo_evidence_summary(run_dir), end='', flush=True)
     sys.stdout.flush()
     sys.stdout.buffer.write(answer)
     sys.stdout.buffer.flush()
@@ -2401,16 +2469,16 @@ def demo_evaluator_mcp_config_path():
     return os.path.join(UCLUSION_HOME, 'mcp-evaluator.json')
 
 
-def write_demo_evaluator_mcp_config(response_stats):
-    """The evaluator's MCP config when it records response sizes, else None.
+def write_demo_evaluator_mcp_config(response_stats, evidence_dir=None):
+    """The evaluator's MCP config when recording sizes or disclosure, else None.
 
     Copied from the demo's shared config and differing only by the flag, so
     the owner records nothing and the evaluator is otherwise identical. The
-    home is reused across runs, so a run that asks for no statistics removes
+    home is reused across runs, so a run that asks for neither removes
     an earlier run's copy rather than recording into its old path.
     """
     path = demo_evaluator_mcp_config_path()
-    if not response_stats:
+    if not response_stats and not evidence_dir:
         try:
             os.remove(path)
         except FileNotFoundError:
@@ -2419,7 +2487,11 @@ def write_demo_evaluator_mcp_config(response_stats):
     with open(demo_mcp_config_path(), encoding='utf-8') as handle:
         config = json.load(handle)
     server = config['mcpServers'][MCP_SERVER_KEY]
-    server['args'] = list(server['args']) + ['--response-stats', response_stats]
+    server['args'] = list(server['args'])
+    if response_stats:
+        server['args'].extend(['--response-stats', response_stats])
+    if evidence_dir:
+        server['args'].extend(['--demo-evidence', evidence_dir])
     with open(path, 'w', encoding='utf-8') as handle:
         handle.write(json.dumps(config, indent=2) + '\n')
     return path

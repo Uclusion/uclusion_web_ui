@@ -1416,9 +1416,12 @@ class DeliveryTests(BridgeTestCase):
         self.bind()
         sequence = self.add_poke("message-1", "Start J-all-369")
         app_server = FakeAppServer(status="active")
-        result = bridge.BridgeEngine(
-            self.store, app_server, self.config
-        ).step()
+        with mock.patch.object(bridge, 'record_demo_input') as capture:
+            result = bridge.BridgeEngine(self.store, app_server, self.config).step()
+        capture.assert_called_once_with('poke_delivered', {
+            'message': 'Start J-all-369', 'message_id': 'message-1',
+            'thread_id': 'thread-root', 'turn_id': 'turn-active', 'reconciled': False,
+        })
 
         self.assertEqual("steered", result.action)
         self.assertEqual("turn-active", result.turn_id)
@@ -1856,9 +1859,9 @@ class DeliveryTests(BridgeTestCase):
             bridge.AppServerRequestError("thread became busy", -32001)
         )
 
-        result = bridge.BridgeEngine(
-            self.store, app_server, self.config
-        ).step()
+        with mock.patch.object(bridge, 'record_demo_input') as capture:
+            result = bridge.BridgeEngine(self.store, app_server, self.config).step()
+        capture.assert_not_called()
 
         self.assertEqual("rejected", result.action)
         self.assertEqual(0, self.store.consumer_cursor(self.config))
@@ -1906,7 +1909,10 @@ class DeliveryTests(BridgeTestCase):
             }
         ]
         self.advance_retry_floor()
-        second = engine.step()
+        with mock.patch.object(bridge, 'record_demo_input') as capture:
+            second = engine.step()
+        self.assertEqual('Start J-all-369', capture.call_args.args[1]['message'])
+        self.assertTrue(capture.call_args.args[1]['reconciled'])
 
         self.assertEqual("reconciled", second.action)
         self.assertEqual("accepted-before-reset", second.turn_id)

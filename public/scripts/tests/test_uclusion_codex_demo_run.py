@@ -37,6 +37,7 @@ class CodexDemoRunTests(unittest.TestCase):
 
         def start_terminal(command, environment, _log):
             self.commands.append(command)
+            self.evaluator_environment = environment
             self.report = Path(environment['UCLUSION_DEMO_REPORT_FILE'])
             return self.terminal
 
@@ -75,6 +76,11 @@ class CodexDemoRunTests(unittest.TestCase):
                 evaluator = CLI.parse_args(self.commands[-1][1:])
                 self.assertEqual(evaluator.response_stats, stats)
                 self.assertNotIn('--response-stats', evaluator.codex_args)
+                self.assertEqual(str(self.report.parent / 'evidence'),
+                                 self.evaluator_environment['UCLUSION_DEMO_EVIDENCE_DIR'])
+                owner_call = next(call for call in reversed(INSTALL.subprocess.Popen.call_args_list)
+                                  if call.args[0][:2] == ['codex', 'exec'])
+                self.assertNotIn('UCLUSION_DEMO_EVIDENCE_DIR', owner_call.kwargs['env'])
 
     def test_publication_preserves_bytes_and_stops_both_live_sessions(self):
         report = b'  Evaluation\r\nUnicode: \xe2\x9c\x93\n\n'

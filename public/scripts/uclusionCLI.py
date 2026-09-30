@@ -26,6 +26,7 @@ import uuid
 from contextlib import closing, contextmanager, redirect_stdout
 from itertools import batched
 from datetime import datetime
+from uclusionMCPProxy import DEMO_EVIDENCE_ENV, demo_evidence_summary, record_demo_input
 
 
 # Define the names of the configuration file and the target file
@@ -1932,6 +1933,8 @@ def build_codex_mcp_overrides(
         proxy_args.append('--work-claims')
     if response_stats is not None:
         proxy_args.extend(['--response-stats', response_stats])
+    if os.environ.get(DEMO_EVIDENCE_ENV):
+        proxy_args.extend(['--demo-evidence', os.environ[DEMO_EVIDENCE_ENV]])
     if token_audit is not None:
         if not token_audit_ready_file or not token_audit_owner:
             raise ValueError(
@@ -2607,6 +2610,7 @@ def cmd_wait(args):
         if prompt is not None:
             while prompt is not None:
                 print(prompt, flush=True)
+                record_demo_input('poke_delivered', {'message': prompt, 'consumer': consumer})
                 if is_orphaned(initial_ppid):
                     return 0
                 prompt = next_prompt(environment, workspace_id, consumer)
@@ -2936,6 +2940,7 @@ def cmd_demo_result(args):
             header = demo_run_choice_header(run_dir)
             if header:
                 print(header, flush=True)
+            print(demo_evidence_summary(run_dir), flush=True)
             with open(report, 'rb') as handle:
                 sys.stdout.flush()
                 sys.stdout.buffer.write(handle.read())
@@ -3182,6 +3187,7 @@ def cmd_listen(args):
         prompt = next_prompt(environment, workspace_id, consumer)
         if prompt is not None:
             print(prompt, flush=True)
+            record_demo_input('poke_delivered', {'message': prompt, 'consumer': consumer})
             continue
         if time.monotonic() >= next_update_check:
             next_update_check = time.monotonic() + UPDATE_CHECK_INTERVAL

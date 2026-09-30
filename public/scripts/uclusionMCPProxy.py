@@ -34,6 +34,83 @@ TOKEN_AUDIT_TOOLS = frozenset({
     'start_job_audit', 'set_job_audit_phase', 'end_job_audit'
 })
 WORK_CLAIM_TOOL_NAME = 'claim_work'
+DEMO_EVIDENCE_ENV = 'UCLUSION_DEMO_EVIDENCE_DIR'
+_DEMO_CAPTURE_FILE = f'events-{os.getpid()}-{uuid4().hex}.jsonl'
+_DEMO_CAPTURE_LOCK = threading.Lock()
+
+
+def record_demo_input(kind, payload):
+    """Record only an explicitly enabled evaluator's local input boundary.
+
+    Each process has its own stream, so MCP restarts and Poke delivery cannot
+    interleave JSON records. Never include HTTP headers or credential files.
+    A failed capture marks the run incomplete without breaking its exercise.
+    """
+    directory = os.environ.get(DEMO_EVIDENCE_ENV)
+    if not directory:
+        return
+    try:
+        row = json.dumps({'time_ns': time.time_ns(), 'kind': kind, 'payload': payload}) + '\n'
+        with _DEMO_CAPTURE_LOCK:
+            descriptor = os.open(
+                os.path.join(directory, _DEMO_CAPTURE_FILE),
+                os.O_WRONLY | os.O_APPEND | os.O_CREAT | getattr(os, 'O_NOFOLLOW', 0), 0o600,
+            )
+            with os.fdopen(descriptor, 'a', encoding='utf-8') as handle:
+                handle.write(row)
+                handle.flush()
+    except (OSError, ValueError, TypeError) as error:
+        message = f'Evaluator disclosure is incomplete: {kind} capture failed ({type(error).__name__}).'
+        sys.stderr.write(message + '\n')
+        try:
+            with open(os.path.join(directory, 'capture-failed'), 'a', encoding='utf-8') as handle:
+                handle.write(message + '\n')
+        except OSError:
+            pass
+
+
+def demo_evidence_summary(run_dir):
+    """Describe available evidence, never infer complete capture from a report."""
+    directory = os.path.join(run_dir, 'evidence')
+    try:
+        with open(os.path.join(directory, 'manifest.json'), encoding='utf-8') as handle:
+            manifest = json.load(handle)
+        gaps = list(manifest['gaps'])
+        if os.path.exists(os.path.join(directory, 'capture-failed')):
+            gaps.append('a recorder reported a capture failure')
+        saw_response = False
+        for name in os.listdir(directory):
+            if name.startswith('events-') and name.endswith('.jsonl'):
+                pending = set()
+                with open(os.path.join(directory, name), encoding='utf-8') as handle:
+                    for line in handle:
+                        row = json.loads(line)
+                        kind, payload = row['kind'], row['payload']
+                        if kind in ('mcp_request', 'mcp_response'):
+                            message = json.loads(payload)
+                            if not isinstance(message, dict) or message.get('jsonrpc') != '2.0':
+                                raise ValueError('invalid recorded JSON-RPC message')
+                            if 'method' in message:
+                                if kind == 'mcp_request' and 'id' in message:
+                                    pending.add(json.dumps(message['id']))
+                            elif kind == 'mcp_response' and 'id' in message and (
+                                    'result' in message or 'error' in message):
+                                saw_response = True
+                                pending.discard(json.dumps(message['id']))
+                            else:
+                                raise ValueError('invalid recorded JSON-RPC message')
+                        elif not isinstance(payload, dict):
+                            raise ValueError('invalid recorded delivery payload')
+                if pending:
+                    gaps.append(f'{name}: requests without recorded responses')
+        if not saw_response:
+            gaps.append('no evaluator MCP responses recorded')
+    except (OSError, ValueError, KeyError, TypeError):
+        gaps = ['evidence manifest or event stream is missing or unreadable']
+    status = ('INCOMPLETE: ' + '; '.join(gaps)) if gaps else 'recorded Uclusion inputs; see coverage limits'
+    return f'Evaluator disclosure ({status}): {os.path.join(directory, "README.md")}\n'
+
+
 WORK_CLAIM_TOOL = {
     'name': WORK_CLAIM_TOOL_NAME,
     'description': (
@@ -96,6 +173,7 @@ def parse_args(argv=None):
         'environment', nargs='?', choices=('dev', 'stage', 'production')
     )
     parser.add_argument('--work-claims', action='store_true')
+    parser.add_argument('--demo-evidence', metavar='DIRECTORY')
     parser.add_argument(
         '--response-stats', metavar='PATH',
         help='Append content-free response byte measurements to a private JSONL file.',
@@ -117,6 +195,8 @@ def parse_args(argv=None):
              'process starts resolves the same way.',
     )
     args = parser.parse_args(argv)
+    if args.demo_evidence:
+        os.environ[DEMO_EVIDENCE_ENV] = args.demo_evidence
     if args.home:
         os.environ['UCLUSION_HOME'] = args.home
     if args.token_audit:
@@ -876,6 +956,7 @@ def write_message(obj, stats=None):
     else:
         sys.stdout.write(line)
     sys.stdout.flush()
+    record_demo_input('mcp_response', line)
     if stats is not None:
         stats.record(obj, emitted)
 
@@ -1268,6 +1349,7 @@ def main():
     token_audit_runtime = None
     work_claims = None
     response_stats = ResponseStats(args.response_stats)
+    record_demo_input('mcp_session_start', {})
     try:
         # Retention is scoped local maintenance and does not depend on login
         # succeeding. This remains active after an explicit audit opt-out.
@@ -1351,6 +1433,7 @@ def main():
                 continue
 
             is_notification = 'id' not in msg
+            record_demo_input('mcp_request', line)
             request_id = msg.get('id')
             response_stats.set_request(msg)
 

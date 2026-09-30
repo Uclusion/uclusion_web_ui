@@ -84,7 +84,9 @@ class DetachedDemoTests(unittest.TestCase):
             self.assertEqual(0, args.func(args))
         output.flush()
         self.assertEqual(1, len(waits), 'It should wait until the report is published')
-        self.assertEqual(report, output.buffer.getvalue())
+        header = cli.demo_evidence_summary(str(run_dir)).encode('utf-8')
+        self.assertIn(b'INCOMPLETE', header)
+        self.assertEqual(header + b'\n' + report, output.buffer.getvalue())
 
 
 if __name__ == '__main__':

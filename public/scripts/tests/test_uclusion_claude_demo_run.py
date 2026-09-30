@@ -41,7 +41,7 @@ class ClaudeDemoRunTests(unittest.TestCase):
             mock.patch.object(INSTALL, 'demo_session_args',
                               side_effect=lambda _env, config=None: ['--mcp-config', config or 'shared']),
             mock.patch.object(INSTALL, 'write_demo_evaluator_mcp_config',
-                              side_effect=lambda stats: stats and 'evaluator.json'),
+                              return_value='evaluator.json'),
             mock.patch.object(INSTALL.subprocess, 'Popen', side_effect=launch),
             mock.patch.object(INSTALL, 'wait_for_owner_watch', return_value=True),
             mock.patch.object(INSTALL, 'stop_demo_session'),
@@ -82,7 +82,9 @@ class ClaudeDemoRunTests(unittest.TestCase):
         self.evaluator_turn = lambda: self.report_path().write_text('Report')
         self.assertEqual(self.run_demo(), 0)
         (owner_command, owner_kwargs), (evaluator_command, evaluator_kwargs) = self.launches
-        self.assertNotIn('env', owner_kwargs)
+        self.assertNotIn('UCLUSION_DEMO_EVIDENCE_DIR', owner_kwargs['env'])
+        self.assertEqual(str(self.report_path().parent / 'evidence'),
+                         evaluator_kwargs['env']['UCLUSION_DEMO_EVIDENCE_DIR'])
         report = self.report_path()
         self.assertEqual('evaluation.md', report.name)
         self.assertEqual(self.home / '.uclusion' / 'demo-runs', report.parent.parent)

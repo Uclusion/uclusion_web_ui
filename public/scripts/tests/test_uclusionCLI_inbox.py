@@ -219,7 +219,10 @@ class WaitCommandCutoffTests(InboxTestCase):
 
     def test_wait_without_flag_delivers_backlog(self):
         self.enqueue('Start T-all-1', 'm1')
-        result, output = self.run_wait(ignore_existing_pokes=False)
+        with mock.patch.object(cli, 'record_demo_input') as capture:
+            result, output = self.run_wait(ignore_existing_pokes=False)
+        capture.assert_called_once_with('poke_delivered',
+                                        {'message': 'Start T-all-1', 'consumer': 'default'})
         self.assertEqual(result, 0)
         self.assertEqual(output, 'Start T-all-1\n')
 

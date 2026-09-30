@@ -43,6 +43,7 @@ import sys
 import threading
 import time
 from contextlib import closing, contextmanager
+from uclusionMCPProxy import record_demo_input
 from typing import (
     Any,
     Callable,
@@ -4229,6 +4230,11 @@ class BridgeEngine:
             )
         ):
             return StepResult("orphaned", sequence=delivery.sequence)
+        record_demo_input('poke_delivered', {
+            'message': delivery.message, 'message_id': delivery.message_id,
+            'thread_id': delivery.thread_id, 'turn_id': turn_id,
+            'reconciled': True,
+        })
         return StepResult(
             "reconciled",
             sequence=delivery.sequence,
@@ -4926,6 +4932,11 @@ class BridgeEngine:
         # Both RPCs enqueue the submission before returning. Their validated
         # response is the admission acknowledgement; exact user-message
         # correlation is reserved for ambiguous recovery.
+        record_demo_input('poke_delivered', {
+            'message': delivery.message, 'message_id': delivery.message_id,
+            'thread_id': target_thread_id, 'turn_id': turn_id,
+            'reconciled': False,
+        })
         self.store.record_sending_response(
             self.config,
             delivery.sequence,

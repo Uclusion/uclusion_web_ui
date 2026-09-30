@@ -207,6 +207,15 @@ The first word is contractual:
   reply: read it and handle it as `operations.md`'s completion package says.
   It creates no assistance and does not itself change stage or resolution.
 
+Job description changes use `Updated <job-code> description change`. Apply the
+assignment gate first. For the assigned job, fetch the current description with
+`get_job({short_code_id: "<job-code>", sections: ["description"]})`; this retains
+job context without loading comment threads. Use the returned description
+before further work that depends on it. This event does not assign a job or
+authorize a stage change. Other generic job updates can use scoped reads;
+include `description` when its freshness is uncertain, including an ambiguous
+update from an older producer. Do not load the whole job just to refresh it.
+
 Job stage changes use `Updated <job-code> stage is now <stage-name>`, including
 the complete stage name when it contains spaces. Async sends this after the
 stored stage field changes; it reports that transition, even if another change
@@ -254,8 +263,8 @@ new package.
 A legacy bare `Responded.` has no target. Reload only the outstanding
 dependency of the assigned lane. With no assignment, ignore it.
 
-Apply the assignment gate before lookup. Apart from the stage-bearing updates
-handled above, accepted direct targets are globally resolvable: call `get_job`
+Apply the assignment gate before lookup. Apart from the description-change and
+stage-bearing updates handled above, accepted direct targets are globally resolvable: call `get_job`
 with their exact short code. Compound targets have the form
 `<verb> <local-code> of <parent-code>`; call `get_job` with the parent after
 `of`, then locate the local item. The first load of a parent not yet read or
@@ -279,7 +288,7 @@ selected target's authoritative contract; perform its reload and review cleanup
 before continuing. Soft-deleted direct items reload as the enclosing job with
 the item absent.
 
-Use `sections` (`tasks`, `assistance`, `reports`, `notes`, `resolved`) or
+Use `sections` (`description`, `tasks`, `assistance`, `reports`, `notes`, `resolved`) or
 `thread_only` for reloads of a job already held. Follow
 [reading.md](reading.md) for capsule and standing-note references, explicit
 body fetches and refresh after compaction. Direct lookup already retries five

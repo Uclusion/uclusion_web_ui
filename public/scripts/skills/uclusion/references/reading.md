@@ -7,8 +7,19 @@ unassigned or unrelated work.
 Call `get_job` with the selected short code. A first job read supplies its name,
 description, tasks, assistance and reports. For subsequent reads, use `sections`
 or `thread_only` to request what changed. Scoped job reads retain the job header,
-description, stage and votes; job-child thread reads retain the job and current
-stage. An `Updated` event that names a stage supplies the stored transition
+stage and votes; job-child thread reads retain the job and current stage.
+Explicit `sections` reads omit the description unless `description` is selected.
+Use `get_job({short_code_id: "J-…", sections: ["description"]})` to read the
+current description with compact job context and no comment-thread bodies.
+Combine `description` with other sections when both are needed; `sections: []`
+omits the description and comment sections. An unscoped read retains the description.
+After context restoration, fetch the description through this narrow read if
+its complete body is missing before relying on it; a summary is not its body.
+
+An `Updated J-… description change` Poke requires this description refresh for
+the assigned job. For a generic job update, request only the needed sections,
+including `description` when its freshness is uncertain. An `Updated` event
+that names a stage supplies the stored transition
 described in `pokes.md`; it does not replace newer stage information already
 held. Do not reread merely to confirm that transition. Still load missing
 context required for the next action and resolve any known assistance before

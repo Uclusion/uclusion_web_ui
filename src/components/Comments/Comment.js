@@ -16,6 +16,7 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import _ from 'lodash';
+import { displayedReplies } from '../../containers/CommentBox/commentOrder';
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
 import {
   ISSUE_TYPE,
@@ -552,14 +553,6 @@ function findParentInDescendants(useComment, inboxMessageId, comments) {
   return found ? notifiedParent : undefined;
 }
 
-function sortInProgress(aComment) {
-  return !aComment.in_progress;
-}
-
-function sortSubTask(parentCreatedBy) {
-  return (aComment) => aComment.created_by !== parentCreatedBy;
-}
-
 function isSubTask(comment, commentsState, isPlanning) {
   if (!isPlanning || comment.comment_type !== REPLY_TYPE) {
     return false;
@@ -628,10 +621,7 @@ function Comment(props) {
   const myPresenceIsAssigned = assigned.includes(myPresence.id);
   const myInlinePresence = inlinePresences.find((presence) => presence.current_user) || {};
   const inArchives = !activeMarket;
-  const replies = comments.filter(comment => comment.reply_id === id);
-  const sortedReplies = commentType === TODO_TYPE && investibleId
-    ? _.sortBy(replies, sortInProgress, sortSubTask(comment.created_by), "created_at")
-    : _.sortBy(replies, "created_at");
+  const sortedReplies = displayedReplies(comment, comments);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
@@ -665,7 +655,7 @@ function Comment(props) {
   const thisIsMyNote = createdBy === myPresence && isNote;
   // A note that has a reply is always shown to the AI (the back end already includes such notes in the
   // MD), so lock its "Show AI" checkbox on - see T-all-2242.
-  const noteHasReply = isNote && !_.isEmpty(replies);
+  const noteHasReply = isNote && !_.isEmpty(sortedReplies);
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
@@ -870,7 +860,7 @@ function Comment(props) {
             (commentType === REPORT_TYPE && compressAll ? <FormattedMessage id="reportPresent" /> : undefined))))));
   const color = isMarketTodo ? myNotificationType : undefined;
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
-  const showActions = (!replyBeingEdited || replies.length > 0) && !removeActions;
+  const showActions = (!replyBeingEdited || sortedReplies.length > 0) && !removeActions;
   const showHighlight = noHighlightId !== id && hashFragment?.includes(id);
   function getCommentHighlightStyle() {
     if (isInbox) {

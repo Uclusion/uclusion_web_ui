@@ -56,7 +56,7 @@ jest.mock('@material-ui/core', () => ({
   useMediaQuery: () => false,
 }));
 
-function renderDecision(notification, hashFragment) {
+function renderDecision(notification, hashFragment, searchMatch) {
   const noOp = jest.fn();
   const inlineMarketId = 'inline-option-market';
   const planningMarketId = 'parent-planning-market';
@@ -78,7 +78,7 @@ function renderDecision(notification, hashFragment) {
         created_by: 'Created by',
         decisionInvestibleOthersVoting: 'Approvals',
       }}>
-        <MemoryRouter initialEntries={[{ pathname: '/market/inline-option-market', state: { notification } }]}>
+        <MemoryRouter initialEntries={[{ pathname: '/market/inline-option-market', state: { notification, searchMatch } }]}>
           <InvestiblesContext.Provider value={[{}, noOp]}>
             <CommentsContext.Provider value={[{ [planningMarketId]: [parentComment] }, noOp]}>
               <DiffContext.Provider value={[{}, noOp]}>
@@ -112,7 +112,7 @@ function renderDecision(notification, hashFragment) {
                           comment_type: REPLY_TYPE,
                           created_by: 'ai-user',
                           reply_id: 'vote-reason',
-                        }, ...(notification ? [{ id: 'vote-reason', comment_type: JUSTIFY_TYPE }] : [])]}
+                        }, ...((notification || searchMatch) ? [{ id: 'vote-reason', comment_type: JUSTIFY_TYPE }] : [])]}
                         userId="human-user"
                         removeActions
                       />
@@ -157,24 +157,29 @@ describe('DecisionInvestible option Poke AI routing', () => {
     const previousActEnvironment = window.IS_REACT_ACT_ENVIRONMENT;
     window.IS_REACT_ACT_ENVIRONMENT = true;
     const container = document.createElement('div');
-    const root = createRoot(container);
     const notification = { id: 'UNREAD_REPLY_option-reply', entryId: 'entry-1',
       marketId: 'inline-option-market', commentId: 'vote-reason' };
-    try {
-      act(() => root.render(renderDecision(notification, 'optionoption-id')));
-      const highlighted = container.querySelector('#optionoption-id');
-      expect(highlighted.style.backgroundColor).toBe('rgb(251, 246, 216)');
-      expect(highlighted.style.paddingLeft).toBe('20px');
-      expect(highlighted.style.marginLeft).toBe('0.5rem');
-      expect(mockUpdatePageState).toHaveBeenCalledWith({ useCompression: false });
-      mockUpdatePageState.mockClear();
-      // Rerenders and a later user collapse must not reapply the same notification entry.
-      act(() => root.render(renderDecision(notification)));
-      expect(container.querySelector('#optionoption-id').style.backgroundColor).toBe('');
-      expect(mockUpdatePageState).not.toHaveBeenCalled();
-    } finally {
-      act(() => root.unmount());
-      window.IS_REACT_ACT_ENVIRONMENT = previousActEnvironment;
+    const searchMatch = { marketId: 'inline-option-market', commentId: 'vote-reason' };
+    for (const isSearch of [false, true]) {
+      const root = createRoot(container);
+      try {
+        act(() => root.render(renderDecision(isSearch ? undefined : notification,
+          'optionoption-id', isSearch ? searchMatch : undefined)));
+        const highlighted = container.querySelector('#optionoption-id');
+        expect(highlighted.style.backgroundColor).toBe('rgb(251, 246, 216)');
+        expect(highlighted.style.paddingLeft).toBe('20px');
+        expect(highlighted.style.marginLeft).toBe('0.5rem');
+        expect(mockUpdatePageState).toHaveBeenCalledWith({ useCompression: false });
+        mockUpdatePageState.mockClear();
+        // Rerenders and a later user collapse must not reapply the same navigation entry.
+        act(() => root.render(renderDecision(isSearch ? undefined : notification,
+          undefined, isSearch ? searchMatch : undefined)));
+        expect(container.querySelector('#optionoption-id').style.backgroundColor).toBe('');
+        expect(mockUpdatePageState).not.toHaveBeenCalled();
+      } finally {
+        act(() => root.unmount());
+      }
     }
+    window.IS_REACT_ACT_ENVIRONMENT = previousActEnvironment;
   });
 });

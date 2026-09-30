@@ -45,10 +45,10 @@ function DiscussionSection(props) {
   const intl = useIntl();
   const location = useLocation();
   const { hash } = location;
-  const notification = location.state?.notification;
-  const notificationParent = [...comments, ...resolvedComments].find((comment) =>
-    (notification?.marketId === marketId && comment.id === notification.commentId) ||
-    (comment.inline_market_id && comment.inline_market_id === notification?.marketId));
+  const targetContext = location.state?.searchMatch || location.state?.notification;
+  const targetParent = [...comments, ...resolvedComments].find((comment) =>
+    (targetContext?.marketId === marketId && comment.id === targetContext.commentId) ||
+    (comment.inline_market_id && comment.inline_market_id === targetContext?.marketId));
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const wizardClasses = wizardStyles();
@@ -71,11 +71,11 @@ function DiscussionSection(props) {
 
   useEffect(() => {
     if (hash && !hidden) {
-      if (notificationParent) {
-        const targetTab = resolvedComments.some((comment) => comment.id === notificationParent.id) ? 1 : 0;
+      if (targetParent) {
+        const targetTab = resolvedComments.some((comment) => comment.id === targetParent.id) ? 1 : 0;
         if (tabIndex !== targetTab) sectionDispatch(setTab(targetTab));
-        if (tabIndex !== targetTab || pinned !== notificationParent.id || !expansionState[notificationParent.id]) {
-          sectionDispatch(pin(notificationParent.id));
+        if (tabIndex !== targetTab || pinned !== targetParent.id || !expansionState[targetParent.id]) {
+          sectionDispatch(pin(targetParent.id));
         }
         return;
       }
@@ -102,7 +102,7 @@ function DiscussionSection(props) {
       }
     }
     return () => {};
-  }, [comments, resolvedComments, hash, notification, notificationParent,
+  }, [comments, resolvedComments, hash, targetContext, targetParent,
     tabIndex, hidden, pinned, expansionState]);
 
   const sortedRoots = getSortedRoots(comments, searchResults);
@@ -115,7 +115,7 @@ function DiscussionSection(props) {
   ) : [];
   const searchUnifiedItems = isSearchActive
     ? _.orderBy(_.uniqBy([...questionSuggestionNotesComments, ...searchResolvedRoots,
-      ...(notificationParent ? [notificationParent] : [])], 'id'), ['updated_at'], ['desc'])
+      ...(targetParent ? [targetParent] : [])], 'id'), ['updated_at'], ['desc'])
     : [];
   const page = getRealPage(isSearchActive ? searchUnifiedItems : resolvedRoots, pinned, originalPage, PAGE_SIZE);
   const searchPaginated = getPaginatedItems(searchUnifiedItems, page, PAGE_SIZE);

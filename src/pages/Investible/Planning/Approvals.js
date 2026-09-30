@@ -37,14 +37,15 @@ function Approvals(props) {
     yourPresence
   } = props;
   const history = useHistory();
-  const notification = useLocation().state?.notification;
+  const location = useLocation();
+  const target = location.state?.searchMatch || location.state?.notification;
   const [marketsState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [messagesState] = useContext(NotificationsContext);
   const approvalVoters = calculateInvestibleVoters(investibleId, marketId, marketsState,
     investiblesState, marketPresences, false);
-  const opensNotifiedReply = !hidden && hash?.startsWith('#c') && notification?.marketId === marketId &&
-    investmentReasons?.some((reason) => reason.id === notification.commentId);
+  const opensNotifiedReply = !hidden && hash?.startsWith('#c') && target?.marketId === marketId &&
+    investmentReasons?.some((reason) => reason.id === target.commentId);
   const opensFromHash = !hidden && (hash?.startsWith('#cv') || hash?.startsWith('#approve') || opensNotifiedReply);
   const [approvalsOpen, setApprovalsOpen] = useState(
     isInVoting || !_.isEmpty(approvalVoters) || opensFromHash

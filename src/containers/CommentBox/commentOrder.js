@@ -3,6 +3,15 @@ import { sortRootsByCreatedAt } from '../../utils/commentFunctions';
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { TODO_TYPE } from '../../constants/comments';
+
+export function displayedReplies(comment, comments) {
+  const replies = comments.filter((reply) => reply.reply_id === comment.id);
+  return comment.comment_type === TODO_TYPE && comment.investible_id
+    ? _.sortBy(replies, (reply) => !reply.in_progress,
+      (reply) => reply.created_by !== comment.created_by, 'created_at')
+    : _.sortBy(replies, 'created_at');
+}
 
 function findGreatestUpdatedAt(roots, comments, rootUpdatedAt) {
   let myRootUpdatedAt = rootUpdatedAt;

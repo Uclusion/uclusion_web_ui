@@ -239,15 +239,16 @@ function DecisionInvestible(props) {
   const [votingPageState, updateVotingPageState] =
     getPageReducerPage(votingPageStateFull, votingPageDispatch, investibleId, {useCompression: true});
   const { useCompression } = votingPageState;
-  const notification = location.state?.notification;
-  const expandedNotification = useRef();
+  const target = location.state?.notification || location.state?.searchMatch;
+  const navigationEntry = location.state?.notification?.entryId || location.state?.searchMatch;
+  const expandedEntry = useRef();
   useEffect(() => {
-    if (notification?.entryId && notification.entryId !== expandedNotification.current &&
-      notification.marketId === marketId && investmentReasons.some((reason) => reason.id === notification.commentId)) {
-      expandedNotification.current = notification.entryId;
+    if (navigationEntry && navigationEntry !== expandedEntry.current &&
+      target.marketId === marketId && investmentReasons.some((reason) => reason.id === target.commentId)) {
+      expandedEntry.current = navigationEntry;
       updateVotingPageState({ useCompression: false });
     }
-  }, [notification, marketId, investmentReasons, updateVotingPageState]);
+  }, [navigationEntry, target, marketId, investmentReasons, updateVotingPageState]);
   const { pathname } = location;
   const { marketId: typeObjectIdRaw, action } = decomposeMarketPath(pathname);
   const typeObjectId = action === 'inbox' ? typeObjectIdRaw : undefined;

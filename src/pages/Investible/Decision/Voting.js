@@ -37,6 +37,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import { useIntl } from 'react-intl';
 import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
+import { ScrollContext } from '../../../contexts/ScrollContext';
 
 const useVoteStyles = makeStyles(
   theme => {
@@ -136,6 +137,7 @@ function Voting(props) {
     pokeAIMarketId, pokeAIParentTicketCode } = props;
   const history = useHistory();
   const [themeMode] = React.useContext(ThemeModeContext);
+  const [hashFragment] = useContext(ScrollContext);
   const isDark = themeMode === 'dark';
   const theme = useTheme();
   const intl = useIntl();
@@ -202,6 +204,7 @@ function Voting(props) {
           const myMessage = findMessageByInvestmentUserId(userId, investibleId, messagesState);
           const notificationMessage = myMessage?.type_object_id ? myMessage : undefined;
           const reason = investmentReasons.find((comment) => comment.id === commentId);
+          const reasonAnchor = !isInbox && reason ? `c${reason.id}` : undefined;
           const voteReplies = reason ? _.sortBy(marketComments.filter((comment) => comment.reply_id === reason.id),
             'created_at') : [];
           const voteId = `cv${userId}`;
@@ -220,7 +223,9 @@ function Voting(props) {
           const showReply = hasContent && !myUseCompression && !isInbox;
           const showLastChange = hasContent && !myUseCompression && !!diff;
           return (
-            <div style={{width: 'fit-content', cursor: myUseCompression ? 'pointer' : undefined,
+            <div id={reasonAnchor}
+                 style={{width: 'fit-content', cursor: myUseCompression ? 'pointer' : undefined,
+                   backgroundColor: reasonAnchor && hashFragment === reasonAnchor ? '#FBF6D8' : undefined,
                    maxWidth: myUseCompression ? '98%' : undefined}} key={userId}>
               <div
                 key={userId}

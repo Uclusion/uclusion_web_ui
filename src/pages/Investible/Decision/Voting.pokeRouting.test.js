@@ -9,6 +9,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import Voting from './Voting';
+import { ScrollContext } from '../../../contexts/ScrollContext';
 
 const mockReply = jest.fn(() => null);
 
@@ -91,6 +92,7 @@ const reply = {
 
 function renderVoting(diffState = {}) {
   return (
+    <ScrollContext.Provider value={[]}>
     <ThemeProvider theme={createTheme()}>
       <IntlProvider locale="en" messages={{
         commentCloseThreadLabel: 'Collapse',
@@ -122,6 +124,7 @@ function renderVoting(diffState = {}) {
         </MemoryRouter>
       </IntlProvider>
     </ThemeProvider>
+    </ScrollContext.Provider>
   );
 }
 

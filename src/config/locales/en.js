@@ -680,6 +680,7 @@ const messages = defineMessages({
   archiveWarning: 'Muting will unassign any active job. Deactivating stops for everyone.',
   new: 'new',
   match: 'match',
+  searchGoToMatch: 'Go to first match',
   votes: 'votes',
   tasks: 'tasks',
   review: 'review',

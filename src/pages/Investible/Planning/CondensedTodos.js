@@ -31,6 +31,11 @@ import { BLUE_LEVEL, YELLOW_LEVEL } from '../../../constants/notifications';
 import AddIcon from '@material-ui/icons/Add';
 import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
+import { useSearchMatchNavigation } from '../../../utils/searchMatchNavigation';
+
+export function orderCondensedTasks(comments, investibleComments) {
+  return sortInProgress(_.orderBy(comments, ['updated_at', 'body'], ['desc', 'asc']), investibleComments);
+}
 
 function CondensedTodos(props) {
   const {
@@ -59,6 +64,7 @@ function CondensedTodos(props) {
   } = props
   const classes = todoClasses();
   const openChipNotification = useOpenChipNotification();
+  const { firstCommentMatch, openMatch } = useSearchMatchNavigation();
   const intl = useIntl();
   const history = useHistory();
   const [themeMode] = useContext(ThemeModeContext);
@@ -81,8 +87,9 @@ function CondensedTodos(props) {
   const openComments = comments.filter((comment) => !comment.resolved);
   const resolvedComments = comments.filter((comment) => comment.resolved);
   const tabCommentsRaw = inNotesTab ? comments : (showOpen ? openComments : resolvedComments);
-  const tabComments = sortInProgress(_.orderBy(tabCommentsRaw, ['updated_at', 'body'], ['desc', 'asc']), 
-    investibleComments);
+  const tabComments = orderCondensedTasks(tabCommentsRaw, investibleComments);
+  const openMatchTarget = isSearch && firstCommentMatch(orderCondensedTasks(openComments, investibleComments));
+  const resolvedMatchTarget = isSearch && firstCommentMatch(orderCondensedTasks(resolvedComments, investibleComments));
   const resolvedCommentIds = resolvedComments.map((comment) => comment.id);
   const resolvedCommentsReplies = (investibleComments || []).filter((comment) =>
     resolvedCommentIds.includes(comment.root_comment_id) && comment.root_comment_id !== comment.id);
@@ -96,6 +103,7 @@ function CondensedTodos(props) {
       if (!_.isEmpty(found)) {
         const rootComment = filterToRoot(investibleComments, found.id);
         if (rootComment?.investible_id && rootComment.comment_type === TODO_TYPE && rootComment.resolved) {
+          setSectionOpen(true);
           if (showOpen) {
             setShowOpen(false);
           }
@@ -278,6 +286,8 @@ function CondensedTodos(props) {
           indicatorColors={[indicatorColor, indicatorColor]}
           style={{ paddingBottom: '1rem' }}>
           <GmailTabItem label={intl.formatMessage({id: 'openHeader'})}
+                        onTagClick={openMatchTarget ? () => openMatch(openMatchTarget) : undefined}
+                        tagTooltipId={isSearch ? 'searchGoToMatch' : undefined}
                         color='black' tagLabel={isSearch ? intl.formatMessage({ id: 'match' }) : intl.formatMessage({id: 'total'})}
                         tag={_.size(openComments) > 0 ? `${_.size(openComments)}` : undefined}
                         onDrop={onDropOpen} toolTipId='openTasksToolTip'
@@ -285,8 +295,9 @@ function CondensedTodos(props) {
           {/* B-all-480: resolved count only grows so it does not display - only new message and
              search match counts */}
           <GmailTabItem label={intl.formatMessage({id: 'closedComments'})}
-                        onTagClick={hasResolvedTodoMessages && !isSearch
-                          ? () => openChipNotification(resolvedTodoMessages) : undefined}
+                        onTagClick={isSearch ? (resolvedMatchTarget ? () => openMatch(resolvedMatchTarget) : undefined)
+                          : (hasResolvedTodoMessages ? () => openChipNotification(resolvedTodoMessages) : undefined)}
+                        tagTooltipId={isSearch ? 'searchGoToMatch' : undefined}
                         tagColor={hasResolvedTodoMessages ? warningColor : undefined}
                         color='black'
                         tagLabel={isSearch ? intl.formatMessage({ id: 'match' }) : intl.formatMessage({id: 'new'})}

@@ -9,6 +9,7 @@ import _ from 'lodash';
 import { Link, useMediaQuery, useTheme } from '@material-ui/core';
 import Screen from '../../../containers/Screen/Screen';
 import { firstDisplayedCriticalBug, firstDisplayedOpenDiscussion, openCriticalBug, useOpenChipNotification } from '../../../utils/openChipNotification';
+import { useSearchMatchNavigation } from '../../../utils/searchMatchNavigation';
 import {
   ISSUE_TYPE,
   QUESTION_TYPE,
@@ -66,7 +67,7 @@ import {
   ASSIGNED_HASH,
   BACKLOG_HASH,
   DISCUSSION_HASH,
-  formGroupEditLink, formGroupManageLink,
+  formGroupEditLink, formGroupManageLink, formInvestibleLink,
   formMarketAddInvestibleLink, formWizardLink,
   navigate,
   removeHash
@@ -134,6 +135,7 @@ function PlanningDialog(props) {
   const { results, parentResults, search } = searchResults;
   const history = useHistory();
   const openChipNotification = useOpenChipNotification();
+  const { firstCommentMatch, openMatch } = useSearchMatchNavigation();
   const [messagesState] = useContext(NotificationsContext);
   const location = useLocation();
   const { hash } = location;
@@ -304,7 +306,7 @@ function PlanningDialog(props) {
       commentType: REPORT_TYPE }),
     {enabled: !hidden && !inlineWizard}, [groupId, marketId, hidden, inlineWizard]);
 
-  const notification = location.state?.notification;
+  const targetContext = location.state?.searchMatch || location.state?.notification;
   useEffect(() => {
     if (hash && !hidden) { 
       if (hash.startsWith('#option') || hash === `#${DISCUSSION_HASH}`) {
@@ -330,7 +332,7 @@ function PlanningDialog(props) {
         if (!element) {
           const comments = getMarketComments(commentsState, marketId) || [];
           const found = comments.find((comment) => hash.includes(comment.id) ||
-            (comment.inline_market_id && comment.inline_market_id === notification?.marketId));
+            (comment.inline_market_id && comment.inline_market_id === targetContext?.marketId));
           if (!_.isEmpty(found)) {
             const rootComment = filterToRoot(comments, found.id);
             if (_.isEmpty(rootComment.investible_id)) {
@@ -346,7 +348,7 @@ function PlanningDialog(props) {
         }
       }
     }
-  }, [commentsState, groupId, hash, hidden, history, marketId, updatePageState, sectionOpen, notification?.marketId]);
+  }, [commentsState, groupId, hash, hidden, history, marketId, updatePageState, sectionOpen, targetContext?.marketId]);
 
   function openSubSection(subSection) {
     updatePageState({sectionOpen: subSection});
@@ -620,6 +622,19 @@ function PlanningDialog(props) {
   const tabCount3 = getTabCount(3);
   const discussionOpenTarget = discussionTabCountIsOpen
     ? firstDisplayedOpenDiscussion(sortedGroupRoots) : undefined;
+  function firstJobTarget(jobs) {
+    return jobs[0] ? { url: formInvestibleLink(marketId, jobs[0].investible.id) } : undefined;
+  }
+  // Keep each badge's existing scope, but choose its target in the order its search list displays.
+  const searchTargets = _.isEmpty(search) ? [] : [
+    firstJobTarget(jobProgressSearchList),
+    firstJobTarget(_.orderBy(furtherWorkReadyToStart.concat(furtherWorkInvestibles, notDoingInvestibles),
+      [(inv) => inv.investible.created_at], ['desc'])),
+    firstCommentMatch(_.orderBy(todoGroupComments,
+      [(comment) => _.size(findMessagesForCommentIds([comment.id], messagesState.messages, true)),
+        'updated_at'], ['desc', 'desc'])),
+    firstCommentMatch(_.orderBy(questionSuggestionGroupComments, ['updated_at'], ['desc'])),
+  ];
 
   function onDragOverNext(event) {
     event.dataTransfer.dropEffect = 'move';
@@ -683,27 +698,35 @@ const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOr
           indicatorColors={['#2F80ED', '#2F80ED', '#2F80ED', '#2F80ED']}>
           <GmailTabItem icon={iconOnlyTabs ? <AssignmentIndOutlined /> : undefined} onDrop={onDropAssigned}
                         tagLabel={getTagLabel(_.isEmpty(search) ? tabCount0 : jobsSearchResults)}
-                        onTagClick={_.isEmpty(tabNewMessages[0]) ? undefined : () => openChipNotification(tabNewMessages[0])}
+                        onTagClick={searchTargets[0] ? () => openMatch(searchTargets[0])
+                          : (_.isEmpty(tabNewMessages[0]) ? undefined : () => openChipNotification(tabNewMessages[0]))}
+                        tagTooltipId={searchTargets[0] ? 'searchGoToMatch' : undefined}
                         onDragOver={(event)=>event.preventDefault()} toolTipId='statusJobsToolTip' tagColor='#E85757'
                         label={intl.formatMessage({id: 'planningDialogNavStoriesLabel'})}
                         tag={_.isEmpty(search) || jobsSearchResults === 0 ? tabCount0 : `${jobsSearchResults}`} />
           <GmailTabItem icon={iconOnlyTabs ? <AssignmentOutlined /> : undefined} onDrop={onDropBacklog} tagLabel={getTagLabel(_.isEmpty(search) ? tabCount1 : backlogSearchResults)}
-                        onTagClick={_.isEmpty(tabNewMessages[1]) ? undefined : () => openChipNotification(tabNewMessages[1])}
+                        onTagClick={searchTargets[1] ? () => openMatch(searchTargets[1])
+                          : (_.isEmpty(tabNewMessages[1]) ? undefined : () => openChipNotification(tabNewMessages[1]))}
+                        tagTooltipId={searchTargets[1] ? 'searchGoToMatch' : undefined}
                         onDragOver={(event)=>event.preventDefault()} toolTipId='backlogJobsToolTip' tagColor='#E85757'
                         label={intl.formatMessage({id: 'planningDialogBacklog'})}
                         tag={_.isEmpty(search) || backlogSearchResults === 0 ? tabCount1 : `${backlogSearchResults}`} />
           <GmailTabItem icon={iconOnlyTabs ? <BugReportOutlined /> : undefined} label={intl.formatMessage({id: 'todoSection'})}
                         toolTipId='bugsToolTip' tagLabel={getTagLabel(_.isEmpty(search) ? tabCount2 : _.size(todoGroupComments), 2)} tagColor='#E85757'
-                        onTagClick={!_.isEmpty(tabNewMessages[2]) ? () => openChipNotification(tabNewMessages[2])
+                        onTagClick={searchTargets[2] ? () => openMatch(searchTargets[2])
+                          : !_.isEmpty(tabNewMessages[2]) ? () => openChipNotification(tabNewMessages[2])
                           : (bugTabCountIsImmediate ? () => openCriticalBug(history,
                             firstDisplayedCriticalBug(criticalTodoGroupComments, messagesState.messages)) : undefined)}
-                        tagTooltipId={bugTabCountIsImmediate && _.isEmpty(tabNewMessages[2]) ? 'notificationGoToBug' : undefined}
+                        tagTooltipId={searchTargets[2] ? 'searchGoToMatch'
+                          : (bugTabCountIsImmediate && _.isEmpty(tabNewMessages[2]) ? 'notificationGoToBug' : undefined)}
                         tag={_.isEmpty(search) || _.isEmpty(todoGroupComments) ? tabCount2 : `${_.size(todoGroupComments)}` } />
           <GmailTabItem icon={iconOnlyTabs ? <LightbulbOutlined /> : undefined} toolTipId='discussionToolTip'
                         tagLabel={getTagLabel(_.isEmpty(search) ? tabCount3 : _.size(questionSuggestionGroupComments), 3)}
-                        onTagClick={!_.isEmpty(tabNewMessages[3]) ? () => openChipNotification(tabNewMessages[3])
+                        onTagClick={searchTargets[3] ? () => openMatch(searchTargets[3])
+                          : !_.isEmpty(tabNewMessages[3]) ? () => openChipNotification(tabNewMessages[3])
                           : (discussionOpenTarget ? () => openCriticalBug(history, discussionOpenTarget) : undefined)}
-                        tagTooltipId={discussionOpenTarget && _.isEmpty(tabNewMessages[3])
+                        tagTooltipId={searchTargets[3] ? 'searchGoToMatch'
+                          : discussionOpenTarget && _.isEmpty(tabNewMessages[3])
                           ? (discussionOpenTarget.comment_type === QUESTION_TYPE
                             ? 'notificationGoToQuestion' : 'notificationGoToSuggestion')
                           : undefined}

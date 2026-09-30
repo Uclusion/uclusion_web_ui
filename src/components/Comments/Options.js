@@ -16,10 +16,7 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { useIntl } from 'react-intl';
-import {
-  findMessagesForCommentIds,
-  findMessagesForInvestibleId
-} from '../../utils/messageUtils';
+import { findMessagesForCommentIds } from '../../utils/messageUtils';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import { getMarketInfo } from '../../utils/userFunctions';
 import { moveInvestibleToCurrentVoting } from '../../api/investibles';
@@ -29,16 +26,9 @@ import { useLocation } from 'react-router';
 import { useOpenChipNotification } from '../../utils/openChipNotification';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks';
+import { getNewMessages, isNew, optionsInDisplayOrder } from '../../utils/optionOrder';
 
-export function isNew(inv, messagesState) {
-  return !_.isEmpty(getNewMessages(inv, messagesState));
-}
-
-export function getNewMessages(inv, messagesState) {
-  const investibleId = inv.investible.id;
-  const myMessages = findMessagesForInvestibleId(investibleId, messagesState.messages);
-  return myMessages.filter((message) => message.is_highlighted);
-}
+export { getNewMessages, isNew } from '../../utils/optionOrder';
 
 export function getNewBugNotifications(comment, messagesState, replies = []) {
   // A bug's notification can be keyed on a reply's own id, so check the whole thread (root + replies)
@@ -72,25 +62,9 @@ function Options(props) {
   const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id, searchResults, isInbox)
     || [];
   const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
-  // T-all-2301: the AI user is the only presence without an email, and a vote requires quantity
-  // (see OptionVoting) - an investment without quantity only means the presence is addressed
-  function countVoters(investibleId, isHuman) {
-    return anInlineMarketPresences.filter((presence) => (isHuman === !_.isEmpty(presence.email)) &&
-      presence.investments?.find((investment) => !investment.deleted && investment.quantity &&
-        investment.investible_id === investibleId)).length;
-  }
   function getInlineInvestiblesForStage(stage) {
-    const investiblesRaw = inlineInvestibles.filter((investible) => {
-      const aMarketInfo = getMarketInfo(investible, anInlineMarket.id);
-      return aMarketInfo && aMarketInfo.stage === stage?.id && !aMarketInfo.deleted;
-    }) || [];
-    // T-all-2301: new rows first, then voted for with human votes ranking over AI votes
-    return _.orderBy(investiblesRaw, [
-      (inv) => isNew(inv, messagesState) ? 0 : 1,
-      (inv) => countVoters(inv.investible.id, true),
-      (inv) => countVoters(inv.investible.id, false),
-      (inv) => inv.investible.name
-    ], ['asc', 'desc', 'desc', 'asc']);
+    return optionsInDisplayOrder(inlineInvestibles, stage, anInlineMarket.id,
+      anInlineMarketPresences, messagesState);
   }
   const underConsideration = getInlineInvestiblesForStage(underConsiderationStage);
   const firstConsidered = _.isEmpty(underConsideration) ? undefined : underConsideration[0];
@@ -109,9 +83,9 @@ function Options(props) {
   const { tabIndex, selectedInvestibleIdTabZero, selectedInvestibleIdTabOne, investibleIdTabZeroWasSet,
     investibleIdTabOneWasSet } = pageState;
   const useTabIndex = selectedStageTab || tabIndex;
-  const notification = location.state?.notification;
-  const notifiedRoot = notification?.marketId === anInlineMarket.id
-    ? getComment(commentsState, anInlineMarket.id, notification.commentId) : undefined;
+  const target = location.state?.notification || location.state?.searchMatch;
+  const notifiedRoot = target?.marketId === anInlineMarket.id
+    ? getComment(commentsState, anInlineMarket.id, target.commentId) : undefined;
   const foundInv = inlineInvestibles.find((inv) => hash?.includes(inv.investible.id) ||
     (hash && inv.investible.id === notifiedRoot?.investible_id));
 

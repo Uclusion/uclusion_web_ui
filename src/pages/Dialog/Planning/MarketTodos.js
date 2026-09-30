@@ -288,7 +288,7 @@ function MarketTodos(props) {
             bugDispatch(pin(rootComment.id));
           }
           const message = findMessageForCommentId(rootComment.id, messagesState.messages);
-          if (message?.is_highlighted) {
+          if (message?.is_highlighted && !location.state?.searchMatch) {
             let event = DEHIGHLIGHT_EVENT;
             if (message.type_object_id.startsWith('UNREAD')) {
               event = DELETE_EVENT;
@@ -306,7 +306,7 @@ function MarketTodos(props) {
     }
     return () => {};
   }, [comments, resolvedTodoComments, hash, hidden, history, messagesState, sectionOpen, setSectionOpen, isInbox,
-    tabIndex, pinned, expansionState]);
+    tabIndex, pinned, expansionState, location.state?.searchMatch]);
 
   useEffect(() => {
     if (openDefaultId && message?.type === UNASSIGNED_TYPE) {

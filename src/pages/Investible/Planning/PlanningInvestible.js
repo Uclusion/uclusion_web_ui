@@ -5,7 +5,7 @@ import { IconButton, makeStyles, Menu, MenuItem, Tooltip, Typography, useMediaQu
 import { useHistory, useLocation } from 'react-router';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { FormattedMessage, useIntl } from 'react-intl';
-import CommentBox, { sortRootsByUpdatedAt } from '../../../containers/CommentBox/CommentBox';
+import CommentBox, { displayedCommentRoots, sortRootsByUpdatedAt } from '../../../containers/CommentBox/CommentBox';
 import {
   ISSUE_TYPE,
   JUSTIFY_TYPE,
@@ -65,8 +65,10 @@ import GravatarAndName from '../../../components/Avatars/GravatarAndName';
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 import AddIcon from '@material-ui/icons/Add';
-import CondensedTodos from './CondensedTodos';
+import CondensedTodos, { orderCondensedTasks } from './CondensedTodos';
 import NotesTab from './NotesTab';
+import { groupCapsulesByTarget, groupNotesByDay } from './notesGrouping';
+import { getBrowserTz } from '../../../utils/timezoneUtils';
 import { DoneAll, ExpandLess } from '@material-ui/icons';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
@@ -96,6 +98,7 @@ import { DARK_ACTION_BUTTON_COLOR, DARK_TEXT_BACKGROUND_COLOR, useButtonColors }
 import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
 import { assistanceNewMessages, countAssistanceRootsWithNewMessages } from './assistanceNotificationCounts';
 import { useOpenChipNotification } from '../../../utils/openChipNotification';
+import { useSearchMatchNavigation } from '../../../utils/searchMatchNavigation';
 import { useSyncedMessages } from '../../../contexts/SyncedMessagesContext/SyncedMessagesContext';
 import NotificationMenuButton from '../../../components/Buttons/NotificationMenuButton';
 import Approvals from './Approvals';
@@ -363,6 +366,7 @@ export function countUnresolved(comments, search) {
 function PlanningInvestible(props) {
   const history = useHistory();
   const openChipNotification = useOpenChipNotification();
+  const { firstCommentMatch, openMatch } = useSearchMatchNavigation();
   const location = useLocation();
   const intl = useIntl();
   const {
@@ -497,7 +501,7 @@ function PlanningInvestible(props) {
     investibleId, marketId);
   const isCollaborator = collaboratorIds.includes(userId);
 
-  const notification = location.state?.notification;
+  const anchorTarget = location.state?.searchMatch || location.state?.notification;
   useEffect(() => {
     // T-all-2298: pick the Debatable sub-tab holding this root so a followed link lands on it
     function assistanceTabFor(rootComment) {
@@ -518,7 +522,7 @@ function PlanningInvestible(props) {
       // Check if already on the right tab and only change tab if not
       if (!element) {
         const inlineQuestion = investibleComments.find((comment) =>
-          comment.inline_market_id && comment.inline_market_id === notification?.marketId);
+          comment.inline_market_id && comment.inline_market_id === anchorTarget?.marketId);
         if (inlineQuestion) {
           openAssistance(inlineQuestion, compressionHash?.[inlineQuestion.id] === false ? undefined :
             { compressionHash: { ...compressionHash, [inlineQuestion.id]: false } });
@@ -565,7 +569,9 @@ function PlanningInvestible(props) {
                   }
                 case TODO_TYPE:
                   if (rootComment.resolved) {
-                    updatePageState({ sectionOpen: 'descriptionVotingSection' });
+                    if (sectionOpen !== 'descriptionVotingSection') {
+                      updatePageState({ sectionOpen: 'descriptionVotingSection' });
+                    }
                     break;
                   }
                   if (sectionOpen !== 'tasksSection') {
@@ -598,7 +604,7 @@ function PlanningInvestible(props) {
       }
     }
   }, [investibleComments, hash, sectionOpen, updatePageState, hidden, history, compressionHash, reportsOpenRaw,
-    assistanceTab, investiblesState, marketPresences, marketPresencesState, commentsState, notification?.marketId]);
+    assistanceTab, investiblesState, marketPresences, marketPresencesState, commentsState, anchorTarget?.marketId]);
 
   let lockedByName
   if (lockedBy) {
@@ -889,6 +895,62 @@ function PlanningInvestible(props) {
   const hasNewOverviewMessages = numNewOverviewMessages > 0 && _.isEmpty(search);
   const hasNewNotesMessages = numNewNotesMessages > 0 && _.isEmpty(search);
   const showOverview = !inlineWizard && sectionOpen === 'descriptionVotingSection';
+  const approvalVoters = useInvestibleVoters(marketPresences, investibleId, marketId);
+  const searchTargets = { assistanceTabs: [] };
+  if (!_.isEmpty(search)) {
+    const orderContext = { investiblesState, marketPresencesState, commentsState };
+    const ordered = (roots, options = {}) => displayedCommentRoots(roots.concat(replies), searchResults,
+      { ...orderContext, ...options });
+    const reasonsInOrder = _.sortBy(approvalVoters, 'quantity', 'updatedAt')
+      .map((voter) => investmentReasonsSearched.find((reason) => reason.id === voter.commentId)).filter(Boolean);
+    searchTargets.overview = results.some((item) => item.id === investibleId)
+      ? { url: `${formInvestibleLink(marketId, investibleId)}#investible-header` }
+      : firstCommentMatch(orderCondensedTasks(todoCommentsResolvedSearched, investibleComments)
+        .concat(reasonsInOrder, ordered(reportsCommentsSearched)));
+    searchTargets.tasks = firstCommentMatch(ordered(openTodoCommentsSearched,
+      { useInProgressSorting: true, investibleCommentsForSort: investibleComments }));
+    searchTargets.assistanceTabs = [
+      firstCommentMatch(ordered(unrespondedAssistanceComments, { oldestFirst: true })),
+      firstCommentMatch(ordered(respondedAssistanceComments, { simpleOrdering: true })),
+      firstCommentMatch(resolvedAssistanceComments),
+    ];
+    searchTargets.assistance = searchTargets.assistanceTabs.find(Boolean);
+    const tasks = investibleComments.filter((comment) => comment.comment_type === TODO_TYPE);
+    const days = groupNotesByDay(notesCommentsSearched, tasks, getBrowserTz(), new Set(todoCommentsSearched.map((task) => task.id)));
+    const notesInOrder = days.flatMap((day) => day.jobLevelNotes.concat(day.subGroups.flatMap((group) => group.notes)));
+    searchTargets.notes = firstCommentMatch(notesInOrder);
+    const capsules = groupCapsulesByTarget(capsuleNotes, tasks);
+    searchTargets.notesEntry = firstCommentMatch(capsules.jobCapsules
+      .concat(capsules.taskGroups.flatMap((group) => group.capsules), notesInOrder));
+  }
+  function openSearchMatch(target, replace = false) {
+    if (target?.url.endsWith('#investible-header')) {
+      updatePageState({ sectionOpen: 'descriptionVotingSection' });
+    }
+    openMatch(target, replace);
+  }
+  const firstJobMatch = searchTargets.overview || searchTargets.tasks || searchTargets.assistance || searchTargets.notesEntry;
+  const searchEntry = useRef();
+  useEffect(() => {
+    if (hidden) {
+      searchEntry.current = undefined;
+      return;
+    }
+    if (searchEntry.current?.job !== investibleId) {
+      searchEntry.current = { job: investibleId, handled: false };
+    }
+    if (searchEntry.current.handled) return;
+    if (_.isEmpty(search) || (hash && hash !== '#investible-header')) {
+      searchEntry.current.handled = true;
+      return;
+    }
+    if (firstJobMatch) {
+      // Hash cleanup and manual tab changes are not another job entry.
+      searchEntry.current.handled = true;
+      openSearchMatch(firstJobMatch, true);
+    }
+  });
+  const matchClick = (target) => target ? () => openSearchMatch(target) : undefined;
   return (
     <Screen
       title={title}
@@ -926,7 +988,9 @@ function PlanningInvestible(props) {
         {/* C-all-994 (Q-all-138, O-4): clean text tabs on desktop; icons only on
            mobile, where the label is blanked for space - refined to outlined icons. */}
         <GmailTabItem icon={mobileLayout ? <InfoOutlined /> : undefined} tagLabel={numNewOverviewMessages > 0 && _.isEmpty(search) ? 'new' : getTagLabel('total')}
-                      onTagClick={hasNewOverviewMessages ? () => openChipNotification(newOverviewMessages) : undefined}
+                      onTagClick={!_.isEmpty(search) ? matchClick(searchTargets.overview)
+                        : (hasNewOverviewMessages ? () => openChipNotification(newOverviewMessages) : undefined)}
+                      tagTooltipId={!_.isEmpty(search) ? 'searchGoToMatch' : undefined}
                       label={intl.formatMessage({id: 'descriptionVotingLabel'})}
                       toolTipId='jobOverviewToolTip' tagColor={hasNewOverviewMessages ? warningColor : undefined}
                       tag={descriptionSectionResults === 0 ? 
@@ -934,19 +998,25 @@ function PlanningInvestible(props) {
                           : `${descriptionSectionResults}`} />
         <GmailTabItem icon={mobileLayout ? <AssignmentOutlined /> : undefined} label={intl.formatMessage({id: 'openTasksSection'})}
                       tagColor={hasNewTodoMessages ? warningColor : undefined}
-                      onTagClick={hasNewTodoMessages ? () => openChipNotification(inboxNewTodoMessages) : undefined}
+                      onTagClick={!_.isEmpty(search) ? matchClick(searchTargets.tasks)
+                        : (hasNewTodoMessages ? () => openChipNotification(inboxNewTodoMessages) : undefined)}
+                      tagTooltipId={!_.isEmpty(search) ? 'searchGoToMatch' : undefined}
                       toolTipId='jobTasksToolTip' tagLabel={hasNewTodoMessages && _.isEmpty(search) ? 'new' : getTagLabel('total')}
                       tag={hasNewTodoMessages && _.isEmpty(search) ? `${numNewTodoMessages}` : countUnresolved(openTodoCommentsSearched, search)} />
         {displayAssistanceSection && (
           <GmailTabItem icon={mobileLayout ? <ContactSupportOutlined /> : undefined} toolTipId='jobAssistanceToolTip'
                         label={intl.formatMessage({id: 'requiresInputStageLabel'})}
-                        onTagClick={hasNewAssistanceMessages ? () => openChipNotification(assistanceChipMessages) : undefined}
+                        onTagClick={!_.isEmpty(search) ? matchClick(searchTargets.assistance)
+                          : (hasNewAssistanceMessages ? () => openChipNotification(assistanceChipMessages) : undefined)}
+                        tagTooltipId={!_.isEmpty(search) ? 'searchGoToMatch' : undefined}
                         tagColor={hasNewAssistanceMessages ? warningColor : undefined} tag={assistanceTag}
                         tagLabel={hasNewAssistanceMessages && _.isEmpty(search) ? 'new' : getTagLabel('open')} />
         )}
         <GmailTabItem icon={mobileLayout ? <NoteOutlined /> : undefined} label={intl.formatMessage({id: 'notesSection'})}
                       tagColor={hasNewNotesMessages ? warningColor : undefined}
-                      onTagClick={hasNewNotesMessages ? () => openChipNotification(inboxNewNotesMessages) : undefined}
+                      onTagClick={!_.isEmpty(search) ? matchClick(searchTargets.notes)
+                        : (hasNewNotesMessages ? () => openChipNotification(inboxNewNotesMessages) : undefined)}
+                      tagTooltipId={!_.isEmpty(search) ? 'searchGoToMatch' : undefined}
                       toolTipId='jobNotesToolTip' tagLabel={hasNewNotesMessages && _.isEmpty(search) ? 'new' : getTagLabel('total')}
                       tag={hasNewNotesMessages && _.isEmpty(search) ? `${numNewNotesMessages}` : 
                       (!_.isEmpty(search) && _.size(notesCommentsSearched) > 0 ? _.size(notesCommentsSearched) : undefined)} />
@@ -1217,8 +1287,9 @@ function PlanningInvestible(props) {
                    message and search match counts */}
                 <GmailTabItem label={intl.formatMessage({ id: 'assistanceUnresponded' })} color='black'
                               toolTipId={isMac ? 'unrespondedNavigationMac' : 'unrespondedNavigation'}
-                              onTagClick={assistanceTabNewCounts[0] > 0 && _.isEmpty(search)
-                                ? () => openChipNotification(assistanceTabNewMessageSets[0]) : undefined}
+                              onTagClick={!_.isEmpty(search) ? matchClick(searchTargets.assistanceTabs[0])
+                                : (assistanceTabNewCounts[0] > 0 ? () => openChipNotification(assistanceTabNewMessageSets[0]) : undefined)}
+                              tagTooltipId={!_.isEmpty(search) ? 'searchGoToMatch' : undefined}
                               tagColor={assistanceTabNewCounts[0] > 0 ? warningColor : undefined}
                               tagLabel={assistanceTabNewCounts[0] > 0 && _.isEmpty(search) ? 'new' :
                                 getTagLabel('total')}
@@ -1226,8 +1297,9 @@ function PlanningInvestible(props) {
                                 `${assistanceTabNewCounts[0]}` : (_.size(unrespondedAssistanceComments) > 0 ?
                                   `${_.size(unrespondedAssistanceComments)}` : undefined)} />
                 <GmailTabItem label={intl.formatMessage({ id: 'assistanceResponded' })} color='black'
-                              onTagClick={assistanceTabNewCounts[1] > 0 && _.isEmpty(search)
-                                ? () => openChipNotification(assistanceTabNewMessageSets[1]) : undefined}
+                              onTagClick={!_.isEmpty(search) ? matchClick(searchTargets.assistanceTabs[1])
+                                : (assistanceTabNewCounts[1] > 0 ? () => openChipNotification(assistanceTabNewMessageSets[1]) : undefined)}
+                              tagTooltipId={!_.isEmpty(search) ? 'searchGoToMatch' : undefined}
                               tagColor={assistanceTabNewCounts[1] > 0 ? warningColor : undefined}
                               tagLabel={assistanceTabNewCounts[1] > 0 && _.isEmpty(search) ? 'new' :
                                 getTagLabel('total')}
@@ -1235,8 +1307,9 @@ function PlanningInvestible(props) {
                                 `${assistanceTabNewCounts[1]}` : (_.size(respondedAssistanceComments) > 0 ?
                                   `${_.size(respondedAssistanceComments)}` : undefined)} />
                 <GmailTabItem label={intl.formatMessage({ id: 'assistanceResolved' })} color='black'
-                              onTagClick={assistanceTabNewCounts[2] > 0 && _.isEmpty(search)
-                                ? () => openChipNotification(assistanceTabNewMessageSets[2]) : undefined}
+                              onTagClick={!_.isEmpty(search) ? matchClick(searchTargets.assistanceTabs[2])
+                                : (assistanceTabNewCounts[2] > 0 ? () => openChipNotification(assistanceTabNewMessageSets[2]) : undefined)}
+                              tagTooltipId={!_.isEmpty(search) ? 'searchGoToMatch' : undefined}
                               tagColor={assistanceTabNewCounts[2] > 0 ? warningColor : undefined}
                               tagLabel={assistanceTabNewCounts[2] > 0 && _.isEmpty(search) ? 'new' :
                                 getTagLabel('total')}

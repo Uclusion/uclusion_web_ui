@@ -681,7 +681,7 @@ function PlanningInvestible(props) {
     !respondedAssistanceComments.includes(comment));
   const assistanceTabComments = [unrespondedAssistanceComments, respondedAssistanceComments,
     resolvedAssistanceComments];
-  const capsuleNotes = investibleComments.filter(
+  const capsuleNotes = investibleCommentsSearched.filter(
     comment => !comment.reply_id && comment.comment_type === REPORT_TYPE &&
       comment.notification_type === 'BLUE' && comment.pinned === true
   );
@@ -1014,12 +1014,13 @@ function PlanningInvestible(props) {
         )}
         <GmailTabItem icon={mobileLayout ? <NoteOutlined /> : undefined} label={intl.formatMessage({id: 'notesSection'})}
                       tagColor={hasNewNotesMessages ? warningColor : undefined}
-                      onTagClick={!_.isEmpty(search) ? matchClick(searchTargets.notes)
+                      onTagClick={!_.isEmpty(search) ? matchClick(searchTargets.notesEntry)
                         : (hasNewNotesMessages ? () => openChipNotification(inboxNewNotesMessages) : undefined)}
                       tagTooltipId={!_.isEmpty(search) ? 'searchGoToMatch' : undefined}
                       toolTipId='jobNotesToolTip' tagLabel={hasNewNotesMessages && _.isEmpty(search) ? 'new' : getTagLabel('total')}
                       tag={hasNewNotesMessages && _.isEmpty(search) ? `${numNewNotesMessages}` : 
-                      (!_.isEmpty(search) && _.size(notesCommentsSearched) > 0 ? _.size(notesCommentsSearched) : undefined)} />
+                      (!_.isEmpty(search) && _.size(notesCommentsSearched) + _.size(capsuleNotes) > 0 ?
+                        `${_.size(notesCommentsSearched) + _.size(capsuleNotes)}` : undefined)} />
       </GmailTabs>
       <div style={{paddingLeft: mobileLayout ? undefined : '2rem', paddingRight: mobileLayout ? undefined : '1rem'}}>
         <div style={{paddingBottom: '0.5rem'}} ref={refToTop}></div>

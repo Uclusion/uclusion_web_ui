@@ -23,14 +23,15 @@ jest.mock('../../../containers/Screen/Screen', () => ({ children }) => children)
 jest.mock('../../../containers/CommentBox/CommentBox', () => ({
   ...jest.requireActual('../../../containers/CommentBox/CommentBox'),
   __esModule: true,
-  default: () => null,
+  default: ({ comments }) => <div>{(comments || []).map((comment) => comment.id).join(' ')}</div>,
 }));
 jest.mock('../../../components/Comments/Comment', () => () => null);
 jest.mock('../../../components/Comments/BugListItem', () => ({ expansionOpen, expansionPanel }) =>
   expansionOpen ? expansionPanel : null);
 jest.mock('../../../components/Comments/Options', () => ({ getNewBugNotifications: () => [] }));
 jest.mock('../../Dialog/Planning/MarketTodos', () => ({ todoClasses: () => ({}) }));
-jest.mock('./NotesTab', () => () => null);
+jest.mock('./NotesTab', () => ({ capsules = [], notes = [] }) =>
+  <div>{capsules.concat(notes).map((comment) => comment.id).join(' ')}</div>);
 jest.mock('./Approvals', () => () => null);
 jest.mock('./PlanningInvestibleNav', () => ({
   __esModule: true,
@@ -83,9 +84,10 @@ const searchResults = {
 };
 
 let cleanupPage;
-function renderPage(initialHash = '', search = searchResults, pageComments = comments) {
+function renderPage(initialHash = '', search = searchResults, pageComments = comments,
+  sectionOpen = 'notesSection') {
   cleanupPage?.();
-  setUclusionLocalStorageItem('investible', { [jobId]: { sectionOpen: 'notesSection', reportsOpenRaw: true } });
+  setUclusionLocalStorageItem('investible', { [jobId]: { sectionOpen, reportsOpenRaw: true } });
   const history = createMemoryHistory({ initialEntries: [`${jobUrl}${initialHash}`] });
   const locations = [];
   const unlisten = history.listen((location) => locations.push(location));
@@ -204,4 +206,27 @@ it('opens actual matching descendants from Tasks, Debatable and Notes match chip
   expect(history.location.hash).toBe('#ccompleted');
   expect(container.querySelector('#ccompleted')).not.toBeNull();
   expect(notificationsDispatch).not.toHaveBeenCalled();
+});
+
+it('drops design notes and progress reports that are not search matches', () => {
+  const report = rootComment('status', 'REPORT', '2026-09-21');
+  const design = rootComment('design', 'REPORT', '2026-09-21', { notification_type: 'BLUE', pinned: true });
+  const pageComments = comments.concat(report, design);
+  const hidden = renderPage('', { search: 'needle', results: [], parentResults: [] },
+    pageComments, 'descriptionVotingSection');
+  expect(hidden.container.textContent).not.toContain('status');
+  const hiddenDesign = renderPage('', { search: 'needle', results: [], parentResults: [] },
+    pageComments, 'notesSection');
+  expect(hiddenDesign.container.textContent).not.toContain('design');
+
+  const shownReport = renderPage('', {
+    search: 'needle', results: [{ id: 'status' }], parentResults: [],
+  }, pageComments, 'descriptionVotingSection');
+  expect(shownReport.container.textContent).toContain('status');
+
+  const shownDesign = renderPage('', {
+    search: 'needle', results: [{ id: 'design' }], parentResults: [],
+  }, pageComments, 'notesSection');
+  expect(shownDesign.container.textContent).toContain('design');
+  expect(shownDesign.container.textContent).not.toContain('status');
 });

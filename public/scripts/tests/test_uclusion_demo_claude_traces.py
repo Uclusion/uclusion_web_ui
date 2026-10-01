@@ -1,9 +1,9 @@
 """S-Marketing-87: removal takes back what Claude Code kept for the demo home.
 
 The demo's sessions run in its home, so Claude Code files their transcripts,
-their task output and a project entry under that path, outside the home. The
-landing prompt promises removal takes everything, so removal deletes exactly
-those three and nothing else of the same shape.
+their task output and a project entry under that path, outside the home.
+T-Marketing-299: it also counts the demo plugin in .claude.json. Removal
+deletes those counters and nothing else of the same shape.
 """
 
 import importlib.util
@@ -38,6 +38,7 @@ class ClaudeSessionTraceTests(unittest.TestCase):
         for patch in (
             mock.patch.object(INSTALL, 'CLAUDE_CONFIG_HOME', str(self.config)),
             mock.patch.object(INSTALL, 'CLAUDE_JSON_PATH', str(self.claude_json)),
+            mock.patch.object(INSTALL, 'USER_HOME', str(root)),
             mock.patch.object(INSTALL, '_claude_temp_roots', return_value=[str(self.temp_root)]),
         ):
             patch.start()
@@ -54,6 +55,16 @@ class ClaudeSessionTraceTests(unittest.TestCase):
         self.claude_json.write_text(json.dumps({
             'numStartups': 7,
             'projects': {self.home: {'allowedTools': []}, '/home/me/project': {'x': 1}},
+            'pluginUsage': {
+                'uclusion-demo@inline': {'usageCount': 1},
+                'other@builtin': {'usageCount': 2},
+            },
+            'skillUsage': {
+                'uclusion-demo:uclusion': {'usageCount': 1},
+                'uclusion-demo:uclusion-design': {'usageCount': 1},
+                'uclusion': {'usageCount': 4},
+                'uclusion-design': {'usageCount': 3},
+            },
         }))
 
     def test_the_encoded_name_is_claude_code_s(self):
@@ -64,7 +75,7 @@ class ClaudeSessionTraceTests(unittest.TestCase):
     def test_only_the_demo_s_three_traces_go(self):
         self.leave_traces()
         outcomes = INSTALL.remove_demo_claude_session_traces(self.home)
-        self.assertEqual(['removed'] * 3, [state for state, _detail in outcomes])
+        self.assertEqual(['removed'] * 4, [state for state, _detail in outcomes])
         self.assertFalse((self.config / 'projects' / self.name).exists())
         self.assertFalse((self.claude_temp / self.name).exists())
         # Folders of the same shape for other projects stay
@@ -73,12 +84,17 @@ class ClaudeSessionTraceTests(unittest.TestCase):
         config = json.loads(self.claude_json.read_text())
         self.assertEqual({'/home/me/project': {'x': 1}}, config['projects'])
         self.assertEqual(7, config['numStartups'])
+        self.assertEqual({'other@builtin': {'usageCount': 2}}, config['pluginUsage'])
+        self.assertEqual(
+            {'uclusion': {'usageCount': 4}, 'uclusion-design': {'usageCount': 3}},
+            config['skillUsage'],
+        )
         # The lock taken for the edit is not left behind as a new trace
         self.assertFalse(Path(f'{self.claude_json}.uclusion.lock').exists())
 
     def test_nothing_to_remove_writes_nothing(self):
         outcomes = INSTALL.remove_demo_claude_session_traces(self.home)
-        self.assertEqual(['absent'] * 3, [state for state, _detail in outcomes])
+        self.assertEqual(['absent'] * 4, [state for state, _detail in outcomes])
         self.assertFalse(self.claude_json.exists())
 
     def test_a_config_it_cannot_read_is_left_alone(self):
@@ -97,9 +113,31 @@ class ClaudeSessionTraceTests(unittest.TestCase):
         self.assertEqual('kept', state)
         self.assertTrue(elsewhere.is_dir())
 
+    def test_a_separate_home_config_loses_only_the_demo_counters(self):
+        home = self.temp_root / 'person'
+        home.mkdir(parents=True)
+        config = home / '.claude.json'
+        config.write_text(json.dumps({
+            'pluginUsage': {'uclusion-demo@inline': {'usageCount': 6}},
+            'skillUsage': {
+                'uclusion-demo:uclusion': {'usageCount': 6},
+                'uclusion': {'usageCount': 29},
+            },
+        }))
+        with mock.patch.object(INSTALL, 'USER_HOME', str(home)):
+            outcomes = INSTALL.remove_demo_claude_session_traces(self.home)
+        self.assertIn(
+            ('removed', f"the demo plugin's usage counters from {config}"),
+            outcomes,
+        )
+        saved = json.loads(config.read_text())
+        self.assertNotIn('pluginUsage', saved)
+        self.assertEqual({'uclusion': {'usageCount': 29}}, saved['skillUsage'])
+        self.assertFalse(Path(f'{config}.uclusion.lock').exists())
+
     def test_a_name_claude_code_shortens_is_not_guessed(self):
         outcomes = INSTALL.remove_demo_claude_session_traces('/' + 'a' * 200)
-        self.assertEqual(['kept'], [state for state, _detail in outcomes])
+        self.assertEqual(['kept', 'absent'], [state for state, _detail in outcomes])
 
     def test_removal_waits_until_no_session_can_write_them_again(self):
         source = inspect.getsource(INSTALL.remove_demo_install)
@@ -121,7 +159,11 @@ class ClaudeSessionTraceTests(unittest.TestCase):
             INSTALL.start_demo_supervisor('stage', 'claude', 'workspace', 'Start J-Demo-1.')
         told = ' '.join(str(call.args[0]) for call in printed.call_args_list)
         self.assertIn('demo --remove` removes the demo', told)
-        self.assertIn('transcripts, task output and project entry Claude Code keeps', told)
+        self.assertIn(
+            'transcripts, task output, project entry and demo-plugin '
+            'usage counters Claude Code keeps',
+            told,
+        )
 
 
 if __name__ == '__main__':

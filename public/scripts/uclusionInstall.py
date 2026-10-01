@@ -2162,7 +2162,8 @@ def start_demo_supervisor(env, client, workspace_id, start_prompt, response_stat
     # S-Marketing-87: the prompt promises a removal that takes everything, so
     # name the command that does, including what the client keeps outside.
     kept = (
-        ', and the transcripts, task output and project entry Claude Code keeps for it'
+        ', and the transcripts, task output, project entry and demo-plugin '
+        'usage counters Claude Code keeps for it'
         if client == 'claude' else ''
     )
     print(f'🧹 `{cli} demo --remove` removes the demo: {uclusion_home_root()}{kept}.',
@@ -3062,6 +3063,68 @@ def _remove_claude_folder(folder, label):
     return 'removed', f'{label} in {folder}'
 
 
+def _demo_claude_config_paths():
+    """The Claude configs a demo session may have counted its plugin in.
+
+    A session uses ``CLAUDE_JSON_PATH``. One started without
+    ``CLAUDE_CONFIG_DIR`` uses ``~/.claude.json``, which stays behind when a
+    later removal runs with the variable set.
+    """
+    found = []
+    for path in (CLAUDE_JSON_PATH, os.path.join(USER_HOME, '.claude.json')):
+        absolute = os.path.abspath(path)
+        if absolute not in found:
+            found.append(absolute)
+    return found
+
+
+def _demo_plugin_usage_key(section, key):
+    """True for Claude Code's counter for this demo's plugin, nothing else."""
+    if section == 'pluginUsage':
+        return key.startswith(f'{DEMO_PLUGIN_NAME}@')
+    return section == 'skillUsage' and key.startswith(f'{DEMO_PLUGIN_NAME}:')
+
+
+def _remove_demo_plugin_usage(path):
+    """Drop the demo plugin's usage counters from one Claude config."""
+    absent = ('absent', f'the demo plugin\'s usage counters in {path}')
+    try:
+        target = _config_write_target(path)
+        existing, signature = _read_text_snapshot(target)
+        if signature is None or not existing.strip():
+            return absent
+        try:
+            config = json.loads(existing)
+        except json.JSONDecodeError as err:
+            return 'kept', f'{path}, which is not valid JSON: {err}'
+        if not isinstance(config, dict):
+            return 'kept', f'{path}, which is not a JSON object'
+        removed = False
+        for section in ('pluginUsage', 'skillUsage'):
+            usage = config.get(section)
+            if not isinstance(usage, dict):
+                continue
+            keys = [key for key in usage if _demo_plugin_usage_key(section, key)]
+            if not keys:
+                continue
+            for key in keys:
+                del usage[key]
+            if not usage:
+                del config[section]
+            removed = True
+        if not removed:
+            return absent
+        updated = json.dumps(config, indent=2) + '\n'
+        try:
+            with config_file_lock(path):
+                atomic_write_text(path, updated, existing, target, signature)
+        finally:
+            _remove_demo_config_lock(path)
+    except (OSError, RuntimeError) as err:
+        return 'kept', f'the demo plugin\'s usage counters in {path} ({err})'
+    return 'removed', f'the demo plugin\'s usage counters from {path}'
+
+
 def _remove_demo_claude_project_entries(paths):
     """Drop only the .claude.json project entries keyed by the demo home."""
     path = CLAUDE_JSON_PATH
@@ -3099,12 +3162,18 @@ def remove_demo_claude_session_traces(home):
     The demo's sessions run in its home, so Claude Code files their
     transcripts, their task output and a project entry under that path, all
     outside the home. Only names derived from this home's own path are touched.
+    Usage counters are the exception: Claude Code names them after the demo
+    plugin, so removal deletes those names from each Claude config it may
+    have written and leaves every other counter.
     """
     paths = list(dict.fromkeys((home, os.path.realpath(home))))
     names = [claude_project_name(path) for path in paths]
     if None in names:
-        return [('kept', f'Claude Code\'s folders for {home}, whose name it '
-                         'shortens with a hash')]
+        return [
+            ('kept', f'Claude Code\'s folders for {home}, whose name it '
+                     'shortens with a hash'),
+            *(_remove_demo_plugin_usage(path) for path in _demo_claude_config_paths()),
+        ]
     uid = os.getuid() if hasattr(os, 'getuid') else 0
     places = (
         ('the demo sessions\' transcripts',
@@ -3120,6 +3189,9 @@ def remove_demo_claude_session_traces(home):
         if not found:
             outcomes.append(('absent', label))
     outcomes.append(_remove_demo_claude_project_entries(paths))
+    outcomes.extend(
+        _remove_demo_plugin_usage(path) for path in _demo_claude_config_paths()
+    )
     return outcomes
 
 

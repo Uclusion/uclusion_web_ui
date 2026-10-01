@@ -168,6 +168,7 @@ class DemoHomeTests(unittest.TestCase):
         with mock.patch.object(INSTALL, 'UCLUSION_HOME', home.name), \
                 mock.patch.object(INSTALL, 'demo_session_args', return_value=[]), \
                 mock.patch.object(INSTALL, 'write_demo_evaluator_mcp_config'), \
+                mock.patch.object(INSTALL, 'accept_demo_workspace_trust'), \
                 mock.patch.object(INSTALL, 'DemoCodexTerminal', side_effect=launch), \
                 mock.patch.object(INSTALL, 'wait_for_owner_watch', return_value=True), \
                 mock.patch.object(INSTALL, 'stop_demo_session'), \

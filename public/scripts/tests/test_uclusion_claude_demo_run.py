@@ -49,6 +49,7 @@ class ClaudeDemoRunTests(unittest.TestCase):
                               side_effect=lambda _env, config=None: ['--mcp-config', config or 'shared']),
             mock.patch.object(INSTALL, 'write_demo_evaluator_mcp_config',
                               return_value='evaluator.json'),
+            mock.patch.object(INSTALL, 'accept_demo_workspace_trust'),
             mock.patch.object(INSTALL, 'DemoCodexTerminal', side_effect=launch),
             mock.patch.object(INSTALL, 'wait_for_owner_watch', return_value=True),
             mock.patch.object(INSTALL, 'stop_demo_session'),

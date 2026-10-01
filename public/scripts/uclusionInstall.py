@@ -2381,6 +2381,7 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_di
     # supervising process has none, so Claude Code still has a terminal to be.
     owner_environment.setdefault('TERM', 'xterm-256color')
     evaluator_environment.setdefault('TERM', 'xterm-256color')
+    accept_demo_workspace_trust(uclusion_home_root())
     # Kept rather than discarded: when a session fails, its log is the only
     # evidence of why, and removal takes it with the home.
     owner_log_path = os.path.join(run_dir, 'owner.log')
@@ -3061,6 +3062,59 @@ def _remove_claude_folder(folder, label):
     except OSError as err:
         return 'kept', f'{folder} ({err})'
     return 'removed', f'{label} in {folder}'
+
+
+def accept_demo_workspace_trust(home):
+    """Record the demo home as a workspace Claude Code already trusts.
+
+    A terminal session stops on the trust screen until this is set, and the
+    screen's default is to exit. The supervisor does not answer it.
+    """
+    homes = []
+    for path in (home, os.path.realpath(home)):
+        absolute = os.path.abspath(path)
+        if absolute not in homes:
+            homes.append(absolute)
+    for path in _demo_claude_config_paths():
+        _accept_workspace_trust(path, homes)
+
+
+def _accept_workspace_trust(path, homes):
+    target = _config_write_target(path)
+    existing, signature = _read_text_snapshot(target)
+    if existing.strip():
+        try:
+            config = json.loads(existing)
+        except json.JSONDecodeError as err:
+            raise RuntimeError(f'{path} is not valid JSON: {err}') from err
+    else:
+        config = {}
+    if not isinstance(config, dict):
+        raise RuntimeError(f'{path} is not a JSON object')
+    projects = config.get('projects')
+    if projects is None:
+        projects = {}
+        config['projects'] = projects
+    if not isinstance(projects, dict):
+        raise RuntimeError(f'{path} projects is not a JSON object')
+    changed = False
+    for home in homes:
+        entry = projects.get(home)
+        if not isinstance(entry, dict):
+            entry = {}
+            projects[home] = entry
+            changed = True
+        if entry.get('hasTrustDialogAccepted') is not True:
+            entry['hasTrustDialogAccepted'] = True
+            changed = True
+    if not changed:
+        return
+    updated = json.dumps(config, indent=2) + '\n'
+    try:
+        with config_file_lock(path):
+            atomic_write_text(path, updated, existing, target, signature)
+    finally:
+        _remove_demo_config_lock(path)
 
 
 def _demo_claude_config_paths():
@@ -6480,6 +6534,7 @@ def main():
         print(
             f'🎉 Uclusion demo is ready under {uclusion_home_root()}.'
         )
+        accept_demo_workspace_trust(uclusion_home_root())
         reset_demo_progress(env)
         if os.environ.get('UCLUSION_DEMO_INSTALL_ONLY'):
             print(

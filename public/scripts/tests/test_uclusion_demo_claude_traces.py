@@ -113,6 +113,30 @@ class ClaudeSessionTraceTests(unittest.TestCase):
         self.assertEqual('kept', state)
         self.assertTrue(elsewhere.is_dir())
 
+    def test_the_demo_home_is_recorded_as_trusted_before_a_session_starts(self):
+        home_config = self.temp_root / 'person' / '.claude.json'
+        home_config.parent.mkdir(parents=True)
+        home_config.write_text(json.dumps({
+            'projects': {
+                '/home/me/project': {'hasTrustDialogAccepted': False, 'allowedTools': []},
+            },
+        }))
+        session_config = self.claude_json
+        with mock.patch.object(INSTALL, 'USER_HOME', str(home_config.parent)), \
+                mock.patch.object(INSTALL, 'CLAUDE_JSON_PATH', str(session_config)):
+            INSTALL.accept_demo_workspace_trust(self.home)
+        for path in (session_config, home_config):
+            projects = json.loads(path.read_text())['projects']
+            self.assertIs(True, projects[self.home]['hasTrustDialogAccepted'])
+        kept = json.loads(home_config.read_text())['projects']['/home/me/project']
+        self.assertIs(False, kept['hasTrustDialogAccepted'])
+        self.assertEqual([], kept['allowedTools'])
+        source = inspect.getsource(INSTALL.run_claude_demo)
+        self.assertLess(
+            source.index('accept_demo_workspace_trust('),
+            source.index('DemoCodexTerminal('),
+        )
+
     def test_a_separate_home_config_loses_only_the_demo_counters(self):
         home = self.temp_root / 'person'
         home.mkdir(parents=True)

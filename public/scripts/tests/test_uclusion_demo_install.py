@@ -136,9 +136,8 @@ class DemoHomeTests(unittest.TestCase):
         # which is not a participant. Only the evaluator is told where, and
         # the owner's directions name nothing but its brief.
         self.assertEqual(1, source.count("['UCLUSION_DEMO_REPORT_FILE']"))
-        self.assertIn('env=evaluator_environment', source)
-        owner_launch = source[source.index('owner = subprocess.Popen('):]
-        self.assertNotIn('env=', owner_launch[:owner_launch.index(')')])
+        self.assertIn('evaluator_environment', source)
+        self.assertNotIn("owner_environment['UCLUSION_DEMO_REPORT_FILE']", source)
 
     def test_the_brief_is_a_file_in_the_home_not_an_address(self):
         # A session's grant holds the demo's tools and its CLI; nothing in it
@@ -160,23 +159,23 @@ class DemoHomeTests(unittest.TestCase):
         self.addCleanup(home.cleanup)
         launched = []
 
-        def launch(command, **kwargs):
-            process = mock.Mock()
-            process.poll.return_value = 0
-            launched.append(process)
-            return process
+        def launch(command, _environment, _log):
+            launched.append(command)
+            terminal = mock.Mock()
+            terminal.process.poll.return_value = 0
+            return terminal
 
         with mock.patch.object(INSTALL, 'UCLUSION_HOME', home.name), \
                 mock.patch.object(INSTALL, 'demo_session_args', return_value=[]), \
                 mock.patch.object(INSTALL, 'write_demo_evaluator_mcp_config'), \
-                mock.patch.object(INSTALL.subprocess, 'Popen', side_effect=launch), \
+                mock.patch.object(INSTALL, 'DemoCodexTerminal', side_effect=launch), \
                 mock.patch.object(INSTALL, 'wait_for_owner_watch', return_value=True), \
                 mock.patch.object(INSTALL, 'stop_demo_session'), \
                 mock.patch.object(INSTALL, 'stop_demo_home_processes', return_value=(0, [])), \
                 mock.patch('builtins.print'):
             INSTALL.run_claude_demo('stage', 'workspace', 'Start J-Demo-1.')
             brief = INSTALL.demo_brief_path()
-        opening = launched[0].stdin.write.call_args.args[0]
+        opening = launched[0][-1]
         self.assertTrue(opening.startswith(
             f'Read the file {brief} and follow it exactly. It is addressed to you. '
         ), opening)
@@ -217,7 +216,11 @@ class DemoHomeTests(unittest.TestCase):
         self.assertEqual('project,local', args[args.index('--setting-sources') + 1])
         source = inspect.getsource(INSTALL.run_claude_demo)
         self.assertEqual(2, source.count("['claude'] + "))
-        self.assertEqual(2, source.count('cwd=uclusion_home_root()'))
+        self.assertEqual(2, source.count('DemoCodexTerminal('))
+        self.assertIn(
+            'cwd=uclusion_home_root()',
+            inspect.getsource(INSTALL.DemoCodexTerminal.__init__),
+        )
 
     def test_sessions_can_reach_the_demo_home_they_are_told_to_read(self):
         # The brief and the workflow references sit under the demo home.
@@ -233,11 +236,14 @@ class DemoHomeTests(unittest.TestCase):
         self.assertNotIn('stdout=subprocess.DEVNULL', source)
 
     def test_the_sessions_write_their_logs_as_they_go(self):
-        # S-Marketing-92: text output arrives only when a turn ends, which the
-        # supervisor never lets either session reach, so both logs stayed empty.
+        # S-Marketing-92: the supervisor stops both sessions before a turn
+        # ends. A terminal is copied into the log as it arrives. Print-mode
+        # stream-json is not a terminal, so Claude Code would have no Monitor.
         args = INSTALL.demo_session_args('stage')
-        self.assertEqual('stream-json', args[args.index('--output-format') + 1])
-        self.assertIn('--verbose', args)
+        self.assertNotIn('--output-format', args)
+        source = inspect.getsource(INSTALL.run_claude_demo)
+        self.assertIn('owner_terminal.drain(', source)
+        self.assertIn('evaluator_terminal.drain(', source)
 
     def test_a_demo_can_be_installed_without_running_the_exercise(self):
         # Installing and running are one command now, so without this the

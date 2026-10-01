@@ -1802,20 +1802,32 @@ def demo_home_processes(home, needle=None):
     return found
 
 
-def wait_for_owner_watch(home, deadline_seconds=180, owner=None):
+def wait_for_owner_watch(home, deadline_seconds=180, owner=None, drain=None):
     """Hold the evaluator until the owner can hear it.
 
     The owner learns it is needed from `watch`; an evaluator that writes before
     that is up is writing where nobody is looking, which is how the first run
-    to reach the exercise died.
+    to reach the exercise died. ``drain`` copies a terminal session's output
+    into its log during the wait, so a full terminal buffer cannot stall it.
     """
     deadline = time.monotonic() + deadline_seconds
     while time.monotonic() < deadline:
+        if drain is not None:
+            while drain(timeout=0):
+                pass
         if owner is not None and owner.poll() is not None:
             return False
         if demo_home_processes(home, ' watch'):
             return True
-        time.sleep(2)
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            break
+        if drain is None:
+            time.sleep(min(2, remaining))
+            continue
+        nap_deadline = time.monotonic() + min(2, remaining)
+        while time.monotonic() < nap_deadline:
+            drain(timeout=min(0.25, nap_deadline - time.monotonic()))
     return False
 
 
@@ -1862,10 +1874,6 @@ def demo_session_args(env, mcp_config=None):
         # command substitution cannot be analysed statically, so an agent
         # asked to run that line has it refused.
         '--append-system-prompt-file', demo_bootstrap_path(),
-        # S-Marketing-92: text output is written only when a turn ends, and
-        # the supervisor stops both sessions before theirs do, so their logs
-        # stayed empty. Streamed output lands in them as it happens.
-        '--output-format', 'stream-json', '--verbose',
         '--allowedTools',
         f'mcp__{MCP_SERVER_KEY}__*',
         f'Bash({demo_cli}:*)',
@@ -2368,30 +2376,36 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_di
     evaluator_session_args = demo_session_args(
         env, write_demo_evaluator_mcp_config(response_stats, evidence_dir),
     ) + choice_args
+    # A customer's terminal type is kept. One is supplied only when the
+    # supervising process has none, so Claude Code still has a terminal to be.
+    owner_environment.setdefault('TERM', 'xterm-256color')
+    evaluator_environment.setdefault('TERM', 'xterm-256color')
     # Kept rather than discarded: when a session fails, its log is the only
     # evidence of why, and removal takes it with the home.
     owner_log_path = os.path.join(run_dir, 'owner.log')
-    owner = evaluator = None
+    owner_terminal = evaluator_terminal = None
     print(f'📁 Demo session records: {run_dir}', flush=True)
     try:
         with demo_shutdown_signals(), open(
-            owner_log_path, 'w', encoding='utf-8'
+            owner_log_path, 'wb'
         ) as owner_log, open(
-            os.path.join(run_dir, 'evaluator.log'), 'w', encoding='utf-8'
+            os.path.join(run_dir, 'evaluator.log'), 'wb'
         ) as evaluator_log:
             try:
                 print('🤝 Starting the workshop owner.', flush=True)
                 # Started in the demo home, as the Codex sessions are, so no
                 # project's settings or CLAUDE.md reach them (S-Marketing-75).
-                owner = subprocess.Popen(
-                    ['claude'] + session_args, cwd=uclusion_home_root(),
-                    stdin=subprocess.PIPE, stdout=owner_log,
-                    stderr=subprocess.STDOUT, text=True, start_new_session=True,
-                    env=owner_environment,
+                # The opening prompt is an argument, and the session is a
+                # terminal: a pipe, or print-mode output, is headless Claude
+                # Code and has no Monitor, so the evaluator cannot wait.
+                owner_terminal = DemoCodexTerminal(
+                    ['claude'] + session_args + [owner_prompt],
+                    owner_environment, owner_log,
                 )
-                owner.stdin.write(owner_prompt)
-                owner.stdin.close()
-                if not wait_for_owner_watch(uclusion_home_root()):
+                if not wait_for_owner_watch(
+                    uclusion_home_root(), owner=owner_terminal.process,
+                    drain=owner_terminal.drain,
+                ):
                     print(
                         '⚠️  The owner is not watching for notifications yet. '
                         'Continuing, but if it never wakes the exercise will not '
@@ -2402,14 +2416,10 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_di
                     'minutes and needs nothing from anyone while it does.',
                     flush=True,
                 )
-                evaluator = subprocess.Popen(
-                    ['claude'] + evaluator_session_args, cwd=uclusion_home_root(),
-                    stdin=subprocess.PIPE, stdout=evaluator_log,
-                    stderr=subprocess.STDOUT, text=True,
-                    env=evaluator_environment, start_new_session=True,
+                evaluator_terminal = DemoCodexTerminal(
+                    ['claude'] + evaluator_session_args + [evaluator_prompt],
+                    evaluator_environment, evaluator_log,
                 )
-                evaluator.stdin.write(evaluator_prompt)
-                evaluator.stdin.close()
                 while True:
                     # A published report is complete: the CLI links it into
                     # place only after writing it in full.
@@ -2419,21 +2429,33 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_di
                         if not answer.decode('utf-8').strip():
                             raise RuntimeError('the published evaluation is empty')
                         break
-                    if evaluator.poll() is not None:
+                    if evaluator_terminal.process.poll() is not None:
                         raise RuntimeError(
                             'the evaluator exited before publishing its report'
                         )
-                    time.sleep(0.25)
+                    # S-Marketing-92: the supervisor stops both sessions before
+                    # a turn ends. Copy the terminal as it arrives so the log
+                    # is not empty, and so a full buffer cannot stall them.
+                    owner_terminal.drain(timeout=0)
+                    evaluator_terminal.drain()
             finally:
                 # Stop what this process started. An owner left running fails
                 # silently - it just sits on a watch against a workspace
                 # nobody is using - and an evaluator left running can wake
                 # and act after its evaluation is done.
                 try:
-                    stop_demo_session(evaluator)
+                    if evaluator_terminal is not None:
+                        try:
+                            stop_demo_session(evaluator_terminal.process)
+                        finally:
+                            evaluator_terminal.close()
                 finally:
                     try:
-                        stop_demo_session(owner)
+                        if owner_terminal is not None:
+                            try:
+                                stop_demo_session(owner_terminal.process)
+                            finally:
+                                owner_terminal.close()
                     finally:
                         stopped, left = stop_demo_home_processes(uclusion_home_root())
                         if stopped:

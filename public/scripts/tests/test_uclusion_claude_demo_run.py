@@ -5,6 +5,7 @@ and whatever that extra turn said would have replaced the report.
 """
 
 import importlib.util
+import inspect
 import io
 from pathlib import Path
 import tempfile
@@ -27,13 +28,19 @@ class ClaudeDemoRunTests(unittest.TestCase):
         self.output = io.TextIOWrapper(io.BytesIO(), encoding='utf-8')
         self.owner = self.session()
         self.evaluator = self.session()
+        self.owner_terminal = mock.Mock(process=self.owner)
+        self.evaluator_terminal = mock.Mock(process=self.evaluator)
+        self.terminal_source = inspect.getsource(INSTALL.DemoCodexTerminal.__init__)
         self.launches = []
         # Called whenever the installer waits, standing in for the evaluator
         self.evaluator_turn = lambda: None
 
-        def launch(command, **kwargs):
-            self.launches.append((command, kwargs))
-            return self.owner if len(self.launches) == 1 else self.evaluator
+        def launch(command, environment, _log):
+            self.launches.append((command, environment))
+            terminal = self.owner_terminal if len(self.launches) == 1 else self.evaluator_terminal
+            if terminal is self.evaluator_terminal:
+                terminal.drain.side_effect = lambda *args, **kwargs: self.evaluator_turn()
+            return terminal
 
         patches = [
             mock.patch.object(INSTALL, 'UCLUSION_HOME', str(self.home / '.uclusion')),
@@ -42,11 +49,10 @@ class ClaudeDemoRunTests(unittest.TestCase):
                               side_effect=lambda _env, config=None: ['--mcp-config', config or 'shared']),
             mock.patch.object(INSTALL, 'write_demo_evaluator_mcp_config',
                               return_value='evaluator.json'),
-            mock.patch.object(INSTALL.subprocess, 'Popen', side_effect=launch),
+            mock.patch.object(INSTALL, 'DemoCodexTerminal', side_effect=launch),
             mock.patch.object(INSTALL, 'wait_for_owner_watch', return_value=True),
             mock.patch.object(INSTALL, 'stop_demo_session'),
             mock.patch.object(INSTALL, 'stop_demo_home_processes', return_value=(0, [])),
-            mock.patch.object(INSTALL.time, 'sleep', side_effect=lambda _seconds: self.evaluator_turn()),
             mock.patch.object(INSTALL.sys, 'stdout', self.output),
         ]
         for patch in patches:
@@ -64,7 +70,7 @@ class ClaudeDemoRunTests(unittest.TestCase):
         return INSTALL.run_claude_demo('stage', 'workspace', 'Start J-Demo-1.', **kwargs)
 
     def report_path(self):
-        return Path(self.launches[1][1]['env']['UCLUSION_DEMO_REPORT_FILE'])
+        return Path(self.launches[1][1]['UCLUSION_DEMO_REPORT_FILE'])
 
     def printed(self):
         self.output.flush()
@@ -76,30 +82,33 @@ class ClaudeDemoRunTests(unittest.TestCase):
         self.assertEqual(self.run_demo(), 0)
         self.assertTrue(self.printed().endswith(report))
         self.stop.assert_has_calls([mock.call(self.evaluator), mock.call(self.owner)])
+        self.evaluator_terminal.close.assert_called_once()
+        self.owner_terminal.close.assert_called_once()
         INSTALL.stop_demo_home_processes.assert_called_once_with(str(self.home))
 
     def test_only_the_evaluator_is_told_where_to_publish(self):
         self.evaluator_turn = lambda: self.report_path().write_text('Report')
         self.assertEqual(self.run_demo(), 0)
-        (owner_command, owner_kwargs), (evaluator_command, evaluator_kwargs) = self.launches
-        self.assertNotIn('UCLUSION_DEMO_EVIDENCE_DIR', owner_kwargs['env'])
+        (owner_command, owner_env), (evaluator_command, evaluator_env) = self.launches
+        self.assertNotIn('UCLUSION_DEMO_EVIDENCE_DIR', owner_env)
         self.assertEqual(str(self.report_path().parent / 'evidence'),
-                         evaluator_kwargs['env']['UCLUSION_DEMO_EVIDENCE_DIR'])
+                         evaluator_env['UCLUSION_DEMO_EVIDENCE_DIR'])
         report = self.report_path()
         self.assertEqual('evaluation.md', report.name)
         self.assertEqual(self.home / '.uclusion' / 'demo-runs', report.parent.parent)
-        self.assertEqual(['claude', '--mcp-config', 'shared'], owner_command)
-        self.assertTrue(owner_kwargs['start_new_session'] and evaluator_kwargs['start_new_session'])
+        self.assertEqual(['claude', '--mcp-config', 'shared'], owner_command[:-1])
+        # A terminal session is its own process group, which is what stopping
+        # one session without the other depends on.
+        self.assertIn('os.setsid()', self.terminal_source)
         # S-Marketing-75: both start in the demo home, not the person's project
-        self.assertEqual(str(self.home), owner_kwargs['cwd'])
-        self.assertEqual(str(self.home), evaluator_kwargs['cwd'])
+        self.assertIn('cwd=uclusion_home_root()', self.terminal_source)
 
     def test_the_prompt_asks_for_publication_and_the_run_keeps_its_inputs(self):
         self.evaluator_turn = lambda: self.report_path().write_text('Report')
         self.assertEqual(self.run_demo(), 0)
         run = self.report_path().parent
         prompt = (run / 'evaluator-input.md').read_text()
-        self.assertEqual(prompt, self.evaluator.stdin.write.call_args.args[0])
+        self.assertEqual(prompt, self.launches[1][0][-1])
         self.assertIn(f'{INSTALL.workflow_cli_command("stage")} demo --report', prompt)
         self.assertIn('The installer will stop this session after publication', prompt)
         self.assertNotIn('print that answer as the last thing you say', prompt)
@@ -119,8 +128,9 @@ class ClaudeDemoRunTests(unittest.TestCase):
         # S-Marketing-93: they pay for the run, so the choice holds for both.
         self.evaluator_turn = lambda: self.report_path().write_text('Report')
         self.assertEqual(self.run_demo(model='opus', effort='xhigh'), 0)
-        for command, _kwargs in self.launches:
-            self.assertEqual(['--model', 'opus', '--effort', 'xhigh'], command[-4:])
+        for command, _environment in self.launches:
+            self.assertEqual(['--model', 'opus', '--effort', 'xhigh'], command[-5:-1])
+            self.assertTrue(command[-1])
         prompt = (self.report_path().parent / 'evaluator-input.md').read_text()
         self.assertIn(INSTALL.DEMO_EFFORT_NOTE, prompt)
 
@@ -166,8 +176,8 @@ class ClaudeDemoRunTests(unittest.TestCase):
     def test_only_the_evaluator_is_launched_with_statistics(self):
         self.evaluator_turn = lambda: self.report_path().write_text('Report')
         self.assertEqual(self.run_demo(response_stats='/tmp/eval.jsonl'), 0)
-        self.assertEqual(['claude', '--mcp-config', 'shared'], self.launches[0][0])
-        self.assertEqual(['claude', '--mcp-config', 'evaluator.json'], self.launches[1][0])
+        self.assertEqual(['claude', '--mcp-config', 'shared'], self.launches[0][0][:-1])
+        self.assertEqual(['claude', '--mcp-config', 'evaluator.json'], self.launches[1][0][:-1])
 
 
 if __name__ == '__main__':

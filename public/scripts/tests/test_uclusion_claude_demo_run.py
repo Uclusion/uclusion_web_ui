@@ -176,11 +176,17 @@ class ClaudeDemoRunTests(unittest.TestCase):
 
     def test_sessions_do_not_inherit_the_child_session_marker(self):
         self.evaluator_turn = lambda: self.report_path().write_text('Report')
-        with mock.patch.dict('os.environ', {'CLAUDE_CODE_CHILD_SESSION': '1'}):
+        with mock.patch.dict('os.environ', {
+            'CLAUDE_CODE_CHILD_SESSION': '1',
+            'CLAUDE_CODE_SIMPLE': '1',
+            'CLAUDE_CODE_SESSION_ID': '11111111-1111-4111-8111-111111111111',
+        }):
             self.assertEqual(self.run_demo(), 0)
         self.assertEqual(2, len(self.launches))
         for _command, environment in self.launches:
             self.assertNotIn('CLAUDE_CODE_CHILD_SESSION', environment)
+            self.assertNotIn('CLAUDE_CODE_SIMPLE', environment)
+            self.assertNotIn('CLAUDE_CODE_SESSION_ID', environment)
 
     def test_only_the_evaluator_is_launched_with_statistics(self):
         self.evaluator_turn = lambda: self.report_path().write_text('Report')

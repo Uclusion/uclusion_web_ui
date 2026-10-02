@@ -52,6 +52,22 @@ class ClaudeSessionTraceTests(unittest.TestCase):
                        self.claude_temp / '-home-me-project'):
             folder.mkdir(parents=True)
             (folder / 'session.jsonl').write_text('{}')
+        session = '11111111-1111-4111-8111-111111111111'
+        other = '22222222-2222-4222-8222-222222222222'
+        (transcripts / f'{session}.jsonl').write_text('{}')
+        for kind in ('session-env', 'tasks', 'file-history'):
+            for name, marker in ((session, 'demo'), (other, 'keep')):
+                folder = self.config / kind / name
+                folder.mkdir(parents=True)
+                (folder / 'marker').write_text(marker)
+        debug = self.config / 'debug'
+        debug.mkdir()
+        (debug / f'{session}.txt').write_text('demo')
+        (debug / f'{other}.txt').write_text('keep')
+        (self.config / 'history.jsonl').write_text(
+            json.dumps({'project': self.home, 'display': 'demo'}) + '\n'
+            + json.dumps({'project': '/home/me/project', 'display': 'keep'}) + '\n'
+        )
         self.claude_json.write_text(json.dumps({
             'numStartups': 7,
             'projects': {self.home: {'allowedTools': []}, '/home/me/project': {'x': 1}},
@@ -74,10 +90,22 @@ class ClaudeSessionTraceTests(unittest.TestCase):
 
     def test_only_the_demo_s_three_traces_go(self):
         self.leave_traces()
+        session = '11111111-1111-4111-8111-111111111111'
+        other = '22222222-2222-4222-8222-222222222222'
         outcomes = INSTALL.remove_demo_claude_session_traces(self.home)
-        self.assertEqual(['removed'] * 4, [state for state, _detail in outcomes])
+        self.assertNotIn('kept', [state for state, _detail in outcomes])
         self.assertFalse((self.config / 'projects' / self.name).exists())
         self.assertFalse((self.claude_temp / self.name).exists())
+        for kind in ('session-env', 'tasks', 'file-history'):
+            self.assertFalse((self.config / kind / session).exists())
+            self.assertEqual('keep', (self.config / kind / other / 'marker').read_text())
+        self.assertFalse((self.config / 'debug' / f'{session}.txt').exists())
+        self.assertEqual('keep', (self.config / 'debug' / f'{other}.txt').read_text())
+        history = [
+            json.loads(line)
+            for line in (self.config / 'history.jsonl').read_text().splitlines()
+        ]
+        self.assertEqual([{'project': '/home/me/project', 'display': 'keep'}], history)
         # Folders of the same shape for other projects stay
         self.assertTrue((self.config / 'projects' / '-home-me-project').is_dir())
         self.assertTrue((self.claude_temp / '-home-me-project').is_dir())
@@ -94,8 +122,10 @@ class ClaudeSessionTraceTests(unittest.TestCase):
 
     def test_nothing_to_remove_writes_nothing(self):
         outcomes = INSTALL.remove_demo_claude_session_traces(self.home)
-        self.assertEqual(['absent'] * 4, [state for state, _detail in outcomes])
+        self.assertTrue(outcomes)
+        self.assertTrue(all(state == 'absent' for state, _detail in outcomes))
         self.assertFalse(self.claude_json.exists())
+        self.assertFalse((self.config / 'history.jsonl').exists())
 
     def test_a_config_it_cannot_read_is_left_alone(self):
         self.claude_json.write_text('{not json')
@@ -197,8 +227,9 @@ class ClaudeSessionTraceTests(unittest.TestCase):
 
     def test_a_name_claude_code_shortens_is_not_guessed(self):
         outcomes = INSTALL.remove_demo_claude_session_traces('/' + 'a' * 200)
-        self.assertEqual(['kept', 'absent', 'absent'],
-                         [state for state, _detail in outcomes])
+        self.assertEqual(['kept', 'kept'],
+                         [state for state, _detail in outcomes[:2]])
+        self.assertTrue(all(state == 'absent' for state, _detail in outcomes[2:]))
 
     def test_removal_waits_until_no_session_can_write_them_again(self):
         source = inspect.getsource(INSTALL.remove_demo_install)
@@ -221,8 +252,8 @@ class ClaudeSessionTraceTests(unittest.TestCase):
         told = ' '.join(str(call.args[0]) for call in printed.call_args_list)
         self.assertIn('demo --remove` removes the demo', told)
         self.assertIn(
-            'transcripts, task output, project entries and demo-plugin '
-            'usage counters Claude Code keeps',
+            'transcripts, task output, session files, prompt history, '
+            'project entries and demo-plugin usage counters Claude Code keeps',
             told,
         )
         self.assertIn('including the demo home in ~/.claude.json', told)

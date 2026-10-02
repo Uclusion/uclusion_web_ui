@@ -2162,9 +2162,9 @@ def start_demo_supervisor(env, client, workspace_id, start_prompt, response_stat
     # S-Marketing-87: the prompt promises a removal that takes everything, so
     # name the command that does, including what the client keeps outside.
     kept = (
-        ', and the transcripts, task output, project entries and demo-plugin '
-        'usage counters Claude Code keeps for it, including the demo home '
-        'in ~/.claude.json'
+        ', and the transcripts, task output, session files, prompt history, '
+        'project entries and demo-plugin usage counters Claude Code keeps '
+        'for it, including the demo home in ~/.claude.json'
         if client == 'claude' else ''
     )
     print(f'🧹 `{cli} demo --remove` removes the demo: {uclusion_home_root()}{kept}.',
@@ -2310,12 +2310,20 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
 def demo_claude_session_environment():
     """Environment for one demo Claude Code process.
 
-    The installer is often started from Claude Code, which exports
-    CLAUDE_CODE_CHILD_SESSION. A process that inherits it is a child
-    session and has no Monitor, so the evaluator cannot wait.
+    The installer is often started from Claude Code. That parent exports
+    CLAUDE_CODE_CHILD_SESSION, CLAUDE_CODE_SIMPLE when it was started with
+    --bare, and its own CLAUDE_CODE_SESSION_ID. A child session has no
+    Monitor. Bare mode registers no built-in tools, so Monitor is missing
+    there too. Sharing the parent's session id writes the demo into the
+    parent's transcript, which removal must not delete.
     """
     environment = dict(os.environ)
-    environment.pop('CLAUDE_CODE_CHILD_SESSION', None)
+    for name in (
+        'CLAUDE_CODE_CHILD_SESSION',
+        'CLAUDE_CODE_SIMPLE',
+        'CLAUDE_CODE_SESSION_ID',
+    ):
+        environment.pop(name, None)
     return environment
 
 
@@ -3235,14 +3243,148 @@ def _remove_demo_claude_project_entry(path, homes):
     return 'removed', f'the demo\'s project entry from {path}'
 
 
+# Claude Code names a session's own files with the transcript's id.
+_DEMO_SESSION_ID = re.compile(
+    r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-'
+    r'[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+)
+
+
+def _demo_claude_config_homes():
+    """Config directories a demo session may have written beside .claude.json."""
+    found = []
+    for path in (CLAUDE_CONFIG_HOME, os.path.join(USER_HOME, '.claude')):
+        absolute = os.path.abspath(path)
+        if absolute not in found:
+            found.append(absolute)
+    return found
+
+
+def _demo_session_ids(folder):
+    """Session ids named by transcript files directly in one project folder."""
+    if os.path.islink(folder) or not os.path.isdir(folder):
+        return []
+    try:
+        names = os.listdir(folder)
+    except OSError:
+        return []
+    found = []
+    for name in names:
+        if not name.endswith('.jsonl'):
+            continue
+        session_id = name[:-len('.jsonl')]
+        if _DEMO_SESSION_ID.fullmatch(session_id) and session_id not in found:
+            found.append(session_id)
+    return found
+
+
+def _demo_transcript_session_ids(names):
+    found = []
+    for config_home in _demo_claude_config_homes():
+        for name in names:
+            for session_id in _demo_session_ids(
+                os.path.join(config_home, 'projects', name)
+            ):
+                if session_id not in found:
+                    found.append(session_id)
+    return found
+
+
+def _remove_demo_session_files(session_ids):
+    """Drop one session's files that sit beside the project folder.
+
+    A session that can arm Monitor writes session-env, and may write tasks,
+    file-history and a debug log, each named with its session id. Other
+    sessions' directories stay.
+    """
+    specs = (
+        ('session-env', True),
+        ('tasks', True),
+        ('file-history', True),
+        ('debug', False),
+    )
+    outcomes = []
+    for config_home in _demo_claude_config_homes():
+        for kind, is_directory in specs:
+            matched = False
+            for session_id in session_ids:
+                path = os.path.join(
+                    config_home, kind,
+                    session_id if is_directory else f'{session_id}.txt',
+                )
+                if not os.path.lexists(path):
+                    continue
+                matched = True
+                if is_directory:
+                    outcomes.append(_remove_claude_folder(
+                        path, f'the demo session\'s {kind}',
+                    ))
+                    continue
+                if os.path.islink(path) or not os.path.isfile(path):
+                    outcomes.append(('kept', f'{path}, which is not a plain file'))
+                    continue
+                try:
+                    os.remove(path)
+                except OSError as err:
+                    outcomes.append(('kept', f'{path} ({err})'))
+                else:
+                    outcomes.append(('removed', f'the demo session\'s debug log in {path}'))
+            if not matched:
+                outcomes.append(('absent', f'the demo sessions\' {kind} in {config_home}'))
+    return outcomes
+
+
+def _remove_demo_prompt_history(homes):
+    """Drop history.jsonl lines whose project is the demo home."""
+    return [
+        _remove_demo_prompt_history_file(os.path.join(config_home, 'history.jsonl'), homes)
+        for config_home in _demo_claude_config_homes()
+    ]
+
+
+def _remove_demo_prompt_history_file(path, homes):
+    absent = ('absent', f'prompt history for the demo in {path}')
+    try:
+        target = _config_write_target(path)
+        existing, signature = _read_text_snapshot(target)
+        if signature is None:
+            return absent
+        kept = []
+        removed = False
+        for line in existing.splitlines(keepends=True):
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                kept.append(line)
+                continue
+            project = record.get('project') if isinstance(record, dict) else None
+            if project in homes:
+                removed = True
+                continue
+            kept.append(line)
+        if not removed:
+            return absent
+        updated = ''.join(kept)
+        try:
+            with config_file_lock(path):
+                atomic_write_text(path, updated, existing, target, signature)
+        finally:
+            _remove_demo_config_lock(path)
+    except (OSError, RuntimeError) as err:
+        return 'kept', f'prompt history for the demo in {path} ({err})'
+    return 'removed', f'prompt history for the demo from {path}'
+
+
 def remove_demo_claude_session_traces(home):
     """S-Marketing-87: take back what Claude Code kept for the demo home.
 
     The demo's sessions run in its home, so Claude Code files their
     transcripts, their task output and a project entry under that path, all
-    outside the home. The project entry is deleted from the session config
-    and from ~/.claude.json. Only names derived from this home's own path
-    are touched.
+    outside the home. A session that can arm Monitor also leaves session-env,
+    and may leave tasks, file-history, a debug log and prompt-history lines.
+    The project entry is deleted from the session config and from
+    ~/.claude.json. Only names derived from this home's own path, or from a
+    session id in that home's transcripts, are touched.
     Usage counters are the exception: Claude Code names them after the demo
     plugin, so removal deletes those names from each Claude config it may
     have written and leaves every other counter.
@@ -3253,13 +3395,18 @@ def remove_demo_claude_session_traces(home):
         return [
             ('kept', f'Claude Code\'s folders for {home}, whose name it '
                      'shortens with a hash'),
+            ('kept', 'session files Claude Code names from transcripts in '
+                     'that shortened folder'),
+            *_remove_demo_prompt_history(paths),
             *_remove_demo_claude_project_entries(paths),
             *(_remove_demo_plugin_usage(path) for path in _demo_claude_config_paths()),
         ]
     uid = os.getuid() if hasattr(os, 'getuid') else 0
+    session_ids = _demo_transcript_session_ids(names)
     places = (
         ('the demo sessions\' transcripts',
-         [os.path.join(CLAUDE_CONFIG_HOME, 'projects', name) for name in names]),
+         [os.path.join(config_home, 'projects', name)
+          for config_home in _demo_claude_config_homes() for name in names]),
         ('the demo sessions\' task output',
          [os.path.join(root, f'claude-{uid}', name)
           for root in _claude_temp_roots() for name in names]),
@@ -3270,6 +3417,8 @@ def remove_demo_claude_session_traces(home):
         outcomes.extend(_remove_claude_folder(folder, label) for folder in found)
         if not found:
             outcomes.append(('absent', label))
+    outcomes.extend(_remove_demo_session_files(session_ids))
+    outcomes.extend(_remove_demo_prompt_history(paths))
     outcomes.extend(_remove_demo_claude_project_entries(paths))
     outcomes.extend(
         _remove_demo_plugin_usage(path) for path in _demo_claude_config_paths()

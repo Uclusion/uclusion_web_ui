@@ -2,6 +2,7 @@
 
 import importlib.util
 import io
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -155,6 +156,45 @@ class CodexDemoRunTests(unittest.TestCase):
         self.assertEqual(self.run_demo(), 1)
         self.assertEqual(self.commands, [])
         self.stop.assert_called_once_with(self.owner)
+
+    def test_owner_watch_failure_names_the_owners_last_error(self):
+        # S-Marketing-105: run-79g5sk80's owner got a 404 for its model and
+        # the failure said only that the watch never started.
+        final = (
+            'unexpected status 404 Not Found: The model `GPT-6.1-Sol` does not '
+            'exist or you do not have access to it., url: '
+            'https://api.openai.com/v1/responses, request id: req_5c21'
+        )
+        run_79g5sk80 = [
+            'Reading additional input from stdin...',
+            {'type': 'thread.started', 'thread_id': 'thread'},
+            {'type': 'item.completed', 'item': {
+                'id': 'item_0', 'type': 'error',
+                'message': 'Model metadata for `GPT-6.1-Sol` not found.'}},
+            {'type': 'error', 'message': f'Reconnecting... 5/5 ({final})'},
+            {'type': 'error', 'message': final},
+            {'type': 'turn.failed', 'error': {'message': final}},
+        ]
+        reason = 'the owner did not start its notification watch'
+        for lines, expected in (
+            (run_79g5sk80, f'{reason}: {final}. Records:'),
+            (run_79g5sk80[:3], f'{reason}. Records:'),
+        ):
+            with self.subTest(lines=len(lines)):
+                def owner_exits(*_args, lines=lines, **_kwargs):
+                    log = INSTALL.subprocess.Popen.call_args.kwargs['stdout']
+                    for line in lines:
+                        text = line if isinstance(line, str) else json.dumps(line)
+                        log.write((text + '\n').encode('utf-8'))
+                    log.flush()
+                    return False
+
+                self.mocks[7].side_effect = owner_exits
+                run_dir = self.home / f'run-{len(lines)}'
+                run_dir.mkdir()
+                self.assertEqual(self.run_demo(run_dir=str(run_dir)), 1)
+                self.assertEqual(self.commands, [])
+                self.assertIn(expected, (run_dir / INSTALL.DEMO_FAILURE_FILE).read_text())
 
     def test_normal_owner_exit_can_precede_report(self):
         self.owner.poll.return_value = 0

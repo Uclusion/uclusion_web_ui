@@ -102,6 +102,29 @@ class DemoChoiceHandOffTests(unittest.TestCase):
         self.assertEqual('opus', runner.call_args.kwargs['model'])
         self.assertEqual('xhigh', runner.call_args.kwargs['effort'])
 
+    def test_a_choice_copied_from_a_client_display_is_lowercased(self):
+        # T-Marketing-307: the Codex API returned 404 for `GPT-6.1-Sol`
+        supervisor = mock.Mock(pid=4242)
+        with mock.patch.object(INSTALL, 'UCLUSION_HOME', str(self.home / '.uclusion')), \
+                mock.patch.object(INSTALL, 'SYMLINK_DIR', str(self.home / '.local' / 'bin')), \
+                mock.patch.object(INSTALL, 'uclusion_home_root', return_value=str(self.home)), \
+                mock.patch.object(INSTALL.subprocess, 'Popen', return_value=supervisor) as popen, \
+                mock.patch('builtins.print'):
+            self.assertEqual(0, INSTALL.start_demo_supervisor(
+                'stage', 'codex', 'workspace', 'Start J-Demo-1.',
+                model='GPT-6.1-Sol', effort='High'))
+        command = popen.call_args.args[0]
+        self.assertEqual(['gpt-6.1-sol', 'high'], command[-2:])
+        run_dir = Path((self.home / '.uclusion' / INSTALL.DEMO_CURRENT_RUN_FILE).read_text())
+        self.assertEqual(
+            {'client': 'codex', 'model': 'gpt-6.1-sol', 'effort': 'high'},
+            json.loads((run_dir / INSTALL.DEMO_RUN_CHOICE_FILE).read_text()),
+        )
+        with mock.patch.object(INSTALL, 'run_codex_demo', return_value=0) as runner:
+            self.assertEqual(0, INSTALL.supervise_demo(command[3:]))
+        self.assertEqual('gpt-6.1-sol', runner.call_args.kwargs['model'])
+        self.assertEqual('high', runner.call_args.kwargs['effort'])
+
     def test_the_result_states_the_choice_above_the_unedited_report(self):
         run_dir = self.home / '.uclusion' / 'demo-runs' / 'run-1'
         run_dir.mkdir(parents=True)

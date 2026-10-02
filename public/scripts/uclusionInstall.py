@@ -2148,6 +2148,10 @@ def start_demo_supervisor(env, client, workspace_id, start_prompt, response_stat
     from the home's .local directory so the demo's process scan, and therefore
     `demo --remove`, recognises it as this demo's.
     """
+    # T-Marketing-307: Codex displays `GPT-6.1-Sol`, but its API only knows
+    # `gpt-6.1-sol`, so a choice copied from a client's display must not fail.
+    model = model.lower() if model else model
+    effort = effort.lower() if effort else effort
     run_dir = new_demo_run_dir()
     supervisor = os.path.join(SYMLINK_DIR, 'uclusionDemoSupervisor.py')
     shutil.copyfile(os.path.abspath(__file__), supervisor)
@@ -2202,6 +2206,30 @@ def supervise_demo(argv):
         record_demo_failure(run_dir, message)
         print(f'❌ {message}', flush=True)
         return 1
+
+
+def last_codex_owner_error(log_path):
+    """S-Marketing-105: the message of the owner's last top-level error event.
+
+    `codex exec --json` logs API failures such as an unknown model here.
+    Without one in the failure text, a model the key cannot use reads only as
+    a watch that never started.
+    """
+    message = None
+    try:
+        with open(log_path, encoding='utf-8', errors='replace') as handle:
+            for line in handle:
+                try:
+                    event = json.loads(line)
+                except ValueError:
+                    continue
+                if (isinstance(event, dict) and event.get('type') == 'error'
+                        and isinstance(event.get('message'), str)
+                        and event['message'].strip()):
+                    message = event['message'].strip()
+    except OSError:
+        return None
+    return message
 
 
 def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir=None,
@@ -2278,7 +2306,11 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
                     stderr=subprocess.STDOUT, start_new_session=True,
                 )
                 if not wait_for_owner_watch(uclusion_home_root(), owner=owner):
-                    raise RuntimeError('the owner did not start its notification watch')
+                    reason = 'the owner did not start its notification watch'
+                    owner_error = last_codex_owner_error(owner_log.name)
+                    raise RuntimeError(
+                        f'{reason}: {owner_error}' if owner_error else reason
+                    )
                 print('🧠 Starting the evaluating agent.', flush=True)
                 terminal = DemoCodexTerminal(
                     [*evaluator_command, 'codex', '--', *evaluator_session_args,

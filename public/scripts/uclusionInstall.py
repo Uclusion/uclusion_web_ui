@@ -2094,6 +2094,8 @@ def snapshot_demo_evidence(run_dir, client):
             'Provider instructions, inherited non-Uclusion client settings, native tool implementations '
             'and arbitrary native tool output are not captured. '
             'HTTP authentication headers and credential files are not part of this evidence. '
+            'The demo uclusion command can read the demo workspace with export and get_job. '
+            'HTTP requests sent to the model provider are not always visible, so that transcript is not in the evidence. '
             'Evidence stays in this demo run and is removed with the demo.\n'
         )
     return directory

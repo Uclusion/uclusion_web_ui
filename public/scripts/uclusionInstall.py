@@ -2162,8 +2162,9 @@ def start_demo_supervisor(env, client, workspace_id, start_prompt, response_stat
     # S-Marketing-87: the prompt promises a removal that takes everything, so
     # name the command that does, including what the client keeps outside.
     kept = (
-        ', and the transcripts, task output, project entry and demo-plugin '
-        'usage counters Claude Code keeps for it'
+        ', and the transcripts, task output, project entries and demo-plugin '
+        'usage counters Claude Code keeps for it, including the demo home '
+        'in ~/.claude.json'
         if client == 'claude' else ''
     )
     print(f'🧹 `{cli} demo --remove` removes the demo: {uclusion_home_root()}{kept}.',
@@ -2306,6 +2307,18 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
         return 1
 
 
+def demo_claude_session_environment():
+    """Environment for one demo Claude Code process.
+
+    The installer is often started from Claude Code, which exports
+    CLAUDE_CODE_CHILD_SESSION. A process that inherits it is a child
+    session and has no Monitor, so the evaluator cannot wait.
+    """
+    environment = dict(os.environ)
+    environment.pop('CLAUDE_CODE_CHILD_SESSION', None)
+    return environment
+
+
 def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_dir=None,
                     model=None, effort=None):
     """Supervise the Claude owner and evaluator until the evaluator publishes.
@@ -2326,9 +2339,9 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_di
     session_args = demo_session_args(env) + choice_args
     # Only the evaluator is given the report destination; the owner has
     # nothing to publish.
-    evaluator_environment = dict(os.environ)
+    evaluator_environment = demo_claude_session_environment()
     evaluator_environment['UCLUSION_DEMO_REPORT_FILE'] = report_path
-    owner_environment = dict(os.environ)
+    owner_environment = demo_claude_session_environment()
     owner_environment.pop('UCLUSION_DEMO_EVIDENCE_DIR', None)
     # The owner has no other way to learn where its directions are: the
     # installer's output is addressed to the agent that ran it and the owner
@@ -3179,9 +3192,21 @@ def _remove_demo_plugin_usage(path):
     return 'removed', f'the demo plugin\'s usage counters from {path}'
 
 
-def _remove_demo_claude_project_entries(paths):
-    """Drop only the .claude.json project entries keyed by the demo home."""
-    path = CLAUDE_JSON_PATH
+def _remove_demo_claude_project_entries(homes):
+    """Drop the demo home's project entry from each Claude config.
+
+    Trust is recorded in the session config and in ~/.claude.json when
+    that is a different file. Removal takes the entry from both, including
+    one whose only field is hasTrustDialogAccepted. Other paths stay.
+    """
+    return [
+        _remove_demo_claude_project_entry(path, homes)
+        for path in _demo_claude_config_paths()
+    ]
+
+
+def _remove_demo_claude_project_entry(path, homes):
+    """Drop only the project entries keyed by the demo home from one config."""
     absent = ('absent', f'a project entry for the demo in {path}')
     try:
         target = _config_write_target(path)
@@ -3193,7 +3218,7 @@ def _remove_demo_claude_project_entries(paths):
         except json.JSONDecodeError as err:
             return 'kept', f'{path}, which is not valid JSON: {err}'
         projects = config.get('projects') if isinstance(config, dict) else None
-        keys = [key for key in paths if isinstance(projects, dict) and key in projects]
+        keys = [key for key in homes if isinstance(projects, dict) and key in projects]
         if not keys:
             return absent
         for key in keys:
@@ -3215,7 +3240,9 @@ def remove_demo_claude_session_traces(home):
 
     The demo's sessions run in its home, so Claude Code files their
     transcripts, their task output and a project entry under that path, all
-    outside the home. Only names derived from this home's own path are touched.
+    outside the home. The project entry is deleted from the session config
+    and from ~/.claude.json. Only names derived from this home's own path
+    are touched.
     Usage counters are the exception: Claude Code names them after the demo
     plugin, so removal deletes those names from each Claude config it may
     have written and leaves every other counter.
@@ -3226,6 +3253,7 @@ def remove_demo_claude_session_traces(home):
         return [
             ('kept', f'Claude Code\'s folders for {home}, whose name it '
                      'shortens with a hash'),
+            *_remove_demo_claude_project_entries(paths),
             *(_remove_demo_plugin_usage(path) for path in _demo_claude_config_paths()),
         ]
     uid = os.getuid() if hasattr(os, 'getuid') else 0
@@ -3242,7 +3270,7 @@ def remove_demo_claude_session_traces(home):
         outcomes.extend(_remove_claude_folder(folder, label) for folder in found)
         if not found:
             outcomes.append(('absent', label))
-    outcomes.append(_remove_demo_claude_project_entries(paths))
+    outcomes.extend(_remove_demo_claude_project_entries(paths))
     outcomes.extend(
         _remove_demo_plugin_usage(path) for path in _demo_claude_config_paths()
     )

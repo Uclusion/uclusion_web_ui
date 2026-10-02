@@ -174,6 +174,14 @@ class ClaudeDemoRunTests(unittest.TestCase):
         self.assertIn('The owner is not watching for notifications yet', self.printed().decode())
         self.assertEqual(2, len(self.launches))
 
+    def test_sessions_do_not_inherit_the_child_session_marker(self):
+        self.evaluator_turn = lambda: self.report_path().write_text('Report')
+        with mock.patch.dict('os.environ', {'CLAUDE_CODE_CHILD_SESSION': '1'}):
+            self.assertEqual(self.run_demo(), 0)
+        self.assertEqual(2, len(self.launches))
+        for _command, environment in self.launches:
+            self.assertNotIn('CLAUDE_CODE_CHILD_SESSION', environment)
+
     def test_only_the_evaluator_is_launched_with_statistics(self):
         self.evaluator_turn = lambda: self.report_path().write_text('Report')
         self.assertEqual(self.run_demo(response_stats='/tmp/eval.jsonl'), 0)

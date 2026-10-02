@@ -159,9 +159,46 @@ class ClaudeSessionTraceTests(unittest.TestCase):
         self.assertEqual({'uclusion': {'usageCount': 29}}, saved['skillUsage'])
         self.assertFalse(Path(f'{config}.uclusion.lock').exists())
 
+    def test_a_separate_home_config_loses_the_demo_trust_entry(self):
+        person = self.temp_root / 'person'
+        person.mkdir(parents=True)
+        home_config = person / '.claude.json'
+        home_config.write_text(json.dumps({
+            'projects': {
+                self.home: {'hasTrustDialogAccepted': True},
+                '/home/me/project': {'hasTrustDialogAccepted': True},
+            },
+        }))
+        self.claude_json.write_text(json.dumps({
+            'projects': {
+                self.home: {'hasTrustDialogAccepted': True, 'allowedTools': []},
+                '/home/me/other': {'x': 1},
+            },
+        }))
+        with mock.patch.object(INSTALL, 'USER_HOME', str(person)):
+            outcomes = INSTALL.remove_demo_claude_session_traces(self.home)
+        self.assertIn(
+            ('removed', f"the demo's project entry from {home_config}"),
+            outcomes,
+        )
+        self.assertIn(
+            ('removed', f"the demo's project entry from {self.claude_json}"),
+            outcomes,
+        )
+        self.assertEqual(
+            {'/home/me/project': {'hasTrustDialogAccepted': True}},
+            json.loads(home_config.read_text())['projects'],
+        )
+        self.assertEqual(
+            {'/home/me/other': {'x': 1}},
+            json.loads(self.claude_json.read_text())['projects'],
+        )
+        self.assertFalse(Path(f'{home_config}.uclusion.lock').exists())
+
     def test_a_name_claude_code_shortens_is_not_guessed(self):
         outcomes = INSTALL.remove_demo_claude_session_traces('/' + 'a' * 200)
-        self.assertEqual(['kept', 'absent'], [state for state, _detail in outcomes])
+        self.assertEqual(['kept', 'absent', 'absent'],
+                         [state for state, _detail in outcomes])
 
     def test_removal_waits_until_no_session_can_write_them_again(self):
         source = inspect.getsource(INSTALL.remove_demo_install)
@@ -184,10 +221,11 @@ class ClaudeSessionTraceTests(unittest.TestCase):
         told = ' '.join(str(call.args[0]) for call in printed.call_args_list)
         self.assertIn('demo --remove` removes the demo', told)
         self.assertIn(
-            'transcripts, task output, project entry and demo-plugin '
+            'transcripts, task output, project entries and demo-plugin '
             'usage counters Claude Code keeps',
             told,
         )
+        self.assertIn('including the demo home in ~/.claude.json', told)
 
 
 if __name__ == '__main__':

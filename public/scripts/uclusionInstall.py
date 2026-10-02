@@ -159,7 +159,7 @@ SCRIPT_FILES = (
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCLI.py':
-        '08c85dea97afb3e1ab035700df32edfa6ea0af4b6b6070e5a7b658be25305c02',
+        'e3ab4a6311fc48e13afdc168f1b1a8de0492395f720ad254b3cb934a900ba53b',
     'uclusionMCPProxy.py':
         'ed5d32ae848be88d5a4e5fa4cfea293e11039adf88944f1dd5ad0980edf54073',
     'uclusionSetupMCP.py':
@@ -336,7 +336,7 @@ WORKFLOW_ASSET_PATHS = {
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
     'reading_reference': 'ded25d0fa5aff01b02293218a5e73ae79b4bb977be84f60fc3c0a9d702c8e362',
-    'demo_brief': '63c80d0ebfed53489fe37d0b715f9af294d9729f526e08659bafd2639598becb',
+    'demo_brief': '1c26c3235dba931bcbf9d88fcacf32e437f1ec10f3e70fd908f33228ba30037f',
     'claude_stub': '2bcf5034fba89fe87e4020e70adac26aecaf373b50efd0c3c8137a4eeec73830',
     'codex_stub': '7cc3b75aa1b7af3799e47962d7ce2beb43b4a8f52541bb571c0dc968eb808336',
     'cursor_stub': '48944f1a09c86ef1e2e59fc18957e93212f86b30bb73ff67e18a9bc1ff8e3fa8',
@@ -1431,6 +1431,24 @@ def demo_bootstrap_path():
     return os.path.join(UCLUSION_HOME, 'bootstrap.md')
 
 
+# S-Marketing-114: the Codex owner plays the human and takes no job, so it gets
+# these directions instead of the evaluator's workflow bootstrap, which sent
+# it reading the job workflow it never uses.
+DEMO_CODEX_OWNER_ROLE = (
+    'You are the workshop owner in this Uclusion demo, playing its human. '
+    'Follow the installed owner brief; it is your whole procedure. The demo '
+    'sends you each human notification as a new message. Do not arm a '
+    'listener, wait for or drain Pokes, call find_work, or take jobs. Answer '
+    'through human-role records with your Uclusion MCP tools, including the '
+    'completion-package reply on the review the brief describes, then stop.\n'
+)
+
+
+def demo_codex_owner_instructions_path():
+    """The Codex owner's developer instructions, kept beside the bootstrap."""
+    return os.path.join(UCLUSION_HOME, 'owner-instructions.md')
+
+
 def install_demo_plugin(fetch_bundle):
     """Write the workflow into the demo's own directory instead of the person's.
 
@@ -1520,16 +1538,14 @@ def install_demo_codex_workflow(fetch_bundle):
                 os.path.join('.agents', 'skills', package, relative_path),
                 bundle[asset_key],
             )
+    # The evaluator's bootstrap is the ordinary stub; the owner's role has its
+    # own file (Q-Marketing-252).
     _write_staged_asset(
         home, os.path.join('.uclusion', 'bootstrap.md'),
-        bundle['codex_stub'].replace(WORKFLOW_ENV_PLACEHOLDER, cli)
-        + '\nWhen assigned the workshop owner role, follow the installed owner '
-        'brief and watch human notifications through the demo CLI. Do not '
-        'arm a listener, wait for or drain Pokes, call find_work, or take jobs. '
-        'Answer through human-role records, including the completion-package '
-        'reply on the review required by the owner brief, then stop. These '
-        'owner-role directions override the normal work discovery and Poke delivery directions '
-        'above. They do not change the evaluator workflow.\n',
+        bundle['codex_stub'].replace(WORKFLOW_ENV_PLACEHOLDER, cli),
+    )
+    _write_staged_asset(
+        home, os.path.join('.uclusion', 'owner-instructions.md'), DEMO_CODEX_OWNER_ROLE,
     )
     _write_staged_asset(
         home, os.path.join('.uclusion', 'demo-brief.md'),
@@ -1603,8 +1619,12 @@ def _read_demo_codex_config(codex, arguments, environment):
 
 
 def demo_codex_session_args(environment, workspace_id, evidence_dir=None,
-                            evidence_role=None):
-    """Build and check the Codex demo sessions' launch-local settings."""
+                            evidence_role=None, instructions_path=None):
+    """Build and check the Codex demo sessions' launch-local settings.
+
+    ``instructions_path`` follows the native developer instructions; it is
+    the workflow bootstrap unless a session is given its own.
+    """
     child_environment = demo_codex_environment()
     codex = shutil.which('codex', path=child_environment['PATH'])
     if codex is None:
@@ -1660,7 +1680,7 @@ def demo_codex_session_args(environment, workspace_id, evidence_dir=None,
         + ',args=[' + ','.join(_toml_basic_string(arg) for arg in proxy_args)
         + '],default_tools_approval_mode="approve"}'
     )
-    with open(demo_bootstrap_path(), encoding='utf-8') as handle:
+    with open(instructions_path or demo_bootstrap_path(), encoding='utf-8') as handle:
         bootstrap = handle.read()
     native_instructions = config.get('developer_instructions') or ''
     if not isinstance(native_instructions, str):
@@ -2043,8 +2063,15 @@ def snapshot_demo_evidence(run_dir, client):
     directory = os.path.join(run_dir, 'evidence')
     os.makedirs(directory, mode=0o700, exist_ok=True)
     manifest = {'version': 1, 'client': client, 'files': [], 'gaps': []}
+    # S-Marketing-112: the owner's prompt and brief script the human side, so
+    # they are disclosed beside the evaluator's.
     sources = [('inputs/evaluator-input.md', os.path.join(run_dir, 'evaluator-input.md')),
+               ('inputs/owner-input.md', os.path.join(run_dir, 'owner-input.md')),
+               ('inputs/demo-brief.md', demo_brief_path()),
                ('inputs/bootstrap.md', demo_bootstrap_path())]
+    if client == 'codex':
+        # S-Marketing-114: the Codex owner's role directions have their own file.
+        sources.append(('inputs/owner-instructions.md', demo_codex_owner_instructions_path()))
     skills_root = (os.path.join(uclusion_home_root(), '.agents', 'skills')
                    if client == 'codex' else os.path.join(demo_plugin_path(), 'skills'))
     for package in ('uclusion', DESIGN_SKILL_NAME):
@@ -2072,30 +2099,44 @@ def snapshot_demo_evidence(run_dir, client):
             manifest['gaps'].append(f'{name}: {type(error).__name__}')
     with open(os.path.join(directory, 'manifest.json'), 'w', encoding='utf-8') as handle:
         json.dump(manifest, handle, indent=2)
+    # S-Marketing-112: one account of both roles, naming this run's client.
+    if client == 'codex':
+        owner_directions = 'the owner brief, the owner\'s instructions'
+        owner_log = 'owner.jsonl'
+        deliveries = ('poke_delivered records Codex admission, with message and delivery '
+                      'identity. Reconciled Codex deliveries may repeat an identity; they are '
+                      'not additional instructions.')
+        provider_request = ('This evidence does not intercept the HTTP request Codex sends '
+                            'the model provider.')
+    else:
+        owner_directions = 'the owner brief'
+        owner_log = 'owner.log'
+        deliveries = ('poke_delivered records the CLI output that delivered each Poke, with '
+                      'message and delivery identity.')
+        provider_request = ('Claude Code does not retain the HTTP request it sends the model '
+                            'provider, and this evidence does not intercept that request.')
     with open(os.path.join(directory, 'README.md'), 'w', encoding='utf-8') as handle:
         handle.write(
             '# Evaluator disclosure\n\n'
             'Inspect manifest.json for supplied input files, recorder source and missing-file gaps. '
-            'inputs/ snapshots the Uclusion startup prompt, bootstrap and installed workflow files; '
-            'it does not assert every workflow file was read. source/ contains the installed Uclusion scripts.\n\n'
-            'events-*.jsonl contains evaluator-only records with time_ns, kind and payload. '
+            f'inputs/ snapshots both sessions\' startup prompts, {owner_directions}, the bootstrap and '
+            'installed workflow files; it does not assert every workflow file was read. '
+            'source/ contains the installed Uclusion scripts.\n\n'
+            'events-*.jsonl contains the MCP traffic of both sessions, with time_ns, role, kind and '
+            'payload; an event\'s role is "owner" or "evaluator". '
             'mcp_request and mcp_response payloads are the JSON-RPC text received by or emitted from '
             'the proxy; parse that text to inspect tools/list definitions and tool calls/results. '
-            'poke_delivered records CLI output or Codex admission, with message and delivery identity. '
-            'Reconciled Codex deliveries may repeat an identity; they are not additional instructions.\n\n'
+            f'{deliveries} '
+            f'The owner\'s native session log is {owner_log} beside this directory.\n\n'
             'A capture-failed file or manifest gaps means disclosure is incomplete. Missing MCP '
             'responses or malformed/truncated event records also mean incomplete capture. '
-            'Files may still be growing until the demo supervisor finishes.\n\n'
-            'Coverage is the MCP traffic of both sessions. An event\'s role is "owner" or '
-            '"evaluator". The demo\'s uclusion command can read the workspace on Uclusion\'s '
-            'servers: export writes it, and get_job reads one record. Claude Code does not '
-            'retain the HTTP request it sends the model provider, and this evidence does not '
-            'intercept that request. '
+            f'events-*.jsonl and {owner_log} are not hashed and may still be growing until the '
+            'demo supervisor finishes.\n\n'
+            'The demo\'s uclusion command can read the workspace on Uclusion\'s '
+            f'servers: export writes it, and get_job reads one record. {provider_request} '
             'Provider instructions, inherited non-Uclusion client settings, native tool implementations '
             'and arbitrary native tool output are not captured. '
             'HTTP authentication headers and credential files are not part of this evidence. '
-            'The demo uclusion command can read the demo workspace with export and get_job. '
-            'HTTP requests sent to the model provider are not always visible, so that transcript is not in the evidence. '
             'Evidence stays in this demo run and is removed with the demo.\n'
         )
     return directory
@@ -2173,21 +2214,34 @@ def start_demo_supervisor(env, client, workspace_id, start_prompt, response_stat
     print('🚀 The workshop owner and the evaluating agent are starting on their own. The '
           'exercise takes several minutes and needs nothing from anyone.')
     if client == 'codex':
-        print('ℹ️  Both sessions use your native Codex permission settings. A one-off '
-              'sandbox flag on the installing agent is not forwarded. Keep CODEX_HOME '
-              'outside /tmp; general sandbox compatibility is still unverified. '
+        # S-Marketing-108: the owner runs through `codex exec`, which never asks.
+        print('ℹ️  Both sessions use the sandbox setting in your native Codex configuration. '
+              'The evaluator asks for approval under your native approval policy. The owner '
+              'runs non-interactively through `codex exec`, so it never asks: a command the '
+              'sandbox blocks simply fails for the owner, while the evaluator can ask to step '
+              'outside the sandbox. The demo directory does not confine what a session can read '
+              'under that sandbox. A one-off sandbox flag on the installing agent is not '
+              'forwarded. Keep CODEX_HOME outside /tmp; general sandbox compatibility is still '
+              'unverified. '
               'Launch guidance: https://documentation.uclusion.com/github-and-cli-integrations/demo-script/')
     print(f'📝 `{cli} demo --result --wait` prints the evaluating agent\'s report once it is '
           'published. It returns within about 100 seconds either way, so repeat it until the '
           'report appears.')
     # S-Marketing-87: the prompt promises a removal that takes everything, so
     # name the command that does, including what the client keeps outside.
-    kept = (
-        ', and the transcripts, task output, session files, prompt history, '
-        'project entries and demo-plugin usage counters Claude Code keeps '
-        'for it, including the demo home in ~/.claude.json'
-        if client == 'claude' else ''
-    )
+    if client == 'claude':
+        kept = (
+            ', and the transcripts, task output, session files, prompt history, '
+            'project entries and demo-plugin usage counters Claude Code keeps '
+            'for it, including the demo home in ~/.claude.json'
+        )
+    else:
+        # S-Marketing-109: Codex keeps its sessions in the person's CODEX_HOME.
+        kept = (
+            ', and the session logs, prompt history and session index lines '
+            f'Codex keeps in {CODEX_HOME} for the sessions started there. '
+            'Codex\'s own sqlite records of those sessions remain'
+        )
     print(f'🧹 `{cli} demo --remove` removes the demo: {uclusion_home_root()}{kept}.',
           flush=True)
     return 0
@@ -2232,6 +2286,45 @@ def last_codex_owner_error(log_path):
     return message
 
 
+def codex_owner_thread_id(log_path):
+    """The thread id `codex exec --json` reported for the owner, or None."""
+    try:
+        with open(log_path, encoding='utf-8', errors='replace') as handle:
+            for line in handle:
+                try:
+                    event = json.loads(line)
+                except ValueError:
+                    continue
+                if (isinstance(event, dict) and event.get('type') == 'thread.started'
+                        and isinstance(event.get('thread_id'), str)):
+                    return event['thread_id']
+    except OSError:
+        return None
+    return None
+
+
+def read_ready_lines(selector, stream, partial, lines):
+    """Move each complete line ``stream`` has ready into ``lines``; return the rest."""
+    while selector.select(timeout=0):
+        chunk = os.read(stream.fileno(), 65536)
+        if not chunk:
+            break
+        partial += chunk
+    *complete, partial = partial.split(b'\n')
+    lines.extend(
+        line.decode('utf-8', 'replace').strip() for line in complete if line.strip()
+    )
+    return partial
+
+
+def codex_owner_turn_prompt(lines):
+    """What the demo tells the owner when notifications arrive."""
+    return (
+        'Human notifications arrived:\n' + '\n'.join(lines) + '\n'
+        'Do what the brief says is due now, then end your turn.\n'
+    )
+
+
 def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir=None,
                    model=None, effort=None):
     """Supervise the ordinary owner and bridged evaluator until publication."""
@@ -2245,11 +2338,18 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
     if response_stats:
         evaluator_command.extend(['--response-stats', response_stats])
     cli_command = shlex.join(demo_codex_cli_args(env))
+    # S-Marketing-107: the owner is never told about the CLI. One that was
+    # wrote through its same-named subcommands instead of its MCP tools, so
+    # the demo holds the watch and hands the owner each notification.
+    # S-Marketing-114: it plays the human, so the job workflow is not its own.
     owner_prompt = (
         f'Read the file {demo_brief_path()} and follow it exactly. '
-        'It is addressed to you. You play the human workshop owner, so use '
-        f'{cli_command} watch for human notifications and do not start a '
-        'Poke listener or drain. Keep working until the brief says to stop.\n'
+        'It is addressed to you. You play the human workshop owner. The brief '
+        'is your whole procedure; you do not need the Uclusion job workflow '
+        'skills. The demo '
+        'sends you each human notification as a new message, so do not start '
+        'a Poke listener or wait for notifications yourself. Do what the brief '
+        'says is due now, then end your turn.\n'
     )
     evaluator_prompt = (
         f'{start_prompt} {DEMO_SCRIPTED_OWNER}\n\n{DEMO_EFFORT_NOTE}\n\n'
@@ -2286,37 +2386,66 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
     environment.pop('UCLUSION_DEMO_EVIDENCE_ROLE', None)
     owner_session_args = demo_codex_session_args(
         env, workspace_id, evidence_dir=evidence_dir, evidence_role='owner',
+        instructions_path=demo_codex_owner_instructions_path(),
     ) + choice_args
     evaluator_session_args = demo_codex_session_args(env, workspace_id) + choice_args
-    owner = terminal = None
+    owner = terminal = watch = None
+    selector = selectors.DefaultSelector()
     print(f'📁 Demo session records: {run_dir}', flush=True)
     try:
         with demo_shutdown_signals(), open(
             os.path.join(run_dir, 'owner.jsonl'), 'wb'
         ) as owner_log, open(
             os.path.join(run_dir, 'evaluator-terminal.log'), 'wb'
-        ) as evaluator_log:
-            try:
-                print('🤝 Starting the workshop owner.', flush=True)
-                owner = subprocess.Popen(
-                    ['codex', 'exec', '--skip-git-repo-check', '--json',
-                     *owner_session_args, owner_prompt],
+        ) as evaluator_log, open(
+            os.path.join(run_dir, 'watch.log'), 'wb'
+        ) as watch_log:
+
+            def start_owner_turn(prompt, thread_id=None):
+                # A later turn resumes the first one's thread with the same
+                # launch options. Every turn appends to the one owner log.
+                resume = ['resume'] if thread_id else []
+                session = [thread_id] if thread_id else []
+                return subprocess.Popen(
+                    ['codex', 'exec', *resume, '--skip-git-repo-check', '--json',
+                     *owner_session_args, *session, prompt],
                     cwd=uclusion_home_root(), env=environment,
                     stdin=subprocess.DEVNULL, stdout=owner_log,
                     stderr=subprocess.STDOUT, start_new_session=True,
                 )
-                if not wait_for_owner_watch(uclusion_home_root(), owner=owner):
-                    reason = 'the owner did not start its notification watch'
+
+            try:
+                print('🤝 Starting the workshop owner.', flush=True)
+                watch = subprocess.Popen(
+                    [*demo_codex_cli_args(env), 'watch'],
+                    cwd=uclusion_home_root(), env=environment,
+                    stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                    stderr=watch_log, start_new_session=True,
+                )
+                if not wait_for_owner_watch(uclusion_home_root(), owner=watch):
+                    raise RuntimeError('the notification watch did not start')
+                owner = start_owner_turn(owner_prompt)
+                try:
+                    first_turn = owner.wait(timeout=180)
+                except subprocess.TimeoutExpired:
+                    first_turn = None
+                thread_id = (codex_owner_thread_id(owner_log.name)
+                             if first_turn == 0 else None)
+                if thread_id is None:
+                    reason = 'the owner\'s first turn failed'
                     owner_error = last_codex_owner_error(owner_log.name)
                     raise RuntimeError(
                         f'{reason}: {owner_error}' if owner_error else reason
                     )
+                owner = None
                 print('🧠 Starting the evaluating agent.', flush=True)
                 terminal = DemoCodexTerminal(
                     [*evaluator_command, 'codex', '--', *evaluator_session_args,
                      evaluator_prompt],
                     evaluator_environment, evaluator_log,
                 )
+                selector.register(watch.stdout, selectors.EVENT_READ)
+                held, partial = [], b''
                 while True:
                     if os.path.isfile(report_path):
                         with open(report_path, 'rb') as handle:
@@ -2331,8 +2460,17 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
                         return 0
                     if terminal.process.poll() is not None:
                         raise RuntimeError('the evaluator exited before publishing its report')
-                    if owner.poll() not in (None, 0):
-                        raise RuntimeError('the owner failed before report publication')
+                    if watch.poll() is not None:
+                        raise RuntimeError('the notification watch stopped')
+                    if owner is not None and owner.poll() is not None:
+                        if owner.returncode != 0:
+                            raise RuntimeError('the owner failed before report publication')
+                        owner = None
+                    # Lines that arrive during a turn wait for the next one.
+                    partial = read_ready_lines(selector, watch.stdout, partial, held)
+                    if owner is None and held:
+                        owner = start_owner_turn(codex_owner_turn_prompt(held), thread_id)
+                        held = []
                     terminal.drain()
             finally:
                 try:
@@ -2344,6 +2482,10 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
                 finally:
                     try:
                         stop_demo_session(owner)
+                        stop_demo_session(watch)
+                        selector.close()
+                        if watch is not None:
+                            watch.stdout.close()
                     finally:
                         # Codex shell tools may create their own process
                         # groups. The demo's existing removal scan catches
@@ -2410,11 +2552,21 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_di
     # never sees it. S-Marketing-74: its bootstrap says to arm Poke delivery,
     # but it shares the evaluator's credential, so a listener would hand it
     # the evaluator's AI events - the Codex owner is told the same.
+    # S-Marketing-107: the shared brief no longer mentions the CLI, so the
+    # watch is described here, with its one use, beside the MCP tool names a
+    # session whose tools are deferred has to search for.
     owner_prompt = (
         f'Read the file {demo_brief_path()} and follow it exactly. '
-        'It is addressed to you. You play the human workshop owner, so use '
-        f'{workflow_cli_command(env)} watch for human notifications and do not '
-        'start a Poke listener or drain.\n'
+        'It is addressed to you. You play the human workshop owner. You receive '
+        f'human notifications through `{workflow_cli_command(env)} watch`, not '
+        'Pokes: run it and hold it open throughout, and do not start a Poke '
+        'listener or drain. Each line it prints means only that something '
+        'arrived. Do not end your turn until you have replied to the '
+        'evaluator\'s completion package as the brief describes. Use that '
+        'command only for `watch`: make every read and record through your '
+        f'Uclusion MCP tools, named `mcp__{MCP_SERVER_KEY}__<tool>` (for example '
+        f'`mcp__{MCP_SERVER_KEY}__get_job`), loading them through tool search '
+        'first if they are deferred.\n'
     )
     # Its prompt carries the starting job and the ask it answers at the end.
     # The ask lives here rather than reaching it later as a Poke so that the
@@ -3628,6 +3780,110 @@ def _remove_demo_prompt_history_file(path, homes):
     return 'removed', f'prompt history for the demo from {path}'
 
 
+def _codex_rollout_session(path, homes):
+    """The session id of a rollout started in one of ``homes``, else None."""
+    try:
+        with open(path, encoding='utf-8', errors='replace') as handle:
+            for _index, line in zip(range(20), handle):
+                try:
+                    record = json.loads(line)
+                except ValueError:
+                    continue
+                if not isinstance(record, dict) or record.get('type') != 'session_meta':
+                    continue
+                payload = record.get('payload')
+                if (isinstance(payload, dict) and payload.get('cwd') in homes
+                        and isinstance(payload.get('id'), str)):
+                    return payload['id']
+                return None
+    except OSError:
+        return None
+    return None
+
+
+def _remove_codex_session_lines(path, key, session_ids):
+    """Drop the JSONL lines whose ``key`` names one of ``session_ids``."""
+    absent = ('absent', f'lines for the demo sessions in {path}')
+    if not session_ids:
+        return absent
+    try:
+        target = _config_write_target(path)
+        existing, signature = _read_text_snapshot(target)
+        if signature is None:
+            return absent
+        kept = []
+        for line in existing.splitlines(keepends=True):
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                kept.append(line)
+                continue
+            if isinstance(record, dict) and record.get(key) in session_ids:
+                continue
+            kept.append(line)
+        updated = ''.join(kept)
+        if updated == existing:
+            return absent
+        try:
+            with config_file_lock(path):
+                atomic_write_text(path, updated, existing, target, signature)
+        finally:
+            _remove_demo_config_lock(path)
+    except (OSError, RuntimeError) as err:
+        return 'kept', f'lines for the demo sessions in {path} ({err})'
+    return 'removed', f'lines for the demo sessions from {path}'
+
+
+def remove_demo_codex_session_traces(home):
+    """S-Marketing-109: take back what Codex kept for the demo's sessions.
+
+    Codex files each session's rollout by date under CODEX_HOME/sessions,
+    recording the directory it started in, and names the session in
+    history.jsonl, session_index.jsonl and, for an interactive session,
+    tui-thread-reference-capabilities. Only rollouts started in this home, and
+    entries naming their ids, are touched: a session started elsewhere stays
+    even when its content mentions the demo, as the person's installing agent's
+    does. Codex's sqlite state is left as it is.
+    """
+    homes = set((home, os.path.realpath(home)))
+    sessions_root = os.path.join(CODEX_HOME, 'sessions')
+    label = 'the demo sessions\' Codex rollouts'
+    session_ids = set()
+    outcomes = []
+    for directory, _folders, names in os.walk(sessions_root):
+        for name in sorted(names):
+            if not (name.startswith('rollout-') and name.endswith('.jsonl')):
+                continue
+            path = os.path.join(directory, name)
+            session_id = _codex_rollout_session(path, homes)
+            if session_id is None:
+                continue
+            session_ids.add(session_id)
+            try:
+                os.remove(path)
+            except OSError as err:
+                outcomes.append(('kept', f'{path} ({err})'))
+                continue
+            outcomes.append(('removed', f'{label}: {path}'))
+    if not session_ids:
+        outcomes.append(('absent', f'{label} in {sessions_root}'))
+    outcomes.append(_remove_codex_session_lines(
+        os.path.join(CODEX_HOME, 'history.jsonl'), 'session_id', session_ids))
+    outcomes.append(_remove_codex_session_lines(
+        os.path.join(CODEX_HOME, 'session_index.jsonl'), 'id', session_ids))
+    for session_id in sorted(session_ids):
+        marker = os.path.join(CODEX_HOME, 'tui-thread-reference-capabilities', session_id)
+        if not os.path.isfile(marker) or os.path.islink(marker):
+            continue
+        try:
+            os.remove(marker)
+        except OSError as err:
+            outcomes.append(('kept', f'{marker} ({err})'))
+            continue
+        outcomes.append(('removed', f'the demo session\'s Codex marker: {marker}'))
+    return outcomes
+
+
 def remove_demo_claude_session_traces(home):
     """S-Marketing-87: take back what Claude Code kept for the demo home.
 
@@ -3711,6 +3967,7 @@ def remove_demo_install(argv):
         return 1
     # Only now, with no session left to write them again.
     status = _print_removal_outcomes(remove_demo_claude_session_traces(home)) or status
+    status = _print_removal_outcomes(remove_demo_codex_session_traces(home)) or status
 
     # The rest of this process lives inside the directory it is about to
     # delete, so it continues from a copy outside it.

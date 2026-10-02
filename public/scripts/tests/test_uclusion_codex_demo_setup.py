@@ -83,7 +83,7 @@ class CodexDemoSetupTests(unittest.TestCase):
             {'name': 'Other.Server', 'enabled': False},
         ]
 
-    def session_args(self, inventory=None):
+    def session_args(self, inventory=None, **kwargs):
         if not (self.config / 'bootstrap.md').exists():
             (self.config / 'bootstrap.md').write_text('Demo bootstrap\n')
         result = subprocess.CompletedProcess(
@@ -93,7 +93,7 @@ class CodexDemoSetupTests(unittest.TestCase):
                 mock.patch.object(INSTALL, '_read_demo_codex_config', return_value=self.effective), \
                 mock.patch.object(INSTALL.subprocess, 'run', return_value=result) as run:
             args = INSTALL.demo_codex_session_args(
-                'stage', 'demo-workspace'
+                'stage', 'demo-workspace', **kwargs
             )
         return args, run.call_args.kwargs
 
@@ -184,18 +184,27 @@ class CodexDemoSetupTests(unittest.TestCase):
             self.session_args()
 
     @unittest.skipIf(INSTALL.tomllib is None, 'TOML parsing requires Python 3.11')
-    def test_launch_keeps_the_complete_bootstrap_including_owner_role_extension(self):
+    def test_each_session_gets_native_instructions_and_only_its_own_directions(self):
+        # S-Marketing-114: the evaluator keeps the complete ordinary bootstrap,
+        # and the owner gets its role directions instead of the job workflow.
         INSTALL.install_demo_codex_workflow(self.fetch)
         bootstrap = (self.config / 'bootstrap.md').read_text()
-        args, _ = self.session_args()
-        settings = {}
-        for index, value in enumerate(args[:-1]):
-            if value == '-c':
-                settings.update(INSTALL.tomllib.loads(args[index + 1]))
-        self.assertEqual(
-            self.effective['developer_instructions'] + '\n\n' + bootstrap,
-            settings['developer_instructions'],
-        )
+        owner_role = (self.config / 'owner-instructions.md').read_text()
+        self.assertEqual(INSTALL.DEMO_CODEX_OWNER_ROLE, owner_role)
+        self.assertNotIn('workshop owner', bootstrap)
+
+        def instructions(**kwargs):
+            args, _ = self.session_args(**kwargs)
+            settings = {}
+            for index, value in enumerate(args[:-1]):
+                if value == '-c':
+                    settings.update(INSTALL.tomllib.loads(args[index + 1]))
+            return settings['developer_instructions']
+
+        native = self.effective['developer_instructions'] + '\n\n'
+        self.assertEqual(native + bootstrap, instructions())
+        self.assertEqual(native + owner_role, instructions(
+            instructions_path=INSTALL.demo_codex_owner_instructions_path()))
 
     def test_disabled_plugin_feature_must_be_effective(self):
         self.effective['features']['plugins'] = True

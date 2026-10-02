@@ -182,11 +182,12 @@ class DemoHomeTests(unittest.TestCase):
             f'Read the file {brief} and follow it exactly. It is addressed to you. '
         ), opening)
         self.assertIn(
-            'You play the human workshop owner, so use '
-            f'{INSTALL.workflow_cli_command("stage")} watch for human notifications '
-            'and do not start a Poke listener or drain.', opening)
+            f'through `{INSTALL.workflow_cli_command("stage")} watch`, not Pokes', opening)
+        self.assertIn('do not start a Poke listener or drain.', opening)
+        # S-Marketing-107: the demo feeds the Codex owner, which still must not
+        # start one of its own.
         codex = inspect.getsource(INSTALL.run_codex_demo)
-        self.assertIn("'Poke listener or drain.", codex)
+        self.assertIn("'a Poke listener or wait for notifications yourself.", codex)
 
     def test_the_evaluator_is_not_told_what_its_report_is_for(self):
         # Its scope is what it used. Naming the comparison, or the reader who

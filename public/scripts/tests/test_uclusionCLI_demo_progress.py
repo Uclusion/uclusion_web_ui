@@ -248,24 +248,62 @@ class DemoProgressCommandTests(unittest.TestCase):
         self.assertIn('100%', stdout)
         self.assertIn('evaluation is published', stdout)
 
-    def test_without_a_report_progress_keeps_its_existing_behavior(self):
+    def test_without_a_selected_run_progress_keeps_estimating(self):
+        # No run is selected, so there is no run to have ended.
         self.write(LIVE[:16])
         (self.run_dir / cli.DEMO_FAILURE_FILE).write_text('The evaluator stopped.')
-        for selected_run in (False, True):
-            if selected_run:
-                self.current_run.write_text(str(self.run_dir))
-            for flags in (('--progress',), ('--progress', '--wait')):
-                clock = iter(range(0, 10000, 30))
-                with self.subTest(selected_run=selected_run, flags=flags), \
-                        mock.patch.object(cli.time, 'sleep'), \
-                        mock.patch.object(cli.time, 'monotonic', side_effect=lambda: next(clock)), \
-                        mock.patch.object(cli, 'demo_supervisor_alive', return_value=False) as alive:
-                    result, stdout, stderr = self.run_demo(*flags)
-                self.assertEqual(0, result, stderr)
-                self.assertIn('About 90% through', stdout)
-                self.assertNotIn('100%', stdout)
-                self.assertEqual('--wait' in flags, 'No change' in stdout)
-                alive.assert_not_called()
+        for flags in (('--progress',), ('--progress', '--wait')):
+            clock = iter(range(0, 10000, 30))
+            with self.subTest(flags=flags), \
+                    mock.patch.object(cli.time, 'sleep'), \
+                    mock.patch.object(cli.time, 'monotonic', side_effect=lambda: next(clock)), \
+                    mock.patch.object(cli, 'demo_supervisor_alive', return_value=False) as alive:
+                result, stdout, stderr = self.run_demo(*flags)
+            self.assertEqual(0, result, stderr)
+            self.assertIn('About 90% through', stdout)
+            self.assertNotIn('100%', stdout)
+            self.assertEqual('--wait' in flags, 'No change' in stdout)
+            alive.assert_not_called()
+
+    def test_a_recorded_failure_ends_progress(self):
+        # S-Marketing-111: run-79g5sk80 failed before the evaluator started,
+        # yet progress said the evaluator was reading its job.
+        self.current_run.write_text(str(self.run_dir))
+        (self.run_dir / cli.DEMO_FAILURE_FILE).write_text(
+            'Codex demo failed: the owner did not start its notification watch.\n')
+        for flags in (('--progress',), ('--progress', '--wait')):
+            with self.subTest(flags=flags), mock.patch.object(cli.time, 'sleep') as sleep:
+                result, stdout, stderr = self.run_demo(*flags)
+            self.assertEqual(1, result, stderr)
+            self.assertEqual(
+                '❌ Codex demo failed: the owner did not start its notification watch.\n',
+                stdout,
+            )
+            sleep.assert_not_called()
+
+    def test_a_stopped_supervisor_ends_progress(self):
+        self.write(LIVE[:4])
+        self.current_run.write_text(str(self.run_dir))
+        with mock.patch.object(cli, 'demo_supervisor_alive', return_value=False):
+            result, stdout, stderr = self.run_demo('--progress')
+        self.assertEqual(1, result, stderr)
+        self.assertEqual(
+            f'❌ The exercise stopped without publishing a report. Records: {self.run_dir}\n',
+            stdout,
+        )
+
+    def test_wait_returns_when_the_run_fails(self):
+        self.write(LIVE[:4])
+        self.current_run.write_text(str(self.run_dir))
+
+        def fail(_seconds):
+            (self.run_dir / cli.DEMO_FAILURE_FILE).write_text('Codex demo failed: owner.')
+
+        with mock.patch.object(cli.time, 'sleep', side_effect=fail) as sleep:
+            result, stdout, stderr = self.run_demo('--progress', '--wait')
+        self.assertEqual(1, result, stderr)
+        sleep.assert_called_once_with(1)
+        self.assertEqual('❌ Codex demo failed: owner.\n', stdout)
 
     def test_it_refuses_outside_a_demo_install(self):
         for credentials in (None, {'secret_key_id': 'person-client',

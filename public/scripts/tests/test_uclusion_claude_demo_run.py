@@ -118,6 +118,17 @@ class ClaudeDemoRunTests(unittest.TestCase):
         self.assertIn('Read the file', (run / 'owner-input.md').read_text())
         self.assertTrue((run / 'owner.log').exists() and (run / 'evaluator.log').exists())
 
+    def test_the_claude_owner_uses_the_cli_only_to_watch(self):
+        # S-Marketing-107: the shared brief no longer names the CLI, and an
+        # owner whose MCP tools are deferred must know which names to load.
+        self.evaluator_turn = lambda: self.report_path().write_text('Report')
+        self.assertEqual(self.run_demo(), 0)
+        prompt = (self.report_path().parent / 'owner-input.md').read_text()
+        self.assertIn(f'`{INSTALL.workflow_cli_command("stage")} watch`', prompt)
+        self.assertIn('only for `watch`', prompt)
+        self.assertIn(f'`mcp__{INSTALL.MCP_SERVER_KEY}__get_job`', prompt)
+        self.assertIn('tool search', prompt)
+
     def test_the_evaluator_is_told_its_owner_is_scripted(self):
         # S-Marketing-88: the owner's records show as the human's, so the
         # evaluator must hear otherwise before it starts and keep them apart.

@@ -69,8 +69,12 @@ else
   exit 1
 fi
 
+# Not exec: the shell has to outlive the installer for its EXIT trap to remove
+# the download (S-Marketing-110). `exit` shares the `fi` line so it is parsed
+# before the installer runs, even when this script is read from a pipe.
+status=0
 if [ "$MODE" != "install" ]; then
-  exec python3 "$INSTALL_SCRIPT" "$ENVIRONMENT" "$MODE" "$@"
-fi
-
-exec python3 "$INSTALL_SCRIPT" "$ENVIRONMENT" "$WORKSPACE_ID" "$VIEW_ID" "$@"
+  python3 "$INSTALL_SCRIPT" "$ENVIRONMENT" "$MODE" "$@" || status=$?
+else
+  python3 "$INSTALL_SCRIPT" "$ENVIRONMENT" "$WORKSPACE_ID" "$VIEW_ID" "$@" || status=$?
+fi; exit "$status"

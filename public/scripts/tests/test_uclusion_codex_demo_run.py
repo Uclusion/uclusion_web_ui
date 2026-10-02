@@ -29,8 +29,19 @@ class CodexDemoRunTests(unittest.TestCase):
         self.addCleanup(directory.cleanup)
         self.home = Path(directory.name)
         self.output = io.TextIOWrapper(io.BytesIO(), encoding='utf-8')
+        # The owner's first turn reports its thread and ends cleanly.
         self.owner = mock.Mock(pid=1001)
-        self.owner.poll.return_value = None
+        self.owner.wait.return_value = 0
+        self.owner.poll.return_value = 0
+        self.first_turn = [{'type': 'thread.started', 'thread_id': 'thread-1'},
+                           {'type': 'turn.completed'}]
+        self.turns = []
+        self.turn_poll = None
+        # S-Marketing-107: the demo, not the owner, holds the watch.
+        self.watch = mock.Mock(pid=1002)
+        self.watch.poll.return_value = None
+        self.watch_pipe = None
+        self.turn_returncode = 0
         self.terminal = mock.Mock()
         self.terminal.process.poll.return_value = None
         self.report = None
@@ -47,6 +58,25 @@ class CodexDemoRunTests(unittest.TestCase):
             self.report = Path(environment['UCLUSION_DEMO_REPORT_FILE'])
             return self.terminal
 
+        def popen(command, **kwargs):
+            if command[-1] == 'watch':
+                # Each run reads its own watch output, and closes it at the end.
+                read, self.watch_pipe = os.pipe()
+                self.watch.stdout = os.fdopen(read, 'rb', buffering=0)
+                self.addCleanup(self.close_watch_pipe, self.watch_pipe, self.watch.stdout)
+                return self.watch
+            if 'resume' in command:
+                turn = mock.Mock(pid=2000 + len(self.turns))
+                turn.poll.side_effect = lambda: self.turn_poll
+                turn.returncode = self.turn_returncode
+                self.turns.append(turn)
+                return turn
+            for line in self.first_turn:
+                text = line if isinstance(line, str) else json.dumps(line)
+                kwargs['stdout'].write((text + '\n').encode('utf-8'))
+            kwargs['stdout'].flush()
+            return self.owner
+
         patches = [
             mock.patch.object(INSTALL, 'UCLUSION_HOME', str(self.home / '.uclusion')),
             mock.patch.object(INSTALL, 'SYMLINK_DIR', str(self.home / '.local/bin')),
@@ -54,7 +84,7 @@ class CodexDemoRunTests(unittest.TestCase):
             mock.patch.object(INSTALL, 'demo_codex_environment', return_value={}),
             mock.patch.object(INSTALL, 'demo_codex_session_args', side_effect=session_args),
             mock.patch.object(INSTALL, 'DemoCodexTerminal', side_effect=start_terminal),
-            mock.patch.object(INSTALL.subprocess, 'Popen', return_value=self.owner),
+            mock.patch.object(INSTALL.subprocess, 'Popen', side_effect=popen),
             mock.patch.object(INSTALL, 'wait_for_owner_watch', return_value=True),
             mock.patch.object(INSTALL, 'stop_demo_session'),
             mock.patch.object(INSTALL.sys, 'stdout', self.output),
@@ -64,6 +94,21 @@ class CodexDemoRunTests(unittest.TestCase):
             self.addCleanup(patch.stop)
         self.stop = self.mocks[-2]
 
+    @staticmethod
+    def close_watch_pipe(write, stdout):
+        for close in (lambda: os.close(write), stdout.close):
+            try:
+                close()
+            except OSError:
+                pass
+
+    def notify(self, *lines):
+        os.write(self.watch_pipe, ''.join(f'{line}\n' for line in lines).encode())
+
+    def owner_commands(self):
+        return [call.args[0] for call in INSTALL.subprocess.Popen.call_args_list
+                if call.args[0][:2] == ['codex', 'exec']]
+
     def run_demo(self, **kwargs):
         return INSTALL.run_codex_demo('stage', 'workspace', 'Start J-Demo-1.', **kwargs)
 
@@ -72,10 +117,7 @@ class CodexDemoRunTests(unittest.TestCase):
             with self.subTest(stats=stats):
                 self.terminal.drain.side_effect = lambda: self.report.write_bytes(b'Report\n')
                 self.assertEqual(self.run_demo(response_stats=stats), 0)
-                owner_command = next(
-                    call.args[0] for call in reversed(INSTALL.subprocess.Popen.call_args_list)
-                    if call.args[0][:2] == ['codex', 'exec']
-                )
+                owner_command = self.owner_commands()[-1]
                 self.assertNotIn('--response-stats', owner_command)
                 # Parse the real launch boundary: flags hidden in Codex's MCP
                 # overrides are replaced by the uclusion codex launcher.
@@ -97,9 +139,8 @@ class CodexDemoRunTests(unittest.TestCase):
         self.assertEqual(self.run_demo(), 0)
         self.output.flush()
         self.assertTrue(self.output.buffer.getvalue().endswith(report))
-        self.stop.assert_has_calls([
-            mock.call(self.terminal.process), mock.call(self.owner)
-        ])
+        self.stop.assert_any_call(self.terminal.process)
+        self.stop.assert_any_call(self.watch)
         self.terminal.close.assert_called_once()
         self.assertIn('codex', self.commands[0])
 
@@ -117,10 +158,7 @@ class CodexDemoRunTests(unittest.TestCase):
         self.terminal.drain.side_effect = lambda: self.report.write_bytes(b'Report\n')
         self.assertEqual(self.run_demo(model='gpt-6', effort='high'), 0)
         choice = ['-m', 'gpt-6', '-c', 'model_reasoning_effort="high"']
-        owner_command = next(
-            call.args[0] for call in reversed(INSTALL.subprocess.Popen.call_args_list)
-            if call.args[0][:2] == ['codex', 'exec']
-        )
+        owner_command = self.owner_commands()[-1]
         evaluator_command = self.commands[-1]
         for command in (owner_command[:-1], evaluator_command[:-1]):
             self.assertEqual(choice, command[-4:])
@@ -148,16 +186,17 @@ class CodexDemoRunTests(unittest.TestCase):
     def test_evaluator_exit_without_publication_is_failure(self):
         self.terminal.process.poll.return_value = 0
         self.assertEqual(self.run_demo(), 1)
-        self.stop.assert_any_call(self.owner)
+        self.stop.assert_any_call(self.watch)
         self.terminal.close.assert_called_once()
 
-    def test_owner_watch_failure_does_not_start_evaluator(self):
+    def test_a_watch_that_never_starts_starts_neither_session(self):
         self.mocks[7].return_value = False
         self.assertEqual(self.run_demo(), 1)
+        self.assertEqual([], self.owner_commands())
         self.assertEqual(self.commands, [])
-        self.stop.assert_called_once_with(self.owner)
+        self.stop.assert_any_call(self.watch)
 
-    def test_owner_watch_failure_names_the_owners_last_error(self):
+    def test_failed_first_turn_names_the_owners_last_error(self):
         # S-Marketing-105: run-79g5sk80's owner got a 404 for its model and
         # the failure said only that the watch never started.
         final = (
@@ -175,38 +214,112 @@ class CodexDemoRunTests(unittest.TestCase):
             {'type': 'error', 'message': final},
             {'type': 'turn.failed', 'error': {'message': final}},
         ]
-        reason = 'the owner did not start its notification watch'
-        for lines, expected in (
-            (run_79g5sk80, f'{reason}: {final}. Records:'),
-            (run_79g5sk80[:3], f'{reason}. Records:'),
+        reason = 'the owner\'s first turn failed'
+        timeout = INSTALL.subprocess.TimeoutExpired('codex', 180)
+        for name, lines, ending, expected in (
+            ('404', run_79g5sk80, 1, f'{reason}: {final}. Records:'),
+            ('no top-level error', run_79g5sk80[:3], 1, f'{reason}. Records:'),
+            ('no thread', [{'type': 'turn.completed'}], 0, f'{reason}. Records:'),
+            ('timeout', run_79g5sk80[:3], timeout, f'{reason}. Records:'),
         ):
-            with self.subTest(lines=len(lines)):
-                def owner_exits(*_args, lines=lines, **_kwargs):
-                    log = INSTALL.subprocess.Popen.call_args.kwargs['stdout']
-                    for line in lines:
-                        text = line if isinstance(line, str) else json.dumps(line)
-                        log.write((text + '\n').encode('utf-8'))
-                    log.flush()
-                    return False
-
-                self.mocks[7].side_effect = owner_exits
-                run_dir = self.home / f'run-{len(lines)}'
+            with self.subTest(name):
+                self.first_turn = lines
+                self.owner.wait.side_effect = ending if ending is timeout else None
+                self.owner.wait.return_value = ending
+                run_dir = self.home / f'run-{name}'
                 run_dir.mkdir()
                 self.assertEqual(self.run_demo(run_dir=str(run_dir)), 1)
                 self.assertEqual(self.commands, [])
                 self.assertIn(expected, (run_dir / INSTALL.DEMO_FAILURE_FILE).read_text())
 
+    def test_the_demo_feeds_the_owner_each_batch_of_notifications(self):
+        steps = []
+
+        def drain():
+            steps.append(True)
+            if len(steps) == 1:
+                self.turn_poll = None
+                self.notify('notification 2026-10-02T18:00:00Z')
+            elif len(steps) == 2:
+                # These arrive while the first fed turn is still running.
+                self.notify('notification 2026-10-02T18:00:05Z',
+                            'notification 2026-10-02T18:00:06Z')
+            elif len(steps) == 3:
+                self.turn_poll = 0
+            elif len(steps) == 5:
+                self.report.write_text('complete')
+
+        self.terminal.drain.side_effect = drain
+        self.assertEqual(self.run_demo(model='gpt-6', effort='high'), 0)
+        launched = [call.args[0] for call in INSTALL.subprocess.Popen.call_args_list]
+        self.assertEqual('watch', launched[0][-1])
+        first, *resumed = self.owner_commands()
+        self.assertEqual(2, len(resumed))
+        for command in resumed:
+            self.assertEqual(['codex', 'exec', 'resume'], command[:3])
+            self.assertEqual(first[2:-1], command[3:-2])
+            self.assertEqual('thread-1', command[-2])
+        self.assertIn('18:00:00Z', resumed[0][-1])
+        self.assertNotIn('18:00:05Z', resumed[0][-1])
+        self.assertIn('18:00:05Z', resumed[1][-1])
+        self.assertIn('18:00:06Z', resumed[1][-1])
+
+    def test_a_failed_later_turn_fails_the_run(self):
+        self.turn_poll = 1
+        self.turn_returncode = 1
+        self.terminal.drain.side_effect = lambda: self.notify('notification 2026-10-02T18:00:00Z')
+        run_dir = self.home / 'run'
+        run_dir.mkdir()
+        self.assertEqual(self.run_demo(run_dir=str(run_dir)), 1)
+        self.assertEqual(1, len(self.turns))
+        self.assertIn('the owner failed before report publication',
+                      (run_dir / INSTALL.DEMO_FAILURE_FILE).read_text())
+
+    def test_the_watch_stopping_fails_the_run(self):
+        self.watch.poll.return_value = 0
+        run_dir = self.home / 'run'
+        run_dir.mkdir()
+        self.assertEqual(self.run_demo(run_dir=str(run_dir)), 1)
+        self.assertIn('the notification watch stopped',
+                      (run_dir / INSTALL.DEMO_FAILURE_FILE).read_text())
+
+    def test_the_codex_owner_is_never_told_about_the_cli(self):
+        self.terminal.drain.side_effect = lambda: self.report.write_text('complete')
+        self.assertEqual(self.run_demo(), 0)
+        cli = INSTALL.demo_codex_cli_args('stage')[0]
+        brief = (Path(INSTALL.__file__).parent / 'demo-brief.md').read_text()
+        role = INSTALL.DEMO_CODEX_OWNER_ROLE
+        for name, text in (
+                ('startup prompt', (self.report.parent / 'owner-input.md').read_text()),
+                ('turn prompt', INSTALL.codex_owner_turn_prompt(['notification x'])),
+                ('brief', brief),
+                ('owner instructions', role)):
+            with self.subTest(name):
+                self.assertNotIn(cli, text)
+                self.assertNotIn('{{UCLUSION_CLI}}', text)
+                self.assertNotIn('watch', text)
+                self.assertNotIn('CLI', text)
+
+    def test_the_codex_owner_works_from_its_brief_alone(self):
+        # S-Marketing-114: it read the evaluator's job workflow it never uses.
+        self.terminal.drain.side_effect = lambda: self.report.write_text('complete')
+        self.assertEqual(self.run_demo(), 0)
+        prompt = (self.report.parent / 'owner-input.md').read_text()
+        self.assertIn('The brief is your whole procedure', prompt)
+        owner, evaluator = self.session_calls[-2], self.session_calls[-1]
+        self.assertEqual(INSTALL.demo_codex_owner_instructions_path(),
+                         owner['instructions_path'])
+        self.assertIsNone(evaluator.get('instructions_path'))
+
     def test_normal_owner_exit_can_precede_report(self):
-        self.owner.poll.return_value = 0
         self.terminal.drain.side_effect = lambda: self.report.write_text('complete')
         self.assertEqual(self.run_demo(), 0)
 
     def test_interrupt_cleans_up_both_sessions(self):
         self.terminal.drain.side_effect = KeyboardInterrupt
         self.assertEqual(self.run_demo(), 1)
-        self.stop.assert_has_calls([
-            mock.call(self.terminal.process), mock.call(self.owner)
-        ])
+        self.stop.assert_any_call(self.terminal.process)
+        self.stop.assert_any_call(self.watch)
 
 
 @unittest.skipUnless(os.name == 'posix', 'Codex demo requires a Unix PTY')

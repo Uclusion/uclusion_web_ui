@@ -142,11 +142,14 @@ class DemoChoiceHandOffTests(unittest.TestCase):
                 mock.patch.object(cli.sys, 'stdout', output):
             self.assertEqual(0, args.func(args))
         output.flush()
-        self.assertEqual(
+        # S-Marketing-106: the choice comes first and the report is unedited;
+        # what the result prints between them, like the evidence disclosure,
+        # is not this test's concern.
+        printed = output.buffer.getvalue()
+        self.assertTrue(printed.startswith(
             b'Demo run: Claude Code, model opus, effort xhigh, as chosen by the person '
-            b'who ran it.\n\n' + report,
-            output.buffer.getvalue(),
-        )
+            b'who ran it.\n'), printed)
+        self.assertTrue(printed.endswith(report), printed)
 
 
 if __name__ == '__main__':

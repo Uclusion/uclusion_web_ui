@@ -161,7 +161,12 @@ class EvidenceTests(unittest.TestCase):
             (scripts / link).symlink_to(SCRIPTS / source)
         bootstrap = self.root / 'bootstrap.md'
         bootstrap.write_text('Exact bootstrap')
+        brief = self.root / 'demo-brief.md'
+        brief.write_text('Exact brief')
+        owner_role = self.root / 'owner-instructions.md'
+        owner_role.write_text('Exact owner instructions')
         (self.root / 'evaluator-input.md').write_text('Exact prompt')
+        (self.root / 'owner-input.md').write_text('Exact owner prompt')
         for client in ('claude', 'codex'):
             skill_root = (self.root / 'plugin/skills' if client == 'claude'
                           else self.root / '.agents/skills')
@@ -170,6 +175,9 @@ class EvidenceTests(unittest.TestCase):
                 (skill_root / package).symlink_to(SCRIPTS / 'skills' / package)
             with (mock.patch.object(install, '__file__', str(scripts / 'uclusionDemoSupervisor.py')),
                   mock.patch.object(install, 'demo_bootstrap_path', return_value=str(bootstrap)),
+                  mock.patch.object(install, 'demo_brief_path', return_value=str(brief)),
+                  mock.patch.object(install, 'demo_codex_owner_instructions_path',
+                                    return_value=str(owner_role)),
                   mock.patch.object(install, 'uclusion_home_root', return_value=str(self.root)),
                   mock.patch.object(install, 'demo_plugin_path', return_value=str(self.root / 'plugin'))):
                 install.snapshot_demo_evidence(str(self.root), client)
@@ -204,6 +212,42 @@ class EvidenceTests(unittest.TestCase):
         self.assertIn('get_job', note)
         self.assertIn('"owner"', note)
         self.assertIn('does not retain the HTTP request', note)
+
+    def test_each_client_s_disclosure_is_its_own_and_covers_the_owner(self):
+        # S-Marketing-112: a Codex run's README spoke of Claude Code, called the
+        # events evaluator-only, and the manifest left out the owner's inputs.
+        (self.root / 'owner-input.md').write_text('Read the brief.')
+        brief = self.root / 'demo-brief.md'
+        brief.write_text('You are playing a human.')
+        owner_role = self.root / 'owner-instructions.md'
+        owner_role.write_text('You are the workshop owner.')
+        for client, own, other, owner_log in (
+                ('claude', 'Claude Code', 'Codex', 'owner.log'),
+                ('codex', 'Codex', 'Claude', 'owner.jsonl')):
+            with self.subTest(client=client), \
+                    mock.patch.object(install, 'demo_bootstrap_path',
+                                      return_value=str(self.root / 'missing')), \
+                    mock.patch.object(install, 'demo_brief_path', return_value=str(brief)), \
+                    mock.patch.object(install, 'demo_codex_owner_instructions_path',
+                                      return_value=str(owner_role)), \
+                    mock.patch.object(install, 'uclusion_home_root', return_value=str(self.root)), \
+                    mock.patch.object(install, 'demo_plugin_path',
+                                      return_value=str(self.root / 'plugin')):
+                install.snapshot_demo_evidence(str(self.root), client)
+                manifest = json.loads((self.evidence / 'manifest.json').read_text())
+                hashed = {entry['path']: entry['sha256'] for entry in manifest['files']}
+                for name in ('inputs/owner-input.md', 'inputs/demo-brief.md'):
+                    self.assertRegex(hashed.get(name, ''), '^[0-9a-f]{64}$')
+                # S-Marketing-114: only the Codex owner has its own instructions.
+                self.assertEqual(client == 'codex', 'inputs/owner-instructions.md' in hashed)
+                note = (self.evidence / 'README.md').read_text()
+                self.assertIn(own, note)
+                self.assertNotIn(other, note)
+                self.assertNotIn('evaluator-only', note)
+                self.assertIn(owner_log, note)
+                sentences = [sentence.strip() for sentence in note.replace('\n', ' ').split('. ')
+                             if sentence.strip()]
+                self.assertEqual(len(sentences), len(set(sentences)))
 
     def test_claude_config_enables_disclosure_without_size_statistics(self):
         shared = self.root / 'mcp.json'

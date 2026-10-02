@@ -2867,27 +2867,52 @@ def cmd_demo_progress(args):
     path = demo_notification_log_path()
     entries = read_demo_notification_log(path)
     report = demo_published_report(run_dir)
+    ended = demo_run_ended(run_dir) if report is None else None
     suffix = ''
-    if args.wait and report is None:
-        # Return when the estimate moves or the report is published: every
-        # return costs a model turn, and most pushes do not change the estimate.
+    if args.wait and report is None and ended is None:
+        # Return when the estimate moves, the report is published or the run
+        # ends without one: every return costs a model turn, and most pushes
+        # do not change the estimate.
         deadline = time.monotonic() + DEMO_PROGRESS_WAIT_SECONDS
         before = demo_progress_estimate(entries)
-        while (report is None and demo_progress_estimate(entries) == before
+        while (report is None and ended is None
+               and demo_progress_estimate(entries) == before
                and time.monotonic() < deadline):
             time.sleep(1)
             entries = read_demo_notification_log(path)
             report = demo_published_report(run_dir)
-        if report is None and demo_progress_estimate(entries) == before:
+            if report is None:
+                ended = demo_run_ended(run_dir)
+        if report is None and ended is None and demo_progress_estimate(entries) == before:
             suffix = (
                 f' No change in the last {DEMO_PROGRESS_WAIT_SECONDS} seconds.'
             )
     if report is not None:
         print('100% through: the evaluation is published. '
               'Use demo --result to read the report.', flush=True)
+    elif ended is not None:
+        print(ended, flush=True)
+        return 1
     else:
         print(demo_progress_line(entries) + suffix, flush=True)
     return 0
+
+
+def demo_run_ended(run_dir):
+    """Why this run ended without a report, or None while it may still publish one.
+
+    S-Marketing-111: --progress used to keep estimating for a run whose
+    supervisor had already recorded a failure, so it answers as --result does.
+    """
+    if run_dir is None:
+        return None
+    failure = os.path.join(run_dir, DEMO_FAILURE_FILE)
+    if os.path.isfile(failure):
+        with open(failure, encoding='utf-8') as handle:
+            return f'❌ {handle.read().strip()}'
+    if not demo_supervisor_alive(run_dir):
+        return f'❌ The exercise stopped without publishing a report. Records: {run_dir}'
+    return None
 
 
 def demo_supervisor_alive(run_dir):
@@ -2937,7 +2962,6 @@ def cmd_demo_result(args):
     if run_dir is None:
         print('❌ No demo exercise has been started from this install.', file=sys.stderr)
         return 1
-    failure = os.path.join(run_dir, DEMO_FAILURE_FILE)
     # Bounded like --progress --wait, so no call of it outlasts a client's command timeout.
     deadline = time.monotonic() + (DEMO_PROGRESS_WAIT_SECONDS if args.wait else 0)
     while True:
@@ -2952,13 +2976,9 @@ def cmd_demo_result(args):
                 sys.stdout.buffer.write(handle.read())
                 sys.stdout.buffer.flush()
             return 0
-        if os.path.isfile(failure):
-            with open(failure, encoding='utf-8') as handle:
-                print(f'❌ {handle.read().strip()}', flush=True)
-            return 1
-        if not demo_supervisor_alive(run_dir):
-            print(f'❌ The exercise stopped without publishing a report. Records: {run_dir}',
-                  flush=True)
+        ended = demo_run_ended(run_dir)
+        if ended is not None:
+            print(ended, flush=True)
             return 1
         if time.monotonic() >= deadline:
             break

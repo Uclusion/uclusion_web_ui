@@ -178,6 +178,33 @@ class EvidenceTests(unittest.TestCase):
             self.assertEqual((SCRIPTS / 'uclusionCLI.py').read_bytes(),
                              (self.evidence / 'source/uclusionCLI.py').read_bytes())
 
+    def test_owner_traffic_is_labeled_and_required_once_roles_are_recorded(self):
+        (self.evidence / 'manifest.json').write_text('{"gaps":[]}')
+        with mock.patch.dict(os.environ, {proxy.DEMO_EVIDENCE_ROLE_ENV: 'evaluator'}):
+            proxy.record_demo_input(
+                'mcp_response', '{"jsonrpc":"2.0","id":1,"result":{}}\n',
+            )
+        self.assertIn('no owner MCP responses recorded',
+                      proxy.demo_evidence_summary(str(self.root)))
+        with mock.patch.dict(os.environ, {proxy.DEMO_EVIDENCE_ROLE_ENV: 'owner'}):
+            proxy.record_demo_input(
+                'mcp_response', '{"jsonrpc":"2.0","id":2,"result":{}}\n',
+            )
+        self.assertNotIn('INCOMPLETE', proxy.demo_evidence_summary(str(self.root)))
+        roles = {row['role'] for row in self.events()}
+        self.assertEqual({'owner', 'evaluator'}, roles)
+
+    def test_the_evidence_note_tells_the_reviewer_how_to_read_the_workspace(self):
+        with (mock.patch.object(install, 'demo_bootstrap_path', return_value=str(self.root / 'missing')),
+              mock.patch.object(install, 'uclusion_home_root', return_value=str(self.root)),
+              mock.patch.object(install, 'demo_plugin_path', return_value=str(self.root / 'plugin'))):
+            install.snapshot_demo_evidence(str(self.root), 'claude')
+        note = (self.evidence / 'README.md').read_text()
+        self.assertIn('export', note)
+        self.assertIn('get_job', note)
+        self.assertIn('"owner"', note)
+        self.assertIn('does not retain the HTTP request', note)
+
     def test_claude_config_enables_disclosure_without_size_statistics(self):
         shared = self.root / 'mcp.json'
         evaluator = self.root / 'evaluator.json'
@@ -188,8 +215,11 @@ class EvidenceTests(unittest.TestCase):
               mock.patch.object(install, 'demo_evaluator_mcp_config_path', return_value=str(evaluator))):
             install.write_demo_evaluator_mcp_config(None, str(self.evidence))
         self.assertEqual(config, json.loads(shared.read_text()))
-        self.assertEqual(['proxy.py', 'workspace', 'stage', '--demo-evidence', str(self.evidence)],
-                         json.loads(evaluator.read_text())['mcpServers'][install.MCP_SERVER_KEY]['args'])
+        self.assertEqual(
+            ['proxy.py', 'workspace', 'stage', '--demo-evidence', str(self.evidence),
+             '--demo-evidence-role', 'evaluator'],
+            json.loads(evaluator.read_text())['mcpServers'][install.MCP_SERVER_KEY]['args'],
+        )
 
 
 if __name__ == '__main__':

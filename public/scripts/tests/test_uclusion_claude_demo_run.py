@@ -47,6 +47,8 @@ class ClaudeDemoRunTests(unittest.TestCase):
             mock.patch.object(INSTALL, 'uclusion_home_root', return_value=str(self.home)),
             mock.patch.object(INSTALL, 'demo_session_args',
                               side_effect=lambda _env, config=None: ['--mcp-config', config or 'shared']),
+            mock.patch.object(INSTALL, 'write_demo_owner_mcp_config',
+                              return_value='owner.json'),
             mock.patch.object(INSTALL, 'write_demo_evaluator_mcp_config',
                               return_value='evaluator.json'),
             mock.patch.object(INSTALL, 'accept_demo_workspace_trust'),
@@ -97,7 +99,7 @@ class ClaudeDemoRunTests(unittest.TestCase):
         report = self.report_path()
         self.assertEqual('evaluation.md', report.name)
         self.assertEqual(self.home / '.uclusion' / 'demo-runs', report.parent.parent)
-        self.assertEqual(['claude', '--mcp-config', 'shared'], owner_command[:-1])
+        self.assertEqual(['claude', '--mcp-config', 'owner.json'], owner_command[:-1])
         # A terminal session is its own process group, which is what stopping
         # one session without the other depends on.
         self.assertIn('os.setsid()', self.terminal_source)
@@ -191,7 +193,7 @@ class ClaudeDemoRunTests(unittest.TestCase):
     def test_only_the_evaluator_is_launched_with_statistics(self):
         self.evaluator_turn = lambda: self.report_path().write_text('Report')
         self.assertEqual(self.run_demo(response_stats='/tmp/eval.jsonl'), 0)
-        self.assertEqual(['claude', '--mcp-config', 'shared'], self.launches[0][0][:-1])
+        self.assertEqual(['claude', '--mcp-config', 'owner.json'], self.launches[0][0][:-1])
         self.assertEqual(['claude', '--mcp-config', 'evaluator.json'], self.launches[1][0][:-1])
 
 

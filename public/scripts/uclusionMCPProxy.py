@@ -35,12 +35,13 @@ TOKEN_AUDIT_TOOLS = frozenset({
 })
 WORK_CLAIM_TOOL_NAME = 'claim_work'
 DEMO_EVIDENCE_ENV = 'UCLUSION_DEMO_EVIDENCE_DIR'
+DEMO_EVIDENCE_ROLE_ENV = 'UCLUSION_DEMO_EVIDENCE_ROLE'
 _DEMO_CAPTURE_FILE = f'events-{os.getpid()}-{uuid4().hex}.jsonl'
 _DEMO_CAPTURE_LOCK = threading.Lock()
 
 
 def record_demo_input(kind, payload):
-    """Record only an explicitly enabled evaluator's local input boundary.
+    """Record a demo session's local input boundary when evidence is enabled.
 
     Each process has its own stream, so MCP restarts and Poke delivery cannot
     interleave JSON records. Never include HTTP headers or credential files.
@@ -50,7 +51,11 @@ def record_demo_input(kind, payload):
     if not directory:
         return
     try:
-        row = json.dumps({'time_ns': time.time_ns(), 'kind': kind, 'payload': payload}) + '\n'
+        row_body = {'time_ns': time.time_ns(), 'kind': kind, 'payload': payload}
+        role = os.environ.get(DEMO_EVIDENCE_ROLE_ENV)
+        if role:
+            row_body['role'] = role
+        row = json.dumps(row_body) + '\n'
         with _DEMO_CAPTURE_LOCK:
             descriptor = os.open(
                 os.path.join(directory, _DEMO_CAPTURE_FILE),
@@ -79,6 +84,8 @@ def demo_evidence_summary(run_dir):
         if os.path.exists(os.path.join(directory, 'capture-failed')):
             gaps.append('a recorder reported a capture failure')
         saw_response = False
+        saw_role = False
+        owner_response = False
         for name in os.listdir(directory):
             if name.startswith('events-') and name.endswith('.jsonl'):
                 pending = set()
@@ -86,6 +93,9 @@ def demo_evidence_summary(run_dir):
                     for line in handle:
                         row = json.loads(line)
                         kind, payload = row['kind'], row['payload']
+                        role = row.get('role')
+                        if role in ('owner', 'evaluator'):
+                            saw_role = True
                         if kind in ('mcp_request', 'mcp_response'):
                             message = json.loads(payload)
                             if not isinstance(message, dict) or message.get('jsonrpc') != '2.0':
@@ -96,6 +106,8 @@ def demo_evidence_summary(run_dir):
                             elif kind == 'mcp_response' and 'id' in message and (
                                     'result' in message or 'error' in message):
                                 saw_response = True
+                                if role == 'owner':
+                                    owner_response = True
                                 pending.discard(json.dumps(message['id']))
                             else:
                                 raise ValueError('invalid recorded JSON-RPC message')
@@ -105,6 +117,8 @@ def demo_evidence_summary(run_dir):
                     gaps.append(f'{name}: requests without recorded responses')
         if not saw_response:
             gaps.append('no evaluator MCP responses recorded')
+        if saw_role and not owner_response:
+            gaps.append('no owner MCP responses recorded')
     except (OSError, ValueError, KeyError, TypeError):
         gaps = ['evidence manifest or event stream is missing or unreadable']
     status = ('INCOMPLETE: ' + '; '.join(gaps)) if gaps else 'recorded Uclusion inputs; see coverage limits'
@@ -175,6 +189,9 @@ def parse_args(argv=None):
     parser.add_argument('--work-claims', action='store_true')
     parser.add_argument('--demo-evidence', metavar='DIRECTORY')
     parser.add_argument(
+        '--demo-evidence-role', choices=('owner', 'evaluator'),
+    )
+    parser.add_argument(
         '--response-stats', metavar='PATH',
         help='Append content-free response byte measurements to a private JSONL file.',
     )
@@ -195,8 +212,12 @@ def parse_args(argv=None):
              'process starts resolves the same way.',
     )
     args = parser.parse_args(argv)
+    if args.demo_evidence_role and not args.demo_evidence:
+        parser.error('--demo-evidence-role requires --demo-evidence')
     if args.demo_evidence:
         os.environ[DEMO_EVIDENCE_ENV] = args.demo_evidence
+    if args.demo_evidence_role:
+        os.environ[DEMO_EVIDENCE_ROLE_ENV] = args.demo_evidence_role
     if args.home:
         os.environ['UCLUSION_HOME'] = args.home
     if args.token_audit:

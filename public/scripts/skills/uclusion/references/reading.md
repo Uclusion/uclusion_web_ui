@@ -59,8 +59,9 @@ declared complete it also reports the conditional Reviewable transition.
 Inspect each outcome separately: a failed inventory, transition or notification
 check does not erase a successful review. Reconcile unconfirmed writes and
 retry only unfinished steps as `operations.md` describes;
-`change_job_stage` states the stage afterwards. Do not call `get_job` after
-them to see their output. `resolve` reports only what it resolved; when you
+`change_job_stage` states the stage afterwards. Do not call `get_job` to see a
+write you made and still have in context. Call `get_job` to see a write you did
+not make or no longer hold. `resolve` reports only what it resolved; when you
 need the stage afterwards, call `get_job` with `stage_only: true`. Others'
 changes arrive as Pokes, so handle those instead of rereading the job.
 

@@ -188,7 +188,7 @@ evidence or a changed requirement, and name what changed.
 `move_suggestion_to_task` and `reopen` take `for_human`, as does any `initial_vote` they carry.
 Set it only for what the person told you to record; the record is theirs and its vote counts. Never put your reasoning under their name: ask for their certainty and reason first.
 With `for_human: true`, require boolean `is_my_lane`: true when working on or assigned that work, to avoid an echo Poke; false otherwise, so agents can receive it and potentially take up the work.
-Choose independently for each nested `initial_vote`. The demo owner plays the human and uses false.
+Choose independently for each nested `initial_vote`.
 
 ### What answers an AI-authored question
 

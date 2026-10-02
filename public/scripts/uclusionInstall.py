@@ -159,9 +159,9 @@ SCRIPT_FILES = (
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCLI.py':
-        '363f7c80e0388fc3f535509f5705bebefb30021793c3bca2f44b312178b9c3e7',
+        '08c85dea97afb3e1ab035700df32edfa6ea0af4b6b6070e5a7b658be25305c02',
     'uclusionMCPProxy.py':
-        'ee16cf886c66c41c246de874480a456638a110828be4e24dff6898c721c52913',
+        'ed5d32ae848be88d5a4e5fa4cfea293e11039adf88944f1dd5ad0980edf54073',
     'uclusionSetupMCP.py':
         'f91ea798847ec8f8cb3407dfcc8eb4ab36ffbaab0c9695fb6028b56b94549d51',
     'uclusionCodexBridge.py':
@@ -335,12 +335,12 @@ WORKFLOW_ASSET_PATHS = {
 # These digests bind the installer to one coherent workflow release. A host
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
-    'reading_reference': '7d831bfe72de76a63b7f57ff66f1bd33c54741bf6a545e1686d8cc472837196a',
+    'reading_reference': 'ded25d0fa5aff01b02293218a5e73ae79b4bb977be84f60fc3c0a9d702c8e362',
     'demo_brief': '63c80d0ebfed53489fe37d0b715f9af294d9729f526e08659bafd2639598becb',
     'claude_stub': '2bcf5034fba89fe87e4020e70adac26aecaf373b50efd0c3c8137a4eeec73830',
     'codex_stub': '7cc3b75aa1b7af3799e47962d7ce2beb43b4a8f52541bb571c0dc968eb808336',
     'cursor_stub': '48944f1a09c86ef1e2e59fc18957e93212f86b30bb73ff67e18a9bc1ff8e3fa8',
-    'skill': '8b03484e0a11d9de3f9e55f7091e520ccf1064d472c04ace7f5ae89948493b99',
+    'skill': '9ccd58de07d07c8311633c2ba7a079b442b44b37a0221d69a37bbeba660e5103',
     'pokes_reference': 'd740585a582d50ca5a5020230c7daeb08022af2c461e6ff2e4695d945c3319be',
     'operations_reference': '110d233520dadf755cae089e028fe1060144d10071f064198642080efe5977d4',
     'completion_reference': '48f5c6f3fc2f1aa0d2732edaf8938cde5979ca3b3afb136ca4d269f2a65880f2',
@@ -1602,7 +1602,8 @@ def _read_demo_codex_config(codex, arguments, environment):
         process.stdout.close()
 
 
-def demo_codex_session_args(environment, workspace_id):
+def demo_codex_session_args(environment, workspace_id, evidence_dir=None,
+                            evidence_role=None):
     """Build and check the Codex demo sessions' launch-local settings."""
     child_environment = demo_codex_environment()
     codex = shutil.which('codex', path=child_environment['PATH'])
@@ -1641,6 +1642,14 @@ def demo_codex_session_args(environment, workspace_id):
     descriptor = runtime_mcp_descriptor(
         workspace_id, None if environment == 'production' else environment,
     )
+    proxy_args = list(descriptor['args'])
+    if evidence_dir:
+        if evidence_role not in ('owner', 'evaluator'):
+            raise ValueError('demo evidence requires owner or evaluator')
+        proxy_args.extend([
+            '--demo-evidence', evidence_dir,
+            '--demo-evidence-role', evidence_role,
+        ])
     server_overrides = [
         _toml_basic_string(name) + '={enabled=false}'
         for name in sorted(servers) if name != MCP_SERVER_KEY
@@ -1648,7 +1657,7 @@ def demo_codex_session_args(environment, workspace_id):
     server_overrides.append(
         _toml_basic_string(MCP_SERVER_KEY) + '={enabled=true,required=true,'
         'command=' + _toml_basic_string(descriptor['command'])
-        + ',args=[' + ','.join(_toml_basic_string(arg) for arg in descriptor['args'])
+        + ',args=[' + ','.join(_toml_basic_string(arg) for arg in proxy_args)
         + '],default_tools_approval_mode="approve"}'
     )
     with open(demo_bootstrap_path(), encoding='utf-8') as handle:
@@ -1684,7 +1693,7 @@ def demo_codex_session_args(environment, workspace_id):
     transport = enabled[0].get('transport', {})
     if (not isinstance(transport, dict)
             or transport.get('command') != descriptor['command']
-            or transport.get('args') != descriptor['args']):
+            or transport.get('args') != proxy_args):
         raise RuntimeError('Codex did not select the demo proxy and workspace')
     return arguments
 
@@ -1721,9 +1730,11 @@ def reset_demo_progress(env):
         pass
     print(
         '👀 To follow the exercise while it runs, repeat '
-        f'`{workflow_cli_command(env)} demo --progress --wait`. It prints one '
-        'line estimating how far the exercise has got, from the notifications '
-        'the owner has received, and changes nothing.'
+        f'`{workflow_cli_command(env)} demo --progress --wait`. Each time it '
+        'prints a line, show that line to the person before you run it again, '
+        'until it says the evaluation is published. It estimates how far the '
+        'exercise has got from the notifications the owner has received, and '
+        'changes nothing.'
     )
 
 
@@ -2075,9 +2086,13 @@ def snapshot_demo_evidence(run_dir, client):
             'A capture-failed file or manifest gaps means disclosure is incomplete. Missing MCP '
             'responses or malformed/truncated event records also mean incomplete capture. '
             'Files may still be growing until the demo supervisor finishes.\n\n'
-            'Coverage is Uclusion-supplied evaluator inputs, not a provider request transcript. '
+            'Coverage is the MCP traffic of both sessions. An event\'s role is "owner" or '
+            '"evaluator". The demo\'s uclusion command can read the workspace on Uclusion\'s '
+            'servers: export writes it, and get_job reads one record. Claude Code does not '
+            'retain the HTTP request it sends the model provider, and this evidence does not '
+            'intercept that request. '
             'Provider instructions, inherited non-Uclusion client settings, native tool implementations '
-            'and arbitrary native tool output are not captured. The owner is excluded. '
+            'and arbitrary native tool output are not captured. '
             'HTTP authentication headers and credential files are not part of this evidence. '
             'Evidence stays in this demo run and is removed with the demo.\n'
         )
@@ -2195,10 +2210,7 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
     environment = demo_codex_environment()
     environment['TERM'] = 'xterm-256color'
     environment['UCLUSION_DEMO_REPORT_FILE'] = report_path
-    session_args = (
-        demo_codex_session_args(env, workspace_id)
-        + demo_choice_args('codex', model, effort)
-    )
+    choice_args = demo_choice_args('codex', model, effort)
     evaluator_command = demo_codex_cli_args(env)
     if response_stats:
         evaluator_command.extend(['--response-stats', response_stats])
@@ -2237,8 +2249,15 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
         with open(os.path.join(run_dir, name), 'w', encoding='utf-8') as handle:
             handle.write(prompt)
     evaluator_environment = dict(environment)
-    evaluator_environment['UCLUSION_DEMO_EVIDENCE_DIR'] = snapshot_demo_evidence(run_dir, 'codex')
+    evidence_dir = snapshot_demo_evidence(run_dir, 'codex')
+    evaluator_environment['UCLUSION_DEMO_EVIDENCE_DIR'] = evidence_dir
+    evaluator_environment['UCLUSION_DEMO_EVIDENCE_ROLE'] = 'evaluator'
     environment.pop('UCLUSION_DEMO_EVIDENCE_DIR', None)
+    environment.pop('UCLUSION_DEMO_EVIDENCE_ROLE', None)
+    owner_session_args = demo_codex_session_args(
+        env, workspace_id, evidence_dir=evidence_dir, evidence_role='owner',
+    ) + choice_args
+    evaluator_session_args = demo_codex_session_args(env, workspace_id) + choice_args
     owner = terminal = None
     print(f'📁 Demo session records: {run_dir}', flush=True)
     try:
@@ -2251,7 +2270,7 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
                 print('🤝 Starting the workshop owner.', flush=True)
                 owner = subprocess.Popen(
                     ['codex', 'exec', '--skip-git-repo-check', '--json',
-                     *session_args, owner_prompt],
+                     *owner_session_args, owner_prompt],
                     cwd=uclusion_home_root(), env=environment,
                     stdin=subprocess.DEVNULL, stdout=owner_log,
                     stderr=subprocess.STDOUT, start_new_session=True,
@@ -2260,7 +2279,8 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
                     raise RuntimeError('the owner did not start its notification watch')
                 print('🧠 Starting the evaluating agent.', flush=True)
                 terminal = DemoCodexTerminal(
-                    [*evaluator_command, 'codex', '--', *session_args, evaluator_prompt],
+                    [*evaluator_command, 'codex', '--', *evaluator_session_args,
+                     evaluator_prompt],
                     evaluator_environment, evaluator_log,
                 )
                 while True:
@@ -2344,13 +2364,13 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_di
     # cannot acquire --mcp-config or --plugin-dir, which is why these have to
     # be new processes.
     choice_args = demo_choice_args('claude', model, effort)
-    session_args = demo_session_args(env) + choice_args
     # Only the evaluator is given the report destination; the owner has
     # nothing to publish.
     evaluator_environment = demo_claude_session_environment()
     evaluator_environment['UCLUSION_DEMO_REPORT_FILE'] = report_path
     owner_environment = demo_claude_session_environment()
     owner_environment.pop('UCLUSION_DEMO_EVIDENCE_DIR', None)
+    owner_environment.pop('UCLUSION_DEMO_EVIDENCE_ROLE', None)
     # The owner has no other way to learn where its directions are: the
     # installer's output is addressed to the agent that ran it and the owner
     # never sees it. S-Marketing-74: its bootstrap says to arm Poke delivery,
@@ -2395,6 +2415,9 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_di
             handle.write(prompt)
     evidence_dir = snapshot_demo_evidence(run_dir, 'claude')
     evaluator_environment['UCLUSION_DEMO_EVIDENCE_DIR'] = evidence_dir
+    owner_session_args = demo_session_args(
+        env, write_demo_owner_mcp_config(evidence_dir),
+    ) + choice_args
     evaluator_session_args = demo_session_args(
         env, write_demo_evaluator_mcp_config(response_stats, evidence_dir),
     ) + choice_args
@@ -2422,7 +2445,7 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_di
                 # terminal: a pipe, or print-mode output, is headless Claude
                 # Code and has no Monitor, so the evaluator cannot wait.
                 owner_terminal = DemoCodexTerminal(
-                    ['claude'] + session_args + [owner_prompt],
+                    ['claude'] + owner_session_args + [owner_prompt],
                     owner_environment, owner_log,
                 )
                 if not wait_for_owner_watch(
@@ -2514,11 +2537,30 @@ def demo_evaluator_mcp_config_path():
     return os.path.join(UCLUSION_HOME, 'mcp-evaluator.json')
 
 
+def demo_owner_mcp_config_path():
+    return os.path.join(UCLUSION_HOME, 'mcp-owner.json')
+
+
+def write_demo_owner_mcp_config(evidence_dir):
+    """The owner's MCP config, recording its traffic into this run's evidence."""
+    path = demo_owner_mcp_config_path()
+    with open(demo_mcp_config_path(), encoding='utf-8') as handle:
+        config = json.load(handle)
+    server = config['mcpServers'][MCP_SERVER_KEY]
+    server['args'] = list(server['args'])
+    server['args'].extend([
+        '--demo-evidence', evidence_dir, '--demo-evidence-role', 'owner',
+    ])
+    with open(path, 'w', encoding='utf-8') as handle:
+        handle.write(json.dumps(config, indent=2) + '\n')
+    return path
+
+
 def write_demo_evaluator_mcp_config(response_stats, evidence_dir=None):
     """The evaluator's MCP config when recording sizes or disclosure, else None.
 
-    Copied from the demo's shared config and differing only by the flag, so
-    the owner records nothing and the evaluator is otherwise identical. The
+    Copied from the demo's shared config. Response sizes stay on this copy.
+    The owner's own config records its MCP traffic into the same evidence. The
     home is reused across runs, so a run that asks for neither removes
     an earlier run's copy rather than recording into its old path.
     """
@@ -2536,7 +2578,10 @@ def write_demo_evaluator_mcp_config(response_stats, evidence_dir=None):
     if response_stats:
         server['args'].extend(['--response-stats', response_stats])
     if evidence_dir:
-        server['args'].extend(['--demo-evidence', evidence_dir])
+        server['args'].extend([
+            '--demo-evidence', evidence_dir,
+            '--demo-evidence-role', 'evaluator',
+        ])
     with open(path, 'w', encoding='utf-8') as handle:
         handle.write(json.dumps(config, indent=2) + '\n')
     return path
@@ -3085,6 +3130,181 @@ def _remove_claude_folder(folder, label):
     return 'removed', f'{label} in {folder}'
 
 
+def _json_skip(text, index):
+    while index < len(text) and text[index] in ' \t\r\n':
+        index += 1
+    return index
+
+
+def _json_raw(text, index):
+    index = _json_skip(text, index)
+    _value, end = json.JSONDecoder().raw_decode(text, index)
+    return _value, index, end
+
+
+def _json_document(text):
+    value, start, end = _json_raw(text, 0)
+    if _json_skip(text, end) != len(text):
+        raise ValueError('extra data')
+    if not isinstance(value, dict):
+        raise ValueError('root is not an object')
+    return start
+
+
+def _json_object_members(text, start):
+    """Members of the object whose '{' is at start. The last duplicate key wins."""
+    if text[start] != '{':
+        raise ValueError('not an object')
+    index = start + 1
+    members = []
+    while True:
+        index = _json_skip(text, index)
+        if index >= len(text):
+            raise ValueError('unclosed object')
+        if text[index] == '}':
+            return members, index
+        key, key_at, key_end = _json_raw(text, index)
+        if not isinstance(key, str):
+            raise ValueError('object key')
+        colon = _json_skip(text, key_end)
+        if colon >= len(text) or text[colon] != ':':
+            raise ValueError('object colon')
+        _value, value_at, value_end = _json_raw(text, colon + 1)
+        after = _json_skip(text, value_end)
+        comma = None
+        if after < len(text) and text[after] == ',':
+            comma = after
+            index = after + 1
+        else:
+            index = after
+        members.append({
+            'key': key, 'key_at': key_at, 'value_at': value_at,
+            'value_end': value_end, 'comma': comma,
+        })
+
+
+def _json_find(text, path):
+    """(value, value_at, value_end) for path, or None when a key is absent."""
+    _value, start, _end = _json_raw(text, 0)
+    obj_start = start
+    for depth, key in enumerate(path):
+        if text[obj_start] != '{':
+            raise ValueError('not an object')
+        members, _close = _json_object_members(text, obj_start)
+        found = [member for member in members if member['key'] == key]
+        if not found:
+            return None
+        member = found[-1]
+        if depth == len(path) - 1:
+            value, _at, _end = _json_raw(text, member['value_at'])
+            return value, member['value_at'], member['value_end']
+        obj_start = member['value_at']
+    return None
+
+
+def _json_insert_member(text, obj_start, key, raw):
+    members, close = _json_object_members(text, obj_start)
+    encoded = json.dumps(key, ensure_ascii=False) + ': ' + raw
+    if not members:
+        interior = text[obj_start + 1:close]
+        if '\n' in interior:
+            indent = text[text.rfind('\n', obj_start, close) + 1:close]
+            return (text[:obj_start + 1] + '\n' + indent + '  ' + encoded
+                    + '\n' + indent + text[close:])
+        return text[:obj_start + 1] + encoded + text[close:]
+    last = members[-1]
+    previous = members[-2]['comma'] + 1 if len(members) > 1 else obj_start + 1
+    prefix = text[previous:last['key_at']]
+    return text[:last['value_end']] + ',' + prefix + encoded + text[last['value_end']:]
+
+
+def _json_set_leaf(text, path, value, raw):
+    if len(path) > 1:
+        text = _json_ensure_object(text, path[:-1])
+    root = _json_document(text)
+    parent_path, key = path[:-1], path[-1]
+    if parent_path:
+        parent = _json_find(text, parent_path)
+        obj_start = parent[1]
+    else:
+        obj_start = root
+    members, _close = _json_object_members(text, obj_start)
+    found = [member for member in members if member['key'] == key]
+    if found:
+        member = found[-1]
+        current, _at, _end = _json_raw(text, member['value_at'])
+        if current == value and type(current) is type(value):
+            return text
+        return text[:member['value_at']] + raw + text[member['value_end']:]
+    return _json_insert_member(text, obj_start, key, raw)
+
+
+def _json_ensure_object(text, path):
+    """Create missing objects along path. An existing non-object raises."""
+    if not path:
+        _json_document(text)
+        return text
+    text = _json_ensure_object(text, path[:-1])
+    found = _json_find(text, path)
+    if found is None:
+        return _json_set_leaf(text, path, {}, '{}')
+    if not isinstance(found[0], dict):
+        raise ValueError(f'{path[-1]} is not an object')
+    return text
+
+
+def json_text_set(text, path, value):
+    """Set one value, leaving every other byte of text as it was.
+
+    Missing objects along path are created. The original text is returned
+    when the parsed value is already equal, so an existing token is not
+    rewritten.
+    """
+    _json_document(text)
+    raw = json.dumps(value, ensure_ascii=False)
+    return _json_set_leaf(text, path, value, raw)
+
+
+def json_text_delete(text, path):
+    """Delete one key. Returns (text, removed). Other bytes stay put."""
+    _json_document(text)
+    root = _json_document(text)
+    parent_path, key = path[:-1], path[-1]
+    if parent_path:
+        parent = _json_find(text, parent_path)
+        if parent is None or not isinstance(parent[0], dict):
+            return text, False
+        obj_start = parent[1]
+    else:
+        obj_start = root
+    members, close = _json_object_members(text, obj_start)
+    indexes = [index for index, member in enumerate(members) if member['key'] == key]
+    if not indexes:
+        return text, False
+    index = indexes[-1]
+    member = members[index]
+    if len(members) == 1:
+        return text[:obj_start + 1] + text[member['value_end']:close] + text[close:], True
+    if index == 0:
+        return text[:member['key_at']] + text[members[1]['key_at']:], True
+    previous = members[index - 1]
+    if index < len(members) - 1:
+        return text[:previous['comma'] + 1] + text[member['comma'] + 1:], True
+    return text[:previous['comma']] + text[member['value_end']:], True
+
+
+def _trust_one_home(text, home):
+    projects = _json_find(text, ['projects'])
+    if projects is not None and not isinstance(projects[0], dict):
+        raise ValueError('projects is not an object')
+    entry = _json_find(text, ['projects', home]) if projects is not None else None
+    if entry is None or not isinstance(entry[0], dict):
+        return json_text_set(text, ['projects', home], {'hasTrustDialogAccepted': True})
+    if entry[0].get('hasTrustDialogAccepted') is True:
+        return text
+    return json_text_set(text, ['projects', home, 'hasTrustDialogAccepted'], True)
+
+
 def accept_demo_workspace_trust(home):
     """Record the demo home as a workspace Claude Code already trusts.
 
@@ -3103,34 +3323,22 @@ def accept_demo_workspace_trust(home):
 def _accept_workspace_trust(path, homes):
     target = _config_write_target(path)
     existing, signature = _read_text_snapshot(target)
-    if existing.strip():
+    if not existing.strip():
+        updated = json.dumps(
+            {'projects': {home: {'hasTrustDialogAccepted': True} for home in homes}},
+            indent=2,
+        ) + '\n'
+    else:
         try:
-            config = json.loads(existing)
+            updated = existing
+            for home in homes:
+                updated = _trust_one_home(updated, home)
         except json.JSONDecodeError as err:
             raise RuntimeError(f'{path} is not valid JSON: {err}') from err
-    else:
-        config = {}
-    if not isinstance(config, dict):
-        raise RuntimeError(f'{path} is not a JSON object')
-    projects = config.get('projects')
-    if projects is None:
-        projects = {}
-        config['projects'] = projects
-    if not isinstance(projects, dict):
-        raise RuntimeError(f'{path} projects is not a JSON object')
-    changed = False
-    for home in homes:
-        entry = projects.get(home)
-        if not isinstance(entry, dict):
-            entry = {}
-            projects[home] = entry
-            changed = True
-        if entry.get('hasTrustDialogAccepted') is not True:
-            entry['hasTrustDialogAccepted'] = True
-            changed = True
-    if not changed:
-        return
-    updated = json.dumps(config, indent=2) + '\n'
+        except ValueError as err:
+            raise RuntimeError(f'{path} {err}') from err
+        if updated == existing:
+            return
     try:
         with config_file_lock(path):
             atomic_write_text(path, updated, existing, target, signature)
@@ -3174,22 +3382,27 @@ def _remove_demo_plugin_usage(path):
             return 'kept', f'{path}, which is not valid JSON: {err}'
         if not isinstance(config, dict):
             return 'kept', f'{path}, which is not a JSON object'
-        removed = False
-        for section in ('pluginUsage', 'skillUsage'):
-            usage = config.get(section)
-            if not isinstance(usage, dict):
-                continue
-            keys = [key for key in usage if _demo_plugin_usage_key(section, key)]
-            if not keys:
-                continue
-            for key in keys:
-                del usage[key]
-            if not usage:
-                del config[section]
-            removed = True
+        try:
+            updated = existing
+            removed = False
+            for section in ('pluginUsage', 'skillUsage'):
+                usage = _json_find(updated, [section])
+                if usage is None:
+                    continue
+                if not isinstance(usage[0], dict):
+                    continue
+                keys = [key for key in usage[0] if _demo_plugin_usage_key(section, key)]
+                if not keys:
+                    continue
+                for key in keys:
+                    updated, _deleted = json_text_delete(updated, [section, key])
+                if _json_find(updated, [section])[0] == {}:
+                    updated, _deleted = json_text_delete(updated, [section])
+                removed = True
+        except (json.JSONDecodeError, ValueError) as err:
+            return 'kept', f'{path}, which is not valid JSON: {err}'
         if not removed:
             return absent
-        updated = json.dumps(config, indent=2) + '\n'
         try:
             with config_file_lock(path):
                 atomic_write_text(path, updated, existing, target, signature)
@@ -3225,13 +3438,19 @@ def _remove_demo_claude_project_entry(path, homes):
             config = json.loads(existing)
         except json.JSONDecodeError as err:
             return 'kept', f'{path}, which is not valid JSON: {err}'
-        projects = config.get('projects') if isinstance(config, dict) else None
-        keys = [key for key in homes if isinstance(projects, dict) and key in projects]
-        if not keys:
+        try:
+            updated = existing
+            removed = False
+            projects = _json_find(updated, ['projects'])
+            if projects is None or not isinstance(projects[0], dict):
+                return absent
+            for key in homes:
+                updated, deleted = json_text_delete(updated, ['projects', key])
+                removed = removed or deleted
+        except (json.JSONDecodeError, ValueError) as err:
+            return 'kept', f'{path}, which is not valid JSON: {err}'
+        if not removed:
             return absent
-        for key in keys:
-            del projects[key]
-        updated = json.dumps(config, indent=2) + '\n'
         try:
             with config_file_lock(path):
                 atomic_write_text(path, updated, existing, target, signature)

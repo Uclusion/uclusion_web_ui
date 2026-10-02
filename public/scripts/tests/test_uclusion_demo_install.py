@@ -167,6 +167,7 @@ class DemoHomeTests(unittest.TestCase):
 
         with mock.patch.object(INSTALL, 'UCLUSION_HOME', home.name), \
                 mock.patch.object(INSTALL, 'demo_session_args', return_value=[]), \
+                mock.patch.object(INSTALL, 'write_demo_owner_mcp_config'), \
                 mock.patch.object(INSTALL, 'write_demo_evaluator_mcp_config'), \
                 mock.patch.object(INSTALL, 'accept_demo_workspace_trust'), \
                 mock.patch.object(INSTALL, 'DemoCodexTerminal', side_effect=launch), \
@@ -227,7 +228,7 @@ class DemoHomeTests(unittest.TestCase):
         # The brief and the workflow references sit under the demo home.
         self.assertIn('--add-dir', INSTALL.demo_session_args('stage'))
         # The launch must use that definition rather than assembling its own.
-        self.assertIn('demo_session_args(env)', inspect.getsource(INSTALL.run_claude_demo))
+        self.assertEqual(2, inspect.getsource(INSTALL.run_claude_demo).count('demo_session_args('))
 
     def test_the_owner_session_is_kept_for_diagnosis(self):
         # When the owner never wakes, its session is the only evidence of why.

@@ -34,6 +34,11 @@ class CodexDemoRunTests(unittest.TestCase):
         self.terminal.process.poll.return_value = None
         self.report = None
         self.commands = []
+        self.session_calls = []
+
+        def session_args(*_args, **kwargs):
+            self.session_calls.append(kwargs)
+            return ['-c', 'x=1']
 
         def start_terminal(command, environment, _log):
             self.commands.append(command)
@@ -46,7 +51,7 @@ class CodexDemoRunTests(unittest.TestCase):
             mock.patch.object(INSTALL, 'SYMLINK_DIR', str(self.home / '.local/bin')),
             mock.patch.object(INSTALL, 'uclusion_home_root', return_value=str(self.home)),
             mock.patch.object(INSTALL, 'demo_codex_environment', return_value={}),
-            mock.patch.object(INSTALL, 'demo_codex_session_args', return_value=['-c', 'x=1']),
+            mock.patch.object(INSTALL, 'demo_codex_session_args', side_effect=session_args),
             mock.patch.object(INSTALL, 'DemoCodexTerminal', side_effect=start_terminal),
             mock.patch.object(INSTALL.subprocess, 'Popen', return_value=self.owner),
             mock.patch.object(INSTALL, 'wait_for_owner_watch', return_value=True),
@@ -81,6 +86,9 @@ class CodexDemoRunTests(unittest.TestCase):
                 owner_call = next(call for call in reversed(INSTALL.subprocess.Popen.call_args_list)
                                   if call.args[0][:2] == ['codex', 'exec'])
                 self.assertNotIn('UCLUSION_DEMO_EVIDENCE_DIR', owner_call.kwargs['env'])
+                self.assertEqual('owner', self.session_calls[-2]['evidence_role'])
+                self.assertTrue(self.session_calls[-2]['evidence_dir'].endswith('/evidence'))
+                self.assertIsNone(self.session_calls[-1].get('evidence_dir'))
 
     def test_publication_preserves_bytes_and_stops_both_live_sessions(self):
         report = b'  Evaluation\r\nUnicode: \xe2\x9c\x93\n\n'

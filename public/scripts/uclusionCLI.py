@@ -26,7 +26,9 @@ import uuid
 from contextlib import closing, contextmanager, redirect_stdout
 from itertools import batched
 from datetime import datetime
-from uclusionMCPProxy import DEMO_EVIDENCE_ENV, demo_evidence_summary, record_demo_input
+from uclusionMCPProxy import (
+    DEMO_EVIDENCE_ENV, DEMO_EVIDENCE_ROLE_ENV, demo_evidence_summary, record_demo_input,
+)
 
 
 # Define the names of the configuration file and the target file
@@ -1935,6 +1937,10 @@ def build_codex_mcp_overrides(
         proxy_args.extend(['--response-stats', response_stats])
     if os.environ.get(DEMO_EVIDENCE_ENV):
         proxy_args.extend(['--demo-evidence', os.environ[DEMO_EVIDENCE_ENV]])
+        if os.environ.get(DEMO_EVIDENCE_ROLE_ENV):
+            proxy_args.extend([
+                '--demo-evidence-role', os.environ[DEMO_EVIDENCE_ROLE_ENV],
+            ])
     if token_audit is not None:
         if not token_audit_ready_file or not token_audit_owner:
             raise ValueError(
@@ -4319,8 +4325,7 @@ def add_lane_arguments(command_parser, prefix=''):
     lane.add_argument(
         f'--no-{prefix}is-my-lane', action='store_false', default=None,
         dest=prefix.replace('-', '_') + 'is_my_lane',
-        help='Use for human records outside your work so agents can receive their Pokes. '
-             'The demo owner uses this choice.',
+        help='Use for human records outside your work so agents can receive their Pokes.',
     )
 
 

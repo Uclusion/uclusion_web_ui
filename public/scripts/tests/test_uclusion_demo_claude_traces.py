@@ -258,6 +258,36 @@ class ClaudeSessionTraceTests(unittest.TestCase):
         )
         self.assertIn('including the demo home in ~/.claude.json', told)
 
+    def test_trust_and_removal_leave_the_rest_of_the_file_byte_for_byte(self):
+        original = (
+            '{\n'
+            '\t"numStartups": 7,\n'
+            '\t"projects": {\n'
+            '\t\t"/home/me/project": { "hasTrustDialogAccepted": false, "allowedTools": [] }\n'
+            '\t}\n'
+            '}\n'
+        )
+        home_config = self.temp_root / 'person' / '.claude.json'
+        home_config.parent.mkdir(parents=True)
+        home_config.write_text(original)
+        with mock.patch.object(INSTALL, 'USER_HOME', str(home_config.parent)), \
+                mock.patch.object(INSTALL, 'CLAUDE_JSON_PATH', str(self.claude_json)):
+            INSTALL.accept_demo_workspace_trust(self.home)
+        updated = home_config.read_text()
+        self.assertIn('\t\t"/home/me/project": { "hasTrustDialogAccepted": false, "allowedTools": [] }', updated)
+        self.assertIn('\t"numStartups": 7,', updated)
+        self.assertTrue(updated.endswith('}\n'))
+        projects = json.loads(updated)['projects']
+        self.assertIs(True, projects[self.home]['hasTrustDialogAccepted'])
+        self.assertIs(False, projects['/home/me/project']['hasTrustDialogAccepted'])
+        with mock.patch.object(INSTALL, 'USER_HOME', str(home_config.parent)), \
+                mock.patch.object(INSTALL, 'CLAUDE_JSON_PATH', str(self.claude_json)):
+            INSTALL.remove_demo_claude_session_traces(self.home)
+        removed = home_config.read_text()
+        self.assertIn('\t\t"/home/me/project": { "hasTrustDialogAccepted": false, "allowedTools": [] }', removed)
+        self.assertIn('\t"numStartups": 7,', removed)
+        self.assertNotIn(self.home, json.loads(removed)['projects'])
+
 
 if __name__ == '__main__':
     unittest.main()

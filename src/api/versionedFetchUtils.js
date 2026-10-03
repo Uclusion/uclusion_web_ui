@@ -42,7 +42,7 @@ import {
 import { RepeatingFunction } from '../utils/RepeatingFunction';
 import { isSignedOut } from '../utils/userFunctions';
 import { getMarketClient } from './marketLogin';
-import { isInitialSyncComplete, markInitialSyncComplete, recordInitialSyncCycle } from './syncStatus';
+import { isInitialSyncComplete, markInitialSyncComplete } from './syncStatus';
 import { TOKEN_TYPE_MARKET } from './tokenConstants';
 import TokenStorageManager from '../authorization/TokenStorageManager';
 import { addMarketsToStorage } from '../contexts/MarketsContext/marketsContextHelper';
@@ -105,7 +105,11 @@ let releasePending = false;
 let lastCycleEndMs = 0;
 let releaseTimer = undefined;
 let releaseDispatchers = undefined;
-const pendingInitialSyncCycles = [];
+// Initial sync is complete once a successful cycle's data has been released and nothing
+// is left outstanding, not when some later cycle happens to find nothing new
+// (https://stage.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/Q-Marketing-258 O-4).
+let successfulCycleAwaitingRelease = false;
+let successfulCycleReleased = false;
 // Incremented when this tab gives up leadership. Work started under an older value may
 // finish its network calls, but it must not release data or restart the recurring runner.
 let refreshLifecycle = 0;
@@ -132,6 +136,17 @@ onEditingResumed(() => {
   }
 });
 
+// Called on release and wherever outstanding sync work drains, so the order those finish in
+// does not matter. A notification dependency that has used up its retries no longer counts.
+function markCompleteIfCaughtUp() {
+  if (!successfulCycleReleased || isInitialSyncComplete() || refreshInProgress || refreshQueued ||
+      editingRefresh || syncThrottleTimer || releasePending || hasAccrued() ||
+      !_.isEmpty(pendingPushChecks) || pendingNotificationChecks.some((check) => !check.exhausted)) {
+    return;
+  }
+  markInitialSyncComplete();
+}
+
 function doRelease() {
   if (!releasePending) {
     return;
@@ -156,9 +171,12 @@ function doRelease() {
       }
     });
   }
-  // A clean cycle can see accrued data before it reaches the UI. Publish readiness only
-  // after that data is released, retaining the sync layer's successful-cycle sequence.
-  pendingInitialSyncCycles.splice(0).forEach(recordInitialSyncCycle);
+  // Readiness follows the release, so the UI never reports ready ahead of the data.
+  if (successfulCycleAwaitingRelease) {
+    successfulCycleAwaitingRelease = false;
+    successfulCycleReleased = true;
+  }
+  markCompleteIfCaughtUp();
   // Q-all-479 O-1: notifications release with the market data and never ahead of it, because
   // a row whose comment is not in state yet does not function. This fetch is asynchronous, so
   // calling it after the dispatch above keeps that order.
@@ -222,7 +240,7 @@ const matchErrorHandlingVersionRefresh = (dispatchers=undefined, releaseImmediat
         refreshInProgress = false;
         releasePending = false;
         releaseDispatchers = undefined;
-        pendingInitialSyncCycles.length = 0;
+        successfulCycleAwaitingRelease = false;
         if (hasAccrued()) {
           takeAccrued();
         }
@@ -241,9 +259,7 @@ const matchErrorHandlingVersionRefresh = (dispatchers=undefined, releaseImmediat
       }
       if (refreshSucceeded) {
         lastSuccessfulRefreshMs = Date.now();
-        if (!isInitialSyncComplete()) {
-          pendingInitialSyncCycles.push(dirtyMarketCount);
-        }
+        successfulCycleAwaitingRelease = true;
       }
       refreshInProgress = false;
       lastCycleEndMs = Date.now();
@@ -399,7 +415,8 @@ export function stopRefreshRunner() {
   }
   releasePending = false;
   releaseDispatchers = undefined;
-  pendingInitialSyncCycles.length = 0;
+  successfulCycleAwaitingRelease = false;
+  successfulCycleReleased = false;
   if (hasAccrued()) {
     takeAccrued();
   }
@@ -505,6 +522,7 @@ function removePendingPushChecks(predicate) {
     pushVerifyTimer = undefined;
     pushVerifyResume?.();
     pushVerifyResume = undefined;
+    markCompleteIfCaughtUp();
   }
 }
 
@@ -625,10 +643,13 @@ function notificationCheckKey(check) {
 }
 
 function pruneExpiredNotificationChecks(now=Date.now()) {
-  _.remove(pendingNotificationChecks, (check) => check.expiresAt <= now);
+  const expired = _.remove(pendingNotificationChecks, (check) => check.expiresAt <= now);
   if (_.isEmpty(pendingNotificationChecks) && notificationVerifyTimer) {
     clearTimeout(notificationVerifyTimer);
     notificationVerifyTimer = undefined;
+  }
+  if (!_.isEmpty(expired)) {
+    markCompleteIfCaughtUp();
   }
 }
 
@@ -672,6 +693,7 @@ function scheduleNotificationVerification(resetTimer=false) {
             investibleId: check.investibleId, version: check.version });
         });
       scheduleNotificationVerification();
+      markCompleteIfCaughtUp();
     }).catch(() => console.warn('Error in notification dependency refresh'));
   };
   notificationVerifyTimer = setTimeout(retry, delay);
@@ -718,6 +740,8 @@ export async function refreshVersionsForNotificationDependencies(dependencies=[]
     notificationVerifyTimer = undefined;
   }
   if (!added) {
+    // A later snapshot from this tab may have retired the last dependency still being retried.
+    markCompleteIfCaughtUp();
     return false;
   }
   const dirtyMarketCount = await refreshVersionsNow(dispatchers);

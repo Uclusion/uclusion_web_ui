@@ -50,7 +50,6 @@ jest.mock('../utils/RepeatingFunction', () => ({
 }));
 jest.mock('./syncStatus', () => ({
   ...jest.requireActual('./syncStatus'),
-  recordInitialSyncCycle: jest.fn((...args) => mockInitialSyncStatus?.recordInitialSyncCycle(...args)),
   isInitialSyncComplete: () => mockInitialSyncStatus?.isInitialSyncComplete() || false,
   markInitialSyncComplete: () => mockInitialSyncStatus?.markInitialSyncComplete(),
 }));
@@ -378,6 +377,153 @@ it('finishes cold leader loading after React publishes data without waiting for 
     jest.clearAllMocks();
     jest.useRealTimers();
     window.IS_REACT_ACT_ENVIRONMENT = previousActEnvironment;
+  }
+});
+
+it('finishes loading when the last startup cycle fetched changes and no push follows', async () => {
+  // S-Marketing-116: in stage_only.v971 onboarding wrote new versions just after the startup
+  // pass read them, so every cycle found something and nothing ran another one. The page
+  // stayed on Page loading until the five-minute drift cycle although nothing was missing.
+  const previousActEnvironment = window.IS_REACT_ACT_ENVIRONMENT;
+  window.IS_REACT_ACT_ENVIRONMENT = true;
+  jest.useFakeTimers();
+  mockUseRefreshRunner = true;
+  jest.isolateModules(() => {
+    mockInitialSyncStatus = jest.requireActual('./syncStatus');
+  });
+  const container = document.createElement('div');
+  const root = createRoot(container);
+  const versionOne = { id: mockCommentId, version: 1, comment_type: 'QUESTION' };
+  const versionTwo = { ...versionOne, version: 2 };
+  const flushWork = () => new Promise(jest.requireActual('timers').setImmediate);
+  let dispatchers;
+  function Startup() {
+    const [comments, commentsDispatch] = useReducer(
+      (state, { commentDetails }) => ({ ...state, ...commentDetails }), {}
+    );
+    mockCommentsState = comments;
+    dispatchers = { commentsDispatch, diffDispatch: jest.fn(), index: {}, ticketsDispatch: jest.fn() };
+    const ready = useInitialSyncComplete('changed-startup');
+    return <div>{ready ? 'Workspace ready' : 'Loading'}</div>;
+  }
+  const audit = (version) => [{ id: mockMarketId, active: true,
+    signature: { object_type: 'comment', object_id_one: mockCommentId, version } }];
+  const versions = (version) => [{ market_id: mockMarketId, signatures: [{
+    type: 'comment', object_versions: [{ object_id_one: mockCommentId, version }]
+  }] }];
+  // The leader's first cycle sees version one; every later cycle sees version two.
+  getChangedIds.mockResolvedValueOnce(audit(1)).mockResolvedValue(audit(2));
+  getVersions.mockResolvedValueOnce(versions(1)).mockResolvedValue(versions(2));
+  fetchComments.mockResolvedValueOnce([versionOne]).mockResolvedValue([versionTwo]);
+  getMarketClient.mockResolvedValue({ id: 'client' });
+  try {
+    act(() => root.render(<Startup />));
+    await act(async () => {
+      await refreshVersionsNow(dispatchers);
+      for (let tick = 0; tick < 12; tick += 1) {
+        await flushWork();
+        // Well short of the five-minute drift cycle, and no push arrives.
+        jest.advanceTimersByTime(2500);
+      }
+      await flushWork();
+    });
+    // Two cycles, both with something to fetch, and no third: the second fetched version two.
+    expect(getChangedIds).toHaveBeenCalledTimes(2);
+    expect(fetchComments).toHaveBeenLastCalledWith([{ id: mockCommentId, version: 2 }], { id: 'client' });
+    expect(container.textContent).toBe('Workspace ready');
+  } finally {
+    stopRefreshRunner();
+    act(() => root.unmount());
+    mockCommentsState = {};
+    mockInitialSyncStatus = undefined;
+    mockUseRefreshRunner = false;
+    jest.clearAllMocks();
+    jest.useRealTimers();
+    window.IS_REACT_ACT_ENVIRONMENT = previousActEnvironment;
+  }
+});
+
+it('waits for the cycle a push triggers before finishing loading', async () => {
+  jest.useFakeTimers();
+  jest.isolateModules(() => {
+    mockInitialSyncStatus = jest.requireActual('./syncStatus');
+  });
+  const flushWork = () => new Promise(jest.requireActual('timers').setImmediate);
+  const versionOne = { id: mockCommentId, version: 1, comment_type: 'QUESTION' };
+  const versionTwo = { ...versionOne, version: 2 };
+  const versions = (version) => [{ market_id: mockMarketId, signatures: [{
+    type: 'comment', object_versions: [{ object_id_one: mockCommentId, version }]
+  }] }];
+  getChangedIds.mockResolvedValue([{ id: mockMarketId, active: true,
+    signature: { object_type: 'comment', object_id_one: mockCommentId, version: 1 } }]);
+  getVersions.mockResolvedValueOnce(versions(1)).mockResolvedValue(versions(2));
+  fetchComments.mockResolvedValueOnce([versionOne]).mockResolvedValue([versionTwo]);
+  getMarketClient.mockResolvedValue({ id: 'client' });
+  try {
+    await refreshVersions();
+    // The push arrives after the first cycle and before its release.
+    const pushed = refreshVersionsFromPush({ marketId: mockMarketId, objectType: 'comment',
+      objectIdOneTwo: mockCommentId, version: 2 });
+
+    jest.advanceTimersByTime(2500);
+    await flushWork();
+    // The first cycle's data is released, but the pushed version has not been fetched yet.
+    expect(fetchComments).toHaveBeenCalledTimes(1);
+    expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(false);
+
+    jest.advanceTimersByTime(2500);
+    await pushed;
+    await flushWork();
+    // The cycle the push triggered has fetched it, but its data is not released yet.
+    expect(fetchComments).toHaveBeenLastCalledWith([{ id: mockCommentId, version: 2 }], { id: 'client' });
+    expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(false);
+
+    jest.advanceTimersByTime(2500);
+    await flushWork();
+    expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(true);
+  } finally {
+    stopRefreshRunner();
+    mockInitialSyncStatus = undefined;
+    jest.clearAllMocks();
+    jest.useRealTimers();
+  }
+});
+
+it('finishes loading once a missing notification dependency has used up its retries', async () => {
+  jest.useFakeTimers();
+  jest.isolateModules(() => {
+    mockInitialSyncStatus = jest.requireActual('./syncStatus');
+  });
+  const flushWork = () => new Promise(jest.requireActual('timers').setImmediate);
+  // Versions never exposes the comment, so the dependency can only run out of retries.
+  getChangedIds.mockResolvedValue([]);
+  getVersions.mockResolvedValue([]);
+  try {
+    await refreshVersionsForNotificationDependencies([{
+      marketId: mockMarketId,
+      commentId: mockCommentId,
+      version: 1
+    }], undefined, 'other-tab');
+    // That cycle's release happened, but the dependency is still being retried.
+    expect(getVersions).toHaveBeenCalledTimes(1);
+    expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(false);
+
+    let versionsCallsWhenReady;
+    for (let second = 0; second < 120 && versionsCallsWhenReady === undefined; second += 1) {
+      jest.advanceTimersByTime(1000);
+      await flushWork();
+      await flushWork();
+      if (mockInitialSyncStatus.isInitialSyncComplete()) {
+        versionsCallsWhenReady = getVersions.mock.calls.length;
+      }
+    }
+    // The first refresh plus five retries, after which the dependency no longer counts.
+    expect(versionsCallsWhenReady).toBe(6);
+  } finally {
+    stopRefreshRunner();
+    mockInitialSyncStatus = undefined;
+    jest.clearAllMocks();
+    jest.useRealTimers();
   }
 });
 

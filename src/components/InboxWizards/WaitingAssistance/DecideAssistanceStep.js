@@ -11,7 +11,7 @@ import {
   getMarketComments
 } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import {
@@ -30,7 +30,7 @@ import {
   getFormerStageId,
   getWorkflowStageContext,
   handleAcceptSuggestion,
-  isAIAuthoredQuestion
+  isAIAuthoredQuestionWithOptions
 } from '../../../utils/commentFunctions';
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
@@ -71,7 +71,8 @@ function DecideAssistanceStep(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-  const resolveLabel = isAIAuthoredQuestion(commentRoot, marketPresencesState[marketId]) ?
+  const resolveLabel = isAIAuthoredQuestionWithOptions(commentRoot, marketPresencesState[marketId],
+    getMarketInvestibles(investibleState, commentRoot.inline_market_id)) ?
     'commentDelegateLabel' : 'commentResolveLabel';
   const restoresFormerStage = commentRoot.investible_id ? doesCommentResolutionRestoreStage(
     commentRoot,

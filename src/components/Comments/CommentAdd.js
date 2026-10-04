@@ -26,7 +26,7 @@ import {
   getBlockedStage, getProposedOptionsStage,
   getRequiredInputStage
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { addInvestible, getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { addInvestible, getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
@@ -34,7 +34,7 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import {
   changeInvestibleStage,
   changeInvestibleStageOnCommentOpen,
-  isAIAuthoredQuestion
+  isAIAuthoredQuestionWithOptions
 } from '../../utils/commentFunctions';
 import { findMessageOfType, findMessageOfTypeAndId, findMessagesForInvestibleId } from '../../utils/messageUtils';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
@@ -315,7 +315,8 @@ function CommentAdd(props) {
   const decisionMarket = getMarket(marketsState, wizardProps.decisionMarketId);
   const resolveTarget = fromDecisionInvestibleId ?
     getComment(commentsState, marketId, decisionMarket?.parent_comment_id) : rootComment;
-  const isDelegate = isAIAuthoredQuestion(resolveTarget, marketPresencesState[marketId]);
+  const isDelegate = isAIAuthoredQuestionWithOptions(resolveTarget, marketPresencesState[marketId],
+    getMarketInvestibles(investibleState, resolveTarget?.inline_market_id));
   const { investible_id: parentInvestible, id: parentId } = usedParent;
   const investibleId = fromInvestibleId || parentInvestible;
   const inv = getInvestible(investibleState, investibleId) || {};

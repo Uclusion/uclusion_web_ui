@@ -81,7 +81,7 @@ import { marketAbstain } from '../../api/markets';
 import {
   changeInvestibleStage, changeInvestibleStageOnCommentClose,
   handleAcceptSuggestion,
-  isAIAuthoredQuestion,
+  isAIAuthoredQuestionWithOptions,
   isSingleAssisted,
   moveToTaskPayload,
   onCommentOpen, onCommentsMove
@@ -715,7 +715,8 @@ function Comment(props) {
   // Per C-all-1167 an AI authored comment grants author rights to any collaborator - the AI user
   // is the only presence without an email
   const isAiAuthored = !!createdBy.id && _.isEmpty(createdBy.email);
-  const isAIQuestion = isAIAuthoredQuestion(comment, marketPresencesState[marketId]);
+  const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId);
+  const isDelegate = isAIAuthoredQuestionWithOptions(comment, marketPresencesState[marketId], inlineInvestibles);
   const isEditable = comment.created_by === myPresence.id || isAiAuthored || isMarketTodo ||
     (isTask && myPresenceIsAssigned);
 
@@ -1100,7 +1101,6 @@ function Comment(props) {
       }
     ];
   }
-  const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId);
   const showConfigureVotingButton = commentType === QUESTION_TYPE && !inArchives &&
     !_.isEmpty(inlineInvestibles) && !resolved && !removeActions && (myPresence === createdBy || isAiAuthored);
   const showResolve = !isCapsule && isSent !== false && !inArchives && !removeActions && !resolved && !isInfo && (!isNote || !investibleId);
@@ -1233,10 +1233,10 @@ function Comment(props) {
           REPORT_TYPE)}&resolveId=${id}`) : resolve)}
       icon={resolved ? SettingsBackupRestore : Done}
       id={`commentResolveReopenButton${id}`}
-      toolTipId={!resolved && isAIQuestion ? 'commentDelegateExplanation' : undefined}
+      toolTipId={!resolved && isDelegate ? 'commentDelegateExplanation' : undefined}
     >
       {intl.formatMessage({ id: resolved ? 'commentReopenLabel' :
-          (isAIQuestion ? 'commentDelegateLabel' : 'commentResolveLabel') })}
+          (isDelegate ? 'commentDelegateLabel' : 'commentResolveLabel') })}
     </SpinningIconLabelButton>
   )}
   {diff && (
@@ -1432,9 +1432,9 @@ function Comment(props) {
                 icon={resolved ? SettingsBackupRestore : Done}
                 id={`commentResolveReopenButton${id}`}
                 iconOnly={!resolved}
-                toolTipId={!resolved && isAIQuestion ? 'commentDelegateExplanation' : undefined}
+                toolTipId={!resolved && isDelegate ? 'commentDelegateExplanation' : undefined}
                 aria-label={intl.formatMessage({ id: resolved ? 'commentReopenLabel' :
-                    (isAIQuestion ? 'commentDelegateLabel' : 'commentResolveLabel') })}
+                    (isDelegate ? 'commentDelegateLabel' : 'commentResolveLabel') })}
               >
                 {resolved && intl.formatMessage({ id: resolved ? 'commentReopenLabel' :
                     'commentResolveLabel' })}

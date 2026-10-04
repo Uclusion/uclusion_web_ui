@@ -10,7 +10,7 @@ import {
   getMarketComments
 } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import {
@@ -30,7 +30,7 @@ import {
   doesCommentResolutionRestoreStage,
   getWorkflowStageContext,
   handleAcceptSuggestion,
-  isAIAuthoredQuestion,
+  isAIAuthoredQuestionWithOptions,
   onCommentOpen
 } from '../../../utils/commentFunctions';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -54,7 +54,8 @@ function DecideResolveStep(props) {
   const presences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = presences?.find((presence) => presence.current_user) || {};
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
-  const resolveLabel = isAIAuthoredQuestion(commentRoot, marketPresencesState[marketId]) ?
+  const resolveLabel = isAIAuthoredQuestionWithOptions(commentRoot, marketPresencesState[marketId],
+    getMarketInvestibles(investiblesState, commentRoot.inline_market_id)) ?
     'commentDelegateLabel' : 'commentResolveLabel';
   const marketComments = getMarketComments(commentState, marketId, commentRoot.group_id);
   const comments = marketComments.filter((comment) =>

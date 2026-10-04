@@ -303,6 +303,10 @@ export function isAIAuthoredQuestion(comment, presences) {
     presence.id === comment.created_by && _.isEmpty(presence.email));
 }
 
+export function isAIAuthoredQuestionWithOptions(comment, presences, options) {
+  return isAIAuthoredQuestion(comment, presences) && !_.isEmpty(options);
+}
+
 // Entering Doable explicitly settles every live AI question, including a question already answered
 // by a human. This is separate from the creation-stage rules for automatically entering Requires Input.
 export function getUnresolvedAIQuestions(comments, presences) {

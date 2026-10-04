@@ -218,7 +218,13 @@ Finish any reply or vote before resolving a question. When its answer establishe
 a capsule change, compose and cold-review that contract while the question stays
 open, then pass its code in `set_design_capsule`'s `resolve_question_short_code_ids`.
 Use `resolve` when no capsule change is needed; omit questions the human already
-resolved. Clarify ambiguous replies. Only Approvable options count or accept votes. If later work would say
+resolved. Resolve an open-ended question promptly once its answer is settled or
+the question is no longer needed, after any required reply and capsule update.
+Without option votes, an open thread gives no reliable completion signal.
+Option-bearing questions may await completed vote review or the existing
+execution gate; do not resolve merely to acknowledge each vote. The qualifying
+human-answer and execution-lock rules above still apply.
+Clarify ambiguous replies. Only Approvable options count or accept votes. If later work would say
 "flag if you prefer" or "verify this choice," stop: that was an unasked
 step-two question.
 

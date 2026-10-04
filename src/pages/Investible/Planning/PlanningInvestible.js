@@ -279,16 +279,18 @@ export const usePlanningInvestibleStyles = makeStyles(
     },
     paper: {
       // See https://github.com/mui-org/material-ui/blob/master/packages/material-ui/src/Drawer/Drawer.js
+      overflowY: 'auto',
       display: 'flex',
       flexDirection: 'column',
       alignItems: "flex-start",
       '& > div': {
         borderRadius: '6px',
-        marginBottom: '1.5rem'
+        marginBottom: '1.5rem',
+        flexShrink: 0
       },
       flex: '1 0 auto',
       backgroundColor: theme.palette.background.paper,
-      height: '100%',
+      height: 'calc(100vh - 3.5rem)',
       zIndex: 9,
       position: 'fixed',
       top: '3.5rem',

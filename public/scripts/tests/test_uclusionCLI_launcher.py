@@ -1896,8 +1896,16 @@ class ProjectInstallDiscoveryTests(unittest.TestCase):
                 json.dumps({'workspaceId': 'project-workspace'}),
                 encoding='utf-8',
             )
+            credentials_home = temp_path / 'home'
+            (credentials_home / '.uclusion').mkdir(parents=True)
+            (credentials_home / '.uclusion' / cli.STAGE_CREDENTIALS_FILE).write_text(
+                '', encoding='utf-8'
+            )
             stderr = io.StringIO()
             with ExitStack() as stack:
+                stack.enter_context(
+                    mock.patch.dict(os.environ, {'UCLUSION_HOME': str(credentials_home)})
+                )
                 stack.enter_context(
                     mock.patch.object(cli.os, 'getcwd', return_value=str(nested))
                 )

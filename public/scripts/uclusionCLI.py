@@ -2159,18 +2159,52 @@ def codex_app_server_passthrough_args(codex_args):
     return result
 
 
+def codex_credentials_file(environment, credentials_name=None):
+    """Path of the credentials file the Codex MCP proxy logs in with."""
+    if credentials_name is None:
+        _api_url, _json_path, credentials_name = get_env_paths(environment)
+    return os.path.join(uclusion_home_root(), '.uclusion', credentials_name)
+
+
+def codex_launch_credentials_error(environment, credentials_name=None):
+    """Explain a launch that would die inside required MCP initialize.
+
+    The proxy is required. When its credentials file is missing it used to
+    exit before writing an initialize response, and Codex reported that as
+    ``connection closed: initialize response``.
+    """
+    path = codex_credentials_file(environment, credentials_name)
+    if os.path.isfile(path):
+        return None
+    ready = [
+        name for name in ('dev', 'stage', 'production')
+        if name != environment and os.path.isfile(codex_credentials_file(name))
+    ]
+    message = (
+        f"❌ Cannot launch Codex: no {environment} credentials file at '{path}'. "
+        "This session requires the Uclusion MCP server, which cannot log in "
+        "without that file."
+    )
+    if ready:
+        commands = ' or '.join(f'`uclusion -e {name} codex`' for name in ready)
+        message += f" Launch with {commands}."
+    else:
+        message += " Create that environment's credentials, then try again."
+    return message
+
+
 def cmd_codex(args):
     """Launch Codex through a private Uclusion Poke relay.
 
-    This path needs only the workspace config; it intentionally does not load
-    credentials or log in. The TUI connects only to the relay's private
-    frontend socket; the relay owns the separate backend app-server
-    connection. Every child and the private runtime directory are cleaned up
-    with the TUI. The bridge starts past the queued backlog unless the human
-    explicitly opts into delivering it.
+    This path needs the workspace config and the selected environment's
+    credentials file. It does not log in; the MCP proxy does. The TUI
+    connects only to the relay's private frontend socket; the relay owns the
+    separate backend app-server connection. Every child and the private
+    runtime directory are cleaned up with the TUI. The bridge starts past the
+    queued backlog unless the human explicitly opts into delivering it.
     """
     environment = args.env or 'production'
-    _api_url, json_path, _credentials_path = get_env_paths(environment)
+    _api_url, json_path, credentials_name = get_env_paths(environment)
     config = load_config(json_path)
     if config is None:
         return 1
@@ -2180,6 +2214,12 @@ def cmd_codex(args):
             f"❌ Cannot launch Codex: no workspaceId in '{json_path}'.",
             file=sys.stderr,
         )
+        return 1
+    credentials_error = codex_launch_credentials_error(
+        environment, credentials_name
+    )
+    if credentials_error:
+        print(credentials_error, file=sys.stderr)
         return 1
     token_audit = codex_token_audit_settings(config, workspace_id)
     work_claims = isinstance(config, dict) and config.get('workClaims') is True

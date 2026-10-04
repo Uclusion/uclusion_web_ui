@@ -801,12 +801,42 @@ def listen_for_pokes(websocket_url, token_holder, environment, workspace_id, sto
         retry_delay = min(retry_delay * 2, 30)
 
 
+CREDENTIALS_MISSING = 'Error: Credentials file not found.'
+
+
+def serve_startup_failure(message):
+    """Answer MCP requests after setup failed instead of closing stdio.
+
+    A required Codex server that exits before initialize is reported as
+    ``connection closed: initialize response``, which hides this message.
+    """
+    while True:
+        line = sys.stdin.readline()
+        if not line:
+            return
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            message_obj = json.loads(line)
+        except json.JSONDecodeError:
+            sys.stderr.write('Invalid JSON from stdin during proxy setup failure\n')
+            continue
+        if not isinstance(message_obj, dict) or 'id' not in message_obj:
+            continue
+        write_jsonrpc_error(
+            request_id=message_obj.get('id'),
+            code=-32000,
+            message=message,
+        )
+
+
 def get_credentials(credentials_path):
     credentials = {}
     cred_path = os.path.join(uclusion_home_root(), '.uclusion', credentials_path)
 
     if not os.path.exists(cred_path):
-        sys.stderr.write("Error: Credentials file not found.\n")
+        sys.stderr.write(CREDENTIALS_MISSING + '\n')
         return None
 
     with open(cred_path, 'r') as f:
@@ -1371,13 +1401,15 @@ def main():
     work_claims = None
     response_stats = ResponseStats(args.response_stats)
     record_demo_input('mcp_session_start', {})
+    serving = False
     try:
         # Retention is scoped local maintenance and does not depend on login
         # succeeding. This remains active after an explicit audit opt-out.
         prune_token_audit_storage(environment, market_id)
         credentials = get_credentials(credentials_path)
         if credentials is None:
-            sys.exit(1)
+            serve_startup_failure(CREDENTIALS_MISSING)
+            return
         credentials['workspace_id'] = market_id
 
         def mint_market_token():
@@ -1399,6 +1431,7 @@ def main():
             daemon=True
         )
         listener.start()
+        serving = True
 
         post_url = 'https://investibles.' + api_url + '/mcp'
         if args.token_audit:
@@ -1549,6 +1582,9 @@ def main():
 
     except Exception as e:
         sys.stderr.write(f"Proxy setup failed: {e}\n")
+        if not serving:
+            serve_startup_failure(f'Proxy setup failed ({type(e).__name__}).')
+            return
         sys.exit(1)
     finally:
         response_stats.close()

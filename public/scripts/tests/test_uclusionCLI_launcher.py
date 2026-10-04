@@ -78,6 +78,9 @@ class CodexLauncherTests(unittest.TestCase):
 
     def launcher_prerequisites(self, stack, config=None):
         stack.enter_context(
+            mock.patch.object(cli, 'codex_launch_credentials_error', return_value=None)
+        )
+        stack.enter_context(
             mock.patch.object(
                 cli,
                 'get_env_paths',
@@ -1006,9 +1009,45 @@ class CodexLauncherTests(unittest.TestCase):
             result = cli.cmd_codex(self.launcher_args(env='dev'))
 
         self.assertEqual(result, 1)
-        get_env_paths.assert_called_once_with('dev')
+        get_env_paths.assert_any_call('dev')
         load_config.assert_called_once_with('dev_uclusion.json')
         login.assert_not_called()
+
+    def test_missing_credentials_names_environments_that_can_launch(self):
+        with tempfile.TemporaryDirectory() as home:
+            os.makedirs(os.path.join(home, '.uclusion'))
+            open(os.path.join(home, '.uclusion', 'stage_credentials'), 'w').close()
+            with mock.patch.dict(os.environ, {'UCLUSION_HOME': home}):
+                missing = cli.codex_launch_credentials_error('production')
+                present = cli.codex_launch_credentials_error('stage')
+
+        self.assertIsNone(present)
+        self.assertIn('no production credentials', missing)
+        self.assertIn('`uclusion -e stage codex`', missing)
+        self.assertNotIn('`uclusion -e dev codex`', missing)
+
+    def test_missing_credentials_fail_before_process_start(self):
+        with ExitStack() as stack:
+            self.launcher_prerequisites(stack)
+            stack.enter_context(
+                mock.patch.object(
+                    cli,
+                    'codex_launch_credentials_error',
+                    return_value=(
+                        '❌ Cannot launch Codex: no production credentials file '
+                        "at '/tmp/credentials'."
+                    ),
+                )
+            )
+            popen = stack.enter_context(mock.patch.object(cli.subprocess, 'Popen'))
+            stderr = io.StringIO()
+            stack.enter_context(mock.patch('sys.stderr', stderr))
+
+            result = cli.cmd_codex(self.launcher_args(env='production'))
+
+        self.assertEqual(result, 1)
+        self.assertIn('no production credentials', stderr.getvalue())
+        popen.assert_not_called()
 
     def test_rejects_config_without_workspace_id_before_starting_processes(self):
         with ExitStack() as stack:

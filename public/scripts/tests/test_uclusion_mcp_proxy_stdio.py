@@ -2,6 +2,7 @@ import io
 import json
 import os
 import stat
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -115,6 +116,41 @@ class McpProxyStdioTests(unittest.TestCase):
         message = json.loads(stdout.getvalue())
         self.assertEqual(-32001, message['error']['code'])
         self.assertEqual(7, message['id'])
+
+
+class ProxyStartupFailureTests(unittest.TestCase):
+    def test_missing_credentials_answers_initialize(self):
+        initialize = {
+            'jsonrpc': '2.0',
+            'id': 0,
+            'method': 'initialize',
+            'params': {
+                'protocolVersion': '2025-06-18',
+                'capabilities': {},
+                'clientInfo': {'name': 'codex-mcp-client', 'version': '0.160.0'},
+            },
+        }
+        with tempfile.TemporaryDirectory() as home:
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(SCRIPT_DIR / 'uclusionMCPProxy.py'),
+                    'workspace-id',
+                    'production',
+                ],
+                input=json.dumps(initialize) + '\n',
+                capture_output=True,
+                text=True,
+                env={**os.environ, 'UCLUSION_HOME': home},
+                timeout=15,
+                check=False,
+            )
+        self.assertEqual(0, result.returncode)
+        message = json.loads(result.stdout)
+        self.assertEqual(0, message['id'])
+        self.assertEqual(-32000, message['error']['code'])
+        self.assertEqual(proxy.CREDENTIALS_MISSING, message['error']['message'])
+        self.assertIn(proxy.CREDENTIALS_MISSING, result.stderr)
 
 
 class ResponseStatsTests(unittest.TestCase):

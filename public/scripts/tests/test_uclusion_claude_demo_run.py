@@ -83,7 +83,15 @@ class ClaudeDemoRunTests(unittest.TestCase):
         report = b'  Evaluation\r\nUnicode: \xe2\x9c\x93\n\n'
         self.evaluator_turn = lambda: self.report_path().write_bytes(report)
         self.assertEqual(self.run_demo(), 0)
-        self.assertTrue(self.printed().endswith(report))
+        # J-all-492: the evaluation stays exactly as published, and the demo
+        # prints its own Uclusion breakdown after it from a file of its own.
+        printed = self.printed()
+        breakdown = printed.index(b'Uclusion token usage of the evaluating agent')
+        self.assertLess(printed.index(report), breakdown)
+        self.assertIn(b'unavailable (`log_missing`)', printed[breakdown:])
+        self.assertEqual(report, self.report_path().read_bytes())
+        self.assertIn('log_missing', (
+            self.report_path().parent / 'evaluator-tokens.md').read_text())
         self.stop.assert_has_calls([mock.call(self.evaluator), mock.call(self.owner)])
         self.evaluator_terminal.close.assert_called_once()
         self.owner_terminal.close.assert_called_once()
@@ -155,7 +163,7 @@ class ClaudeDemoRunTests(unittest.TestCase):
 
         self.evaluator_turn = publish_then_wake
         self.assertEqual(self.run_demo(), 0)
-        self.assertTrue(self.printed().endswith(b'The evaluation'))
+        self.assertIn(b'The evaluation\n\n### Uclusion token usage', self.printed())
         self.assertNotIn(b'Monitor expired', self.printed())
 
     def test_exit_before_publication_is_a_failure_that_names_the_records(self):

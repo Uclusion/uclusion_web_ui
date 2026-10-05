@@ -3,7 +3,7 @@
 
 The module has three deliberately small public surfaces:
 
-* :class:`CodexTokenAudit`, loaded by ``uclusionCodexBridge.py``;
+* :class:`CodexTokenAudit`, fed by ``uclusionCodexNative.py``;
 * the ``hook`` command, invoked by Claude Code lifecycle hooks; and
 * :class:`TokenAuditProxy`, owned by ``uclusionMCPProxy.py`` for the local
   OTLP receiver and authenticated durable-outbox publishing.
@@ -618,6 +618,20 @@ class AuditStore:
                 updated_at REAL NOT NULL,
                 PRIMARY KEY (environment, workspace_id, client, source_mode)
             );
+
+            -- Where a root session's own saved log lives, so finalization
+            -- can derive the Uclusion breakdown for exactly the run's
+            -- requests. The path stays in this private local store; only
+            -- line names and numbers are ever published.
+            CREATE TABLE IF NOT EXISTS token_audit_session_logs (
+                environment TEXT NOT NULL,
+                workspace_id TEXT NOT NULL,
+                client TEXT NOT NULL,
+                session_fp TEXT NOT NULL,
+                log_path TEXT NOT NULL,
+                updated_at REAL NOT NULL,
+                PRIMARY KEY (environment, workspace_id, client, session_fp)
+            );
             """
         )
         # Existing opt-in installations may already have the v1 tables. Keep
@@ -1114,6 +1128,37 @@ class AuditStore:
                 (self.environment, self.workspace_id, client, session_fp),
             ).fetchone()
         return dict(row) if row is not None else None
+
+    def register_session_log(self, client, session_fp, log_path):
+        """Remember where a root session's own saved log lives."""
+        if session_fp is None or not isinstance(log_path, str) or not log_path:
+            return
+        log_path = os.path.abspath(os.path.expanduser(log_path))
+        with closing(self.connect()) as connection, connection:
+            connection.execute(
+                """
+                INSERT INTO token_audit_session_logs (
+                    environment, workspace_id, client, session_fp, log_path,
+                    updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT(environment, workspace_id, client, session_fp)
+                DO UPDATE SET log_path=excluded.log_path,
+                    updated_at=excluded.updated_at
+                """,
+                (
+                    self.environment, self.workspace_id, client, session_fp,
+                    log_path, time.time(),
+                ),
+            )
+
+    def _session_log(self, connection, client, session_fp):
+        row = connection.execute(
+            "SELECT log_path FROM token_audit_session_logs "
+            "WHERE environment=? AND workspace_id=? AND client=? "
+            "AND session_fp=?",
+            (self.environment, self.workspace_id, client, session_fp),
+        ).fetchone()
+        return row["log_path"] if row is not None else None
 
     def _backfill_start_request(
         self, connection, client, session_fp, audit_run_id, started_at
@@ -3306,7 +3351,7 @@ class AuditStore:
             measurement["reason_code"] = reason
 
         started_at = float(run["started_at"])
-        return {
+        finalization = {
             "schema_version": SCHEMA_VERSION,
             "source": {
                 "provider": provider,
@@ -3343,6 +3388,31 @@ class AuditStore:
                 "descendants_included": descendants_included,
             },
         }
+        if usage:
+            finalization["uclusion"] = self._run_breakdown(
+                connection, run, usage
+            )
+        return finalization
+
+    def _run_breakdown(self, connection, run, usage):
+        """The run's Uclusion lines, over the same requests as its totals."""
+        log_path = self._session_log(
+            connection, run["client"], run["root_session_fp"]
+        )
+        if not log_path:
+            return finalization_breakdown(unavailable_breakdown("log_missing"))
+        times = [float(event["created_at"]) for event in usage]
+        window = (
+            min(times) - BREAKDOWN_WINDOW_SLACK_SECONDS,
+            max(times) + BREAKDOWN_WINDOW_SLACK_SECONDS,
+        )
+        try:
+            result = breakdown_session_log(log_path, window=window)
+        except Exception:
+            # The breakdown is additive evidence; its failure must never
+            # cost the run its totals.
+            result = unavailable_breakdown("collector_failure")
+        return finalization_breakdown(result)
 
     def prepare_due_outbox(self, now=None):
         current = time.time() if now is None else float(now)
@@ -4611,7 +4681,33 @@ class CodexTokenAudit:
             counts["normalized_total_tokens"],
         )
 
-    def _observe_descendants(self, item, parent_fp):
+    def observe_descendant(self, thread):
+        if not isinstance(thread, dict):
+            return False
+        thread_id = thread.get('id')
+        parent_id = thread.get('parentThreadId')
+        if not isinstance(thread_id, str) or not isinstance(parent_id, str):
+            return False
+        with self._lock:
+            if parent_id not in self._thread_metadata:
+                return False
+            known = thread_id in self._thread_metadata
+            model, effort = self._thread_metadata.get(
+                thread_id, self._thread_metadata[parent_id])
+            self._thread_metadata[thread_id] = (
+                _safe_label(thread.get('model')) or model,
+                _safe_label(thread.get('reasoningEffort')) or effort,
+            )
+            if known:
+                return True
+        parent_fp = self.store.fingerprint('codex-thread', parent_id)
+        child_fp = self.store.fingerprint('codex-thread', thread_id)
+        self.store.discover_descendant(self.client, parent_fp, child_fp)
+        self.store.mark_partial(self.client, child_fp, 'incomplete_descendant_coverage')
+        self._descendants.put(thread_id)
+        return True
+
+    def _observe_descendants(self, item, parent_thread_id):
         if not isinstance(item, dict) or item.get("type") != "collabAgentToolCall":
             return
         receiver_ids = item.get("receiverThreadIds")
@@ -4620,29 +4716,15 @@ class CodexTokenAudit:
         for thread_id in receiver_ids:
             if not isinstance(thread_id, str) or not thread_id:
                 continue
-            with self._lock:
-                if thread_id == self.primary_thread_id:
-                    continue
-                self._thread_metadata[thread_id] = (
-                    _safe_label(item.get("model")) or self.model,
-                    _safe_label(
-                        item.get("reasoningEffort") or item.get("effort")
-                    ) or self.effort,
-                )
-            child_fp = self.store.fingerprint("codex-thread", thread_id)
-            self.store.discover_descendant(
-                self.client, parent_fp, child_fp
-            )
             # receiverThreadIds are delivered after child creation, while the
             # auxiliary app-server subscription is asynchronous. A child can
             # issue a request before that subscription is acknowledged; later
             # captured usage cannot prove the earlier interval was complete.
-            self.store.mark_partial(
-                self.client,
-                child_fp,
-                "incomplete_descendant_coverage",
-            )
-            self._descendants.put(thread_id)
+            self.observe_descendant({
+                'id': thread_id, 'parentThreadId': parent_thread_id,
+                'model': item.get('model'),
+                'reasoningEffort': item.get('reasoningEffort') or item.get('effort'),
+            })
 
     def observe_notification(self, message):
         if not isinstance(message, dict):
@@ -4776,7 +4858,7 @@ class CodexTokenAudit:
             item = params.get("item")
             if not isinstance(item, dict):
                 return
-            self._observe_descendants(item, session_fp)
+            self._observe_descendants(item, thread_id)
             if method != "item/completed":
                 return
             item_type = item.get("type")
@@ -4832,6 +4914,10 @@ class CodexTokenAudit:
             with self._lock:
                 is_primary = thread_id == self.primary_thread_id
             if is_primary:
+                # Codex writes the rollout during the turn, so it exists now.
+                self.store.register_session_log(
+                    self.client, session_fp, find_codex_rollout(thread_id)
+                )
                 self.store.signal_complete(
                     self.client,
                     session_fp,
@@ -4847,6 +4933,10 @@ class CodexTokenAudit:
                 result.append(self._descendants.get_nowait())
             except queue.Empty:
                 return tuple(result)
+
+    def owns_thread(self, thread_id):
+        with self._lock:
+            return thread_id in self._thread_metadata
 
     def mark_partial(self, reason):
         with self._lock:
@@ -5253,6 +5343,13 @@ def process_claude_hook(environment, workspace_id, source_mode, payload):
         or payload.get("transcript_path")
         or payload.get("transcriptPath")
     )
+    if session_fp is not None and session_fp == root_fp:
+        # Subagent transcripts live beside the root's and are read with it.
+        store.register_session_log(
+            "claude",
+            session_fp,
+            payload.get("transcript_path") or payload.get("transcriptPath"),
+        )
     source_value = (
         "transcript_fallback" if source_mode == "transcript" else "otel"
     )
@@ -5750,6 +5847,7 @@ class TokenAuditProxy:
         publish,
         ready_file=None,
         ready_owner=None,
+        collector_ready=None,
     ):
         self.store = AuditStore(environment, workspace_id)
         self.source = source
@@ -5758,6 +5856,7 @@ class TokenAuditProxy:
         self.publish = publish
         self.ready_file = ready_file
         self.ready_owner = ready_owner
+        self.collector_ready = collector_ready
         self.receiver = None
         self._receiver_available = None
         self.stop_event = threading.Event()
@@ -5809,6 +5908,8 @@ class TokenAuditProxy:
         """Whether marker tools can currently produce an accountable run."""
         if self.source != "codex":
             return True
+        if self.collector_ready is not None:
+            return bool(self.collector_ready())
         return codex_collector_ready(self.ready_file, self.ready_owner)
 
     def _maintain_receiver(self):
@@ -5895,6 +5996,1191 @@ class TokenAuditProxy:
             self.receiver.close()
 
 
+# ---------------------------------------------------------------------------
+# Uclusion token breakdown
+#
+# The breakdown says how many tokens a session spent on Uclusion compared with
+# doing the same work without it. It reads a client's saved session log
+# (Claude Code's transcript or Codex's rollout), sorts what Uclusion added to
+# the context into fixed lines, and charges each line once when it arrives and
+# again for every later request that re-sends it. Only line names and numbers
+# ever leave this function; the log's content is read, never kept.
+# ---------------------------------------------------------------------------
+
+BREAKDOWN_METHOD = "uclusion_overhead_v1"
+BREAKDOWN_LINES = (
+    ("skills", "Skill and reference reads"),
+    ("bootstrap", "Bootstrap block"),
+    ("tool_definitions", "MCP tool definitions"),
+    ("pokes", "Poke events"),
+    ("export", "Export command"),
+    ("export_search", "Export searches"),
+    ("workflow", "Workflow steps"),
+    ("repeat_reads", "Repeat reads"),
+    ("uclusion_turns", "Uclusion-only turns"),
+    ("mcp_framing", "MCP framing"),
+)
+BREAKDOWN_LINE_KEYS = tuple(key for key, _ in BREAKDOWN_LINES)
+TOKEN_MANIFEST_NAME = "token-manifest.json"
+TOKEN_FAMILIES = ("claude", "openai")
+# Used only when a manifest is missing or names no ratio for the family.
+FALLBACK_BYTES_PER_TOKEN = {"claude": 2.6, "openai": 3.6}
+UCLUSION_TOOL_PREFIXES = ("mcp__Uclusion__", "mcp_Uclusion_", "Uclusion/")
+UCLUSION_BOOTSTRAP_MARKER = "<!-- uclusion-workflow:v1 -->"
+UCLUSION_BOOTSTRAP_END_MARKER = "<!-- /uclusion-workflow:v1 -->"
+UCLUSION_BOOTSTRAP_HEADING = re.compile(r"(?m)^# Uclusion bootstrap for ")
+# Claude Code drops comments that start a line; one inside a code span stays.
+HTML_COMMENT = re.compile(r"^<!--.*?-->[ \t]*(?:\n|$)", re.M | re.S)
+FRONTMATTER = re.compile(r"\A---\n.*?\n---\n", re.S)
+UCLUSION_SKILL_PATH = re.compile(r"skills/uclusion(?:-design)?/")
+UCLUSION_SKILL_MARKERS = (
+    "<!-- uclusion-skill:v1 -->",
+    "<!-- uclusion-skill-reference:v1 -->",
+    "<!-- uclusion-design-skill:v1 -->",
+    "<!-- uclusion-design-reference:v1 -->",
+)
+UCLUSION_EXPORT_COMMAND = re.compile(
+    r"(?:^|[\s;&|(])uclusion(?:\.py)?\s+(?:-e\s+\S+\s+)?export\b"
+)
+UCLUSION_EXPORT_PATH = re.compile(r"\.uclusion/(?:[a-z]+_)?export\b")
+UCLUSION_LISTEN_COMMAND = re.compile(
+    r"(?:^|[\s;&|(])uclusion(?:\.py)?\s+(?:-e\s+\S+\s+)?(?:listen|wait)\b"
+)
+POKE_LINE = re.compile(
+    r"^(?:Start|Added|Updated|Responded)\b.*$|^Responded\.$"
+)
+POKE_NOTIFICATION = re.compile(r"Monitor event: \"Uclusion Poke stream")
+POKE_EXPIRY = re.compile(r"\[Monitor expired after")
+COMPLETION_PACKAGE_REPLY = re.compile(r"Reply `all`")
+# Rendered Uclusion structure, as distinct from the job's own words.
+FRAMING_LINE = re.compile(
+    r"^(?:#{1,6} (?:From |Job |Note |Report |Reports|Question |Option |"
+    r"Suggestion |Task |Bug |Blocker |Reply |Resolved|Current intent|"
+    r"Agent token usage|Vote )|> #{1,6} |This (?:job|option) is in stage |"
+    r"Stage: |Standing notes: |Capsules \(|Label - |Note version: |"
+    r"Current capsule version: |Reply version: |Option version: |"
+    r"No reason given\.$)"
+)
+ANCHOR = re.compile(r"<a name=\"[^\"]*\"></a>")
+LINK_TARGET = re.compile(r"\]\((?:https?://|#)[^)\s]*\)")
+STAGE_ONLY_KEYS = {"job", "stage", "open_questions", "open_suggestions"}
+# Tool arguments that carry the job's own words rather than Uclusion fields.
+SUBSTANCE_ARGUMENTS = {
+    "question", "info", "suggestion", "description", "name", "task", "bug",
+    "blocker", "report", "options", "note", "job_description",
+}
+
+
+def default_token_manifest_path():
+    """Where the installer put this release's artifact token counts."""
+    root = os.environ.get("UCLUSION_HOME")
+    if root:
+        return os.path.join(
+            os.path.abspath(os.path.expanduser(root)), ".uclusion",
+            TOKEN_MANIFEST_NAME,
+        )
+    return os.path.join(
+        os.path.expanduser("~"), ".uclusion", TOKEN_MANIFEST_NAME
+    )
+
+
+def load_token_manifest(path=None):
+    """Return the shipped artifact token counts, or None when unavailable."""
+    path = path or default_token_manifest_path()
+    try:
+        with open(path, encoding="utf-8") as handle:
+            manifest = json.load(handle)
+    except (OSError, ValueError):
+        return None
+    if not isinstance(manifest, dict) or manifest.get("schema_version") != 1:
+        return None
+    return manifest
+
+
+def _sha256_text(text):
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def tool_definition_key(name, description, input_schema):
+    """Identify one tool definition exactly as a client presents it."""
+    return _sha256_text(_canonical_json({
+        "name": _uclusion_tool_basename(name) or name,
+        "description": description or "",
+        "input_schema": input_schema or {},
+    }))
+
+
+def _uclusion_tool_basename(name):
+    if not isinstance(name, str):
+        return None
+    for prefix in UCLUSION_TOOL_PREFIXES:
+        if name.startswith(prefix):
+            return name[len(prefix):]
+    return None
+
+
+class TokenCounter:
+    """Turn text into tokens: shipped counts when exact, else a ratio."""
+
+    def __init__(self, manifest, family):
+        self.family = family if family in TOKEN_FAMILIES else "claude"
+        manifest = manifest if isinstance(manifest, dict) else {}
+        self.artifacts = manifest.get("artifacts") or {}
+        self.tools = manifest.get("tools") or {}
+        ratio = (manifest.get("bytes_per_token") or {}).get(self.family)
+        if not isinstance(ratio, (int, float)) or ratio <= 0:
+            ratio = FALLBACK_BYTES_PER_TOKEN[self.family]
+        self.bytes_per_token = float(ratio)
+        self.has_manifest = bool(manifest)
+
+    def estimate(self, text):
+        size = len(text.encode("utf-8")) if isinstance(text, str) else 0
+        return int(round(size / self.bytes_per_token)) if size else 0
+
+    def _shipped(self, table, key):
+        entry = table.get(key)
+        tokens = (
+            (entry.get("tokens") or {}).get(self.family)
+            if isinstance(entry, dict) else None
+        )
+        return tokens if isinstance(tokens, int) and tokens >= 0 else None
+
+    def artifact(self, text):
+        """Return (tokens, estimated_tokens) for shipped artifact text."""
+        exact = self._shipped(self.artifacts, _sha256_text(text))
+        if exact is not None:
+            return exact, 0
+        estimate = self.estimate(text)
+        return estimate, estimate
+
+    def tool(self, name, description, input_schema):
+        key = tool_definition_key(name, description, input_schema)
+        exact = self._shipped(self.tools, key)
+        if exact is not None:
+            return exact, 0
+        estimate = self.estimate(_canonical_json({
+            "name": name, "description": description,
+            "input_schema": input_schema,
+        }))
+        return estimate, estimate
+
+    def shipped_tool_total(self, include):
+        """Sum shipped tool counts whose names ``include`` accepts."""
+        total = 0
+        for entry in self.tools.values():
+            if not isinstance(entry, dict) or not include(entry.get("name")):
+                continue
+            tokens = (entry.get("tokens") or {}).get(self.family)
+            if isinstance(tokens, int) and tokens >= 0:
+                total += tokens
+        return total
+
+
+class BreakdownAccumulator:
+    """Charge Uclusion content once on arrival and on every re-send."""
+
+    def __init__(self, counter):
+        self.counter = counter
+        self.arrival = dict.fromkeys(BREAKDOWN_LINE_KEYS, 0)
+        self.total = dict.fromkeys(BREAKDOWN_LINE_KEYS, 0)
+        self.estimated = dict.fromkeys(BREAKDOWN_LINE_KEYS, 0)
+        self.held = dict.fromkeys(BREAKDOWN_LINE_KEYS, 0)
+        self.held_estimated = dict.fromkeys(BREAKDOWN_LINE_KEYS, 0)
+        # Re-sent on every request even across compaction: the client sends
+        # its instructions and tool definitions afresh each time.
+        self.persistent = {"bootstrap", "tool_definitions"}
+        self.in_context = set()
+        self.uclusion_only_wake = False
+        self.requests = 0
+        self.provider_total = 0
+        # False while reading records outside the requested time window:
+        # content still enters the context, but nothing is charged.
+        self.charging = True
+
+    def add(self, line, tokens, estimated=0, key=None):
+        if not tokens:
+            return
+        if key is not None and line not in self.persistent:
+            if key in self.in_context:
+                line = "repeat_reads"
+            else:
+                self.in_context.add(key)
+        if self.charging:
+            self.arrival[line] += tokens
+        self.held[line] += tokens
+        self.held_estimated[line] += estimated
+
+    def add_text(self, line, text, key=None):
+        tokens = self.counter.estimate(text)
+        self.add(line, tokens, tokens, key=key)
+
+    def add_artifact(self, line, text, key=None):
+        tokens, estimated = self.counter.artifact(text)
+        self.add(line, tokens, estimated, key=key)
+
+    def wake(self, uclusion_only):
+        self.uclusion_only_wake = bool(uclusion_only)
+
+    def compact(self):
+        for line in BREAKDOWN_LINE_KEYS:
+            if line not in self.persistent:
+                self.held[line] = 0
+                self.held_estimated[line] = 0
+        self.in_context.clear()
+
+    def request(self, total_tokens, output_tokens):
+        """Charge one model request, then hold what it wrote."""
+        total_tokens = max(0, int(total_tokens or 0))
+        output_tokens = max(0, int(output_tokens or 0))
+        charge = dict.fromkeys(BREAKDOWN_LINE_KEYS, 0)
+        charge_estimated = dict.fromkeys(BREAKDOWN_LINE_KEYS, 0)
+        if self.uclusion_only_wake:
+            # A request that exists only because of Uclusion counts in full,
+            # including whatever else it re-sent, and what it wrote stays
+            # Uclusion's for every later request that re-sends it.
+            charge["uclusion_turns"] = total_tokens
+            if self.charging:
+                self.arrival["uclusion_turns"] += output_tokens
+            self.held["uclusion_turns"] += output_tokens
+        else:
+            for line in BREAKDOWN_LINE_KEYS:
+                held = min(self.held[line], total_tokens)
+                charge[line] = held
+                charge_estimated[line] = min(self.held_estimated[line], held)
+            overflow = sum(charge.values()) - total_tokens
+            if overflow > 0:
+                # Estimates can exceed what the provider reports for a small
+                # request; never charge Uclusion more than the request used.
+                for line in reversed(BREAKDOWN_LINE_KEYS):
+                    cut = min(overflow, charge[line])
+                    charge[line] -= cut
+                    charge_estimated[line] = min(
+                        charge_estimated[line], charge[line]
+                    )
+                    overflow -= cut
+        if not self.charging:
+            return
+        for line in BREAKDOWN_LINE_KEYS:
+            self.total[line] += charge[line]
+            self.estimated[line] += charge_estimated[line]
+        self.requests += 1
+        self.provider_total += total_tokens
+
+    def result(self, status="available", reason=None):
+        return breakdown_result(
+            [
+                {
+                    "line": line,
+                    "arrival_tokens": self.arrival[line],
+                    "total_tokens": self.total[line],
+                    "estimated_tokens": self.estimated[line],
+                }
+                for line in BREAKDOWN_LINE_KEYS
+            ],
+            self.provider_total,
+            self.requests,
+            status=status,
+            reason=reason,
+        )
+
+
+def breakdown_result(items, provider_total, requests, status="available",
+                     reason=None):
+    uclusion_total = sum(item["total_tokens"] for item in items)
+    result = {
+        "method": BREAKDOWN_METHOD,
+        "status": status,
+        "items": items,
+        "uclusion_total_tokens": uclusion_total,
+        "provider_total_tokens": provider_total,
+        "model_requests": requests,
+        "reasoning": "excluded outside Uclusion-only turns",
+    }
+    if reason:
+        result["reason"] = reason
+    return result
+
+
+BREAKDOWN_REASONS = (
+    "log_missing", "unsupported_client_version", "no_model_requests",
+    "collector_failure",
+)
+BREAKDOWN_WINDOW_SLACK_SECONDS = 2.0
+
+
+def finalization_breakdown(result):
+    """The allowlisted, numbers-only form published with an audit."""
+    def clamp(value):
+        value = _non_negative_int(value) or 0
+        return min(value, MAX_SAFE_INTEGER)
+
+    items = []
+    for item in result.get("items") or []:
+        if item.get("line") not in BREAKDOWN_LINE_KEYS:
+            continue
+        total = clamp(item.get("total_tokens"))
+        items.append({
+            "line": item["line"],
+            "arrival_tokens": clamp(item.get("arrival_tokens")),
+            "total_tokens": total,
+            "estimated_tokens": min(clamp(item.get("estimated_tokens")), total),
+        })
+    status = result.get("status")
+    if status not in ("available", "partial", "unavailable"):
+        status = "unavailable"
+    block = {
+        "method": BREAKDOWN_METHOD,
+        "status": status,
+        "items": items,
+        "uclusion_total_tokens": min(
+            sum(item["total_tokens"] for item in items), MAX_SAFE_INTEGER
+        ),
+        "provider_total_tokens": clamp(result.get("provider_total_tokens")),
+        "model_requests": clamp(result.get("model_requests")),
+    }
+    if block["uclusion_total_tokens"] > block["provider_total_tokens"]:
+        block["uclusion_total_tokens"] = block["provider_total_tokens"]
+        block["status"] = "partial"
+    reason = result.get("reason")
+    if reason in BREAKDOWN_REASONS:
+        block["reason"] = reason
+    elif status != "available":
+        block["reason"] = "collector_failure"
+    return block
+
+
+def find_codex_rollout(thread_id, codex_home=None):
+    """Return the rollout Codex saved for ``thread_id``, or None."""
+    if not isinstance(thread_id, str) or not re.fullmatch(
+        r"[A-Za-z0-9-]{8,64}", thread_id
+    ):
+        return None
+    codex_home = codex_home or os.environ.get("CODEX_HOME") or os.path.join(
+        os.path.expanduser("~"), ".codex"
+    )
+    newest = None
+    for directory, _, names in os.walk(os.path.join(codex_home, "sessions")):
+        for name in names:
+            if name.startswith("rollout-") and name.endswith(
+                "-" + thread_id + ".jsonl"
+            ):
+                path = os.path.join(directory, name)
+                try:
+                    modified = os.path.getmtime(path)
+                except OSError:
+                    continue
+                if newest is None or modified > newest[0]:
+                    newest = (modified, path)
+    return newest[1] if newest else None
+
+
+def unavailable_breakdown(reason):
+    return breakdown_result(
+        [
+            {"line": line, "arrival_tokens": 0, "total_tokens": 0,
+             "estimated_tokens": 0}
+            for line in BREAKDOWN_LINE_KEYS
+        ],
+        0, 0, status="unavailable", reason=reason,
+    )
+
+
+def _set_charging(acc, window, created_at):
+    """Charge only records inside the window; keep the state otherwise."""
+    if window is None:
+        acc.charging = True
+    elif created_at is not None:
+        acc.charging = window[0] <= created_at <= window[1]
+
+
+def _text_of(content):
+    """Join the text parts of a message or tool-result content value."""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts = []
+        for item in content:
+            if isinstance(item, dict):
+                if isinstance(item.get("text"), str):
+                    parts.append(item["text"])
+                elif isinstance(item.get("content"), (str, list)):
+                    parts.append(_text_of(item["content"]))
+            elif isinstance(item, str):
+                parts.append(item)
+        return "\n".join(parts)
+    if isinstance(content, dict):
+        return _text_of(content.get("content") or content.get("text"))
+    return ""
+
+
+def without_html_comments(text):
+    """The text Claude Code presents for a memory file: comments removed."""
+    return HTML_COMMENT.sub("", text).strip()
+
+
+def without_frontmatter(text):
+    """A skill body as Claude Code's Skill tool presents it."""
+    return FRONTMATTER.sub("", text, count=1)
+
+
+def bootstrap_block(text):
+    """Return the resident Uclusion bootstrap block inside ``text``.
+
+    Codex shows AGENTS.md as written, markers included. Claude Code removes
+    HTML comments from CLAUDE.md before sending it, so there the block is
+    found by its heading and runs to the next top-level heading.
+    """
+    if not isinstance(text, str):
+        return None
+    start = text.find(UCLUSION_BOOTSTRAP_MARKER)
+    end = text.find(UCLUSION_BOOTSTRAP_END_MARKER)
+    if start >= 0 and end > start:
+        return text[start:end + len(UCLUSION_BOOTSTRAP_END_MARKER)]
+    heading = UCLUSION_BOOTSTRAP_HEADING.search(text)
+    if heading is None:
+        return None
+    following = re.search(r"\n# ", text[heading.end():])
+    stop = heading.end() + following.start() if following else len(text)
+    return text[heading.start():stop].strip()
+
+
+def completion_package(text):
+    """Return the completion package an agent wrote, if any."""
+    if not isinstance(text, str):
+        return None
+    match = None
+    for match in COMPLETION_PACKAGE_REPLY.finditer(text):
+        pass
+    if match is None:
+        return None
+    end = text.find("\n", match.end())
+    end = len(text) if end < 0 else end
+    head = text.rfind("\n1. ", 0, match.start())
+    if head < 0:
+        return text[max(0, match.start() - 400):end]
+    intro = text.rfind("\n\n", 0, head)
+    return text[(intro + 2 if intro >= 0 else head):end]
+
+
+def split_mcp_framing(text):
+    """Split a Uclusion read into (framing, substance) text."""
+    stripped = text.strip()
+    if stripped.startswith("{") or stripped.startswith("["):
+        return text, ""
+    framing, substance = [], []
+    for line in text.splitlines(keepends=True):
+        if FRAMING_LINE.match(line.lstrip()):
+            framing.append(line)
+            continue
+        anchors = "".join(ANCHOR.findall(line))
+        targets = "".join(LINK_TARGET.findall(line))
+        framing.append(anchors + targets)
+        substance.append(LINK_TARGET.sub("]", ANCHOR.sub("", line)))
+    return "".join(framing), "".join(substance)
+
+
+def _argument_framing(arguments):
+    """The Uclusion-required part of a write: everything but its words."""
+    if not isinstance(arguments, dict):
+        return "", ""
+    framing, words = {}, []
+    for key, value in arguments.items():
+        if key in SUBSTANCE_ARGUMENTS and isinstance(value, str):
+            words.append(value)
+        elif key == "options" and isinstance(value, list):
+            words.append(_canonical_json(value))
+        elif key in {"capsule"} and isinstance(value, str):
+            continue
+        else:
+            framing[key] = value
+    return _canonical_json(framing) if framing else "", "\n".join(words)
+
+
+class _UclusionClassifier:
+    """Sort one client's tool calls and results into breakdown lines."""
+
+    def __init__(self, acc):
+        self.acc = acc
+
+    def uclusion_call(self, tool, arguments):
+        """Charge what the agent wrote to make a Uclusion call."""
+        framing, words = _argument_framing(arguments)
+        if framing:
+            self.acc.add_text("mcp_framing", framing)
+        if tool == "set_design_capsule" and isinstance(
+            (arguments or {}).get("capsule"), str
+        ):
+            self.acc.add_text("workflow", arguments["capsule"])
+        if tool == "ask_for_review":
+            package = completion_package(words)
+            if package:
+                self.acc.add_text("workflow", package)
+
+    def uclusion_result(self, tool, arguments, text):
+        if not text:
+            return
+        arguments = arguments if isinstance(arguments, dict) else {}
+        stripped = text.strip()
+        if tool == "get_job" and arguments.get("stage_only"):
+            self.acc.add_text("workflow", text)
+            return
+        if stripped.startswith("{"):
+            try:
+                parsed = json.loads(stripped)
+            except ValueError:
+                parsed = None
+            if isinstance(parsed, dict) and STAGE_ONLY_KEYS <= set(parsed):
+                self.acc.add_text("workflow", text)
+                return
+        framing, substance = split_mcp_framing(text)
+        if tool == "get_job" and substance.strip():
+            key = "mcp:" + _sha256_text(substance)
+            if key in self.acc.in_context:
+                self.acc.add_text("repeat_reads", text)
+                return
+            self.acc.in_context.add(key)
+        self.acc.add_text("mcp_framing", framing)
+
+    def shell_result(self, command, text):
+        """Charge a shell, Read or search result if Uclusion caused it."""
+        if not isinstance(command, str) or not text:
+            return
+        if UCLUSION_LISTEN_COMMAND.search(command):
+            self.acc.add_text("pokes", text)
+        elif UCLUSION_EXPORT_COMMAND.search(command):
+            self.acc.add_text("export", text)
+        elif UCLUSION_SKILL_PATH.search(command):
+            self.skill_text(text, command)
+        elif UCLUSION_EXPORT_PATH.search(command):
+            self.acc.add_text("export_search", text)
+
+    def skill_text(self, text, command=None):
+        """Charge skill text: shipped files exactly, anything around them
+        (a Read tool's line numbers, a skill header) by size."""
+        counter = self.acc.counter
+        remaining = text
+        tokens = estimated = 0
+        for path in _skill_files_named(command or ""):
+            content = _read_installed_text(path)
+            if content and content in remaining:
+                exact, guess = counter.artifact(content)
+                tokens += exact
+                estimated += guess
+                remaining = remaining.replace(content, "", 1)
+        if remaining.startswith("Base directory for this skill:"):
+            header, _, body = remaining.partition("\n\n")
+            exact, guess = counter.artifact(body)
+            if body and not guess:
+                tokens += exact
+                remaining = header
+        numbered = _without_read_numbering(remaining)
+        if numbered is not None:
+            exact, guess = counter.artifact(numbered)
+            if not guess:
+                tokens += exact
+                size = len(remaining.encode("utf-8")) - len(
+                    numbered.encode("utf-8")
+                )
+                rest = int(round(size / counter.bytes_per_token))
+                tokens += rest
+                estimated += rest
+                remaining = ""
+        rest = counter.estimate(remaining)
+        self.acc.add(
+            "skills", tokens + rest, estimated + rest,
+            key="skill:" + _sha256_text(text),
+        )
+
+
+UCLUSION_SKILL_FILE = re.compile(
+    r"((?:~|/)[^\s'\"`;|&]*skills/uclusion(?:-design)?/[^\s'\"`;|&]+\.md)"
+)
+READ_NUMBERING = re.compile(r"^ *\d+\t", re.M)
+
+
+UCLUSION_SKILL_DIR = re.compile(
+    r"((?:~|/)[^\s'\"`;|&]*skills/uclusion(?:-design)?(?:/references)?)/?(?=[\s'\"`;|&]|$)"
+)
+BARE_MARKDOWN = re.compile(r"(?<![/\w.-])([A-Za-z0-9_-]+\.md)\b")
+
+
+def _skill_files_named(command):
+    """Skill files a command reads, by full path or by name after a cd."""
+    paths = list(UCLUSION_SKILL_FILE.findall(command))
+    directories = UCLUSION_SKILL_DIR.findall(command)
+    for name in BARE_MARKDOWN.findall(command):
+        for directory in directories:
+            for candidate in (
+                os.path.join(directory, name),
+                os.path.join(directory, "references", name),
+            ):
+                if candidate not in paths and os.path.isfile(
+                    os.path.expanduser(candidate)
+                ):
+                    paths.append(candidate)
+    return paths
+
+
+def _read_installed_text(path):
+    try:
+        with open(os.path.expanduser(path), encoding="utf-8") as handle:
+            return handle.read(1024 * 1024)
+    except (OSError, UnicodeDecodeError):
+        return None
+
+
+def _without_read_numbering(text):
+    """Undo the line numbers a Read tool adds, or None if it has none."""
+    lines = text.splitlines(keepends=True)
+    if not lines or not all(
+        READ_NUMBERING.match(line) or not line.strip() for line in lines
+    ):
+        return None
+    return READ_NUMBERING.sub("", text)
+
+
+def _claude_usage_total(usage):
+    if not isinstance(usage, dict):
+        return None, 0
+    total = 0
+    for name in (
+        "input_tokens", "cache_read_input_tokens",
+        "cache_creation_input_tokens", "output_tokens",
+    ):
+        value = _non_negative_int(usage.get(name))
+        if value is None and name in ("input_tokens", "output_tokens"):
+            return None, 0
+        total += value or 0
+    return total, _non_negative_int(usage.get("output_tokens")) or 0
+
+
+def breakdown_claude_transcript(path, counter, window=None):
+    """Account one Claude Code transcript (and its subagents)."""
+    acc = BreakdownAccumulator(counter)
+    classifier = _UclusionClassifier(acc)
+    calls = {}
+    pending = None
+    unknown_shapes = 0
+
+    def flush():
+        nonlocal pending
+        if pending is not None:
+            _set_charging(acc, window, pending["created_at"])
+            acc.request(pending["total"], pending["output"])
+            pending = None
+
+    with open(path, "rb") as source:
+        for raw_line in source:
+            try:
+                record = json.loads(raw_line.decode("utf-8"))
+            except (UnicodeDecodeError, ValueError):
+                unknown_shapes += 1
+                continue
+            if not isinstance(record, dict):
+                continue
+            kind = record.get("type")
+            message = record.get("message")
+            if kind == "assistant" and isinstance(message, dict):
+                identity = (
+                    record.get("requestId") or message.get("id")
+                    or record.get("uuid")
+                )
+                total, output = _claude_usage_total(message.get("usage"))
+                if pending is not None and pending["key"] != identity:
+                    flush()
+                if pending is None and total is not None:
+                    pending = {
+                        "key": identity, "total": total, "output": output,
+                        "created_at": _event_timestamp(record.get("timestamp")),
+                    }
+                elif pending is not None and total is not None:
+                    pending["total"] = max(pending["total"], total)
+                    pending["output"] = max(pending["output"], output)
+                for item in message.get("content") or []:
+                    if not isinstance(item, dict):
+                        continue
+                    if item.get("type") == "tool_use":
+                        calls[item.get("id")] = (
+                            item.get("name"), item.get("input") or {}
+                        )
+                        tool = _uclusion_tool_basename(item.get("name"))
+                        if tool:
+                            classifier.uclusion_call(tool, item.get("input"))
+                    elif item.get("type") == "text":
+                        package = completion_package(item.get("text"))
+                        if package:
+                            acc.add_text("workflow", package)
+                continue
+            flush()
+            _set_charging(
+                acc, window, _event_timestamp(record.get("timestamp"))
+            )
+            if kind == "system" and record.get("subtype") == "compact_boundary":
+                acc.compact()
+                continue
+            if kind == "attachment":
+                attachment = record.get("attachment") or {}
+                attachment_type = attachment.get("type")
+                if attachment_type == "instructions":
+                    for item in attachment.get("files") or []:
+                        block = bootstrap_block(
+                            (item or {}).get("content")
+                        )
+                        if block:
+                            acc.add_artifact(
+                                "bootstrap", block,
+                                key="bootstrap:" + _sha256_text(block),
+                            )
+                elif attachment_type == "deferred_tools_record":
+                    for entry in attachment.get("entries") or []:
+                        if not isinstance(entry, dict):
+                            continue
+                        name = entry.get("name")
+                        if not _uclusion_tool_basename(name):
+                            continue
+                        tokens, estimated = counter.tool(
+                            name, entry.get("description"),
+                            entry.get("input_schema"),
+                        )
+                        acc.add(
+                            "tool_definitions", tokens, estimated,
+                            key="tool:" + str(name),
+                        )
+                elif attachment_type == "skill_listing":
+                    listing = attachment.get("content")
+                    if isinstance(listing, str):
+                        lines = [
+                            line for line in listing.splitlines()
+                            if re.match(r"^- uclusion(?:-design)?:", line)
+                        ]
+                        if lines:
+                            acc.add_text(
+                                "skills", "\n".join(lines),
+                                key="skill-listing",
+                            )
+                continue
+            if kind != "user" or not isinstance(message, dict):
+                continue
+            content = message.get("content")
+            text = content if isinstance(content, str) else None
+            if isinstance(content, list):
+                tool_results = [
+                    item for item in content
+                    if isinstance(item, dict)
+                    and item.get("type") == "tool_result"
+                ]
+                for item in tool_results:
+                    name, arguments = calls.get(
+                        item.get("tool_use_id"), (None, {})
+                    )
+                    result_text = _text_of(item.get("content"))
+                    tool = _uclusion_tool_basename(name)
+                    if tool:
+                        classifier.uclusion_result(tool, arguments, result_text)
+                    elif name in ("Bash", "Read", "Grep", "Glob", "Monitor"):
+                        command = (
+                            arguments.get("command")
+                            or arguments.get("file_path")
+                            or arguments.get("path")
+                            or ""
+                        )
+                        if name == "Grep":
+                            command = " ".join(
+                                str(arguments.get(field) or "")
+                                for field in ("path", "glob", "pattern")
+                            )
+                        classifier.shell_result(command, result_text)
+                if not tool_results:
+                    text = _text_of(content)
+            if not isinstance(text, str) or not text.strip():
+                continue
+            if record.get("isCompactSummary"):
+                acc.compact()
+                continue
+            if record.get("isMeta") and any(
+                marker in text for marker in UCLUSION_SKILL_MARKERS
+            ):
+                classifier.skill_text(text)
+                continue
+            if POKE_NOTIFICATION.search(text):
+                acc.add_text("pokes", text)
+                acc.wake(bool(POKE_EXPIRY.search(text)))
+                continue
+            if not record.get("isMeta"):
+                acc.wake(False)
+    flush()
+    reason = "unsupported_client_version" if unknown_shapes else None
+    return acc, reason
+
+
+def _codex_usage(payload):
+    usage = payload.get("usage") if isinstance(payload, dict) else None
+    if not isinstance(usage, dict):
+        info = payload.get("info") if isinstance(payload, dict) else None
+        usage = (info or {}).get("last_token_usage") if isinstance(
+            info, dict
+        ) else None
+    if not isinstance(usage, dict):
+        return None
+    input_tokens = _non_negative_int(usage.get("input_tokens"))
+    output_tokens = _non_negative_int(usage.get("output_tokens"))
+    if input_tokens is None or output_tokens is None:
+        return None
+    return input_tokens + output_tokens, output_tokens
+
+
+CODEX_TOOL_CALL = re.compile(r"tools\.([A-Za-z0-9_]+)\(")
+
+
+def breakdown_codex_rollout(path, counter, window=None):
+    """Account one Codex rollout."""
+    acc = BreakdownAccumulator(counter)
+    classifier = _UclusionClassifier(acc)
+    calls = {}
+    seen_responses = set()
+    used_record_usage = False
+    unknown_shapes = 0
+    audit_used = False
+    claims_used = False
+
+    def include_tool(name):
+        if name in MARKER_TOOLS and not audit_used:
+            return False
+        if name == "claim_work" and not claims_used:
+            return False
+        return isinstance(name, str)
+
+    records = []
+    with open(path, "rb") as source:
+        for raw_line in source:
+            try:
+                record = json.loads(raw_line.decode("utf-8"))
+            except (UnicodeDecodeError, ValueError):
+                unknown_shapes += 1
+                continue
+            if isinstance(record, dict):
+                records.append(record)
+                blob = raw_line
+                if b"start_job_audit" in blob:
+                    audit_used = True
+                if b"claim_work" in blob:
+                    claims_used = True
+    for record in records:
+        if record.get("type") == "token_usage_record":
+            used_record_usage = True
+            break
+
+    definitions_sent = False
+    for record in records:
+        kind = record.get("type")
+        payload = record.get("payload") if isinstance(
+            record.get("payload"), dict
+        ) else {}
+        payload_type = payload.get("type")
+        created_at = _event_timestamp(record.get("timestamp"))
+        _set_charging(acc, window, created_at)
+        if not definitions_sent:
+            # Codex sends every MCP tool definition with every request; the
+            # rollout does not record them, so the shipped counts stand in
+            # for content this session cannot show, marked as estimated.
+            definitions_sent = True
+            definitions = counter.shipped_tool_total(include_tool)
+            acc.add("tool_definitions", definitions, definitions)
+        usage = None
+        if kind == "token_usage_record":
+            response_id = payload.get("response_id")
+            if response_id in seen_responses:
+                continue
+            seen_responses.add(response_id)
+            usage = _codex_usage(payload)
+        elif (
+            kind == "event_msg" and payload_type == "token_count"
+            and not used_record_usage
+        ):
+            usage = _codex_usage(payload)
+        if usage is not None:
+            acc.request(*usage)
+            continue
+        if kind == "compacted":
+            acc.compact()
+            continue
+        if kind != "response_item":
+            continue
+        if payload_type == "message":
+            text = _text_of(payload.get("content"))
+            if payload.get("role") not in ("user", "developer"):
+                package = completion_package(text)
+                if package:
+                    acc.add_text("workflow", package)
+                continue
+            block = bootstrap_block(text)
+            if block:
+                acc.add_artifact(
+                    "bootstrap", block, key="bootstrap:" + _sha256_text(block)
+                )
+                continue
+            if any(marker in text for marker in UCLUSION_SKILL_MARKERS):
+                classifier.skill_text(text)
+                continue
+            lines = [line for line in text.strip().splitlines() if line.strip()]
+            if lines and all(POKE_LINE.match(line.strip()) for line in lines):
+                acc.add_text("pokes", text)
+                acc.wake(False)
+                continue
+            if payload.get("role") == "user":
+                acc.wake(False)
+            continue
+        if payload_type in ("function_call", "custom_tool_call"):
+            name = payload.get("name")
+            namespace = payload.get("namespace")
+            arguments = payload.get("arguments") or payload.get("input")
+            if isinstance(arguments, str) and payload_type == "function_call":
+                try:
+                    arguments = json.loads(arguments)
+                except ValueError:
+                    arguments = {}
+            if isinstance(namespace, str) and "Uclusion" in namespace:
+                name = "mcp__Uclusion__" + str(name)
+            calls[payload.get("call_id")] = (name, arguments)
+            tool = _uclusion_tool_basename(name)
+            if tool:
+                classifier.uclusion_call(tool, arguments)
+            continue
+        if payload_type in ("function_call_output", "custom_tool_call_output"):
+            name, arguments = calls.get(payload.get("call_id"), (None, {}))
+            output = payload.get("output")
+            if name == "exec" and isinstance(arguments, str):
+                _codex_exec_output(classifier, arguments, output)
+                continue
+            text = _text_of(output) if not isinstance(output, str) else output
+            tool = _uclusion_tool_basename(name)
+            if tool:
+                classifier.uclusion_result(tool, arguments, _mcp_text(text))
+            elif name in ("exec_command", "shell", "local_shell"):
+                command = arguments.get("cmd") if isinstance(
+                    arguments, dict
+                ) else None
+                if isinstance(command, list):
+                    command = " ".join(str(part) for part in command)
+                classifier.shell_result(command, _shell_output(text))
+    reason = "unsupported_client_version" if unknown_shapes else None
+    return acc, reason
+
+
+def _mcp_text(text):
+    """The text an MCP result showed the model, from its JSON envelope."""
+    if not isinstance(text, str):
+        return ""
+    stripped = text.strip()
+    if stripped.startswith("{"):
+        try:
+            parsed = json.loads(stripped)
+        except ValueError:
+            return text
+        if isinstance(parsed, dict) and isinstance(parsed.get("content"), list):
+            return _text_of(parsed["content"])
+    return text
+
+
+def _shell_output(text):
+    if not isinstance(text, str):
+        return ""
+    stripped = text.strip()
+    if stripped.startswith("{"):
+        try:
+            parsed = json.loads(stripped)
+        except ValueError:
+            return text
+        if isinstance(parsed, dict) and isinstance(parsed.get("output"), str):
+            return parsed["output"]
+    return text
+
+
+def _codex_exec_output(classifier, script, output):
+    """Pair a code-mode script's tool calls with its output segments."""
+    invoked = CODEX_TOOL_CALL.findall(script)
+    shell_commands = re.findall(
+        r"tools\.exec_command\(\{[^}]*?cmd\s*:\s*(\"(?:[^\"\\]|\\.)*\"|"
+        r"'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)",
+        script,
+        flags=re.S,
+    )
+    uclusion_calls = [
+        name for name in invoked if _uclusion_tool_basename(name)
+    ]
+    segments = output if isinstance(output, list) else [output]
+    shell_index = 0
+    uclusion_index = 0
+    for segment in segments:
+        text = _text_of(segment) if not isinstance(segment, str) else segment
+        stripped = (text or "").strip()
+        if not stripped.startswith("{"):
+            continue
+        try:
+            parsed = json.loads(stripped)
+        except ValueError:
+            continue
+        if not isinstance(parsed, dict):
+            continue
+        if isinstance(parsed.get("content"), list):
+            tool = None
+            if uclusion_index < len(uclusion_calls):
+                tool = _uclusion_tool_basename(uclusion_calls[uclusion_index])
+            uclusion_index += 1
+            if tool or len(uclusion_calls) == 0:
+                classifier.uclusion_result(
+                    tool or "unknown", {}, _text_of(parsed["content"])
+                )
+        elif "output" in parsed and "exit_code" in parsed:
+            command = ""
+            if shell_index < len(shell_commands):
+                literal = shell_commands[shell_index]
+                command = literal[1:-1]
+            shell_index += 1
+            classifier.shell_result(command, parsed.get("output") or "")
+    for name in uclusion_calls:
+        call = re.search(
+            r"tools\." + re.escape(name) + r"\((\{.*?\})\)", script, flags=re.S
+        )
+        if call:
+            classifier.acc.add_text("mcp_framing", re.sub(
+                r"(\"(?:[^\"\\]|\\.){200,}\"|`[^`]{200,}`)", "\"\"", call.group(1)
+            ))
+
+
+def detect_session_log(path):
+    """Return ``"claude"`` or ``"codex"`` for a session log, else None."""
+    try:
+        with open(path, "rb") as source:
+            for _ in range(20):
+                raw_line = source.readline()
+                if not raw_line:
+                    break
+                try:
+                    record = json.loads(raw_line.decode("utf-8"))
+                except (UnicodeDecodeError, ValueError):
+                    continue
+                if not isinstance(record, dict):
+                    continue
+                if record.get("type") in ("session_meta", "response_item",
+                                          "turn_context", "event_msg"):
+                    return "codex"
+                if "sessionId" in record or record.get("type") in (
+                    "user", "assistant", "attachment", "summary",
+                    "permission-mode", "mode", "last-prompt",
+                ):
+                    return "claude"
+    except OSError:
+        return None
+    return None
+
+
+def claude_subagent_logs(path):
+    """Subagent transcripts Claude Code keeps beside a session transcript."""
+    base = os.path.splitext(path)[0]
+    directory = os.path.join(base, "subagents")
+    try:
+        names = sorted(os.listdir(directory))
+    except OSError:
+        return []
+    return [
+        os.path.join(directory, name) for name in names
+        if name.endswith(".jsonl")
+    ]
+
+
+def breakdown_session_log(path, manifest=None, window=None):
+    """Compute the Uclusion breakdown for one saved session log."""
+    client = detect_session_log(path)
+    if client is None:
+        if not os.path.exists(path):
+            return unavailable_breakdown("log_missing")
+        return unavailable_breakdown("unsupported_client_version")
+    if manifest is None:
+        manifest = load_token_manifest()
+    family = "claude" if client == "claude" else "openai"
+    counter = TokenCounter(manifest, family)
+    try:
+        if client == "claude":
+            accumulators = []
+            reasons = []
+            for log in [path] + claude_subagent_logs(path):
+                acc, reason = breakdown_claude_transcript(log, counter, window)
+                accumulators.append(acc)
+                if reason:
+                    reasons.append(reason)
+        else:
+            acc, reason = breakdown_codex_rollout(path, counter, window)
+            accumulators = [acc]
+            reasons = [reason] if reason else []
+    except OSError:
+        return unavailable_breakdown("log_missing")
+    items = []
+    for line in BREAKDOWN_LINE_KEYS:
+        items.append({
+            "line": line,
+            "arrival_tokens": sum(a.arrival[line] for a in accumulators),
+            "total_tokens": sum(a.total[line] for a in accumulators),
+            "estimated_tokens": sum(a.estimated[line] for a in accumulators),
+        })
+    result = breakdown_result(
+        items,
+        sum(a.provider_total for a in accumulators),
+        sum(a.requests for a in accumulators),
+        status="partial" if reasons else "available",
+        reason=reasons[0] if reasons else None,
+    )
+    result["client"] = client
+    if not counter.has_manifest:
+        result["counts"] = "estimated_without_manifest"
+    if not result["model_requests"]:
+        return unavailable_breakdown("no_model_requests")
+    return result
+
+
+def format_breakdown(result, title="Uclusion token usage"):
+    """Render a breakdown as Markdown with only line names and numbers."""
+    labels = dict(BREAKDOWN_LINES)
+    lines = [f"### {title}", ""]
+    if result.get("status") == "unavailable":
+        lines.append(
+            "- Uclusion lines unavailable (`{}`).".format(
+                result.get("reason") or "unknown"
+            )
+        )
+        return "\n".join(lines) + "\n"
+    total = result.get("provider_total_tokens") or 0
+    uclusion = result.get("uclusion_total_tokens") or 0
+    share = (uclusion / total) if total else 0.0
+    lines.append(
+        f"- Uclusion: **{uclusion:,} of {total:,} tokens ({share:.1%})** "
+        f"across {result.get('model_requests', 0):,} model requests"
+    )
+    for item in result.get("items") or []:
+        if not (item["arrival_tokens"] or item["total_tokens"]):
+            continue
+        estimated = item.get("estimated_tokens") or 0
+        note = f"; {estimated:,} estimated" if estimated else ""
+        lines.append(
+            f"- {labels.get(item['line'], item['line'])}: "
+            f"{item['arrival_tokens']:,} on arrival, "
+            f"{item['total_tokens']:,} with re-sends{note}"
+        )
+    lines.append(
+        "- Reasoning tokens are excluded outside Uclusion-only turns."
+    )
+    if result.get("counts") == "estimated_without_manifest":
+        lines.append(
+            "- No artifact token manifest was found, so every count is "
+            "estimated from size."
+        )
+    if result.get("status") == "partial":
+        lines.append(
+            "- Partial: `{}`.".format(result.get("reason") or "unknown")
+        )
+    return "\n".join(lines) + "\n"
+
+
 def _valid_port(value):
     try:
         port = int(value)
@@ -5919,6 +7205,14 @@ def build_parser():
     hook.add_argument("--workspace-id", required=True)
     hook.add_argument("--source", choices=("otel", "transcript"), required=True)
     hook.add_argument("--port", type=_valid_port, required=True)
+    breakdown = subparsers.add_parser(
+        "breakdown",
+        help="Print the Uclusion token breakdown of one saved session log.",
+    )
+    breakdown.add_argument("--log", required=True, help="Session log path.")
+    breakdown.add_argument(
+        "--json", action="store_true", help="Print the result as JSON."
+    )
     return parser
 
 
@@ -5951,6 +7245,13 @@ def main(argv=None):
                 )
             )
         return 0
+    if args.command == "breakdown":
+        result = breakdown_session_log(args.log)
+        if args.json:
+            print(json.dumps(result, indent=2, sort_keys=True))
+        else:
+            sys.stdout.write(format_breakdown(result))
+        return 0 if result.get("status") != "unavailable" else 1
     return 2
 
 

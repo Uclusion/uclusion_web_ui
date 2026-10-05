@@ -41,9 +41,13 @@ class CodexSessionTraceTests(unittest.TestCase):
         root = Path(os.path.realpath(directory.name))
         self.home = str(root / 'uclusion-demo-1000')
         self.codex = root / 'codex-home'
-        patch = mock.patch.object(INSTALL, 'CODEX_HOME', str(self.codex))
-        patch.start()
-        self.addCleanup(patch.stop)
+        self.config = self.codex / 'config.toml'
+        for patch in (
+            mock.patch.object(INSTALL, 'CODEX_HOME', str(self.codex)),
+            mock.patch.object(INSTALL, 'CODEX_CONFIG_PATH', str(self.config)),
+        ):
+            patch.start()
+            self.addCleanup(patch.stop)
 
     def leave_traces(self):
         day = self.codex / 'sessions' / '2026' / '10' / '02'
@@ -115,6 +119,53 @@ class CodexSessionTraceTests(unittest.TestCase):
         outcomes = INSTALL.remove_demo_codex_session_traces(self.home)
         self.assertFalse(self.codex.exists())
         self.assertEqual({'absent'}, {state for state, _detail in outcomes})
+
+    def test_codex_trust_uses_the_demo_setup_and_removal_lifecycle(self):
+        self.codex.mkdir()
+        original = 'model = "gpt-6-luna"\n\n[projects."/home/me/work"]\ntrust_level = "trusted"\n'
+        self.config.write_text(original)
+        INSTALL.accept_demo_workspace_trust(self.home, client='codex')
+        saved = self.config.read_text()
+        self.assertTrue(saved.startswith(original))
+        self.assertEqual('trusted', INSTALL.tomllib.loads(saved)['projects'][self.home]['trust_level'])
+        INSTALL.accept_demo_workspace_trust(self.home, client='codex')
+        self.assertEqual(saved, self.config.read_text())
+        outcomes = INSTALL.remove_demo_codex_session_traces(self.home)
+        self.assertIn(('removed', f'the demo trust entry from {self.config}'), outcomes)
+        self.assertEqual(original, self.config.read_text())
+        self.assertFalse(Path(f'{self.config}.uclusion.lock').exists())
+
+    def test_removal_preserves_a_human_change_to_demo_trust(self):
+        INSTALL.accept_demo_workspace_trust(self.home, client='codex')
+        changed = self.config.read_text().replace('trust_level = "trusted"', 'trust_level = "untrusted"')
+        self.config.write_text(changed)
+        outcomes = INSTALL.remove_demo_codex_session_traces(self.home)
+        self.assertIn(('kept', f'the changed demo trust entry in {self.config}'), outcomes)
+        self.assertEqual(changed, self.config.read_text())
+
+    def test_existing_human_trust_is_neither_owned_nor_removed(self):
+        self.codex.mkdir()
+        original = f'[projects.{json.dumps(self.home)}]\ntrust_level = "trusted"\n'
+        self.config.write_text(original)
+        INSTALL.accept_demo_workspace_trust(self.home, client='codex')
+        INSTALL.remove_demo_codex_session_traces(self.home)
+        self.assertEqual(original, self.config.read_text())
+
+    def test_cleanup_keeps_unrelated_changes_added_during_the_demo(self):
+        INSTALL.accept_demo_workspace_trust(self.home, client='codex')
+        added = '[projects."/home/me/other"]\ntrust_level = "trusted"\n'
+        with self.config.open('a') as output:
+            output.write('\n' + added)
+        INSTALL.remove_demo_codex_session_traces(self.home)
+        self.assertEqual(added, self.config.read_text())
+
+    def test_demo_does_not_replace_a_human_untrusted_project(self):
+        self.codex.mkdir()
+        original = f'[projects.{json.dumps(self.home)}]\ntrust_level = "untrusted"\n'
+        self.config.write_text(original)
+        with self.assertRaisesRegex(RuntimeError, 'already configures trust'):
+            INSTALL.accept_demo_workspace_trust(self.home, client='codex')
+        self.assertEqual(original, self.config.read_text())
 
     def test_removal_runs_after_the_sessions_are_stopped(self):
         source = inspect.getsource(INSTALL.remove_demo_install)

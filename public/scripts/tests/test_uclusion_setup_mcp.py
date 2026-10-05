@@ -473,15 +473,15 @@ class SetupMCPTests(unittest.TestCase):
             ('cursor', 'project', 'stage', 'Fully exit Cursor', None),
             (
                 'codex', 'global', 'production', 'Fully exit this Codex session',
-                '`uclusion codex`',
+                '`codex`',
             ),
             (
                 'codex', 'project', 'stage', 'Fully exit this Codex session',
-                '`uclusion -e stage codex`',
+                '`codex`',
             ),
             (
                 'codex', 'project', 'dev', 'Fully exit this Codex session',
-                '`uclusion -e dev codex`',
+                '`codex`',
             ),
         )
         for client, scope, environment, exit_text, command in cases:

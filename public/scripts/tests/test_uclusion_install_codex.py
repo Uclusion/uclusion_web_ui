@@ -168,11 +168,11 @@ class CodexIntegrationConfigTests(unittest.TestCase):
         'command = "keep-this-hook"\n'
     )
 
-    def test_bridge_script_is_part_of_release(self):
-        self.assertIn(
-            ('uclusionCodexBridge.py', 'uclusionCodexBridge.py', 'uclusionCodexBridge.py'),
-            INSTALL.SCRIPT_FILES,
-        )
+    def test_native_delivery_companions_replace_the_bridge_in_release(self):
+        scripts = [source for source, _installed, _symlink in INSTALL.SCRIPT_FILES]
+        self.assertNotIn('uclusionCodexBridge.py', scripts)
+        self.assertIn('uclusionCodexNative.py', scripts)
+        self.assertIn('uclusionUpdateNotices.py', scripts)
 
     def test_cursor_poke_drain_script_is_not_part_of_release(self):
         self.assertNotIn(
@@ -458,6 +458,34 @@ class CodexIntegrationConfigTests(unittest.TestCase):
         )
 
 
+class CodexRetiredCommandTests(unittest.TestCase):
+    def test_removal_preserves_regular_files_and_unrelated_symlinks(self):
+        with tempfile.TemporaryDirectory() as directory:
+            link = os.path.join(directory, 'uclusionCodexBridge.py')
+            with mock.patch.object(INSTALL, 'SYMLINK_DIR', directory):
+                with open(link, 'w', encoding='utf-8') as handle:
+                    handle.write('human file')
+                self.assertFalse(INSTALL.remove_retired_codex_bridge_command())
+                os.remove(link)
+                os.symlink('/human/other.py', link)
+                self.assertFalse(INSTALL.remove_retired_codex_bridge_command())
+                self.assertTrue(os.path.islink(link))
+
+    def test_removal_cleans_only_the_prior_owned_bridge_link(self):
+        with tempfile.TemporaryDirectory() as directory:
+            prefix = os.path.join(directory, 'releases')
+            old_bin = os.path.join(prefix, 'old-release', 'bin')
+            os.makedirs(old_bin)
+            link = os.path.join(directory, 'uclusionCodexBridge.py')
+            os.symlink(os.path.join(old_bin, 'uclusion.py'), link)
+            with mock.patch.multiple(INSTALL, SYMLINK_DIR=directory, SCRIPT_INSTALL_PREFIX=prefix):
+                self.assertFalse(INSTALL.remove_retired_codex_bridge_command())
+                os.remove(link)
+                os.symlink(os.path.join(old_bin, 'uclusionCodexBridge.py'), link)
+                self.assertTrue(INSTALL.remove_retired_codex_bridge_command())
+                self.assertFalse(os.path.lexists(link))
+
+
 class ConfigVersionStampTests(unittest.TestCase):
     def test_unversioned_activation_clears_stale_release_stamp(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -608,6 +636,88 @@ class ResponseStatsInstallerTests(unittest.TestCase):
                             self.assertNotIn('jsonl', workspace_config)
                     self.assertFalse(os.path.exists(previous_stats))
                     self.assertFalse(os.path.exists(selected_stats))
+
+    def test_codex_updates_preserve_enable_and_disable_recording_in_each_scope(self):
+        for scope in ('global', 'project'):
+            with self.subTest(scope=scope), tempfile.TemporaryDirectory() as directory:
+                config_path = os.path.join(directory, 'config.toml') if scope == 'global' else os.path.join(directory, '.codex', 'config.toml')
+                previous_path = os.path.join(directory, 'previous.jsonl')
+                selected_path = os.path.join(directory, 'selected.jsonl')
+                descriptor = INSTALL.runtime_mcp_descriptor('old-workspace', 'stage', token_audit_client='codex')
+                descriptor['args'].append('--response-stats=' + previous_path)
+                os.makedirs(os.path.dirname(config_path), exist_ok=True)
+                original = 'model="keep-model"\n[mcp_servers.Other]\ncommand="keep-other"\n\n' + INSTALL.build_codex_mcp_block(descriptor=descriptor)
+                with open(config_path, 'w', encoding='utf-8') as handle:
+                    handle.write(original)
+                for choice, expected in ((None, previous_path), (selected_path, selected_path), (None, selected_path), (False, None), (None, None)):
+                    with self.subTest(choice=choice, expected=expected):
+                        INSTALL.update_codex_integration_config('new-workspace', 'stage', force=True, config_path=config_path, response_stats=choice)
+                        with open(config_path, encoding='utf-8') as handle:
+                            current = tomllib.loads(handle.read())
+                        args = current['mcp_servers']['Uclusion']['args']
+                        self.assertIn('--codex-native', args)
+                        self.assertIn('new-workspace', args)
+                        self.assertEqual(current['model'], 'keep-model')
+                        self.assertEqual(current['mcp_servers']['Other']['command'], 'keep-other')
+                        if expected is None:
+                            self.assertNotIn('--response-stats', args)
+                        else:
+                            self.assertEqual(args[args.index('--response-stats') + 1], expected)
+                self.assertFalse(os.path.exists(previous_path))
+                self.assertFalse(os.path.exists(selected_path))
+
+    def test_codex_updates_preserve_replay_until_removed_in_each_scope(self):
+        for scope in ('global', 'project'):
+            with self.subTest(scope=scope), tempfile.TemporaryDirectory() as directory:
+                config_path = os.path.join(directory, 'config.toml') if scope == 'global' else os.path.join(directory, '.codex', 'config.toml')
+                os.makedirs(os.path.dirname(config_path), exist_ok=True)
+                descriptor = INSTALL.runtime_mcp_descriptor('old-workspace', 'stage', token_audit_client='codex')
+                descriptor['args'].append('--deliver-existing-pokes')
+                with open(config_path, 'w', encoding='utf-8') as handle:
+                    handle.write(INSTALL.build_codex_mcp_block(descriptor=descriptor))
+                for choice in (None, '/private/sizes.jsonl', False):
+                    with self.subTest(choice=choice):
+                        INSTALL.update_codex_integration_config('new-workspace', 'stage', force=True, config_path=config_path, response_stats=choice)
+                        with open(config_path, encoding='utf-8') as handle:
+                            current = tomllib.loads(handle.read())
+                        args = current['mcp_servers']['Uclusion']['args']
+                        self.assertEqual(args.count('--deliver-existing-pokes'), 1)
+                        self.assertIn('new-workspace', args)
+                args.remove('--deliver-existing-pokes')
+                with open(config_path, 'w', encoding='utf-8') as handle:
+                    handle.write(INSTALL.build_codex_mcp_block(descriptor={
+                        'command': current['mcp_servers']['Uclusion']['command'],
+                        'args': args,
+                    }))
+                INSTALL.update_codex_integration_config('new-workspace', 'stage', force=True, config_path=config_path)
+                with open(config_path, encoding='utf-8') as handle:
+                    final_args = tomllib.loads(handle.read())['mcp_servers']['Uclusion']['args']
+                self.assertNotIn('--deliver-existing-pokes', final_args)
+
+    def test_codex_update_does_not_erase_recording_when_toml_cannot_be_read(self):
+        with tempfile.TemporaryDirectory() as directory:
+            config_path = os.path.join(directory, 'config.toml')
+            original = INSTALL.build_codex_mcp_block('workspace', 'stage', response_stats='/private/sizes.jsonl')
+            with open(config_path, 'w', encoding='utf-8') as handle:
+                handle.write(original)
+            with mock.patch.object(INSTALL, 'tomllib', None), self.assertRaises(RuntimeError):
+                INSTALL.update_codex_integration_config('workspace', 'stage', force=True, config_path=config_path)
+            with open(config_path, encoding='utf-8') as handle:
+                self.assertEqual(handle.read(), original)
+
+    def test_codex_update_does_not_erase_replay_when_toml_cannot_be_read(self):
+        with tempfile.TemporaryDirectory() as directory:
+            config_path = os.path.join(directory, 'config.toml')
+            descriptor = INSTALL.runtime_mcp_descriptor('workspace', 'stage', token_audit_client='codex')
+            descriptor['args'].append('--deliver-existing-pokes')
+            original = INSTALL.build_codex_mcp_block(descriptor=descriptor)
+            with open(config_path, 'w', encoding='utf-8') as handle:
+                handle.write(original)
+            for choice in (None, False, '/private/sizes.jsonl'):
+                with self.subTest(choice=choice), mock.patch.object(INSTALL, 'tomllib', None), self.assertRaises(RuntimeError):
+                    INSTALL.update_codex_integration_config('workspace', 'stage', force=True, config_path=config_path, response_stats=choice)
+                with open(config_path, encoding='utf-8') as handle:
+                    self.assertEqual(handle.read(), original)
 
     def test_new_claude_registration_defaults_off_and_preserves_equals_argument(self):
         with tempfile.TemporaryDirectory() as directory:

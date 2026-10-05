@@ -97,6 +97,31 @@ class CodexDemoSetupTests(unittest.TestCase):
             )
         return args, run.call_args.kwargs
 
+    def test_native_demo_persists_isolation_and_choices_without_launch_overrides(self):
+        descriptor = INSTALL.runtime_mcp_descriptor(
+            'demo-workspace', 'stage', token_audit_client='codex',
+            response_stats='/tmp/evaluator-stats.jsonl',
+        )
+        descriptor['args'].extend([
+            '--demo-evidence', str(self.home / 'evidence'),
+            '--demo-evidence-role', 'evaluator',
+        ])
+        inventory = [{'name': 'Uclusion', 'enabled': True, 'transport': descriptor}]
+        args, _ = self.session_args(
+            inventory=inventory, native=True, model='gpt-6-luna', effort='low',
+            response_stats='/tmp/evaluator-stats.jsonl',
+            evidence_dir=str(self.home / 'evidence'), evidence_role='evaluator',
+        )
+        self.assertEqual([], args)
+        saved = INSTALL.tomllib.loads((self.home / '.codex/config.toml').read_text())
+        self.assertEqual('gpt-6-luna', saved['model'])
+        self.assertEqual('low', saved['model_reasoning_effort'])
+        self.assertEqual({'apps': False, 'plugins': False, 'remote_plugin': False}, saved['features'])
+        self.assertFalse(saved['mcp_servers']['Other.Server']['enabled'])
+        self.assertEqual(descriptor['args'], saved['mcp_servers']['Uclusion']['args'])
+        self.assertEqual(['CODEX_HOME'], saved['mcp_servers']['Uclusion']['env_vars'])
+        self.assertEqual('Keep the native instruction.\n\nDemo bootstrap\n', saved['developer_instructions'])
+
     def test_environment_retains_native_login_and_removes_parent_bridge_identity(self):
         with mock.patch.dict(os.environ, {
             'HOME': '/native/home', 'PATH': '/native/bin',

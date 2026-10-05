@@ -2083,6 +2083,10 @@ class CodexAuditTests(TokenAuditTestCase):
             {"schema_version": 1, "state": "active",
              "audit_run_id": run_id, "canonical_job_id": "J-all-343"},
         ))
+        # Native thread discovery can precede the tool's explicit child labels.
+        observer.observe_descendant({
+            "id": "model-child", "parentThreadId": "model-root",
+        })
         observer.observe_notification({
             "method": "item/started",
             "params": {

@@ -1252,14 +1252,9 @@ class SetupService:
             else 'with the configured global scope'
         )
         if self.context.client == 'codex':
-            cli = (
-                'uclusion codex'
-                if self.context.environment == 'production'
-                else f'uclusion -e {self.context.environment} codex'
-            )
             relaunch = (
                 f'Fully exit this Codex session, then start a fresh client session '
-                f'{scope} with `{cli}`.'
+                f'{scope} with `codex`.'
             )
         else:
             label = 'Claude Code' if self.context.client == 'claude' else 'Cursor'

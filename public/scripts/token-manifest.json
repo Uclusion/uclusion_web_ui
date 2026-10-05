@@ -1,0 +1,9 @@
+{
+  "artifacts": {},
+  "bytes_per_token": {},
+  "method": "estimated_without_provider_counts",
+  "models": {},
+  "reason": "provider_count_credentials_unavailable",
+  "schema_version": 1,
+  "tools": {}
+}

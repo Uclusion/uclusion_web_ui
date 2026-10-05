@@ -17,6 +17,10 @@ import urllib.parse
 from contextlib import closing
 from uuid import uuid4
 
+# Runtime imports must come from the same immutable installed release as this
+# proxy, even if an update moves the public executable symlinks meanwhile.
+sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
+_STDIO_WRITE_LOCK = threading.Lock()
 
 CREDENTIALS_FILE = 'credentials'
 DEV_CREDENTIALS_FILE = 'dev_credentials'
@@ -205,6 +209,9 @@ def parse_args(argv=None):
     )
     parser.add_argument('--token-audit-ready-file')
     parser.add_argument('--token-audit-owner')
+    parser.add_argument('--codex-native', action='store_true')
+    parser.add_argument('--codex-home')
+    parser.add_argument('--deliver-existing-pokes', action='store_true')
     parser.add_argument(
         '--home',
         help='Directory Uclusion reads its own files from, for an install that does '
@@ -236,7 +243,7 @@ def parse_args(argv=None):
                 f'--token-audit-source {args.token_audit_source} requires '
                 f'--token-audit-client {expected_client}'
             )
-        if args.token_audit_source == 'codex':
+        if args.token_audit_source == 'codex' and not args.codex_native:
             if not args.token_audit_ready_file or not args.token_audit_owner:
                 parser.error(
                     '--token-audit-source codex requires '
@@ -254,6 +261,10 @@ def parse_args(argv=None):
         args.token_audit_owner is not None,
     )):
         parser.error('token-audit settings require --token-audit')
+    if (args.codex_home or args.deliver_existing_pokes) and not args.codex_native:
+        parser.error('Codex delivery settings require --codex-native')
+    if args.codex_native and args.token_audit and args.token_audit_source != 'codex':
+        parser.error('Native Codex token audit requires --token-audit-source codex')
     return args
 
 
@@ -406,23 +417,30 @@ class WebSocketConnection:
         self.url = url
         self.socket = None
         self.buffer = bytearray()
+        self.frame_write_lock = threading.Lock()
 
     def connect(self):
         parsed = urllib.parse.urlsplit(self.url)
-        if parsed.scheme != 'wss' or not parsed.hostname:
+        if parsed.scheme == 'unix' and parsed.path:
+            self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            self.socket.settimeout(10)
+            self.socket.connect(parsed.path)
+            host, path = 'localhost', '/'
+        elif parsed.scheme == 'wss' and parsed.hostname:
+            port = parsed.port or 443
+            raw_socket = socket.create_connection((parsed.hostname, port), timeout=10)
+            self.socket = ssl.create_default_context().wrap_socket(
+                raw_socket, server_hostname=parsed.hostname
+            )
+            path = parsed.path or '/'
+            if parsed.query:
+                path += '?' + parsed.query
+            host = parsed.hostname if port == 443 else f'{parsed.hostname}:{port}'
+        else:
             raise ValueError(f'Unsupported websocket URL: {self.url}')
-        port = parsed.port or 443
-        raw_socket = socket.create_connection((parsed.hostname, port), timeout=10)
-        self.socket = ssl.create_default_context().wrap_socket(
-            raw_socket, server_hostname=parsed.hostname
-        )
         self.socket.settimeout(30)
 
         key = base64.b64encode(os.urandom(16)).decode('ascii')
-        path = parsed.path or '/'
-        if parsed.query:
-            path += '?' + parsed.query
-        host = parsed.hostname if port == 443 else f'{parsed.hostname}:{port}'
         request = (
             f'GET {path} HTTP/1.1\r\n'
             f'Host: {host}\r\n'
@@ -500,7 +518,8 @@ class WebSocketConnection:
             header.extend(struct.pack('!Q', length))
         header.extend(mask)
         header.extend(value ^ mask[index % 4] for index, value in enumerate(payload))
-        self.socket.sendall(header)
+        with self.frame_write_lock:
+            self.socket.sendall(header)
 
     def send_text(self, text):
         self.send_frame(0x1, text)
@@ -1001,12 +1020,13 @@ def write_message(obj, stats=None):
     line = json.dumps(obj, separators=(',', ':')) + '\n'
     emitted = line.encode('utf-8')
     binary_stdout = getattr(sys.stdout, 'buffer', None)
-    if binary_stdout is not None:
-        # The bytes counted are the bytes written, including LF on Windows.
-        binary_stdout.write(emitted)
-    else:
-        sys.stdout.write(line)
-    sys.stdout.flush()
+    with _STDIO_WRITE_LOCK:
+        if binary_stdout is not None:
+            # The bytes counted are the bytes written, including LF on Windows.
+            binary_stdout.write(emitted)
+        else:
+            sys.stdout.write(line)
+        sys.stdout.flush()
     record_demo_input('mcp_response', line)
     if stats is not None:
         stats.record(obj, emitted)
@@ -1081,18 +1101,20 @@ def inject_work_claim_tool(message, enabled):
 
 
 def handle_json_response(resp, token_audit_enabled=False, work_claims_enabled=False,
-                         request_id=None, stats=None):
+                         request_id=None, stats=None, response_observer=None):
     payload = load_mcp_stdio_object(resp.read().decode('utf-8'))
     if payload is None:
         write_non_object_mcp_error(request_id, stats=stats)
         return
+    if response_observer is not None:
+        response_observer(payload)
     write_message(inject_work_claim_tool(filter_token_audit_tools(
         payload, token_audit_enabled
     ), work_claims_enabled), stats=stats)
 
 
 def handle_sse_response(resp, token_audit_enabled=False, work_claims_enabled=False,
-                        request_id=None, stats=None):
+                        request_id=None, stats=None, response_observer=None):
     wrote = False
     for raw_line in resp:
         line = raw_line.decode('utf-8').rstrip('\r\n')
@@ -1101,6 +1123,8 @@ def handle_sse_response(resp, token_audit_enabled=False, work_claims_enabled=Fal
         payload = load_mcp_stdio_object(line[6:])
         if payload is None:
             continue
+        if response_observer is not None:
+            response_observer(payload)
         write_message(inject_work_claim_tool(filter_token_audit_tools(
             payload, token_audit_enabled
         ), work_claims_enabled), stats=stats)
@@ -1398,6 +1422,8 @@ def main():
 
     stop_event = threading.Event()
     token_audit_runtime = None
+    native_delivery = None
+    native_initialized = threading.Event()
     work_claims = None
     response_stats = ResponseStats(args.response_stats)
     record_demo_input('mcp_session_start', {})
@@ -1422,6 +1448,21 @@ def main():
         token_holder = MarketTokenHolder(mint_market_token)
         token = token_holder.get()
         prune_inbox()
+        if args.codex_native:
+            # The delivery module uses this connection's inbox and evidence
+            # globals, including when the proxy was launched as a script.
+            sys.modules['uclusionMCPProxy'] = sys.modules[__name__]
+            from uclusionCodexNative import NativeCodexDelivery
+
+            def tools_changed():
+                if args.token_audit and native_initialized.is_set() and not stop_event.is_set():
+                    write_message({'jsonrpc': '2.0', 'method': 'notifications/tools/list_changed'})
+
+            native_delivery = NativeCodexDelivery(
+                environment, market_id, codex_home=args.codex_home,
+                replay=args.deliver_existing_pokes,
+                token_audit=args.token_audit, tools_changed=tools_changed,
+            )
         work_claims = WorkClaimsManager(token_holder.get) if args.work_claims else None
         listener = threading.Thread(
             target=listen_for_pokes,
@@ -1446,6 +1487,7 @@ def main():
                     make_token_audit_publisher(post_url, token_holder.get),
                     ready_file=args.token_audit_ready_file,
                     ready_owner=args.token_audit_owner,
+                    collector_ready=native_delivery.tools_ready if native_delivery else None,
                 )
             except Exception as error:
                 # Token accounting is opt-in diagnostics; it must not make the
@@ -1490,6 +1532,9 @@ def main():
             record_demo_input('mcp_request', line)
             request_id = msg.get('id')
             response_stats.set_request(msg)
+            if native_delivery and msg.get('method') == 'notifications/initialized':
+                native_initialized.set()
+                tools_changed()
 
             params = msg.get('params')
             claim_tool_call = (
@@ -1517,7 +1562,8 @@ def main():
                 and isinstance(params, dict)
                 and params.get('name') in TOKEN_AUDIT_TOOLS
             )
-            if audit_tool_call and not token_audit_available():
+            if audit_tool_call and (not token_audit_available() or (
+                    native_delivery is not None and not native_delivery.ensure_collector(msg))):
                 if not is_notification:
                     write_jsonrpc_error(
                         request_id=request_id,
@@ -1546,14 +1592,18 @@ def main():
                     continue
 
                 content_type = resp.headers.get('Content-Type', '')
+                observer = (native_delivery.stamp_initialize
+                            if native_delivery and msg.get('method') == 'initialize' else None)
                 if 'text/event-stream' in content_type:
                     handle_sse_response(resp, token_audit_available(),
                                         work_claims is not None,
-                                        request_id=request_id, stats=response_stats)
+                                        request_id=request_id, stats=response_stats,
+                                        response_observer=observer)
                 else:
                     handle_json_response(resp, token_audit_available(),
                                          work_claims is not None,
-                                         request_id=request_id, stats=response_stats)
+                                         request_id=request_id, stats=response_stats,
+                                         response_observer=observer)
 
             except urllib.request.HTTPError as e:
                 body = e.read().decode('utf-8', errors='replace')
@@ -1593,6 +1643,8 @@ def main():
             # for the server-side expiry to lapse.
             work_claims.release_all_on_exit()
         stop_event.set()
+        if native_delivery is not None:
+            native_delivery.close()
         if token_audit_runtime is not None:
             token_audit_runtime.close()
 

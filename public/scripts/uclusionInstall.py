@@ -36,9 +36,8 @@ Without ``--clients`` the installer asks whether to configure Uclusion globally
   client's native ``skills/uclusion`` and ``skills/uclusion-design`` packages.
   Claude and Cursor use their client directories; Codex uses the cross-agent
   ``.agents/skills`` path.
-  Agent-led setup also writes Codex's trusted-project ``.codex/config.toml``
-  MCP table, while legacy project installs continue to use the equivalent
-  ``uclusion codex`` launch override. The CLI binaries themselves always stay
+  Codex's native MCP table is persisted in ``.codex/config.toml`` alongside
+  its project instructions. The CLI binaries themselves always stay
   user-global under ``~/.local``.
 
 ``setup`` mode needs no Uclusion credential, workspace ID, or view ID. It
@@ -148,7 +147,8 @@ SCRIPT_FILES = (
     ('uclusionCLI.py', 'uclusion.py', 'uclusion'),
     ('uclusionMCPProxy.py', 'uclusionMCPProxy.py', 'uclusionMCPProxy.py'),
     ('uclusionSetupMCP.py', 'uclusionSetupMCP.py', 'uclusionSetupMCP.py'),
-    ('uclusionCodexBridge.py', 'uclusionCodexBridge.py', 'uclusionCodexBridge.py'),
+    ('uclusionCodexNative.py', 'uclusionCodexNative.py', 'uclusionCodexNative.py'),
+    ('uclusionUpdateNotices.py', 'uclusionUpdateNotices.py', 'uclusionUpdateNotices.py'),
     ('uclusionTokenAudit.py', 'uclusionTokenAudit.py', TOKEN_AUDIT_SYMLINK_NAME),
 )
 # Setup has no account credential with which to resolve
@@ -158,23 +158,16 @@ SCRIPT_FILES = (
 # deployment gate validates this table before publishing, so a sequential S3
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
-    'uclusionCLI.py':
-        'e3ab4a6311fc48e13afdc168f1b1a8de0492395f720ad254b3cb934a900ba53b',
-    'uclusionMCPProxy.py':
-        'ed5d32ae848be88d5a4e5fa4cfea293e11039adf88944f1dd5ad0980edf54073',
-    'uclusionSetupMCP.py':
-        'f91ea798847ec8f8cb3407dfcc8eb4ab36ffbaab0c9695fb6028b56b94549d51',
-    'uclusionCodexBridge.py':
-        '43e69b88cbfa5a3186a04d53d423829babdb1b805db687b5083745cc2b486ed8',
-    'uclusionTokenAudit.py':
-        '371e49d36c8393048f8e500bace829c9031f59f504673bdc40b1c1af12453df8',
+    'uclusionCLI.py': '4f4b0864b326f35c90f01c93461e0e4b641b599948d7f85e9b5269c46f9e088e',
+    'uclusionMCPProxy.py': 'b2f861ee89751190139dfe95a37f9235c2416084a971785a0f0a5f52a144674b',
+    'uclusionSetupMCP.py': '9aa8d3199b0c392d944fc3b2fb9f26b48230737ea2e5b07980cd3df6b79ed4f3',
+    'uclusionCodexNative.py': '4d4315f2a35a2ac10e8ef29bd1e7aa7eb64fc96050dbd7da96daf94a0a648bf2',
+    'uclusionUpdateNotices.py': 'a9d6ed9e082bce28ac8340d242ad34d2f180a35de6821ce72c0684503e84b7e8',
+    'uclusionTokenAudit.py': 'efd025872ba7f0c4e605220278e6a14bd681fc187077a5bd3dd72af6b9bd1d3b',
 }
-
 USER_HOME = os.path.expanduser('~')
 UCLUSION_HOME = os.path.join(uclusion_home_root(), '.uclusion')
-# Workspace config filenames are environment-specific — the same names the CLI
-# reads (S-all-163): production stays uclusion.json, stage/dev get prefixed so
-# `uclusion -e stage ...` finds the config the installer wrote.
+# Workspace config filenames are environment-specific, matching the CLI.
 CONFIG_FILES = {
     'dev': 'dev_uclusion.json',
     'stage': 'stage_uclusion.json',
@@ -276,7 +269,6 @@ DEMO_CURRENT_RUN_FILE = 'demo-current-run'
 DEMO_FAILURE_FILE = 'failure.txt'
 DEMO_SUPERVISOR_PID_FILE = 'supervisor.pid'
 TOKEN_AUDIT_SYMLINK_PATH = os.path.join(SYMLINK_DIR, TOKEN_AUDIT_SYMLINK_NAME)
-CODEX_BRIDGE_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionCodexBridge.py')
 CODEX_HOME = os.path.abspath(os.path.expanduser(
     os.environ.get('CODEX_HOME', os.path.join(USER_HOME, '.codex'))
 ))
@@ -331,17 +323,19 @@ WORKFLOW_ASSET_PATHS = {
     # fetched: a session's grant holds the demo's tools and its CLI, and
     # nothing in that can retrieve a URL.
     'demo_brief': 'demo-brief.md',
+    # Exact token counts of every artifact above and of the MCP tool
+    # definitions, so the session-log breakdown never needs a tokenizer.
+    'token_manifest': 'token-manifest.json',
 }
 # These digests bind the installer to one coherent workflow release. A host
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
-    'reading_reference': 'ded25d0fa5aff01b02293218a5e73ae79b4bb977be84f60fc3c0a9d702c8e362',
-    'demo_brief': '1c26c3235dba931bcbf9d88fcacf32e437f1ec10f3e70fd908f33228ba30037f',
     'claude_stub': '2bcf5034fba89fe87e4020e70adac26aecaf373b50efd0c3c8137a4eeec73830',
-    'codex_stub': '7cc3b75aa1b7af3799e47962d7ce2beb43b4a8f52541bb571c0dc968eb808336',
+    'codex_stub': '77671087da7018dd2d7698ccc81f7bd583c16ca85f9536d6327339dc61dc25ff',
     'cursor_stub': '48944f1a09c86ef1e2e59fc18957e93212f86b30bb73ff67e18a9bc1ff8e3fa8',
     'skill': '079390aacd45f6d0db8d5480b04c41597b26611cf3ad030b5eed2f9246ee8137',
     'pokes_reference': 'd740585a582d50ca5a5020230c7daeb08022af2c461e6ff2e4695d945c3319be',
+    'reading_reference': 'ded25d0fa5aff01b02293218a5e73ae79b4bb977be84f60fc3c0a9d702c8e362',
     'operations_reference': '110d233520dadf755cae089e028fe1060144d10071f064198642080efe5977d4',
     'completion_reference': '48f5c6f3fc2f1aa0d2732edaf8938cde5979ca3b3afb136ca4d269f2a65880f2',
     'audit_reference': '6e064e0baf27e4a17bd3a15060dbb15f8730de31f71eb8df0caba180852be71d',
@@ -351,6 +345,8 @@ WORKFLOW_ASSET_SHA256 = {
     'design_skill': '530da3be38712704b2853067e0f65f29404a02652dc134a5845ac45f4e63ac58',
     'design_examples': '4416eabe1980db0f7a6bb80530bb4cfb198188f462fc1cfa8917f5856279e37e',
     'design_openai_metadata': 'f31f258d8b76d5fcfa724b7e7468481ef18a863c9afbdd78b81b873641f9c7ba',
+    'demo_brief': '1c26c3235dba931bcbf9d88fcacf32e437f1ec10f3e70fd908f33228ba30037f',
+    'token_manifest': 'd0c8a84e207405b1a179cdf7a5292943a004e7d156fd36322125a34ac73ee926',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',
@@ -945,6 +941,7 @@ def install_scripts(env, script_version, *, setup_bootstrap=False):
             create_symlink(version_dir_name, _current_link_path())
             _repair_all_public_links()
             remove_retired_cursor_poke_drain_command()
+            remove_retired_codex_bridge_command()
         finally:
             if staging_dir is not None:
                 shutil.rmtree(staging_dir, ignore_errors=True)
@@ -1333,23 +1330,29 @@ def launch_runtime_proxy(arguments):
 
 def runtime_mcp_descriptor(workspace_id, env, token_audit=None,
                            token_audit_client=None, work_claims=False,
-                           setup_receipt_path=None, setup_view_id=None):
+                           setup_receipt_path=None, setup_view_id=None,
+                           response_stats=None):
     """Describe the existing credential-backed runtime MCP command."""
     proxy_args = [MCP_PROXY_SYMLINK_PATH, workspace_id]
     if env is not None:
         proxy_args.append(env)
+    if token_audit_client == 'codex':
+        proxy_args.append('--codex-native')
     if token_audit and token_audit.get('enabled'):
         proxy_args.extend([
             '--token-audit',
             '--token-audit-port', str(token_audit['port']),
         ])
-        source = token_audit.get('claudeSource')
-        if source in ('otel', 'transcript'):
+        source = ('codex' if token_audit_client == 'codex'
+                  else token_audit.get('claudeSource'))
+        if source in ('otel', 'transcript', 'codex'):
             proxy_args.extend(['--token-audit-source', source])
         if token_audit_client is not None:
             proxy_args.extend(['--token-audit-client', token_audit_client])
     if work_claims:
         proxy_args.append('--work-claims')
+    if response_stats:
+        proxy_args.extend(['--response-stats', response_stats])
     home = uclusion_home_root()
     if home != os.path.abspath(os.path.expanduser('~')):
         # A client starts this process with none of our environment, so an
@@ -1465,6 +1468,7 @@ def install_demo_plugin(fetch_bundle):
     if bundle is None:
         raise RuntimeError('the Uclusion workflow bundle is unavailable')
     validate_workflow_bundle(bundle)
+    install_token_manifest(bundle)
     environment = getattr(fetch_bundle, '__dict__', {}).get(
         'workflow_environment'
     )
@@ -1527,6 +1531,7 @@ def install_demo_codex_workflow(fetch_bundle):
     """Install Codex's skills, bootstrap and additive rules only in the demo."""
     bundle = fetch_bundle()
     validate_workflow_bundle(bundle)
+    install_token_manifest(bundle)
     environment = getattr(fetch_bundle, 'workflow_environment', 'production')
     command = demo_codex_cli_args(environment)
     cli = ' '.join(shlex.quote(part) for part in command)
@@ -1551,8 +1556,8 @@ def install_demo_codex_workflow(fetch_bundle):
         home, os.path.join('.uclusion', 'demo-brief.md'),
         bundle['demo_brief'].replace(WORKFLOW_ENV_PLACEHOLDER, cli),
     )
-    # A project config layer makes its sibling rules discoverable. Trust is
-    # supplied on the launch line, never saved in the person's configuration.
+    # Native sessions read this private project layer and its sibling rules.
+    # The shared demo trust lifecycle enables it and removes its user entry.
     _write_staged_asset(home, os.path.join('.codex', 'config.toml'), '')
     _write_staged_asset(
         home, os.path.join('.codex', 'rules', 'uclusion-demo.rules'),
@@ -1619,8 +1624,10 @@ def _read_demo_codex_config(codex, arguments, environment):
 
 
 def demo_codex_session_args(environment, workspace_id, evidence_dir=None,
-                            evidence_role=None, instructions_path=None):
-    """Build and check the Codex demo sessions' launch-local settings.
+                            evidence_role=None, instructions_path=None,
+                            native=False, response_stats=None, model=None,
+                            effort=None):
+    """Build and check isolated settings for owner exec or native evaluator.
 
     ``instructions_path`` follows the native developer instructions; it is
     the workflow bootstrap unless a session is given its own.
@@ -1661,6 +1668,8 @@ def demo_codex_session_args(environment, workspace_id, evidence_dir=None,
         )
     descriptor = runtime_mcp_descriptor(
         workspace_id, None if environment == 'production' else environment,
+        token_audit_client='codex' if native else None,
+        response_stats=response_stats,
     )
     proxy_args = list(descriptor['args'])
     if evidence_dir:
@@ -1688,10 +1697,34 @@ def demo_codex_session_args(environment, workspace_id, evidence_dir=None,
     instructions = (
         native_instructions + ('\n\n' if native_instructions else '') + bootstrap
     )
-    arguments.extend([
-        '-c', 'mcp_servers={' + ','.join(server_overrides) + '}',
-        '-c', 'developer_instructions=' + _toml_basic_string(instructions),
-    ])
+    if native:
+        # Launch-only -c/--disable settings select a local writer outside the
+        # native shared daemon. Persist the same isolation in the demo layer.
+        lines = ['developer_instructions=' + _toml_basic_string(instructions)]
+        if model:
+            lines.append('model=' + _toml_basic_string(model))
+        if effort:
+            lines.append('model_reasoning_effort=' + _toml_basic_string(effort))
+        lines.extend(['[features]', *(feature + '=false' for feature in disabled_features)])
+        for name in sorted(servers):
+            if name != MCP_SERVER_KEY:
+                lines.extend(['[mcp_servers.' + _toml_basic_string(name) + ']', 'enabled=false'])
+        descriptor['args'] = proxy_args
+        block = build_codex_mcp_block(descriptor=descriptor)
+        block = block.replace('default_tools_approval_mode', 'required=true\ndefault_tools_approval_mode', 1)
+        text = '\n'.join(lines) + '\n\n' + block
+        path = os.path.join(uclusion_home_root(), '.codex', 'config.toml')
+        validate_codex_config(text)
+        with config_file_lock(path):
+            target = _config_write_target(path)
+            existing, signature = _read_text_snapshot(target)
+            atomic_write_text(path, text, existing, target, signature)
+        arguments = []
+    else:
+        arguments.extend([
+            '-c', 'mcp_servers={' + ','.join(server_overrides) + '}',
+            '-c', 'developer_instructions=' + _toml_basic_string(instructions),
+        ])
     result = subprocess.run(
         [codex, *arguments, 'mcp', 'list', '--json'],
         capture_output=True, text=True, timeout=20,
@@ -2327,16 +2360,19 @@ def codex_owner_turn_prompt(lines):
 
 def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir=None,
                    model=None, effort=None):
-    """Supervise the ordinary owner and bridged evaluator until publication."""
+    """Supervise the owner and native evaluator until publication."""
     run_dir = run_dir or new_demo_run_dir()
     report_path = os.path.join(run_dir, 'evaluation.md')
+    # Only session logs written after this belong to the run.
+    demo_started_at = time.time()
     environment = demo_codex_environment()
     environment['TERM'] = 'xterm-256color'
     environment['UCLUSION_DEMO_REPORT_FILE'] = report_path
     choice_args = demo_choice_args('codex', model, effort)
-    evaluator_command = demo_codex_cli_args(env)
-    if response_stats:
-        evaluator_command.extend(['--response-stats', response_stats])
+    accept_demo_workspace_trust(uclusion_home_root(), client='codex')
+    # A rerun starts from the person's native instructions, before each role
+    # receives its own bootstrap. This private layer belongs to the demo.
+    _write_staged_asset(uclusion_home_root(), os.path.join('.codex', 'config.toml'), '')
     cli_command = shlex.join(demo_codex_cli_args(env))
     # S-Marketing-107: the owner is never told about the CLI. One that was
     # wrote through its same-named subcommands instead of its MCP tools, so
@@ -2388,7 +2424,11 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
         env, workspace_id, evidence_dir=evidence_dir, evidence_role='owner',
         instructions_path=demo_codex_owner_instructions_path(),
     ) + choice_args
-    evaluator_session_args = demo_codex_session_args(env, workspace_id) + choice_args
+    evaluator_session_args = demo_codex_session_args(
+        env, workspace_id, native=True, response_stats=response_stats,
+        evidence_dir=evidence_dir, evidence_role='evaluator',
+        model=model, effort=effort,
+    )
     owner = terminal = watch = None
     selector = selectors.DefaultSelector()
     print(f'📁 Demo session records: {run_dir}', flush=True)
@@ -2440,8 +2480,7 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
                 owner = None
                 print('🧠 Starting the evaluating agent.', flush=True)
                 terminal = DemoCodexTerminal(
-                    [*evaluator_command, 'codex', '--', *evaluator_session_args,
-                     evaluator_prompt],
+                    ['codex', *evaluator_session_args, evaluator_prompt],
                     evaluator_environment, evaluator_log,
                 )
                 selector.register(watch.stdout, selectors.EVENT_READ)
@@ -2452,12 +2491,7 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
                             answer = handle.read()
                         if not answer.decode('utf-8').strip():
                             raise RuntimeError('the published evaluation is empty')
-                        from uclusionMCPProxy import demo_evidence_summary
-                        print(demo_evidence_summary(run_dir), end='', flush=True)
-                        sys.stdout.flush()
-                        sys.stdout.buffer.write(answer)
-                        sys.stdout.buffer.flush()
-                        return 0
+                        break
                     if terminal.process.poll() is not None:
                         raise RuntimeError('the evaluator exited before publishing its report')
                     if watch.poll() is not None:
@@ -2501,6 +2535,18 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
         record_demo_failure(run_dir, message)
         print(f'❌ {message}', flush=True)
         return 1
+    section = write_demo_token_breakdown(
+        run_dir,
+        demo_evaluator_log('codex', uclusion_home_root(), demo_started_at),
+    )
+    from uclusionMCPProxy import demo_evidence_summary
+    print(demo_evidence_summary(run_dir), end='', flush=True)
+    sys.stdout.flush()
+    sys.stdout.buffer.write(answer)
+    sys.stdout.buffer.flush()
+    if section:
+        print(section, end='', flush=True)
+    return 0
 
 
 def demo_claude_session_environment():
@@ -2534,6 +2580,8 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_di
     """
     run_dir = run_dir or new_demo_run_dir()
     report_path = os.path.join(run_dir, 'evaluation.md')
+    # Only session logs written after this belong to the run.
+    demo_started_at = time.time()
     # Both sessions are started here rather than printed for someone else to
     # run: this process is the only participant that ever sees both, so
     # ordering and cleanup can live in one place. A session already running
@@ -2701,12 +2749,112 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_di
         record_demo_failure(run_dir, message)
         print(f'❌ {message}', flush=True)
         return 1
+    section = write_demo_token_breakdown(
+        run_dir,
+        demo_evaluator_log('claude', uclusion_home_root(), demo_started_at),
+    )
     from uclusionMCPProxy import demo_evidence_summary
     print(demo_evidence_summary(run_dir), end='', flush=True)
     sys.stdout.flush()
     sys.stdout.buffer.write(answer)
     sys.stdout.buffer.flush()
+    if section:
+        print(section, end='', flush=True)
     return 0
+
+
+DEMO_EVALUATOR_PROMPT_MARK = 'Report on Uclusion itself, from your point of view'
+
+
+def _log_mentions(path, needle, limit=4 * 1024 * 1024):
+    try:
+        with open(path, 'rb') as handle:
+            return needle.encode('utf-8') in handle.read(limit)
+    except OSError:
+        return False
+
+
+def demo_evaluator_log(client, home, started_at):
+    """The evaluator's own saved session log for this demo run, or None.
+
+    Only the evaluator's opening prompt asks it to report on Uclusion, so
+    that phrase tells its log from the owner's.
+    """
+    candidates = []
+    if client == 'claude':
+        for config_home in _demo_claude_config_homes():
+            for path in dict.fromkeys((home, os.path.realpath(home))):
+                name = claude_project_name(path)
+                if name is None:
+                    continue
+                folder = os.path.join(config_home, 'projects', name)
+                try:
+                    names = os.listdir(folder)
+                except OSError:
+                    continue
+                candidates.extend(
+                    os.path.join(folder, entry) for entry in names
+                    if entry.endswith('.jsonl')
+                )
+    else:
+        for directory, _subdirectories, names in os.walk(
+            os.path.join(CODEX_HOME, 'sessions')
+        ):
+            candidates.extend(
+                os.path.join(directory, entry) for entry in names
+                if entry.startswith('rollout-') and entry.endswith('.jsonl')
+            )
+    found = []
+    for path in dict.fromkeys(candidates):
+        try:
+            modified = os.path.getmtime(path)
+        except OSError:
+            continue
+        if modified >= started_at and _log_mentions(
+            path, DEMO_EVALUATOR_PROMPT_MARK
+        ):
+            found.append((modified, path))
+    return max(found)[1] if found else None
+
+
+DEMO_TOKEN_BREAKDOWN_NAME = 'evaluator-tokens.md'
+
+
+def write_demo_token_breakdown(run_dir, log_path):
+    """Publish the evaluator's Uclusion breakdown beside its evaluation.
+
+    This runs only after the evaluator is stopped, so the numbers never reach
+    the evaluation they follow, and the evaluation's own file stays exactly
+    as the evaluator published it. ``demo --result`` prints this file after
+    the evaluation.
+    """
+    try:
+        from uclusionTokenAudit import (
+            breakdown_session_log, format_breakdown, unavailable_breakdown,
+        )
+        try:
+            result = (
+                breakdown_session_log(log_path) if log_path
+                else unavailable_breakdown('log_missing')
+            )
+        except Exception:
+            # Still publish a file, so demo --result never waits on one.
+            result = unavailable_breakdown('collector_failure')
+        section = '\n\n' + format_breakdown(
+            result,
+            title='Uclusion token usage of the evaluating agent '
+                  '(added by the demo after the evaluator finished)',
+        )
+        path = os.path.join(run_dir, DEMO_TOKEN_BREAKDOWN_NAME)
+        temporary = path + '.partial'
+        with open(temporary, 'w', encoding='utf-8') as handle:
+            handle.write(section)
+        os.replace(temporary, path)
+    except Exception as error:
+        print(f'⚠️  Could not add the Uclusion token breakdown: '
+              f'{error.__class__.__name__}', flush=True)
+        return None
+    return section
 
 
 def demo_mcp_config_path():
@@ -3491,19 +3639,99 @@ def _trust_one_home(text, home):
     return json_text_set(text, ['projects', home, 'hasTrustDialogAccepted'], True)
 
 
-def accept_demo_workspace_trust(home):
-    """Record the demo home as a workspace Claude Code already trusts.
-
-    A terminal session stops on the trust screen until this is set, and the
-    screen's default is to exit. The supervisor does not answer it.
-    """
+def accept_demo_workspace_trust(home, client='claude'):
+    """Trust the demo before startup; demo removal takes back its entry."""
     homes = []
     for path in (home, os.path.realpath(home)):
         absolute = os.path.abspath(path)
         if absolute not in homes:
             homes.append(absolute)
-    for path in _demo_claude_config_paths():
-        _accept_workspace_trust(path, homes)
+    if client == 'codex':
+        _accept_demo_codex_trust(homes)
+    else:
+        for path in _demo_claude_config_paths():
+            _accept_workspace_trust(path, homes)
+
+
+def _demo_codex_trust_block(home):
+    identity = hashlib.sha256(home.encode('utf-8')).hexdigest()[:16]
+    start = f'# >>> Uclusion demo trust {identity} >>>'
+    end = f'# <<< Uclusion demo trust {identity} <<<'
+    block = (f'{start}\n[projects.{_toml_basic_string(home)}]\n'
+             f'trust_level = "trusted"\n{end}\n')
+    return start, end, block
+
+
+def _accept_demo_codex_trust(homes):
+    path = CODEX_CONFIG_PATH
+    try:
+        with config_file_lock(path):
+            target = _config_write_target(path)
+            existing, signature = _read_text_snapshot(target)
+            validate_codex_config(existing)
+            if tomllib is not None:
+                projects = tomllib.loads(existing).get('projects', {})
+            else:
+                codex = shutil.which('codex', path=demo_codex_environment()['PATH'])
+                if codex is None:
+                    raise RuntimeError('the Codex demo requires codex on PATH')
+                projects = _read_demo_codex_config(
+                    codex, [], demo_codex_environment(),
+                ).get('projects', {})
+            updated = existing
+            for home in homes:
+                start, end, block = _demo_codex_trust_block(home)
+                if start in updated or end in updated:
+                    if block not in updated:
+                        raise RuntimeError(
+                            f'{path} has a changed demo trust entry; leaving it untouched'
+                        )
+                    continue
+                entry = projects.get(home) if isinstance(projects, dict) else None
+                if isinstance(entry, dict) and entry.get('trust_level') == 'trusted':
+                    continue
+                if entry is not None:
+                    raise RuntimeError(
+                        f'{path} already configures trust for {home}; leaving it untouched'
+                    )
+                updated, _ = replace_owned_block(
+                    updated, start, end, block, 'demo trust', path,
+                )
+            validate_codex_config(updated)
+            if updated != existing:
+                atomic_write_text(path, updated, existing, target, signature)
+    finally:
+        _remove_demo_config_lock(path)
+
+
+def _remove_demo_codex_trust(homes):
+    path = CODEX_CONFIG_PATH
+    absent = ('absent', f'the demo trust entry in {path}')
+    try:
+        target = _config_write_target(path)
+        if not os.path.exists(target):
+            return absent
+        with config_file_lock(path):
+            existing, signature = _read_text_snapshot(target)
+            updated = existing
+            for home in homes:
+                start, end, block = _demo_codex_trust_block(home)
+                if start not in updated and end not in updated:
+                    continue
+                if block not in updated:
+                    return 'kept', f'the changed demo trust entry in {path}'
+                updated, _ = remove_owned_block(
+                    updated, start, end, 'demo trust', path,
+                )
+            if updated == existing:
+                return absent
+            validate_codex_config(updated)
+            atomic_write_text(path, updated, existing, target, signature)
+        return 'removed', f'the demo trust entry from {path}'
+    except (OSError, RuntimeError) as err:
+        return 'kept', f'the demo trust entry in {path} ({err})'
+    finally:
+        _remove_demo_config_lock(path)
 
 
 def _accept_workspace_trust(path, homes):
@@ -3849,7 +4077,7 @@ def remove_demo_codex_session_traces(home):
     sessions_root = os.path.join(CODEX_HOME, 'sessions')
     label = 'the demo sessions\' Codex rollouts'
     session_ids = set()
-    outcomes = []
+    outcomes = [_remove_demo_codex_trust(homes)]
     for directory, _folders, names in os.walk(sessions_root):
         for name in sorted(names):
             if not (name.startswith('rollout-') and name.endswith('.jsonl')):
@@ -4055,6 +4283,19 @@ def _assert_expected_json_descriptor(servers, expected_descriptor, path):
         )
 
 
+def _response_stats_from_args(args):
+    """Read the existing recording choice, including the equals form."""
+    result = None
+    if isinstance(args, list):
+        for index, arg in enumerate(args):
+            if (arg == '--response-stats' and index + 1 < len(args)
+                    and isinstance(args[index + 1], str)):
+                result = args[index + 1]
+            elif isinstance(arg, str) and arg.startswith('--response-stats='):
+                result = arg.split('=', 1)[1]
+    return result
+
+
 def register_mcp_json(path, label, workspace_id, env, require_existing,
                       token_audit=None, token_audit_client=None,
                       work_claims=False, descriptor=None,
@@ -4109,16 +4350,7 @@ def register_mcp_json(path, label, workspace_id, env, require_existing,
         if not isinstance(previous, dict):
             previous = {}
         if response_stats is None:
-            previous_args = previous.get('args', [])
-            if isinstance(previous_args, list):
-                for index, arg in enumerate(previous_args):
-                    if (arg == '--response-stats'
-                            and index + 1 < len(previous_args)
-                            and isinstance(previous_args[index + 1], str)):
-                        response_stats = previous_args[index + 1]
-                    elif (isinstance(arg, str)
-                          and arg.startswith('--response-stats=')):
-                        response_stats = arg.split('=', 1)[1]
+            response_stats = _response_stats_from_args(previous.get('args'))
         if response_stats:
             descriptor['args'].extend(['--response-stats', response_stats])
         # Preserve custom Claude fields while refreshing the owned command.
@@ -4160,6 +4392,22 @@ def remove_retired_cursor_poke_drain_command():
     """
     link_path = _public_link_path(CURSOR_POKE_DRAIN_SYMLINK_NAME)
     if not os.path.islink(link_path):
+        return False
+    os.remove(link_path)
+    print(f"  🧹 Removed retired command {link_path}")
+    return True
+
+
+def remove_retired_codex_bridge_command():
+    """Remove only the public symlink owned by a prior bridge installation."""
+    link_path = _public_link_path('uclusionCodexBridge.py')
+    destination = _symlink_destination(link_path)
+    if destination is None:
+        return False
+    if (destination != _public_link_target('uclusionCodexBridge.py')
+            and (os.path.basename(destination) != 'uclusionCodexBridge.py'
+                 or os.path.basename(os.path.dirname(destination)) != 'bin'
+                 or _release_name_from_path(destination) is None)):
         return False
     os.remove(link_path)
     print(f"  🧹 Removed retired command {link_path}")
@@ -4668,7 +4916,7 @@ def remove_home_project_leftovers():
 
 
 def build_codex_mcp_block(workspace_id=None, env=None, work_claims=False,
-                          descriptor=None):
+                          descriptor=None, token_audit=None, response_stats=None):
     """Return the marker-delimited ``[mcp_servers.Uclusion]`` table for config.toml.
 
     There is no TOML writer in the standard library (``tomllib`` only reads, and
@@ -4683,7 +4931,9 @@ def build_codex_mcp_block(workspace_id=None, env=None, work_claims=False,
     """
     if descriptor is None:
         descriptor = runtime_mcp_descriptor(
-            workspace_id, env, work_claims=work_claims
+            workspace_id, env, work_claims=work_claims,
+            token_audit=token_audit, token_audit_client='codex',
+            response_stats=response_stats,
         )
     descriptor = _validate_mcp_descriptor(descriptor)
     lines = [
@@ -4697,7 +4947,9 @@ def build_codex_mcp_block(workspace_id=None, env=None, work_claims=False,
         for arg in descriptor['args']
     )
     lines.append(']')
+    lines.append('enabled = true')
     lines.append('default_tools_approval_mode = "approve"')
+    lines.append('env_vars = ["CODEX_HOME"]')
     lines.append(CODEX_CONFIG_END_MARKER)
     return '\n'.join(lines) + '\n'
 
@@ -5019,6 +5271,8 @@ def mutate_codex_config(
     descriptor=None,
     config_path=None,
     expected_descriptor=_UNCHECKED_MCP_DESCRIPTOR,
+    token_audit=None,
+    response_stats=None,
 ):
     """Apply Codex config changes and remove obsolete Uclusion bridge hooks."""
     config_path = config_path or CODEX_CONFIG_PATH
@@ -5052,6 +5306,30 @@ def mutate_codex_config(
             ):
                 mcp_skipped = True
             else:
+                if descriptor is None:
+                    previous_args = _codex_uclusion_args(existing)
+                    owned = existing.partition(CODEX_CONFIG_MARKER)[2].partition(
+                        CODEX_CONFIG_END_MARKER
+                    )[0]
+                    if tomllib is None and '--deliver-existing-pokes' in owned:
+                        raise RuntimeError(
+                            'Preserving Codex replay requires Python 3.11; '
+                            'remove --deliver-existing-pokes before updating to disable replay'
+                        )
+                    if tomllib is None and response_stats is None and '--response-stats' in owned:
+                        raise RuntimeError(
+                            'Preserving Codex response statistics requires Python 3.11 '
+                            'or an explicit --response-stats/--no-response-stats choice'
+                        )
+                    if response_stats is None:
+                        response_stats = _response_stats_from_args(previous_args)
+                    descriptor = runtime_mcp_descriptor(
+                        workspace_id, env, work_claims=work_claims,
+                        token_audit=token_audit, token_audit_client='codex',
+                        response_stats=response_stats,
+                    )
+                    if previous_args and '--deliver-existing-pokes' in previous_args:
+                        descriptor['args'].append('--deliver-existing-pokes')
                 updated, mcp_refreshed = replace_owned_block(
                     updated,
                     CODEX_CONFIG_MARKER,
@@ -5061,6 +5339,8 @@ def mutate_codex_config(
                         env,
                         work_claims,
                         descriptor,
+                        token_audit,
+                        response_stats,
                     ),
                     'MCP',
                     config_path,
@@ -5118,7 +5398,8 @@ def update_codex_config(workspace_id, env, force=False, work_claims=False):
 
 
 def update_codex_integration_config(workspace_id, env, force=False,
-                                    work_claims=False):
+                                    work_claims=False, token_audit=None,
+                                    response_stats=None, config_path=None):
     """Install the MCP table and remove obsolete bridge hooks atomically."""
     return mutate_codex_config(
         workspace_id=workspace_id,
@@ -5126,6 +5407,9 @@ def update_codex_integration_config(workspace_id, env, force=False,
         include_mcp=True,
         force=force,
         work_claims=work_claims,
+        token_audit=token_audit,
+        response_stats=response_stats,
+        config_path=config_path,
     )
 
 
@@ -5272,6 +5556,12 @@ def validate_workflow_bundle(bundle):
             raise RuntimeError(
                 f'workflow asset {key} does not match this installer release'
             )
+    try:
+        manifest = json.loads(bundle['token_manifest'])
+    except ValueError as error:
+        raise RuntimeError('workflow asset token_manifest is not JSON') from error
+    if not isinstance(manifest, dict) or manifest.get('schema_version') != 1:
+        raise RuntimeError('workflow asset token_manifest has an unknown schema')
 
     for key in CLIENT_STUB_ASSET.values():
         content = bundle[key]
@@ -5916,6 +6206,24 @@ def _resident_update(existing, rendered_stub, client, target_path):
     return existing + separator + '\n' + rendered_stub
 
 
+def token_manifest_path():
+    return os.path.join(UCLUSION_HOME, 'token-manifest.json')
+
+
+def install_token_manifest(bundle):
+    """Install the release's artifact token counts beside its other state.
+
+    ``uclusion usage``, the demo report and audit notes read these counts;
+    the file is Uclusion's own, so a plain replace is enough.
+    """
+    path = token_manifest_path()
+    ensure_dir(os.path.dirname(path))
+    temporary = path + WORKFLOW_STAGING_SUFFIX
+    with open(temporary, 'w', encoding='utf-8') as handle:
+        handle.write(bundle['token_manifest'])
+    os.replace(temporary, path)
+
+
 def install_skill_and_stub(
     fetch_bundle,
     skill_dir,
@@ -5977,6 +6285,7 @@ def install_skill_and_stub(
         if bundle is None:
             raise RuntimeError('the Uclusion workflow bundle is unavailable')
         validate_workflow_bundle(bundle)
+        install_token_manifest(bundle)
 
         environment = getattr(fetch_bundle, '__dict__', {}).get(
             'workflow_environment'
@@ -6518,8 +6827,8 @@ def replace_setup_registration(
     descriptor = runtime_mcp_descriptor(
         workspace_id,
         env,
-        token_audit=token_audit if client == 'claude' else None,
-        token_audit_client='claude' if client == 'claude' else None,
+        token_audit=token_audit if client in ('claude', 'codex') else None,
+        token_audit_client=client if client in ('claude', 'codex') else None,
         work_claims=work_claims,
         setup_receipt_path=receipt_path,
         setup_view_id=view_id,
@@ -6749,7 +7058,8 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                     if installed and not replace_setup:
                         update_codex_integration_config(
                             workspace_id, mcp_env, force=not interactive,
-                            work_claims=work_claims
+                            work_claims=work_claims, token_audit=token_audit,
+                            response_stats=response_stats,
                         )
             except Exception as err:
                 workflow_results['codex'] = False
@@ -6792,12 +7102,10 @@ def install_project_level(
 
     Writes the workspace config and the project-scoped MCP registrations and
     workflow docs into the project. The CLI binaries stay user-global under
-    ~/.local; only configuration becomes project-local. Legacy project installs
-    keep using ``uclusion codex`` launch overrides. An agent-led setup transition
-    also replaces its temporary Uclusion entry in the trusted project's
-    ``.codex/config.toml`` with the runtime proxy; ``uclusion codex`` can still
-    supply the same selected workspace and environment as private app-server
-    overrides at launch. This keeps its MCP proxy and Poke companion aligned.
+    ~/.local; only configuration becomes project-local. Codex receives a
+    persisted native runtime registration in ``.codex/config.toml``. An
+    agent-led setup transition replaces its temporary entry with that runtime
+    registration after receipt-owned cleanup.
     The installer also removes the obsolete marker-owned Uclusion lifecycle-hook
     block from global Codex config when one is present. With ``clients`` (an
     explicit ``--clients`` selection) only those clients are configured and
@@ -6947,7 +7255,12 @@ def install_project_level(
             )
             workflow_results['codex'] = installed
             if installed and not replace_setup:
-                # The relay-authoritative companion needs no lifecycle hooks.
+                update_codex_integration_config(
+                    workspace_id, mcp_env, force=True,
+                    work_claims=work_claims, token_audit=token_audit,
+                    response_stats=response_stats,
+                    config_path=os.path.join(project_dir, '.codex', 'config.toml'),
+                )
                 remove_legacy_codex_hooks_config(force=not interactive)
         except Exception as err:
             workflow_results['codex'] = False
@@ -7221,7 +7534,7 @@ def main():
         print(
             f'🎉 Uclusion demo is ready under {uclusion_home_root()}.'
         )
-        accept_demo_workspace_trust(uclusion_home_root())
+        accept_demo_workspace_trust(uclusion_home_root(), client=setup_client)
         reset_demo_progress(env)
         if os.environ.get('UCLUSION_DEMO_INSTALL_ONLY'):
             print(

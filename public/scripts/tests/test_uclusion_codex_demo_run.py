@@ -50,7 +50,7 @@ class CodexDemoRunTests(unittest.TestCase):
 
         def session_args(*_args, **kwargs):
             self.session_calls.append(kwargs)
-            return ['-c', 'x=1']
+            return [] if kwargs.get('native') else ['-c', 'x=1']
 
         def start_terminal(command, environment, _log):
             self.commands.append(command)
@@ -80,6 +80,7 @@ class CodexDemoRunTests(unittest.TestCase):
         patches = [
             mock.patch.object(INSTALL, 'UCLUSION_HOME', str(self.home / '.uclusion')),
             mock.patch.object(INSTALL, 'SYMLINK_DIR', str(self.home / '.local/bin')),
+            mock.patch.object(INSTALL, 'CODEX_CONFIG_PATH', str(self.home / 'native-codex/config.toml')),
             mock.patch.object(INSTALL, 'uclusion_home_root', return_value=str(self.home)),
             mock.patch.object(INSTALL, 'demo_codex_environment', return_value={}),
             mock.patch.object(INSTALL, 'demo_codex_session_args', side_effect=session_args),
@@ -92,6 +93,7 @@ class CodexDemoRunTests(unittest.TestCase):
         self.mocks = [patch.start() for patch in patches]
         for patch in reversed(patches):
             self.addCleanup(patch.stop)
+        self.watch_ready = self.mocks[-3]
         self.stop = self.mocks[-2]
 
     @staticmethod
@@ -119,11 +121,9 @@ class CodexDemoRunTests(unittest.TestCase):
                 self.assertEqual(self.run_demo(response_stats=stats), 0)
                 owner_command = self.owner_commands()[-1]
                 self.assertNotIn('--response-stats', owner_command)
-                # Parse the real launch boundary: flags hidden in Codex's MCP
-                # overrides are replaced by the uclusion codex launcher.
-                evaluator = CLI.parse_args(self.commands[-1][1:])
-                self.assertEqual(evaluator.response_stats, stats)
-                self.assertNotIn('--response-stats', evaluator.codex_args)
+                self.assertEqual('codex', self.commands[-1][0])
+                self.assertEqual(stats, self.session_calls[-1]['response_stats'])
+                self.assertNotIn('--response-stats', self.commands[-1])
                 self.assertEqual(str(self.report.parent / 'evidence'),
                                  self.evaluator_environment['UCLUSION_DEMO_EVIDENCE_DIR'])
                 owner_call = next(call for call in reversed(INSTALL.subprocess.Popen.call_args_list)
@@ -131,14 +131,23 @@ class CodexDemoRunTests(unittest.TestCase):
                 self.assertNotIn('UCLUSION_DEMO_EVIDENCE_DIR', owner_call.kwargs['env'])
                 self.assertEqual('owner', self.session_calls[-2]['evidence_role'])
                 self.assertTrue(self.session_calls[-2]['evidence_dir'].endswith('/evidence'))
-                self.assertIsNone(self.session_calls[-1].get('evidence_dir'))
+                self.assertEqual('evaluator', self.session_calls[-1]['evidence_role'])
+                self.assertEqual(self.session_calls[-2]['evidence_dir'],
+                                 self.session_calls[-1]['evidence_dir'])
 
     def test_publication_preserves_bytes_and_stops_both_live_sessions(self):
         report = b'  Evaluation\r\nUnicode: \xe2\x9c\x93\n\n'
         self.terminal.drain.side_effect = lambda: self.report.write_bytes(report)
         self.assertEqual(self.run_demo(), 0)
         self.output.flush()
-        self.assertTrue(self.output.buffer.getvalue().endswith(report))
+        # J-all-492: the demo's breakdown follows the evaluator's exact bytes.
+        printed = self.output.buffer.getvalue()
+        self.assertLess(
+            printed.index(report),
+            printed.index(b'Uclusion token usage of the evaluating agent'),
+        )
+        self.assertEqual(report, self.report.read_bytes())
+        self.assertTrue((self.report.parent / 'evaluator-tokens.md').is_file())
         self.stop.assert_any_call(self.terminal.process)
         self.stop.assert_any_call(self.watch)
         self.terminal.close.assert_called_once()
@@ -159,9 +168,10 @@ class CodexDemoRunTests(unittest.TestCase):
         self.assertEqual(self.run_demo(model='gpt-6', effort='high'), 0)
         choice = ['-m', 'gpt-6', '-c', 'model_reasoning_effort="high"']
         owner_command = self.owner_commands()[-1]
-        evaluator_command = self.commands[-1]
-        for command in (owner_command[:-1], evaluator_command[:-1]):
-            self.assertEqual(choice, command[-4:])
+        self.assertEqual(choice, owner_command[:-1][-4:])
+        self.assertEqual('gpt-6', self.session_calls[-1]['model'])
+        self.assertEqual('high', self.session_calls[-1]['effort'])
+        self.assertNotIn('-c', self.commands[-1])
         prompt = (self.report.parent / 'evaluator-input.md').read_text()
         self.assertIn(INSTALL.DEMO_EFFORT_NOTE, prompt)
 
@@ -190,7 +200,7 @@ class CodexDemoRunTests(unittest.TestCase):
         self.terminal.close.assert_called_once()
 
     def test_a_watch_that_never_starts_starts_neither_session(self):
-        self.mocks[7].return_value = False
+        self.watch_ready.return_value = False
         self.assertEqual(self.run_demo(), 1)
         self.assertEqual([], self.owner_commands())
         self.assertEqual(self.commands, [])

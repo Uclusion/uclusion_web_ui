@@ -8,22 +8,19 @@ import json
 import math
 import os
 import re
-import select
 import shutil
 import signal
 import socket
 import sqlite3
-import stat
 import subprocess
 import sys
 import tempfile
-import threading
 import time
 import urllib.request
 import urllib.parse
 import traceback
 import uuid
-from contextlib import closing, contextmanager, redirect_stdout
+from contextlib import closing, redirect_stdout
 from itertools import batched
 from datetime import datetime
 from uclusionMCPProxy import (
@@ -96,42 +93,18 @@ def resolve_consumer(explicit_consumer, is_listener):
             return SESSION_CONSUMER_PREFIX + 'claude-' + claude_session
         return generate_session_consumer()
     return DEFAULT_CONSUMER
-CODEX_BRIDGE_SYMLINK = os.path.join(
-    uclusion_home_root(), '.local', 'bin', 'uclusionCodexBridge.py'
-)
 UCLUSION_MCP_PROXY_SYMLINK = os.path.join(
     uclusion_home_root(), '.local', 'bin', 'uclusionMCPProxy.py'
 )
 UCLUSION_INSTALLER_SYMLINK = os.path.join(
     uclusion_home_root(), '.local', 'bin', 'uclusionInstall.py'
 )
-UCLUSION_HOME = os.path.join(uclusion_home_root(), '.uclusion')
 CODEX_HOME = os.path.abspath(os.path.expanduser(
     os.environ.get('CODEX_HOME', os.path.join(os.path.expanduser('~'), '.codex'))
 ))
-CODEX_CONFIG_PATH = os.path.join(CODEX_HOME, 'config.toml')
-CODEX_MCP_CONFIG_MARKER = '# uclusion-mcp:v1'
-CODEX_MCP_CONFIG_END_MARKER = '# /uclusion-mcp:v1'
-SETUP_RUNTIME_PROXY_MODE = '--uclusion-runtime-after-setup'
-SETUP_RUNTIME_CLEANUP_MODE = '--uclusion-cleanup-after-setup'
 # The installer owns every writer that created a demo's traces, so removal
 # runs there rather than growing a second copy of that logic here.
 DEMO_REMOVE_MODE = '--uclusion-demo-remove'
-CODEX_SETUP_CLEANUP_TIMEOUT = 10
-CODEX_CHILD_SHUTDOWN_TIMEOUT = 5
-CODEX_CHILD_POLL_INTERVAL = 0.1
-CODEX_APP_SERVER_START_TIMEOUT = 10
-CODEX_BRIDGE_READY_TIMEOUT = 10
-CODEX_APP_SERVER_DIAGNOSTIC_BYTES = 16 * 1024
-CODEX_APP_SERVER_DIAGNOSTIC_LINES = 8
-CODEX_APP_SERVER_DIAGNOSTIC_LINE_CHARS = 512
-CODEX_APP_SERVER_DIAGNOSTIC_DRAIN_TIMEOUT = 0.2
-# Keep synchronized with uclusionCodexBridge.EXIT_RELAY_FAILED.
-CODEX_BRIDGE_RELAY_FAILED_EXIT = 5
-MINIMUM_CODEX_VERSION = (0, 145, 0)
-MINIMUM_CODEX_VERSION_TEXT = '.'.join(str(part) for part in MINIMUM_CODEX_VERSION)
-TOKEN_AUDIT_DEFAULT_PORT_BASE = 20000
-TOKEN_AUDIT_PORT_SPAN = 30000
 CODEX_LEGACY_BRIDGE_ENV = (
     'UCLUSION_CODEX_BRIDGE_INSTANCE',
     'UCLUSION_CODEX_BRIDGE_ENV',
@@ -141,11 +114,6 @@ CODEX_LEGACY_BRIDGE_ENV = (
     'UCLUSION_CODEX_APP_SERVER_SOCKET',
     'UCLUSION_CODEX_BRIDGE_READY_FILE',
     'UCLUSION_CODEX_RECEIVER_PID_FILE',
-)
-CODEX_LAUNCH_MANAGED_ENV = CODEX_LEGACY_BRIDGE_ENV + (
-    'UCLUSION_CODEX_BRIDGE_ACTIVE',
-    'UCLUSION_CODEX_ACTIVE_RELEASE',
-    'UCLUSION_CODEX_STAGED_CLI',
 )
 
 # Update machinery (J-all-367). Scripts live in a version-named install dir
@@ -1469,1044 +1437,124 @@ def cmd_export(args):
     return 0
 
 
-def stop_codex_child(process):
-    """Terminate a managed launcher child, then reap it."""
-    if process is None:
-        return
-    if process.poll() is None:
-        process.terminate()
-        try:
-            process.wait(timeout=CODEX_CHILD_SHUTDOWN_TIMEOUT)
-            return
-        except subprocess.TimeoutExpired:
-            process.kill()
-    process.wait()
-
-
-def stop_codex_children(*processes):
-    """Best-effort cleanup that never lets one broken child skip the others."""
-    for process in processes:
-        try:
-            stop_codex_child(process)
-        except Exception as error:
-            print(
-                f"⚠️  Could not fully stop a Codex launcher child: {error}",
-                file=sys.stderr,
-            )
-
-
-class CodexAppServerDiagnostics:
-    """Drain private app-server output without letting it reach the TUI.
-
-    Codex writes tracing to the app-server's inherited terminal even though
-    its protocol uses the Unix socket. Those writes can interleave with a TUI
-    redraw and leave fragments such as a bare timestamp and ``ERROR`` on the
-    user's screen. Continuously draining a combined stdout/stderr pipe avoids
-    both terminal corruption and child-process backpressure. Only a bounded
-    in-memory tail is retained; it is never written to disk.
-    """
-
-    def __init__(
-        self,
-        stream,
-        max_bytes=CODEX_APP_SERVER_DIAGNOSTIC_BYTES,
-    ):
-        self.stream = stream
-        self.max_bytes = max(1, int(max_bytes))
-        self._tail = bytearray()
-        self._truncated = False
-        self._lock = threading.Lock()
-        self._done = threading.Event()
-        self._thread = None
-        if stream is None:
-            self._done.set()
-            return
-        self._thread = threading.Thread(
-            target=self._drain,
-            name='uclusion-codex-app-server-diagnostics',
-            daemon=True,
-        )
-        self._thread.start()
-
-    def _drain(self):
-        try:
-            while True:
-                chunk = self.stream.read(4096)
-                if not chunk:
-                    break
-                if isinstance(chunk, str):
-                    chunk = chunk.encode('utf-8', errors='replace')
-                with self._lock:
-                    self._tail.extend(chunk)
-                    overflow = len(self._tail) - self.max_bytes
-                    if overflow > 0:
-                        del self._tail[:overflow]
-                        self._truncated = True
-        except (OSError, ValueError):
-            # Cleanup can close the pipe while the daemon reader is blocked.
-            pass
-        finally:
-            self._done.set()
-
-    def wait_for_eof(self, timeout=CODEX_APP_SERVER_DIAGNOSTIC_DRAIN_TIMEOUT):
-        """Give an exited child a bounded window to flush its pipe."""
-        self._done.wait(timeout)
-
-    def lines(self, wait_for_eof=False):
-        """Return a terminal-safe, display-bounded tail and truncation flag."""
-        if wait_for_eof:
-            self.wait_for_eof()
-        with self._lock:
-            raw = bytes(self._tail)
-            truncated = self._truncated
-        text = raw.decode('utf-8', errors='replace')
-        # Strip ANSI/terminal control sequences so even abnormal-exit output
-        # cannot manipulate the launcher's terminal.
-        text = re.sub(r'\x1b\[[0-?]*[ -/]*[@-~]', '', text)
-        text = ''.join(
-            character
-            if character in ('\n', '\t') or character.isprintable()
-            else '\ufffd'
-            for character in text
-        )
-        lines = [line.strip() for line in text.splitlines() if line.strip()]
-        if truncated and len(lines) > 1:
-            # The first retained line may start midway through a message.
-            lines = lines[1:]
-        lines = lines[-CODEX_APP_SERVER_DIAGNOSTIC_LINES:]
-        bounded = []
-        for line in lines:
-            if len(line) > CODEX_APP_SERVER_DIAGNOSTIC_LINE_CHARS:
-                line = '\u2026' + line[-(
-                    CODEX_APP_SERVER_DIAGNOSTIC_LINE_CHARS - 1
-                ):]
-            bounded.append(line)
-        return bounded, truncated
-
-    def close(self):
-        """Release the pipe after the managed child has been stopped."""
-        self.wait_for_eof()
-        if not self._done.is_set() and self.stream is not None:
-            try:
-                self.stream.close()
-            except (OSError, ValueError):
-                pass
-        if self._thread is not None:
-            self._thread.join(CODEX_APP_SERVER_DIAGNOSTIC_DRAIN_TIMEOUT)
-        if self.stream is not None:
-            try:
-                self.stream.close()
-            except (OSError, ValueError):
-                pass
-
-
-def print_app_server_diagnostics(diagnostics, wait_for_eof=False):
-    """Print a private child tail only when launch supervision needs it."""
-    if diagnostics is None:
-        return
-    lines, truncated = diagnostics.lines(wait_for_eof=wait_for_eof)
-    if not lines:
-        return
-    qualifier = ' (tail truncated)' if truncated else ''
-    print(
-        'Private app-server diagnostic tail{}:'.format(qualifier),
-        file=sys.stderr,
+def load_token_audit_module():
+    """Import the uclusionTokenAudit.py installed beside this CLI."""
+    path = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), 'uclusionTokenAudit.py'
     )
-    for line in lines:
-        print('  ' + line, file=sys.stderr)
+    spec = importlib.util.spec_from_file_location('uclusion_token_audit', path)
+    if spec is None or not os.path.isfile(path):
+        return None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
-@contextmanager
-def codex_shutdown_signals():
-    """Turn launcher termination signals into orderly child cleanup."""
-    state = {"signum": None}
-    previous = {}
-
-    def request_shutdown(signum, _frame):
-        state["signum"] = signum
-
-    for signum in filter(
-        None, (getattr(signal, "SIGTERM", None), getattr(signal, "SIGHUP", None))
-    ):
-        try:
-            previous[signum] = signal.getsignal(signum)
-            signal.signal(signum, request_shutdown)
-        except ValueError:
-            # Signal handlers can only be installed from the main thread.
-            continue
-    try:
-        yield state
-    finally:
-        for signum, handler in previous.items():
-            signal.signal(signum, handler)
+def claude_projects_dir():
+    return os.path.join(
+        os.path.abspath(os.path.expanduser(os.environ.get(
+            'CLAUDE_CONFIG_DIR', os.path.join(os.path.expanduser('~'), '.claude')
+        ))),
+        'projects',
+    )
 
 
-def codex_signal_exit_code(shutdown_state):
-    signum = shutdown_state.get("signum")
-    return None if signum is None else 128 + int(signum)
-
-
-def print_bridge_exit_error(returncode):
-    if returncode == CODEX_BRIDGE_RELAY_FAILED_EXIT:
-        print(
-            "❌ The Uclusion Codex relay could not establish a safe private "
-            "Codex connection. Run `uclusion update`, then retry "
-            "`uclusion codex`.",
-            file=sys.stderr,
-        )
+def claude_session_logs(cwd=None):
+    """Claude Code transcripts for ``cwd`` (every project when None)."""
+    projects = claude_projects_dir()
+    if cwd is not None:
+        directories = [os.path.join(projects, re.sub(r'[^A-Za-z0-9]', '-', cwd))]
     else:
-        print(
-            "❌ The Uclusion Codex bridge exited unexpectedly with status "
-            f"{returncode} before the Codex TUI exited. The Codex TUI was stopped.",
-            file=sys.stderr,
-        )
-
-
-def print_app_server_exit_error(returncode, diagnostics=None):
-    print(
-        "❌ The private Codex app-server exited unexpectedly with status "
-        f"{returncode} before the Codex TUI exited. The Codex TUI was stopped.",
-        file=sys.stderr,
-    )
-    print_app_server_diagnostics(diagnostics, wait_for_eof=True)
-
-
-def is_unix_socket(path):
-    """Return whether ``path`` currently names a Unix-domain socket."""
-    try:
-        return stat.S_ISSOCK(os.stat(path).st_mode)
-    except OSError:
-        return False
-
-
-def wait_for_app_server_socket(
-    app_server, socket_path, should_stop=lambda: False
-):
-    """Wait until the private app-server binds its Unix socket.
-
-    Returns ``(True, None)`` when ready, ``(False, status)`` if the child
-    exits, and ``(False, None)`` on timeout.
-    """
-    deadline = time.monotonic() + CODEX_APP_SERVER_START_TIMEOUT
-    while True:
-        if should_stop():
-            return False, None
-        returncode = app_server.poll()
-        if returncode is not None:
-            return False, returncode
-        if is_unix_socket(socket_path):
-            return True, None
-        remaining = deadline - time.monotonic()
-        if remaining <= 0:
-            return False, None
-        time.sleep(min(CODEX_CHILD_POLL_INTERVAL, remaining))
-
-
-def wait_for_bridge_ready(
-    bridge,
-    app_server,
-    ready_file,
-    expected_instance,
-    frontend_socket_path,
-    should_stop=lambda: False,
-):
-    """Wait for the initialized backend driver and bound frontend relay.
-
-    Returns ``(True, None, None)`` when ready. Otherwise the second value is
-    ``bridge`` or ``app-server`` with its exit status, ``invalid`` for a bad
-    private marker, or ``None`` on timeout/shutdown.
-    """
-    deadline = time.monotonic() + CODEX_BRIDGE_READY_TIMEOUT
-    while True:
-        if should_stop():
-            return False, None, None
-        bridge_returncode = bridge.poll()
-        if bridge_returncode is not None:
-            return False, 'bridge', bridge_returncode
-        app_server_returncode = app_server.poll()
-        if app_server_returncode is not None:
-            return False, 'app-server', app_server_returncode
         try:
-            with open(ready_file, 'r', encoding='utf-8') as marker:
-                value = marker.read(256)
-        except FileNotFoundError:
-            value = None
-        except (OSError, UnicodeError):
-            return False, 'invalid', None
-        if value is not None:
-            if value.strip() == expected_instance:
-                if is_unix_socket(frontend_socket_path):
-                    return True, None, None
-                return False, 'invalid', None
-            return False, 'invalid', None
-        remaining = deadline - time.monotonic()
-        if remaining <= 0:
-            return False, None, None
-        time.sleep(min(CODEX_CHILD_POLL_INTERVAL, remaining))
-
-
-def write_codex_receiver_file(path, instance, pid):
-    """Register the one visible TUI in the launcher's private runtime dir."""
-    if not isinstance(pid, int) or pid <= 1:
-        raise OSError(f'invalid Codex TUI pid: {pid!r}')
-    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
-    if hasattr(os, 'O_NOFOLLOW'):
-        flags |= os.O_NOFOLLOW
-    descriptor = os.open(path, flags, 0o600)
-    payload = f'{instance} {pid}\n'.encode('utf-8')
-    try:
-        offset = 0
-        while offset < len(payload):
-            written = os.write(descriptor, payload[offset:])
-            if written <= 0:
-                raise OSError('receiver marker write made no progress')
-            offset += written
-        os.fsync(descriptor)
-    except Exception:
-        try:
-            os.unlink(path)
+            directories = [
+                os.path.join(projects, name) for name in os.listdir(projects)
+            ]
         except OSError:
-            pass
-        raise
-    finally:
-        os.close(descriptor)
-
-
-def codex_receiver_liveness_supported():
-    """Whether the bridge can distinguish a live TUI from a zombie PID."""
-    if sys.platform.startswith('linux'):
-        return hasattr(os, 'pidfd_open') or os.path.isdir('/proc')
-    return (
-        sys.platform == 'darwin'
-        and hasattr(select, 'kqueue')
-        and hasattr(select, 'KQ_FILTER_PROC')
-        and hasattr(select, 'KQ_NOTE_EXIT')
-    )
-
-
-def codex_token_audit_settings(config, workspace_id):
-    """Normalize the persisted token-audit preference for Codex launch."""
-    value = config.get('tokenAudit') if isinstance(config, dict) else None
-    if isinstance(value, dict):
-        enabled = value.get('enabled') is True
-        port = value.get('port')
-    else:
-        # Older experimental configs used a scalar. Preserve an explicit
-        # truthy opt-in while the installer migrates it to the object shape.
-        enabled = bool(value)
-        port = None
-    if not enabled:
-        return None
-    if (
-        not isinstance(port, int)
-        or isinstance(port, bool)
-        or not 1024 <= port <= 65535
-    ):
-        digest = hashlib.sha256(str(workspace_id).encode('utf-8')).digest()
-        port = TOKEN_AUDIT_DEFAULT_PORT_BASE + (
-            int.from_bytes(digest[:4], 'big') % TOKEN_AUDIT_PORT_SPAN
-        )
-    return {'enabled': True, 'port': port}
-
-
-def codex_setup_cleanup_command(environment, config):
-    """Return the cleanup-only command for one exact setup-created MCP block."""
-    workspace_id = config.get('workspaceId') if isinstance(config, dict) else None
-    view_id = (
-        config.get('todoViewId') or workspace_id
-        if isinstance(config, dict)
-        else None
-    )
-    if not all(
-        isinstance(value, str)
-        and re.fullmatch(r'[A-Za-z0-9_-]{1,128}', value)
-        for value in (workspace_id, view_id)
-    ):
-        return None
-
-    project_config_path = get_project_config_path(environment)
-    project_dir = (
-        os.path.dirname(project_config_path)
-        if project_config_path is not None
-        else None
-    )
-    codex_config_path = (
-        os.path.join(project_dir, '.codex', 'config.toml')
-        if project_dir is not None
-        else CODEX_CONFIG_PATH
-    )
-    scope = 'project' if project_dir is not None else 'global'
-    target = '\0'.join((
-        environment,
-        'codex',
-        scope,
-        os.path.abspath(project_dir) if project_dir is not None else '',
-    ))
-    receipt_path = os.path.join(
-        UCLUSION_HOME,
-        'setup-receipts',
-        environment,
-        hashlib.sha256(target.encode('utf-8')).hexdigest()[:32] + '.json',
-    )
-    runtime_args = [
-        UCLUSION_INSTALLER_SYMLINK,
-        SETUP_RUNTIME_PROXY_MODE,
-        environment,
-        receipt_path,
-        view_id,
-        UCLUSION_MCP_PROXY_SYMLINK,
-        workspace_id,
-    ]
-    if environment != 'production':
-        runtime_args.append(environment)
-    if config.get('workClaims') is True:
-        runtime_args.append('--work-claims')
-    block_lines = [
-        CODEX_MCP_CONFIG_MARKER,
-        CODEX_UCLUSION_TABLE,
-        'command = "python3"',
-        'args = [',
-    ]
-    block_lines.extend(
-        '    {},'.format(json.dumps(argument, ensure_ascii=False))
-        for argument in runtime_args
-    )
-    block_lines.extend([
-        ']',
-        'default_tools_approval_mode = "approve"',
-        CODEX_MCP_CONFIG_END_MARKER,
-    ])
-    expected_block = '\n'.join(block_lines) + '\n'
-
-    # The standalone CLI supports Python versions without ``tomllib``. The
-    # installer owns this fixed-format block, so exact text plus strict marker
-    # and table counts is both narrower and more compatible than parsing TOML.
-    try:
-        with open(codex_config_path, 'r', encoding='utf-8') as source:
-            text = source.read()
-    except (OSError, UnicodeError):
-        return None
-    starts = list(re.finditer(
-        rf'(?m)^{re.escape(CODEX_MCP_CONFIG_MARKER)}\r?$', text
-    ))
-    ends = list(re.finditer(
-        rf'(?m)^{re.escape(CODEX_MCP_CONFIG_END_MARKER)}\r?$', text
-    ))
-    table_pattern = (
-        r'(?m)^\s*\[\s*["\']?mcp_servers["\']?\s*\.\s*'
-        r'["\']?Uclusion["\']?\s*\]'
-    )
-    if (
-        len(starts) != 1
-        or len(ends) != 1
-        or text.count(CODEX_MCP_CONFIG_MARKER) != 1
-        or text.count(CODEX_MCP_CONFIG_END_MARKER) != 1
-        or len(re.findall(table_pattern, text)) != 1
-        or text[
-            starts[0].start():starts[0].start() + len(expected_block)
-        ] != expected_block
-    ):
-        return None
-    return [
-        sys.executable,
-        UCLUSION_INSTALLER_SYMLINK,
-        SETUP_RUNTIME_CLEANUP_MODE,
-        *runtime_args[2:],
-    ]
-
-
-def build_codex_mcp_overrides(
-    workspace_id,
-    environment,
-    proxy_path=UCLUSION_MCP_PROXY_SYMLINK,
-    token_audit=None,
-    token_audit_ready_file=None,
-    token_audit_owner=None,
-    work_claims=False,
-    response_stats=None,
-):
-    """Build a complete per-launch Uclusion MCP table as Codex ``-c`` args."""
-    proxy_args = [
-        proxy_path,
-        str(workspace_id),
-        environment,
-    ]
-    if work_claims:
-        proxy_args.append('--work-claims')
-    if response_stats is not None:
-        proxy_args.extend(['--response-stats', response_stats])
-    if os.environ.get(DEMO_EVIDENCE_ENV):
-        proxy_args.extend(['--demo-evidence', os.environ[DEMO_EVIDENCE_ENV]])
-        if os.environ.get(DEMO_EVIDENCE_ROLE_ENV):
-            proxy_args.extend([
-                '--demo-evidence-role', os.environ[DEMO_EVIDENCE_ROLE_ENV],
-            ])
-    if token_audit is not None:
-        if not token_audit_ready_file or not token_audit_owner:
-            raise ValueError(
-                'Codex token audit requires a launch-scoped readiness marker'
-            )
-        proxy_args.extend([
-            '--token-audit',
-            '--token-audit-port', str(token_audit['port']),
-            '--token-audit-source', 'codex',
-            '--token-audit-ready-file', str(token_audit_ready_file),
-            '--token-audit-owner', str(token_audit_owner),
-        ])
-    inline_table = (
-        '{ enabled = true, required = true, command = '
-        + json.dumps("python3")
-        + ', args = '
-        + json.dumps(proxy_args)
-        + ', default_tools_approval_mode = '
-        + json.dumps("approve")
-        + ' }'
-    )
-    return [
-        '-c',
-        'mcp_servers.Uclusion=' + inline_table,
-    ]
-
-
-def resolve_codex_companion_paths():
-    """Pin the bridge and proxy to one immutable release beside this CLI."""
-    cli_bin_dir = os.path.dirname(
-        os.path.realpath(os.path.abspath(__file__))
-    )
-    sibling_bridge = os.path.join(cli_bin_dir, "uclusionCodexBridge.py")
-    sibling_proxy = os.path.join(cli_bin_dir, "uclusionMCPProxy.py")
-    if os.path.isfile(sibling_bridge) and os.path.isfile(sibling_proxy):
-        return sibling_bridge, sibling_proxy
-
-    public_paths = (CODEX_BRIDGE_SYMLINK, UCLUSION_MCP_PROXY_SYMLINK)
-    for path in public_paths:
-        if not os.path.islink(path) or not os.path.exists(path):
-            raise RuntimeError(
-                "the Uclusion bridge/proxy release is incomplete; "
-                "run `uclusion update`"
-            )
-    resolved = tuple(os.path.realpath(path) for path in public_paths)
-    if len({os.path.dirname(path) for path in resolved}) != 1:
-        raise RuntimeError(
-            "the Uclusion bridge and MCP proxy come from different releases; "
-            "run `uclusion update`"
-        )
-    return resolved
-
-
-def stage_codex_companions(
-    runtime_dir,
-    cli_source,
-    bridge_source,
-    proxy_source,
-    token_audit_required=False,
-):
-    """Copy one validated release into this launch's private lifetime."""
-    staging_dir = os.path.join(runtime_dir, 'bin')
-    staged_cli = os.path.join(staging_dir, 'uclusion.py')
-    staged_bridge = os.path.join(staging_dir, 'uclusionCodexBridge.py')
-    staged_proxy = os.path.join(staging_dir, 'uclusionMCPProxy.py')
-    token_audit_source = os.path.join(
-        os.path.dirname(os.path.realpath(bridge_source)),
-        'uclusionTokenAudit.py',
-    )
-    staged_token_audit = os.path.join(
-        staging_dir, 'uclusionTokenAudit.py'
-    )
-    try:
-        os.makedirs(staging_dir, mode=0o700, exist_ok=False)
-        shutil.copy2(cli_source, staged_cli)
-        shutil.copy2(bridge_source, staged_bridge)
-        shutil.copy2(proxy_source, staged_proxy)
-        if os.path.isfile(token_audit_source):
-            shutil.copy2(token_audit_source, staged_token_audit)
-    except OSError as error:
-        raise RuntimeError(
-            f'could not stage the Uclusion Codex release: {error}'
-        ) from error
-    required_paths = [staged_cli, staged_bridge, staged_proxy]
-    if token_audit_required:
-        required_paths.append(staged_token_audit)
-    if not all(
-        os.path.isfile(path)
-        for path in required_paths
-    ):
-        raise RuntimeError(
-            'the staged Uclusion Codex release is incomplete'
-        )
-    return staged_cli, staged_bridge, staged_proxy
-
-
-def parse_codex_version(output):
-    """Return the numeric Codex CLI version, accepting build/prerelease suffixes."""
-    match = re.search(
-        r'(?:^|\s)codex-cli\s+(\d+)\.(\d+)\.(\d+)'
-        r'(?:-[0-9A-Za-z][0-9A-Za-z._-]*)?'
-        r'(?:\+[0-9A-Za-z][0-9A-Za-z._-]*)?(?=\s|$)',
-        output,
-    )
-    if match is None:
-        return None
-    return tuple(int(part) for part in match.groups())
-
-
-def check_codex_version(codex_path):
-    """Reject known-too-old Codex; the relay checks protocol shape at runtime."""
-    try:
-        result = subprocess.run(
-            [codex_path, '--version'],
-            capture_output=True,
-            text=True,
-            timeout=10,
-        )
-    except (OSError, subprocess.TimeoutExpired) as error:
-        print(f"❌ Could not check the Codex version: {error}", file=sys.stderr)
-        print("Run `codex update`, then try `uclusion codex` again.", file=sys.stderr)
-        return False
-    if result.returncode != 0:
-        print(
-            "❌ Could not check the Codex version "
-            f"(`codex --version` exited with status {result.returncode}).",
-            file=sys.stderr,
-        )
-        print("Run `codex update`, then try `uclusion codex` again.", file=sys.stderr)
-        return False
-    version_output = '\n'.join(
-        part for part in (result.stdout, result.stderr) if part
-    )
-    version = parse_codex_version(version_output)
-    if version is None:
-        print(
-            "❌ Could not parse `codex --version`; Uclusion requires Codex "
-            f"{MINIMUM_CODEX_VERSION_TEXT} or newer.",
-            file=sys.stderr,
-        )
-        print("Run `codex update`, then try `uclusion codex` again.", file=sys.stderr)
-        return False
-    if version < MINIMUM_CODEX_VERSION:
-        installed = '.'.join(str(part) for part in version)
-        print(
-            f"❌ Codex {installed} is too old; Uclusion requires Codex "
-            f"{MINIMUM_CODEX_VERSION_TEXT} or newer.",
-            file=sys.stderr,
-        )
-        print("Run `codex update`, then try `uclusion codex` again.", file=sys.stderr)
-        return False
-    return True
-
-
-def validate_codex_passthrough_args(codex_args):
-    """Reject caller attempts to bypass the launcher's private relay."""
-    for argument in codex_args:
-        if argument == '--':
-            break
-        if argument == '--remote' or argument.startswith('--remote='):
-            print(
-                "❌ `uclusion codex` owns the Codex `--remote` connection; "
-                "do not pass another `--remote` argument.",
-                file=sys.stderr,
-            )
-            return False
-    return True
-
-
-def codex_app_server_passthrough_args(codex_args):
-    """Copy backend-owned global configuration flags to app-server.
-
-    The visible TUI remains the recipient of every passthrough argument, but
-    feature and config switches must also reach the private app-server which
-    actually starts MCP/apps and owns the Codex runtime configuration.
-    """
-    result = []
-    value_options = frozenset(
-        ("-c", "--config", "--enable", "--disable")
-    )
-    attached_options = (
-        "--config=",
-        "--enable=",
-        "--disable=",
-    )
-    index = 0
-    while index < len(codex_args):
-        argument = codex_args[index]
-        if argument == "--":
-            break
-        if argument in value_options:
-            if index + 1 >= len(codex_args) or codex_args[index + 1] == "--":
-                raise ValueError(
-                    "{} requires a value".format(argument)
-                )
-            result.extend((argument, codex_args[index + 1]))
-            index += 2
-            continue
-        if argument.startswith("-c") and len(argument) > 2:
-            value = argument[3:] if argument.startswith("-c=") else argument[2:]
-            if not value:
-                raise ValueError("-c requires a value")
-            result.append(argument)
-            index += 1
-            continue
-        if argument.startswith(attached_options):
-            _name, _separator, value = argument.partition("=")
-            if not value:
-                raise ValueError(
-                    "{} requires a value".format(_name)
-                )
-            result.append(argument)
-        elif argument == "--strict-config":
-            result.append(argument)
-        index += 1
-    return result
-
-
-def codex_credentials_file(environment, credentials_name=None):
-    """Path of the credentials file the Codex MCP proxy logs in with."""
-    if credentials_name is None:
-        _api_url, _json_path, credentials_name = get_env_paths(environment)
-    return os.path.join(uclusion_home_root(), '.uclusion', credentials_name)
-
-
-def codex_launch_credentials_error(environment, credentials_name=None):
-    """Explain a launch that would die inside required MCP initialize.
-
-    The proxy is required. When its credentials file is missing it used to
-    exit before writing an initialize response, and Codex reported that as
-    ``connection closed: initialize response``.
-    """
-    path = codex_credentials_file(environment, credentials_name)
-    if os.path.isfile(path):
-        return None
-    ready = [
-        name for name in ('dev', 'stage', 'production')
-        if name != environment and os.path.isfile(codex_credentials_file(name))
-    ]
-    message = (
-        f"❌ Cannot launch Codex: no {environment} credentials file at '{path}'. "
-        "This session requires the Uclusion MCP server, which cannot log in "
-        "without that file."
-    )
-    if ready:
-        commands = ' or '.join(f'`uclusion -e {name} codex`' for name in ready)
-        message += f" Launch with {commands}."
-    else:
-        message += " Create that environment's credentials, then try again."
-    return message
-
-
-def cmd_codex(args):
-    """Launch Codex through a private Uclusion Poke relay.
-
-    This path needs the workspace config and the selected environment's
-    credentials file. It does not log in; the MCP proxy does. The TUI
-    connects only to the relay's private frontend socket; the relay owns the
-    separate backend app-server connection. Every child and the private
-    runtime directory are cleaned up with the TUI. The bridge starts past the
-    queued backlog unless the human explicitly opts into delivering it.
-    """
-    environment = args.env or 'production'
-    _api_url, json_path, credentials_name = get_env_paths(environment)
-    config = load_config(json_path)
-    if config is None:
-        return 1
-    workspace_id = config.get('workspaceId') if isinstance(config, dict) else None
-    if not workspace_id:
-        print(
-            f"❌ Cannot launch Codex: no workspaceId in '{json_path}'.",
-            file=sys.stderr,
-        )
-        return 1
-    credentials_error = codex_launch_credentials_error(
-        environment, credentials_name
-    )
-    if credentials_error:
-        print(credentials_error, file=sys.stderr)
-        return 1
-    token_audit = codex_token_audit_settings(config, workspace_id)
-    work_claims = isinstance(config, dict) and config.get('workClaims') is True
-    if not codex_receiver_liveness_supported():
-        print(
-            "❌ Cannot launch Codex safely on this platform: Uclusion cannot "
-            "distinguish an exited Codex TUI from a live receiver.",
-            file=sys.stderr,
-        )
-        return 1
-
-    codex_path = shutil.which('codex')
-    if codex_path is None:
-        print(
-            "❌ Cannot launch Codex: the 'codex' executable was not found on PATH.",
-            file=sys.stderr,
-        )
-        return 1
-    if not check_codex_version(codex_path):
-        return 1
-
-    try:
-        bridge_path, proxy_path = resolve_codex_companion_paths()
-    except RuntimeError as error:
-        print(
-            f"❌ Cannot launch Codex: {error}.",
-            file=sys.stderr,
-        )
-        return 1
-    cli_path = os.path.realpath(os.path.abspath(__file__))
-    active_release = get_installed_script_version()
-
-    instance_id = str(uuid.uuid4())
-    cwd = os.getcwd()
-    codex_args = list(args.codex_args)
-    if codex_args and codex_args[0] == '--':
-        codex_args.pop(0)
-    if not validate_codex_passthrough_args(codex_args):
-        return 1
-    try:
-        app_server_passthrough = codex_app_server_passthrough_args(
-            codex_args
-        )
-    except ValueError as error:
-        print(
-            "❌ Invalid Codex passthrough arguments: {}.".format(error),
-            file=sys.stderr,
-        )
-        return 1
-
-    app_server = None
-    app_server_diagnostics = None
-    bridge = None
-    tui = None
-    with codex_shutdown_signals() as shutdown_state, \
-            tempfile.TemporaryDirectory(
-                prefix=f'uclusion-codex-{instance_id[:8]}-'
-            ) as runtime_dir:
+            return []
+    logs = []
+    for directory in directories:
         try:
-            try:
-                (
-                    staged_cli_path,
-                    staged_bridge_path,
-                    staged_proxy_path,
-                ) = (
-                    stage_codex_companions(
-                        runtime_dir,
-                        cli_path,
-                        bridge_path,
-                        proxy_path,
-                        token_audit_required=token_audit is not None,
-                    )
-                )
-            except RuntimeError as error:
-                print(
-                    f"❌ Cannot launch Codex: {error}.",
-                    file=sys.stderr,
-                )
-                return 1
-            setup_cleanup_command = codex_setup_cleanup_command(
-                environment, config
-            )
-            if setup_cleanup_command is not None:
-                try:
-                    subprocess.run(
-                        setup_cleanup_command,
-                        stdin=subprocess.DEVNULL,
-                        stdout=subprocess.DEVNULL,
-                        stderr=subprocess.DEVNULL,
-                        timeout=CODEX_SETUP_CLEANUP_TIMEOUT,
-                        check=False,
-                    )
-                except (OSError, subprocess.SubprocessError):
-                    pass
-            child_env = os.environ.copy()
-            for managed_name in CODEX_LAUNCH_MANAGED_ENV:
-                child_env.pop(managed_name, None)
-            # The resident Codex bootstrap can distinguish this authoritative
-            # companion from a bare Codex process without relying on versioned
-            # release metadata. Presence is the contract; the value is never
-            # model-visible or logged.
-            child_env['UCLUSION_CODEX_BRIDGE_ACTIVE'] = '1'
-            if active_release is not None:
-                child_env['UCLUSION_CODEX_ACTIVE_RELEASE'] = active_release
-                child_env['UCLUSION_CODEX_STAGED_CLI'] = staged_cli_path
-            backend_socket_path = os.path.join(
-                runtime_dir, 'app-server.sock'
-            )
-            frontend_socket_path = os.path.join(
-                runtime_dir, 'tui-relay.sock'
-            )
-            bridge_ready_path = os.path.join(runtime_dir, 'bridge.ready')
-            receiver_pid_path = os.path.join(runtime_dir, 'receiver.pid')
-            token_audit_ready_path = os.path.join(
-                runtime_dir, 'token-audit.ready'
-            )
-            backend_listen_url = f'unix://{backend_socket_path}'
-            frontend_listen_url = f'unix://{frontend_socket_path}'
-            app_server_command = [
-                codex_path,
-                'app-server',
-                *app_server_passthrough,
-                *build_codex_mcp_overrides(
-                    workspace_id,
-                    environment,
-                    staged_proxy_path,
-                    token_audit=token_audit,
-                    token_audit_ready_file=token_audit_ready_path,
-                    token_audit_owner=instance_id,
-                    work_claims=work_claims,
-                    response_stats=getattr(args, 'response_stats', None),
-                ),
-                '--listen',
-                backend_listen_url,
-            ]
-            bridge_command = [
-                sys.executable,
-                staged_bridge_path,
-                'run',
-                '--environment', environment,
-                '--workspace-id', str(workspace_id),
-                '--instance', instance_id,
-                '--cwd', cwd,
-                '--app-server-socket', backend_socket_path,
-                '--frontend-socket', frontend_socket_path,
-                '--ready-file', bridge_ready_path,
-                '--receiver-pid-file', receiver_pid_path,
-                '--inbox-path', get_inbox_path(),
-            ]
-            if token_audit is not None:
-                bridge_command.extend([
-                    '--token-audit',
-                    '--token-audit-ready-file', token_audit_ready_path,
-                ])
-            if getattr(args, 'deliver_existing_pokes', False):
-                bridge_command.append('--deliver-existing-pokes')
-            tui_command = [
-                codex_path,
-                '--remote',
-                frontend_listen_url,
-                *codex_args,
-            ]
+            names = os.listdir(directory)
+        except OSError:
+            continue
+        logs.extend(
+            os.path.join(directory, name) for name in names
+            if name.endswith('.jsonl')
+        )
+    return logs
 
-            try:
-                app_server = subprocess.Popen(
-                    app_server_command,
-                    env=child_env,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    bufsize=0,
-                )
-                app_server_diagnostics = CodexAppServerDiagnostics(
-                    getattr(app_server, 'stdout', None)
-                )
-            except OSError as error:
-                print(
-                    f"❌ Could not start the private Codex app-server: {error}",
-                    file=sys.stderr,
-                )
-                return 1
-            ready, app_server_returncode = wait_for_app_server_socket(
-                app_server,
-                backend_socket_path,
-                should_stop=lambda: shutdown_state["signum"] is not None,
-            )
-            signal_exit = codex_signal_exit_code(shutdown_state)
-            if signal_exit is not None:
-                return signal_exit
-            if not ready:
-                if app_server_returncode is None:
-                    print(
-                        "❌ Timed out waiting for the private Codex app-server "
-                        f"socket at '{backend_socket_path}'.",
-                        file=sys.stderr,
-                    )
-                    print_app_server_diagnostics(app_server_diagnostics)
-                else:
-                    print_app_server_exit_error(
-                        app_server_returncode, app_server_diagnostics
-                    )
-                return 1
 
-            try:
-                bridge = subprocess.Popen(bridge_command, env=child_env)
-            except OSError as error:
-                print(
-                    f"❌ Could not start the Uclusion Codex bridge: {error}",
-                    file=sys.stderr,
-                )
-                return 1
+def codex_rollout_cwd(path):
+    try:
+        with open(path, encoding='utf-8') as handle:
+            first = json.loads(handle.readline() or '{}')
+    except (OSError, ValueError):
+        return None
+    payload = first.get('payload') if isinstance(first, dict) else None
+    return payload.get('cwd') if isinstance(payload, dict) else None
 
-            bridge_ready, failed_child, child_returncode = (
-                wait_for_bridge_ready(
-                    bridge,
-                    app_server,
-                    bridge_ready_path,
-                    instance_id,
-                    frontend_socket_path,
-                    should_stop=lambda: (
-                        shutdown_state["signum"] is not None
-                    ),
-                )
-            )
-            signal_exit = codex_signal_exit_code(shutdown_state)
-            if signal_exit is not None:
-                return signal_exit
-            if not bridge_ready:
-                if failed_child == 'bridge':
-                    print_bridge_exit_error(child_returncode)
-                elif failed_child == 'app-server':
-                    print_app_server_exit_error(
-                        child_returncode, app_server_diagnostics
-                    )
-                elif failed_child == 'invalid':
-                    print(
-                        "❌ The Uclusion Codex bridge wrote an invalid private "
-                        "readiness marker or did not bind its frontend socket.",
-                        file=sys.stderr,
-                    )
-                else:
-                    print(
-                        "❌ Timed out waiting for the Uclusion Codex bridge "
-                        "to initialize its backend driver and bind its "
-                        "frontend relay.",
-                        file=sys.stderr,
-                    )
-                return 1
 
-            try:
-                tui = subprocess.Popen(tui_command, env=child_env)
-            except OSError as error:
-                print(f"❌ Could not start the Codex TUI: {error}", file=sys.stderr)
-                return 1
-            try:
-                write_codex_receiver_file(
-                    receiver_pid_path, instance_id, tui.pid
-                )
-            except OSError as error:
-                print(
-                    "❌ Could not register the Codex TUI with the Uclusion "
-                    f"bridge: {error}",
-                    file=sys.stderr,
-                )
-                return 1
+def codex_session_logs(cwd=None):
+    """Codex rollouts started in ``cwd`` (every rollout when None)."""
+    logs = []
+    for directory, _subdirectories, names in os.walk(os.path.join(CODEX_HOME, 'sessions')):
+        for name in names:
+            if not (name.startswith('rollout-') and name.endswith('.jsonl')):
+                continue
+            path = os.path.join(directory, name)
+            if cwd is None or codex_rollout_cwd(path) == cwd:
+                logs.append(path)
+    return logs
 
-            while True:
-                signal_exit = codex_signal_exit_code(shutdown_state)
-                if signal_exit is not None:
-                    return signal_exit
-                tui_returncode = tui.poll()
-                if tui_returncode is not None:
-                    return tui_returncode
-                app_server_returncode = app_server.poll()
-                if app_server_returncode is not None:
-                    print_app_server_exit_error(
-                        app_server_returncode, app_server_diagnostics
-                    )
-                    return 1
-                bridge_returncode = bridge.poll()
-                if bridge_returncode is not None:
-                    print_bridge_exit_error(bridge_returncode)
-                    return 1
-                time.sleep(CODEX_CHILD_POLL_INTERVAL)
-        finally:
-            stop_codex_children(tui, bridge, app_server)
-            if app_server_diagnostics is not None:
-                app_server_diagnostics.close()
+
+def newest_path(paths):
+    dated = []
+    for path in paths:
+        try:
+            dated.append((os.path.getmtime(path), path))
+        except OSError:
+            continue
+    return max(dated)[1] if dated else None
+
+
+def find_session_log(session=None, cwd=None):
+    """The log ``uclusion usage`` reads: a path, a session id, or the newest here."""
+    if session:
+        candidate = os.path.abspath(os.path.expanduser(session))
+        if os.path.isfile(candidate):
+            return candidate
+        matches = [
+            path for path in claude_session_logs()
+            if os.path.basename(path) == session + '.jsonl'
+        ] + [
+            path for path in codex_session_logs()
+            if os.path.basename(path).endswith('-' + session + '.jsonl')
+        ]
+        return newest_path(matches)
+    cwd = os.path.realpath(cwd or os.getcwd())
+    return newest_path(claude_session_logs(cwd) + codex_session_logs(cwd))
+
+
+def cmd_usage(args):
+    token_audit = load_token_audit_module()
+    if token_audit is None:
+        print('❌ uclusionTokenAudit.py is missing beside this CLI; run `uclusion update`.')
+        return 1
+    log_path = find_session_log(args.session)
+    if log_path is None:
+        if args.session:
+            print(f'❌ No saved Claude Code or Codex session log matches {args.session!r}. '
+                  'The client may already have deleted it.')
+        else:
+            print('❌ No saved Claude Code or Codex session log was found for this directory.')
+        return 1
+    result = token_audit.breakdown_session_log(log_path)
+    if args.json:
+        print(json.dumps(result, indent=2, sort_keys=True))
+    else:
+        print(f'Session log: {log_path}\n')
+        sys.stdout.write(token_audit.format_breakdown(result))
+    return 0 if result.get('status') != 'unavailable' else 1
 
 
 def is_orphaned(initial_ppid):
@@ -2986,6 +2034,9 @@ def demo_run_choice_header(run_dir):
             'as chosen by the person who ran it.\n')
 
 
+DEMO_TOKEN_BREAKDOWN_NAME = 'evaluator-tokens.md'
+
+
 def cmd_demo_result(args):
     """S-Marketing-77: print the evaluating agent's published report; reads only files."""
     _api_url, _json_path, credentials_path = get_env_paths(args.env)
@@ -3006,7 +2057,13 @@ def cmd_demo_result(args):
     deadline = time.monotonic() + (DEMO_PROGRESS_WAIT_SECONDS if args.wait else 0)
     while True:
         report = demo_published_report(run_dir)
-        if report is not None:
+        breakdown = os.path.join(run_dir, DEMO_TOKEN_BREAKDOWN_NAME)
+        # The demo adds the evaluator's token breakdown a moment after the
+        # report, once it has stopped the sessions; a waiting call holds out
+        # for it rather than printing the report without it.
+        if report is not None and (
+            os.path.isfile(breakdown) or time.monotonic() >= deadline
+        ):
             header = demo_run_choice_header(run_dir)
             if header:
                 print(header, flush=True)
@@ -3015,6 +2072,12 @@ def cmd_demo_result(args):
                 sys.stdout.flush()
                 sys.stdout.buffer.write(handle.read())
                 sys.stdout.buffer.flush()
+            if os.path.isfile(breakdown):
+                with open(breakdown, encoding='utf-8') as handle:
+                    print(handle.read(), end='', flush=True)
+            else:
+                print('\n\n⏳ The Uclusion token breakdown is still being measured; '
+                      'run this again to include it.', flush=True)
             return 0
         ended = demo_run_ended(run_dir)
         if ended is not None:
@@ -3786,7 +2849,7 @@ def run_installer(
     if work_claims_enabled is None:
         work_claims_enabled = bool(source.get('workClaims') is True) if source else False
     command.append('--work-claims' if work_claims_enabled else '--no-work-claims')
-    if clients and 'claude' in clients:
+    if clients and {'claude', 'codex'}.intersection(clients):
         if response_stats is False:
             command.append('--no-response-stats')
         elif response_stats is not None:
@@ -3896,11 +2959,12 @@ def cmd_update(args):
     global_clients = detect_global_clients()
     global_clients.update(workflow_clients_needing_repair(global_config))
     response_stats = getattr(args, 'response_stats', None)
+    recording_clients = {'claude', 'codex'}
     if response_stats is not None and not (
-        (global_config is not None and 'claude' in global_clients)
-        or (has_project_install and 'claude' in project_clients)
+        (global_config is not None and recording_clients.intersection(global_clients))
+        or (has_project_install and recording_clients.intersection(project_clients))
     ):
-        print('❌ No installed Claude Uclusion connection found for response-size recording.')
+        print('❌ No installed Claude or Codex Uclusion connection found for response-size recording.')
         return 1
 
     if args.check:
@@ -4477,7 +3541,7 @@ def build_parser():
     )
     parser.add_argument(
         '--response-stats', type=response_stats_path, metavar='PATH',
-        help='Append local response-size statistics for this Codex launch.',
+        help='Set local response-size statistics during an update.',
     )
 
     subparsers = parser.add_subparsers(dest='command', metavar='COMMAND', required=True)
@@ -4500,30 +3564,21 @@ def build_parser():
     )
     export_parser.set_defaults(func=cmd_export)
 
-    codex_parser = subparsers.add_parser(
-        'codex',
-        help='Launch Codex through the private Uclusion Poke relay.',
+    usage_parser = subparsers.add_parser(
+        'usage',
+        help="Print how many tokens a Claude Code or Codex session spent on Uclusion, "
+             "read from that session's saved log. Needs no audit and nothing turned on beforehand.",
     )
-    codex_backlog_group = codex_parser.add_mutually_exclusive_group()
-    codex_backlog_group.add_argument(
-        '--deliver-existing-pokes',
-        action='store_true',
-        help='Deliver Pokes already queued for the Codex bridge when it starts. '
-             'By default a new Codex session starts at the launch-time cutoff '
-             'and receives only later Pokes. Place this option before `--` and '
-             'any arguments passed through to Codex.',
+    usage_parser.add_argument(
+        '--session',
+        default=None,
+        help='A session log path, or a Claude Code session id or Codex thread id. '
+             'Defaults to the newest session started in the current directory.',
     )
-    codex_backlog_group.add_argument(
-        '--ignore-existing-pokes',
-        action='store_true',
-        help=argparse.SUPPRESS,
+    usage_parser.add_argument(
+        '--json', action='store_true', help='Print the breakdown as JSON.'
     )
-    codex_parser.add_argument(
-        'codex_args',
-        nargs=argparse.REMAINDER,
-        help='Arguments passed through to Codex (place them after --).',
-    )
-    codex_parser.set_defaults(func=cmd_codex)
+    usage_parser.set_defaults(func=cmd_usage)
 
     demo_parser = subparsers.add_parser(
         'demo',
@@ -5445,13 +4500,18 @@ def parse_args(argv=None):
     parser = build_parser()
     args = parser.parse_args(argv)
     if args.response_stats is not None:
-        if args.command not in ('codex', 'update'):
-            parser.error('--response-stats is supported only with codex or update')
+        if args.command != 'update':
+            parser.error('--response-stats is supported only with update')
         if args.command == 'update' and args.check:
             parser.error('--check cannot change response-size recording')
     return args
 
 
 if __name__ == "__main__":
+    if len(sys.argv) == 3 and sys.argv[1] == '--uclusion-update-notice':
+        if sys.argv[2] not in ('dev', 'stage', 'production'):
+            sys.exit(1)
+        print(json.dumps(check_wait_update_notice(sys.argv[2])))
+        sys.exit(0)
     args = parse_args()
     sys.exit(args.func(args) or 0)

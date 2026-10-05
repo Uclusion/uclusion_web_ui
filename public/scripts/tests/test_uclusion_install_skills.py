@@ -236,11 +236,6 @@ class ResidentStubContractTests(unittest.TestCase):
                     INSTALL.WORKFLOW_ENV_PLACEHOLDER + ' update', stub
                 )
 
-    def test_codex_stub_distinguishes_bridge_delivery_from_bare_drain(self):
-        stub = self.bundle['codex_stub']
-        self.assertIn('UCLUSION_CODEX_BRIDGE_ACTIVE', stub)
-        self.assertIn('wait --timeout 0', stub)
-        self.assertRegex(stub, r'(?i)never[^\n]*(?:wait|listen)')
 
 
     def test_claude_stub_arms_its_own_poke_listener(self):

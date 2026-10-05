@@ -24,22 +24,21 @@ notice, or quoted marker is not proof of completeness. Read any missing body
 in full from the selected package; reuse complete reads while they remain
 available.
 
-Establish Poke AI delivery before Uclusion work or idle work discovery. Check
-only for the presence of `UCLUSION_CODEX_BRIDGE_ACTIVE`—never print its value.
-When present, the `uclusion codex` companion owns delivery: never run
-`uclusion wait` or `uclusion listen`. When absent, never leave a waiter or
-listener running; synchronously run `{{UCLUSION_CLI}} wait --timeout 0` at the
-beginning of every real user-triggered turn. Run the drain as its own tool call,
-wait for its result, and handle every returned line before issuing any command
-for the new request.
+The installed Uclusion MCP integration owns automatic Poke AI delivery through
+Codex's native queue. Start ordinary `codex` with that integration; never run
+`uclusion wait` or `uclusion listen`, and never start a separate companion.
+Each registered root in its workspace/environment receives its own copy. Busy
+agents process a Poke on their next turn. After `/new`, both the old and new
+conversations remain recipients while their Uclusion roots remain registered;
+receiving a Poke never grants ownership of another agent's work.
 
-The bridge starts after the retained backlog by default and delivers only to
-the primary thread; Pokes arriving during review/compaction wait until that turn
-ends. Do not narrate default startup delivery setup or skipped history.
-Never add `--deliver-existing-pokes` yourself. If the human explicitly
-launches with it, retained rows arrive as an unmarked private copy and are
-handled only as their request directs. If the bridge cannot connect, suggest an
-environment-correct `uclusion update` and restart through `uclusion codex`.
+Fresh startup starts after retained history. Never add
+`--deliver-existing-pokes` yourself. A human-requested replay is an unmarked
+private copy and is handled only as their request directs. Delivery after a
+deliberate quit and restart, and recovery before the first conversation turn,
+are outside the delivery guarantee. Do not narrate default delivery startup or
+skipped history. If the MCP connection is unavailable, suggest an
+environment-correct `uclusion update` and a fresh session started with `codex`.
 
 On any `Start`, `Added`, `Updated`, or `Responded` line, or when a request
 names Uclusion, Poke AI, find_work, or a Uclusion short code beginning `J-`,

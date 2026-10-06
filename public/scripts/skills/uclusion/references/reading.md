@@ -53,11 +53,10 @@ A write's result is the reload for what it produced. `ask_question` returns the
 question and option codes, the initial vote and the job's resulting stage;
 `update_option` names what it updated; `set_design_capsule` returns the stored
 R-code and version and, for a replacement, the open reviews that name it;
-`ask_for_review` returns the saved review receipt, the job's open questions
-and suggestions, and its notification snapshot. When implementation is
-declared complete it also reports the conditional Reviewable transition.
-Inspect each outcome separately: a failed inventory, transition or notification
-check does not erase a successful review. Reconcile unconfirmed writes and
+`ask_for_review` returns the saved review receipt and the job's open questions
+and suggestions. When implementation is declared complete it also reports the
+conditional Reviewable transition. Inspect each outcome separately: a failed
+inventory or transition does not erase a successful review. Reconcile unconfirmed writes and
 retry only unfinished steps as `operations.md` describes;
 `change_job_stage` states the stage afterwards. Do not call `get_job` to see a
 write you made and still have in context. Call `get_job` to see a write you did

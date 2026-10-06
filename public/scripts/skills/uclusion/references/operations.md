@@ -79,7 +79,7 @@ snapshot and a conditional stage write, not an atomic lock against concurrent
 work. Continue handling Pokes. Reviewable retains its existing asynchronous
 comment and notification cleanup.
 
-Inspect the separate review, inventory, transition and notification outcomes.
+Inspect the separate review, inventory and transition outcomes.
 A review write reported as unconfirmed may have saved it: inspect Reports, or
 the exact review on an update, before retrying publication. A later failure
 does not undo a saved review. Reconcile an uncertain stage
@@ -191,11 +191,8 @@ stands; nothing is rolled back.
 
 ## Notifications
 
-`ask_for_review` performs the review-opening notification check and returns
-the current inventory scoped to the enclosing job. Use that result instead
-of a separate `get_notifications` call. Asynchronous delivery can omit the
-new review's notification from that snapshot. A failed check is reported
-separately from the saved review; it never delays or suppresses a package.
+`ask_for_review` does not read or return notifications. Do not fetch them merely
+to open a review or present its completion package.
 Call `get_notifications` when the human asks for their inbox, when resolving
 a bug or job, and when receiving sign-off and committing. Keep the fresh
 check after the package reply and any commit/push.

@@ -335,8 +335,8 @@ WORKFLOW_ASSET_SHA256 = {
     'cursor_stub': '48944f1a09c86ef1e2e59fc18957e93212f86b30bb73ff67e18a9bc1ff8e3fa8',
     'skill': '079390aacd45f6d0db8d5480b04c41597b26611cf3ad030b5eed2f9246ee8137',
     'pokes_reference': '2951ff06798651fd56ef2f7b851bba459999b22cfae394be1cf5fd9a944c5507',
-    'reading_reference': 'ded25d0fa5aff01b02293218a5e73ae79b4bb977be84f60fc3c0a9d702c8e362',
-    'operations_reference': '110d233520dadf755cae089e028fe1060144d10071f064198642080efe5977d4',
+    'reading_reference': 'd64b3a2a130210654d3a718dff119dc81e2c4a3ccf6b8e652b5efe7c2f002ed5',
+    'operations_reference': '323afef694afbc7928f50f9c6e722e5c1dd5b59a4a8e764678a8c2645960d339',
     'completion_reference': '48f5c6f3fc2f1aa0d2732edaf8938cde5979ca3b3afb136ca4d269f2a65880f2',
     'audit_reference': '6e064e0baf27e4a17bd3a15060dbb15f8730de31f71eb8df0caba180852be71d',
     'claims_reference': '9fad91e1adc8a838cd34824544063aaf31afe7c38a2c92299f0c6ba2afeea192',
@@ -346,7 +346,7 @@ WORKFLOW_ASSET_SHA256 = {
     'design_examples': '4416eabe1980db0f7a6bb80530bb4cfb198188f462fc1cfa8917f5856279e37e',
     'design_openai_metadata': 'f31f258d8b76d5fcfa724b7e7468481ef18a863c9afbdd78b81b873641f9c7ba',
     'demo_brief': '1c26c3235dba931bcbf9d88fcacf32e437f1ec10f3e70fd908f33228ba30037f',
-    'token_manifest': 'c29783c2ba200d19c8fc16f567a045f1cf3d750d557dc3ad5cc3bce1234f8979',
+    'token_manifest': 'f97b0f1b34d98f28b53a8f1cbd572e0bec5333508ba55760028d72aa9902a513',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',

@@ -27,15 +27,6 @@
     "openai": 836
    }
   },
-  "110d233520dadf755cae089e028fe1060144d10071f064198642080efe5977d4": {
-   "bytes": 16677,
-   "kind": "skill",
-   "name": "skills/uclusion/references/operations.md",
-   "tokens": {
-    "claude": 5236,
-    "openai": 3552
-   }
-  },
   "16acd6c356cba0fe348bdf81c3422308da6c246a9b31a110a293dd6a689cda53": {
    "bytes": 3392,
    "kind": "bootstrap",
@@ -88,6 +79,15 @@
    "tokens": {
     "claude": 1249,
     "openai": 827
+   }
+  },
+  "323afef694afbc7928f50f9c6e722e5c1dd5b59a4a8e764678a8c2645960d339": {
+   "bytes": 16422,
+   "kind": "skill",
+   "name": "skills/uclusion/references/operations.md",
+   "tokens": {
+    "claude": 5159,
+    "openai": 3503
    }
   },
   "35a28d6fa23ceb30deed07af3ae3d06aeee48be9632fc596a80e20d05b64bdc6": {
@@ -225,6 +225,15 @@
     "openai": 102
    }
   },
+  "d64b3a2a130210654d3a718dff119dc81e2c4a3ccf6b8e652b5efe7c2f002ed5": {
+   "bytes": 6300,
+   "kind": "skill",
+   "name": "skills/uclusion/references/reading.md",
+   "tokens": {
+    "claude": 2002,
+    "openai": 1302
+   }
+  },
   "d6ab0d952bf32fcf1e0afc5517eea1c4b4869baa07fd1107552c826d358cbc04": {
    "bytes": 3653,
    "kind": "bootstrap",
@@ -241,15 +250,6 @@
    "tokens": {
     "claude": 1323,
     "openai": 862
-   }
-  },
-  "ded25d0fa5aff01b02293218a5e73ae79b4bb977be84f60fc3c0a9d702c8e362": {
-   "bytes": 6348,
-   "kind": "skill",
-   "name": "skills/uclusion/references/reading.md",
-   "tokens": {
-    "claude": 2016,
-    "openai": 1311
    }
   },
   "e253cfe3a98e18e3b75d5bc6598e3a88088337c386771488ad139e3e3f0c77c9": {
@@ -369,16 +369,6 @@
     "openai": 779
    }
   },
-  "651d6e29bbf6be24b062a3293d13ce14f453722aa896097ebb7c158d469c2488": {
-   "name": "ask_for_review",
-   "tokens": {
-    "claude": null,
-    "openai": 546
-   },
-   "unavailable": {
-    "claude": "unsupported_input_schema"
-   }
-  },
   "66abeb477ce1aeb93ca1695fe24673a202b117f443f8cab3c738ca4d02c57ca0": {
    "name": "make_suggestion",
    "tokens": {
@@ -398,6 +388,16 @@
    "tokens": {
     "claude": 297,
     "openai": 150
+   }
+  },
+  "78687104f86eca41ba55b785f10397d8b1142a2a99eb2c39cd0076dd7db9c01a": {
+   "name": "ask_for_review",
+   "tokens": {
+    "claude": null,
+    "openai": 524
+   },
+   "unavailable": {
+    "claude": "unsupported_input_schema"
    }
   },
   "7de7fbb07e277bb8108756e04bbcb4c585bb49e7df4739784a2c538622a8b079": {

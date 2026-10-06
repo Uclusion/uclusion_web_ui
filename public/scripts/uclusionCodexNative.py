@@ -240,7 +240,7 @@ class NativeInbox:
 class NativeCodexDelivery:
     def __init__(self, environment, workspace_id, codex_home=None, replay=False,
                  token_audit=False, tools_changed=lambda: None,
-                 notice_source=update_notice_source):
+                 notice_source=update_notice_source, context_events=None):
         self.codex_home = os.path.abspath(os.path.expanduser(
             codex_home or os.environ.get('CODEX_HOME') or '~/.codex'))
         os.environ['CODEX_HOME'] = self.codex_home
@@ -264,6 +264,7 @@ class NativeCodexDelivery:
         self.pending_descendants = set()
         self.reconciliation_errors = {}
         self.token_audit = token_audit
+        self.context_events = context_events
         self.tools_changed = tools_changed
         self.stop = threading.Event()
         self.healthy = threading.Event()
@@ -289,6 +290,11 @@ class NativeCodexDelivery:
     def _observe(self, message):
         params = message.get('params') or {}
         root = params.get('threadId')
+        item = params.get('item') or {}
+        if self.context_events and root in self.joined_roots and (
+                message.get('method') == 'thread/compacted' or (
+                    message.get('method') == 'item/completed' and item.get('type') == 'contextCompaction')):
+            self.context_events(root, 'compact')
         with self.lock:
             collectors = tuple(self.collectors.values())
         for collector in collectors:
@@ -309,24 +315,29 @@ class NativeCodexDelivery:
         with self.lock:
             self.inbox.prepare(root)
             self.roots[root] = thread
-        if self.token_audit and thread.get('path'):
+        if (self.token_audit or self.context_events) and thread.get('path'):
             with self.lock:
-                if root in self.collectors:
+                if root in self.joined_roots:
                     return
-            from uclusionTokenAudit import CodexTokenAudit
-            collector = CodexTokenAudit(self.environment, self.workspace_id,
-                                       client_version=thread.get('cliVersion'))
-            collector.set_primary_thread(thread)
-            with self.lock:
-                self.collectors[root] = collector
+            collector = None
+            if self.token_audit:
+                from uclusionTokenAudit import CodexTokenAudit
+                collector = CodexTokenAudit(self.environment, self.workspace_id,
+                                           client_version=thread.get('cliVersion'))
+                collector.set_primary_thread(thread)
+                with self.lock:
+                    self.collectors[root] = collector
             try:
                 self.client.request('thread/resume', {'threadId': root, 'excludeTurns': True})
                 with self.lock:
                     self.joined_roots.add(root)
+                if self.context_events:
+                    self.context_events(root, 'connected')
             except Exception:
                 with self.lock:
                     self.collectors.pop(root, None)
-                collector.close()
+                if collector:
+                    collector.close()
                 raise
 
     def ensure_collector(self, request):
@@ -379,6 +390,8 @@ class NativeCodexDelivery:
             for root in set(self.roots) - bound:
                 self.roots.pop(root, None)
                 self.joined_roots.discard(root)
+                if self.context_events:
+                    self.context_events(root, 'unavailable')
                 collector = self.collectors.pop(root, None)
                 if collector:
                     collector.close()
@@ -589,6 +602,9 @@ class NativeCodexDelivery:
                     reported_error = kind
             finally:
                 self.healthy.clear()
+                if self.context_events:
+                    for root in tuple(self.joined_roots):
+                        self.context_events(root, 'unavailable')
                 client.close()
                 with self.lock:
                     for collector in self.collectors.values():

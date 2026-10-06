@@ -99,6 +99,11 @@ class AnthropicCounter:
         return self._count([{'role': 'user', 'content': text}]) - self.text_base
 
     def tool(self, name, description, input_schema):
+        # Anthropic rejects these MCP schemas rather than counting them.
+        # Retain the original definition and let the analyzer mark its
+        # measured bytes-per-token fallback as estimated.
+        if any(keyword in (input_schema or {}) for keyword in ('oneOf', 'allOf', 'anyOf')):
+            return None
         tool = {
             'name': name,
             'description': description or '',
@@ -298,6 +303,11 @@ def main(argv=None):
                 for counter in counters
             },
         }
+        unavailable = {family: 'unsupported_input_schema'
+                       for family, tokens in manifest['tools'][key]['tokens'].items()
+                       if tokens is None}
+        if unavailable:
+            manifest['tools'][key]['unavailable'] = unavailable
         print(f"  tool {name}: {manifest['tools'][key]['tokens']}")
     chunks = sample_chunks(os.path.expanduser(args.sample_export))
     sample_bytes = sum(len(chunk.encode('utf-8')) for chunk in chunks)

@@ -5,6 +5,7 @@ import stat
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
@@ -23,6 +24,8 @@ JSONRPC_RESULT = {
     'id': 7,
     'result': {'tools': [{'name': 'get_job'}]},
 }
+READ_RESULT = {'jsonrpc': '2.0', 'id': 8,
+               'result': {'content': [{'type': 'text', 'text': 'Private unchanged view note body.'}]}}
 
 
 class _BodyResponse:
@@ -213,11 +216,117 @@ class ResponseStatsTests(unittest.TestCase):
         self.assertEqual(message, json.loads(emitted))
         self.assertTrue(emitted.endswith(b'\n'))
         self.assertFalse(emitted.endswith(b'\r\n'))
+        rows = self.rows()
         self.assertEqual([{
             'method': 'tools/call', 'tool': 'get_job', 'scope': 'thread_only', 'status': 'ok',
             'jsonrpc_utf8_bytes': len(emitted), 'text_utf8_bytes': len(text.encode('utf-8')),
-        }], self.rows())
+        }], [{key: row[key] for key in ('method', 'tool', 'scope', 'status', 'jsonrpc_utf8_bytes', 'text_utf8_bytes')}
+             for row in rows])
+        self.assertEqual('J-secret-1', rows[0]['read_selector']['short_code_id'])
+        self.assertNotIn(text, self.path.read_text())
+        self.assertNotIn('private-image-data', self.path.read_text())
+        self.assertNotIn('private-structured-data', self.path.read_text())
         self.assertEqual(0o600, stat.S_IMODE(self.path.stat().st_mode))
+
+    def test_identical_reads_match_within_their_context_until_reset(self):
+        recorder = self.recorder()
+        for root in ('first', 'second', 'first'):
+            recorder.set_request({'method': 'tools/call', 'params': {
+                'name': 'get_job', '_meta': {'threadId': root},
+                'arguments': {'short_code_id': 'R-example-1', 'thread_only': True}}})
+            recorder.record(READ_RESULT, b'wire')
+        reads = self.rows()
+        self.assertIsNone(reads[0]['repeat_of'])
+        self.assertIsNone(reads[1]['repeat_of'])
+        self.assertEqual(reads[0]['read_number'], reads[2]['repeat_of'])
+        self.assertEqual('unknown', reads[2]['context_coverage'])
+        recorder.context_event('first', 'compact')
+        recorder.record(READ_RESULT, b'wire')
+        self.assertIsNone(self.rows()[-1]['repeat_of'])
+        self.assertEqual('observed', self.rows()[-1]['context_coverage'])
+        recorder.set_request({'method': 'tools/call', 'params': {
+            'name': 'get_job', '_meta': {'threadId': 'second'},
+            'arguments': {'short_code_id': 'R-example-1', 'thread_only': True}}})
+        recorder.record(READ_RESULT, b'wire')
+        self.assertEqual(reads[1]['read_number'], self.rows()[-1]['repeat_of'])
+
+    def test_claude_hooks_share_read_history_and_clear_it_at_boundaries(self):
+        def hook(payload):
+            process = subprocess.run(
+                [sys.executable, str(SCRIPT_DIR / 'uclusionMCPProxy.py'), 'workspace', 'stage',
+                 '--response-stats-hook', str(self.path)],
+                input=json.dumps({'session_id': 'private-session', **payload}),
+                text=True, capture_output=True, check=True,
+            )
+            self.assertEqual('', process.stdout)
+            self.assertEqual('', process.stderr)
+        start = {'hook_event_name': 'SessionStart', 'source': 'startup'}
+        read = {'hook_event_name': 'PostToolUse', 'tool_name': 'mcp__Uclusion__get_job',
+                'tool_input': {'short_code_id': 'R-example-1', 'thread_only': True},
+                'tool_response': READ_RESULT['result']}
+        hook(start)
+        hook(read)
+        hook(read)
+        self.assertEqual(self.rows()[1]['read_number'], self.rows()[2]['repeat_of'])
+        for boundary in ('compact', 'clear'):
+            hook({**start, 'source': boundary})
+            hook(read)
+            self.assertIsNone(self.rows()[-1]['repeat_of'])
+            self.assertEqual('observed', self.rows()[-1]['context_coverage'])
+        self.assertNotIn('private-session', self.path.read_text())
+        self.assertNotIn(READ_RESULT['result']['content'][0]['text'], self.path.read_text())
+
+    def test_failed_and_mutating_calls_do_not_enter_repeat_history(self):
+        recorder = self.recorder()
+        recorder.record({'result': {'isError': True, 'content': [{'type': 'text', 'text': 'failure'}]}}, b'wire')
+        recorder.set_request({'method': 'tools/call', 'params': {'name': 'add_info', 'arguments': {}}})
+        recorder.record(JSONRPC_RESULT, b'wire')
+        self.assertTrue(all('repeat_of' not in row for row in self.rows()))
+
+    def test_merged_claude_hooks_record_one_row_for_each_actual_read(self):
+        payload = {'session_id': 'session', 'hook_event_name': 'PostToolUse',
+                   'tool_name': 'mcp__Uclusion__get_job', 'tool_use_id': 'first-call',
+                   'tool_input': {'short_code_id': 'R-example-1'}, 'tool_response': READ_RESULT['result']}
+        for invocation in ('first-call', 'first-call', 'second-call', 'second-call'):
+            recorder = self.recorder()
+            recorder.claude_hook({**payload, 'tool_use_id': invocation})
+            recorder.close()
+        rows = self.rows()
+        self.assertEqual(2, len(rows))
+        self.assertIsNone(rows[0]['repeat_of'])
+        self.assertEqual(rows[0]['read_number'], rows[1]['repeat_of'])
+        self.assertNotIn('first-call', self.path.read_text())
+
+    def test_claude_without_hooks_reports_candidate_repeats_with_unknown_coverage(self):
+        recorder = self.recorder()
+        recorder.set_request({'method': 'initialize', 'params': {'clientInfo': {'name': 'claude-code'}}})
+        recorder.set_request({'method': 'tools/call', 'params': {
+            'name': 'get_job', 'arguments': {'short_code_id': 'R-example-1'}}})
+        recorder.record(READ_RESULT, b'wire')
+        recorder.record(READ_RESULT, b'wire')
+        rows = self.rows()
+        self.assertEqual(rows[0]['read_number'], rows[1]['repeat_of'])
+        self.assertEqual('unknown', rows[1]['context_coverage'])
+
+    def test_a_held_log_lock_does_not_block_mcp_indefinitely(self):
+        recorder = self.recorder()
+        descriptor = os.open(self.path, os.O_RDWR)
+        self.addCleanup(os.close, descriptor)
+        proxy.fcntl.flock(descriptor, proxy.fcntl.LOCK_EX)
+        started = time.monotonic()
+        with redirect_stdout(io.StringIO()) as output, redirect_stderr(io.StringIO()):
+            proxy.write_message(READ_RESULT, stats=recorder)
+        self.assertLess(time.monotonic() - started, 1)
+        self.assertEqual(READ_RESULT, json.loads(output.getvalue()))
+        self.assertEqual([], self.rows())
+        self.assertIsNone(recorder._fd)
+
+    def test_unlock_failure_stops_only_the_recorder(self):
+        recorder = self.recorder()
+        with mock.patch.object(proxy.fcntl, 'flock', side_effect=[None, OSError('unlock failed')]), \
+                redirect_stderr(io.StringIO()):
+            recorder.context_event('first', 'compact')
+        self.assertIsNone(recorder._fd)
 
     def test_scope_categories_do_not_record_arguments(self):
         recorder = self.recorder()

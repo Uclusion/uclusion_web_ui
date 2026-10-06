@@ -17,6 +17,11 @@ import urllib.parse
 from contextlib import closing
 from uuid import uuid4
 
+try:
+    import fcntl
+except ImportError:
+    fcntl = None
+
 # Runtime imports must come from the same immutable installed release as this
 # proxy, even if an update moves the public executable symlinks meanwhile.
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
@@ -199,6 +204,7 @@ def parse_args(argv=None):
         '--response-stats', metavar='PATH',
         help='Append content-free response byte measurements to a private JSONL file.',
     )
+    parser.add_argument('--response-stats-hook', metavar='PATH', help=argparse.SUPPRESS)
     parser.add_argument('--token-audit', action='store_true')
     parser.add_argument('--token-audit-port', type=token_audit_port)
     parser.add_argument(
@@ -916,14 +922,23 @@ class ResponseStats:
     def __init__(self, path):
         self._fd = None
         self._request = {'method': None, 'tool': None, 'scope': None}
+        self._read = None
+        self._fallback_context = uuid4().hex
+        self._context = self._fallback_context
+        self._offset = 0
+        self._row_number = 0
+        self._seen = {}
+        self._invocations = set()
+        self._observed = set()
+        self._lock = threading.RLock()
         if path is None:
             return
         try:
             # Do not weaken the private regular-file contract on a platform
             # that cannot check ownership or safely open a caller's path.
-            if not all(hasattr(os, name) for name in ('geteuid', 'O_NOFOLLOW', 'O_NONBLOCK')):
+            if fcntl is None or not all(hasattr(os, name) for name in ('geteuid', 'O_NOFOLLOW', 'O_NONBLOCK', 'pread')):
                 raise OSError('Private statistics files are unsupported')
-            flags = os.O_WRONLY | os.O_APPEND | os.O_CREAT | os.O_NONBLOCK | os.O_NOFOLLOW
+            flags = os.O_RDWR | os.O_APPEND | os.O_CREAT | os.O_NONBLOCK | os.O_NOFOLLOW
             self._fd = os.open(path, flags, 0o600)
             opened = os.fstat(self._fd)
             if (
@@ -959,9 +974,13 @@ class ResponseStats:
             arguments = params.get('arguments')
             arguments = arguments if isinstance(arguments, dict) else {}
             scope = 'thread_only' if arguments.get('thread_only') is True else (
-                'sections' if arguments.get('sections') else 'default'
+                'sections' if 'sections' in arguments else 'default'
             )
         self._request = {'method': method, 'tool': tool, 'scope': scope}
+        self._read = self._read_selector(tool, params.get('arguments'))
+        meta = params.get('_meta') or {}
+        root = meta.get('threadId') if isinstance(meta, dict) else None
+        self._context = self._fingerprint('codex', root) if isinstance(root, str) and root else self._fallback_context
 
     @staticmethod
     def _label(value):
@@ -969,6 +988,147 @@ class ResponseStats:
         if isinstance(value, str) and re.fullmatch(r'[A-Za-z0-9_./:-]{1,128}', value):
             return value
         return None
+
+    @staticmethod
+    def _fingerprint(client, value):
+        return hashlib.sha256((client + '\0' + value).encode('utf-8')).hexdigest()
+
+    @classmethod
+    def _read_selector(cls, tool, arguments):
+        if not tool or not (tool.startswith('get_') or tool == 'find_work') or tool == 'get_upload':
+            return None
+        arguments = arguments if isinstance(arguments, dict) else {}
+        selector = {}
+        for name in ('short_code_id', 'job_id', 'workspace_id'):
+            value = cls._label(arguments.get(name))
+            if value is not None:
+                selector[name] = value
+        if tool == 'get_job':
+            for name in ('thread_only', 'stage_only', 'include_all_resolved'):
+                if arguments.get(name) is True:
+                    selector[name] = True
+            if isinstance(arguments.get('sections'), list):
+                selector['sections'] = sorted({value for value in arguments['sections'] if cls._label(value)})
+        return selector
+
+    def _apply_row(self, row):
+        self._row_number += 1
+        if row.get('invocation_sha256'):
+            self._invocations.add(row['invocation_sha256'])
+        context = row.get('context')
+        if row.get('event') == 'context_reset' and context:
+            self._seen = {key: value for key, value in self._seen.items() if key[0] != context}
+            if row.get('context_coverage') == 'observed':
+                self._observed.add(context)
+            else:
+                self._observed.discard(context)
+        elif row.get('content_sha256'):
+            key = (context, row.get('tool'), json.dumps(row.get('read_selector'), sort_keys=True), row['content_sha256'])
+            self._seen[key] = self._row_number
+
+    def _sync_rows(self):
+        if os.fstat(self._fd).st_size < self._offset:
+            self._offset = self._row_number = 0
+            self._seen.clear()
+            self._invocations.clear()
+            self._observed.clear()
+        pending = b''
+        while True:
+            chunk = os.pread(self._fd, 65536, self._offset + len(pending))
+            if not chunk:
+                if pending:
+                    raise OSError('Incomplete statistics row')
+                return
+            pending += chunk
+            while b'\n' in pending:
+                line, pending = pending.split(b'\n', 1)
+                row = json.loads(line)
+                if not isinstance(row, dict):
+                    raise ValueError('Invalid statistics row')
+                self._apply_row(row)
+                self._offset += len(line) + 1
+
+    def _append(self, row):
+        if self._fd is None:
+            return
+        with self._lock:
+            try:
+                deadline = time.monotonic() + .25
+                while True:
+                    try:
+                        fcntl.flock(self._fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                        break
+                    except BlockingIOError:
+                        if time.monotonic() >= deadline:
+                            raise
+                        time.sleep(.01)
+                self._sync_rows()
+                if row.get('invocation_sha256') in self._invocations:
+                    return
+                if row.get('content_sha256'):
+                    key = (row['context'], row['tool'], json.dumps(row['read_selector'], sort_keys=True), row['content_sha256'])
+                    row['context_coverage'] = 'observed' if row['context'] in self._observed else 'unknown'
+                    row['repeat_of'] = self._seen.get(key)
+                    row['read_number'] = self._row_number + 1
+                encoded = (json.dumps(row, separators=(',', ':')) + '\n').encode('utf-8')
+                if os.write(self._fd, encoded) != len(encoded):
+                    raise OSError('Incomplete statistics write')
+                self._apply_row(row)
+                self._offset += len(encoded)
+            except Exception:
+                self._disable()
+            finally:
+                if self._fd is not None:
+                    try:
+                        fcntl.flock(self._fd, fcntl.LOCK_UN)
+                    except Exception:
+                        self._disable()
+
+    def context_event(self, root, reason, client='codex'):
+        if self._fd is None or not isinstance(root, str) or not root:
+            return
+        self._append({
+            'event': 'context_reset', 'reason': reason,
+            'context': self._fingerprint(client, root),
+            'context_coverage': 'unknown' if reason == 'unavailable' else 'observed',
+        })
+
+    def _read_fields(self, result, context, tool, selector):
+        if selector is None or not isinstance(result, dict) or result.get('isError'):
+            return {}
+        content = result.get('content')
+        if not isinstance(content, list):
+            return {}
+        texts = [block['text'] for block in content if isinstance(block, dict)
+                 and block.get('type') == 'text' and isinstance(block.get('text'), str)]
+        if not texts:
+            return {}
+        return {'context': context, 'tool': tool, 'read_selector': selector,
+                'content_sha256': hashlib.sha256(json.dumps(texts, ensure_ascii=False).encode('utf-8')).hexdigest()}
+
+    def claude_hook(self, payload):
+        session = payload.get('session_id')
+        if not isinstance(session, str) or not session:
+            return
+        agent = payload.get('agent_id')
+        if isinstance(agent, str) and agent:
+            session += '\0' + agent
+        if payload.get('hook_event_name') == 'SessionStart':
+            source = payload.get('source')
+            if source in ('startup', 'resume', 'clear', 'compact', 'fork'):
+                self.context_event(session, source, 'claude')
+        elif payload.get('hook_event_name') == 'PostToolUse':
+            name = payload.get('tool_name')
+            if not isinstance(name, str) or not name.startswith('mcp__Uclusion__'):
+                return
+            tool = name.removeprefix('mcp__Uclusion__')
+            fields = self._read_fields(payload.get('tool_response'), self._fingerprint('claude', session),
+                                       tool, self._read_selector(tool, payload.get('tool_input')))
+            if fields:
+                invocation = payload.get('tool_use_id')
+                if isinstance(invocation, str) and invocation:
+                    fields['invocation_sha256'] = self._fingerprint('claude-call', session + '\0' + invocation)
+                self._append({'event': 'read', **fields})
 
     def record(self, message, emitted):
         if self._fd is None:
@@ -994,9 +1154,9 @@ class ResponseStats:
                 'jsonrpc_utf8_bytes': len(emitted),
                 'text_utf8_bytes': text_bytes,
             }
-            encoded = (json.dumps(row, separators=(',', ':')) + '\n').encode('utf-8')
-            if os.write(self._fd, encoded) != len(encoded):
-                raise OSError('Incomplete statistics write')
+            if status == 'ok':
+                row.update(self._read_fields(result, self._context, self._request['tool'], self._read))
+            self._append(row)
         except Exception:
             self._disable()
 
@@ -1417,6 +1577,19 @@ def main():
     # Before any path is resolved: a client spawns this process with no
     # environment of ours, so the descriptor carries the home as an argument.
     args = parse_args()
+    if args.response_stats_hook:
+        stats = ResponseStats(args.response_stats_hook)
+        try:
+            body = sys.stdin.read(1024 * 1024 + 1)
+            if len(body) <= 1024 * 1024:
+                payload = json.loads(body)
+                if isinstance(payload, dict):
+                    stats.claude_hook(payload)
+        except Exception:
+            sys.stderr.write('Uclusion read diagnostic hook unavailable.\n')
+        finally:
+            stats.close()
+        return
     market_id = args.workspace_id
     url_env = args.environment
     if url_env == 'dev':
@@ -1477,6 +1650,7 @@ def main():
                 environment, market_id, codex_home=args.codex_home,
                 replay=args.deliver_existing_pokes,
                 token_audit=args.token_audit, tools_changed=tools_changed,
+                context_events=response_stats.context_event if args.response_stats else None,
             )
         work_claims = WorkClaimsManager(token_holder.get) if args.work_claims else None
         listener = threading.Thread(

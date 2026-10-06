@@ -159,9 +159,9 @@ SCRIPT_FILES = (
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCLI.py': 'dc791133c4ee86a09db8d1bcfd3e96cd55b6a1f39aca912754b5f112dd736792',
-    'uclusionMCPProxy.py': 'fbd93dc36f9ee61f45fb01b3a11c8761ccc7032b43e95ade7b2cce5a1f3b2e59',
+    'uclusionMCPProxy.py': 'a8f36058ab47588da04895deb6eb2b1e1e0d9b3717b95ac9c045748f6389ee59',
     'uclusionSetupMCP.py': '9aa8d3199b0c392d944fc3b2fb9f26b48230737ea2e5b07980cd3df6b79ed4f3',
-    'uclusionCodexNative.py': 'e256e01002d45b393c62721eeebce648dc1ebe43485904713fc6186c7e9fd80f',
+    'uclusionCodexNative.py': 'd276658c822caa9398a8497289a9c509a56a61d3f63d1121843c091e8f8c241a',
     'uclusionUpdateNotices.py': 'a9d6ed9e082bce28ac8340d242ad34d2f180a35de6821ce72c0684503e84b7e8',
     'uclusionTokenAudit.py': 'efd025872ba7f0c4e605220278e6a14bd681fc187077a5bd3dd72af6b9bd1d3b',
 }
@@ -346,7 +346,7 @@ WORKFLOW_ASSET_SHA256 = {
     'design_examples': '4416eabe1980db0f7a6bb80530bb4cfb198188f462fc1cfa8917f5856279e37e',
     'design_openai_metadata': 'f31f258d8b76d5fcfa724b7e7468481ef18a863c9afbdd78b81b873641f9c7ba',
     'demo_brief': '1c26c3235dba931bcbf9d88fcacf32e437f1ec10f3e70fd908f33228ba30037f',
-    'token_manifest': 'd0c8a84e207405b1a179cdf7a5292943a004e7d156fd36322125a34ac73ee926',
+    'token_manifest': 'c29783c2ba200d19c8fc16f567a045f1cf3d750d557dc3ad5cc3bce1234f8979',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',
@@ -4370,7 +4370,70 @@ def register_mcp_json(path, label, workspace_id, env, require_existing,
                 existing_signature,
             )
     print(f"  ✅ Updated {path}")
+    if normal_claude:
+        settings_path = (CLAUDE_SETTINGS_PATH if path == CLAUDE_JSON_PATH
+                         else os.path.join(os.path.dirname(path), '.claude', 'settings.json'))
+        configure_claude_response_stats(settings_path, workspace_id, env, response_stats)
     return True
+
+
+def configure_claude_response_stats(settings_path, workspace_id, environment, response_stats):
+    """Forward conversation boundaries and read results to the private log."""
+    target = _config_write_target(settings_path)
+    existing, signature = _read_text_snapshot(target)
+    config = json.loads(existing) if existing else {}
+    if not isinstance(config, dict):
+        raise RuntimeError(f'{settings_path} must contain a JSON object')
+    hooks = config.get('hooks', {})
+    if not isinstance(hooks, dict):
+        raise RuntimeError(f'Invalid hooks in {settings_path}')
+    for event in ('SessionStart', 'PostToolUse'):
+        groups = hooks.get(event, [])
+        if not isinstance(groups, list):
+            raise RuntimeError(f'Invalid hooks.{event} in {settings_path}')
+        retained = []
+        for group in groups:
+            if not isinstance(group, dict) or not isinstance(group.get('hooks'), list):
+                retained.append(group)
+                continue
+            handlers = []
+            removed_owned_handler = False
+            for handler in group['hooks']:
+                command = handler.get('command') if isinstance(handler, dict) else None
+                try:
+                    parts = shlex.split(command) if isinstance(command, str) else []
+                except ValueError:
+                    parts = []
+                if not (len(parts) > 1 and parts[0] == 'python3' and os.path.basename(parts[1]) == 'uclusionMCPProxy.py'
+                        and '--response-stats-hook' in parts):
+                    handlers.append(handler)
+                else:
+                    removed_owned_handler = True
+            if handlers or not removed_owned_handler:
+                retained.append({**group, 'hooks': handlers})
+        if response_stats:
+            parts = ['python3', MCP_PROXY_SYMLINK_PATH, workspace_id, environment or 'production',
+                     '--response-stats-hook', response_stats]
+            if uclusion_home_root() != os.path.abspath(os.path.expanduser('~')):
+                parts.extend(['--home', uclusion_home_root()])
+            group = {'hooks': [{'type': 'command', 'command': ' '.join(shlex.quote(part) for part in parts),
+                                'timeout': 10}]}
+            if event == 'PostToolUse':
+                group['matcher'] = r'^mcp__Uclusion__(get_.*|find_work)$'
+            retained.append(group)
+        if retained:
+            hooks[event] = retained
+        else:
+            hooks.pop(event, None)
+    if hooks:
+        config['hooks'] = hooks
+    else:
+        config.pop('hooks', None)
+    updated = json.dumps(config, indent=2) + '\n'
+    if updated != (existing or '') and (config or existing):
+        os.makedirs(os.path.dirname(settings_path), exist_ok=True)
+        with config_file_lock(settings_path):
+            atomic_write_text(settings_path, updated, existing, target, signature)
 
 
 def _is_cursor_poke_drain_hook(entry):

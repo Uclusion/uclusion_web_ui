@@ -71,6 +71,21 @@ class NativeQueue:
 
 
 class NativeInboxTests(unittest.TestCase):
+    def test_only_completed_compaction_resets_its_registered_context(self):
+        events = []
+        delivery = NativeCodexDelivery.__new__(NativeCodexDelivery)
+        delivery.context_events = lambda root, reason: events.append((root, reason))
+        delivery.joined_roots = {'first', 'second'}
+        delivery.collectors = {}
+        delivery.lock = threading.RLock()
+        for method, root, kind in (
+                ('item/started', 'first', 'contextCompaction'),
+                ('item/completed', 'first', 'agentMessage'),
+                ('item/completed', 'foreign', 'contextCompaction'),
+                ('item/completed', 'first', 'contextCompaction')):
+            delivery._observe({'method': method, 'params': {'threadId': root, 'item': {'type': kind}}})
+        self.assertEqual([('first', 'compact')], events)
+
     def setUp(self):
         self.home = tempfile.TemporaryDirectory()
         self.addCleanup(self.home.cleanup)

@@ -503,6 +503,29 @@ class ConfigVersionStampTests(unittest.TestCase):
 
 
 class ResponseStatsInstallerTests(unittest.TestCase):
+    def test_read_hooks_preserve_other_handlers_and_follow_the_selected_log(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = os.path.join(directory, 'settings.json')
+            foreign = {'matcher': 'keep', 'hooks': [{'type': 'command', 'command': 'keep-this'}]}
+            empty = {'matcher': 'empty', 'hooks': []}
+            with open(path, 'w') as config:
+                INSTALL.json.dump({'hooks': {'SessionStart': [foreign, empty]}, 'theme': 'dark'}, config)
+            for log in ('first.jsonl', 'second.jsonl', None):
+                INSTALL.configure_claude_response_stats(path, 'workspace', 'stage', log)
+                with open(path) as config:
+                    updated = INSTALL.json.load(config)
+                self.assertEqual('dark', updated['theme'])
+                self.assertIn(foreign, updated['hooks']['SessionStart'])
+                self.assertIn(empty, updated['hooks']['SessionStart'])
+                owned = [group for group in updated['hooks']['SessionStart'] if group not in (foreign, empty)]
+                self.assertEqual(1 if log else 0, len(owned))
+                if log:
+                    self.assertIn(log, owned[0]['hooks'][0]['command'])
+                    self.assertIn('--response-stats-hook', owned[0]['hooks'][0]['command'])
+                    self.assertEqual(1, len(updated['hooks']['PostToolUse']))
+                else:
+                    self.assertNotIn('PostToolUse', updated['hooks'])
+
     def test_parser_preserves_enables_and_disables_recording(self):
         parser = INSTALL.build_parser()
         base = ['stage', 'workspace-1', 'view-1', '--clients', 'claude']

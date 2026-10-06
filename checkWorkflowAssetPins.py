@@ -9,13 +9,20 @@ same coherence check every customer install performs. A release whose assets
 do not match its installer's pinned digests therefore fails here, before any
 byte reaches S3, instead of failing on every customer's ``uclusion update``.
 
+The gate also requires Claude and OpenAI counts for every current artifact
+text hash, using the release counter's skill and bootstrap variants. Updating
+an asset pin without refreshing its token manifest therefore fails offline.
+
 Usage: ``python3 checkWorkflowAssetPins.py [scripts_dir]`` with the directory
 defaulting to ``build/scripts``. Exits nonzero on any validation failure.
 """
 
 import importlib.util
+import json
 import os
 import sys
+
+from countArtifactTokens import load_module, shipped_artifacts
 
 
 def load_installer(scripts_dir):
@@ -41,6 +48,27 @@ def read_bundle(scripts_dir, asset_paths):
     return bundle
 
 
+def validate_token_counts(scripts_dir, installer, manifest_text):
+    manifest = json.loads(manifest_text)
+    counts = manifest.get('artifacts')
+    if not isinstance(counts, dict):
+        raise RuntimeError('token manifest lacks artifact counts')
+    token_audit = load_module(
+        os.path.join(scripts_dir, 'uclusionTokenAudit.py'), 'deploy_gate_token_audit'
+    )
+    for digest, artifact in shipped_artifacts(installer, token_audit, scripts_dir).items():
+        entry = counts.get(digest)
+        tokens = entry.get('tokens') if isinstance(entry, dict) else None
+        for family in ('claude', 'openai'):
+            value = tokens.get(family) if isinstance(tokens, dict) else None
+            if type(value) is not int or value < 0:
+                raise RuntimeError(
+                    f"token manifest has no valid {family} count for "
+                    f"{artifact['name']} ({digest}); run countArtifactTokens.py, "
+                    'refresh the token_manifest installer pin, and rebuild'
+                )
+
+
 def main(argv):
     scripts_dir = argv[1] if len(argv) > 1 else os.path.join('build', 'scripts')
     try:
@@ -61,10 +89,11 @@ def main(argv):
         bundle = read_bundle(scripts_dir, installer.WORKFLOW_ASSET_PATHS)
         installer.validate_workflow_bundle(bundle)
         installer.validate_setup_script_bundle(scripts_dir)
+        validate_token_counts(scripts_dir, installer, bundle['token_manifest'])
     except RuntimeError as error:
         print(f'❌ Workflow release gate failed: {error}', file=sys.stderr)
         return 1
-    print(f'✅ Release in {scripts_dir} matches its installer pins.')
+    print(f'✅ Release in {scripts_dir} matches its installer pins and artifact token counts.')
     return 0
 
 

@@ -1,7 +1,12 @@
 import importlib.util
 import hashlib
+import json
 import os
+from pathlib import Path
+import shutil
 import stat
+import subprocess
+import sys
 import tempfile
 import threading
 import time
@@ -12,6 +17,7 @@ from unittest import mock
 
 SCRIPT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODULE_PATH = os.path.join(SCRIPT_DIR, 'uclusionInstall.py')
+RELEASE_GATE_PATH = Path(SCRIPT_DIR).parents[1] / 'checkWorkflowAssetPins.py'
 SPEC = importlib.util.spec_from_file_location('uclusion_install_under_test', MODULE_PATH)
 INSTALL = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(INSTALL)
@@ -76,6 +82,98 @@ class WorkflowProtocolContractTests(unittest.TestCase):
                 with open(os.path.join(SCRIPT_DIR, relative_path), 'rb') as asset:
                     digest = hashlib.sha256(asset.read()).hexdigest()
                 self.assertEqual(digest, INSTALL.WORKFLOW_ASSET_SHA256[key])
+        result = self._run_release_gate(SCRIPT_DIR)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    @staticmethod
+    def _run_release_gate(scripts_dir):
+        return subprocess.run(
+            [sys.executable, '-B', str(RELEASE_GATE_PATH), str(scripts_dir)],
+            capture_output=True, text=True, check=False,
+        )
+
+    @staticmethod
+    def _write_pinned_asset(scripts_dir, key, text):
+        path = scripts_dir / INSTALL.WORKFLOW_ASSET_PATHS[key]
+        old_digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        path.write_text(text, encoding='utf-8')
+        new_digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        installer_path = scripts_dir / 'uclusionInstall.py'
+        installer_path.write_text(
+            installer_path.read_text(encoding='utf-8').replace(old_digest, new_digest),
+            encoding='utf-8',
+        )
+
+    def test_release_gate_rejects_changed_artifacts_with_stale_counts(self):
+        for key in ('skill', 'reading_reference', 'codex_stub'):
+            with self.subTest(asset=key), tempfile.TemporaryDirectory() as scratch:
+                scripts_dir = Path(scratch) / 'scripts'
+                shutil.copytree(SCRIPT_DIR, scripts_dir,
+                                ignore=shutil.ignore_patterns('__pycache__'))
+                path = scripts_dir / INSTALL.WORKFLOW_ASSET_PATHS[key]
+                text = path.read_text(encoding='utf-8').replace(
+                    '<!-- /uclusion-', 'Token count fixture.\n<!-- /uclusion-', 1
+                )
+                self._write_pinned_asset(scripts_dir, key, text)
+
+                result = self._run_release_gate(scripts_dir)
+
+                self.assertEqual(result.returncode, 1, result.stderr)
+                self.assertIn('token manifest has no valid claude count', result.stderr)
+                self.assertIn('countArtifactTokens.py', result.stderr)
+
+    def test_release_gate_accepts_new_hashes_with_unchanged_token_counts(self):
+        with tempfile.TemporaryDirectory() as scratch:
+            scripts_dir = Path(scratch) / 'scripts'
+            shutil.copytree(SCRIPT_DIR, scripts_dir,
+                            ignore=shutil.ignore_patterns('__pycache__'))
+            path = scripts_dir / INSTALL.WORKFLOW_ASSET_PATHS['skill']
+            old_text = path.read_text(encoding='utf-8')
+            new_text = old_text.replace('Use the Uclusion MCP server',
+                                        'Use the connected Uclusion MCP server', 1)
+            self._write_pinned_asset(scripts_dir, 'skill', new_text)
+            manifest_path = scripts_dir / INSTALL.WORKFLOW_ASSET_PATHS['token_manifest']
+            manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+            # Both client presentations need current hashes. Equal numeric
+            # counts are valid; the old hash alone must no longer suffice.
+            for old, new in ((old_text, new_text),
+                             (old_text.split('---\n', 2)[2],
+                              new_text.split('---\n', 2)[2])):
+                old_digest = hashlib.sha256(old.encode('utf-8')).hexdigest()
+                new_digest = hashlib.sha256(new.encode('utf-8')).hexdigest()
+                entry = manifest['artifacts'].pop(old_digest)
+                entry['bytes'] = len(new.encode('utf-8'))
+                manifest['artifacts'][new_digest] = entry
+            self._write_pinned_asset(scripts_dir, 'token_manifest', json.dumps(manifest))
+
+            result = self._run_release_gate(scripts_dir)
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_release_gate_rejects_missing_or_invalid_provider_counts(self):
+        with tempfile.TemporaryDirectory() as scratch:
+            scripts_dir = Path(scratch) / 'scripts'
+            shutil.copytree(SCRIPT_DIR, scripts_dir,
+                            ignore=shutil.ignore_patterns('__pycache__'))
+            manifest_path = scripts_dir / INSTALL.WORKFLOW_ASSET_PATHS['token_manifest']
+            original = json.loads(manifest_path.read_text(encoding='utf-8'))
+            digest = INSTALL.WORKFLOW_ASSET_SHA256['skill']
+            for family in ('claude', 'openai'):
+                for invalid in (None, -1, '42', True, 1.5, 'missing'):
+                    with self.subTest(provider=family, count=invalid):
+                        manifest = json.loads(json.dumps(original))
+                        tokens = manifest['artifacts'][digest]['tokens']
+                        if invalid == 'missing':
+                            tokens.pop(family)
+                        else:
+                            tokens[family] = invalid
+                        self._write_pinned_asset(scripts_dir, 'token_manifest',
+                                                 json.dumps(manifest))
+
+                        result = self._run_release_gate(scripts_dir)
+
+                        self.assertEqual(result.returncode, 1, result.stderr)
+                        self.assertIn(f'no valid {family} count', result.stderr)
 
 
 

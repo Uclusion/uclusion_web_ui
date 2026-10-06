@@ -158,7 +158,7 @@ SCRIPT_FILES = (
 # deployment gate validates this table before publishing, so a sequential S3
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
-    'uclusionCLI.py': '4f4b0864b326f35c90f01c93461e0e4b641b599948d7f85e9b5269c46f9e088e',
+    'uclusionCLI.py': 'd66ee7035300bf37586b3f600289e17671fd4b65bd99169194e6499a6c8e56a7',
     'uclusionMCPProxy.py': 'b2f861ee89751190139dfe95a37f9235c2416084a971785a0f0a5f52a144674b',
     'uclusionSetupMCP.py': '9aa8d3199b0c392d944fc3b2fb9f26b48230737ea2e5b07980cd3df6b79ed4f3',
     'uclusionCodexNative.py': '4d4315f2a35a2ac10e8ef29bd1e7aa7eb64fc96050dbd7da96daf94a0a648bf2',
@@ -330,11 +330,11 @@ WORKFLOW_ASSET_PATHS = {
 # These digests bind the installer to one coherent workflow release. A host
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
-    'claude_stub': '2bcf5034fba89fe87e4020e70adac26aecaf373b50efd0c3c8137a4eeec73830',
+    'claude_stub': 'f774feca24a4b789c5c91cd7f7d7917ac63f14be17c00dea949749650d8dbf9c',
     'codex_stub': '77671087da7018dd2d7698ccc81f7bd583c16ca85f9536d6327339dc61dc25ff',
     'cursor_stub': '48944f1a09c86ef1e2e59fc18957e93212f86b30bb73ff67e18a9bc1ff8e3fa8',
     'skill': '079390aacd45f6d0db8d5480b04c41597b26611cf3ad030b5eed2f9246ee8137',
-    'pokes_reference': 'd740585a582d50ca5a5020230c7daeb08022af2c461e6ff2e4695d945c3319be',
+    'pokes_reference': '2951ff06798651fd56ef2f7b851bba459999b22cfae394be1cf5fd9a944c5507',
     'reading_reference': 'ded25d0fa5aff01b02293218a5e73ae79b4bb977be84f60fc3c0a9d702c8e362',
     'operations_reference': '110d233520dadf755cae089e028fe1060144d10071f064198642080efe5977d4',
     'completion_reference': '48f5c6f3fc2f1aa0d2732edaf8938cde5979ca3b3afb136ca4d269f2a65880f2',

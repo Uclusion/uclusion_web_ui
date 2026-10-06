@@ -66,15 +66,15 @@ def generate_session_consumer():
 
 
 def resolve_consumer(explicit_consumer, is_listener):
-    """Pick the delivery cursor identity for a wait or listen (J-all-379).
+    """Pick the delivery cursor identity for a wait or listen.
 
     Every agent session gets its own cursor so every session sees every poke
-    arriving while it is armed (S-all-205: a brand-new cursor starts at the
-    arm-time high-water mark — the retained backlog is history). Priority:
+    arriving while it is armed (a brand-new cursor starts at the
+    arm-time high-water mark; the retained backlog is history). Priority:
     an explicit --consumer, then the UCLUSION_CONSUMER environment variable
     (the human's knob for surfaces that spawn many processes per session),
-    then for a listener a fresh generated identity - the listener process IS
-    the session. A bare wait falls back to the shared default cursor because
+    then the Claude Code session identity, then for a listener a fresh
+    generated identity. A bare wait falls back to the shared default cursor because
     a per-invocation identity would start past the pending backlog on every
     drain and deliver nothing; surfaces with a persistent session identity,
     or the human via UCLUSION_CONSUMER, get their own lane.
@@ -84,13 +84,11 @@ def resolve_consumer(explicit_consumer, is_listener):
     env_consumer = os.environ.get(CONSUMER_ENV_VAR)
     if env_consumer:
         return env_consumer
+    # Both delivery modes continue the same session cursor across re-arms.
+    claude_session = os.environ.get(CLAUDE_SESSION_ENV_VAR)
+    if claude_session:
+        return SESSION_CONSUMER_PREFIX + 'claude-' + claude_session
     if is_listener:
-        # Q-Marketing-198 O-1: a Claude Code session re-arms its listener when the last one
-        # ends. Keying the cursor on the session, not the process, lets the new listener
-        # deliver what arrived in between instead of starting past it.
-        claude_session = os.environ.get(CLAUDE_SESSION_ENV_VAR)
-        if claude_session:
-            return SESSION_CONSUMER_PREFIX + 'claude-' + claude_session
         return generate_session_consumer()
     return DEFAULT_CONSUMER
 UCLUSION_MCP_PROXY_SYMLINK = os.path.join(
@@ -219,12 +217,11 @@ def ensure_inbox_schema(connection):
 
 
 def start_new_consumer_at_arm_time(environment, workspace_id, consumer):
-    """Initialize a BRAND-NEW consumer's cursor at the arm-time high-water mark.
+    """Initialize a brand-new consumer's cursor at the arm-time high-water mark.
 
-    S-all-205: the retained backlog is history a new session cannot act on —
-    anything still needing attention is on the agent's find work list — so a
-    fresh session cursor starts past it instead of redelivering it (the
-    ``--deliver-existing-pokes`` opt-in, Q-all-351 O-1, skips this call). An
+    Retained backlog is history a new session cannot act on; anything still
+    needing attention is on its find work list. A fresh session starts past
+    it instead of redelivering it (``--deliver-existing-pokes`` skips this call). An
     established consumer is untouched: its pending rows were never
     delivered and remain live. The shared default cursor is always exempt:
     for surfaces that drain it at turn start the pending backlog IS the
@@ -232,16 +229,19 @@ def start_new_consumer_at_arm_time(environment, workspace_id, consumer):
     """
     if consumer == DEFAULT_CONSUMER:
         return
-    with closing(open_inbox()) as connection:
-        row = connection.execute(
+    with closing(open_inbox()) as connection, connection:
+        connection.execute('BEGIN IMMEDIATE')
+        connection.execute(
             '''
-            SELECT last_sequence FROM poke_consumers
-            WHERE environment = ? AND workspace_id = ? AND consumer = ?
+            INSERT INTO poke_consumers
+                (environment, workspace_id, consumer, last_sequence, updated_at)
+            VALUES (?, ?, ?,
+                (SELECT COALESCE(MAX(sequence), 0) FROM poke_messages
+                 WHERE environment = ? AND workspace_id = ?), ?)
+            ON CONFLICT (environment, workspace_id, consumer) DO NOTHING
             ''',
-            (environment, workspace_id, consumer)
-        ).fetchone()
-    if row is None:
-        ignore_existing_prompts(environment, workspace_id, consumer)
+            (environment, workspace_id, consumer, environment, workspace_id, time.time())
+        )
 
 
 def next_prompt(environment, workspace_id, consumer):
@@ -3637,7 +3637,8 @@ def build_parser():
         help='Cursor name this wait advances. Prompts are kept until they age '
              'out, so each named consumer sees every prompt exactly once. '
              f'Defaults to the {CONSUMER_ENV_VAR} environment variable when '
-             f'set, else the shared "{DEFAULT_CONSUMER}" cursor; give each '
+             'set, else the Claude Code session cursor inside Claude Code, '
+             f'else the shared "{DEFAULT_CONSUMER}" cursor; give each '
              'session its own name so every session sees every prompt.',
     )
     wait_backlog_group = wait_parser.add_mutually_exclusive_group()
@@ -3708,7 +3709,8 @@ def build_parser():
         help='Cursor name this listener advances. Prompts are kept until they '
              'age out, so each named consumer sees every prompt exactly once. '
              f'Defaults to the {CONSUMER_ENV_VAR} environment variable when '
-             'set, else a fresh per-session identity that starts at the '
+             'set, else the Claude Code session cursor inside Claude Code, '
+             'else a fresh per-session identity that starts at the '
              'current high-water mark, so every session sees every prompt '
              'arriving while it is armed.',
     )

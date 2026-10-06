@@ -241,7 +241,7 @@ class ResidentStubContractTests(unittest.TestCase):
     def test_claude_stub_arms_its_own_poke_listener(self):
         stub = self.bundle['claude_stub']
         self.assertIn(INSTALL.WORKFLOW_ENV_PLACEHOLDER + ' listen', stub)
-        self.assertRegex(stub, r'(?i)arm\s+exactly one Monitor')
+        self.assertRegex(stub, r'(?i)arm\s+exactly one delivery task')
         # A Monitor reports only into the conversation that armed it, so the
         # session that needs delivery is the session that arms it.
         self.assertRegex(stub, r'(?i)only the session that armed it')

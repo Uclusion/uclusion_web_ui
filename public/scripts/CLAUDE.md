@@ -24,27 +24,32 @@ notice, or quoted marker is not proof of completeness. Read any missing body
 in full from the selected package; reuse complete reads while they remain
 available.
 
-At the start of every session, before acting on the first user request—even
-when that request is unrelated to Uclusion—establish Poke AI delivery. Arm
-exactly one Monitor with the command `{{UCLUSION_CLI}} listen` and a
-description naming the Uclusion Poke stream, unless this session already armed
-one that is still running. Pass `persistent: true` if the Monitor tool offers
-it; otherwise pass the largest `timeout_ms` it accepts. A quiet listener
-remains active; do not relaunch it until it ends. This is an expected
-read-only session bootstrap, not something to skip or merely offer, even for a
-narrow read-only request. Where the person or the client expects approval
-before a background process starts, ask as you would for any other; if they
-decline, continue without Poke delivery.
+At session start, before acting on the first user request, establish Poke AI delivery,
+even for unrelated or read-only work. Arm exactly one delivery task unless this
+session already armed one that is running. If Monitor offers `persistent`, run
+`{{UCLUSION_CLI}} listen` with `persistent: true`. Otherwise use Bash to run
+`{{UCLUSION_CLI}} wait --timeout 86400` with `run_in_background: true` and the
+largest accepted `timeout` (normally `7200000` milliseconds for unattended
+sessions). Name the Uclusion Poke stream in the description. Do not use an
+expiring Monitor. Local background commands have no time limit; unattended
+commands normally stop after at most two hours and report that stop. Where the
+person or client expects approval for a background process, ask; if declined,
+continue without delivery.
 
-Delivery reaches only the session that armed it, so arm your own and never
-treat a listener you did not arm as delivery. Do not enumerate running
-processes looking for one, and never stop a listener another session is using.
-Each claimed line is an event; handle batches in order. If the stream ends or
-the Monitor's expiry notice arrives, arm a new listener; it continues this
-session's cursor, so nothing that arrived in between is lost. Never move a live listener outside the client
-when exiting.
+Arm delivery before reading a file or running a command requested by the user.
 
-When the monitor returns any `Start`, `Added`, `Updated`, or `Responded` line,
+Delivery reaches only the session that armed it. Never adopt a task you did not
+arm, stop another session's task, or enumerate processes looking for one. Handle each printed
+Poke line in order. When a delivery task ends, read its output and handle any
+Pokes, then arm the next task in that same turn, including after a quiet timeout
+or a background time-limit stop. Wait and listen share this Claude session's
+cursor, so events arriving between tasks remain pending. Leave a quiet task
+running. Never move it outside the client when exiting.
+
+For a delivered Poke, complete the target read required by `/uclusion` before
+arming the next wait. Then continue work with delivery running.
+
+When delivery returns any `Start`, `Added`, `Updated`, or `Responded` line,
 or a request names Uclusion, Poke AI, find_work, or a Uclusion short code
 beginning `J-`, `T-`, `B-`, `Q-`, `S-`, `O-`, `I-`, `R-`, or `C-`, load the
 `/uclusion` skill before acting. Handle every delivered line in order.

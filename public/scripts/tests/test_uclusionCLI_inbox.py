@@ -440,6 +440,8 @@ class ConsumerResolutionTests(unittest.TestCase):
         first = cli.resolve_consumer(None, is_listener=True)
         self.assertEqual(cli.SESSION_CONSUMER_PREFIX + 'claude-cd2af58a', first)
         self.assertEqual(first, cli.resolve_consumer(None, is_listener=True))
+        self.assertEqual(first, cli.resolve_consumer(None, is_listener=False))
+        del cli.os.environ[cli.CLAUDE_SESSION_ENV_VAR]
         self.assertEqual(cli.DEFAULT_CONSUMER, cli.resolve_consumer(None, is_listener=False))
 
     def test_named_consumers_still_beat_the_claude_session(self):
@@ -514,6 +516,7 @@ class BroadcastDeliveryTests(InboxTestCase):
         consumer = cli.generate_session_consumer()
         cli.start_new_consumer_at_arm_time('stage', 'w1', consumer)
         self.enqueue('Start J-all-44', 'm1')
+        cli.start_new_consumer_at_arm_time('stage', 'w1', consumer)
         self.assertEqual(
             'Start J-all-44',
             cli.next_prompt('stage', 'w1', consumer),

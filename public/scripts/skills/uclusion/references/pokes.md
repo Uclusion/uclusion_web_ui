@@ -75,9 +75,17 @@ strategy, and never install or configure anything to obtain delivery.
 
 ## Backlog and session lifecycle
 
-A session's first listener starts its cursor at arm time. A Claude Code
-listener re-armed in the same session continues that cursor, so Pokes that
-arrived between listeners are still delivered. A Cursor listener exits at its
+A session's first delivery task starts its cursor at arm time. Claude Code
+uses a persistent Monitor running `listen` when available; otherwise it runs
+`wait --timeout 86400` as a background Bash command with the largest accepted
+tool timeout. When that task ends, read its output, handle printed Pokes, and
+arm the next task in the same turn, including after a quiet timeout or a
+background time-limit stop. Both commands key the cursor on
+`CLAUDE_CODE_SESSION_ID`, so re-arming or switching commands in the same session
+continues that cursor and delivers Pokes that arrived between tasks.
+An explicit `--consumer` or `UCLUSION_CONSUMER` overrides the session identity.
+Outside Claude Code, a bare wait still uses the shared default cursor.
+A Cursor listener exits at its
 duration limit after printing `Uclusion listener rearm` and its consumer name.
 The next listener passes that name with `--consumer`, so Pokes that arrived
 between listeners are still delivered. Starting a Cursor listener stops every

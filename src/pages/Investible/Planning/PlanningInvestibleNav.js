@@ -1,15 +1,15 @@
 import clsx from 'clsx';
 import {
-  Checkbox, FormControl,
+  Checkbox, FormControl, IconButton,
   FormControlLabel,
-  makeStyles, MenuItem, Select,
+  InputAdornment, makeStyles, MenuItem, OutlinedInput, Select,
   Tooltip,
   Typography,
   useMediaQuery,
   useTheme
 } from '@material-ui/core';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
-import { ExpandLess, Label, ThumbDown, ThumbUp } from '@material-ui/icons';
+import { Add, Close, Edit, ExpandLess, Label, ThumbDown, ThumbUp } from '@material-ui/icons';
 import DeleteSweepIcon from '@material-ui/icons/DeleteSweep';
 import { FormattedMessage, useIntl } from 'react-intl';
 import AttachedFilesList from '../../../components/Files/AttachedFilesList';
@@ -73,7 +73,7 @@ import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/Marke
 import { addMarketComments, getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { requiresAction } from '../../../components/AddNewWizards/JobStage/JobStageWizard';
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
-import NameField, { getNameStoredState } from '../../../components/TextFields/NameField';
+import { NAME_MAX_LENGTH } from '../../../components/TextFields/NameField';
 import { DARK_ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
 import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
 import PokeAIButton from '../../../components/Buttons/PokeAIButton';
@@ -100,7 +100,8 @@ export default function PlanningInvestibleNav(props) {
   const history = useHistory();
   const [themeMode] = useContext(ThemeModeContext);
   const isDark = themeMode === 'dark';
-  const [labelHasValue, setLabelHasValue] = useState(false);
+  const [labelDraft, setLabelDraft] = useState('');
+  const [editingLabel, setEditingLabel] = useState(false);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
@@ -118,11 +119,17 @@ export default function PlanningInvestibleNav(props) {
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
   const addressed = useAddressed(groupPresences, marketPresences, investibleId, marketId);
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
+  const canEditLabel = isInReviewStage(fullStage);
+  const showLabelEditor = editingLabel && canEditLabel;
   const attachedFiles =  marketInvestible?.investible?.attached_files;
   // No quick add from your vote so have to check that as well
   const unaccepted = isAssigned && !accepted?.includes(userId) && (!isAssigned || _.isEmpty(yourVote));
   const labelsSorted = _.reverse(_.sortBy(labels, "updated_at"));
   const label = _.isEmpty(labelsSorted) ? undefined : labelsSorted[0].label;
+  const labelEditorId = `label${investibleId}`;
+  const LabelActionIcon = showLabelEditor ? Close : _.isEmpty(label) ? Add : Edit;
+  const labelActionText = intl.formatMessage({id: showLabelEditor ? 'cancel' :
+    _.isEmpty(label) ? 'addJobLabel' : 'editJobLabel'});
 
   function onDeleteFile(path) {
     return deleteAttachedFilesFromInvestible(marketId, investibleId, [path]).then((investible) => {
@@ -203,16 +210,21 @@ export default function PlanningInvestibleNav(props) {
     });
   }
 
-  function addLabel() {
+  function toggleLabelEditor() {
+    setLabelDraft(label || '');
+    setEditingLabel(!editingLabel);
+  }
+
+  function updateLabel() {
     const updateInfo = {
       marketId,
       investibleId,
-      labelList: [getNameStoredState(`label${investibleId}`)]
+      labelList: [labelDraft]
     };
     return updateInvestible(updateInfo).then((fullInvestible) => {
       refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
-      setOperationRunning(false);
-    });
+      setEditingLabel(false);
+    }).finally(() => setOperationRunning(false));
   }
 
 
@@ -469,28 +481,59 @@ export default function PlanningInvestibleNav(props) {
             </Select>
         </FormControl>
       )}
-      {!_.isEmpty(label) && (
-        <>
-          <b><FormattedMessage id={'label'}/></b>
-          <Typography variant="body2" style={{marginBottom: '1rem', maxWidth: '10rem'}}>
-            {label}
-          </Typography>
-        </>
-      )}
-      {isInReviewStage(fullStage)&&(
-        <>
-          <NameField id={`label${investibleId}`} setHasValue={setLabelHasValue} maxWidth='10rem'
-          placeHolder={intl.formatMessage({ id: 'label' })} label={'labelPlaceholder'} autoFocus={false} />
-          <SpinningIconLabelButton
-            iconColor={isDark ? DARK_ACTION_BUTTON_COLOR : undefined}
-              style={{marginBottom: '1rem'}}
-                disabled={!labelHasValue}
-                onClick={addLabel}
+      {(!_.isEmpty(label) || canEditLabel) && (
+        <div style={{marginBottom: '1rem'}}>
+          <div style={{display: 'flex', flexDirection: 'row'}}>
+            <b><FormattedMessage id='label'/></b>
+            {canEditLabel && (
+              <div style={{marginTop: '-0.3rem'}}>
+                <Tooltip placement='top' title={labelActionText}>
+                  <span style={{display: 'inline-flex'}}>
+                    <IconButton
+                      size='small'
+                      disabled={operationRunning !== false}
+                      id={`editLabel${investibleId}`}
+                      aria-label={labelActionText}
+                      onClick={toggleLabelEditor}
+                    >
+                      <LabelActionIcon htmlColor={isDark ? DARK_ACTION_BUTTON_COLOR : 'black'} fontSize='small' />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+              </div>
+            )}
+          </div>
+          {!showLabelEditor && !_.isEmpty(label) && (
+            <Typography variant="body2" style={{maxWidth: '10rem'}}>
+              {label}
+            </Typography>
+          )}
+          {showLabelEditor && (
+            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
+              <OutlinedInput
+                id={labelEditorId}
+                value={labelDraft}
+                onChange={(event) => setLabelDraft(event.target.value)}
+                style={{marginBottom: '10px', width: '100%', maxWidth: '10rem'}}
+                inputProps={{maxLength: NAME_MAX_LENGTH, 'aria-label': intl.formatMessage({id: 'label'})}}
+                endAdornment={
+                  <InputAdornment position='end' style={{marginRight: '1rem'}}>
+                    {NAME_MAX_LENGTH - labelDraft.length}
+                  </InputAdornment>
+                }
+              />
+              <SpinningIconLabelButton
+                style={{alignSelf: 'flex-start'}}
+                iconColor={isDark ? DARK_ACTION_BUTTON_COLOR : undefined}
+                disabled={_.isEmpty(labelDraft) && _.isEmpty(label)}
+                onClick={updateLabel}
                 autoFocus={false}
-                icon={Label} id='addLabel'>
-                {intl.formatMessage({ id: 'addLabel' })}
-          </SpinningIconLabelButton>
-        </>
+                icon={Label} id={`updateLabel${investibleId}`}>
+                {intl.formatMessage({id: 'update'})}
+              </SpinningIconLabelButton>
+            </div>
+          )}
+        </div>
       )}
       <div className={classes.assignmentContainer}>
           <Tooltip key='isVisibleCheckboxKey'

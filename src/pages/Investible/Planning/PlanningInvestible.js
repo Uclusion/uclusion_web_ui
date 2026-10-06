@@ -849,7 +849,7 @@ function PlanningInvestible(props) {
   }
   const showCommentAdd = !inArchives && !isInNotDoing && _.isEmpty(search) && marketId &&
     !_.isEmpty(investible) && !hidden;
-  const investibleNav = <PlanningInvestibleNav investibles={investibles} name={name}
+  const investibleNav = <PlanningInvestibleNav key={investibleId} investibles={investibles} name={name}
                                                marketInvestible={marketInvestible} classes={classes}
                                                investibleId={investibleId} yourVote={yourVote}
                                                userId={userId} myPresence={myPresence} isAssigned={isAssigned}

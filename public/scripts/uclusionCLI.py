@@ -3819,6 +3819,14 @@ def build_parser():
         get_job_parser, 'get_job', get_job_fields, ('short_code_id',)
     )
 
+    attachments_parser = subparsers.add_parser(
+        'get_job_attachments', help='List job attachment metadata and authorized download links without opening files.',
+    )
+    attachments_parser.add_argument('--short-code-id', help='Job short code.')
+    attachments_parser.add_argument('-o', '--output', help='Write output to this file.')
+    configure_mcp_parser(attachments_parser, 'get_job_attachments',
+                         (mcp_field('short_code_id', 'short_code_id'),), ('short_code_id',))
+
     report_parser = subparsers.add_parser(
         'report',
         help='Compatibility form of get_job that writes job_report.md by default.',

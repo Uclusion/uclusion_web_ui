@@ -4444,6 +4444,40 @@ class ProxyContractTests(TokenAuditTestCase):
         )
         self.assertIs(response, proxy.filter_token_audit_tools(response, True))
 
+    def test_agent_catalog_hides_finalization_without_changing_collector_schema(self):
+        phase_schema = {
+            'type': 'object', 'additionalProperties': False,
+            'properties': {'job_id': {'type': 'string'}, 'audit_run_id': {'type': 'string'},
+                           'bucket': {'type': 'string'}, 'marker_sequence': {'type': 'integer'},
+                           'finalization': {'type': 'object', 'properties': {'source': {'type': 'object'}}}},
+            'required': ['job_id', 'audit_run_id', 'bucket'],
+            'not': {'anyOf': [{'not': {'if': {'required': ['finalization']},
+                                     'then': {'required': ['marker_sequence']}}}]},
+        }
+        response = {'jsonrpc': '2.0', 'id': 1, 'result': {'tools': [
+            {'name': 'get_job', 'inputSchema': {'type': 'object'}},
+            {'name': 'set_job_audit_phase', 'inputSchema': phase_schema},
+            {'name': 'end_job_audit', 'inputSchema': {
+                'type': 'object', 'properties': {'handoff_type': {'type': 'string'},
+                                               'finalization': {'type': 'object'}},
+            }},
+        ]}}
+        for handler, body in (
+                (proxy.handle_json_response, json.dumps(response).encode()),
+                (proxy.handle_sse_response, ('data: ' + json.dumps(response) + '\n\n').encode())):
+            with self.subTest(handler=handler.__name__), mock.patch.object(proxy, 'write_message') as write:
+                handler(io.BytesIO(body), token_audit_enabled=True)
+                visible = write.call_args.args[0]['result']['tools']
+                self.assertEqual([tool['name'] for tool in response['result']['tools']],
+                                 [tool['name'] for tool in visible])
+                self.assertEqual(response['result']['tools'][0], visible[0])
+                self.assertEqual(['job_id', 'audit_run_id', 'bucket'],
+                                 visible[1]['inputSchema']['required'])
+                self.assertIn('marker_sequence', visible[1]['inputSchema']['properties'])
+                self.assertNotIn('finalization', json.dumps(visible))
+        self.assertIn('finalization', phase_schema['properties'])
+        self.assertIn('not', phase_schema)
+
     def test_unreachable_work_claim_keeps_auto_take_idle(self):
         class UnreachableClaims:
             @staticmethod

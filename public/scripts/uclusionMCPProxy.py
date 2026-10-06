@@ -1071,17 +1071,32 @@ def write_jsonrpc_error(request_id, code, message, data=None, stats=None):
 
 
 def filter_token_audit_tools(message, enabled):
-    """Hide audit markers unless this MCP process owns a collector."""
-    if enabled or not isinstance(message, dict):
+    """Expose agent markers without the collector's finalization schema."""
+    if not isinstance(message, dict):
         return message
     result = message.get('result')
     if not isinstance(result, dict) or not isinstance(result.get('tools'), list):
         return message
-    filtered = [
-        tool for tool in result['tools']
-        if not isinstance(tool, dict) or tool.get('name') not in TOKEN_AUDIT_TOOLS
-    ]
-    if len(filtered) == len(result['tools']):
+    filtered = []
+    for tool in result['tools']:
+        name = tool.get('name') if isinstance(tool, dict) else None
+        if name in TOKEN_AUDIT_TOOLS and not enabled:
+            continue
+        if name in ('set_job_audit_phase', 'end_job_audit'):
+            schema = tool.get('inputSchema')
+            if isinstance(schema, dict) and 'finalization' in schema.get('properties', {}):
+                schema = {**schema, 'properties': {
+                    key: value for key, value in schema['properties'].items()
+                    if key != 'finalization'
+                }}
+                if name == 'set_job_audit_phase':
+                    # The server requires marker_sequence only when finalization
+                    # is supplied. The SDK may wrap that allOf in not/anyOf.
+                    schema.pop('allOf', None)
+                    schema.pop('not', None)
+                tool = {**tool, 'inputSchema': schema}
+        filtered.append(tool)
+    if filtered == result['tools']:
         return message
     return {**message, 'result': {**result, 'tools': filtered}}
 

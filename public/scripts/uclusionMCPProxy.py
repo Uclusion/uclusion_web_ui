@@ -1398,7 +1398,7 @@ def checkpoint_identity_fingerprint(
     return 'sha256-v1:' + hashlib.sha256(canonical).hexdigest()
 
 
-def make_token_audit_publisher(post_url, token_provider):
+def make_token_audit_publisher(post_url, token_provider, *, token_refresher=None):
     """Build an authenticated, out-of-band finalization callback.
 
     The callback intentionally creates no user-visible stdout traffic and
@@ -1406,6 +1406,11 @@ def make_token_audit_publisher(post_url, token_provider):
     immutable across retries, and the server reuses a matching audit note once
     that ordinary report is visible in the job export.
     """
+    from uclusionTokenAudit import AuditPublicationRejected
+
+    if token_refresher is None:
+        token_refresher = token_provider
+
     def publish(row):
         finalization = row.get('finalization')
         buckets = (
@@ -1417,7 +1422,7 @@ def make_token_audit_publisher(post_url, token_provider):
             or not isinstance(buckets.get('items'), list)
             or 'phases' in finalization
         ):
-            raise RuntimeError('audit finalization uses an unsupported shape')
+            raise AuditPublicationRejected('audit finalization uses an unsupported shape')
         is_checkpoint = row.get('publication_kind') == 'checkpoint'
         if is_checkpoint:
             marker_sequence = row.get('marker_sequence')
@@ -1429,7 +1434,7 @@ def make_token_audit_publisher(post_url, token_provider):
                 or not isinstance(bucket, str)
                 or not bucket
             ):
-                raise RuntimeError('audit checkpoint identity is invalid')
+                raise AuditPublicationRejected('audit checkpoint identity is invalid')
             request_id = (
                 'job-audit-' + row['audit_run_id']
                 + '-checkpoint-' + str(marker_sequence)
@@ -1480,12 +1485,18 @@ def make_token_audit_publisher(post_url, token_provider):
             'Accept': 'application/json, text/event-stream',
             'Authorization': token,
         }
-        resp, _refreshed = post_to_mcp_refreshing_token(
-            post_url,
-            headers,
-            json.dumps(request, separators=(',', ':')),
-            token_provider,
-        )
+        try:
+            resp, _refreshed = post_to_mcp_refreshing_token(
+                post_url,
+                headers,
+                json.dumps(request, separators=(',', ':')),
+                token_refresher,
+            )
+        except urllib.error.HTTPError as error:
+            if 400 <= error.code < 500 and error.code not in (408, 429):
+                error.close()
+                raise AuditPublicationRejected('audit publication HTTP rejection') from None
+            raise
         try:
             result = read_mcp_response(resp)
         finally:
@@ -1494,10 +1505,16 @@ def make_token_audit_publisher(post_url, token_provider):
             not isinstance(result, dict)
             or result.get('jsonrpc') != '2.0'
             or result.get('id') != request_id
-            or result.get('error') is not None
         ):
             raise RuntimeError('audit finalization RPC failed')
+        rpc_error = result.get('error')
+        if rpc_error is not None:
+            if isinstance(rpc_error, dict) and rpc_error.get('code') in (-32600, -32601, -32602):
+                raise AuditPublicationRejected('audit publication RPC rejection')
+            raise RuntimeError('audit finalization RPC failed')
         tool_result = result.get('result')
+        if isinstance(tool_result, dict) and tool_result.get('isError') is True:
+            raise AuditPublicationRejected('audit publication was refused')
         structured = (
             tool_result.get('structuredContent')
             if isinstance(tool_result, dict) else None
@@ -1673,7 +1690,9 @@ def main():
                     args.token_audit_source,
                     args.token_audit_client,
                     args.token_audit_port,
-                    make_token_audit_publisher(post_url, token_holder.get),
+                    make_token_audit_publisher(
+                        post_url, token_holder.get, token_refresher=token_holder.refresh
+                    ),
                     ready_file=args.token_audit_ready_file,
                     ready_owner=args.token_audit_owner,
                     collector_ready=native_delivery.tools_ready if native_delivery else None,

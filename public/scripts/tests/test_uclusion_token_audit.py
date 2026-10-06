@@ -4119,6 +4119,104 @@ class OtlpAndOutboxTests(TokenAuditTestCase):
             published[0]["finalization"]["measurement"]["reason_code"],
         )
 
+    def queued_publisher(self):
+        store = self.store()
+        session = store.fingerprint("codex-thread", "publication-budget")
+        store.bind_session("codex", session, is_root=True)
+        run_id = str(uuid.uuid4())
+        store.start_run("codex", "openai", "native", session, run_id, "J-all-558")
+        store.record_usage("codex", session, "usage", audit._openai_counts(
+            {"totalTokens": 5}), "native")
+        store.set_bucket(run_id, "implementation", 1)
+        store.request_end(run_id, "review_requested")
+        store.signal_complete("codex", session)
+        runtime = audit.TokenAuditProxy.__new__(audit.TokenAuditProxy)
+        runtime.store = store
+        runtime.source = "native"
+        runtime.receiver = None
+        return runtime
+
+    def publication_rows(self, store):
+        with closing(store.connect()) as connection:
+            return [dict(connection.execute(
+                f"SELECT state, attempts, finalization_json FROM {table}"
+            ).fetchone()) for table in (
+                "token_audit_checkpoints", "token_audit_outbox")]
+
+    def test_refused_audit_uploads_stop_and_survive_restart(self):
+        runtime = self.queued_publisher()
+        def refused(_url, _headers, body, _provider, timeout=30):
+            request = json.loads(body)
+            response = io.BytesIO(json.dumps({
+                "jsonrpc": "2.0", "id": request["id"],
+                "result": {"isError": True, "content": [{
+                    "type": "text", "text": "Invalid finalization schema"}]},
+            }).encode())
+            response.headers = {"Content-Type": "application/json"}
+            return response, None
+
+        runtime.publish = proxy.make_token_audit_publisher(
+            "https://example.test/mcp", lambda: "token")
+        with mock.patch.object(proxy, "post_to_mcp_refreshing_token",
+                               side_effect=refused) as post:
+            self.assertTrue(runtime._publish_once(maintain_receiver=False))
+            self.assertTrue(runtime._publish_once(maintain_receiver=False))
+            saved = self.publication_rows(runtime.store)
+            runtime.store = self.store()
+            with mock.patch.object(audit.time, "time", return_value=time.time() + 86400):
+                for _ in range(10):
+                    self.assertFalse(runtime._publish_once(maintain_receiver=False))
+            self.assertEqual(2, post.call_count)
+        self.assertEqual(["blocked", "blocked"], [row["state"] for row in saved])
+        self.assertEqual(saved, self.publication_rows(runtime.store))
+
+        self.assertEqual(0, audit.AuditStore("dev", "workspace-1").retry_blocked_publications())
+        self.assertEqual(2, runtime.store.retry_blocked_publications())
+        sent = []
+        runtime.publish = sent.append
+        with mock.patch.object(runtime.store, "_build_finalization",
+                               side_effect=AssertionError("attempted payload changed")):
+            self.assertTrue(runtime._publish_once(maintain_receiver=False))
+            self.assertTrue(runtime._publish_once(maintain_receiver=False))
+        self.assertEqual([json.loads(row["finalization_json"]) for row in saved],
+                         [row["finalization"] for row in sent])
+        self.assertEqual(["sent", "sent"],
+                         [row["state"] for row in self.publication_rows(runtime.store)])
+
+    def test_transient_audit_failures_have_a_durable_attempt_limit(self):
+        runtime = self.queued_publisher()
+        runtime.publish = mock.Mock(side_effect=TimeoutError())
+        for attempt in range(audit.MAX_PUBLICATION_ATTEMPTS):
+            runtime.store = self.store()
+            with mock.patch.object(audit.time, "time",
+                                   return_value=time.time() + attempt * 600):
+                self.assertTrue(runtime._publish_once(maintain_receiver=False))
+                self.assertTrue(runtime._publish_once(maintain_receiver=False))
+        with mock.patch.object(audit.time, "time", return_value=time.time() + 86400):
+            self.assertFalse(runtime._publish_once(maintain_receiver=False))
+        self.assertEqual(2 * audit.MAX_PUBLICATION_ATTEMPTS, runtime.publish.call_count)
+        self.assertEqual(["blocked", "blocked"],
+                         [row["state"] for row in self.publication_rows(runtime.store)])
+
+    def test_expired_leases_and_legacy_backlogs_cannot_bypass_attempt_limit(self):
+        for legacy_attempts in (0, 244):
+            with self.subTest(legacy_attempts=legacy_attempts):
+                runtime = self.queued_publisher()
+                store = runtime.store
+                with closing(store.connect()) as connection, connection:
+                    for table in ("token_audit_checkpoints", "token_audit_outbox"):
+                        connection.execute(f"UPDATE {table} SET attempts=?", (legacy_attempts,))
+                now = time.time()
+                if not legacy_attempts:
+                    for attempt in range(audit.MAX_PUBLICATION_ATTEMPTS):
+                        self.assertIsNotNone(store.claim_checkpoint(now + attempt * 40))
+                        self.assertIsNotNone(store.claim_outbox(now + attempt * 40))
+                self.assertIsNone(store.claim_checkpoint(now + 1000))
+                self.assertIsNone(store.claim_outbox(now + 1000))
+                with closing(store.connect()) as connection, connection:
+                    for table in ("token_audit_checkpoints", "token_audit_outbox"):
+                        connection.execute(f"DELETE FROM {table}")
+
     def test_publisher_loop_survives_retry_and_completion_store_errors(self):
         def exercise(publish_error, store_method):
             runtime = audit.TokenAuditProxy.__new__(audit.TokenAuditProxy)
@@ -4339,7 +4437,7 @@ class OtlpAndOutboxTests(TokenAuditTestCase):
                 "WHERE audit_run_id=?", (run_id,)
             ).fetchone()
         self.assertEqual("sent", row["state"])
-        self.assertEqual(0, row["attempts"])
+        self.assertEqual(2, row["attempts"])
 
     def test_finalization_uses_persisted_completion_time(self):
         store = self.store()
@@ -4735,6 +4833,32 @@ class ProxyContractTests(TokenAuditTestCase):
                         "https://example.test/mcp", lambda: "token"
                     )(row)
 
+    def test_private_publisher_classifies_permanent_and_temporary_errors(self):
+        row = {
+            "job_id": "J-all-387", "audit_run_id": str(uuid.uuid4()),
+            "handoff_type": "progress", "finalization": {"buckets": {"items": []}},
+        }
+        publish = proxy.make_token_audit_publisher(
+            "https://example.test/mcp", lambda: "token")
+        for status in (400, 401, 429, 503):
+            with self.subTest(status=status):
+                error = urllib.error.HTTPError(
+                    "https://example.test/mcp", status, "failure", {}, io.BytesIO())
+                expected = (audit.AuditPublicationRejected if status in (400, 401)
+                            else urllib.error.HTTPError)
+                with mock.patch.object(proxy, "post_to_mcp_refreshing_token",
+                                       side_effect=error), self.assertRaises(expected):
+                    publish(row)
+        response = io.BytesIO(json.dumps({
+            "jsonrpc": "2.0", "id": "job-audit-" + row["audit_run_id"],
+            "error": {"code": -32602, "message": "Invalid parameters"},
+        }).encode())
+        response.headers = {"Content-Type": "application/json"}
+        with mock.patch.object(proxy, "post_to_mcp_refreshing_token",
+                               return_value=(response, None)), \
+                self.assertRaises(audit.AuditPublicationRejected):
+            publish(row)
+
     def test_private_publisher_calls_finalizing_end_tool(self):
         class Response(io.BytesIO):
             def __init__(self, payload):
@@ -4742,9 +4866,15 @@ class ProxyContractTests(TokenAuditTestCase):
                 self.headers = {"Content-Type": "application/json"}
 
         captured = {}
+        tokens = []
+        mint = mock.Mock(side_effect=["expired-token", "fresh-token"])
+        token_holder = proxy.MarketTokenHolder(mint)
 
-        def post(_url, _headers, body, _provider, timeout=30):
+        def post(_url, headers, body, timeout=30):
             del timeout
+            tokens.append(headers["Authorization"])
+            if headers["Authorization"] == "expired-token":
+                raise urllib.error.HTTPError(_url, 401, "expired", {}, io.BytesIO())
             captured.update(json.loads(body))
             return Response({
                 "jsonrpc": "2.0", "id": captured["id"],
@@ -4763,7 +4893,7 @@ class ProxyContractTests(TokenAuditTestCase):
                     "note_url": "https://example.test/R-all-42",
                     "run_normalized_total_tokens": 42,
                 }},
-            }), None
+            })
 
         row = {
             "job_id": "J-all-387",
@@ -4780,11 +4910,14 @@ class ProxyContractTests(TokenAuditTestCase):
                 },
             },
         }
-        with mock.patch.object(proxy, "post_to_mcp_refreshing_token", post):
+        with mock.patch.object(proxy, "post_to_mcp", post):
             result = proxy.make_token_audit_publisher(
-                "https://example.test/mcp", lambda: "token"
+                "https://example.test/mcp", token_holder.get,
+                token_refresher=token_holder.refresh,
             )(row)
         self.assertEqual("completed", result["state"])
+        self.assertEqual(["expired-token", "fresh-token"], tokens)
+        self.assertEqual(2, mint.call_count)
         self.assertEqual("end_job_audit", captured["params"]["name"])
         self.assertEqual(
             row["finalization"],

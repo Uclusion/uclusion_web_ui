@@ -54,6 +54,7 @@ CLAUDE_TRANSCRIPT_GRACE_SECONDS = 10.0
 CLAUDE_TRANSCRIPT_HOOK_DEADLINE_GRACE_SECONDS = 75.0
 OUTBOX_LEASE_SECONDS = 30
 OUTBOX_POLL_SECONDS = 0.5
+MAX_PUBLICATION_ATTEMPTS = 5
 CODEX_COLLECTOR_READY_TTL_SECONDS = 30.0
 DEFAULT_BUCKET = "planning"
 MAX_BUCKETS = 32
@@ -72,6 +73,12 @@ MARKER_TOOLS = {
     "set_job_audit_phase",
     "end_job_audit",
 }
+
+
+class AuditPublicationRejected(RuntimeError):
+    """A permanent rejection; retain the payload without automatic retries."""
+
+
 SAFE_LABEL = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/+@ -]{0,254}$")
 BUCKET_LABEL = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/+@ -]{0,79}$")
 SUPPORTED_CLAUDE_TRANSCRIPT_VERSION = re.compile(r"^2(?:\.[0-9]+){1,3}(?:[-+].*)?$")
@@ -3475,6 +3482,40 @@ class AuditStore:
                 prepared += 1
         return prepared
 
+    def _block_exhausted_publications(self, connection, table, current):
+        connection.execute(
+            f"""
+            UPDATE {table} SET state='blocked', lease_until=NULL,
+                lease_token=NULL, last_error_code='retry_limit', updated_at=?
+            WHERE environment=? AND workspace_id=? AND attempts>=?
+              AND (state IN ('pending', 'retry_pending') OR
+                   (state='publishing' AND lease_until<?))
+            """,
+            (current, self.environment, self.workspace_id,
+             MAX_PUBLICATION_ATTEMPTS, current),
+        )
+
+    def retry_blocked_publications(self):
+        """Explicitly grant another bounded attempt budget after a repair.
+
+        retry_pending preserves the immutable payload: resetting the budget
+        must not make an attempted row look like a fresh, rebuildable one.
+        """
+        current = time.time()
+        changed = 0
+        with closing(self.connect()) as connection, connection:
+            connection.execute("BEGIN IMMEDIATE")
+            for table in ('token_audit_checkpoints', 'token_audit_outbox'):
+                changed += connection.execute(
+                    f"""
+                    UPDATE {table} SET state='retry_pending', attempts=0,
+                        next_attempt_at=?, last_error_code=NULL, updated_at=?
+                    WHERE environment=? AND workspace_id=? AND state='blocked'
+                    """,
+                    (current, current, self.environment, self.workspace_id),
+                ).rowcount
+        return changed
+
     def claim_checkpoint(self, now=None):
         current = time.time() if now is None else float(now)
         # An immediately older hook/bridge may have accepted a marker after
@@ -3484,12 +3525,15 @@ class AuditStore:
         with closing(self.connect()) as connection:
             connection.execute("BEGIN IMMEDIATE")
             try:
+                self._block_exhausted_publications(
+                    connection, 'token_audit_checkpoints', current
+                )
                 row = connection.execute(
                     """
                     SELECT c.* FROM token_audit_checkpoints c
                     WHERE c.environment=? AND c.workspace_id=?
                       AND c.next_attempt_at<=?
-                      AND (c.state='pending' OR
+                      AND (c.state IN ('pending', 'retry_pending') OR
                         (c.state='publishing' AND c.lease_until<?))
                     ORDER BY c.created_at, c.audit_run_id, c.marker_sequence
                     LIMIT 1
@@ -3579,9 +3623,9 @@ class AuditStore:
                 cursor = connection.execute(
                     """
                     UPDATE token_audit_checkpoints SET state='publishing',
-                        lease_until=?, lease_token=?, updated_at=?
+                        attempts=attempts+1, lease_until=?, lease_token=?, updated_at=?
                     WHERE audit_run_id=? AND marker_sequence=?
-                      AND (state='pending' OR
+                      AND (state IN ('pending', 'retry_pending') OR
                         (state='publishing' AND lease_until<?))
                     """,
                     (
@@ -3601,6 +3645,7 @@ class AuditStore:
                 connection.rollback()
                 raise
         result = row
+        result['attempts'] += 1
         result["lease_token"] = lease_token
         result["finalization"] = json.loads(result.pop("finalization_json"))
         result["publication_kind"] = "checkpoint"
@@ -3642,6 +3687,7 @@ class AuditStore:
         marker_sequence,
         lease_token,
         error_code="publish_failed",
+        retryable=True,
     ):
         if not isinstance(lease_token, str) or not lease_token:
             return False
@@ -3655,18 +3701,22 @@ class AuditStore:
             ).fetchone()
             if row is None:
                 return False
-            attempts = int(row["attempts"]) + 1
+            attempts = int(row["attempts"])
+            state = (
+                'pending' if retryable and attempts < MAX_PUBLICATION_ATTEMPTS
+                else 'blocked'
+            )
             delay = min(300, 2 ** min(attempts, 8))
             cursor = connection.execute(
                 """
-                UPDATE token_audit_checkpoints SET state='pending',
-                    attempts=?, next_attempt_at=?, lease_until=NULL,
+                UPDATE token_audit_checkpoints SET state=?,
+                    next_attempt_at=?, lease_until=NULL,
                     lease_token=NULL, last_error_code=?, updated_at=?
                 WHERE audit_run_id=? AND marker_sequence=?
                   AND state='publishing' AND lease_token=?
                 """,
                 (
-                    attempts,
+                    state,
                     now + delay,
                     _safe_label(error_code) or "publish_failed",
                     now,
@@ -3683,12 +3733,15 @@ class AuditStore:
         with closing(self.connect()) as connection:
             connection.execute("BEGIN IMMEDIATE")
             try:
+                self._block_exhausted_publications(
+                    connection, 'token_audit_outbox', current
+                )
                 row = connection.execute(
                     """
                     SELECT o.* FROM token_audit_outbox o
                     WHERE o.environment=? AND o.workspace_id=?
                       AND o.next_attempt_at<=?
-                      AND (o.state='pending' OR
+                      AND (o.state IN ('pending', 'retry_pending') OR
                         (o.state='publishing' AND o.lease_until<?))
                     ORDER BY o.created_at LIMIT 1
                     """,
@@ -3754,7 +3807,7 @@ class AuditStore:
                 connection.execute(
                     """
                     UPDATE token_audit_outbox SET state='publishing',
-                        lease_until=?, lease_token=?, updated_at=?
+                        attempts=attempts+1, lease_until=?, lease_token=?, updated_at=?
                     WHERE audit_run_id=?
                     """,
                     (
@@ -3769,6 +3822,7 @@ class AuditStore:
                 connection.rollback()
                 raise
         result = dict(row)
+        result['attempts'] += 1
         result["lease_token"] = lease_token
         result["finalization"] = json.loads(result.pop("finalization_json"))
         result["publication_kind"] = "final"
@@ -3800,7 +3854,7 @@ class AuditStore:
         return False
 
     def retry_outbox(
-        self, audit_run_id, lease_token, error_code="publish_failed"
+        self, audit_run_id, lease_token, error_code="publish_failed", retryable=True
     ):
         if not isinstance(lease_token, str) or not lease_token:
             return False
@@ -3816,18 +3870,22 @@ class AuditStore:
             ).fetchone()
             if row is None:
                 return False
-            attempts = (int(row["attempts"]) if row is not None else 0) + 1
+            attempts = int(row["attempts"])
+            state = (
+                'pending' if retryable and attempts < MAX_PUBLICATION_ATTEMPTS
+                else 'blocked'
+            )
             delay = min(300, 2 ** min(attempts, 8))
             cursor = connection.execute(
                 """
-                UPDATE token_audit_outbox SET state='pending', attempts=?,
+                UPDATE token_audit_outbox SET state=?,
                     next_attempt_at=?, lease_until=NULL, lease_token=NULL,
                     last_error_code=?, updated_at=?
                 WHERE audit_run_id=? AND state='publishing'
                   AND lease_token=?
                 """,
                 (
-                    attempts,
+                    state,
                     now + delay,
                     _safe_label(error_code) or "publish_failed",
                     now,
@@ -5943,18 +6001,21 @@ class TokenAuditProxy:
         except Exception as error:
             try:
                 error_code = "publish_" + error.__class__.__name__.lower()
+                retryable = not isinstance(error, AuditPublicationRejected)
                 if row.get("publication_kind") == "checkpoint":
                     self.store.retry_checkpoint(
                         row["audit_run_id"],
                         row["marker_sequence"],
                         row["lease_token"],
                         error_code,
+                        retryable,
                     )
                 else:
                     self.store.retry_outbox(
                         row["audit_run_id"],
                         row["lease_token"],
                         error_code,
+                        retryable,
                     )
             except Exception:
                 # Leave the row publishing; its lease expiry is the recovery
@@ -7213,11 +7274,25 @@ def build_parser():
     breakdown.add_argument(
         "--json", action="store_true", help="Print the result as JSON."
     )
+    retry = subparsers.add_parser(
+        "retry-blocked",
+        help="Retry saved audit uploads after repairing their rejection or outage.",
+    )
+    retry.add_argument(
+        "--environment", choices=("dev", "stage", "production"), required=True
+    )
+    retry.add_argument("--workspace-id", required=True)
     return parser
 
 
 def main(argv=None):
     args = build_parser().parse_args(argv)
+    if args.command == "retry-blocked":
+        count = AuditStore(
+            args.environment, args.workspace_id
+        ).retry_blocked_publications()
+        print(f"Requeued {count} saved audit uploads with bounded retries.")
+        return 0
     if args.command == "hook":
         body = sys.stdin.buffer.read(MAX_HOOK_BODY + 1)
         if len(body) > MAX_HOOK_BODY:

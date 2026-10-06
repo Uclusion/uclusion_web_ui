@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { IconButton, useMediaQuery, useTheme } from '@material-ui/core';
 import PropTypes from 'prop-types';
@@ -98,6 +98,14 @@ function OptionListItem(props) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [mouseX, setMouseX] = useState();
   const [mouseY, setMouseY] = useState();
+  const rowRef = useRef();
+  const scrollOnOpen = useRef(false);
+  useLayoutEffect(() => {
+    if (expansionOpen && scrollOnOpen.current) {
+      scrollOnOpen.current = false;
+      rowRef.current?.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
+    }
+  }, [expansionOpen]);
   const indexOfTitle = description.indexOf(title);
   let useDescription;
   if (indexOfTitle >= 0) {
@@ -145,13 +153,14 @@ function OptionListItem(props) {
             marketPresences={marketPresences} questionResolved={questionResolved} />
         )}
         <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
-          <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} key={`link${id}`}
+          <div ref={rowRef} style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} key={`link${id}`}
                onClick={
             (event) => {
               if (!expandOrContract) {
                 return;
               }
               preventDefaultAndProp(event);
+              scrollOnOpen.current = !expansionOpen;
               expandOrContract();
             }
           }>

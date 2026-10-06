@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import useInboxWizardActions from '../useInboxWizardActions';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
@@ -19,7 +20,7 @@ import {
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import { dismissWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { stageChangeInvestible } from '../../../api/investibles';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -35,6 +36,7 @@ import useDoableStageGuard from '../../AddNewWizards/JobStage/useDoableStageGuar
 
 function DecideUnblockStep(props) {
   const { marketId, commentId, message, formData = {}, updateFormData = () => {} } = props;
+  const { clearNotification } = useInboxWizardActions(message);
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -56,7 +58,7 @@ function DecideUnblockStep(props) {
   const { useCompression } = formData;
 
   function myTerminate() {
-    removeWorkListItem(message, messagesDispatch, history);
+    clearNotification();
   }
 
   function changeStage(targetStage) {

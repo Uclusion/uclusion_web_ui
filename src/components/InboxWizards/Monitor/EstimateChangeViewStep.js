@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import useInboxWizardActions from '../useInboxWizardActions';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
@@ -12,8 +13,6 @@ import { getInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { useIntl } from 'react-intl';
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { useHistory } from 'react-router';
 import { formInvestibleAddCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
@@ -22,12 +21,12 @@ import { hasJobComment } from '../../AddNewWizards/JobComment/AddCommentStep';
 
 function EstimateChangeViewStep(props) {
   const { marketId, investibleId, message } = props;
+  const { clearNotification } = useInboxWizardActions(message);
   const intl = useIntl();
   const history = useHistory();
   const classes = wizardStyles();
   const [commentsState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
-  const [, messagesDispatch] = useContext(NotificationsContext);
   const marketInvestible = getInvestible(investiblesState, investibleId) || {};
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const groupId = marketInfo.group_id;
@@ -66,7 +65,7 @@ function EstimateChangeViewStep(props) {
             message.type_object_id))}
         otherNextShowEdit={hasJobComment(groupId, investibleId, ISSUE_TYPE, unSentInvestibleComments)}
         otherSpinOnClick={false}
-        onFinish={() => removeWorkListItem(message, messagesDispatch, history)}
+        onFinish={clearNotification}
         terminateLabel="notificationDelete"
         showTerminate={true}
       />

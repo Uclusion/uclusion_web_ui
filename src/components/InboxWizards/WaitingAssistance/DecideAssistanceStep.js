@@ -42,10 +42,11 @@ import { GroupMembersContext } from '../../../contexts/GroupMembersContext/Group
 import { getCommentPokeList } from '../../../utils/pokeUtils';
 import PokeReminder from '../PokeReminder';
 import { YELLOW_LEVEL } from '../../../constants/notifications';
-import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import useInboxWizardActions from '../useInboxWizardActions';
 
 function DecideAssistanceStep(props) {
   const { marketId, commentId, formData = {}, updateFormData = () => {} } = props;
+  const { returnToInbox } = useInboxWizardActions();
   const intl = useIntl();
   const [commentState] = useContext(CommentsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -93,8 +94,7 @@ function DecideAssistanceStep(props) {
     if (commentRoot.investible_id) {
       navigate(history, formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id, commentRoot.id));
     } else {
-      // Never automatically navigate to archive
-      navigate(history, getInboxTarget());
+      returnToInbox(formCommentLink(marketId, commentRoot.group_id, undefined, commentRoot.id));
     }
   }
 
@@ -131,7 +131,7 @@ function DecideAssistanceStep(props) {
     return pokeComment(marketId, commentId).then(() => {
       setOperationRunning(false);
       // If just stay on step then no feedback that poke happened
-      navigate(history, getInboxTarget());
+      returnToInbox(formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id, commentRoot.id));
     });
   }
   const isQuestion = commentRoot.comment_type === QUESTION_TYPE;

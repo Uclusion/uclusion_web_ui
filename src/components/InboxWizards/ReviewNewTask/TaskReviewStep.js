@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import useInboxWizardActions from '../useInboxWizardActions';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
@@ -14,7 +15,7 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { useHistory } from 'react-router';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { useIntl } from 'react-intl';
-import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import { dismissWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 import { updateComment } from '../../../api/comments';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -25,6 +26,7 @@ import _ from 'lodash';
 
 function TaskReviewStep(props) {
   const { marketId, message, formData = {}, updateFormData = () => {} } = props;
+  const { clearNotification } = useInboxWizardActions(message);
   const classes = wizardStyles();
   const history = useHistory();
   const intl = useIntl();
@@ -85,7 +87,7 @@ function TaskReviewStep(props) {
           onOtherNextDoAdvance={false}
           terminateLabel={getLabelForTerminate(message)}
           showTerminate={getShowTerminate(message)}
-          onFinish={() => removeWorkListItem(message, messagesDispatch, history)}
+          onFinish={clearNotification}
         />
       )}
       {!isSingleTaskDisplay && (
@@ -94,7 +96,7 @@ function TaskReviewStep(props) {
           showNext={false}
           terminateLabel={getLabelForTerminate(message)}
           showTerminate={getShowTerminate(message)}
-          onFinish={() => removeWorkListItem(message, messagesDispatch, history)}
+          onFinish={clearNotification}
         />
       )}
     </WizardStepContainer>

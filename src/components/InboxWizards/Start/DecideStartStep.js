@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import useInboxWizardActions from '../useInboxWizardActions';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
@@ -9,10 +10,8 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { useHistory } from 'react-router';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { useIntl } from 'react-intl';
-import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { getNewBugNotifications } from '../../Comments/Options';
 import { stripHTML } from '../../../utils/stringFunctions';
@@ -25,13 +24,13 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 
 function DecideStartStep(props) {
   const { marketId, commentId, message } = props;
+  const { clearNotification } = useInboxWizardActions(message);
   const [commentState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [messagesState] = useContext(NotificationsContext);
   const intl = useIntl();
-  const history = useHistory();
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const commentRoot = getComment(commentState, marketId, commentId) || {id: 'fake'};
@@ -47,7 +46,7 @@ function DecideStartStep(props) {
   });
 
   function myTerminate() {
-    removeWorkListItem(message, messagesDispatch, history);
+    clearNotification();
   }
 
   const { id, body, updated_at: updatedAt, notification_type: notificationType, group_id: groupId } = commentRoot;

@@ -30,10 +30,18 @@ function getNotificationComment(message, marketsState) {
 
 // Keep notification identity separate from the page/anchor that displays its object.
 export function getNotificationDestination(message, commentsState, marketsState) {
-  const { market, marketId, commentId } = getNotificationComment(message, marketsState);
+  const { marketId, commentId } = getNotificationComment(message, marketsState);
   const comment = getComment(commentsState, marketId, commentId);
+  if (!isDirectCommentNotification(message, comment)) {
+    return undefined;
+  }
+  return getNotificationObjectDestination(message, commentsState, marketsState);
+}
+
+export function getNotificationObjectDestination(message, commentsState, marketsState) {
+  const { market, marketId, commentId } = getNotificationComment(message, marketsState);
   const root = getCommentRoot(commentsState, marketId, commentId);
-  if (!root || !isDirectCommentNotification(message, comment)) {
+  if (!root) {
     return undefined;
   }
   let url = formCommentLink(marketId, root.group_id, root.investible_id, commentId);

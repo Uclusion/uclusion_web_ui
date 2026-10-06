@@ -1,22 +1,19 @@
-import React, { useContext } from 'react';
+import React from 'react';
+import useInboxWizardActions from '../useInboxWizardActions';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import JobDescription from '../JobDescription';
-import { useHistory } from 'react-router';
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { useIntl } from 'react-intl';
-import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 import _ from 'lodash';
 
 function ReviewEditStep(props) {
   const { marketId, investibleId, message } = props;
-  const [, messagesDispatch] = useContext(NotificationsContext);
+  const { clearNotification } = useInboxWizardActions(message);
   const classes = wizardStyles();
-  const history = useHistory();
   const intl = useIntl();
   const { edit_list: notificationTypes, investible_name: previousName } = message;
   const isDescriptionEdited = notificationTypes.includes('UNREAD_DESCRIPTION');
@@ -49,7 +46,7 @@ function ReviewEditStep(props) {
         showNext={false}
         terminateLabel={getLabelForTerminate(message)}
         showTerminate={getShowTerminate(message)}
-        onFinish={() => removeWorkListItem(message, messagesDispatch, history)}
+        onFinish={clearNotification}
       />
     </WizardStepContainer>
   );

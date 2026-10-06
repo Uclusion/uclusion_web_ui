@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import useInboxWizardActions from '../useInboxWizardActions';
 import PropTypes from 'prop-types'
 import { Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import WizardStepContainer from '../WizardStepContainer';
@@ -31,6 +32,7 @@ import useDoableStageGuard from '../../AddNewWizards/JobStage/useDoableStageGuar
 
 function EstimateCompletionStep(props) {
   const { marketId, investibleId, message, updateFormData = () => {}, formData = {} } = props;
+  const { dismissNotification } = useInboxWizardActions(message);
   const confirmDoableQuestions = useDoableStageGuard(marketId);
   const classes = wizardStyles();
   const intl = useIntl();
@@ -113,7 +115,7 @@ function EstimateCompletionStep(props) {
     return updateInvestible(updateInfo).then((fullInvestible) => {
       refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
       setOperationRunning(false);
-      dismissWorkListItem(message, messagesDispatch, history);
+      dismissNotification();
     });
   }
 

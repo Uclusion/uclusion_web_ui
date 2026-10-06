@@ -14,8 +14,8 @@ import { useHistory } from 'react-router';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { removeComment } from '../../../api/comments';
 import { addMarketComments, getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { removeMessagesForCommentId } from '../../../utils/messageUtils';
-import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { findMessagesForCommentId, removeMessagesForCommentId } from '../../../utils/messageUtils';
+import useInboxWizardActions from '../../InboxWizards/useInboxWizardActions';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
@@ -25,6 +25,7 @@ import { InlineWizardContext } from '../../InlineWizard/InlineWizardContext';
 
 function DeleteWarningStep(props) {
   const { marketId, commentId, isInbox, formData = {}, updateFormData = () => {} } = props;
+  const { returnToInbox } = useInboxWizardActions();
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -44,18 +45,16 @@ function DeleteWarningStep(props) {
         setOperationRunning(false);
         if (closeInlineWizard) {
           closeInlineWizard();
-        } else if (isInbox) {
-          navigate(history, getInboxTarget());
         } else {
           const { investible_id: investibleId, comment_type: commentType, group_id: groupId } = comment;
-          if (investibleId) {
-            navigate(history, formInvestibleLink(marketId, investibleId));
+          const parentLink = investibleId ? formInvestibleLink(marketId, investibleId) :
+            formatGroupLinkWithSuffix(commentType === TODO_TYPE ? MARKET_TODOS_HASH : DISCUSSION_HASH, marketId, groupId);
+          if (isInbox) {
+            const removedIds = findMessagesForCommentId(comment.id, messagesState)
+              .map((message) => message.type_object_id);
+            returnToInbox(parentLink, removedIds);
           } else {
-            if (commentType === TODO_TYPE) {
-              navigate(history, formatGroupLinkWithSuffix(MARKET_TODOS_HASH, marketId, groupId));
-            } else {
-              navigate(history, formatGroupLinkWithSuffix(DISCUSSION_HASH, marketId, groupId));
-            }
+            navigate(history, parentLink);
           }
         }
       });

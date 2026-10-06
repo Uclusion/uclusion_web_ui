@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import useInboxWizardActions from '../useInboxWizardActions';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
@@ -25,7 +26,7 @@ import {
   navigate,
   preventDefaultAndProp
 } from '../../../utils/marketIdPathFunctions';
-import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import { dismissWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import JobDescription from '../JobDescription';
@@ -51,6 +52,7 @@ export function getJobApproveEditorName(investibleId) {
 function JobApproveStep(props) {
   const { marketId, updateFormData = () => {}, formData = {}, message, investibleId, yourVote,
     isPendingAcceptance } = props;
+  const { clearNotification } = useInboxWizardActions(message);
   const intl = useIntl();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
@@ -140,7 +142,7 @@ function JobApproveStep(props) {
   const {approveQuantity} = formData;
 
   function onFinish() {
-    removeWorkListItem(message, messagesDispatch, history);
+    clearNotification();
   }
 
   return (

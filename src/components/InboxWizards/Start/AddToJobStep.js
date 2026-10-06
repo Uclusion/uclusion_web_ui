@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import useInboxWizardActions from '../useInboxWizardActions';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
@@ -14,7 +15,6 @@ import ChooseJob from '../../Search/ChooseJob';
 import { wizardStyles } from '../WizardStylesContext';
 import { wizardFinish } from '../InboxWizardUtils';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { onCommentsMove } from '../../../utils/commentFunctions';
 import { getGroupPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
@@ -23,9 +23,11 @@ import { GroupMembersContext } from '../../../contexts/GroupMembersContext/Group
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { isAutonomousGroup } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { findMessagesForCommentId } from '../../../utils/messageUtils';
 
 function FindJobStep(props) {
   const { marketId, commentId, updateFormData = () => {}, formData = {}, message } = props;
+  const { clearNotification, returnToInbox } = useInboxWizardActions(message);
   const history = useHistory();
   const classes = wizardStyles();
   const [commentState, commentsDispatch] = useContext(CommentsContext);
@@ -45,7 +47,7 @@ function FindJobStep(props) {
   const isAutonomous = isAutonomousGroup(groupPresences, group);
 
   function myTerminate() {
-    removeWorkListItem(message, messagesDispatch, history);
+    clearNotification();
   }
 
   function onNext(doStayInInbox) {
@@ -55,7 +57,11 @@ function FindJobStep(props) {
           marketId, movedComments, messagesDispatch);
         if (doStayInInbox) {
           setOperationRunning(false);
-          myTerminate();
+          const movedComment = movedComments.find((comment) => comment.id === commentId);
+          const link = formCommentLink(marketId, movedComment?.group_id || groupId, investibleId, commentId);
+          const removedIds = findMessagesForCommentId(commentId, messagesState)
+            .map((notification) => notification.type_object_id);
+          returnToInbox(link, removedIds);
         } else {
           const link = formCommentLink(marketId, groupId, investibleId, commentId);
           wizardFinish({ link }, setOperationRunning, message, history, marketId, investibleId,

@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import useInboxWizardActions from '../useInboxWizardActions';
 import PropTypes from 'prop-types'
 import { Typography } from '@material-ui/core'
 import WizardStepContainer from '../WizardStepContainer';
@@ -24,8 +25,6 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import UsefulRelativeTime from '../../TextFields/UseRelativeTime';
 import { getLabelForTerminate } from '../../../utils/messageUtils';
-import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { getFullStage, getFurtherWorkStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -40,13 +39,13 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 
 function JobDescriptionStatusStep(props) {
   const { marketId, investibleId, message, formData = {}, updateFormData = () => {} } = props;
+  const { clearNotification } = useInboxWizardActions(message);
   const classes = wizardStyles();
   const history = useHistory();
   const intl = useIntl();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
-  const [, messagesDispatch] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -85,7 +84,7 @@ function JobDescriptionStatusStep(props) {
 
   function myTerminate() {
     if (isHighlighted || alreadyMoved) {
-      removeWorkListItem(message, messagesDispatch, history);
+      clearNotification();
     } else {
       navigate(history,
         formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, ISSUE_TYPE,

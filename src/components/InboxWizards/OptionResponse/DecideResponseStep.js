@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import useInboxWizardActions from '../useInboxWizardActions';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
@@ -7,8 +8,6 @@ import WizardStepButtons from '../WizardStepButtons';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { getComment, getCommentRoot, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
 import { useHistory } from 'react-router';
@@ -20,11 +19,11 @@ import { hasReply } from '../../AddNewWizards/Reply/ReplyStep';
 
 function DecideResponseStep(props) {
   const { marketId, commentId, message, formData = {}, updateFormData = () => {} } = props;
+  const { clearNotification } = useInboxWizardActions(message);
   const { decision_investible_id: decisionInvestibleId } = message;
   const { useCompression } = formData;
   const history = useHistory();
   const [commentState] = useContext(CommentsContext);
-  const [, messagesDispatch] = useContext(NotificationsContext);
   const [marketsState] = useContext(MarketsContext);
   const market = getMarket(marketsState, marketId) || {};
   const { parent_comment_id: parentCommentId, parent_comment_market_id: parentMarketId } = market;
@@ -36,7 +35,7 @@ function DecideResponseStep(props) {
   const intl = useIntl();
 
   function myOnFinish() {
-    removeWorkListItem(message, messagesDispatch, history);
+    clearNotification();
   }
 
   return (

@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import useInboxWizardActions from '../useInboxWizardActions';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
@@ -10,8 +11,6 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { useHistory } from 'react-router';
 import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useIntl } from 'react-intl';
-import { dismissWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { REPLY_WIZARD_TYPE } from '../../../constants/markets';
 import { resolveComment } from '../../../api/comments';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -19,8 +18,8 @@ import { hasReply } from '../../AddNewWizards/Reply/ReplyStep';
 
 function OtherOptionsStep(props) {
   const { marketId, commentId, message, updateFormData = () => {}, formData = {} } = props;
+  const { dismissNotification } = useInboxWizardActions(message);
   const [commentState, commentsDispatch] = useContext(CommentsContext);
-  const [, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const intl = useIntl();
   const history = useHistory();
@@ -35,7 +34,7 @@ function OtherOptionsStep(props) {
       .then((comment) => {
         addCommentToMarket(comment, commentState, commentsDispatch);
         setOperationRunning(false);
-        dismissWorkListItem(message, messagesDispatch, history);
+        dismissNotification();
       });
   }
 

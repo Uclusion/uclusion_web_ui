@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import useInboxWizardActions from '../useInboxWizardActions';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
@@ -21,7 +22,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { useHistory } from 'react-router';
 import { wizardFinish } from '../InboxWizardUtils';
 import { formCommentLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import { dismissWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { reopenComment, resolveComment, updateComment } from '../../../api/comments';
 import _ from 'lodash';
 import { SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
@@ -42,6 +43,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 
 function DecideResolveStep(props) {
   const { marketId, commentId, message, formData = {}, updateFormData = () => {} } = props;
+  const { clearNotification, dismissNotification } = useInboxWizardActions(message);
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -80,7 +82,7 @@ function DecideResolveStep(props) {
   const { useCompression } = formData;
 
   function myTerminate() {
-    removeWorkListItem(message, messagesDispatch, history);
+    clearNotification();
   }
 
   function reopen() {
@@ -132,7 +134,7 @@ function DecideResolveStep(props) {
           }
         } else {
           setOperationRunning(false);
-          dismissWorkListItem(message, messagesDispatch, history);
+          dismissNotification();
         }
       });
   }

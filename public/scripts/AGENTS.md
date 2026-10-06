@@ -25,10 +25,11 @@ in full from the selected package; reuse complete reads while they remain
 available.
 
 The installed Uclusion MCP integration owns automatic Poke AI delivery through
-Codex's native queue. Start ordinary `codex` with that integration; never run
+Codex's native steering and queue APIs. Start ordinary `codex` with that integration; never run
 `uclusion wait` or `uclusion listen`, and never start a separate companion.
 Each registered root in its workspace/environment receives its own copy. Busy
-agents process a Poke on their next turn. After `/new`, both the old and new
+agents receive Pokes as input to their active turn; idle agents wake through the
+native queue. Pokes do not cancel a running command. After `/new`, both the old and new
 conversations remain recipients while their Uclusion roots remain registered;
 receiving a Poke never grants ownership of another agent's work.
 

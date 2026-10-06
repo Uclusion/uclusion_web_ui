@@ -23,6 +23,10 @@ class NativeQueue:
         self.lose_receipt = False
         self.reject = False
         self.history_unavailable = False
+        self.active_turns = {}
+        self.steered = []
+        self.defer_history = False
+        self.complete_before_steer = False
 
     def request(self, method, params):
         root = params['threadId']
@@ -30,12 +34,24 @@ class NativeQueue:
             # These admissions have already started turns and left the queue.
             return {'data': [], 'nextCursor': None}
         if method == 'thread/read':
+            if params.get('includeTurns') is False:
+                return {'thread': {'status': {'type': 'active' if root in self.active_turns else 'idle'}}}
             if self.history_unavailable:
                 raise NativeRequestError('history unavailable')
-            return {'thread': {'turns': [{'items': [
+            turns = [{'id': 'completed', 'status': 'completed', 'items': [
                 {'type': 'userMessage', 'clientId': client_id}
-                for admitted_root, client_id, _ in self.admissions if admitted_root == root]}]}}
-        if method == 'thread/queue/add':
+                for admitted_root, client_id, _ in self.admissions
+                if admitted_root == root and not (self.defer_history and root in self.active_turns)]}]
+            if root in self.active_turns:
+                turns.append({'id': self.active_turns[root], 'status': 'inProgress', 'items': []})
+            return {'thread': {'turns': turns}}
+        if method in {'thread/queue/add', 'turn/steer'}:
+            if method == 'turn/steer':
+                if self.complete_before_steer:
+                    self.complete_before_steer = False
+                    self.active_turns.pop(root)
+                if params['expectedTurnId'] != self.active_turns.get(root):
+                    raise NativeRequestError('turn no longer active')
             if self.reject:
                 self.reject = False
                 raise NativeRequestError('definite rejection')
@@ -44,10 +60,13 @@ class NativeQueue:
                 raise TimeoutError('interrupted before submission')
             client_id = params['clientUserMessageId']
             self.admissions.append((root, client_id, params['input'][0]['text']))
+            if method == 'turn/steer':
+                self.steered.append((root, params['expectedTurnId'], client_id))
             if self.lose_receipt:
                 self.lose_receipt = False
                 raise TimeoutError('lost receipt after admission')
-            return {'queuedSubmission': {'clientUserMessageId': client_id}}
+            return ({'turnId': params['expectedTurnId']} if method == 'turn/steer'
+                    else {'queuedSubmission': {'clientUserMessageId': client_id}})
         raise AssertionError(method)
 
 
@@ -102,7 +121,7 @@ class NativeInboxTests(unittest.TestCase):
         inbox.state('root', 'sending')
         restarted = NativeInbox('stage', 'workspace', self.home.name)
         restarted.prepare('root')
-        self.assertEqual(restarted.next('root'), (*pending[:3], 'sending'))
+        self.assertEqual(restarted.next('root'), (*pending[:3], 'sending', None))
         restarted.acknowledge('root', pending[0])
         self.assertIsNone(restarted.next('root'))
 
@@ -192,6 +211,79 @@ class NativeInboxTests(unittest.TestCase):
             now.return_value = clock + 1
             restarted._deliver('root')
         self.assertEqual(['First'], [row[2] for row in native.admissions])
+        self.assertIsNone(delivery.inbox.next('root'))
+
+    def test_busy_root_receives_feedback_in_its_active_turn(self):
+        native = NativeQueue()
+        native.active_turns['root'] = 'busy-turn'
+        delivery = self.delivery(native, 'root')
+        self.poke('one', 'Current feedback')
+        delivery._deliver('root')
+        self.assertEqual(['busy-turn'], [turn for _, turn, _ in native.steered])
+        self.assertEqual(['Current feedback'], [text for _, _, text in native.admissions])
+        self.assertIsNone(delivery.inbox.next('root'))
+
+    def test_lost_steer_receipt_waits_for_history_across_restart(self):
+        native = NativeQueue()
+        native.active_turns['busy'] = 'busy-turn'
+        native.defer_history = True
+        native.lose_receipt = True
+        delivery = self.delivery(native, 'busy', 'other')
+        self.poke('one', 'First')
+        self.poke('two', 'Second')
+        clock = time.time()
+        with patch('uclusionCodexNative.time.time', return_value=clock) as now:
+            with self.assertRaises(TimeoutError):
+                delivery._deliver('busy')
+            restarted = self.delivery(native, 'busy', 'other')
+            now.return_value = clock + 10
+            restarted._deliver('busy')
+            restarted._deliver('busy')
+            self.assertEqual(1, len(native.admissions))
+            self.assertEqual('busy-turn', restarted.inbox.next('busy')[4])
+            restarted._deliver('other')
+            self.assertEqual(['busy', 'other'], [root for root, _, _ in native.admissions])
+            native.active_turns.pop('busy')
+            restarted._deliver('busy')
+            restarted._deliver('busy')
+        self.assertEqual(['First', 'Second'], [text for root, _, text in native.admissions if root == 'busy'])
+        self.assertIsNone(restarted.inbox.next('busy'))
+
+    def test_unconfirmed_unsent_steer_retries_after_its_turn_ends(self):
+        native = NativeQueue()
+        native.active_turns['root'] = 'original-turn'
+        native.fail_before_send = True
+        delivery = self.delivery(native, 'root')
+        self.poke('one', 'First')
+        original_id = delivery.inbox.next('root')[2]
+        clock = time.time()
+        with patch('uclusionCodexNative.time.time', return_value=clock) as now:
+            with self.assertRaises(TimeoutError):
+                delivery._deliver('root')
+            restarted = self.delivery(native, 'root')
+            now.return_value = clock + 10
+            restarted._deliver('root')
+            self.assertEqual([], native.admissions)
+            native.active_turns['root'] = 'later-turn'
+            restarted._deliver('root')
+        self.assertEqual([('root', 'later-turn', original_id)], native.steered)
+        self.assertIsNone(restarted.inbox.next('root'))
+
+    def test_turn_completion_race_retries_the_same_poke_in_idle_queue(self):
+        native = NativeQueue()
+        native.active_turns['root'] = 'ending-turn'
+        native.complete_before_steer = True
+        delivery = self.delivery(native, 'root')
+        self.poke('one', 'First')
+        original_id = delivery.inbox.next('root')[2]
+        clock = time.time()
+        with patch('uclusionCodexNative.time.time', return_value=clock) as now:
+            delivery._deliver('root')
+            self.assertEqual([], native.admissions)
+            now.return_value = clock + 1
+            delivery._deliver('root')
+        self.assertEqual([('root', original_id, 'First')], native.admissions)
+        self.assertEqual([], native.steered)
         self.assertIsNone(delivery.inbox.next('root'))
 
     def test_concurrent_upgrade_preserves_unconfirmed_admission(self):

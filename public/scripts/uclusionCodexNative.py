@@ -1,8 +1,9 @@
-"""Uclusion delivery through the ordinary Codex app server's native queue.
+"""Uclusion delivery through ordinary Codex's native steering and queue APIs.
 
 The MCP connection identifies its own roots. This client never starts a Codex
 server, supplies frontend input, changes thread configuration, or answers an
-approval request. The native queue owns admission and idle wake-up.
+approval request. Native steering supplies active-turn input; the queue owns
+idle wake-up.
 """
 import hashlib
 import json
@@ -151,12 +152,15 @@ class NativeInbox:
                 consumer TEXT NOT NULL, sequence INTEGER NOT NULL,
                 client_id TEXT NOT NULL, state TEXT NOT NULL,
                 attempt_count INTEGER NOT NULL DEFAULT 0, attempt_started_at REAL,
+                steered_turn_id TEXT,
                 PRIMARY KEY(environment, workspace_id, consumer))''')
             columns = {row[1] for row in connection.execute('PRAGMA table_info(codex_native_pending)')}
             if 'attempt_count' not in columns:
                 connection.execute('ALTER TABLE codex_native_pending ADD COLUMN attempt_count INTEGER NOT NULL DEFAULT 0')
             if 'attempt_started_at' not in columns:
                 connection.execute('ALTER TABLE codex_native_pending ADD COLUMN attempt_started_at REAL')
+            if 'steered_turn_id' not in columns:
+                connection.execute('ALTER TABLE codex_native_pending ADD COLUMN steered_turn_id TEXT')
             self.cutoff = 0 if replay else connection.execute('''
                 SELECT COALESCE(MAX(sequence), 0) FROM poke_messages
                 WHERE environment = ? AND workspace_id = ?''',
@@ -179,7 +183,7 @@ class NativeInbox:
         scope = self.scope(root)
         with closing(open_inbox()) as connection, connection:
             connection.execute('BEGIN IMMEDIATE')
-            row = connection.execute('''SELECT p.sequence, m.message, p.client_id, p.state
+            row = connection.execute('''SELECT p.sequence, m.message, p.client_id, p.state, p.steered_turn_id
                 FROM codex_native_pending p JOIN poke_messages m ON m.sequence = p.sequence
                 WHERE p.environment = ? AND p.workspace_id = ? AND p.consumer = ?''', scope).fetchone()
             if row is not None:
@@ -197,15 +201,15 @@ class NativeInbox:
             connection.execute('''INSERT INTO codex_native_pending
                 (environment, workspace_id, consumer, sequence, client_id, state)
                 VALUES (?, ?, ?, ?, ?, 'pending')''', (*scope, row[0], client_id))
-            return *row, client_id, 'pending'
+            return *row, client_id, 'pending', None
 
-    def state(self, root, value):
+    def state(self, root, value, steered_turn_id=None):
         with closing(open_inbox()) as connection, connection:
             if value == 'sending':
                 connection.execute('''UPDATE codex_native_pending SET state = ?,
-                    attempt_count = attempt_count + 1, attempt_started_at = ?
+                    attempt_count = attempt_count + 1, attempt_started_at = ?, steered_turn_id = ?
                     WHERE environment = ? AND workspace_id = ? AND consumer = ?''',
-                    (value, time.time(), *self.scope(root)))
+                    (value, time.time(), steered_turn_id, *self.scope(root)))
             else:
                 connection.execute('''UPDATE codex_native_pending SET state = ?
                     WHERE environment = ? AND workspace_id = ? AND consumer = ?''',
@@ -389,7 +393,8 @@ class NativeCodexDelivery:
                 break
             descendants = remaining
 
-    def _admitted(self, root, client_id):
+    def _admitted(self, root, client_id, steered_turn_id=None):
+        """Return None while an uncertain steer can still be uncommitted."""
         cursor = None
         while True:
             page = self.client.request('thread/queue/list', {'threadId': root, 'cursor': cursor})
@@ -399,8 +404,21 @@ class NativeCodexDelivery:
             if cursor is None:
                 break
         thread = self.client.request('thread/read', {'threadId': root, 'includeTurns': True})['thread']
-        return any(item.get('type') == 'userMessage' and item.get('clientId') == client_id
-                   for turn in thread['turns'] for item in turn.get('items', []))
+        if any(item.get('type') == 'userMessage' and item.get('clientId') == client_id
+               for turn in thread['turns'] for item in turn.get('items', [])):
+            return True
+        if steered_turn_id and any(turn['id'] == steered_turn_id and turn.get('status') == 'inProgress'
+                                   for turn in thread['turns']):
+            return None
+        return False
+
+    def _active_turn(self, root):
+        thread = self.client.request('thread/read', {'threadId': root, 'includeTurns': False})['thread']
+        if (thread.get('status') or {}).get('type') != 'active':
+            return None
+        thread = self.client.request('thread/read', {'threadId': root, 'includeTurns': True})['thread']
+        return next((turn['id'] for turn in reversed(thread['turns'])
+                     if turn.get('status') == 'inProgress'), None)
 
     def _subscribe_descendants(self):
         with self.lock:
@@ -441,10 +459,10 @@ class NativeCodexDelivery:
         pending = self.inbox.next(root)
         if pending is None:
             return
-        sequence, text, client_id, state = pending
+        sequence, text, client_id, state, steered_turn_id = pending
         if state == 'sending':
             try:
-                admitted = self._admitted(root, client_id)
+                admitted = self._admitted(root, client_id, steered_turn_id)
             except NativeRequestError as error:
                 detail = str(error)
                 if self.reconciliation_errors.get(root) != detail:
@@ -456,17 +474,26 @@ class NativeCodexDelivery:
             if admitted:
                 self.inbox.acknowledge(root, sequence)
                 return
+            if admitted is None:
+                return
         if not self.inbox.retry_due(root):
             return
-        self.inbox.state(root, 'sending')
         try:
-            receipt = self.client.request('thread/queue/add', {
-                'threadId': root, 'clientUserMessageId': client_id,
-                'input': [{'type': 'text', 'text': text, 'text_elements': []}]})
+            active_turn = self._active_turn(root)
+        except NativeRequestError:
+            return
+        self.inbox.state(root, 'sending', active_turn)
+        params = {'threadId': root, 'clientUserMessageId': client_id,
+                  'input': [{'type': 'text', 'text': text, 'text_elements': []}]}
+        if active_turn:
+            params['expectedTurnId'] = active_turn
+        try:
+            receipt = self.client.request('turn/steer' if active_turn else 'thread/queue/add', params)
         except (NativeRequestError, NativeNotSent):
             self.inbox.state(root, 'pending')
             return
-        if receipt.get('queuedSubmission', {}).get('clientUserMessageId') == client_id:
+        if ((active_turn and receipt.get('turnId') == active_turn)
+                or (not active_turn and receipt.get('queuedSubmission', {}).get('clientUserMessageId') == client_id)):
             self.inbox.acknowledge(root, sequence)
             record_demo_input('poke_delivered', {'message': text, 'consumer': self.inbox.scope(root)[2]})
 

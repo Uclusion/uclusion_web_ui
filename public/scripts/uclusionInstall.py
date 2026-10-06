@@ -161,7 +161,7 @@ SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCLI.py': 'd66ee7035300bf37586b3f600289e17671fd4b65bd99169194e6499a6c8e56a7',
     'uclusionMCPProxy.py': 'b2f861ee89751190139dfe95a37f9235c2416084a971785a0f0a5f52a144674b',
     'uclusionSetupMCP.py': '9aa8d3199b0c392d944fc3b2fb9f26b48230737ea2e5b07980cd3df6b79ed4f3',
-    'uclusionCodexNative.py': '4d4315f2a35a2ac10e8ef29bd1e7aa7eb64fc96050dbd7da96daf94a0a648bf2',
+    'uclusionCodexNative.py': 'e256e01002d45b393c62721eeebce648dc1ebe43485904713fc6186c7e9fd80f',
     'uclusionUpdateNotices.py': 'a9d6ed9e082bce28ac8340d242ad34d2f180a35de6821ce72c0684503e84b7e8',
     'uclusionTokenAudit.py': 'efd025872ba7f0c4e605220278e6a14bd681fc187077a5bd3dd72af6b9bd1d3b',
 }
@@ -331,7 +331,7 @@ WORKFLOW_ASSET_PATHS = {
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
     'claude_stub': 'f774feca24a4b789c5c91cd7f7d7917ac63f14be17c00dea949749650d8dbf9c',
-    'codex_stub': '77671087da7018dd2d7698ccc81f7bd583c16ca85f9536d6327339dc61dc25ff',
+    'codex_stub': '757c0e5c56fb57561680f4f980b7fcd454d0227422bf1f0dd8a36416d525e47b',
     'cursor_stub': '48944f1a09c86ef1e2e59fc18957e93212f86b30bb73ff67e18a9bc1ff8e3fa8',
     'skill': '079390aacd45f6d0db8d5480b04c41597b26611cf3ad030b5eed2f9246ee8137',
     'pokes_reference': '2951ff06798651fd56ef2f7b851bba459999b22cfae394be1cf5fd9a944c5507',

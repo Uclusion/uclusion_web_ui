@@ -39,7 +39,7 @@ action. Standalone lanes keep [single-comment.md](single-comment.md)'s tool limi
 | Job questions, suggestions or their resolution | [assistance.md](assistance.md). |
 | Approvable job approval | [approval.md](approval.md). |
 | Capsule selection, helper dispatch, publication or changed contract | [capsules.md](capsules.md). |
-| Permitted job implementation | [coordinator-execution.md](coordinator-execution.md) and [execution.md](execution.md). |
+| Permitted job implementation | [coordinator-execution.md](coordinator-execution.md); read [execution.md](execution.md) only to copy its generic rules into the helper's brief. |
 | Review direction, publication or job completion handoff | [review.md](review.md). |
 | Durable writes, creation, reopening, dependencies, view notes or receipt reconciliation | [writes.md](writes.md), with the action's governing unit. |
 | Exports or decision searches | [reading.md](reading.md). |

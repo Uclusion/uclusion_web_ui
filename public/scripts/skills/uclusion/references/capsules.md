@@ -4,8 +4,8 @@
 Only the coordinator loads this unit to select an execution target, arrange
 design help, publish or reconcile a capsule, or handle a changed contract.
 Detailed design instructions remain in the fresh design helper. Implementation
-dispatch uses [coordinator-execution.md](coordinator-execution.md); helpers load
-no Uclusion workflow units.
+dispatch uses [coordinator-execution.md](coordinator-execution.md); implementation
+helpers load no Uclusion workflow units.
 Before publication or review cleanup, load [writes.md](writes.md); explicit
 body reads use [job-reading.md](job-reading.md).
 
@@ -60,11 +60,19 @@ helper without inherited conversation history (`fork_turns: "none"` in Codex).
 Give it the selected target, bounded relevant evidence, the current capsule
 when present, new human requirements since publication, and
 `../uclusion-design/SKILL.md` resolved from the selected `uclusion` package root.
-Request the shortest complete contract: delete sentences whose removal loses
-no necessary behavior, constraint, navigation, evidence or permission limit;
-impose no numeric cap. The helper reads its skill and references in full, keeping
-research, alternatives, planning rationale and transcripts local. The main agent
-does not read those helper-only instructions or examples before delegation.
+Copy the core's local selected-package status, complete-read and reload rules
+into the dispatch, adapted to the selected design package and its required
+files. Supply its environment-correct local
+`uclusion workflow-status <selected-design-package> [--loaded <content_id>]`
+command even without a resident bootstrap; do not send core or coordinator
+reference bodies.
+
+Request the shortest complete contract, directing the helper to delete sentences
+whose removal loses no necessary behavior, constraint, navigation, evidence or
+permission limit; impose no numeric cap. Require full reads of its selected
+skill and references and keep research, alternatives, planning rationale and
+transcripts with that helper. Do not read those helper-only instructions or
+examples before delegation.
 
 Accept only the complete cold-reviewed capsule with claim-local evidence links
 or typed unresolved questions. Do not import raw export searches, skill bodies

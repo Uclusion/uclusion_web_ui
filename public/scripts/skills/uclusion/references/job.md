@@ -44,8 +44,8 @@ Action prerequisites are independent of stage:
 - Implementation checks, bounded dispatch and task resolution:
   [coordinator-execution.md](coordinator-execution.md). The coordinator reads
   [execution.md](execution.md) only to copy its generic rules into the complete
-  implementation brief. Helpers load no workflow unit or stage context; design
-  helpers load their selected design package and bounded evidence.
+  implementation brief. Implementation helpers load no workflow unit or stage
+  context; design helpers load their selected design package and bounded evidence.
 - Durable writes and outcome reconciliation: [writes.md](writes.md), plus the
   unit that governs the write. Completion packages, notifications and context
   boundaries: [operations.md](operations.md), only for those actions.

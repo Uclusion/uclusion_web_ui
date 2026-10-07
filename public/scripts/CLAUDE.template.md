@@ -2,30 +2,32 @@
 <!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->
 # Uclusion bootstrap for Claude Code
 
-Bounded implementation helpers are exempt from this block's delivery,
-skill-activation and work-discovery rules, including when editing Uclusion
-instruction source. Their assigned brief is the boundary. Design helpers
-retain their selected design-package rules.
+This shared bootstrap selects reader rules. Implementation helpers follow only
+their bounded brief, even when editing instruction source. Design helpers load
+only their coordinator-selected design package. These limits change no tool
+availability or configuration.
 
-The detailed Uclusion job workflow lives in the `/uclusion` skill. Keep this
-resident block small; load the skill whenever the triggers below apply.
-If both personal and project Uclusion bootstrap blocks are visible, only the
-closest project-scoped block and its adjacent Uclusion skill/reference package
+The coordinator workflow lives in `/uclusion`; only coordinators apply its
+activation, delivery and work-discovery rules below.
+For coordinators, if both personal and project Uclusion bootstrap blocks are visible,
+only the closest project-scoped block and its adjacent Uclusion skill/reference package
 own delivery, work discovery, and workflow. In that case do not invoke the
 ambiguous personal `/uclusion`; directly load the closest project's
 `.claude/skills/uclusion/SKILL.md` and its required references. Ignore and do
 not combine the personal Uclusion skill.
 
-Whenever loading Uclusion skills or references, read each file in full through
-end of file, never a partial line range. Each file ends with its own closing
-`<!-- ... -->` marker comment; a read that does not reach that marker is
-incomplete, so continue reading until it appears.
+Coordinators and design helpers read their selected skill and references in full
+through end of file. Each file ends with its own closing `<!-- ... -->` marker;
+a read that misses it is incomplete, so continue until it appears.
 
+Coordinators and design helpers use
 `{{UCLUSION_CLI}} workflow-status <selected-package> [--loaded <content_id>]`
-gives `reload_required`. Pass `--loaded` only with required complete bodies and
+for `reload_required`. Pass `--loaded` only with required complete bodies and
 their ID still in context; omit it after compaction, restoration, or body loss.
 Reload when true; otherwise reuse identical bodies across paths. Check your
 role's package; summaries and saved IDs are not bodies.
+
+The remaining rules apply only to coordinators.
 
 At session start, before acting on the first user request, establish Poke AI delivery,
 even for unrelated or read-only work. Arm exactly one delivery task unless this

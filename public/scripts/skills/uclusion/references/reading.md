@@ -33,11 +33,11 @@ current bodies normally.
 
 Retain full current note bodies and their source identities and versions yourself.
 Select only requirements and permission limits applicable to the implementation
-brief. Helpers receive those constraints without tracking identities, full
-view-note bodies or a broad digest; they do no note fetching, refresh or version
-tracking. Keep source traceability in your context. Refresh changed applicable
-prerequisites and supply the resulting brief changes before further affected
-helper work.
+brief. Implementation helpers receive those constraints without tracking
+identities, full view-note bodies or a broad digest; they do no note fetching,
+refresh or version tracking. Keep source traceability in your context. Refresh
+changed applicable prerequisites and supply the resulting brief changes before
+further affected implementation-helper work.
 
 ## Ordinary notes and exports
 
@@ -57,8 +57,8 @@ the configured path only when the human explicitly requests a different one.
 Exports include jobs, comments, options, votes, reasons, and UTC update dates.
 Use those dates for recency.
 
-Search it before you create a design, before you rely on a design you did not
-write yourself, and before you answer something in case it was already decided,
+Search it before delegating a design, before relying on a design you did not
+write yourself, and before answering something in case it was already decided,
 and cite what you find. The first two stop a design re-deciding something
 settled or resting on something that has gone stale; the third finds what
 settled it. A design is whatever records the agreed approach, which is the

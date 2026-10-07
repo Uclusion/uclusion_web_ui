@@ -2,6 +2,11 @@
 <!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->
 # Uclusion bootstrap for Codex
 
+Bounded implementation helpers are exempt from this block's delivery,
+skill-activation and work-discovery rules, including when editing Uclusion
+instruction source. Their assigned brief is the boundary. Design helpers
+retain their selected design-package rules.
+
 The detailed Uclusion job workflow lives in the `$uclusion` skill. Keep this
 resident block small; load the skill whenever the triggers below apply.
 If both user and project Uclusion bootstrap blocks are visible, only the

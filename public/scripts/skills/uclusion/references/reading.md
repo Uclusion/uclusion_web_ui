@@ -1,22 +1,14 @@
 <!-- uclusion-skill-reference:v1 -->
 # Reading assigned work and its context
 
-Apply the Poke assignment gate before any lookup. These rules do not activate
-unassigned or unrelated work.
+Only the coordinator loads this unit for assigned lookup, full view-note reads
+and their tracking, or decision searches. Apply the Poke assignment gate before
+any lookup. These rules do not activate unassigned or unrelated work.
 
 Call `get_job` with the selected short code. If the result has a Job header,
-load [job.md](job.md) before job planning or execution. A single-comment
-result follows the core skill's single-comment workflow.
-
-## After a write
-
-A write's result is the reload for what it produced. Inspect each outcome
-separately: a later failure does not erase an earlier successful write.
-Reconcile unconfirmed writes with scoped reads and retry only unfinished
-steps. Do not call `get_job` to see a write you made and still have in context;
-call it to see a write you did not make or no longer hold. `resolve` reports
-only what it resolved. Others' changes arrive as Pokes, so handle those
-instead of rereading the item. Job-specific write outcomes are in [job.md](job.md).
+load [job.md](job.md) and its stage/action prerequisites before acting.
+A single-comment result loads [single-comment.md](single-comment.md), without
+job-only instructions.
 
 ## Standing instructions by view
 
@@ -39,11 +31,39 @@ codes, versions or an “already read” marker. Do not infer which paragraphs
 survived. Refresh once for that view after restoration, then reuse complete
 current bodies normally.
 
+Retain full current note bodies and their source identities and versions yourself.
+Select only requirements and permission limits applicable to the implementation
+brief. Helpers receive those constraints without tracking identities, full
+view-note bodies or a broad digest; they do no note fetching, refresh or version
+tracking. Keep source traceability in your context. Refresh changed applicable
+prerequisites and supply the resulting brief changes before further affected
+helper work.
+
 ## Ordinary notes and exports
 
 Ordinary note bodies require `sections: ["notes"]`,
 `include_all_resolved: true`, or an explicit note thread read. Visibility,
 replies and resolved status do not make notes appear by default. Full workspace
 exports retain note and capsule bodies for decision searches.
-Job capsule references and explicit body reads are in [job.md](job.md).
+
+## Workspace export and decision search
+
+When workspace data can answer a request and is not already loaded, run the
+environment-correct `uclusion export` and search the reported Markdown.
+Run it without `-o` or `--output` so the CLI uses the configured
+`uclusionMDFolderPath`, then search the path reported by the command. Never
+redirect an ordinary workflow export to `/tmp` or another destination; override
+the configured path only when the human explicitly requests a different one.
+Exports include jobs, comments, options, votes, reasons, and UTC update dates.
+Use those dates for recency.
+
+Search it before you create a design, before you rely on a design you did not
+write yourself, and before you answer something in case it was already decided,
+and cite what you find. The first two stop a design re-deciding something
+settled or resting on something that has gone stale; the third finds what
+settled it. A design is whatever records the agreed approach, which is the
+current intent/design capsule where one exists and otherwise the design written
+into the item's own thread, as a standalone bug carries one. Present enough
+inline detail for relevance and its short code; offer to drill in without
+requiring the human to open Uclusion.
 <!-- /uclusion-skill-reference:v1 -->

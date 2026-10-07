@@ -45,7 +45,7 @@ unclaimed item, interrupt active work, or override a human instruction.
 Auto-take applies only while the session has no human-guided assignment. While
 that assignment is retained under Assignment ownership below, a find-work
 result may be presented but must not switch the session automatically. A
-completed job handoff as defined in `job.md` releases it; waiting for input or an unfinished
+completed job handoff as defined in [review.md](review.md) releases it; waiting for input or an unfinished
 completion package does not.
 
 When an empty response's directions explicitly say this is the "first AI
@@ -72,6 +72,11 @@ no listener to arm, and every turn started directly by the human. Work
 discovery and the job workflow then proceed normally. Following a stated mode
 is not substituting one, so the rule above still bars inventing a wait
 strategy, and never install or configure anything to obtain delivery.
+
+Handle every delivered Poke before the next edit. When no delivery is armed,
+reload the assigned lane's current state before editing, before a completion
+package and after a package reply. For a job, [job.md](job.md) routes its stage
+and action checks; a standalone comment uses [single-comment.md](single-comment.md).
 
 ## Backlog and session lifecycle
 
@@ -120,7 +125,7 @@ written before a tool call.
 ## Assignment ownership
 
 A default session has at most one assigned job or bug, except for the
-related-task split defined in `job.md`. Reading, classifying, or
+related-task split defined in [review.md](review.md). Reading, classifying, or
 reloading an object does not assign it. Assignment begins only when the human
 selects work in that session, including a numbered find-work selection, when a
 live `Start` arrives, or when an auto-take claim succeeds.
@@ -134,8 +139,8 @@ roles may
 deliberately assign multiple agents to the same work; that is outside the
 default one-agent rule.
 
-Job completion release and retained work are defined in
-[job.md](job.md). Merely ending a turn never releases an assignment.
+Job completion release is defined in [review.md](review.md); retained-work
+gates are in [job.md](job.md). Merely ending a turn never releases an assignment.
 
 For a resolved standalone bug, retain the assignment through its completion
 package. Release it only after the human's reply is handled, all authorized
@@ -196,7 +201,7 @@ The first word is contractual:
 - `Responded <target>` hands an AI-authored assistance turn back after any
   semantic human reply, vote, or Resolve. Reload and inspect what it answers;
   perform every action actually unblocked and keep waiting when another
-  dependency remains. For a job, `job.md` governs qualifying answers. A
+  dependency remains. For a job, [assistance.md](assistance.md) governs qualifying answers. A
   response on the assigned item's waiting completion package — the job's
   current AI review, or the resolved bug's sweep record — is that package's
   reply: read it and handle it as `operations.md`'s completion package says.
@@ -245,7 +250,7 @@ reload as the enclosing job with the item absent.
 Use `sections` (`description`, `tasks`, `assistance`, `reports`, `notes`, `resolved`) or
 `thread_only` for reloads of a job already held. Follow
 [reading.md](reading.md) for standing-note bodies and refresh after compaction;
-job capsule reads are in [job.md](job.md). Direct lookup already retries five
+job capsule reads are in [job-reading.md](job-reading.md). Direct lookup already retries five
 times with bounded backoff. If a newly Added direct code still returns 404,
 retry later rather than discarding it.
 

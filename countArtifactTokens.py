@@ -33,11 +33,6 @@ import urllib.request
 ANTHROPIC_COUNT_URL = 'https://api.anthropic.com/v1/messages/count_tokens'
 OPENAI_COUNT_URL = 'https://api.openai.com/v1/responses/input_tokens'
 STANDARD_CLI_COMMANDS = ('uclusion', 'uclusion -e stage', 'uclusion -e dev')
-SKILL_ASSETS = (
-    'skill', 'job_reference', 'pokes_reference', 'reading_reference',
-    'operations_reference', 'completion_reference', 'audit_reference', 'claims_reference',
-    'uploads_reference', 'design_skill', 'design_examples',
-)
 SAMPLE_CHUNK_BYTES = 8192
 SAMPLE_CHUNKS = 24
 DUMMY_TOOL = {
@@ -166,7 +161,10 @@ def shipped_artifacts(installer, token_audit, scripts_dir):
             digest = hashlib.sha256(text.encode('utf-8')).hexdigest()
             artifacts.setdefault(digest, {'kind': kind, 'name': name, 'text': text})
 
-    for key in SKILL_ASSETS:
+    for key, relative_path in (*installer.SKILL_PACKAGE_ASSETS,
+                               *installer.DESIGN_SKILL_PACKAGE_ASSETS):
+        if not relative_path.endswith('.md'):
+            continue
         text = read(key)
         add('skill', installer.WORKFLOW_ASSET_PATHS[key], text)
         # Claude Code's Skill tool presents a skill without its frontmatter.

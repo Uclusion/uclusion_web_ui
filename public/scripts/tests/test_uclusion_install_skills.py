@@ -137,7 +137,7 @@ class SkillPackageContractTests(unittest.TestCase):
             references,
             'SKILL.md must route detailed workflow instructions to references/',
         )
-        self.assertIn('references/completion.md', references)
+        self.assertIn('references/coordinator.md', references)
         packaged_paths = {
             destination.replace(os.sep, '/')
             for _key, destination in INSTALL.SKILL_PACKAGE_ASSETS
@@ -164,6 +164,20 @@ class SkillPackageContractTests(unittest.TestCase):
                 packaged_paths,
                 f'SKILL.md reference is not packaged: {relative_path}',
             )
+
+        for _key, source_path in INSTALL.SKILL_PACKAGE_ASSETS:
+            if not source_path.endswith('.md'):
+                continue
+            source = read_text(os.path.join(SKILL_SOURCE_DIR, source_path))
+            for link in re.findall(r'\[[^]]+\]\(([^)]+\.md)\)', source):
+                destination = os.path.normpath(os.path.join(
+                    os.path.dirname(source_path), link
+                )).replace(os.sep, '/')
+                self.assertIn(
+                    destination,
+                    packaged_paths,
+                    f'{source_path} routes to an unpackaged unit: {link}',
+                )
 
     def test_skill_package_does_not_capture_workspace_specific_short_codes(self):
         # Product docs use wildcard forms (for example J-*).  A concrete code

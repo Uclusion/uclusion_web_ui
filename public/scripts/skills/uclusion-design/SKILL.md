@@ -1,143 +1,100 @@
 ---
 name: uclusion-design
-description: Plan, compose, revise, and cold-review the current intent/design capsule as a fresh helper after the core Uclusion workflow has selected the executable target and supplied bounded evidence. Use only for delegated Uclusion planning and capsule work, not ordinary product design, workflow stages, tool calls, persistence, testing gates, security gates, implementation, or final review.
+description: Plan, compose, revise, and cold-review a Uclusion intent/design capsule as a fresh helper from the selected target and bounded evidence. Use only for delegated capsule work; the core Uclusion workflow owns work selection, tools, stages, permissions, implementation and final review.
 ---
 <!-- uclusion-design-skill:v1 -->
 <!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->
 # Uclusion design capsule
 
-Write the shortest standalone capsule that lets a new implementer build the
-agreed outcome. Scale detail to the work's complexity and uncertainty. The core
-`$uclusion` skill owns target selection and every Uclusion tool call; this skill
-owns delegated planning, capsule composition, revision, and cold review.
+Return the shortest standalone implementation contract for the selected target.
+During composition and cold review, delete every sentence whose removal loses
+no necessary implementation behavior, constraint, navigation, evidence or
+permission limit. State each idea once, omit irrelevant categories, and impose
+no numeric length cap.
 
-## Boundary with the core workflow
+## Helper boundary
 
-Start without inherited conversation history. Accept the selected target,
-bounded relevant job or task text, qualifying answers, approved plans, prior
-authoritative artifacts and hard source constraints, its current capsule when
-one exists, and any new human requirements from `$uclusion`. For a sent capsule,
-require new human input establishing a new contract before returning a
-replacement body. Use the selected sibling package supplied by the main agent.
+Start without inherited history, using the selected sibling package and bounded
+evidence supplied by `$uclusion`: target text, qualifying answers, approved
+plans, authoritative artifacts, source constraints, the current capsule and new
+human requirements. Write only that target's contract; a task capsule stands
+alone and never inherits from or falls back to a job capsule.
 
-Never choose the target, change a stage, ask or resolve a question, address a
-suggestion, call `set_design_capsule`, handle persistence or version conflicts,
-approve testing or security work, implement the target, or request final review.
-Delegation grants no implementation permission. Return only the complete
-cold-reviewed Markdown capsule with claim-local evidence links, or typed
-unresolved questions, to `$uclusion`, which owns those operations. Do not return
-raw export searches, skill bodies or the planning transcript. Report a missing
-or unreadable required skill/reference as an installation fault to the main
-agent; do not improvise the missing instructions.
+The core workflow owns target selection, stages, questions, suggestions,
+Uclusion tools, persistence, permission checks, implementation and final review.
+Delegation grants none of those actions. Read
+[references/examples.md](references/examples.md) in full before drafting or
+reviewing. Report missing or unreadable required instructions as an installation
+fault to the main agent; do not improvise them.
 
-Before drafting or reviewing, read
-[references/examples.md](references/examples.md) completely.
-
-## Plan from the supplied evidence
-
-Investigate the selected target's relevant evidence and source constraints
-before drafting. Keep research and intermediate reasoning in this helper's
-context. Use bounded source and history searches where the supplied evidence
-leaves a factual gap; return a typed missing-evidence question when the needed
-source or observed behavior is unavailable. Do not select another work lane or
-load the main agent's workflow to perform its responsibilities.
-
-Recover the actor's trigger, outcome and material boundaries from that evidence.
-Separate forced source facts from choices requiring human authority under the
-evidence gate below. Complete composition and the cold review here before
-returning a capsule; the main agent needs the resulting contract, not the
-investigation that produced it.
+Investigate relevant source and history with bounded searches before drafting.
+Keep research, alternatives, planning rationale and transcripts here. Return
+only the complete cold-reviewed Markdown capsule with claim-local evidence, or
+typed unresolved questions. Never return raw searches or instruction bodies.
 
 ## Evidence gate
 
-A reviewer-divergent choice requires qualifying human evidence attached to
-that exact claim. Qualifying evidence is the human-authored job or task text, a
-clear non-AI and non-advisory human reply that answers the choice, a non-AI and
-non-advisory human For vote on the selected Approvable option, an accepted human
-suggestion, or an explicitly approved test or security plan. A hard source
-constraint or prior authoritative artifact may support a forced fact, but it
-cannot authorize a choice that a reasonable reviewer could make differently.
+A choice a reasonable reviewer could make differently needs qualifying human
+evidence beside that exact claim: human-authored job/task text, a clear non-AI,
+non-advisory reply answering the choice, a non-AI, non-advisory For vote on the
+selected Approvable option, an accepted human suggestion, or an explicitly
+approved test/security plan. Source constraints and prior authoritative
+artifacts support forced facts; they cannot authorize divergent choices.
 
-A human's conversion of an AI-authored suggestion into a task is qualifying
-acceptance of the proposal as written. Cite that conversion and the proposal
-for the choices it specifies, even though the task retains its AI author.
-Do not re-ask those choices unless evidence found after conversion bears on
-them; name that evidence in the question. Choices the proposal leaves open
-still require qualifying human evidence.
+A human's conversion of an AI suggestion to a task accepts its proposal as
+written, despite the retained AI author. Cite the conversion and proposal for
+its specified choices. Re-ask only when new evidence found after conversion
+bears on them, naming that evidence; unspecified choices still need authority.
 
-Use a descriptive inline link beside the sentence or bullet it supports. A
-detached evidence ledger, an unlinked source list, proximity to a different
-claim, unaccepted AI-authored text, a job-level value approval, or an invitation to object
-later does not satisfy the gate.
+Use descriptive inline links in the claim block they support. Detached ledgers,
+unlinked sources, links beside other claims, unaccepted AI text, advisory input,
+job-value approval and invitations to object do not qualify. Selected-option
+evidence names the exact question, full selected option code and behavior, e.g.
+`[Q-Demo-7, selected Q-Demo-7_O-1: retain the prior result](#q-demo-7)`.
 
-When a selected option supplies the evidence, the same claim block must name
-the exact question code, the exact selected option code, and the selected
-behavior. Put those identifiers in a descriptive evidence link, such as
-`[question Q-Sample-1, selected option O-1: retain the prior result](#q-sample-1)`.
-A question-only link does not prove which option the human selected.
+Return a typed unresolved question when evidence is missing; never invent a
+default or bury a choice in the capsule:
 
-If a material choice lacks qualifying human evidence, do not invent a default
-and do not hide the choice in prose. Return a typed question to `$uclusion`
-that names the decision, the information needed, and discrete options only
-when the choice is genuinely discrete. The core workflow files and resolves
-the question before asking this skill to continue.
+- **Missing-evidence question:** selected target and claim, needed source or
+  observed behavior.
+- **Decision question:** selected target and decision, missing authority or
+  information, and options only for a genuinely discrete choice.
 
-## Compose the system story
+The core workflow files and resolves these questions before composition resumes.
 
-Open with a navigational `## Summary`: the files or surfaces to open first and
-the broad shape of the change. Mention a new or changed table only when there
-is one, with its reason. Use as few lines as needed; one can suffice. Keep actor
-outcomes, evidence links and the contract below out of this summary.
+## Compose and cold-review
 
-Then describe the actor's trigger and outcome, with the material constraints
-needed to implement it. State each idea once. Small work may need only one
-short paragraph after the summary. Do not add sections or repeat the outcome
-to make the capsule look complete.
+Open with `## Summary`: files or surfaces to open first and the shape of the
+change. One line can suffice. Keep the outcome, evidence recap and contract
+below out of this navigation; mention a changed table and its reason only when
+applicable.
 
-Integrate only the applicable subjects into that story:
+Then state the actor's trigger and outcome with only material implementation
+constraints. Include ownership, state, interfaces, failure or concurrency only
+when needed for this work. Preserve explicit scope and permission limits,
+including testing/security work already approved by the human. Use short
+claim-local links instead of retelling decisions; omit status history, repeated
+rationale, obvious consequences, coding plans and question recaps. Small work
+may need just one paragraph after the summary.
 
-- actor scenarios and terminal outcomes;
-- responsibilities, ownership boundaries, and handoffs;
-- state, lifecycle, and durable transitions;
-- interfaces, payloads, formats, and compatibility constraints;
-- validation, partial failure, recovery, races, and concurrency;
-- the implementation map across affected surfaces;
-- exclusions and non-goals;
-- only the testing and security work already approved by the human.
+Complete cold review before returning a capsule. Discard remembered chat and
+questions; read only the candidate and its claim-local evidence as a new
+implementer. Check that it alone conveys the agreed outcome and all applicable
+material constraints, with qualifying authority at each divergent claim and
+both exact identifiers for selected options. Its Summary must navigate without
+repeating the contract. Apply the sentence-deletion test above; do not demand
+irrelevant categories to make the capsule look complete.
 
-These subjects are prompts, not required sections. Omit irrelevant categories
-and obvious exclusions; retain explicit testing or security limits. Every
-sentence must add behavior, a necessary boundary, evidence or verification.
-Remove repeated rationale, status history and obvious consequences. Use brief
-claim-local links rather than retelling the supporting discussion. Do not turn
-the capsule into a component checklist, coding plan or question recap. Brevity
-must preserve the contract and its evidence, not impose an arbitrary word cap.
+## Sent-capsule stability
 
-## Revise and cold-review
+Finish drafting and cold review before publication. A sent body stays unchanged
+unless human input arriving after publication establishes a new contract. Only
+then incorporate that contract and return the complete cold-reviewed replacement;
+never a fragment or patch. Older human input newly discovered, a later cold
+review, AI discoveries and implementation differences do not authorize rewriting.
+The core workflow reports implementation differences once in its review.
 
-Complete drafting, polishing, and cold review before publication. Once a
-capsule is sent, keep its body stable unless new human input establishes a new
-contract. For that permitted revision, incorporate the new contract and return
-the full replacement body. Never return a fragment or patch. AI discoveries
-and implementation differences belong once in the implementation review,
-which the core workflow owns.
-
-For a cold review, discard remembered chat and questions. Read only the
-candidate capsule and its claim-local evidence. Check that a new implementer
-can recover the agreed outcome and material, applicable boundaries, state,
-interfaces, failure and concurrency behavior, and approved verification. Do not demand detail
-for inapplicable categories. Check that the summary provides navigation without
-repeating the contract, and remove prose whose deletion would lose no needed
-information. Every reviewer-divergent choice still needs qualifying human
-evidence beside it; selected-option evidence names both exact identifiers.
-
-For an unpublished draft or a revision authorized by new human input, return a
-revised complete body when the evidence supports a clearer or more complete
-contract. For a sent capsule without new human input, return its complete body
-unchanged with its evidence links. If a material correction needs an unsupported
-choice or a new human contract, return typed unresolved decision questions
-instead. A capsule fails review when its prose is accurate only with remembered
-context, when an evidence ledger leaves the reader to map authority back to
-claims, or when its summary is missing or restates the story instead of
-pointing at it.
+Return a sent capsule unchanged with its evidence links when no new contract
+exists. If a material correction needs an unsupported choice or a new human
+contract, return typed unresolved questions instead.
 <!-- /uclusion-design-skill:v1 -->

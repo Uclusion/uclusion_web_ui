@@ -378,7 +378,7 @@ class NativeCodexDelivery:
                         descendants.append(thread)
                     continue
                 status = self.client.request('mcpServerStatus/list', {
-                    'threadId': root, 'serverName': 'Uclusion', 'detail': 'toolsAndAuthOnly'})
+                    'threadId': root, 'detail': 'toolsAndAuthOnly'})
                 if not any(self.identity in (server.get('serverInfo') or {}).get('version', '')
                            and server.get('runtimeStatus') == 'connected' for server in status['data']):
                     continue

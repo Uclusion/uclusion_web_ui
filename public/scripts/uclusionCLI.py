@@ -129,7 +129,7 @@ UPDATE_CHECK_STATE_FILE = os.path.join(uclusion_home_root(), '.uclusion', 'updat
 UPDATE_CHECK_INTERVAL = 900
 WORKFLOW_MD_MARKER = '<!-- uclusion-workflow:v1 -->'
 WORKFLOW_SKILL_MARKER = '<!-- uclusion-skill:v1 -->'
-CODEX_UCLUSION_TABLE = '[mcp_servers.Uclusion]'
+CODEX_UCLUSION_TABLES = ('[mcp_servers.uclusion]', '[mcp_servers.Uclusion]')
 PROJECT_ROOT_MARKERS = ('.git', '.hg', '.svn')
 WORKFLOW_CLIENTS = frozenset(('claude', 'cursor', 'codex'))
 
@@ -2440,7 +2440,7 @@ def json_has_uclusion_server(path):
     except (OSError, json.JSONDecodeError):
         return False
     servers = config.get('mcpServers') if isinstance(config, dict) else None
-    return isinstance(servers, dict) and 'Uclusion' in servers
+    return isinstance(servers, dict) and any(key in servers for key in ('uclusion', 'Uclusion'))
 
 
 def detect_global_clients():
@@ -2481,7 +2481,8 @@ def detect_global_clients():
                 WORKFLOW_SKILL_MARKER,
             )):
         clients.add('cursor')
-    if (file_contains(os.path.join(codex_home, 'config.toml'), CODEX_UCLUSION_TABLE)
+    if (any(file_contains(os.path.join(codex_home, 'config.toml'), table)
+            for table in CODEX_UCLUSION_TABLES)
             or effective_file_contains(
                 (
                     os.path.join(codex_home, 'AGENTS.override.md'),

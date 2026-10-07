@@ -42,7 +42,7 @@ Without ``--clients`` the installer asks whether to configure Uclusion globally
 
 ``setup`` mode needs no Uclusion credential, workspace ID, or view ID. It
 installs the same immutable script release and registers ``uclusionSetupMCP.py``
-under the existing ``Uclusion`` key for exactly one selected client and scope.
+under the ``uclusion`` key for exactly one selected client and scope.
 The temporary MCP later invokes this installer without putting a secret on the
 command line, replacing its own registration with the normal runtime proxy.
 
@@ -158,12 +158,12 @@ SCRIPT_FILES = (
 # deployment gate validates this table before publishing, so a sequential S3
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
-    'uclusionCLI.py': '546a3753511b0c5d64ce4082d7b539a9117c19d8e077fd49ad28edeccb9a4fd3',
-    'uclusionMCPProxy.py': '961f3b3cac5ab21a7204143d9dba7b12c91a50f86c53e05dec246c61c175b95c',
+    'uclusionCLI.py': '3fb896736ebd702c9f883a3a4b43c16547803bb6528410ef24b241f1c50fc391',
+    'uclusionMCPProxy.py': '0ed9d86bbe056cc1daaf75469a597b437e3a22f7c86e7c1dbfd2a6d3802a46ac',
     'uclusionSetupMCP.py': '9aa8d3199b0c392d944fc3b2fb9f26b48230737ea2e5b07980cd3df6b79ed4f3',
-    'uclusionCodexNative.py': 'd276658c822caa9398a8497289a9c509a56a61d3f63d1121843c091e8f8c241a',
+    'uclusionCodexNative.py': 'fa913c6064315fcb56366cfbb337a91982ac67fe0a8d845d8c32cc23d25e9ab9',
     'uclusionUpdateNotices.py': 'a9d6ed9e082bce28ac8340d242ad34d2f180a35de6821ce72c0684503e84b7e8',
-    'uclusionTokenAudit.py': '7000130cd4314f34962c285ed66f35aa15b7dd8ba461e53c879b33d769b24bc8',
+    'uclusionTokenAudit.py': 'a900dea0e13e03773476a3e2872572e2986e5c1779317e6a4ec8c186ed237792',
 }
 USER_HOME = os.path.expanduser('~')
 UCLUSION_HOME = os.path.join(uclusion_home_root(), '.uclusion')
@@ -194,9 +194,9 @@ CLAUDE_SKILL_DIR = os.path.join(
 CLAUDE_SETTINGS_PATH = os.path.join(CLAUDE_CONFIG_HOME, 'settings.json')
 # Explicit allow rules are checked before Claude Code's permission classifier, so the Uclusion
 # workflow tools never prompt or hit classifier outages (T-all-2299)
-CLAUDE_ALLOW_RULE = 'mcp__Uclusion__*'
+CLAUDE_ALLOW_RULE = 'mcp__uclusion__*'
 CLAUDE_TOKEN_AUDIT_MARKER_MATCHER = (
-    r'^mcp__Uclusion__(start_job_audit|set_job_audit_phase|end_job_audit)$'
+    r'^mcp__uclusion__(start_job_audit|set_job_audit_phase|end_job_audit)$'
 )
 CLAUDE_TOKEN_AUDIT_HOOK_EVENTS = (
     ('PostToolUse', CLAUDE_TOKEN_AUDIT_MARKER_MATCHER),
@@ -283,7 +283,8 @@ CODEX_SKILL_DIR = os.path.join(
 # reruns can replace it in place without disturbing the user's other settings.
 CODEX_CONFIG_MARKER = '# uclusion-mcp:v1'
 CODEX_CONFIG_END_MARKER = '# /uclusion-mcp:v1'
-MCP_SERVER_KEY = 'Uclusion'
+MCP_SERVER_KEY = 'uclusion'
+MCP_SERVER_KEYS = (MCP_SERVER_KEY, 'Uclusion')
 SUPPORTED_CLIENTS = frozenset({'claude', 'cursor', 'codex'})
 _UNCHECKED_MCP_DESCRIPTOR = object()
 # Releases before J-all-369 installed lifecycle hooks for root-thread
@@ -1696,7 +1697,7 @@ def demo_codex_session_args(environment, workspace_id, evidence_dir=None,
         for name, server in servers.items()
     ):
         raise RuntimeError('Codex returned an unsupported MCP configuration')
-    if servers.get(MCP_SERVER_KEY, {}).get('url') is not None:
+    if servers.get(_mcp_server_key(servers), {}).get('url') is not None:
         raise RuntimeError(
             'The Codex demo cannot replace an inherited HTTP Uclusion server '
             'for one invocation. Use a Codex configuration without that '
@@ -3188,7 +3189,7 @@ def _codex_uclusion_args(text):
     servers = parsed.get('mcp_servers')
     if not isinstance(servers, dict):
         return None
-    server = servers.get(MCP_SERVER_KEY)
+    server = servers.get(_mcp_server_key(servers))
     if not isinstance(server, dict):
         return None
     args = server.get('args')
@@ -3267,15 +3268,16 @@ def _remove_demo_registration(client):
     if not isinstance(config, dict):
         return 'kept', f'{path} top-level value is not a JSON object'
     servers = config.get('mcpServers')
-    if not isinstance(servers, dict) or MCP_SERVER_KEY not in servers:
+    key = _mcp_server_key(servers) if isinstance(servers, dict) else None
+    if key is None:
         return 'absent', f'no Uclusion MCP server in {path}'
-    descriptor = servers[MCP_SERVER_KEY]
+    descriptor = servers[key]
     args = descriptor.get('args') if isinstance(descriptor, dict) else None
     if not _args_belong_to_this_demo(args):
         return 'kept', (
             f'{path} has a Uclusion MCP server that is not this demo\'s'
         )
-    del servers[MCP_SERVER_KEY]
+    del servers[key]
     if not servers:
         config.pop('mcpServers', None)
     updated = json.dumps(config, indent=2) + '\n'
@@ -3299,9 +3301,10 @@ def _remove_demo_allow_rule():
         return 'kept', f'{path} top-level value is not a JSON object'
     permissions = config.get('permissions')
     allow = permissions.get('allow') if isinstance(permissions, dict) else None
-    if not isinstance(allow, list) or CLAUDE_ALLOW_RULE not in allow:
+    allow_rules = ('mcp__uclusion__*', 'mcp__Uclusion__*')
+    if not isinstance(allow, list) or not any(rule in allow for rule in allow_rules):
         return 'absent', f'{path} does not allow {CLAUDE_ALLOW_RULE}'
-    remaining = [rule for rule in allow if rule != CLAUDE_ALLOW_RULE]
+    remaining = [rule for rule in allow if rule not in allow_rules]
     if remaining:
         permissions['allow'] = remaining
     else:
@@ -4301,22 +4304,44 @@ def _toml_basic_string(value):
 
 
 def _assert_expected_json_descriptor(servers, expected_descriptor, path):
+    key = _mcp_server_key(servers)
     if expected_descriptor is _UNCHECKED_MCP_DESCRIPTOR:
         return
     if expected_descriptor is None:
-        if MCP_SERVER_KEY in servers:
+        if key is not None:
             raise RuntimeError(
                 f'{path} already defines a Uclusion MCP server; refusing setup bootstrap'
             )
         return
     expected_descriptor = _validate_mcp_descriptor(expected_descriptor)
     if (
-        MCP_SERVER_KEY not in servers
-        or servers[MCP_SERVER_KEY] != expected_descriptor
+        key is None
+        or servers[key] != expected_descriptor
     ):
         raise RuntimeError(
             f'{path} setup MCP descriptor changed or is missing; refusing replacement'
         )
+
+
+def _mcp_server_key(servers):
+    """Find the current or legacy registration without choosing between duplicates."""
+    keys = [key for key in MCP_SERVER_KEYS if key in servers]
+    if len(keys) > 1:
+        raise RuntimeError('Both uclusion and Uclusion MCP servers are registered; '
+                           'keep one registration before updating')
+    return keys[0] if keys else None
+
+
+def _assert_json_namespace_unambiguous(path):
+    """Check registrations before moving the permission rules that protect them."""
+    try:
+        with open(path, encoding='utf-8') as source:
+            config = json.load(source)
+    except FileNotFoundError:
+        return
+    servers = config.get('mcpServers') if isinstance(config, dict) else None
+    if isinstance(servers, dict):
+        _mcp_server_key(servers)
 
 
 def _response_stats_from_args(args):
@@ -4364,7 +4389,8 @@ def register_mcp_json(path, label, workspace_id, env, require_existing,
         if not isinstance(config, dict):
             raise RuntimeError(f'{path} top-level value must be a JSON object')
 
-    normal_claude = descriptor is None and token_audit_client == 'claude'
+    normal_registration = descriptor is None
+    normal_claude = normal_registration and token_audit_client == 'claude'
     if descriptor is None:
         descriptor = runtime_mcp_descriptor(
             workspace_id,
@@ -4380,19 +4406,23 @@ def register_mcp_json(path, label, workspace_id, env, require_existing,
         raise RuntimeError(f"'mcpServers' in {path} must be a JSON object")
 
     _assert_expected_json_descriptor(servers, expected_descriptor, path)
+    previous_key = _mcp_server_key(servers)
+    previous = servers.get(previous_key, {})
+    if not isinstance(previous, dict):
+        previous = {}
 
     if normal_claude:
-        previous = servers.get(MCP_SERVER_KEY, {})
-        if not isinstance(previous, dict):
-            previous = {}
         if response_stats is None:
             response_stats = _response_stats_from_args(previous.get('args'))
         if response_stats:
             descriptor['args'].extend(['--response-stats', response_stats])
-        # Preserve custom Claude fields while refreshing the owned command.
+    if normal_registration:
+        # Preserve custom fields when moving the registration to its new key.
         # Explicit setup descriptors still use their exact-match contract.
         descriptor = {**previous, **descriptor}
 
+    if previous_key is not None:
+        del servers[previous_key]
     servers[MCP_SERVER_KEY] = descriptor
 
     updated = json.dumps(config, indent=2) + '\n'
@@ -4455,7 +4485,7 @@ def configure_claude_response_stats(settings_path, workspace_id, environment, re
             group = {'hooks': [{'type': 'command', 'command': ' '.join(shlex.quote(part) for part in parts),
                                 'timeout': 10}]}
             if event == 'PostToolUse':
-                group['matcher'] = r'^mcp__Uclusion__(get_.*|find_work)$'
+                group['matcher'] = r'^mcp__uclusion__(get_.*|find_work)$'
             retained.append(group)
         if retained:
             hooks[event] = retained
@@ -4616,17 +4646,40 @@ def add_claude_permissions(settings_path):
         raise RuntimeError(
             f"'permissions.allow' in {settings_path} must be a JSON array"
         )
-    if CLAUDE_ALLOW_RULE in allow:
-        print(f"  ⏭  {settings_path} already allows {CLAUDE_ALLOW_RULE}.")
-        return True
-    allow.insert(0, CLAUDE_ALLOW_RULE)
+    # Move the existing grant/deny/ask rules with the server name, preserving scope.
+    has_uclusion_rules = False
+    rules_changed = False
+    for policy in ('allow', 'deny', 'ask'):
+        rules = permissions.get(policy)
+        if isinstance(rules, list):
+            has_uclusion_rules = has_uclusion_rules or any(
+                isinstance(rule, str) and (
+                    rule in ('mcp__uclusion', 'mcp__Uclusion')
+                    or rule.startswith(('mcp__uclusion__', 'mcp__Uclusion__'))
+                ) for rule in rules
+            )
+            migrated = [
+                'mcp__uclusion' + rule[len('mcp__Uclusion'):]
+                if isinstance(rule, str) and (rule == 'mcp__Uclusion'
+                                              or rule.startswith('mcp__Uclusion__'))
+                else rule for rule in rules
+            ]
+            rules_changed = rules_changed or migrated != rules
+            permissions[policy] = migrated
+    allow = permissions['allow']
+    if has_uclusion_rules:
+        if not rules_changed:
+            print(f"  ⏭  {settings_path} already has Uclusion permission rules.")
+            return True
+    else:
+        allow.insert(0, CLAUDE_ALLOW_RULE)
 
     updated = json.dumps(config, indent=2) + '\n'
     with config_file_lock(logical_path):
         atomic_write_text(
             logical_path, updated, existing, target_path, signature
         )
-    print(f"  ✅ Added {CLAUDE_ALLOW_RULE} to {settings_path}")
+    print(f"  ✅ Updated Uclusion permission rules in {settings_path}")
     return True
 
 
@@ -4945,9 +4998,10 @@ def _remove_home_project_registration():
     except json.JSONDecodeError:
         return None
     servers = config.get('mcpServers') if isinstance(config, dict) else None
-    if not isinstance(servers, dict) or MCP_SERVER_KEY not in servers:
+    key = _mcp_server_key(servers) if isinstance(servers, dict) else None
+    if key is None:
         return None
-    del servers[MCP_SERVER_KEY]
+    del servers[key]
     if not servers:
         config.pop('mcpServers', None)
     if not config:
@@ -5016,7 +5070,7 @@ def remove_home_project_leftovers():
 
 def build_codex_mcp_block(workspace_id=None, env=None, work_claims=False,
                           descriptor=None, token_audit=None, response_stats=None):
-    """Return the marker-delimited ``[mcp_servers.Uclusion]`` table for config.toml.
+    """Return the marker-delimited ``[mcp_servers.uclusion]`` table for config.toml.
 
     There is no TOML writer in the standard library (``tomllib`` only reads, and
     only on 3.11+), and the installer must run standalone via ``curl | bash`` with
@@ -5025,7 +5079,7 @@ def build_codex_mcp_block(workspace_id=None, env=None, work_claims=False,
     and formatting the user has elsewhere in the file.
 
     ``default_tools_approval_mode`` is Codex's server-wide equivalent of Claude's
-    ``mcp__Uclusion__*`` allow rule. It covers all current and future tools exposed
+    ``mcp__uclusion__*`` allow rule. It covers all current and future tools exposed
     by the Uclusion server instead of requiring a per-tool approval entry.
     """
     if descriptor is None:
@@ -5075,14 +5129,8 @@ def replace_owned_block(
     """Append or replace exactly one ordered marker-owned config block."""
     config_path = config_path or CODEX_CONFIG_PATH
 
-    def marker_matches(marker):
-        return list(re.finditer(
-            rf'(?m)^{re.escape(marker)}\r?$',
-            existing,
-        ))
-
-    starts = marker_matches(start_marker)
-    ends = marker_matches(end_marker)
+    starts = _owned_marker_matches(existing, start_marker)
+    ends = _owned_marker_matches(existing, end_marker)
     if not starts and not ends:
         if existing.strip():
             separator = '' if existing.endswith('\n') else '\n'
@@ -5096,10 +5144,7 @@ def replace_owned_block(
     end_index = ends[0].end()
     if end_index < len(existing) and existing[end_index] == '\n':
         end_index += 1
-    remainder = (
-        existing[:starts[0].start()] + existing[end_index:]
-    ).rstrip()
-    return (remainder + '\n\n' + block) if remainder else block, True
+    return existing[:starts[0].start()] + block + existing[end_index:], True
 
 
 def remove_owned_block(
@@ -5108,14 +5153,8 @@ def remove_owned_block(
     """Remove exactly one marker-owned block, preserving all other config."""
     config_path = config_path or CODEX_CONFIG_PATH
 
-    def marker_matches(marker):
-        return list(re.finditer(
-            rf'(?m)^{re.escape(marker)}\r?$',
-            existing,
-        ))
-
-    starts = marker_matches(start_marker)
-    ends = marker_matches(end_marker)
+    starts = _owned_marker_matches(existing, start_marker)
+    ends = _owned_marker_matches(existing, end_marker)
     if not starts and not ends:
         return existing, False
     if len(starts) != 1 or len(ends) != 1 or starts[0].start() >= ends[0].start():
@@ -5148,21 +5187,45 @@ def validate_codex_config(text):
             ) from error
 
 
+def _toml_tokens(text):
+    """Find strings and comments so configuration edits stay outside values."""
+    pattern = re.compile(
+        r'(?s)#[^\n]*|"""(?:\\.|(?!""").)*"{3,5}|'
+        r"'''(?:[^']|'(?!''))*'{3,5}|"
+        r'"(?:\\.|[^"\\])*"|\'[^\']*\''
+    )
+    return list(pattern.finditer(text))
+
+
+def _codex_headers(text):
+    tokens = _toml_tokens(text)
+    return [match for match in re.finditer(r'(?m)^[ \t]*\[[^\r\n]*', text)
+            if not any(token.start() <= match.start() < token.end() for token in tokens)]
+
+
+def _owned_marker_matches(text, marker):
+    matches = list(re.finditer(rf'(?m)^{re.escape(marker)}\r?$', text))
+    if not marker.startswith('#'):
+        return matches
+    comments = {token.start() for token in _toml_tokens(text)
+                if token[0].startswith('#')}
+    return [match for match in matches if match.start() in comments]
+
+
+CODEX_MCP_HEADER = re.compile(
+    r'^([ \t]*\[[ \t]*["\']?mcp_servers["\']?[ \t]*\.[ \t]*)'
+    r'(["\']?)(Uclusion|uclusion)\2(?=[ \t]*(?:\.|\]))'
+)
+
+
 def _codex_has_uclusion_descriptor(text):
+    markers = bool(_owned_marker_matches(text, CODEX_CONFIG_MARKER)
+                   or _owned_marker_matches(text, CODEX_CONFIG_END_MARKER))
     if tomllib is not None:
-        parsed = tomllib.loads(text)
-        servers = parsed.get('mcp_servers')
-        if isinstance(servers, dict) and MCP_SERVER_KEY in servers:
-            return True
-    table_pattern = (
-        r'(?m)^\s*\[\s*["\']?mcp_servers["\']?\s*\.\s*'
-        r'["\']?Uclusion["\']?\s*\]'
-    )
-    return (
-        CODEX_CONFIG_MARKER in text
-        or CODEX_CONFIG_END_MARKER in text
-        or re.search(table_pattern, text) is not None
-    )
+        servers = tomllib.loads(text).get('mcp_servers', {})
+        return markers or (isinstance(servers, dict)
+                           and any(key in servers for key in MCP_SERVER_KEYS))
+    return markers or any(CODEX_MCP_HEADER.match(header[0]) for header in _codex_headers(text))
 
 
 def _assert_expected_codex_descriptor(text, expected_descriptor, config_path):
@@ -5174,13 +5237,10 @@ def _assert_expected_codex_descriptor(text, expected_descriptor, config_path):
             )
         return
 
+    text = _migrate_codex_namespace(text)
     expected_block = build_codex_mcp_block(descriptor=expected_descriptor)
-    starts = list(re.finditer(
-        rf'(?m)^{re.escape(CODEX_CONFIG_MARKER)}\r?$', text
-    ))
-    ends = list(re.finditer(
-        rf'(?m)^{re.escape(CODEX_CONFIG_END_MARKER)}\r?$', text
-    ))
+    starts = _owned_marker_matches(text, CODEX_CONFIG_MARKER)
+    ends = _owned_marker_matches(text, CODEX_CONFIG_END_MARKER)
     if len(starts) == 1 and len(ends) == 1 and starts[0].start() < ends[0].start():
         end_index = ends[0].end()
         if end_index < len(text) and text[end_index] == '\n':
@@ -5199,6 +5259,103 @@ def _assert_expected_codex_descriptor(text, expected_descriptor, config_path):
             f'{config_path} has an additional Uclusion MCP descriptor; '
             'refusing replacement'
         )
+
+
+def _migrate_codex_namespace(text):
+    """Rename actual legacy table headers, preserving settings and string values."""
+    headers = [(header, CODEX_MCP_HEADER.match(header[0]))
+               for header in _codex_headers(text)]
+    if tomllib is not None:
+        servers = tomllib.loads(text).get('mcp_servers', {})
+    else:
+        parent_table = re.compile(
+            r'^\s*\[\s*(?:mcp_servers|"mcp_servers"|\'mcp_servers\')\s*\]'
+        )
+        assignments = list(re.finditer(
+            r'(?m)^[ \t]*(?:mcp_servers|"mcp_servers"|\'mcp_servers\')[ \t]*(?:\.|=)', text
+        ))
+        tokens = _toml_tokens(text)
+        if (any(parent_table.match(header[0]) for header, _match in headers)
+                or any(not any(token.start() <= assignment.start()
+                               and assignment.end() <= token.end() for token in tokens)
+                       for assignment in assignments)):
+            raise RuntimeError(
+                'MCP registrations using dotted keys or inline maps require Python 3.11; '
+                'configuration unchanged'
+            )
+        servers = dict.fromkeys(match[3] for _header, match in headers if match)
+    key = _mcp_server_key(servers) if isinstance(servers, dict) else None
+    if key != 'Uclusion':
+        return text
+    updated = text
+    for header, match in reversed(headers):
+        if match and match[3] == 'Uclusion':
+            start = header.start() + match.start(3)
+            end = header.start() + match.end(3)
+            updated = updated[:start] + MCP_SERVER_KEY + updated[end:]
+    if updated == text:
+        raise RuntimeError('Use a [mcp_servers.Uclusion] table before updating a '
+                           'legacy MCP registration written with dotted keys or inline maps')
+    return updated
+
+
+def _refresh_codex_transport(owned, descriptor):
+    """Replace only owned command/args values, retaining TOML table structure."""
+    headers = _codex_headers(owned)
+    root = None
+    section_end = len(owned)
+    for header in headers:
+        match = CODEX_MCP_HEADER.match(header[0])
+        if root is None and match and re.match(r'[ \t]*\]', header[0][match.end():]):
+            root = header
+        elif root is not None:
+            section_end = header.start()
+            break
+    if root is None:
+        raise RuntimeError('Cannot locate the owned Codex MCP table; configuration unchanged')
+    tokens = _toml_tokens(owned)
+    token_starts = {token.start(): token for token in tokens}
+    replacements = {}
+    assignments = re.finditer(
+        r'(?m)^[ \t]*(["\']?)(command|args)\1[ \t]*=[ \t]*',
+        owned[root.end():section_end],
+    )
+    for match in assignments:
+        start = root.end() + match.start()
+        value_start = root.end() + match.end()
+        if any(token.start() <= start < token.end() and value_start <= token.end()
+               for token in tokens):
+            continue
+        key = match[2]
+        if key in replacements:
+            raise RuntimeError('Duplicate owned Codex transport fields; configuration unchanged')
+        end = value_start
+        depth = 0
+        while end < section_end:
+            token = token_starts.get(end)
+            if token:
+                if token[0].startswith('#') and depth == 0:
+                    break
+                end = token.end()
+                continue
+            char = owned[end]
+            if char in '[{':
+                depth += 1
+            elif char in ']}':
+                depth -= 1
+            elif char in '\r\n' and depth == 0:
+                break
+            end += 1
+        while end > value_start and owned[end - 1] in ' \t':
+            end -= 1
+        value = (_toml_basic_string(descriptor['command']) if key == 'command'
+                 else '[' + ', '.join(_toml_basic_string(arg) for arg in descriptor['args']) + ']')
+        replacements[key] = (value_start, end, value)
+    if set(replacements) != {'command', 'args'}:
+        raise RuntimeError('Cannot locate owned Codex command/args; configuration unchanged')
+    for start, end, value in sorted(replacements.values(), reverse=True):
+        owned = owned[:start] + value + owned[end:]
+    return CODEX_CONFIG_MARKER + '\n' + owned.strip('\r\n') + '\n' + CODEX_CONFIG_END_MARKER + '\n'
 
 
 def _stat_signature(file_stat):
@@ -5390,26 +5547,25 @@ def mutate_codex_config(
             _assert_expected_codex_descriptor(
                 existing, expected_descriptor, config_path
             )
-        updated = existing
+        updated = _migrate_codex_namespace(existing) if include_mcp else existing
         mcp_refreshed = False
         legacy_hooks_removed = False
         mcp_skipped = False
         if include_mcp:
-            has_any_owned_mcp_marker = (
-                CODEX_CONFIG_MARKER in updated
-                or CODEX_CONFIG_END_MARKER in updated
-            )
+            starts = _owned_marker_matches(updated, CODEX_CONFIG_MARKER)
+            ends = _owned_marker_matches(updated, CODEX_CONFIG_END_MARKER)
+            has_any_owned_mcp_marker = bool(starts or ends)
             if (
                 not has_any_owned_mcp_marker
-                and '[mcp_servers.Uclusion]' in updated
+                and _codex_has_uclusion_descriptor(updated)
             ):
                 mcp_skipped = True
             else:
+                owned = ''
                 if descriptor is None:
                     previous_args = _codex_uclusion_args(existing)
-                    owned = existing.partition(CODEX_CONFIG_MARKER)[2].partition(
-                        CODEX_CONFIG_END_MARKER
-                    )[0]
+                    if len(starts) == 1 and len(ends) == 1 and starts[0].end() < ends[0].start():
+                        owned = updated[starts[0].end():ends[0].start()]
                     if tomllib is None and '--deliver-existing-pokes' in owned:
                         raise RuntimeError(
                             'Preserving Codex replay requires Python 3.11; '
@@ -5429,18 +5585,13 @@ def mutate_codex_config(
                     )
                     if previous_args and '--deliver-existing-pokes' in previous_args:
                         descriptor['args'].append('--deliver-existing-pokes')
+                block = (build_codex_mcp_block(descriptor=descriptor) if not owned
+                         else _refresh_codex_transport(_migrate_codex_namespace(owned), descriptor))
                 updated, mcp_refreshed = replace_owned_block(
                     updated,
                     CODEX_CONFIG_MARKER,
                     CODEX_CONFIG_END_MARKER,
-                    build_codex_mcp_block(
-                        workspace_id,
-                        env,
-                        work_claims,
-                        descriptor,
-                        token_audit,
-                        response_stats,
-                    ),
+                    block,
                     'MCP',
                     config_path,
                 )
@@ -5464,8 +5615,8 @@ def mutate_codex_config(
     if mcp_skipped:
         print(
             f"  ⏭  {config_path} already defines "
-            "[mcp_servers.Uclusion] outside Uclusion's markers; "
-            "leaving that table untouched."
+            "[mcp_servers.uclusion] outside Uclusion's markers; "
+            "preserving its settings."
         )
     elif include_mcp:
         verb = 'Refreshed' if mcp_refreshed else 'Added'
@@ -5532,7 +5683,7 @@ def register_codex_descriptor(
     )
     if expected not in current:
         raise RuntimeError(
-            f'{config_path} has an unmanaged [mcp_servers.Uclusion] table; '
+            f'{config_path} has an unmanaged [mcp_servers.uclusion] table; '
             'refusing to report setup registration as complete'
         )
     return result
@@ -7018,6 +7169,7 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
             and uclusion_home_root() != demo_home_path()):
         # A demo session carries its grant on --allowedTools instead, so there
         # is no rule left in the person's settings to take back out.
+        _assert_json_namespace_unambiguous(CLAUDE_JSON_PATH)
         add_claude_permissions(CLAUDE_SETTINGS_PATH)
         result = configure_claude_token_audit(
             CLAUDE_SETTINGS_PATH,
@@ -7251,6 +7403,7 @@ def install_project_level(
     claude_settings_path = os.path.join(project_dir, '.claude', 'settings.local.json')
     claude_selected = interactive or 'claude' in clients
     if claude_selected:
+        _assert_json_namespace_unambiguous(os.path.join(project_dir, '.mcp.json'))
         add_claude_permissions(claude_settings_path)
         result = configure_claude_token_audit(
             claude_settings_path,

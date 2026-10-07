@@ -304,6 +304,247 @@ class CodexIntegrationConfigTests(unittest.TestCase):
             'keep-this-hook',
         )
 
+    def test_legacy_codex_tables_migrate_without_changing_user_values(self):
+        existing = (
+            '# Keep this comment\nmodel = "custom-model"\n'
+            '[mcp_servers."Uclusion"] # custom registration\n'
+            'command = "custom-proxy"\nargs = ["custom-argument"]\n'
+            'enabled = false\ndefault_tools_approval_mode = "prompt"\n'
+            '[mcp_servers."Uclusion".env]\nCUSTOM = "preserved"\n'
+            '[mcp_servers."Uclusion".tools.get_job]\napproval_mode = "prompt"\n'
+            '[mcp_servers.other]\ncommand = "other-proxy"\n'
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'config.toml'
+            path.write_text(existing)
+            for _ in range(2):
+                INSTALL.mutate_codex_config(include_mcp=True, config_path=str(path))
+                self.assertEqual(existing.replace('"Uclusion"', '"uclusion"'), path.read_text())
+
+    def test_legacy_owned_codex_update_keeps_recording_and_replay(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'config.toml'
+            descriptor = {'command': 'python3', 'args': [
+                'old-proxy', '--response-stats=/private/recording.jsonl',
+                '--deliver-existing-pokes',
+            ]}
+            settings = {'enabled': False, 'default_tools_approval_mode': 'prompt',
+                        'env_vars': ['CUSTOM'], 'env': {'VALUE': 'preserved'},
+                        'tools': {'resolve': {'approval_mode': 'prompt'}}}
+            block = INSTALL.build_codex_mcp_block(descriptor=descriptor)
+            block = block.replace('enabled = true', 'enabled = false').replace(
+                'default_tools_approval_mode = "approve"',
+                'default_tools_approval_mode = "prompt"').replace(
+                'env_vars = ["CODEX_HOME"]', 'env_vars = ["CUSTOM"]')
+            block = block.replace(INSTALL.CODEX_CONFIG_END_MARKER,
+                                  'env = { VALUE = "preserved" }\n'
+                                  'tools = { resolve = { approval_mode = "prompt" } }\n'
+                                  + INSTALL.CODEX_CONFIG_END_MARKER)
+            path.write_text(block.replace('mcp_servers.uclusion', 'mcp_servers.Uclusion'))
+            INSTALL.mutate_codex_config(
+                'workspace', 'stage', include_mcp=True, config_path=str(path),
+            )
+            servers = tomllib.loads(path.read_text())['mcp_servers']
+            self.assertEqual(['uclusion'], list(servers))
+            self.assertIn('--deliver-existing-pokes', servers['uclusion']['args'])
+            self.assertIn('/private/recording.jsonl', servers['uclusion']['args'])
+            for key, value in settings.items():
+                self.assertEqual(value, servers['uclusion'][key])
+
+    def test_namespace_migration_preserves_table_examples_in_multiline_strings(self):
+        for quotes in ('"""', "'''"):
+            with self.subTest(quotes=quotes), tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / 'config.toml'
+                example = '[mcp_servers.Uclusion]\ncommand = "example"'
+                instructions = f'developer_instructions = {quotes}\n{example}\n{quotes}\n'
+                registration = '[mcp_servers.Uclusion]\ncommand = "actual-proxy"\n'
+                path.write_text(instructions + registration)
+                INSTALL.mutate_codex_config(include_mcp=True, config_path=str(path))
+                self.assertEqual(instructions + registration.replace('Uclusion', 'uclusion'),
+                                 path.read_text())
+
+    def test_managed_namespace_update_preserves_external_subtables(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'config.toml'
+            block = INSTALL.build_codex_mcp_block(
+                descriptor={'command': 'python3', 'args': ['old-proxy']},
+            ).replace(INSTALL.CODEX_CONFIG_END_MARKER,
+                      '[mcp_servers.uclusion.tools.resolve]\napproval_mode = "prompt"\n'
+                      + INSTALL.CODEX_CONFIG_END_MARKER).replace(
+                          'mcp_servers.uclusion', 'mcp_servers.Uclusion')
+            outside = ('\n[mcp_servers.Uclusion.env]\nCUSTOM = "preserved"\n'
+                       '[mcp_servers.Uclusion.tools]\n'
+                       '[mcp_servers.Uclusion.tools.get_job]\napproval_mode = "prompt"\n')
+            path.write_text(block + outside)
+            INSTALL.mutate_codex_config(
+                'workspace', 'stage', include_mcp=True, config_path=str(path),
+            )
+            server = tomllib.loads(path.read_text())['mcp_servers']['uclusion']
+            self.assertEqual({'CUSTOM': 'preserved'}, server['env'])
+            self.assertEqual({'resolve': {'approval_mode': 'prompt'},
+                              'get_job': {'approval_mode': 'prompt'}}, server['tools'])
+            self.assertTrue(path.read_text().endswith(outside.lstrip('\n').replace('Uclusion', 'uclusion')))
+
+    def test_legacy_managed_migration_without_toml_support_preserves_settings(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'config.toml'
+            existing = INSTALL.build_codex_mcp_block(
+                descriptor={'command': 'python3', 'args': ['old-proxy']},
+            ).replace('default_tools_approval_mode = "approve"',
+                      'default_tools_approval_mode = "prompt"').replace(
+                          'mcp_servers.uclusion', 'mcp_servers.Uclusion')
+            path.write_text(existing)
+            with mock.patch.object(INSTALL, 'tomllib', None):
+                INSTALL.mutate_codex_config(
+                    'workspace', 'stage', include_mcp=True, config_path=str(path),
+                )
+            server = tomllib.loads(path.read_text())['mcp_servers']['uclusion']
+            self.assertEqual('prompt', server['default_tools_approval_mode'])
+            self.assertIn('workspace', server['args'])
+
+    def test_managed_update_preserves_table_context_after_marker(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'config.toml'
+            block = INSTALL.build_codex_mcp_block(
+                descriptor={'command': 'python3', 'args': ['old-proxy']},
+            ).replace(INSTALL.CODEX_CONFIG_END_MARKER,
+                      'env = { CUSTOM = "preserved" }\n' + INSTALL.CODEX_CONFIG_END_MARKER)
+            path.write_text(block + 'startup_timeout_sec = 42\n')
+            INSTALL.mutate_codex_config(
+                'workspace', 'stage', include_mcp=True, config_path=str(path),
+            )
+            server = tomllib.loads(path.read_text())['mcp_servers']['uclusion']
+            self.assertEqual({'CUSTOM': 'preserved'}, server['env'])
+            self.assertEqual(42, server['startup_timeout_sec'])
+
+    def test_namespace_examples_do_not_prevent_new_registration(self):
+        examples = ('developer_instructions = """\n# uclusion-mcp:v1\n'
+                    '[mcp_servers.Uclusion]\n# /uclusion-mcp:v1\n"""\n')
+        for parser in (tomllib, None):
+            with self.subTest(parser=parser), tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / 'config.toml'
+                path.write_text(examples)
+                with mock.patch.object(INSTALL, 'tomllib', parser):
+                    INSTALL.mutate_codex_config(
+                        'workspace', 'stage', include_mcp=True, config_path=str(path),
+                    )
+                parsed = tomllib.loads(path.read_text())
+                self.assertEqual('# uclusion-mcp:v1\n[mcp_servers.Uclusion]\n'
+                                 '# /uclusion-mcp:v1\n', parsed['developer_instructions'])
+                self.assertIn('uclusion', parsed['mcp_servers'])
+
+    def test_namespace_examples_without_toml_support_are_not_registrations(self):
+        examples = 'developer_instructions = """\n[mcp_servers.Uclusion]\n"""\n'
+        for actual in ('', '[mcp_servers.uclusion]\ncommand = "actual"\n'):
+            with self.subTest(actual=actual), mock.patch.object(INSTALL, 'tomllib', None):
+                self.assertEqual(examples + actual,
+                                 INSTALL._migrate_codex_namespace(examples + actual))
+
+    def test_conflicting_codex_namespace_registrations_leave_config_unchanged(self):
+        existing = ('[mcp_servers.Uclusion]\ncommand = "old"\n'
+                    '[mcp_servers.uclusion]\ncommand = "new"\n')
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'config.toml'
+            path.write_text(existing)
+            with self.assertRaisesRegex(RuntimeError, 'Both uclusion and Uclusion'):
+                INSTALL.mutate_codex_config(include_mcp=True, config_path=str(path))
+            self.assertEqual(existing, path.read_text())
+
+    def test_legacy_json_registration_migrates_and_retains_custom_settings(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'mcp.json'
+            path.write_text(json.dumps({'mcpServers': {
+                'Uclusion': {'command': 'old', 'args': [], 'enabled': False,
+                             'env': {'CUSTOM': 'preserved'}},
+                'other': {'command': 'other'},
+            }}))
+            for _ in range(2):
+                INSTALL.register_mcp_json(str(path), 'Cursor', 'workspace', 'stage', False)
+                servers = json.loads(path.read_text())['mcpServers']
+                self.assertEqual({'uclusion', 'other'}, set(servers))
+                self.assertFalse(servers['uclusion']['enabled'])
+                self.assertEqual({'CUSTOM': 'preserved'}, servers['uclusion']['env'])
+                self.assertEqual({'command': 'other'}, servers['other'])
+
+    def test_conflicting_json_namespace_registrations_leave_config_unchanged(self):
+        existing = json.dumps({'mcpServers': {'Uclusion': {}, 'uclusion': {}}})
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'mcp.json'
+            path.write_text(existing)
+            with self.assertRaisesRegex(RuntimeError, 'Both uclusion and Uclusion'):
+                INSTALL.register_mcp_json(str(path), 'Cursor', 'workspace', 'stage', False)
+            self.assertEqual(existing, path.read_text())
+
+    def test_claude_install_conflicts_leave_permission_scopes_unchanged(self):
+        for scope in ('global', 'project'):
+            with self.subTest(scope=scope), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                registration = root / '.mcp.json'
+                settings = root / '.claude' / 'settings.local.json'
+                settings.parent.mkdir()
+                original = json.dumps({'permissions': {
+                    'allow': ['mcp__Uclusion__get_job'],
+                    'deny': ['mcp__Uclusion__resolve'],
+                    'ask': ['mcp__Uclusion__add_info'],
+                }})
+                settings.write_text(original)
+                registration.write_text(json.dumps({'mcpServers': {'Uclusion': {}, 'uclusion': {}}}))
+                with mock.patch.multiple(
+                    INSTALL, UCLUSION_HOME=directory, CLAUDE_JSON_PATH=str(registration),
+                    CLAUDE_SETTINGS_PATH=str(settings),
+                ), mock.patch.object(INSTALL, 'write_uclusion_config', return_value=(
+                    {'enabled': False, 'port': 4318}, False,
+                )), mock.patch.object(INSTALL, 'persist_workflow_install_state'):
+                    with self.assertRaisesRegex(RuntimeError, 'Both uclusion and Uclusion'):
+                        if scope == 'global':
+                            INSTALL.install_global('workspace', 'view', 'stage', None,
+                                                   clients={'claude'})
+                        else:
+                            INSTALL.install_project_level('workspace', 'view', 'stage', None,
+                                                          directory, clients={'claude'})
+                self.assertEqual(original, settings.read_text())
+
+    def test_unsupported_mcp_toml_without_parser_refuses_unchanged(self):
+        registrations = (
+            '[mcp_servers]\nUclusion.command = "python3"\nUclusion.args = []\n',
+            'mcp_servers.Uclusion.command = "python3"\n',
+            'mcp_servers = { Uclusion = { command = "python3", args = [] } }\n',
+        )
+        for existing in registrations:
+            with self.subTest(existing=existing), tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / 'config.toml'
+                path.write_text(existing)
+                with mock.patch.object(INSTALL, 'tomllib', None):
+                    with self.assertRaisesRegex(RuntimeError, 'require Python 3.11'):
+                        INSTALL.mutate_codex_config(include_mcp=True, config_path=str(path))
+                self.assertEqual(existing, path.read_text())
+
+    def test_claude_permission_migration_preserves_allow_deny_and_ask_scopes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'settings.json'
+            path.write_text(json.dumps({'permissions': {
+                'allow': ['mcp__Uclusion__*', 'Bash(ls)'],
+                'deny': ['mcp__Uclusion__resolve', 'mcp__other__*'],
+                'ask': ['mcp__Uclusion__add_info'],
+            }}))
+            INSTALL.add_claude_permissions(str(path))
+            first = path.read_text()
+            INSTALL.add_claude_permissions(str(path))
+            self.assertEqual(first, path.read_text())
+            self.assertEqual({
+                'allow': ['mcp__uclusion__*', 'Bash(ls)'],
+                'deny': ['mcp__uclusion__resolve', 'mcp__other__*'],
+                'ask': ['mcp__uclusion__add_info'],
+            }, json.loads(first)['permissions'])
+
+    def test_claude_namespace_migration_keeps_narrow_allow_scope(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'settings.json'
+            path.write_text(json.dumps({'permissions': {'allow': ['mcp__Uclusion__get_job']}}))
+            INSTALL.add_claude_permissions(str(path))
+            self.assertEqual(['mcp__uclusion__get_job'],
+                             json.loads(path.read_text())['permissions']['allow'])
+
     @unittest.skipUnless(hasattr(os, 'symlink'), 'requires symlink support')
     def test_config_symlink_is_preserved_while_target_is_updated(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -492,7 +733,7 @@ class CodexIntegrationConfigTests(unittest.TestCase):
             'keep-this-hook',
         )
         self.assertEqual(
-            parsed['mcp_servers']['Uclusion']['default_tools_approval_mode'],
+            parsed['mcp_servers']['uclusion']['default_tools_approval_mode'],
             'approve',
         )
 
@@ -687,7 +928,7 @@ class ResponseStatsInstallerTests(unittest.TestCase):
                     'theme': 'dark',
                     'mcpServers': {
                         'Other': {'command': 'keep-other', 'args': ['untouched']},
-                        'Uclusion': {
+                        'uclusion': {
                             'command': 'old-python',
                             'args': ['old-proxy', 'old-workspace',
                                      '--response-stats', previous_stats],
@@ -731,7 +972,7 @@ class ResponseStatsInstallerTests(unittest.TestCase):
                             )
                             with open(mcp_path, encoding='utf-8') as config:
                                 updated = INSTALL.json.load(config)
-                            server = updated['mcpServers']['Uclusion']
+                            server = updated['mcpServers']['uclusion']
                             expected_args = INSTALL.runtime_mcp_descriptor(
                                 'workspace-1', 'stage', token_audit_client='claude',
                             )['args']
@@ -747,7 +988,7 @@ class ResponseStatsInstallerTests(unittest.TestCase):
                             with open(cursor_path, encoding='utf-8') as config:
                                 cursor = INSTALL.json.load(config)
                             self.assertNotIn('--response-stats',
-                                             cursor['mcpServers']['Uclusion']['args'])
+                                             cursor['mcpServers']['uclusion']['args'])
                             with open(os.path.join(
                                 directory, INSTALL.CONFIG_FILES['stage'],
                             ), encoding='utf-8') as config:
@@ -775,7 +1016,7 @@ class ResponseStatsInstallerTests(unittest.TestCase):
                         INSTALL.update_codex_integration_config('new-workspace', 'stage', force=True, config_path=config_path, response_stats=choice)
                         with open(config_path, encoding='utf-8') as handle:
                             current = tomllib.loads(handle.read())
-                        args = current['mcp_servers']['Uclusion']['args']
+                        args = current['mcp_servers']['uclusion']['args']
                         self.assertIn('--codex-native', args)
                         self.assertIn('new-workspace', args)
                         self.assertEqual(current['model'], 'keep-model')
@@ -801,18 +1042,18 @@ class ResponseStatsInstallerTests(unittest.TestCase):
                         INSTALL.update_codex_integration_config('new-workspace', 'stage', force=True, config_path=config_path, response_stats=choice)
                         with open(config_path, encoding='utf-8') as handle:
                             current = tomllib.loads(handle.read())
-                        args = current['mcp_servers']['Uclusion']['args']
+                        args = current['mcp_servers']['uclusion']['args']
                         self.assertEqual(args.count('--deliver-existing-pokes'), 1)
                         self.assertIn('new-workspace', args)
                 args.remove('--deliver-existing-pokes')
                 with open(config_path, 'w', encoding='utf-8') as handle:
                     handle.write(INSTALL.build_codex_mcp_block(descriptor={
-                        'command': current['mcp_servers']['Uclusion']['command'],
+                        'command': current['mcp_servers']['uclusion']['command'],
                         'args': args,
                     }))
                 INSTALL.update_codex_integration_config('new-workspace', 'stage', force=True, config_path=config_path)
                 with open(config_path, encoding='utf-8') as handle:
-                    final_args = tomllib.loads(handle.read())['mcp_servers']['Uclusion']['args']
+                    final_args = tomllib.loads(handle.read())['mcp_servers']['uclusion']['args']
                 self.assertNotIn('--deliver-existing-pokes', final_args)
 
     def test_codex_update_does_not_erase_recording_when_toml_cannot_be_read(self):
@@ -849,9 +1090,9 @@ class ResponseStatsInstallerTests(unittest.TestCase):
             )
             with open(path, encoding='utf-8') as config:
                 first = INSTALL.json.load(config)
-            self.assertNotIn('--response-stats', first['mcpServers']['Uclusion']['args'])
+            self.assertNotIn('--response-stats', first['mcpServers']['uclusion']['args'])
             stats_path = os.path.join(directory, 'sizes.jsonl')
-            first['mcpServers']['Uclusion']['args'].append('--response-stats=' + stats_path)
+            first['mcpServers']['uclusion']['args'].append('--response-stats=' + stats_path)
             with open(path, 'w', encoding='utf-8') as config:
                 INSTALL.json.dump(first, config)
             INSTALL.register_mcp_json(
@@ -860,7 +1101,7 @@ class ResponseStatsInstallerTests(unittest.TestCase):
             )
             with open(path, encoding='utf-8') as config:
                 updated = INSTALL.json.load(config)
-            self.assertEqual(updated['mcpServers']['Uclusion']['args'][-2:],
+            self.assertEqual(updated['mcpServers']['uclusion']['args'][-2:],
                              ['--response-stats', stats_path])
 
     def test_explicit_setup_descriptor_keeps_exact_match_contract(self):
@@ -874,8 +1115,8 @@ class ResponseStatsInstallerTests(unittest.TestCase):
             )
             with open(path, encoding='utf-8') as config:
                 registered = INSTALL.json.load(config)
-            self.assertEqual(registered['mcpServers']['Uclusion'], descriptor)
-            registered['mcpServers']['Uclusion']['env'] = {'KEEP_ME': 'yes'}
+            self.assertEqual(registered['mcpServers']['uclusion'], descriptor)
+            registered['mcpServers']['uclusion']['env'] = {'KEEP_ME': 'yes'}
             with open(path, 'w', encoding='utf-8') as config:
                 INSTALL.json.dump(registered, config)
             with self.assertRaisesRegex(RuntimeError, 'setup MCP descriptor changed'):
@@ -1164,7 +1405,7 @@ class TokenAuditInstallerTests(unittest.TestCase):
                 token_audit_client='claude',
             )
             with open(mcp_path, encoding='utf-8') as mcp_file:
-                args = INSTALL.json.load(mcp_file)['mcpServers']['Uclusion']['args']
+                args = INSTALL.json.load(mcp_file)['mcpServers']['uclusion']['args']
 
         self.assertEqual(
             args,

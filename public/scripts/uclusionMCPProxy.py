@@ -1119,9 +1119,9 @@ class ResponseStats:
                 self.context_event(session, source, 'claude')
         elif payload.get('hook_event_name') == 'PostToolUse':
             name = payload.get('tool_name')
-            if not isinstance(name, str) or not name.startswith('mcp__Uclusion__'):
+            if not isinstance(name, str) or not name.startswith(('mcp__uclusion__', 'mcp__Uclusion__')):
                 return
-            tool = name.removeprefix('mcp__Uclusion__')
+            tool = name.split('__', 2)[2]
             fields = self._read_fields(payload.get('tool_response'), self._fingerprint('claude', session),
                                        tool, self._read_selector(tool, payload.get('tool_input')))
             if fields:

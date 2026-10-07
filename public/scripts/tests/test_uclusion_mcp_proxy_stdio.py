@@ -285,7 +285,7 @@ class ResponseStatsTests(unittest.TestCase):
 
     def test_merged_claude_hooks_record_one_row_for_each_actual_read(self):
         payload = {'session_id': 'session', 'hook_event_name': 'PostToolUse',
-                   'tool_name': 'mcp__Uclusion__get_job', 'tool_use_id': 'first-call',
+                   'tool_name': 'mcp__uclusion__get_job', 'tool_use_id': 'first-call',
                    'tool_input': {'short_code_id': 'R-example-1'}, 'tool_response': READ_RESULT['result']}
         for invocation in ('first-call', 'first-call', 'second-call', 'second-call'):
             recorder = self.recorder()

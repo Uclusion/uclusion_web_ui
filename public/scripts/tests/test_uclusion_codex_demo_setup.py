@@ -71,7 +71,7 @@ class CodexDemoSetupTests(unittest.TestCase):
             'features': {'apps': False, 'plugins': False, 'remote_plugin': False},
             'developer_instructions': 'Keep the native instruction.',
             'mcp_servers': {
-                'Uclusion': {'command': 'native-proxy', 'args': ['native-workspace']},
+                'uclusion': {'command': 'native-proxy', 'args': ['native-workspace']},
                 'Other.Server': {'url': 'https://example.invalid/mcp'},
             },
         }
@@ -79,7 +79,7 @@ class CodexDemoSetupTests(unittest.TestCase):
     def inventory(self):
         descriptor = INSTALL.runtime_mcp_descriptor('demo-workspace', 'stage')
         return [
-            {'name': 'Uclusion', 'enabled': True, 'transport': descriptor},
+            {'name': 'uclusion', 'enabled': True, 'transport': descriptor},
             {'name': 'Other.Server', 'enabled': False},
         ]
 
@@ -106,7 +106,7 @@ class CodexDemoSetupTests(unittest.TestCase):
             '--demo-evidence', str(self.home / 'evidence'),
             '--demo-evidence-role', 'evaluator',
         ])
-        inventory = [{'name': 'Uclusion', 'enabled': True, 'transport': descriptor}]
+        inventory = [{'name': 'uclusion', 'enabled': True, 'transport': descriptor}]
         args, _ = self.session_args(
             inventory=inventory, native=True, model='gpt-6-luna', effort='low',
             response_stats='/tmp/evaluator-stats.jsonl',
@@ -118,8 +118,8 @@ class CodexDemoSetupTests(unittest.TestCase):
         self.assertEqual('low', saved['model_reasoning_effort'])
         self.assertEqual({'apps': False, 'plugins': False, 'remote_plugin': False}, saved['features'])
         self.assertFalse(saved['mcp_servers']['Other.Server']['enabled'])
-        self.assertEqual(descriptor['args'], saved['mcp_servers']['Uclusion']['args'])
-        self.assertEqual(['CODEX_HOME'], saved['mcp_servers']['Uclusion']['env_vars'])
+        self.assertEqual(descriptor['args'], saved['mcp_servers']['uclusion']['args'])
+        self.assertEqual(['CODEX_HOME'], saved['mcp_servers']['uclusion']['env_vars'])
         self.assertEqual('Keep the native instruction.\n\nDemo bootstrap\n', saved['developer_instructions'])
 
     def test_environment_retains_native_login_and_removes_parent_bridge_identity(self):
@@ -140,7 +140,7 @@ class CodexDemoSetupTests(unittest.TestCase):
 
     def test_demo_install_preserves_native_configuration_and_installs_complete_packages(self):
         native_files = {
-            self.native / 'config.toml': '[mcp_servers.Uclusion]\ncommand="native"\n',
+            self.native / 'config.toml': '[mcp_servers.uclusion]\ncommand="native"\n',
             self.native / 'AGENTS.md': 'Native workflow\n',
             self.native / 'auth.json': 'test-only login sentinel\n',
         }
@@ -194,17 +194,17 @@ class CodexDemoSetupTests(unittest.TestCase):
         )
         servers = settings['mcp_servers']
         self.assertFalse(servers['Other.Server']['enabled'])
-        self.assertTrue(servers['Uclusion']['enabled'])
-        self.assertTrue(servers['Uclusion']['required'])
-        self.assertEqual(self.inventory()[0]['transport']['args'], servers['Uclusion']['args'])
-        self.assertEqual('approve', servers['Uclusion']['default_tools_approval_mode'])
+        self.assertTrue(servers['uclusion']['enabled'])
+        self.assertTrue(servers['uclusion']['required'])
+        self.assertEqual(self.inventory()[0]['transport']['args'], servers['uclusion']['args'])
+        self.assertEqual('approve', servers['uclusion']['default_tools_approval_mode'])
         self.assertNotIn('approval_policy', settings)
         self.assertNotIn('sandbox_mode', settings)
         self.assertEqual(str(self.native), invocation['env']['CODEX_HOME'])
         self.assertEqual(str(self.home), invocation['cwd'])
 
     def test_inherited_http_uclusion_transport_is_rejected_before_inventory_launch(self):
-        self.effective['mcp_servers']['Uclusion'] = {'url': 'https://example.invalid'}
+        self.effective['mcp_servers']['uclusion'] = {'url': 'https://example.invalid'}
         with self.assertRaisesRegex(RuntimeError, 'inherited HTTP Uclusion'):
             self.session_args()
 
@@ -246,7 +246,7 @@ class CodexDemoSetupTests(unittest.TestCase):
                 self.session_args(inventory)
 
     def test_removal_preserves_native_registration_for_an_isolated_codex_install(self):
-        native_config = '[mcp_servers.Uclusion]\ncommand="native-proxy"\n'
+        native_config = '[mcp_servers.uclusion]\ncommand="native-proxy"\n'
         (self.native / 'config.toml').write_text(native_config)
         INSTALL.install_demo_codex_workflow(self.fetch)
         with mock.patch.object(INSTALL, 'demo_installed_clients', return_value=['codex']), \

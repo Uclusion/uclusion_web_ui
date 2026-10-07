@@ -92,7 +92,7 @@ class LeftoverCleanupTests(HomeDirectoryTestCase):
 
     def test_only_the_uclusion_server_leaves_a_shared_mcp_json(self):
         write_json(self.mcp_json, {'mcpServers': {
-            'Uclusion': {'command': 'python3', 'args': ['proxy']},
+            'uclusion': {'command': 'python3', 'args': ['proxy']},
             'Other': {'command': 'keep-me'},
         }, 'note': 'mine'})
         self.assertEqual(1, len(self.cleanup()))
@@ -100,7 +100,7 @@ class LeftoverCleanupTests(HomeDirectoryTestCase):
                          json.loads(self.mcp_json.read_text(encoding='utf-8')))
 
     def test_an_mcp_json_holding_only_uclusion_is_deleted(self):
-        write_json(self.mcp_json, {'mcpServers': {'Uclusion': {'command': 'python3'}}})
+        write_json(self.mcp_json, {'mcpServers': {'uclusion': {'command': 'python3'}}})
         self.cleanup()
         self.assertFalse(self.mcp_json.exists())
 
@@ -112,13 +112,13 @@ class LeftoverCleanupTests(HomeDirectoryTestCase):
                 'PostToolUse': [{'hooks': [audit_hook(), user_hook]}],
                 'Stop': [{'hooks': [audit_hook()]}],
             },
-            'permissions': {'allow': ['mcp__Uclusion__*', 'Bash(ls)']},
+            'permissions': {'allow': ['mcp__uclusion__*', 'Bash(ls)']},
         })
         self.assertEqual(1, len(self.cleanup()))
         self.assertEqual({
             'env': {'KEEP_ME': 'yes'},
             'hooks': {'PostToolUse': [{'hooks': [user_hook]}]},
-            'permissions': {'allow': ['mcp__Uclusion__*', 'Bash(ls)']},
+            'permissions': {'allow': ['mcp__uclusion__*', 'Bash(ls)']},
         }, json.loads(self.local_settings.read_text(encoding='utf-8')))
 
     def test_edited_telemetry_values_are_not_treated_as_uclusion_s(self):
@@ -136,7 +136,7 @@ class LeftoverCleanupTests(HomeDirectoryTestCase):
         self.assertEqual('{"env": {"A": "1"}}', self.local_settings.read_text(encoding='utf-8'))
 
     def test_the_global_claude_install_removes_the_leftovers(self):
-        write_json(self.mcp_json, {'mcpServers': {'Uclusion': {'command': 'python3'}}})
+        write_json(self.mcp_json, {'mcpServers': {'uclusion': {'command': 'python3'}}})
         write_json(self.local_settings, {'hooks': {'Stop': [{'hooks': [audit_hook()]}]}})
         directory = self.home / 'uclusion-home'
         with mock.patch.multiple(
@@ -157,7 +157,7 @@ class LeftoverCleanupTests(HomeDirectoryTestCase):
         self.assertFalse(self.mcp_json.exists())
         self.assertEqual({}, json.loads(self.local_settings.read_text(encoding='utf-8')))
         registered = json.loads((self.home / '.claude.json').read_text(encoding='utf-8'))
-        self.assertIn('Uclusion', registered['mcpServers'])
+        self.assertIn('uclusion', registered['mcpServers'])
 
 
 class StrayEndpointWarningTests(HomeDirectoryTestCase):
@@ -194,7 +194,7 @@ class UpdateDiscoveryTests(unittest.TestCase):
             skill = home / '.claude' / 'skills' / 'uclusion' / 'SKILL.md'
             skill.parent.mkdir(parents=True)
             skill.write_text(cli.WORKFLOW_SKILL_MARKER + '\n', encoding='utf-8')
-            write_json(home / '.mcp.json', {'mcpServers': {'Uclusion': {}}})
+            write_json(home / '.mcp.json', {'mcpServers': {'uclusion': {}}})
             (home / '.git').mkdir()
             nested = home / 'dev' / 'notes'
             nested.mkdir(parents=True)
@@ -206,7 +206,7 @@ class UpdateDiscoveryTests(unittest.TestCase):
                         self.assertEqual(set(), cli.detect_project_clients(str(start)))
                 project = home / 'dev' / 'project'
                 (project / '.claude' / 'skills' / 'uclusion').mkdir(parents=True)
-                write_json(project / '.mcp.json', {'mcpServers': {'Uclusion': {}}})
+                write_json(project / '.mcp.json', {'mcpServers': {'uclusion': {}}})
                 self.assertEqual(str(project),
                                  cli.get_project_install_root('stage', str(project)))
 

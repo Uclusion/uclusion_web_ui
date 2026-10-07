@@ -50,7 +50,7 @@ def raw_response(thread_id, turn_id, response_id, token_usage):
     }
 
 
-def mcp_item(thread_id, turn_id, item_id, tool, arguments, result):
+def mcp_item(thread_id, turn_id, item_id, tool, arguments, result, server="uclusion"):
     return {
         "method": "item/completed",
         "params": {
@@ -59,7 +59,7 @@ def mcp_item(thread_id, turn_id, item_id, tool, arguments, result):
             "item": {
                 "id": item_id,
                 "type": "mcpToolCall",
-                "server": "Uclusion",
+                "server": server,
                 "tool": tool,
                 "status": "completed",
                 "arguments": arguments,
@@ -1829,6 +1829,20 @@ class CodexAuditTests(TokenAuditTestCase):
             }],
             measurement["raw_counts"],
         )
+
+    def test_legacy_namespace_start_marker_is_still_accepted(self):
+        observer = audit.CodexTokenAudit("stage", "workspace-1")
+        observer.set_primary_thread({"id": "legacy-root"})
+        run_id = str(uuid.uuid4())
+        observer.observe_notification(mcp_item(
+            "legacy-root", "turn", "start", "start_job_audit",
+            {"job_id": "J-all-14"},
+            {"schema_version": 1, "state": "active", "audit_run_id": run_id,
+             "canonical_job_id": "J-all-14"},
+            server="Uclusion",
+        ))
+        self.assertEqual(run_id, observer.store.session_run(
+            "codex", observer.primary_session_fp)["audit_run_id"])
 
     def test_exact_marker_boundaries_descendants_and_deduplication(self):
         observer = audit.CodexTokenAudit("stage", "workspace-1")

@@ -211,10 +211,7 @@ def _source_settle_grace(source_mode):
 def _tool_basename(name):
     if not isinstance(name, str):
         return None
-    for prefix in ("mcp__Uclusion__", "mcp_Uclusion_", "Uclusion/"):
-        if name.startswith(prefix):
-            name = name[len(prefix):]
-            break
+    name = _uclusion_tool_basename(name) or name
     return name if name in MARKER_TOOLS else None
 
 
@@ -4933,7 +4930,7 @@ class CodexTokenAudit:
                 "collabAgentToolCall", "dynamicToolCall",
             }:
                 marker = None
-                if item_type == "mcpToolCall" and item.get("server") == "Uclusion":
+                if item_type == "mcpToolCall" and item.get("server") in ("uclusion", "Uclusion"):
                     marker = _tool_basename(item.get("tool"))
                     if marker and not failed:
                         _apply_marker(
@@ -6104,7 +6101,10 @@ TOKEN_MANIFEST_NAME = "token-manifest.json"
 TOKEN_FAMILIES = ("claude", "openai")
 # Used only when a manifest is missing or names no ratio for the family.
 FALLBACK_BYTES_PER_TOKEN = {"claude": 2.6, "openai": 3.6}
-UCLUSION_TOOL_PREFIXES = ("mcp__Uclusion__", "mcp_Uclusion_", "Uclusion/")
+UCLUSION_TOOL_PREFIXES = (
+    "mcp__uclusion__", "mcp_uclusion_", "uclusion/",
+    "mcp__Uclusion__", "mcp_Uclusion_", "Uclusion/",
+)
 UCLUSION_BOOTSTRAP_MARKER = "<!-- uclusion-workflow:v1 -->"
 UCLUSION_BOOTSTRAP_END_MARKER = "<!-- /uclusion-workflow:v1 -->"
 UCLUSION_BOOTSTRAP_HEADING = re.compile(r"(?m)^# Uclusion bootstrap for ")
@@ -7214,8 +7214,8 @@ def breakdown_codex_rollout(path, counter, window=None, records=None):
                     arguments = json.loads(arguments)
                 except ValueError:
                     arguments = {}
-            if isinstance(namespace, str) and "Uclusion" in namespace:
-                name = "mcp__Uclusion__" + str(name)
+            if isinstance(namespace, str) and "uclusion" in namespace.lower():
+                name = "mcp__uclusion__" + str(name)
             calls[payload.get("call_id")] = (name, arguments)
             tool = _uclusion_tool_basename(name)
             if tool:

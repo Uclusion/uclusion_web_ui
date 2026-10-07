@@ -71,6 +71,37 @@ class NativeQueue:
 
 
 class NativeInboxTests(unittest.TestCase):
+    def test_root_discovery_uses_proxy_identity_with_current_and_legacy_names(self):
+        for server_name in ('uclusion', 'Uclusion'):
+            with self.subTest(server_name=server_name):
+                delivery = NativeCodexDelivery.__new__(NativeCodexDelivery)
+                delivery.identity = 'this-proxy'
+                delivery.roots = {}
+                delivery.joined_roots = set()
+                delivery.collectors = {}
+                delivery.context_events = None
+                delivery.lock = threading.RLock()
+
+                def request(method, params):
+                    if method == 'thread/loaded/list':
+                        return {'data': ['own-root', 'other-root'], 'nextCursor': None}
+                    root = params['threadId']
+                    if method == 'thread/read':
+                        return {'thread': {'id': root, 'threadSource': 'user',
+                                           'canAcceptDirectInput': True}}
+                    if method == 'mcpServerStatus/list':
+                        if params.get('serverName', server_name) != server_name:
+                            return {'data': []}
+                        identity = 'this-proxy' if root == 'own-root' else 'another-proxy'
+                        return {'data': [{'name': server_name, 'runtimeStatus': 'connected',
+                                          'serverInfo': {'version': identity}}]}
+                    raise AssertionError(method)
+
+                delivery.client = SimpleNamespace(request=request)
+                delivery._register = lambda thread: delivery.roots.update({thread['id']: thread})
+                delivery._scan()
+                self.assertEqual({'own-root'}, set(delivery.roots))
+
     def test_only_completed_compaction_resets_its_registered_context(self):
         events = []
         delivery = NativeCodexDelivery.__new__(NativeCodexDelivery)

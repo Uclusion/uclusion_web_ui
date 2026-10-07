@@ -20,6 +20,14 @@ import uclusionInstall as installer
 
 
 class ProjectInstallDiscoveryTests(unittest.TestCase):
+    def test_json_client_discovery_recognizes_current_and_legacy_namespace(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'mcp.json'
+            for namespace in ('uclusion', 'Uclusion'):
+                with self.subTest(namespace=namespace):
+                    path.write_text(json.dumps({'mcpServers': {namespace: {}}}))
+                    self.assertTrue(cli.json_has_uclusion_server(str(path)))
+
     def test_unmanaged_cursor_rule_filename_is_not_treated_as_an_install(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)

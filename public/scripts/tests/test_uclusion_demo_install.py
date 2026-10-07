@@ -209,7 +209,7 @@ class DemoHomeTests(unittest.TestCase):
         for value in grant[:2]:
             self.assertFalse(value.startswith("'"), value)
             self.assertFalse(value.endswith("'"), value)
-        self.assertIn('mcp__Uclusion__*', grant)
+        self.assertIn('mcp__uclusion__*', grant)
 
     def test_sessions_load_none_of_the_person_s_own_settings(self):
         # S-Marketing-75: anything in a customer's global directory, or in the

@@ -1405,7 +1405,7 @@ class SetupInstallerRegistrationTests(unittest.TestCase):
         parsed = tomllib.loads(block)
 
         self.assertEqual(
-            parsed['mcp_servers']['Uclusion']['args'], descriptor['args']
+            parsed['mcp_servers']['uclusion']['args'], descriptor['args']
         )
 
     def test_bootstrap_refuses_any_existing_descriptor_in_every_scope(self):
@@ -1499,9 +1499,9 @@ class SetupInstallerRegistrationTests(unittest.TestCase):
                                 with open(selected, encoding='utf-8') as source:
                                     changed = json.load(source)
                                 if state == 'changed':
-                                    changed['mcpServers']['Uclusion']['command'] = 'changed'
+                                    changed['mcpServers']['uclusion']['command'] = 'changed'
                                 else:
-                                    changed['mcpServers'].pop('Uclusion')
+                                    changed['mcpServers'].pop('uclusion')
                                 with open(selected, 'w', encoding='utf-8') as target:
                                     json.dump(changed, target, indent=2)
                                     target.write('\n')
@@ -1568,7 +1568,7 @@ class SetupInstallerRegistrationTests(unittest.TestCase):
                         else:
                             with open(selected, encoding='utf-8') as source:
                                 changed = json.load(source)
-                            changed['mcpServers']['Uclusion']['command'] = 'changed'
+                            changed['mcpServers']['uclusion']['command'] = 'changed'
                             with open(selected, 'w', encoding='utf-8') as target:
                                 json.dump(changed, target)
                         argv = [
@@ -1613,7 +1613,7 @@ class SetupInstallerRegistrationTests(unittest.TestCase):
             expected = INSTALL.setup_mcp_descriptor('stage', 'codex')
             duplicate = (
                 INSTALL.build_codex_mcp_block(descriptor=expected)
-                + '\n[mcp_servers.Uclusion]\ncommand = "other"\nargs = []\n'
+                + '\n[mcp_servers.uclusion]\ncommand = "other"\nargs = []\n'
             )
             with open(config_path, 'w', encoding='utf-8') as target:
                 target.write(duplicate)
@@ -1746,7 +1746,7 @@ class SetupInstallerRegistrationTests(unittest.TestCase):
 
     def test_codex_setup_and_runtime_conflicts_fail_closed_in_each_scope(self):
         original = (
-            '[mcp_servers.Uclusion]\n'
+            '[mcp_servers.uclusion]\n'
             'command = "custom"\n'
             'args = []\n'
         )
@@ -1939,7 +1939,7 @@ class SetupInstallerRegistrationTests(unittest.TestCase):
                             runtime_script,
                             'workspace-1',
                             'stage',
-                        ],
+                        ] + (['--codex-native'] if client == 'codex' else []),
                     )
                     self.assertNotIn(setup_script, runtime_descriptor['args'])
                     self.assertEqual(
@@ -1966,9 +1966,9 @@ class SetupInstallerRegistrationTests(unittest.TestCase):
     def _read_descriptor(client, path):
         if client == 'codex':
             with open(path, 'rb') as source:
-                return tomllib.load(source)['mcp_servers']['Uclusion']
+                return tomllib.load(source)['mcp_servers']['uclusion']
         with open(path, encoding='utf-8') as source:
-            return json.load(source)['mcpServers']['Uclusion']
+            return json.load(source)['mcpServers']['uclusion']
 
 
 if __name__ == '__main__':

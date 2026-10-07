@@ -3,18 +3,10 @@
 
 ## Triggers and export
 
-Run both scans when a standalone bug is resolved or whenever a job transitions
-into Reviewable. Reviewable is a reliable handoff signal, not proof that the job
-is final or that remaining deployment and other-environment verification has
-run. A transition returned by `ask_for_review` is the same trigger. If the job
-leaves Reviewable and later returns, that later transition
-runs a new sweep. Merely loading a job that is already Reviewable, or receiving
-another update while it remains there, is not a trigger.
-
-Individual task completion, the act of requesting review, using a completed
-code in a commit, resolving the job, later human signoff, and shipped or fixed
-confirmation are not independent job triggers. A subsequent transition into
-Reviewable remains a trigger.
+Run both scans when a standalone bug transitions from open to resolved.
+An in-session Resolve triggers them immediately. Merely reading an already
+resolved bug does not. After a reopen, its next resolution is a new trigger.
+Job completion triggers are defined in [job.md](job.md).
 
 At each signal, load the export rules in `operations.md` and run one fresh,
 environment-correct `uclusion export` through the configured destination. Use
@@ -24,20 +16,14 @@ never use an older export or redirect the export to `/tmp` or elsewhere.
 
 ## Completed work
 
-The completed-code set starts with the resolved bug or Reviewable job's exact
-short code. For a job, also include every contained item rendered as a `Task` or
-`Grouped task`, including resolved forms and retained non-`T-` prefixes.
-Membership comes from its rendered role and containment, not its prefix;
-ordinary assistance and replies do not qualify merely because they are in the
-job.
+For a standalone bug, the completed-code set is its exact short code.
+For a job trigger, use the set defined in [job.md](job.md).
 
-For outcome impact, use the record available at the trigger: the resolved bug
-thread, or the Reviewable job and all its task bodies, plus the current
-intent/design capsule, human-backed decisions, and current completion/review
-report when each is present. Rejected, unresolved, and speculative proposals
-are not evidence. If those sources conflict and the current record does not
-settle that conflict, do not classify a candidate. A later Reviewable
-transition uses the then-current record and can supersede the earlier result.
+For outcome impact, use the resolved bug thread, human-backed decisions, and
+current completion report when present; a job trigger uses its outcome record
+defined in `job.md`. Rejected, unresolved, and speculative proposals are not
+evidence. If the current record does not settle a conflict, do not classify
+a candidate.
 
 ## Scans
 

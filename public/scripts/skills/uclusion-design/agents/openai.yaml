@@ -1,6 +1,6 @@
 interface:
   display_name: "Uclusion Design"
-  short_description: "Write evidence-backed Uclusion design capsules"
-  default_prompt: "Use $uclusion-design to compose the current Uclusion intent/design capsule from the selected target and its evidence."
+  short_description: "Plan and cold-review Uclusion capsules as a fresh helper"
+  default_prompt: "Use $uclusion-design in a fresh helper without inherited history to plan, compose and cold-review the current Uclusion capsule from the selected target and bounded evidence. Return only the complete capsule with evidence links or typed unresolved questions."
 policy:
   allow_implicit_invocation: true

@@ -63,7 +63,7 @@ class WorkflowProtocolContractTests(unittest.TestCase):
         with open(operations_path, encoding='utf-8') as operations:
             cls.operations_workflow = ' '.join(operations.read().split())
         with open(
-            os.path.join(SCRIPT_DIR, 'AGENTS.md'), encoding='utf-8'
+            os.path.join(SCRIPT_DIR, 'AGENTS.template.md'), encoding='utf-8'
         ) as codex_stub:
             cls.codex_stub = ' '.join(codex_stub.read().split())
         with open(

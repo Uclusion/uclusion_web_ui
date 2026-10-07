@@ -34,8 +34,8 @@ ANTHROPIC_COUNT_URL = 'https://api.anthropic.com/v1/messages/count_tokens'
 OPENAI_COUNT_URL = 'https://api.openai.com/v1/responses/input_tokens'
 STANDARD_CLI_COMMANDS = ('uclusion', 'uclusion -e stage', 'uclusion -e dev')
 SKILL_ASSETS = (
-    'skill', 'pokes_reference', 'reading_reference', 'operations_reference',
-    'completion_reference', 'audit_reference', 'claims_reference',
+    'skill', 'job_reference', 'pokes_reference', 'reading_reference',
+    'operations_reference', 'completion_reference', 'audit_reference', 'claims_reference',
     'uploads_reference', 'design_skill', 'design_examples',
 )
 SAMPLE_CHUNK_BYTES = 8192
@@ -162,7 +162,7 @@ def shipped_artifacts(installer, token_audit, scripts_dir):
             return handle.read()
 
     def add(kind, name, text):
-        if text:
+        if text and text.strip():
             digest = hashlib.sha256(text.encode('utf-8')).hexdigest()
             artifacts.setdefault(digest, {'kind': kind, 'name': name, 'text': text})
 
@@ -172,6 +172,13 @@ def shipped_artifacts(installer, token_audit, scripts_dir):
         # Claude Code's Skill tool presents a skill without its frontmatter.
         add('skill', installer.WORKFLOW_ASSET_PATHS[key] + ', frontmatter removed',
             token_audit.without_frontmatter(text))
+        useful = token_audit.without_audit_diagnostics(text)
+        if useful != text:
+            add('skill', installer.WORKFLOW_ASSET_PATHS[key] + ', audit removed',
+                useful)
+            add('skill', installer.WORKFLOW_ASSET_PATHS[key]
+                + ', frontmatter and audit removed',
+                token_audit.without_frontmatter(useful))
     for client, key in installer.CLIENT_STUB_ASSET.items():
         stub = read(key)
         for cli in STANDARD_CLI_COMMANDS:
@@ -182,6 +189,12 @@ def shipped_artifacts(installer, token_audit, scripts_dir):
             add('bootstrap', f'{client} stub ({cli}), comments removed',
                 token_audit.bootstrap_block(
                     token_audit.without_html_comments(rendered)))
+            block = token_audit.bootstrap_block(rendered)
+            useful = token_audit.without_audit_diagnostics(block)
+            if useful != block:
+                add('bootstrap', f'{client} stub ({cli}), audit removed', useful)
+                add('bootstrap', f'{client} stub ({cli}), comments and audit removed',
+                    token_audit.without_html_comments(useful))
     return artifacts
 
 

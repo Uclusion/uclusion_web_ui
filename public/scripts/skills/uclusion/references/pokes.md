@@ -38,14 +38,14 @@ explicitly switches that session.
 If the response has `auto_take_directions`, present the list and follow
 [claims.md](claims.md) before loading any marked item. Pass the marked
 candidates in list order and load only the one returned by a successful claim.
-Continue its normal questions, suggestions, stage checks, execution, and
-material-handoff rule in the same turn. Never auto-start an unmarked or
+Continue its selected-lane workflow and material-handoff rule in the same
+turn. Never auto-start an unmarked or
 unclaimed item, interrupt active work, or override a human instruction.
 
 Auto-take applies only while the session has no human-guided assignment. While
 that assignment is retained under Assignment ownership below, a find-work
 result may be presented but must not switch the session automatically. A
-completed Reviewable handoff releases it; waiting for input or an unfinished
+completed job handoff as defined in `job.md` releases it; waiting for input or an unfinished
 completion package does not.
 
 When an empty response's directions explicitly say this is the "first AI
@@ -119,9 +119,8 @@ written before a tool call.
 
 ## Assignment ownership
 
-A default session has at most one assigned job or bug, except that a finished
-task you move into a job of its own brings that job into the assignment beside
-the one it came from, as `operations.md` says. Reading, classifying, or
+A default session has at most one assigned job or bug, except for the
+related-task split defined in `job.md`. Reading, classifying, or
 reloading an object does not assign it. Assignment begins only when the human
 selects work in that session, including a numbered find-work selection, when a
 live `Start` arrives, or when an auto-take claim succeeds.
@@ -135,24 +134,14 @@ roles may
 deliberately assign multiple agents to the same work; that is outside the
 default one-agent rule.
 
-A finished job in Reviewable releases its session assignment after its
-implementation review's completion package succeeds: the human's reply has been
-handled, every authorized action (including any clear) has succeeded, the
-terminal record is confirmed, and any triggered completion sweep is complete.
-Use `operations.md`'s definition of a finished job. Waiting for human
-review or later signoff after this boundary does not retain the assignment.
-When no other assigned work remains, the session is idle and accepts a new
-live `Start` without an explicit switch. Apply the assignment-ended discovery
-rule above. Preserve the released state across compaction; a still-open AI
-review does not restore the assignment.
+Job completion release and retained work are defined in
+[job.md](job.md). Merely ending a turn never releases an assignment.
 
-Reviewable alone is not enough: retain the assignment while requested work,
-an unanswered package, a failed or unfinished authorized action, or a
-triggered completion sweep remains. A terminal failure record does not release
-it. For a finished job already in Reviewable, a reply declining some or all
-actions can complete the package; declined actions are not pending work.
-Releasing the
-session assignment does not resolve the job or change its human assignees.
+For a resolved standalone bug, retain the assignment through its completion
+package. Release it only after the human's reply is handled, all authorized
+actions succeed, the terminal record is confirmed and its triggered sweep is
+complete. Declined actions are not pending work. An unfinished package or
+failed authorized action retains the assignment.
 
 `Start` is an untargeted broadcast. The human must not use it while more than
 one default agent is idle and able to accept it. In that situation, select the
@@ -162,7 +151,7 @@ work directly in one agent's chat instead. An agent that receives a valid live
 ## Single-lane triage
 
 The active lane is the assigned job or bug while the session is working on it.
-An execution or audit interval can hand off while its human-guided assignment
+An execution interval can hand off while its human-guided assignment
 remains available for a matching continuation event.
 
 - Handle a continuation event for the assigned item or anything known to be
@@ -196,66 +185,26 @@ as `switch from <current> to <target>`, may replace an active lane.
 The first word is contractual:
 
 - `Start <target>` comes only from an explicit human Poke AI click. While idle,
-  start/resume it, including after the completed Reviewable handoff above.
+  start/resume it, including after a completed assignment.
   Mid-lane, defer an outside target. Replayed Start is history.
 - `Added <target>` reports a created task, grouped task, question, suggestion,
   blocker, or other item.
 - `Updated <target>` reports an edit, move, deletion, assignment/description
   change, or explicit stage change. When the target is the current
-  intent/design capsule, its body replaces the cached contract. Reload that
-  capsule with `thread_only: true` and Reports, then resolve your open review
-  naming its R-code before further affected implementation. This urgency never
-  bypasses the assignment gate; a capsule update does not assign a session.
+  intent/design capsule, follow the assigned-job update rules in
+  [job.md](job.md). This never bypasses the assignment gate.
 - `Responded <target>` hands an AI-authored assistance turn back after any
-  semantic human reply, vote, or Resolve. Advisory responses also send it, so
-  reload and inspect answerability; perform every action actually unblocked and
-  keep waiting if the response is advisory or another dependency remains. A
+  semantic human reply, vote, or Resolve. Reload and inspect what it answers;
+  perform every action actually unblocked and keep waiting when another
+  dependency remains. For a job, `job.md` governs qualifying answers. A
   response on the assigned item's waiting completion package — the job's
   current AI review, or the resolved bug's sweep record — is that package's
   reply: read it and handle it as `operations.md`'s completion package says.
   It creates no assistance and does not itself change stage or resolution.
 
-Job description changes use `Updated <job-code> description change`. Apply the
-assignment gate first. For the assigned job, fetch the current description with
-`get_job({short_code_id: "<job-code>", sections: ["description"]})`; this retains
-job context without loading comment threads. Use the returned description
-before further work that depends on it. This event does not assign a job or
-authorize a stage change. Other generic job updates can use scoped reads;
-include `description` when its freshness is uncertain, including an ambiguous
-update from an older producer. Do not load the whole job just to refresh it.
-
-Job stage changes use `Updated <job-code> stage is now <stage-name>`, including
-the complete stage name when it contains spaces. Async sends this after the
-stored stage field changes; it reports that transition, even if another change
-moves the job again. Apply assignment routing first. For the assigned job,
-record the supplied transition without calling `get_job`, including
-`stage_only`, merely to discover or confirm that stage. Use the context already
-held and load only information the next action still needs, such as changed
-assistance or Reports. The message does not establish that other job content is
-unchanged, resolve known assistance, or replace a necessary effective-stage
-check. An ordinary `Updated <job-code>` without the suffix still follows the
-lookup rules below.
-
-A job moving into Doable is an `Updated` state transition, never a `Start`.
-Resume it only when that job is already the session's assignment and its other
-execution requirements are satisfied; load missing context when needed.
-An idle session or a session assigned elsewhere does not activate because the
-job became executable.
-
-A job moving into Reviewable is also an `Updated` state transition. For the
-assigned lane, compare the supplied stage, or the reloaded stage for an ordinary
-update, with the stage this session last observed. When it changes from any
-other stage into Reviewable, read
-`completion.md` and run both completion scans once before handling review. A
-successful in-session stage change to Reviewable follows the same rule,
-including the transition returned by `ask_for_review`. Finish the sweep in that same
-turn before lane handoff, work discovery, or starting another job. Merely
-loading a job already in Reviewable, or receiving another update while it stays
-there, does not retrigger the sweep. After the job leaves Reviewable, a later
-transition back into it is a new trigger. A sweep that began on a real trigger
-but failed is still incomplete work from that trigger, not a retrigger: retry it
-directly without new package permission and do not switch lanes until it
-succeeds.
+Job description, stage and capsule updates follow [job.md](job.md), after
+the assignment gate. A job becoming executable never activates idle or
+unrelated sessions.
 
 Resolving a standalone bug is also an `Updated` state transition. For an
 assigned bug, compare its reloaded resolution state with the state this session
@@ -271,8 +220,8 @@ new package.
 A legacy bare `Responded.` has no target. Reload only the outstanding
 dependency of the assigned lane. With no assignment, ignore it.
 
-Apply the assignment gate before lookup. Apart from the description-change and
-stage-bearing updates handled above, accepted direct targets are globally resolvable: call `get_job`
+Apply the assignment gate before lookup. Apart from job-specific updates
+routed above, accepted direct targets are globally resolvable: call `get_job`
 with their exact short code. Compound targets have the form
 `<verb> <local-code> of <parent-code>`; call `get_job` with the parent after
 `of`, then locate the local item. The first load of a parent not yet read or
@@ -289,24 +238,16 @@ without `parent_question_short_code_id`, and `get_job` with it returns just
 that option or record, with its votes or replies.
 
 Added, Updated, and Responded are continuation events, not instructions to
-abandon or acquire work. Incorporate a matching stage-bearing update as above;
-reload other matching assigned-lane changes, then obey the current stage.
-A matching capsule body update replaces the
-selected target's authoritative contract; perform its reload and review cleanup
-before continuing. Soft-deleted direct items reload as the enclosing job with
-the item absent.
+abandon or acquire work. Incorporate matching assigned-lane changes; for a job,
+apply `job.md`'s update rules before continuing. Soft-deleted direct items
+reload as the enclosing job with the item absent.
 
 Use `sections` (`description`, `tasks`, `assistance`, `reports`, `notes`, `resolved`) or
 `thread_only` for reloads of a job already held. Follow
-[reading.md](reading.md) for capsule and standing-note references, explicit
-body fetches and refresh after compaction. Direct lookup already retries five
+[reading.md](reading.md) for standing-note bodies and refresh after compaction;
+job capsule reads are in [job.md](job.md). Direct lookup already retries five
 times with bounded backoff. If a newly Added direct code still returns 404,
 retry later rather than discarding it.
-
-When creating an item also changes derived stage/readiness, Uclusion emits its
-Added event only after the workflow transaction commits. That single reload
-contains both item and new stage; never wait for a second stage Poke or act from
-the cached stage.
 
 ## Connection updates
 

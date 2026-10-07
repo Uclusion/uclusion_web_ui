@@ -1666,7 +1666,8 @@ class CodexAuditTests(TokenAuditTestCase):
             15,
             row["finalization"]["measurement"]["normalized_total_tokens"],
         )
-        self.assertEqual(3, row["finalization"]["activity"]["tool_calls"])
+        # The useful progress write counts; start/end recording markers do not.
+        self.assertEqual(1, row["finalization"]["activity"]["tool_calls"])
 
     def test_unknown_or_invalid_raw_usage_is_never_exact_zero(self):
         for index, invalid in enumerate(({}, {"totalTokens": "bad"})):
@@ -1958,7 +1959,8 @@ class CodexAuditTests(TokenAuditTestCase):
         )
         self.assertEqual(1, finalization["coverage"]["descendants_discovered"])
         self.assertEqual(1, finalization["coverage"]["descendants_included"])
-        self.assertEqual(3, finalization["activity"]["tool_calls"])
+        # This run executes only recording markers, so work activity is zero.
+        self.assertEqual(0, finalization["activity"]["tool_calls"])
         self.assertEqual("gpt-5.6-sol", finalization["source"]["model"])
         self.assertEqual("openai_input_includes_cache_v1",
                          finalization["measurement"]["normalization"])
@@ -3489,6 +3491,14 @@ class HardeningRegressionTests(TokenAuditTestCase):
             ),
         )
 
+        with open(transcript, "a", encoding="utf-8") as destination:
+            destination.write(json.dumps({
+                "type": "user", "timestamp": audit._utc_iso(started + 0.01),
+                "message": {"content": [{
+                    "type": "tool_result", "tool_use_id": "deferred-test-tool",
+                    "is_error": True, "content": "test command failed",
+                }]},
+            }) + "\n")
         audit.scan_claude_transcript(store, session, transcript)
         store.request_end(run_id, "progress")
         store.signal_complete("claude", session)
@@ -3497,6 +3507,7 @@ class HardeningRegressionTests(TokenAuditTestCase):
         )["finalization"]
         self.assertEqual(1, finalization["activity"]["tool_calls"])
         self.assertEqual(1, finalization["activity"]["test_commands"])
+        self.assertEqual(1, finalization["activity"]["tool_failures"])
 
     def test_transcript_marker_and_stop_survive_scan_timeout(self):
         store = self.store()

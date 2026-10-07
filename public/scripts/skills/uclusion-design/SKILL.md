@@ -1,6 +1,6 @@
 ---
 name: uclusion-design
-description: Compose, revise, or cold-review the current intent/design capsule for a Uclusion job or task after the core Uclusion workflow has selected the executable target and supplied its evidence. Use only for Uclusion capsule writing and review, not for ordinary planning, generic product design, workflow stages, tool calls, persistence, testing gates, security gates, or final review.
+description: Plan, compose, revise, and cold-review the current intent/design capsule as a fresh helper after the core Uclusion workflow has selected the executable target and supplied bounded evidence. Use only for delegated Uclusion planning and capsule work, not ordinary product design, workflow stages, tool calls, persistence, testing gates, security gates, implementation, or final review.
 ---
 <!-- uclusion-design-skill:v1 -->
 <!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->
@@ -9,23 +9,44 @@ description: Compose, revise, or cold-review the current intent/design capsule f
 Write the shortest standalone capsule that lets a new implementer build the
 agreed outcome. Scale detail to the work's complexity and uncertainty. The core
 `$uclusion` skill owns target selection and every Uclusion tool call; this skill
-owns only capsule composition, revision, and cold review.
+owns delegated planning, capsule composition, revision, and cold review.
 
 ## Boundary with the core workflow
 
-Accept the target, its current intent/design capsule when one exists, and all
-relevant job or task text, qualifying answers, approved plans, prior
-authoritative artifacts, and hard source constraints from `$uclusion`. For a
-sent capsule, also require the new human input establishing a new contract
-before returning a replacement body.
+Start without inherited conversation history. Accept the selected target,
+bounded relevant job or task text, qualifying answers, approved plans, prior
+authoritative artifacts and hard source constraints, its current capsule when
+one exists, and any new human requirements from `$uclusion`. For a sent capsule,
+require new human input establishing a new contract before returning a
+replacement body. Use the selected sibling package supplied by the main agent.
 
 Never choose the target, change a stage, ask or resolve a question, address a
 suggestion, call `set_design_capsule`, handle persistence or version conflicts,
-approve testing or security work, or request final review. Return the complete
-Markdown body to `$uclusion`, which performs those operations.
+approve testing or security work, implement the target, or request final review.
+Delegation grants no implementation permission. Return only the complete
+cold-reviewed Markdown capsule with claim-local evidence links, or typed
+unresolved questions, to `$uclusion`, which owns those operations. Do not return
+raw export searches, skill bodies or the planning transcript. Report a missing
+or unreadable required skill/reference as an installation fault to the main
+agent; do not improvise the missing instructions.
 
 Before drafting or reviewing, read
 [references/examples.md](references/examples.md) completely.
+
+## Plan from the supplied evidence
+
+Investigate the selected target's relevant evidence and source constraints
+before drafting. Keep research and intermediate reasoning in this helper's
+context. Use bounded source and history searches where the supplied evidence
+leaves a factual gap; return a typed missing-evidence question when the needed
+source or observed behavior is unavailable. Do not select another work lane or
+load the main agent's workflow to perform its responsibilities.
+
+Recover the actor's trigger, outcome and material boundaries from that evidence.
+Separate forced source facts from choices requiring human authority under the
+evidence gate below. Complete composition and the cold review here before
+returning a capsule; the main agent needs the resulting contract, not the
+investigation that produced it.
 
 ## Evidence gate
 
@@ -112,8 +133,9 @@ evidence beside it; selected-option evidence names both exact identifiers.
 
 For an unpublished draft or a revision authorized by new human input, return a
 revised complete body when the evidence supports a clearer or more complete
-contract. Otherwise return findings without rewriting the sent body. If
-correction would require an unsupported choice, return the typed question
+contract. For a sent capsule without new human input, return its complete body
+unchanged with its evidence links. If a material correction needs an unsupported
+choice or a new human contract, return typed unresolved decision questions
 instead. A capsule fails review when its prose is accurate only with remembered
 context, when an evidence ledger leaves the reader to map authority back to
 claims, or when its summary is missing or restates the story instead of

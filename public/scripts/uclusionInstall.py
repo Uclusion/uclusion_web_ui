@@ -158,12 +158,12 @@ SCRIPT_FILES = (
 # deployment gate validates this table before publishing, so a sequential S3
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
-    'uclusionCLI.py': 'dc791133c4ee86a09db8d1bcfd3e96cd55b6a1f39aca912754b5f112dd736792',
+    'uclusionCLI.py': '546a3753511b0c5d64ce4082d7b539a9117c19d8e077fd49ad28edeccb9a4fd3',
     'uclusionMCPProxy.py': '961f3b3cac5ab21a7204143d9dba7b12c91a50f86c53e05dec246c61c175b95c',
     'uclusionSetupMCP.py': '9aa8d3199b0c392d944fc3b2fb9f26b48230737ea2e5b07980cd3df6b79ed4f3',
     'uclusionCodexNative.py': 'd276658c822caa9398a8497289a9c509a56a61d3f63d1121843c091e8f8c241a',
     'uclusionUpdateNotices.py': 'a9d6ed9e082bce28ac8340d242ad34d2f180a35de6821ce72c0684503e84b7e8',
-    'uclusionTokenAudit.py': 'bc46826b910e6e591a233fccc5f8a9d1ee9c6370a41e2b54d5eb6382c72c0eef',
+    'uclusionTokenAudit.py': '7000130cd4314f34962c285ed66f35aa15b7dd8ba461e53c879b33d769b24bc8',
 }
 USER_HOME = os.path.expanduser('~')
 UCLUSION_HOME = os.path.join(uclusion_home_root(), '.uclusion')
@@ -305,9 +305,10 @@ DESIGN_SKILL_REFERENCE_END_MARKER = '<!-- /uclusion-design-reference:v1 -->'
 WORKFLOW_ENV_PLACEHOLDER = '{{UCLUSION_CLI}}'
 WORKFLOW_ASSET_PATHS = {
     'claude_stub': 'CLAUDE.md',
-    'codex_stub': 'AGENTS.md',
+    'codex_stub': 'AGENTS.template.md',
     'cursor_stub': 'uclusion.mdc',
     'skill': 'skills/uclusion/SKILL.md',
+    'job_reference': 'skills/uclusion/references/job.md',
     'pokes_reference': 'skills/uclusion/references/pokes.md',
     'reading_reference': 'skills/uclusion/references/reading.md',
     'operations_reference': 'skills/uclusion/references/operations.md',
@@ -330,23 +331,24 @@ WORKFLOW_ASSET_PATHS = {
 # These digests bind the installer to one coherent workflow release. A host
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
-    'claude_stub': 'f774feca24a4b789c5c91cd7f7d7917ac63f14be17c00dea949749650d8dbf9c',
-    'codex_stub': '757c0e5c56fb57561680f4f980b7fcd454d0227422bf1f0dd8a36416d525e47b',
-    'cursor_stub': '48944f1a09c86ef1e2e59fc18957e93212f86b30bb73ff67e18a9bc1ff8e3fa8',
-    'skill': '079390aacd45f6d0db8d5480b04c41597b26611cf3ad030b5eed2f9246ee8137',
-    'pokes_reference': '2951ff06798651fd56ef2f7b851bba459999b22cfae394be1cf5fd9a944c5507',
-    'reading_reference': 'd64b3a2a130210654d3a718dff119dc81e2c4a3ccf6b8e652b5efe7c2f002ed5',
-    'operations_reference': '323afef694afbc7928f50f9c6e722e5c1dd5b59a4a8e764678a8c2645960d339',
-    'completion_reference': '48f5c6f3fc2f1aa0d2732edaf8938cde5979ca3b3afb136ca4d269f2a65880f2',
+    'claude_stub': '2cd69b6c4144b9de691eb72a21f857a2782a8875dba513d4122bd705d76c273a',
+    'codex_stub': '6c798b752cf375e6702be506eefce3e61171908b1d5c00a12490929538864331',
+    'cursor_stub': '29d149e7145a97459023c40441814cd9d108439f2476b31b650f17d3d374a3e8',
+    'skill': 'cf2b3b58b4c6d0579f961af3230a2f7871cd91bdf108b99da4fa484d03f04d9c',
+    'job_reference': 'dbd6c88053050b9b3bfc30f47c2aa15ef38a4292cab2709318f5f774bea95da8',
+    'pokes_reference': '81a72a91935cfd1519e0cea9023178fb36a52f5c3250c68e960a2685be1233ec',
+    'reading_reference': '02a816bf3a10a5a0143d241dfd6ad218893dd5f678b78bbb0ca7987ceff41cd4',
+    'operations_reference': 'a834ceba7669f696c22b323cd4395eeddb2f66d29570f8e24a1897875a2082bb',
+    'completion_reference': 'fb779c8663315f2daaa261c6d6ec67a5bc77425abf24928f4642242fc2e95acc',
     'audit_reference': '6e064e0baf27e4a17bd3a15060dbb15f8730de31f71eb8df0caba180852be71d',
     'claims_reference': '9fad91e1adc8a838cd34824544063aaf31afe7c38a2c92299f0c6ba2afeea192',
     'uploads_reference': 'd3fa9a9a9df21424068c26c840466c2d6aab78a3f85989007a529a09412233d3',
     'openai_metadata': 'ecf2759354ff3bbfd7178452a705650aff7a13352458bb20e1df122da7c30f40',
-    'design_skill': '530da3be38712704b2853067e0f65f29404a02652dc134a5845ac45f4e63ac58',
+    'design_skill': '5d580c420d9929ca3c53c2738322d3eb594e8e886094beba94ac40bbac83eec1',
     'design_examples': '4416eabe1980db0f7a6bb80530bb4cfb198188f462fc1cfa8917f5856279e37e',
-    'design_openai_metadata': 'f31f258d8b76d5fcfa724b7e7468481ef18a863c9afbdd78b81b873641f9c7ba',
+    'design_openai_metadata': '4bdae1c1e3e17da4a9245fc4452760498af6ff464372d3f8bee8f9b9714a2917',
     'demo_brief': '1c26c3235dba931bcbf9d88fcacf32e437f1ec10f3e70fd908f33228ba30037f',
-    'token_manifest': 'f97b0f1b34d98f28b53a8f1cbd572e0bec5333508ba55760028d72aa9902a513',
+    'token_manifest': '6a45b9b170d6f847f2ae84c5cf51c906579b14d5500c010c3a8aa50700f8b619',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',
@@ -354,6 +356,7 @@ CLIENT_STUB_ASSET = {
     'cursor': 'cursor_stub',
 }
 SKILL_PACKAGE_ASSETS = (
+    ('job_reference', os.path.join('references', 'job.md')),
     ('pokes_reference', os.path.join('references', 'pokes.md')),
     ('reading_reference', os.path.join('references', 'reading.md')),
     ('operations_reference', os.path.join('references', 'operations.md')),

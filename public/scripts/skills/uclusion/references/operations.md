@@ -7,12 +7,11 @@ Record substantive information once with the tool and artifact that own it.
 Use `add_info` only for findings, decisions, blockers or next steps missing from
 the durable thread. Do not add notes that merely recap a question and answer,
 capsule, state transition or completed instruction reload. A decision belongs
-in the capsule when drafting or making an already permitted revision; avoiding
-a duplicate note does not authorize rewriting a sent capsule. Required reviews,
-completion-package records and audit telemetry remain mandatory without an
-extra recap note. Reply on the exact comment being answered, not its thread
-root; flat root replies separate answers from their questions and cannot be
-re-threaded.
+in the current design when its workflow permits that write; avoiding a
+duplicate note does not authorize rewriting a sent contract. Required reviews
+and completion-package records remain mandatory without an extra recap note.
+Reply on the exact comment being answered, not its thread root; flat root
+replies separate answers from their questions and cannot be re-threaded.
 
 To correct an existing active AI-authored ordinary note, reply or option Info,
 use `add_info` with `update_info_short_code_id`, `update_info_version` and the
@@ -27,9 +26,9 @@ audit records cannot use this form; retain their dedicated tools and
 protections. `for_human` applies only to creation.
 
 Use canonical short codes verbatim. A source-code comment that cites a question
-uses the question's full returned link when available. After review opens, a
-proposed commit message begins with the completed task/comment code. A job code
-at the start means the whole job is done, so use it only when no tasks remain.
+uses the question's full returned link when available. A proposed bug commit
+message begins with the completed comment code. Job commit identities are
+defined in [job.md](job.md).
 
 ## Completion packages
 
@@ -40,68 +39,9 @@ and at a standalone bug's resolution. Its **package thread** is that exact
 review, or that exact resolved bug. This section is its only statement; the
 core skill and the other references point here.
 
-### The review and when it opens
-
-A job gets one review, opened without asking once every task you were asked to
-do in that assigned job, in an executable stage, is written and tested; never
-after each pass. Another open task, such as the human's own, only leaves the
-job unfinished. The review is the capsule-delta report the core workflow
-describes, naming each task and its current capsule. Opening it is required
-documentation and brings the work to the human. When implementation of the
-whole job is complete, pass `implementation_complete: true` to `ask_for_review`
-to publish the review and conditionally move Doable to Reviewable together.
-For a partial review, omit that flag. No separate stage permission is needed
-for this final implementation handoff.
-
-A finished task not related enough to the rest of its job gets its own review
-instead; say why in that task's review. Once it is written and tested, call
-`add_job` with its code in `task_short_code_ids`, `view_short_code_id` naming
-its job, a name taken from the task, and a description naming the job it came
-from. This is the human's standing request, so it needs no other permission.
-The task keeps its code, thread and capsule. The new job starts in its job's
-stage; if the result says it started in the initial stage, ask about its next
-stage as the core workflow says. It joins your assignment beside the job it
-came from, so waiting on its package does not stop the tasks remaining there.
-
-A job's implementation is finished when its agreed implementation is built,
-its initial verification is complete, and no open task remains; an empty task
-list alone never shows that. State in the review which you concluded and why.
-Commits, pushes, deployments and agreed verification in other environments
-belong to Review. List what remains and its approval status in the report,
-before the completion package; those actions retain their permission gates.
-Resolve completed implementation tasks first. Do not close unfinished work
-merely to make the transition eligible.
-
-The operation saves the review first, then checks current tasks, issues,
-questions and suggestions. Any open item prevents the requested move; other
-stages are preserved, and already Reviewable is a no-op. This is an inventory
-snapshot and a conditional stage write, not an atomic lock against concurrent
-work. Continue handling Pokes. Reviewable retains its existing asynchronous
-comment and notification cleanup.
-
-Inspect the separate review, inventory and transition outcomes.
-A review write reported as unconfirmed may have saved it: inspect Reports, or
-the exact review on an update, before retrying publication. A later failure
-does not undo a saved review. Reconcile an uncertain stage
-write with a scoped read before retrying; never create a duplicate review to
-recover a later step. Once the review is confirmed and the job is still ready
-in Doable, retry only the transition with `change_job_stage`, `from_stage`
-Doable and destination Reviewable. A different stage or new open work stops
-that retry. Run the completion sweep immediately upon a confirmed transition,
-including one first confirmed during reconciliation. An already-Reviewable
-no-op alone is not another trigger. A failed sweep remains unfinished work
-and is retried without new permission before any lane switch.
-
-Each open suggestion on the job is unfinished or deferred work that moving the
-job to Reviewable would resolve and lose. Check the ones you hold and the
-`open_suggestions` that `ask_for_review` returns. While any is open, end the
-review, and the chat copy that ends the turn, by naming each one, including
-those this pass created, and asking the human to convert it to a task or
-resolve it; offer no package. End each later turn by naming the review and the
-suggestions still open. When Pokes show none open, rewrite the review with
-`update_review_short_code_id` to append the package, since a converted
-suggestion is an open task. Include `implementation_complete: true` only if
-the whole job now qualifies. A standalone bug holds no suggestions.
+Job review opening, readiness and publication recovery are governed by
+[job.md](job.md). The package mechanics below apply to both its review and a
+resolved standalone bug.
 
 ### What the package says
 
@@ -147,9 +87,9 @@ job or bug.
 A reply that arrives by Poke is read before acting; a chat reply needs no read.
 Perform the authorized actions in the listed order and stop at the first
 failure, without rolling back what succeeded. Having nothing to commit, push or
-clear is a successful no-op. Whenever any action is authorized, make one
-fresh notification check after the last commit or push and before the clear,
-and list the item's matches.
+clear is a successful no-op. For an authorized clear with a fixed exact scope,
+call `clear_notifications` directly and report its actual outcome. Do not call
+`get_notifications` merely to preview matches.
 
 Write exactly one terminal record for each attempt, on the package thread,
 replying to the human's reply when it came from there and to the thread's root
@@ -162,15 +102,13 @@ is uncertain, reload the thread and write it only if absent. A retry under the
 same reply reconciles what is already durable, performs only what remains, and
 writes one new record.
 
-After a successful package for a finished job now in Reviewable, release the
-assignment under `pokes.md`'s Assignment ownership rule, once any clear and
-triggered sweep are complete and no requested Review work remains. An
-unfinished package keeps it.
+After a terminal attempt, apply `pokes.md`'s assignment ownership rules.
+Job completion release is defined in [job.md](job.md).
 
 ## Reopening resolved work
 
-`reopen` reopens a resolved bug, task, question, suggestion or blocker; a job
-changes stage through `change_job_stage` instead. On your own, reopen only a
+`reopen` reopens a resolved bug, task, question, suggestion or blocker.
+On your own, reopen only a
 bug or task whose fix is shown to still fail, by a human's report or a failed
 verification, and say why in a reply on it. Reopen a question, suggestion or
 blocker only on a human's instruction, and never a question they resolved to
@@ -178,29 +116,29 @@ delegate; ask a new question instead.
 
 A human's report that a fix still fails is their request to reopen it, so pass
 `for_human: true` with `is_my_lane` as the core skill describes. A failure your
-own verification finds is yours, so omit `for_human`. The server moves the job
-as it would for whoever reopened: a task an assignee reopens on a Reviewable job
-returns it to Doable, and one reopened by anyone else, the AI included, sends it
-to Approvable, where the usual next-action question applies.
+own verification finds is yours, so omit `for_human`. Job-stage outcomes of
+reopening a task are in [job.md](job.md).
 
-A reopened item is open work again. A reopened task leaves its job unfinished
-until the task resolves again. A reopened standalone bug's next resolution is a
-new open-to-resolved transition, so its completion sweep runs again and, for a
+A reopened item is open work again. A reopened standalone bug's next resolution
+is a new open-to-resolved transition, so its completion sweep runs again and, for a
 fix you completed, a new completion package opens. What an earlier package did
 stands; nothing is rolled back.
 
 ## Notifications
 
-`ask_for_review` does not read or return notifications. Do not fetch them merely
-to open a review or present its completion package.
-Call `get_notifications` when the human asks for their inbox, when resolving
-a bug or job, and when receiving sign-off and committing. Keep the fresh
-check after the package reply and any commit/push.
-The package is its item's only clear offer. Outside a package, list the
-notifications for the item just worked and ask before clearing those exact
-ones, making no call when nothing matches. `clear_notifications` takes one
-exact short code and covers what is nested under it, so naming a job includes
-its tasks and reviews; never offer or perform a broader clear.
+`ask_for_review` does not read or return notifications. Call `get_notifications`
+when the human asks for their inbox or a decision requires inbox contents.
+Do not fetch them merely to resolve a bug or job, open a review, present its
+completion package, receive sign-off, commit, or preview a fixed exact clear
+scope.
+
+The package is its item's only clear offer. Outside a package, ask before
+clearing the exact scope of the item just worked. Read and list matches only
+when that decision needs inbox contents, making no clear call when that read
+finds nothing. `clear_notifications` takes one exact short code and covers
+what is nested under it, so naming a job includes its tasks and reviews;
+never offer or perform a broader clear. Once that scope is fixed and its
+clear authorized, clear directly and report the tool's actual outcome.
 
 ## Context-clear boundary
 
@@ -239,18 +177,8 @@ requiring the human to open Uclusion.
 
 ## Creating jobs and human-authored artifacts
 
-Before `add_job`, export and search for duplicates and related work. Surface an
-existing match instead of duplicating it. Cite related-but-distinct short codes
-in the new description. Pass initial `tasks` when parts could be reviewed,
-committed, or documented separately.
-
-When the human requests a new job containing existing bugs, pass their short
-codes in `bug_short_code_ids` alongside any new `tasks`. Only standalone bugs
-can move, and only into the job created by that call. Each distinct bug has a
-`moved`, `failed`, or `unconfirmed` outcome; one failure does not stop the other
-moves. Report those outcomes with the returned new job identity. Preserve that
-identity when checking an unconfirmed result with `get_job`: each `add_job`
-call creates another job, so repeating the call is not a retry of that job.
+For a requested new job, load [job.md](job.md) for duplicate search and
+creation outcomes before creating it.
 
 `add_job`, `add_task`, `add_bug`, and `add_blocker` create content as the human.
 Use them only for the human's explicit request. AI-originated ideas use
@@ -261,16 +189,6 @@ For `add_bug`, use the human-indicated severity: RED critical, YELLOW normal,
 BLUE minor. For a dependency the AI discovers, suggest it; create a blocker only
 when the human explicitly says the job is blocked. View-level creation should
 target the implied existing job/bug view when one is named.
-
-## Visual options
-
-Visuals only depict canonical Uclusion options. Create every choice with
-`ask_question` or `add_options`, and label each panel with its stable Uclusion
-option code/name—never a parallel A/B/C scheme. Keep the artifact and options
-in sync in the same turn. Never silently reuse an existing label for a changed
-meaning; create a new option or question. An accepted, durably recorded human
-suggestion explicitly authorizes `update_option` on that canonical option
-while preserving its identity.
 
 ## Recording dependencies
 

@@ -1411,6 +1411,49 @@ def cmd_sync(args):
     return 0
 
 
+def workflow_content_id(package):
+    """Identify current core/reference bytes independently of install location."""
+    package = os.path.abspath(os.path.expanduser(package))
+    references = os.path.join(package, 'references')
+    if not os.path.isdir(references):
+        raise ValueError('the selected package has no references directory')
+    paths = [os.path.join(package, 'SKILL.md')]
+
+    def unreadable(error):
+        raise error
+
+    for directory, _subdirectories, filenames in os.walk(references, onerror=unreadable):
+        paths.extend(os.path.join(directory, name) for name in filenames
+                     if name.endswith('.md'))
+    entries = []
+    for path in sorted(paths):
+        with open(path, 'rb') as handle:
+            body = handle.read()
+        for target in re.findall(r'\]\(([^)]+\.md)(?:#[^)]*)?\)',
+                                 body.decode('utf-8')):
+            if urllib.parse.urlparse(target).scheme:
+                continue
+            linked = os.path.abspath(os.path.join(os.path.dirname(path), target))
+            if os.path.commonpath((package, linked)) == package and linked not in paths:
+                with open(linked, 'rb') as handle:
+                    handle.read()
+        entries.append((os.path.relpath(path, package).replace(os.sep, '/'),
+                        hashlib.sha256(body).hexdigest()))
+    digest = hashlib.sha256(json.dumps(entries).encode('utf-8')).hexdigest()
+    return 'sha256-v1:' + digest
+
+
+def cmd_workflow_status(args):
+    try:
+        content_id = workflow_content_id(args.package)
+    except (OSError, UnicodeError, ValueError) as error:
+        print(f'Uclusion workflow package unavailable: {error}', file=sys.stderr)
+        return 1
+    print(json.dumps({'content_id': content_id,
+                      'reload_required': args.loaded != content_id}))
+    return 0
+
+
 def cmd_export(args):
     result = initialize(args.env)
     if result is None:
@@ -3551,6 +3594,17 @@ def build_parser():
         help='Write the Uclusion MD file and sync TODOs in the configured source directories.',
     )
     sync_parser.set_defaults(func=cmd_sync)
+
+    workflow_parser = subparsers.add_parser(
+        'workflow-status',
+        help='Check whether the selected local skill package needs reloading.',
+    )
+    workflow_parser.add_argument('package', help='Selected skill package directory.')
+    workflow_parser.add_argument(
+        '--loaded', metavar='CONTENT_ID',
+        help='Prior content ID, only while required complete bodies remain in context.',
+    )
+    workflow_parser.set_defaults(func=cmd_workflow_status)
 
     export_parser = subparsers.add_parser(
         'export',

@@ -13,6 +13,10 @@
 
 ## Finding work and auto-take
 
+For `auto_take_directions`, exposed `claim_work` (including deferred), or a held
+claim, load [claims.md](claims.md) in full before affected discovery, activation
+or ownership actions.
+
 Call `find_work` at an unassigned session start, when an assignment ends, or
 when the human explicitly requests other work. A Poke, delivery rearm, or
 ordinary turn ending never triggers a call or another work list by itself.
@@ -23,7 +27,7 @@ say once: "You can ask me to find other work at any time." This is an
 informational hint, not a question or a `find_work` call. Carry whether it has
 been shown into the session summary so compaction does not repeat it. Further
 handoffs within that assignment do not repeat the hint or fetch work unless
-the human asks. A completion-package wait still keeps its assignment and claim.
+the human asks. Completion-package waiting follows [operations.md](operations.md).
 
 Whenever presenting `find_work` results or any equivalent current-work list,
 render the complete result as a numbered list. Every numbered entry must include
@@ -35,29 +39,22 @@ severity, never notification urgency or list position. A list requested while
 a human-guided assignment remains retained is informational until the human
 explicitly switches that session.
 
-If the response has `auto_take_directions`, present the list and follow
-[claims.md](claims.md) before loading any marked item. Pass the marked
-candidates in list order and load only the one returned by a successful claim.
-Continue its selected-lane workflow and material-handoff rule in the same
-turn. Never auto-start an unmarked or
-unclaimed item, interrupt active work, or override a human instruction.
-
-Auto-take applies only while the session has no human-guided assignment. While
-that assignment is retained under Assignment ownership below, a find-work
-result may be presented but must not switch the session automatically. A
-completed job handoff as defined in [review.md](review.md) releases it; waiting for input or an unfinished
-completion package does not.
+If the response has `auto_take_directions`, present the list and use
+[claims.md](claims.md) for selection and activation before loading a marked item.
 
 When an empty response's directions explicitly say this is the "first AI
 session" and the guidance is "served only once", follow those directions
 immediately in the same turn before yielding. This one-time onboarding takes
-precedence over the ordinary empty-list opt-in below.
+precedence over every empty-list path below.
+
+Otherwise, an empty auto-take view follows [claims.md](claims.md)'s dry-view
+path instead of the human opt-in below.
 
 For any other empty list while a human is active, ask exactly: "Your find work
-list is empty—would you like instructions for adding and working on a job?" If
+list is empty. Would you like instructions for adding and working on a job?" If
 yes, use the returned directions to explain job creation, find_work, selection,
-stage gating, Debatable assistance, and Poke AI. In an autonomous session or
-an auto-take view gone dry, call `request_work` once per dry spell instead.
+stage gating, Debatable assistance, and Poke AI. In an autonomous session,
+call `request_work` once per dry spell instead.
 
 ## Delivery contract
 
@@ -126,17 +123,16 @@ written before a tool call.
 
 A default session has at most one assigned job or bug, except for the
 related-task split defined in [review.md](review.md). Reading, classifying, or
-reloading an object does not assign it. Assignment begins only when the human
-selects work in that session, including a numbered find-work selection, when a
-live `Start` arrives, or when an auto-take claim succeeds.
+reloading an object does not assign it. A human-guided assignment begins only
+when the human selects work in that session, including a numbered find-work
+selection, or when a live `Start` arrives. Optional auto-take activation follows
+[claims.md](claims.md) under the conditions above.
 
 A human-guided assignment remains with that session while work or required
 human input is pending, including an unfinished completion package. It ends on
 completion as defined below or when the human explicitly switches the session
-to another assignment. Auto-take ownership follows
-[claims.md](claims.md) and its release lifecycle. Explicit human-configured
-roles may
-deliberately assign multiple agents to the same work; that is outside the
+to another assignment. Explicit human-configured roles may deliberately assign
+multiple agents to the same work; that is outside the
 default one-agent rule.
 
 Job completion release is defined in [review.md](review.md); retained-work
@@ -170,10 +166,10 @@ remains available for a matching continuation event.
   authority for later work discovery.
 - A deferred Start never auto-starts after the lane ends. It may belong to
   another session; find_work will surface anything still actionable.
-- While unassigned, only a valid live `Start`, a direct human selection, or a
-  successful auto-take claim activates work. Silently ignore `Added`, `Updated`,
-  and `Responded` while unassigned, including during startup. Do not load their
-  targets or mention these discarded events in progress or the work list.
+- While unassigned, activation requires a valid live `Start`, a direct human
+  selection, or the optional [claims.md](claims.md) path above. Silently ignore
+  `Added`, `Updated`, and `Responded` while unassigned, including during startup.
+  Do not load their targets or mention these discarded events in progress or the work list.
   They also never switch a session from a different assignment.
 
 A new chat instruction does not stop a valid listener. Handle it while delivery
@@ -202,8 +198,8 @@ The first word is contractual:
   semantic human reply, vote, or Resolve. Reload and inspect what it answers;
   perform every action actually unblocked and keep waiting when another
   dependency remains. For a job, [assistance.md](assistance.md) governs qualifying answers. A
-  response on the assigned item's waiting completion package — the job's
-  current AI review, or the resolved bug's sweep record — is that package's
+  response on the assigned item's waiting completion package (the job's
+  current AI review, or the resolved bug's sweep record) is that package's
   reply: read it and handle it as `operations.md`'s completion package says.
   It creates no assistance and does not itself change stage or resolution.
 

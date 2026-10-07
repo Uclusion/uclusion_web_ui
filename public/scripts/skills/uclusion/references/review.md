@@ -7,6 +7,8 @@ implementation requirements you derive from direction under
 [coordinator-execution.md](coordinator-execution.md). Load [writes.md](writes.md) before
 review writes, [operations.md](operations.md) before opening a completion package,
 and [completion.md](completion.md) on an actual transition into Reviewable.
+For a held claim or active assigned-job audit, load [claims.md](claims.md) or
+[audit.md](audit.md), respectively, before affected publication or handoff actions.
 
 ## Request or perform review
 

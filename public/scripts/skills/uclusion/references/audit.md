@@ -1,12 +1,16 @@
 <!-- uclusion-skill-reference:v1 -->
 # Token usage audit
 
-If `start_job_audit`, `set_job_audit_phase`, and `end_job_audit` are exposed:
+Only the coordinator loads this optional unit for an assigned job when
+`start_job_audit` is exposed (including deferred) or an audit is active. The
+core's complete-read and reload rules apply before affected job work and
+handoffs. Use the exposed `start_job_audit`, `set_job_audit_phase`, and
+`end_job_audit` tools under the lifecycle below.
 
 1. A lookup used only to classify a Poke starts no audit. Audits attach only
    to jobs: a standalone view-level comment lane (a single-comment result with
-   no Job header) has no J- job, so never call `start_job_audit` for it — the
-   call fails. If that comment later converts into a Bugs job, audit the
+   no Job header) has no assigned job, so never call `start_job_audit` for it;
+   the call fails. If that comment later converts into a Bugs job, audit the
    returned job. Once an authorized activation establishes a job as the
    assigned lane and its lookup begins, call `start_job_audit` before
    substantive planning or execution and retain the run identifier. The
@@ -22,7 +26,9 @@ If `start_job_audit`, `set_job_audit_phase`, and `end_job_audit` are exposed:
    `end_job_audit` only when the lane genuinely hands off for a blocking human
    dependency, review, completion, pause, or interruption. Adding or updating
    a durable artifact, showing its link, or returning an ordinary model/chat
-   turn is not a lane handoff and must not end the audit. Collection finishes
+   turn is not a lane handoff and must not end the audit. Ending an audit alone
+   never clears a human-guided assignment; [pokes.md](pokes.md) and
+   [review.md](review.md) govern assignment release. Collection finishes
    asynchronously; do not poll for it.
 
 Keep at most 32 labels, each 1–80 safe characters. Re-entering a bucket adds to

@@ -23,8 +23,8 @@ interruption:
 
 - Read [pokes.md](pokes.md) and apply assignment-aware discovery, respecting
   operations.md's completion-package boundary.
-- If `claim_work` is exposed and this lane is claimed, release it under
-  [claims.md](claims.md) when its handoff rule applies.
+- For a held claim, load [claims.md](claims.md) before affected handoff actions;
+  for an active assigned-job audit, load [audit.md](audit.md).
 - Leave an exact blocking dependency in Uclusion.
 - For a resolved standalone bug, finish [completion.md](completion.md)'s sweep
   and operations.md's package before work discovery. A job follows

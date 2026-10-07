@@ -53,10 +53,11 @@ never repeats work that has already completed. The package never authorizes
 tests, builds, deployment, security work, force-push, unrelated changes,
 another job or bug, a broader clear, candidate mutation, or a context clear.
 
-Until a reply arrives, retain the assignment and any work claim, and end each
+Until a reply arrives, retain the assignment and end each
 later turn with one line naming the package thread rather than the whole
-package. This wait is not a handoff: no claim release, work discovery, or other
-job or bug.
+package. This wait is not a handoff: no work discovery or other job or bug.
+If a claim is held, load [claims.md](claims.md) before affected package or
+handoff actions.
 
 ### Carrying it out
 

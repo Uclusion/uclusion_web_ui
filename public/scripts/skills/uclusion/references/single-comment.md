@@ -5,6 +5,8 @@ Load this unit only for a selected single top-level comment with no Job header.
 Keep the common assignment and delivery rules in [pokes.md](pokes.md), standing
 instructions and decision searches in [reading.md](reading.md), and applicable
 durable-write rules in [writes.md](writes.md). The tool limits below still apply.
+For auto-take directions, exposed `claim_work` (including deferred), or a held
+claim, load [claims.md](claims.md) before affected activation or handoff actions.
 Do not load job stage, approval, option-governance, task-capsule or final-job-review
 instructions for this lane. If a bug converts into a Bugs job, reload that
 returned job and follow [job.md](job.md)'s stage and action routing.

@@ -46,7 +46,8 @@ action. Standalone lanes keep [single-comment.md](single-comment.md)'s tool limi
 | Completion package, notification action or context boundary | [operations.md](operations.md); its completion-package section is the sole procedure, including its wait. |
 | Completion-sweep trigger or incomplete retry | [completion.md](completion.md), under the selected lane's transition rules. |
 | Progress checkpoint, lane handoff or ending a turn | [handoffs.md](handoffs.md). |
-| Optional claim_work or get_upload action when exposed | [claims.md](claims.md) or [uploads.md](uploads.md), respectively. Job diagnostics route from job.md after job selection. |
+| Auto-take directions, exposed claim_work (including deferred), or a held claim | [claims.md](claims.md) before affected discovery, activation or ownership actions. |
+| Optional get_upload action when exposed | [uploads.md](uploads.md). Job audit routing is in job.md after job selection. |
 
 Load newly applicable complete units before acting after a stage or action
 change. The core's complete-read and reload invariants govern every route.

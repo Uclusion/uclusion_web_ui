@@ -145,11 +145,8 @@ Finished-job release follows [review.md](review.md); apply [pokes.md](pokes.md)'
 assignment-aware discovery only when the assignment actually ends.
 
 <!-- uclusion-audit:v1 -->
-When start_job_audit is exposed, including deferred, the coordinator loads
-[audit.md](audit.md) and starts the assigned job audit before substantive planning.
-End an active audit under that unit only at a genuine blocking-input, review,
-completion, pause or interruption handoff; ending an audit alone never clears
-a human-guided assignment.
+For the assigned job, when `start_job_audit` is exposed (including deferred) or
+an audit is active, load [audit.md](audit.md) in full before proceeding.
 <!-- /uclusion-audit:v1 -->
 
 A fully complete job follows [operations.md](operations.md)'s notification,

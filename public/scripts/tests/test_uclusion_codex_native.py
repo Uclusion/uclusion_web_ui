@@ -111,7 +111,8 @@ class NativeInboxTests(unittest.TestCase):
                         return {'thread': {'id': root, 'threadSource': 'user',
                                            'canAcceptDirectInput': True}}
                     if method == 'mcpServerStatus/list':
-                        if params.get('serverName', server_name) != server_name:
+                        self.assertIn(params.get('serverName'), ('uclusion', 'Uclusion'))
+                        if params['serverName'] != server_name:
                             return {'data': []}
                         identity = 'this-proxy' if root == 'own-root' else 'another-proxy'
                         scope = native_scope('stage', 'other' if root == 'foreign' else 'workspace')
@@ -123,6 +124,39 @@ class NativeInboxTests(unittest.TestCase):
                 delivery._register = lambda thread: delivery.roots.update({thread['id']: thread})
                 delivery._scan()
                 self.assertEqual(['other-root', 'own-root'], list(delivery.roots))
+
+    def test_failed_server_inspection_does_not_start_more_mcp_clients(self):
+        scope = native_scope('stage', 'workspace')
+        starts = []
+        cursors = []
+
+        def request(method, params):
+            if method == 'thread/loaded/list':
+                return {'data': ['failed', 'legacy'], 'nextCursor': None}
+            if method == 'thread/list':
+                return {'data': [{'id': root} for root in ('failed', 'legacy')], 'nextCursor': None}
+            root = params['threadId']
+            if method == 'thread/read':
+                return {'thread': {'id': root, 'threadSource': 'user', 'canAcceptDirectInput': True}}
+            if method == 'mcpServerStatus/list':
+                name = params.get('serverName')
+                if name is None:
+                    starts.append(root)  # Codex creates new clients for unscoped discovery.
+                if root == 'failed':
+                    return {'data': [{'name': 'uclusion', 'runtimeStatus': 'failed'}]}
+                if name == 'uclusion':
+                    return {'data': []}
+                cursors.append(params.get('cursor'))
+                if params.get('cursor') is None:
+                    return {'data': [], 'nextCursor': 'legacy-page-two'}
+                return {'data': [{'name': 'Uclusion', 'runtimeStatus': 'connected',
+                                 'serverInfo': {'version': '1+' + scope}}]}
+            raise AssertionError(method)
+
+        recipients = native_recipients(SimpleNamespace(request=request), scope)
+        self.assertEqual(['legacy'], [thread['id'] for thread in recipients])
+        self.assertEqual([], starts)
+        self.assertEqual([None, 'legacy-page-two'], cursors)
 
     def test_only_completed_compaction_resets_its_registered_context(self):
         events = []

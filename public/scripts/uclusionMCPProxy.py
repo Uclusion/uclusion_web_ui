@@ -4,6 +4,7 @@ import hashlib
 import os
 import sys
 import json
+import random
 import re
 import socket
 import sqlite3
@@ -753,10 +754,26 @@ class MarketTokenHolder:
         self._consecutive_failures = 0
 
 
+class ReconnectBackoff:
+    """Capped retries that brief connections cannot reset or synchronize."""
+
+    def __init__(self):
+        self.delay = 1
+
+    def reset_if_stable(self, connected_at):
+        if time.monotonic() - connected_at >= 30:
+            self.delay = 1
+
+    def wait(self, stop_event):
+        delay = random.uniform(max(1, self.delay / 2), self.delay)
+        self.delay = min(self.delay * 2, 30)
+        return stop_event.wait(delay)
+
+
 def listen_for_pokes(websocket_url, token_holder, environment, workspace_id, stop_event,
                      work_claims=None):
     """Maintain the AI websocket subscription until the MCP process exits."""
-    retry_delay = 1
+    backoff = ReconnectBackoff()
     while not stop_event.is_set():
         websocket = WebSocketConnection(websocket_url)
         try:
@@ -780,8 +797,7 @@ def listen_for_pokes(websocket_url, token_holder, environment, workspace_id, sto
             websocket.send_text(json.dumps(subscribe_body, separators=(',', ':')))
             if work_claims is not None:
                 work_claims.attach_connection(websocket)
-            token_holder.record_success()
-            retry_delay = 1
+            connected_at = time.monotonic()
             awaiting_pong = False
             while not stop_event.is_set():
                 try:
@@ -804,9 +820,14 @@ def listen_for_pokes(websocket_url, token_holder, environment, workspace_id, sto
                     awaiting_pong = True
                     continue
                 payload = json.loads(raw_message)
-                # Any application message proves the receive path is alive.
-                awaiting_pong = False
                 event_type = payload.get('event_type')
+                # Only tracked subscription events prove the token was
+                # accepted. Opening a socket or receiving an API error does
+                # not prove either a working subscription or recovery.
+                if event_type in ('pong', 'poke_ai', 'claim_result', 'rebind_result'):
+                    awaiting_pong = False
+                    token_holder.record_success()
+                    backoff.reset_if_stable(connected_at)
                 if event_type == 'poke_ai':
                     enqueue_prompt(environment, workspace_id, payload)
                 elif work_claims is not None and event_type in (
@@ -821,9 +842,8 @@ def listen_for_pokes(websocket_url, token_holder, environment, workspace_id, sto
             if work_claims is not None:
                 work_claims.detach_connection(websocket)
             websocket.close()
-        if stop_event.wait(retry_delay):
+        if backoff.wait(stop_event):
             break
-        retry_delay = min(retry_delay * 2, 30)
 
 
 CREDENTIALS_MISSING = 'Error: Credentials file not found.'

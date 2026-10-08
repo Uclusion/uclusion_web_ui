@@ -19,7 +19,7 @@ from contextlib import closing
 from pathlib import Path
 from types import SimpleNamespace
 
-from uclusionMCPProxy import (WebSocketConnection, get_inbox_path, open_inbox,
+from uclusionMCPProxy import (ReconnectBackoff, WebSocketConnection, get_inbox_path, open_inbox,
                              record_demo_input, uclusion_home_root)
 from uclusionUpdateNotices import UpdateNoticeStore
 
@@ -65,15 +65,19 @@ def native_recipients(client, scope):
                     or thread.get('canAcceptDirectInput') is not True):
                 continue
             versions = []
-            status_cursor = None
-            while True:
-                status = client.request('mcpServerStatus/list', {
-                    'threadId': root, 'detail': 'toolsAndAuthOnly', 'cursor': status_cursor})
-                versions.extend((server.get('serverInfo') or {}).get('version', '')
-                                for server in status['data'] if server.get('runtimeStatus') == 'connected')
-                status_cursor = status.get('nextCursor')
-                if status_cursor is None:
-                    break
+            # Unscoped discovery starts fresh MCP clients in Codex. A proxy
+            # inspecting itself would recursively start more proxies.
+            for server_name in ('uclusion', 'Uclusion'):
+                status_cursor = None
+                while True:
+                    status = client.request('mcpServerStatus/list', {
+                        'threadId': root, 'serverName': server_name,
+                        'detail': 'toolsAndAuthOnly', 'cursor': status_cursor})
+                    versions.extend((server.get('serverInfo') or {}).get('version', '')
+                                    for server in status['data'] if server.get('runtimeStatus') == 'connected')
+                    status_cursor = status.get('nextCursor')
+                    if status_cursor is None:
+                        break
             if any(version_has_marker(version, scope) for version in versions):
                 recipients.append({**thread, '_uclusion_versions': versions})
         cursor = page.get('nextCursor')
@@ -773,11 +777,13 @@ class NativeCodexDelivery:
 
     def _run(self):
         reported_error = None
+        backoff = ReconnectBackoff()
         while not self.stop.is_set():
             client = NativeClient(self.codex_home, self._observe)
             self.client = client
             try:
                 client.start()
+                connected_at = time.monotonic()
                 self.healthy.set()
                 reported_error = None
                 self.tools_changed()
@@ -790,6 +796,7 @@ class NativeCodexDelivery:
                     self._subscribe_descendants()
                     self._deliver()
                     self._deliver_update_notice()
+                    backoff.reset_if_stable(connected_at)
                     self.stop.wait(.25)
             except Exception as error:
                 kind = type(error).__name__
@@ -811,7 +818,8 @@ class NativeCodexDelivery:
                     self.descendant_subscriptions.clear()
                     self.pending_descendants.clear()
                 self.tools_changed()
-            self.stop.wait(1)
+            if backoff.wait(self.stop):
+                break
 
     def close(self):
         self.stop.set()

@@ -9,18 +9,76 @@ import hashlib
 import json
 import os
 import socket
+import sqlite3
 import subprocess
 import sys
 import threading
 import time
 import uuid
 from contextlib import closing
+from pathlib import Path
 from types import SimpleNamespace
 
-from uclusionMCPProxy import WebSocketConnection, open_inbox, record_demo_input, uclusion_home_root
+from uclusionMCPProxy import (WebSocketConnection, get_inbox_path, open_inbox,
+                             record_demo_input, uclusion_home_root)
 from uclusionUpdateNotices import UpdateNoticeStore
 
 POKE_RETRY_DELAYS_SECONDS = (1, 2, 4, 5)
+
+
+def native_scope(environment, workspace_id):
+    identity = json.dumps([environment, workspace_id], separators=(',', ':')).encode('utf-8')
+    digest = hashlib.sha256(b'uclusion.codex.native.scope.v1\0' + identity).hexdigest()
+    return 'uclusion-scope-v1-' + digest
+
+
+def version_has_marker(version, marker):
+    return marker in str(version).replace('+', '.').split('.')
+
+
+def native_recipients(client, scope):
+    """Return eligible roots in the server's exact native recency order.
+
+    Neither saved timestamps nor observer subscriptions establish recency.
+    Any failed read leaves ordering/binding unconfirmed rather than skipping a
+    possibly newer recipient. This read-only path is also used by inspection.
+    """
+    loaded = set()
+    cursor = None
+    while True:
+        page = client.request('thread/loaded/list', {'cursor': cursor})
+        loaded.update(page['data'])
+        cursor = page.get('nextCursor')
+        if cursor is None:
+            break
+    recipients = []
+    cursor = None
+    while True:
+        page = client.request('thread/list', {'cursor': cursor, 'sortKey': 'recency_at',
+                                             'sortDirection': 'desc', 'useStateDbOnly': True})
+        for listed in page['data']:
+            root = listed['id']
+            if root not in loaded:
+                continue
+            thread = client.request('thread/read', {'threadId': root, 'includeTurns': False})['thread']
+            if (thread.get('threadSource') != 'user' or thread.get('parentThreadId')
+                    or thread.get('canAcceptDirectInput') is not True):
+                continue
+            versions = []
+            status_cursor = None
+            while True:
+                status = client.request('mcpServerStatus/list', {
+                    'threadId': root, 'detail': 'toolsAndAuthOnly', 'cursor': status_cursor})
+                versions.extend((server.get('serverInfo') or {}).get('version', '')
+                                for server in status['data'] if server.get('runtimeStatus') == 'connected')
+                status_cursor = status.get('nextCursor')
+                if status_cursor is None:
+                    break
+            if any(version_has_marker(version, scope) for version in versions):
+                recipients.append({**thread, '_uclusion_versions': versions})
+        cursor = page.get('nextCursor')
+        if cursor is None:
+            return recipients
 
 
 def update_notice_source(environment):
@@ -138,13 +196,15 @@ class NativeClient:
 
 
 class NativeInbox:
-    """Independent cursors advance only after native admission is confirmed."""
-    def __init__(self, environment, workspace_id, codex_home, replay=False):
+    """One durable workspace stream, with atomic ownership of each event."""
+    def __init__(self, environment, workspace_id, replay=False):
         self.environment = environment
         self.workspace_id = workspace_id
-        home_id = hashlib.sha256(os.fsencode(os.path.realpath(codex_home))).hexdigest()[:24]
-        self.prefix = 'codex-native:' + home_id + ':'
-        self.replay_id = ':replay:' + uuid.uuid4().hex if replay else ''
+        self.consumer = 'codex-native:' + native_scope(environment, workspace_id)
+        if replay:
+            self.consumer += ':replay:' + uuid.uuid4().hex
+        self.owner = uuid.uuid4().hex
+        self.pid_is_alive = UpdateNoticeStore._pid_is_alive
         with closing(open_inbox()) as connection, connection:
             connection.execute('BEGIN IMMEDIATE')
             connection.execute('''CREATE TABLE IF NOT EXISTS codex_native_pending (
@@ -161,65 +221,181 @@ class NativeInbox:
                 connection.execute('ALTER TABLE codex_native_pending ADD COLUMN attempt_started_at REAL')
             if 'steered_turn_id' not in columns:
                 connection.execute('ALTER TABLE codex_native_pending ADD COLUMN steered_turn_id TEXT')
-            self.cutoff = 0 if replay else connection.execute('''
+            for name, declaration in (('stream', 'TEXT'), ('root', 'TEXT'),
+                                      ('prior_admissions', 'TEXT'),
+                                      ('owner_instance', 'TEXT'), ('owner_pid', 'INTEGER')):
+                if name not in columns:
+                    connection.execute(f'ALTER TABLE codex_native_pending ADD COLUMN {name} {declaration}')
+            connection.execute('''CREATE TABLE IF NOT EXISTS codex_native_proxies (
+                environment TEXT NOT NULL, workspace_id TEXT NOT NULL, stream TEXT NOT NULL,
+                instance TEXT NOT NULL, pid INTEGER NOT NULL,
+                PRIMARY KEY(environment, workspace_id, stream, instance))''')
+            proxies = connection.execute('''SELECT instance, pid FROM codex_native_proxies
+                WHERE environment = ? AND workspace_id = ? AND stream = ?''', self.scope()).fetchall()
+            live = False
+            for instance, pid in proxies:
+                if self.pid_is_alive(pid):
+                    live = True
+                else:
+                    connection.execute('''DELETE FROM codex_native_proxies WHERE environment = ?
+                        AND workspace_id = ? AND stream = ? AND instance = ?''', (*self.scope(), instance))
+            cutoff = 0 if replay else connection.execute('''
                 SELECT COALESCE(MAX(sequence), 0) FROM poke_messages
                 WHERE environment = ? AND workspace_id = ?''',
                 (environment, workspace_id)).fetchone()[0]
+            if live:
+                connection.execute('''INSERT OR IGNORE INTO poke_consumers
+                    (environment, workspace_id, consumer, last_sequence, updated_at)
+                    VALUES (?, ?, ?, ?, ?)''', (*self.scope(), cutoff, time.time()))
+            else:
+                connection.execute('''INSERT INTO poke_consumers
+                    (environment, workspace_id, consumer, last_sequence, updated_at)
+                    VALUES (?, ?, ?, ?, ?) ON CONFLICT (environment, workspace_id, consumer)
+                    DO UPDATE SET last_sequence = MAX(last_sequence, excluded.last_sequence),
+                        updated_at = excluded.updated_at''', (*self.scope(), cutoff, time.time()))
+            connection.execute('INSERT INTO codex_native_proxies VALUES (?, ?, ?, ?, ?)',
+                               (*self.scope(), self.owner, os.getpid()))
+            if not replay:
+                # Consolidate only existing native pending work. Preserve every
+                # attempted identity for reconciliation, with one exact retry
+                # target per event. A cursor alone may be a startup cutoff.
+                old = connection.execute('''SELECT consumer, sequence, client_id, state,
+                        attempt_count, attempt_started_at, steered_turn_id
+                    FROM codex_native_pending WHERE environment = ? AND workspace_id = ?
+                    AND stream IS NULL AND consumer LIKE 'codex-native:%' AND consumer NOT LIKE '%:replay:%'
+                    ORDER BY sequence, attempt_started_at, consumer''', (environment, workspace_id)).fetchall()
+                events = {}
+                for row in old:
+                    parts = row[0].split(':')
+                    if len(parts) >= 3:
+                        events.setdefault(row[1], []).append((parts[2], row))
+                for sequence, copies in events.items():
+                    self._insert(connection, sequence)
+                    current = connection.execute('''SELECT client_id, attempt_count, prior_admissions, state
+                        FROM codex_native_pending WHERE environment = ? AND workspace_id = ?
+                        AND consumer = ?''', (environment, workspace_id, self.consumer + ':event:' + str(sequence))).fetchone()
+                    prior = json.loads(current[2]) if current[2] else []
+                    attempted = [(root, row) for root, row in copies if row[4] > 0 or row[3] == 'sending']
+                    primary_id = current[0]
+                    if attempted and current[1] == 0 and current[3] != 'accepted':
+                        root, primary = attempted[0]
+                        primary_id = primary[2]
+                        connection.execute('''UPDATE codex_native_pending SET root = ?, client_id = ?, state = ?,
+                            attempt_count = ?, attempt_started_at = ?, steered_turn_id = ?
+                            WHERE environment = ? AND workspace_id = ? AND stream = ? AND sequence = ?''',
+                            (root, primary[2], primary[3], max(primary[4], 1), primary[5], primary[6], *self.scope(), sequence))
+                    prior.extend([root, row[2], row[6]] for root, row in attempted if row[2] != primary_id)
+                    consumers = connection.execute('''SELECT consumer FROM poke_consumers
+                        WHERE environment = ? AND workspace_id = ? AND consumer LIKE 'codex-native:%'
+                        AND consumer NOT LIKE '%:replay:%' AND consumer != ? AND last_sequence >= ?''',
+                        (environment, workspace_id, self.consumer, sequence)).fetchall()
+                    for (consumer,) in consumers:
+                        parts = consumer.split(':')
+                        if len(parts) < 3 or parts[1].startswith('uclusion-scope-v1-'):
+                            continue
+                        client_id = str(uuid.uuid5(uuid.NAMESPACE_URL,
+                            json.dumps((environment, workspace_id, consumer, sequence))))
+                        if client_id != primary_id:
+                            prior.append([parts[2], client_id, None])
+                    if prior:
+                        connection.execute('''UPDATE codex_native_pending SET prior_admissions = ?
+                            WHERE environment = ? AND workspace_id = ? AND stream = ? AND sequence = ?''',
+                            (json.dumps(list(dict.fromkeys(tuple(item) for item in prior))), *self.scope(), sequence))
+                    for _, row in copies:
+                        connection.execute('''DELETE FROM codex_native_pending WHERE environment = ?
+                            AND workspace_id = ? AND consumer = ?''', (environment, workspace_id, row[0]))
 
-    def scope(self, root):
-        return self.environment, self.workspace_id, self.prefix + root + self.replay_id
+    def scope(self):
+        return self.environment, self.workspace_id, self.consumer
 
-    def prepare(self, root):
-        scope = self.scope(root)
-        with closing(open_inbox()) as connection, connection:
-            connection.execute('''INSERT OR IGNORE INTO poke_consumers
-                (environment, workspace_id, consumer, last_sequence, updated_at)
-                VALUES (?, ?, ?, ?, ?)''', (*scope, self.cutoff, time.time()))
-            connection.execute('''UPDATE poke_consumers SET updated_at = ?
-                WHERE environment = ? AND workspace_id = ? AND consumer = ?''',
-                (time.time(), *scope))
+    def _insert(self, connection, sequence):
+        consumer = self.consumer + ':event:' + str(sequence)
+        client_id = str(uuid.uuid5(uuid.NAMESPACE_URL, json.dumps((*self.scope(), sequence))))
+        connection.execute('''INSERT OR IGNORE INTO codex_native_pending
+            (environment, workspace_id, consumer, stream, sequence, client_id, state)
+            VALUES (?, ?, ?, ?, ?, ?, 'pending')''',
+            (self.environment, self.workspace_id, consumer, self.consumer, sequence, client_id))
 
-    def next(self, root):
-        scope = self.scope(root)
+    def next(self):
         with closing(open_inbox()) as connection, connection:
             connection.execute('BEGIN IMMEDIATE')
-            row = connection.execute('''SELECT p.sequence, m.message, p.client_id, p.state, p.steered_turn_id
+            connection.execute('''DELETE FROM codex_native_pending WHERE environment = ?
+                AND workspace_id = ? AND stream = ? AND sequence NOT IN (SELECT sequence FROM poke_messages)''',
+                self.scope())
+            row = connection.execute('''SELECT p.sequence, m.message, p.client_id, p.state,
+                    p.steered_turn_id, p.root, p.owner_instance, p.owner_pid
                 FROM codex_native_pending p JOIN poke_messages m ON m.sequence = p.sequence
-                WHERE p.environment = ? AND p.workspace_id = ? AND p.consumer = ?''', scope).fetchone()
-            if row is not None:
-                return row
-            connection.execute('''DELETE FROM codex_native_pending
-                WHERE environment = ? AND workspace_id = ? AND consumer = ?''', scope)
-            row = connection.execute('''SELECT sequence, message FROM poke_messages
+                WHERE p.environment = ? AND p.workspace_id = ? AND p.stream = ? AND p.state != 'accepted'
+                ORDER BY p.sequence LIMIT 1''', self.scope()).fetchone()
+            if row is None:
+                event = connection.execute('''SELECT sequence FROM poke_messages
                 WHERE environment = ? AND workspace_id = ? AND consumed_at IS NULL
                 AND sequence > (SELECT last_sequence FROM poke_consumers
                     WHERE environment = ? AND workspace_id = ? AND consumer = ?)
-                ORDER BY sequence LIMIT 1''', (*scope[:2], *scope)).fetchone()
-            if row is None:
+                ORDER BY sequence LIMIT 1''', (*self.scope()[:2], *self.scope())).fetchone()
+                if event is None:
+                    return None
+                self._insert(connection, event[0])
+                row = connection.execute('''SELECT p.sequence, m.message, p.client_id, p.state,
+                        p.steered_turn_id, p.root, p.owner_instance, p.owner_pid
+                    FROM codex_native_pending p JOIN poke_messages m ON m.sequence = p.sequence
+                    WHERE p.environment = ? AND p.workspace_id = ? AND p.stream = ? AND p.sequence = ?''',
+                    (*self.scope(), event[0])).fetchone()
+            if row[6] not in (None, self.owner) and self.pid_is_alive(row[7]):
                 return None
-            client_id = str(uuid.uuid5(uuid.NAMESPACE_URL, json.dumps((*scope, row[0]))))
-            connection.execute('''INSERT INTO codex_native_pending
-                (environment, workspace_id, consumer, sequence, client_id, state)
-                VALUES (?, ?, ?, ?, ?, 'pending')''', (*scope, row[0], client_id))
-            return *row, client_id, 'pending', None
+            connection.execute('''UPDATE codex_native_pending SET owner_instance = ?, owner_pid = ?
+                WHERE environment = ? AND workspace_id = ? AND stream = ? AND sequence = ?''',
+                (self.owner, os.getpid(), *self.scope(), row[0]))
+            return row[:6]
+
+    def release(self):
+        with closing(open_inbox()) as connection, connection:
+            connection.execute('''UPDATE codex_native_pending SET owner_instance = NULL, owner_pid = NULL
+                WHERE environment = ? AND workspace_id = ? AND stream = ? AND owner_instance = ?''',
+                (*self.scope(), self.owner))
+
+    def close(self):
+        with closing(open_inbox()) as connection, connection:
+            connection.execute('BEGIN IMMEDIATE')
+            connection.execute('''UPDATE codex_native_pending SET owner_instance = NULL, owner_pid = NULL
+                WHERE environment = ? AND workspace_id = ? AND stream = ? AND owner_instance = ?''',
+                (*self.scope(), self.owner))
+            connection.execute('''DELETE FROM codex_native_proxies WHERE environment = ?
+                AND workspace_id = ? AND stream = ? AND instance = ?''', (*self.scope(), self.owner))
+
+    def prior_admissions(self):
+        with closing(open_inbox()) as connection:
+            row = connection.execute('''SELECT prior_admissions FROM codex_native_pending
+                WHERE environment = ? AND workspace_id = ? AND stream = ? AND owner_instance = ?''',
+                (*self.scope(), self.owner)).fetchone()
+        return json.loads(row[0]) if row and row[0] else []
+
+    def clear_prior_admissions(self):
+        with closing(open_inbox()) as connection, connection:
+            connection.execute('''UPDATE codex_native_pending SET prior_admissions = NULL
+                WHERE environment = ? AND workspace_id = ? AND stream = ? AND owner_instance = ?''',
+                (*self.scope(), self.owner))
 
     def state(self, root, value, steered_turn_id=None):
         with closing(open_inbox()) as connection, connection:
             if value == 'sending':
-                connection.execute('''UPDATE codex_native_pending SET state = ?,
+                connection.execute('''UPDATE codex_native_pending SET state = ?, root = COALESCE(root, ?),
                     attempt_count = attempt_count + 1, attempt_started_at = ?, steered_turn_id = ?
-                    WHERE environment = ? AND workspace_id = ? AND consumer = ?''',
-                    (value, time.time(), steered_turn_id, *self.scope(root)))
+                    WHERE environment = ? AND workspace_id = ? AND stream = ? AND owner_instance = ?''',
+                    (value, root, time.time(), steered_turn_id, *self.scope(), self.owner))
             else:
                 connection.execute('''UPDATE codex_native_pending SET state = ?
-                    WHERE environment = ? AND workspace_id = ? AND consumer = ?''',
-                    (value, *self.scope(root)))
+                    WHERE environment = ? AND workspace_id = ? AND stream = ? AND owner_instance = ?''',
+                    (value, *self.scope(), self.owner))
 
-    def retry_due(self, root):
+    def retry_due(self):
         with closing(open_inbox()) as connection:
-            attempts, started = connection.execute('''SELECT attempt_count, attempt_started_at
+            row = connection.execute('''SELECT attempt_count, attempt_started_at
                 FROM codex_native_pending WHERE environment = ? AND workspace_id = ?
-                AND consumer = ?''', self.scope(root)).fetchone()
+                AND stream = ? AND owner_instance = ?''', (*self.scope(), self.owner)).fetchone()
+            if row is None:
+                return False
+            attempts, started = row
         now = time.time()
         if started is None or started > now:
             return True
@@ -227,14 +403,16 @@ class NativeInbox:
         return now - started >= delay
 
     def acknowledge(self, root, sequence):
-        scope = self.scope(root)
         with closing(open_inbox()) as connection, connection:
             connection.execute('BEGIN IMMEDIATE')
-            connection.execute('''UPDATE poke_consumers SET last_sequence = MAX(last_sequence, ?),
-                updated_at = ? WHERE environment = ? AND workspace_id = ? AND consumer = ?''',
-                (sequence, time.time(), *scope))
-            connection.execute('''DELETE FROM codex_native_pending WHERE environment = ?
-                AND workspace_id = ? AND consumer = ? AND sequence = ?''', (*scope, sequence))
+            accepted = connection.execute('''UPDATE codex_native_pending SET state = 'accepted',
+                owner_instance = NULL, owner_pid = NULL WHERE environment = ?
+                AND workspace_id = ? AND stream = ? AND sequence = ? AND owner_instance = ?
+                AND (root IS NULL OR root = ?)''', (*self.scope(), sequence, self.owner, root))
+            if accepted.rowcount:
+                connection.execute('''UPDATE poke_consumers SET last_sequence = MAX(last_sequence, ?),
+                    updated_at = ? WHERE environment = ? AND workspace_id = ? AND consumer = ?''',
+                    (sequence, time.time(), *self.scope()))
 
 
 class NativeCodexDelivery:
@@ -246,7 +424,8 @@ class NativeCodexDelivery:
         os.environ['CODEX_HOME'] = self.codex_home
         os.environ.setdefault('UCLUSION_TOKEN_AUDIT_HOME', os.path.join(uclusion_home_root(), '.uclusion'))
         self.environment, self.workspace_id = environment, workspace_id
-        self.inbox = NativeInbox(environment, workspace_id, self.codex_home, replay)
+        self.scope_marker = native_scope(environment, workspace_id)
+        self.inbox = NativeInbox(environment, workspace_id, replay=replay)
         self.identity = 'uclusion-native-' + uuid.uuid4().hex
         self.notices = UpdateNoticeStore(open_inbox)
         self.notice_config = SimpleNamespace(environment=environment, workspace_id=workspace_id,
@@ -278,7 +457,7 @@ class NativeCodexDelivery:
         info = response.get('result', {}).get('serverInfo')
         if isinstance(info, dict):
             version = str(info.get('version', '1'))
-            info['version'] = version + ('.' if '+' in version else '+') + self.identity
+            info['version'] = version + ('.' if '+' in version else '+') + self.identity + '.' + self.scope_marker
         if self.token_audit and 'result' in response:
             response['result'].setdefault('capabilities', {}).setdefault('tools', {})['listChanged'] = True
 
@@ -313,9 +492,10 @@ class NativeCodexDelivery:
     def _register(self, thread):
         root = thread['id']
         with self.lock:
-            self.inbox.prepare(root)
             self.roots[root] = thread
-        if (self.token_audit or self.context_events) and thread.get('path'):
+        owned = any(version_has_marker(version, self.identity)
+                    for version in thread['_uclusion_versions'])
+        if owned and (self.token_audit or self.context_events) and thread.get('path'):
             with self.lock:
                 if root in self.joined_roots:
                     return
@@ -359,36 +539,32 @@ class NativeCodexDelivery:
         return False
 
     def _scan(self):
+        recipients = native_recipients(self.client, self.scope_marker)
+        bound = {thread['id'] for thread in recipients}
+        for thread in recipients:
+            self._register(thread)
+        owned = {thread['id'] for thread in recipients
+                 if any(version_has_marker(version, self.identity) for version in thread['_uclusion_versions'])}
         candidates = []
         cursor = None
-        while True:
+        while self.token_audit:
             page = self.client.request('thread/loaded/list', {'cursor': cursor})
             candidates.extend(page['data'])
             cursor = page.get('nextCursor')
             if cursor is None:
                 break
-        bound = set()
         descendants = []
         for root in candidates:
             try:
                 thread = self.client.request('thread/read', {'threadId': root, 'includeTurns': False})['thread']
-                if (thread.get('threadSource') != 'user' or thread.get('parentThreadId')
-                        or thread.get('canAcceptDirectInput') is not True):
-                    if thread.get('parentThreadId'):
-                        descendants.append(thread)
-                    continue
-                status = self.client.request('mcpServerStatus/list', {
-                    'threadId': root, 'detail': 'toolsAndAuthOnly'})
-                if not any(self.identity in (server.get('serverInfo') or {}).get('version', '')
-                           and server.get('runtimeStatus') == 'connected' for server in status['data']):
-                    continue
-                bound.add(root)
-                self._register(thread)
+                if thread.get('parentThreadId'):
+                    descendants.append(thread)
             except NativeRequestError:
                 continue
         with self.lock:
             for root in set(self.roots) - bound:
                 self.roots.pop(root, None)
+            for root in (set(self.collectors) | self.joined_roots) - owned:
                 self.joined_roots.discard(root)
                 if self.context_events:
                     self.context_events(root, 'unavailable')
@@ -468,30 +644,51 @@ class NativeCodexDelivery:
             except NativeRequestError:
                 continue
 
-    def _deliver(self, root):
-        pending = self.inbox.next(root)
+    def _deliver(self):
+        try:
+            self._deliver_owned()
+        finally:
+            self.inbox.release()
+
+    def _deliver_owned(self):
+        pending = self.inbox.next()
         if pending is None:
             return
-        sequence, text, client_id, state, steered_turn_id = pending
-        if state == 'sending':
+        sequence, text, client_id, state, steered_turn_id, root = pending
+        prior = self.inbox.prior_admissions()
+        reconciliation = ([(root, client_id, steered_turn_id)] if state == 'sending' else []) + prior
+        uncertain = False
+        for prior_root, prior_id, prior_turn in reconciliation:
             try:
-                admitted = self._admitted(root, client_id, steered_turn_id)
+                admitted = self._admitted(prior_root, prior_id, prior_turn)
             except NativeRequestError as error:
                 detail = str(error)
-                if self.reconciliation_errors.get(root) != detail:
+                if self.reconciliation_errors.get(prior_root) != detail:
                     sys.stderr.write('Uclusion is waiting to reconcile a Poke for Codex '
-                                     f'conversation {root}: {detail}\n')
-                    self.reconciliation_errors[root] = detail
-                return
-            self.reconciliation_errors.pop(root, None)
+                                     f'conversation {prior_root}: {detail}\n')
+                    self.reconciliation_errors[prior_root] = detail
+                uncertain = True
+                continue
+            self.reconciliation_errors.pop(prior_root, None)
             if admitted:
-                self.inbox.acknowledge(root, sequence)
+                self.inbox.acknowledge(root or prior_root, sequence)
                 return
             if admitted is None:
-                return
-        if not self.inbox.retry_due(root):
+                uncertain = True
+        if uncertain:
+            return
+        if prior:
+            self.inbox.clear_prior_admissions()
+        if not self.inbox.retry_due():
             return
         try:
+            recipients = native_recipients(self.client, self.scope_marker)
+            if root is None:
+                if not recipients:
+                    return
+                root = recipients[0]['id']
+            elif root not in {thread['id'] for thread in recipients}:
+                return
             active_turn = self._active_turn(root)
         except NativeRequestError:
             return
@@ -508,7 +705,7 @@ class NativeCodexDelivery:
         if ((active_turn and receipt.get('turnId') == active_turn)
                 or (not active_turn and receipt.get('queuedSubmission', {}).get('clientUserMessageId') == client_id)):
             self.inbox.acknowledge(root, sequence)
-            record_demo_input('poke_delivered', {'message': text, 'consumer': self.inbox.scope(root)[2]})
+            record_demo_input('poke_delivered', {'message': text, 'consumer': self.inbox.scope()[2]})
 
     def _deliver_update_notice(self):
         now = time.monotonic()
@@ -591,8 +788,7 @@ class NativeCodexDelivery:
                         self._scan()
                         next_scan = time.monotonic() + 1
                     self._subscribe_descendants()
-                    for root in tuple(self.roots):
-                        self._deliver(root)
+                    self._deliver()
                     self._deliver_update_notice()
                     self.stop.wait(.25)
             except Exception as error:
@@ -622,4 +818,41 @@ class NativeCodexDelivery:
         if self.client is not None:
             self.client.close()
         self.thread.join(timeout=3)
+        self.inbox.close()
         self.notices.release_update_notice_leader(self.notice_config, os.getpid())
+
+
+def inspect_native_recipients(environment, workspace_id, codex_home):
+    """Inspect without delivery, subscriptions, schema writes or thread resume."""
+    scope = native_scope(environment, workspace_id)
+    client = NativeClient(codex_home, lambda message: None)
+    try:
+        client.start()
+        candidates = native_recipients(client, scope)
+    finally:
+        client.close()
+    identities = [{'id': thread['id'], 'name': thread.get('name'),
+                   'status': (thread.get('status') or {}).get('type')}
+                  for thread in candidates]
+    outstanding = []
+    path = get_inbox_path()
+    if os.path.isfile(path):
+        with closing(sqlite3.connect(Path(path).as_uri() + '?mode=ro', uri=True)) as connection:
+            columns = {row[1] for row in connection.execute('PRAGMA table_info(codex_native_pending)')}
+            if 'stream' in columns:
+                rows = connection.execute('''SELECT sequence, root, client_id, state, steered_turn_id, prior_admissions
+                    FROM codex_native_pending WHERE environment = ? AND workspace_id = ?
+                    AND stream = ? AND state != 'accepted'
+                    AND (attempt_count > 0 OR prior_admissions IS NOT NULL) ORDER BY sequence''',
+                    (environment, workspace_id, 'codex-native:' + scope)).fetchall()
+                for sequence, root, client_id, state, turn_id, prior in rows:
+                    if root:
+                        outstanding.append({'sequence': sequence, 'root': root, 'client_id': client_id,
+                                            'state': state, 'steered_turn_id': turn_id})
+                    for prior_root, prior_id, prior_turn in json.loads(prior) if prior else []:
+                        outstanding.append({'sequence': sequence, 'root': prior_root, 'client_id': prior_id,
+                                            'state': 'checking_prior_admission', 'steered_turn_id': prior_turn})
+    return {'environment': environment, 'workspace_id': workspace_id,
+            'candidate_count': len(identities), 'candidates': identities,
+            'selected': identities[0] if identities else None,
+            'outstanding_receipt_reconciliation': outstanding}

@@ -9,6 +9,15 @@
     "openai": 774
    }
   },
+  "1907762d9f266ee1fff45a5d57dbaf605464b199952270811b4fc1772edc2b10": {
+   "bytes": 3624,
+   "kind": "bootstrap",
+   "name": "codex stub (uclusion -e stage), comments removed",
+   "tokens": {
+    "claude": 1246,
+    "openai": 790
+   }
+  },
   "1a27cfaaf350a1c19f3f5d96ba2d684e0bf59076e9f7d0d2bb87a2b3b4f5ba2e": {
    "bytes": 3412,
    "kind": "bootstrap",
@@ -63,6 +72,15 @@
     "openai": 751
    }
   },
+  "4ec8e0dfe167c56086b56a85ac7e5f32399e09e5f1aa5d4c5f510eb46ffc4731": {
+   "bytes": 3749,
+   "kind": "bootstrap",
+   "name": "codex stub (uclusion -e stage)",
+   "tokens": {
+    "claude": 1320,
+    "openai": 825
+   }
+  },
   "5231145d0dafcec8dfa073cc1f3791c4437d5271628af37aa56cee81ba39723c": {
    "bytes": 8287,
    "kind": "skill",
@@ -79,6 +97,15 @@
    "tokens": {
     "claude": 1386,
     "openai": 896
+   }
+  },
+  "5f82f1f9325187068f8a5d1a4feba504e6fd3b27de70aef75d122e64de43ab4c": {
+   "bytes": 15160,
+   "kind": "skill",
+   "name": "skills/uclusion/references/pokes.md",
+   "tokens": {
+    "claude": 4915,
+    "openai": 3269
    }
   },
   "6504bb69292ef4bf5908bdf31dfc7f4e0ea3e4bc6e5e251fb5fc41f32030dc48": {
@@ -160,6 +187,15 @@
    "tokens": {
     "claude": 1312,
     "openai": 861
+   }
+  },
+  "9ac8d6e563879eb01941f4b77cba52844ea649739feaa4e0e13ddf8fc9c5d180": {
+   "bytes": 3597,
+   "kind": "bootstrap",
+   "name": "codex stub (uclusion), comments removed",
+   "tokens": {
+    "claude": 1234,
+    "openai": 781
    }
   },
   "9e09602afcd516da8c16ac1cbde4562072c036bf81f365b7d731c66b0b5baa70": {
@@ -297,6 +333,15 @@
     "openai": 102
    }
   },
+  "db1b2e247edef38ccd49ff2490e8095f21e2998ff73053cf0cf37b1f65140567": {
+   "bytes": 3722,
+   "kind": "bootstrap",
+   "name": "codex stub (uclusion)",
+   "tokens": {
+    "claude": 1308,
+    "openai": 816
+   }
+  },
   "db4c69abd6eced3129cac91e643a6839269208b18e5eeadbc9f5c8e67fef92f7": {
    "bytes": 2521,
    "kind": "skill",
@@ -315,6 +360,15 @@
     "openai": 1031
    }
   },
+  "eaecf0dc1443e334d1a48dcc7ccc35913104c9fe592fbce9cc472efda1890b9c": {
+   "bytes": 3743,
+   "kind": "bootstrap",
+   "name": "codex stub (uclusion -e dev)",
+   "tokens": {
+    "claude": 1320,
+    "openai": 825
+   }
+  },
   "eb1b40a1d0654308e64cb26527ed1127098e0b8500e50ebde9f34c08960d6a36": {
    "bytes": 14824,
    "kind": "skill",
@@ -331,6 +385,15 @@
    "tokens": {
     "claude": 348,
     "openai": 228
+   }
+  },
+  "ee4bbb3cac628dc1d285ef869a67fc493eb7ef9e0c91623624e04f0dad5de9d1": {
+   "bytes": 3618,
+   "kind": "bootstrap",
+   "name": "codex stub (uclusion -e dev), comments removed",
+   "tokens": {
+    "claude": 1246,
+    "openai": 790
    }
   },
   "f5bb239dfdc8dea1bf424c16a5390921abc593ac54099f5ae985ffc61c1c0c79": {

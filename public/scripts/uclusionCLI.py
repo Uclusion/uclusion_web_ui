@@ -3572,6 +3572,20 @@ def response_stats_path(value):
     return os.path.abspath(os.path.expanduser(value))
 
 
+def cmd_codex_recipients(args):
+    from uclusionCodexNative import inspect_native_recipients
+    config = load_config(get_env_paths(args.env)[1])
+    if not config or not config.get('workspaceId'):
+        return 1
+    try:
+        result = inspect_native_recipients(args.env, config['workspaceId'], CODEX_HOME)
+    except Exception as error:
+        print(f'Codex recipient inspection is unavailable ({type(error).__name__}: {error}).', file=sys.stderr)
+        return 1
+    print(json.dumps(result, indent=2))
+    return 0
+
+
 def build_parser():
     parser = argparse.ArgumentParser(
         prog='uclusionCLI',
@@ -3589,6 +3603,10 @@ def build_parser():
     )
 
     subparsers = parser.add_subparsers(dest='command', metavar='COMMAND', required=True)
+
+    recipients_parser = subparsers.add_parser(
+        'codex-recipients', help='Inspect eligible native Codex recipients and the latest selected conversation.')
+    recipients_parser.set_defaults(func=cmd_codex_recipients)
 
     sync_parser = subparsers.add_parser(
         'sync',

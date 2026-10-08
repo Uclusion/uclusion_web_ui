@@ -144,10 +144,16 @@ actions succeed, the terminal record is confirmed and its triggered sweep is
 complete. Declined actions are not pending work. An unfinished package or
 failed authorized action retains the assignment.
 
-`Start` is an untargeted broadcast. The human must not use it while more than
-one default agent is idle and able to accept it. In that situation, select the
-work directly in one agent's chat instead. An agent that receives a valid live
-`Start` follows it; agents do not invent inbox coordination to elect a winner.
+Codex sends each new Poke to the latest eligible registered root in the configured
+workspace and environment. Starting a turn in the intended conversation makes it
+latest; the resident stub's `codex-recipients` command confirms the selection
+without sending input. Delivery does not transfer an assignment.
+
+On clients with broadcast delivery, `Start` remains untargeted. The human must
+not use it while more than one default agent is idle and able to accept it. In
+that situation, select the work directly in one agent's chat instead. An agent
+that receives a valid live `Start` follows it; agents do not invent inbox
+coordination to elect a winner.
 
 ## Single-lane triage
 

@@ -16,33 +16,61 @@ flowchart LR
     Native --> Audit[Live token collector]
 ```
 
-## Registration and broadcast
+## Registration and recipient selection
 
-The MCP proxy starts `uclusionCodexNative.py`. Its unique MCP connection identity
-proves which exact native roots belong to it in the selected workspace and
-environment. A matching working directory or loaded thread alone is not proof.
+The MCP proxy starts `uclusionCodexNative.py`. Its connected MCP version includes
+an exact versioned digest of the configured workspace and environment. This
+binds roots across proxy instances in that scope. Each proxy also retains its
+random identity for its own audit and context collectors. A matching working
+directory or loaded thread alone is not proof.
 Subagents, detached reviews and auxiliary transcripts are not Poke recipients.
 
-Each registered root has its own cursor, scoped to its Codex home, workspace
-and environment. A fresh registration starts after retained history; arrivals
-during registration remain eligible. Resuming the same root continues its
-cursor. Explicit human-requested replay uses an independent private cursor.
-After `/new`, both the previous and new conversations remain recipients while
-they stay registered. Broadcast delivery never transfers a job assignment.
+Each Poke has one recipient. Immediately before its first attempted send,
+Uclusion selects the latest eligible root from native
+`thread/list(sortKey=recency_at, sortDirection=desc, useStateDbOnly=true)` order,
+preserving native millisecond and identity ties. Eligible roots are loaded user
+conversations accepting direct input with a connected registration in the same
+scope. Saved history alone is not eligibility. Failed ordering or binding checks
+keep the Poke pending. All pages are inspected; displayed timestamps and file
+order are never used for selection.
 
-Idle Codex roots wake on native admission. Busy roots process messages on their
-next turn, including after review or compaction. Uclusion neither steers the
-active frontend nor answers approval requests on Codex's behalf.
+The private inbox has one durable scope/event stream with atomic ownership, so
+concurrent proxies cannot send separate copies. Never-attempted pending Pokes
+carry forward once in arrival order. Native evidence excludes copies already
+admitted elsewhere; a startup cursor alone is not proof of admission. Fresh
+startup excludes retained history. Explicit human-requested replay uses a
+private stream. Delivery never transfers a job assignment.
+
+Idle Codex roots wake through the native queue. Busy roots receive native
+steering in their active turn without cancelling a running command. Uclusion
+does not answer approval requests on Codex's behalf.
+
+Start a turn in the conversation intended to receive Pokes, then run the
+environment-correct `uclusion codex-recipients` command. It reports candidate
+UUIDs, names and active/idle status, the selected root, and outstanding exact-root
+receipt reconciliation. It reads native state without resuming threads, starting
+delivery, changing configuration or submitting input.
+
+After `/new`, only the latest eligible conversation receives first sends.
+Frontend focus, observer resume and an older turn finishing later do not advance
+native recency. A queued Poke does. `/quit` or terminal closure can leave a root
+loaded in the native runtime; neither establishes that it became ineligible.
+Restart and resume retain saved history, while eligibility still requires a
+loaded root and connected registration. Starting a turn in the intended root
+and inspecting the selection avoids relying on frontend lifetime.
 
 ## Admission and recovery
 
-The adapter reserves each event before sending. A matching queue receipt
-confirms admission and advances only that root's cursor. It does not establish
+The adapter reserves each event before sending. After any send attempt, the
+event, exact root and admission identity remain fixed across restart. A matching
+receipt confirms admission and advances the scope stream. It does not establish
 that the agent processed the message. If an outcome is uncertain, the adapter
 checks the queue and conversation history for the exact admission identity.
 It acknowledges a match or retries confirmed absence with the existing
 1, 2, 4 and 5 second pacing. An unavailable history check keeps the event
-pending. Native client message identities do not guarantee deduplication.
+pending. An ambiguous send is never redirected to a newer root. Selection changes
+apply only to later first sends. Native client message identities do not
+guarantee deduplication.
 
 Recovery before the first conversation turn and delivery after deliberately
 quitting and restarting are outside the delivery guarantee. Codex may retain

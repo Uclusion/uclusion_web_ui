@@ -158,10 +158,10 @@ SCRIPT_FILES = (
 # deployment gate validates this table before publishing, so a sequential S3
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
-    'uclusionCLI.py': '3fb896736ebd702c9f883a3a4b43c16547803bb6528410ef24b241f1c50fc391',
+    'uclusionCLI.py': '20a9801f7aa3722963817674a39cdf05cecc6f66dbc36c02587bc49ab05091da',
     'uclusionMCPProxy.py': '0ed9d86bbe056cc1daaf75469a597b437e3a22f7c86e7c1dbfd2a6d3802a46ac',
     'uclusionSetupMCP.py': '9aa8d3199b0c392d944fc3b2fb9f26b48230737ea2e5b07980cd3df6b79ed4f3',
-    'uclusionCodexNative.py': 'fa913c6064315fcb56366cfbb337a91982ac67fe0a8d845d8c32cc23d25e9ab9',
+    'uclusionCodexNative.py': '2d1e459d895526665bd3d280e5acd7bb43b8305b73e4ccbc0e9a65608971b4c4',
     'uclusionUpdateNotices.py': 'a9d6ed9e082bce28ac8340d242ad34d2f180a35de6821ce72c0684503e84b7e8',
     'uclusionTokenAudit.py': 'a900dea0e13e03773476a3e2872572e2986e5c1779317e6a4ec8c186ed237792',
 }
@@ -344,7 +344,7 @@ WORKFLOW_ASSET_PATHS = {
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
     'claude_stub': '1debe78c7762f237d1b977266c2ae7bb447e66afa14b302439a716fa814dfa10',
-    'codex_stub': 'a4ad025ecf91dd151dc6085770026661ce96849a0d8c302c4a29fda7c9c94c11',
+    'codex_stub': '6a054166e8b17b5997cdff28866a60b10f6872d5a5b7acd0e097f9d14c6300bf',
     'cursor_stub': '02abb46add0ead8f61d436a617e66fb38184bcc5793c49a13cef10190e597e47',
     'skill': '668a6c63d373082fbd470b6b6565d71671963502ca3ef9db435421a089a1d12b',
     'coordinator_reference': '00b417350a26eaed265ce0b04cba77dea16517655d56bba73ecb2b6f21656463',
@@ -359,7 +359,7 @@ WORKFLOW_ASSET_SHA256 = {
     'capsules_reference': '5231145d0dafcec8dfa073cc1f3791c4437d5271628af37aa56cee81ba39723c',
     'review_reference': 'f5bb239dfdc8dea1bf424c16a5390921abc593ac54099f5ae985ffc61c1c0c79',
     'writes_reference': 'bf41e0a7602421c724b599f39175ff33f569e7936171985df99dc49b1281d1be',
-    'pokes_reference': 'eb1b40a1d0654308e64cb26527ed1127098e0b8500e50ebde9f34c08960d6a36',
+    'pokes_reference': '5f82f1f9325187068f8a5d1a4feba504e6fd3b27de70aef75d122e64de43ab4c',
     'reading_reference': 'afd87a38e0d967489d766e5c1ef26df8b1306b3916c042fb18ef50c69b1601fe',
     'operations_reference': 'c570a79029f145e553bbe0cba5e97dc8357d2612a5a7f854240d19df889749c3',
     'completion_reference': 'b7f1781be089af9703e5a835a30b8aaec3a745780b5119cb86d2cf2ff55da156',
@@ -371,7 +371,7 @@ WORKFLOW_ASSET_SHA256 = {
     'design_examples': '71f626575f8acbb0c28de20a810f4eb62d66b3185b23c1c84447ed7d29baa72e',
     'design_openai_metadata': 'd94499cb3851d46db554a0321d8469571273d446a8caefbdcbb8a68cb012c868',
     'demo_brief': '1c26c3235dba931bcbf9d88fcacf32e437f1ec10f3e70fd908f33228ba30037f',
-    'token_manifest': 'e1c38a3291166f22432d459d09f9331253a24db9f9b6490bad3bbde874101087',
+    'token_manifest': '276d301adaa5dfd3e1751a76aa9530d7af117ff945c9528bf409ffb6f9592c61',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',

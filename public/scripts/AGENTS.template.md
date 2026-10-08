@@ -31,11 +31,13 @@ The remaining rules apply only to coordinators.
 The installed Uclusion MCP integration owns automatic Poke AI delivery through
 Codex's native steering and queue APIs. Start ordinary `codex` with that integration; never run
 `uclusion wait` or `uclusion listen`, and never start a separate companion.
-Each registered root in its workspace/environment receives its own copy. Busy
+Each Poke goes to the latest eligible registered root in its workspace/environment,
+using native conversation recency immediately before its first send. Busy
 agents receive Pokes as input to their active turn; idle agents wake through the
-native queue. Pokes do not cancel a running command. After `/new`, both the old and new
-conversations remain recipients while their Uclusion roots remain registered;
-receiving a Poke never grants ownership of another agent's work.
+native queue. Pokes do not cancel a running command. After `/new`, only the latest
+eligible conversation receives new Pokes. Starting a turn in the intended conversation
+makes it latest; `{{UCLUSION_CLI}} codex-recipients` shows the selection without sending
+input. Receipt does not prove processing or grant ownership of another agent's work.
 
 Fresh startup starts after retained history. Never add
 `--deliver-existing-pokes` yourself. A human-requested replay is an unmarked

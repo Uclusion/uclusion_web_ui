@@ -21,14 +21,10 @@ target file to learn whether it applies. The coordinator uses those routes for
 its current stage and next action and loads newly applicable units before acting
 when either changes.
 
-Before reusing instructions, run the environment-correct local
-`uclusion workflow-status <selected-package> [--loaded <content_id>]`, with the
-selected package being the directory containing this SKILL.md. Its
-`reload_required` governs reuse even without a resident bootstrap. Pass
-`--loaded` only while the required complete bodies and their content ID remain
-in context; omit it after compaction, restoration or body loss. Reload the
-applicable units when true; otherwise reuse identical complete bodies across
-paths. Read every required unit in full through its closing marker. References,
-summaries and saved identifiers are not instruction or contract bodies.
+Read every required unit in full through its closing marker when first needed.
+Reuse complete instruction bodies while they remain in context. Reread affected
+units after a known workflow update, and reread required bodies lost through
+compaction or context restoration before continuing. Summaries and saved
+identifiers do not replace instruction or contract bodies.
 
 <!-- /uclusion-skill:v1 -->

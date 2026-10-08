@@ -60,12 +60,9 @@ helper without inherited conversation history (`fork_turns: "none"` in Codex).
 Give it the selected target, bounded relevant evidence, the current capsule
 when present, new human requirements since publication, and
 `../uclusion-design/SKILL.md` resolved from the selected `uclusion` package root.
-Copy the core's local selected-package status, complete-read and reload rules
-into the dispatch, adapted to the selected design package and its required
-files. Supply its environment-correct local
-`uclusion workflow-status <selected-design-package> [--loaded <content_id>]`
-command even without a resident bootstrap; do not send core or coordinator
-reference bodies.
+Copy the core's complete-read and instruction-reuse rules into the dispatch,
+adapted to the selected design package and its required files, even without a
+resident bootstrap; do not send core or coordinator reference bodies.
 
 Request the shortest complete contract, directing the helper to delete sentences
 whose removal loses no necessary behavior, constraint, navigation, evidence or

@@ -19,12 +19,10 @@ Coordinators and design helpers read their selected skill and references in full
 through end of file. Each file ends with its own closing `<!-- ... -->` marker;
 a read that misses it is incomplete, so continue until it appears.
 
-Coordinators and design helpers use
-`{{UCLUSION_CLI}} workflow-status <selected-package> [--loaded <content_id>]`
-for `reload_required`. Pass `--loaded` only with required complete bodies and
-their ID still in context; omit it after compaction, restoration, or body loss.
-Reload when true; otherwise reuse identical bodies across paths. Check your
-role's package; summaries and saved IDs are not bodies.
+Reuse complete instruction bodies while they remain in context. Reread affected
+files after a known workflow update, and reread required bodies lost through
+compaction or context restoration. Summaries and saved identifiers do not
+replace complete bodies.
 
 The remaining rules apply only to coordinators.
 

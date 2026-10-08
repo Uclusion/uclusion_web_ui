@@ -49,13 +49,37 @@ exports retain note and capsule bodies for decision searches.
 ## Workspace export and decision search
 
 When workspace data can answer a request and is not already loaded, run the
-environment-correct `uclusion export` and search the reported Markdown.
+environment-correct `uclusion export` and delegate search of the reported Markdown
+as below. The coordinator keeps only the reported path from the export command.
 Run it without `-o` or `--output` so the CLI uses the configured
-`uclusionMDFolderPath`, then search the path reported by the command. Never
+`uclusionMDFolderPath`. Never
 redirect an ordinary workflow export to `/tmp` or another destination; override
 the configured path only when the human explicitly requests a different one.
 Exports include jobs, comments, options, votes, reasons, and UTC update dates.
 Use those dates for recency.
+
+Every export search, including past decisions, duplicate/related work and both
+completion-sweep scans, must run in a fresh isolated subagent without inherited
+coordinator history (`fork_turns: "none"` in Codex). Never read or search export
+content in the coordinator. If an isolated helper is unavailable, report that
+the search could not run rather than falling back to a coordinator search.
+
+Dispatch a bounded read-only brief containing the successful export's exact path,
+the search question, relevant requirements or current outcome evidence, and the
+applicable matching, status and authority rules. Export-search helpers follow
+only that brief and load no Uclusion workflow units. They do not obtain another
+export, acquire work, make human decisions or perform durable writes; these role
+limits change no tool availability or configuration.
+
+Keep raw export content, large match lists and intermediate research in the
+helper. Return only concise findings with exact Uclusion codes and names, short
+supporting evidence or source locations, and proposed actions when required by
+the calling workflow. Preserve every qualifying finding; report an explicit
+no-match result only after the required search is complete, and distinguish an
+incomplete search or unsettled evidence. Do not return raw search output or
+transcripts. The coordinator retains ownership, required full context/contract
+reads, human decisions, permission checks and durable writes. Any further export
+investigation uses another fresh bounded helper.
 
 Search it before delegating a design, before relying on a design you did not
 write yourself, and before answering something in case it was already decided,

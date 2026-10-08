@@ -28,6 +28,8 @@ reviewing. Report missing or unreadable required instructions as an installation
 fault to the main agent; do not improvise them.
 
 Investigate relevant source and history with bounded searches before drafting.
+Obtain workspace-export findings from the coordinator; request further isolated
+export searches there rather than reading export content in this design helper.
 Keep research, alternatives, planning rationale and transcripts here. Return
 only the complete cold-reviewed Markdown capsule with claim-local evidence, or
 typed unresolved questions. Never return raw searches or instruction bodies.

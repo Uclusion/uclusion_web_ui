@@ -120,7 +120,8 @@ private copies. Treat later human edits to the note as authoritative.
 
 ## Requested job creation
 
-Before `add_job`, export and search for duplicates and related work. Surface an
+Before `add_job`, export and delegate the duplicate/related-work search under
+[reading.md](reading.md). Surface an
 existing match instead of duplicating it. Cite related-but-distinct short codes
 in the new description. Pass initial `tasks` when parts could be reviewed,
 committed, or documented separately.

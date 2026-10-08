@@ -5,6 +5,8 @@ Only the coordinator loads this router. It retains assignment, delivery, Pokes,
 human questions, stage and permission checks, capsule publication, final review
 and the completion package. Design helpers load their selected design package;
 implementation helpers receive only a bounded dispatch brief.
+Export-search helpers likewise follow only the coordinator's read-only brief
+under [reading.md](reading.md), without loading workflow units.
 
 Use the Uclusion MCP server as the durable collaboration surface. The resident
 client stub owns delivery setup. Work asynchronously with your human partner.

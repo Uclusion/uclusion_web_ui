@@ -2,10 +2,9 @@
 <!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->
 # Uclusion bootstrap for Codex
 
-This shared bootstrap selects reader rules. Implementation helpers follow only
-their bounded brief, even when editing instruction source. Design helpers load
-only their coordinator-selected design package. These limits change no tool
-availability or configuration.
+Implementation and export-search helpers follow only bounded briefs, even when
+editing instruction source. Design helpers load only their coordinator-selected
+design package. These limits change no tool availability or configuration.
 
 The coordinator workflow lives in `$uclusion`; only coordinators apply its
 activation, delivery and work-discovery rules below.

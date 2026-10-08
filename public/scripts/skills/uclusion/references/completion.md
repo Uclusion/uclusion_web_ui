@@ -14,6 +14,14 @@ only the path reported by that successful command for both scans. If the command
 fails or reports no path, say that the completion sweep could not run and stop;
 never use an older export or redirect the export to `/tmp` or elsewhere.
 
+Delegate both scans together to one fresh export-search helper under
+[reading.md](reading.md). Give it that path, the exact completed-code set and
+current authoritative outcome evidence defined below, and all scan and result
+rules in this unit. The helper returns only the concise merged findings or
+explicit no-candidate result, with any incomplete scan or unsettled evidence
+identified. The coordinator records and presents the result and retains all
+later decisions and authorized actions; raw export research stays in the helper.
+
 ## Job completion-sweep triggers and outcome record
 
 Run both scans whenever a job transitions

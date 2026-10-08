@@ -2,6 +2,27 @@
 
 [Uclusion](https://www.uclusion.com) reserves all commercial rights to this code but it is available as a learning resource for anyone coding in React, building PWA, using Amplify, using Material UI, etc.
 
+## Workflow release hashes and token counts
+
+After editing workflow assets, refresh their hashes in `WORKFLOW_ASSET_SHA256`
+in `public/scripts/uclusionInstall.py` and regenerate the changed artifact
+counts in `public/scripts/token-manifest.json` with `countArtifactTokens.py`.
+Refresh the manifest's installer hash too.
+
+On the local development workstation, `ANTHROPIC_API_KEY` and `OPENAI_API_KEY`
+are stored in `~/.config/uclusion-dev/keys.env`. Load them before counting:
+
+```sh
+set -a
+. "$HOME/.config/uclusion-dev/keys.env"
+set +a
+```
+
+See `countArtifactTokens.py` for the stage export and counter arguments.
+Validate with `python3 checkWorkflowAssetPins.py public/scripts`, then run
+`python3 checkWorkflowAssetPins.py` against the rebuilt `build/scripts` assets
+before deployment.
+
 ## List of articles about this code
 
 [Notes on S3 backed File Downloads](https://dev.to/uclusionhq/notes-on-s3-backed-file-downloads-42i3)  

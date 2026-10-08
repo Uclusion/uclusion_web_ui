@@ -128,6 +128,10 @@ class CodexDemoRunTests(unittest.TestCase):
                                  self.evaluator_environment['UCLUSION_DEMO_EVIDENCE_DIR'])
                 owner_call = next(call for call in reversed(INSTALL.subprocess.Popen.call_args_list)
                                   if call.args[0][:2] == ['codex', 'exec'])
+                self.assertIs(owner_call.kwargs['env'],
+                              self.session_calls[-2]['child_environment'])
+                self.assertIs(self.evaluator_environment,
+                              self.session_calls[-1]['child_environment'])
                 self.assertNotIn('UCLUSION_DEMO_EVIDENCE_DIR', owner_call.kwargs['env'])
                 self.assertEqual('owner', self.session_calls[-2]['evidence_role'])
                 self.assertTrue(self.session_calls[-2]['evidence_dir'].endswith('/evidence'))

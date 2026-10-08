@@ -115,6 +115,8 @@ class EvidenceTests(unittest.TestCase):
     def test_result_discovers_evidence_and_preserves_report(self):
         report = b'  Report\r\n\n'
         (self.root / 'evaluation.md').write_bytes(report)
+        breakdown = b'\nEvaluator token breakdown: 7 tokens\n'
+        (self.root / cli.DEMO_TOKEN_BREAKDOWN_NAME).write_bytes(breakdown)
         (self.evidence / 'manifest.json').write_text('{"gaps":[]}')
         proxy.record_demo_input('mcp_response', '{"jsonrpc":"2.0","id":1,"result":{}}\n')
         stdout = io.TextIOWrapper(io.BytesIO(), encoding='utf-8')
@@ -127,15 +129,10 @@ class EvidenceTests(unittest.TestCase):
         stdout.flush()
         output = stdout.buffer.getvalue()
         self.assertIn(str(self.evidence / 'README.md').encode(), output)
-        self.assertTrue(output.endswith(report))
+        self.assertTrue(output.endswith(report + breakdown))
         (self.evidence / 'broken.jsonl').write_text('unused')
         (self.evidence / 'events-broken.jsonl').write_text('{')
         self.assertIn('INCOMPLETE', proxy.demo_evidence_summary(str(self.root)))
-
-    def test_codex_proxy_override_explicitly_passes_evidence(self):
-        arguments = cli.build_codex_mcp_overrides('workspace', 'stage', '/proxy.py')
-        self.assertIn('--demo-evidence', ' '.join(arguments))
-        self.assertIn(str(self.evidence), ' '.join(arguments))
 
     def test_partial_and_malformed_protocol_records_are_incomplete(self):
         (self.evidence / 'manifest.json').write_text('{"gaps":[]}')

@@ -1663,13 +1663,14 @@ def _read_demo_codex_config(codex, arguments, environment):
 def demo_codex_session_args(environment, workspace_id, evidence_dir=None,
                             evidence_role=None, instructions_path=None,
                             native=False, response_stats=None, model=None,
-                            effort=None):
+                            effort=None, child_environment=None):
     """Build and check isolated settings for owner exec or native evaluator.
 
     ``instructions_path`` follows the native developer instructions; it is
     the workflow bootstrap unless a session is given its own.
     """
-    child_environment = demo_codex_environment()
+    if child_environment is None:
+        child_environment = demo_codex_environment()
     codex = shutil.which('codex', path=child_environment['PATH'])
     if codex is None:
         raise RuntimeError('the Codex demo requires codex on PATH')
@@ -1742,6 +1743,15 @@ def demo_codex_session_args(environment, workspace_id, evidence_dir=None,
             lines.append('model=' + _toml_basic_string(model))
         if effort:
             lines.append('model_reasoning_effort=' + _toml_basic_string(effort))
+        # The shared daemon's shells do not inherit this role's launch env.
+        lines.append('[shell_environment_policy.set]')
+        for name in (
+            'HOME', 'UCLUSION_HOME', 'CODEX_HOME', 'PATH',
+            'UCLUSION_DEMO_REPORT_FILE', 'UCLUSION_DEMO_EVIDENCE_DIR',
+            'UCLUSION_DEMO_EVIDENCE_ROLE',
+        ):
+            if name in child_environment:
+                lines.append(name + '=' + _toml_basic_string(child_environment[name]))
         lines.extend(['[features]', *(feature + '=false' for feature in disabled_features)])
         for name in sorted(servers):
             if name != MCP_SERVER_KEY:
@@ -1758,9 +1768,13 @@ def demo_codex_session_args(environment, workspace_id, evidence_dir=None,
             atomic_write_text(path, text, existing, target, signature)
         arguments = []
     else:
+        # Owner turns share the evaluator's project config; empty disables
+        # shell capture while its MCP proxy still records the owner role.
         arguments.extend([
             '-c', 'mcp_servers={' + ','.join(server_overrides) + '}',
             '-c', 'developer_instructions=' + _toml_basic_string(instructions),
+            '-c', 'shell_environment_policy.set.UCLUSION_DEMO_EVIDENCE_DIR=""',
+            '-c', 'shell_environment_policy.set.UCLUSION_DEMO_EVIDENCE_ROLE=""',
         ])
     result = subprocess.run(
         [codex, *arguments, 'mcp', 'list', '--json'],
@@ -2460,11 +2474,13 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
     owner_session_args = demo_codex_session_args(
         env, workspace_id, evidence_dir=evidence_dir, evidence_role='owner',
         instructions_path=demo_codex_owner_instructions_path(),
+        child_environment=environment,
     ) + choice_args
     evaluator_session_args = demo_codex_session_args(
         env, workspace_id, native=True, response_stats=response_stats,
         evidence_dir=evidence_dir, evidence_role='evaluator',
         model=model, effort=effort,
+        child_environment=evaluator_environment,
     )
     owner = terminal = watch = None
     selector = selectors.DefaultSelector()

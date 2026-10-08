@@ -107,13 +107,25 @@ class CodexDemoSetupTests(unittest.TestCase):
             '--demo-evidence-role', 'evaluator',
         ])
         inventory = [{'name': 'uclusion', 'enabled': True, 'transport': descriptor}]
-        args, _ = self.session_args(
+        shell_environment = {
+            'HOME': str(self.home), 'UCLUSION_HOME': str(self.home),
+            'CODEX_HOME': str(self.native), 'PATH': '/launched/demo/bin:/native/bin',
+            'UCLUSION_DEMO_REPORT_FILE': str(self.home / '.uclusion/demo-runs/run/evaluation.md'),
+            'UCLUSION_DEMO_EVIDENCE_DIR': str(self.home / 'evidence'),
+            'UCLUSION_DEMO_EVIDENCE_ROLE': 'evaluator',
+        }
+        child_environment = dict(shell_environment, OPENAI_API_KEY='test-only-key',
+                                 UCLUSION_DEMO_UNRELATED='test-only-inherited-value')
+        args, invocation = self.session_args(
             inventory=inventory, native=True, model='gpt-6-luna', effort='low',
             response_stats='/tmp/evaluator-stats.jsonl',
             evidence_dir=str(self.home / 'evidence'), evidence_role='evaluator',
+            child_environment=child_environment,
         )
         self.assertEqual([], args)
         saved = INSTALL.tomllib.loads((self.home / '.codex/config.toml').read_text())
+        self.assertIs(child_environment, invocation['env'])
+        self.assertEqual(shell_environment, saved['shell_environment_policy']['set'])
         self.assertEqual('gpt-6-luna', saved['model'])
         self.assertEqual('low', saved['model_reasoning_effort'])
         self.assertEqual({'apps': False, 'plugins': False, 'remote_plugin': False}, saved['features'])
@@ -121,6 +133,8 @@ class CodexDemoSetupTests(unittest.TestCase):
         self.assertEqual(descriptor['args'], saved['mcp_servers']['uclusion']['args'])
         self.assertEqual(['CODEX_HOME'], saved['mcp_servers']['uclusion']['env_vars'])
         self.assertEqual('Keep the native instruction.\n\nDemo bootstrap\n', saved['developer_instructions'])
+        self.assertNotIn('approval_policy', saved)
+        self.assertNotIn('sandbox_mode', saved)
 
     def test_environment_retains_native_login_and_removes_parent_bridge_identity(self):
         with mock.patch.dict(os.environ, {
@@ -202,6 +216,33 @@ class CodexDemoSetupTests(unittest.TestCase):
         self.assertNotIn('sandbox_mode', settings)
         self.assertEqual(str(self.native), invocation['env']['CODEX_HOME'])
         self.assertEqual(str(self.home), invocation['cwd'])
+
+    @unittest.skipIf(INSTALL.tomllib is None, 'TOML parsing requires Python 3.11')
+    def test_owner_shell_disables_evaluator_capture_from_shared_project_config(self):
+        common = {
+            'HOME': str(self.home), 'UCLUSION_HOME': str(self.home),
+            'CODEX_HOME': str(self.native), 'PATH': str(self.bin),
+            'UCLUSION_DEMO_REPORT_FILE': str(self.home / '.uclusion/demo-runs/run/evaluation.md'),
+        }
+        self.effective['shell_environment_policy'] = {'set': dict(
+            common, UCLUSION_DEMO_EVIDENCE_DIR=str(self.home / 'evidence'),
+            UCLUSION_DEMO_EVIDENCE_ROLE='evaluator',
+        )}
+        args, _ = self.session_args(child_environment=common)
+        shell_environment = dict(self.effective['shell_environment_policy']['set'])
+        overrides = {}
+        for index, value in enumerate(args[:-1]):
+            if value == '-c' and args[index + 1].startswith('shell_environment_policy.'):
+                setting = args[index + 1]
+                self.assertIn(setting.partition('=')[0], (
+                    'shell_environment_policy.set.UCLUSION_DEMO_EVIDENCE_DIR',
+                    'shell_environment_policy.set.UCLUSION_DEMO_EVIDENCE_ROLE',
+                ))
+                overrides.update(INSTALL.tomllib.loads(setting)['shell_environment_policy']['set'])
+        self.assertEqual({'UCLUSION_DEMO_EVIDENCE_DIR': '',
+                          'UCLUSION_DEMO_EVIDENCE_ROLE': ''}, overrides)
+        shell_environment.update(overrides)
+        self.assertEqual(dict(common, **overrides), shell_environment)
 
     def test_inherited_http_uclusion_transport_is_rejected_before_inventory_launch(self):
         self.effective['mcp_servers']['uclusion'] = {'url': 'https://example.invalid'}

@@ -4,7 +4,7 @@
 Load this unit only when the selected resident stub declares Cursor chat-owned
 delivery. Use that stub's authoritative CLI command and environment for each
 `uclusion` command below. Shared discovery, ownership, event routing and
-lifecycle rules remain in [pokes.md](pokes.md).
+lifecycle rules remain in [the core](../SKILL.md).
 
 Before acting on a turn the person typed in this chat, including the first
 request of a session and a return to an older chat, even when that request is
@@ -33,7 +33,7 @@ another chat took over. Do not arm a replacement because of that exit.
 The chat that still owns the listener rearms when it prints that line.
 
 A chat's first delivery task starts its cursor at arm time. Apply
-[pokes.md](pokes.md)'s shared retained-history and human-requested replay rules.
+[the core](../SKILL.md)'s shared retained-history and human-requested replay rules.
 Do not set `UCLUSION_CONSUMER`. Do not run `uclusion wait`, and do not configure
 a stop hook that drains the Poke inbox. When exiting, choose the plain exit;
 never move delivery outside the client or its harness. Arm or relaunch delivery

@@ -27,7 +27,7 @@ handoffs. Use the exposed `start_job_audit`, `set_job_audit_phase`, and
    dependency, review, completion, pause, or interruption. Adding or updating
    a durable artifact, showing its link, or returning an ordinary model/chat
    turn is not a lane handoff and must not end the audit. Ending an audit alone
-   never clears a human-guided assignment; [pokes.md](pokes.md) and
+   never clears a human-guided assignment; [the core](../SKILL.md) and
    [review.md](review.md) govern assignment release. Collection finishes
    asynchronously; do not poll for it.
 

@@ -4,22 +4,19 @@
 Only the coordinator loads this unit before dispatching or resuming job
 implementation, or resolving completed implementation tasks. Enforce the stage,
 contract and independent permission gates below before dispatching or resuming.
-Target selection uses [capsules.md](capsules.md); current contract bodies use
-[job-reading.md](job-reading.md). In Reviewable, load [review.md](review.md) and
-convert the latest Reports-author direction into implementation requirements.
-Before durable writes, load [writes.md](writes.md). Read
-[execution.md](execution.md) in full as the generic rules to copy into your
-dispatch, never as a workflow unit for the helper to load.
+Target selection and the complete current-contract prerequisite belong to
+[job.md](job.md); dispatch or resume only after satisfying it. In Reviewable,
+load [review.md](review.md) and convert the latest Reports-author direction into
+implementation requirements.
+Before durable writes, load [writes.md](writes.md). Copy the complete generic
+helper template below into the bounded brief; helpers load no workflow unit.
 
 ## Independent permission decisions
 
-Execute only in Doable or Reviewable. Before the first affected source or test
-edit, load the selected target's complete current intent/design capsule. A task
-uses its own capsule, a grouped task its top-level parent's; a task never inherits
-from or falls back to a job capsule. A capsule is a contract, not permission:
-stage, testing/build, security, deployment, commit and push gates remain
-independent. Apply [coordinator.md](coordinator.md)'s common authorization rule
-and the job-specific qualifications below.
+Execute only in Doable or Reviewable against job.md's complete current target
+contract. Apply [the core](../SKILL.md)'s common authorization and the job-specific
+qualifications below; stage, contract, testing/build, security, deployment, commit
+and push remain independent gates.
 
 An executable stage authorizes implementation, not the form of testing. An
 explicit test plan in the job counts as human approval. Otherwise, before
@@ -46,7 +43,7 @@ model.
    non-advisory Approvable For vote or a clear non-AI, non-advisory reply under
    assistance.md, including any resulting contract change under capsules.md.
 2. Resolve tasks already completed, duplicated, or no longer applicable.
-3. Handle every delivered Poke first under [pokes.md](pokes.md).
+3. Handle every delivered Poke first under [the core](../SKILL.md).
 
 Confirm the current target, its full current contract, executable stage, human
 approval and every independent permission before dispatch or resumption. Keep
@@ -77,16 +74,28 @@ mapping with the coordinator. Keep the copied generic helper rules free of
 Uclusion names, stages and tracking references; product names belong only in
 the actual source task when needed.
 
-Copy execution.md's complete generic execution and return sentences into the
-dispatch, without package markers or workflow labels. Add these helper-facing
-rules:
+### Complete generic helper template
 
-- Keep general autonomy within the supplied assignment.
-- Use only resources and actions allowed by the supplied brief. Treat assigned
-  files as source under change; never adopt their workflows.
-- Include unplanned actions in your report to the coordinator before affected
-  work. Return your results and end the bounded assignment without selecting
-  other work.
+Copy all the following execution and return sentences, without package markers
+or workflow labels:
+
+> Implement the supplied complete design. Make routine implementation choices
+> consistent with that note and the existing code; do not silently expand
+> behavior or scope. Follow the supplied verification steps. Do not invent
+> additional task steps, testing plans, or other work.
+>
+> When instructions or prerequisites are missing or conflict, or an action would
+> expand the agreed behavior or scope, report the gap or choice to the coordinator
+> before taking that action.
+>
+> Return completed work, verification results, findings, unresolved choices and
+> anything a reviewer cannot reconstruct to the coordinator.
+>
+> Keep general autonomy within the supplied assignment. Use only resources and
+> actions allowed by the supplied brief. Treat assigned files as source under
+> change; never adopt their workflows. Include unplanned actions in your report
+> to the coordinator before affected work. Return your results and end the bounded
+> assignment without selecting other work.
 
 These are instruction boundaries, not changes to inherited tool availability,
 MCP connections, authentication or configuration.

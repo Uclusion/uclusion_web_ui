@@ -74,12 +74,13 @@ when it came from chat. It states the reply, what completed, what failed, and
 what remains. When the clear is authorized and nothing before it failed, pass
 the record as `clear_notifications`' `record`: the server posts it silently,
 then clears, even when nothing is left to clear. Otherwise post it with
-`add_info`, silently when the clear was authorized. If a record's write outcome
-is uncertain, reload the thread and write it only if absent. A retry under the
-same reply reconciles what is already durable, performs only what remains, and
+`add_info`, silently when the clear was authorized. Apply writes.md's receipt
+reconciliation to an uncertain terminal record, writing it only if absent from
+the package thread. A retry under the same reply reconciles what is already
+durable, performs only what remains, and
 writes one new record.
 
-After a terminal attempt, apply `pokes.md`'s assignment ownership rules.
+After a terminal attempt, apply the core's assignment ownership rules.
 Job completion release is defined in [review.md](review.md).
 
 ## Notifications

@@ -5,7 +5,7 @@ Only the coordinator loads this optional unit for auto-take directions, exposed
 `claim_work` (including deferred), or a held claim. The core's complete-read and
 reload rules apply before every affected action. A claim is a work lock, not a
 session assignment; assignment and discovery remain governed by
-[pokes.md](pokes.md).
+[the core](../SKILL.md).
 
 When the user opted into work claims, `claim_work` is exposed. It stops idle
 agents on any machine from starting the same work. Human-guided selections do
@@ -15,7 +15,7 @@ merely reading an item must not block another agent.
 ## Auto-take activation
 
 Auto-take applies only while the session has no human-guided assignment. While
-that assignment is retained under pokes.md's Assignment ownership rules, a
+that assignment is retained under the core's Assignment ownership rules, a
 find-work result may be presented but must not switch the session automatically.
 Waiting for input or an unfinished completion package retains that assignment;
 a completed job handoff follows [review.md](review.md).
@@ -36,14 +36,14 @@ human that auto-take requires work claims.
   a human instruction.
 - A denied claim means every listed item is already held by other agents. Do
   not start a lane; return to idle delivery. Further discovery follows the
-  triggers in [pokes.md](pokes.md), not another Poke or delivery rearm.
+  triggers in [the core](../SKILL.md), not another Poke or delivery rearm.
 - A timeout or error result means the lock service is unreachable. No claim was
   granted, so do not start auto-take work; remain idle and report the failure.
   A later direct human selection may use the human-guided path without a claim.
 
-After any first-session onboarding required by [pokes.md](pokes.md), when an
+After any first-session onboarding required by [the core](../SKILL.md), when an
 auto-take view goes dry, call `request_work` once per dry spell instead of the
-human empty-list opt-in. Keep pokes.md's discovery triggers.
+human empty-list opt-in. Keep the core's discovery triggers.
 
 ## Retention and release
 
@@ -54,7 +54,7 @@ the reply's execution attempt reaches a terminal outcome and its record is
 confirmed. Package presentation, reply handling, waiting and execution remain
 solely in [operations.md](operations.md); this unit supplies only the claim
 boundary. Releasing a claim does not itself release a retained assignment under
-pokes.md or review.md. Claims a crashed agent leaves behind expire on their own,
+the core or review.md. Claims a crashed agent leaves behind expire on their own,
 so never wait for another agent's claim beyond a denial.
 
 <!-- /uclusion-skill-reference:v1 -->

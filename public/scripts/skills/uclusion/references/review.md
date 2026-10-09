@@ -33,7 +33,7 @@ Reviewable, apply [job.md](job.md)'s assigned-job transition rule and finish its
 completion sweep. If this session moved the job into Reviewable, run the sweep immediately
 instead of waiting for its `Updated` Poke.
 
-Handle a Poke through `pokes.md` and [job.md](job.md)'s assigned-job update rules; it
+Handle a Poke through the core and [job.md](job.md)'s assigned-job update rules; it
 does not otherwise change review direction. The exceptions are the resolved-bug
 and Reviewable-transition sweeps, and a current capsule's `Updated` event,
 which requires the obsolete-review cleanup in [capsules.md](capsules.md).
@@ -97,11 +97,10 @@ comment and notification cleanup.
 `ask_for_review` returns the saved review receipt and the job's open questions
 and suggestions, plus the conditional Reviewable transition when implementation
 is declared complete. Inspect the separate review, inventory and transition outcomes.
-A review write reported as unconfirmed may have saved it: inspect Reports, or
-the exact review on an update, before retrying publication. A later failure
-does not undo a saved review. Reconcile an uncertain stage
-write with a scoped read before retrying; never create a duplicate review to
-recover a later step. Once the review is confirmed and the job is still ready
+Apply writes.md's receipt reconciliation. For an unconfirmed review, inspect
+Reports or the exact review on an update before retrying publication. Reconcile
+an uncertain stage write under writes.md before retrying; never create a
+duplicate review to recover a later step. Once the review is confirmed and the job is still ready
 in Doable, retry only the transition with `change_job_stage`, `from_stage`
 Doable and destination Reviewable. A different stage or new open work stops
 that retry. Run the completion sweep immediately upon a confirmed transition,
@@ -130,7 +129,7 @@ Use the review-opening definition of a finished job above. Waiting for human
 review or later signoff after this boundary does not retain the assignment.
 When no other assigned work remains, the session is idle and accepts a new
 live `Start` without an explicit switch. Apply the assignment-ended discovery
-rule in `pokes.md`. Preserve the released state across compaction; a still-open AI
+rule in the core. Preserve the released state across compaction; a still-open AI
 review does not restore the assignment.
 
 Reviewable alone is not enough: retain the assignment while requested work,
@@ -140,11 +139,6 @@ it. For a finished job already in Reviewable, a reply declining some or all
 actions can complete the package; declined actions are not pending work.
 Releasing the
 session assignment does not resolve the job or change its human assignees.
-
-After a successful package for a finished job now in Reviewable, release the
-assignment under `pokes.md`'s Assignment ownership rule, once any clear and
-triggered sweep are complete and no requested Review work remains. An
-unfinished package keeps it.
 
 ## Job commit identities
 

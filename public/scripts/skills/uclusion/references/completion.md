@@ -1,14 +1,10 @@
 <!-- uclusion-skill-reference:v1 -->
 # Completion sweeps
 
-## Triggers and export
+## Fresh export and isolated scans
 
-Run both scans when a standalone bug transitions from open to resolved.
-An in-session Resolve triggers them immediately. Merely reading an already
-resolved bug does not. After a reopen, its next resolution is a new trigger.
-Job completion triggers and outcome records are defined below.
-
-At each signal, load the export rules in [reading.md](reading.md) and run one fresh,
+The selected lane recognizes an actual completion transition or its incomplete
+retry. At that signal, load [reading.md](reading.md) and run one fresh,
 environment-correct `uclusion export` through the configured destination. Use
 only the path reported by that successful command for both scans. If the command
 fails or reports no path, say that the completion sweep could not run and stop;
@@ -22,20 +18,7 @@ explicit no-candidate result, with any incomplete scan or unsettled evidence
 identified. The coordinator records and presents the result and retains all
 later decisions and authorized actions; raw export research stays in the helper.
 
-## Job completion-sweep triggers and outcome record
-
-Run both scans whenever a job transitions
-into Reviewable. Reviewable is a reliable handoff signal, not proof that the job
-is final or that remaining deployment and other-environment verification has
-run. A transition returned by `ask_for_review` is the same trigger. If the job
-leaves Reviewable and later returns, that later transition
-runs a new sweep. Merely loading a job that is already Reviewable, or receiving
-another update while it remains there, is not a trigger.
-
-Individual task completion, the act of requesting review, using a completed
-code in a commit, resolving the job, later human signoff, and shipped or fixed
-confirmation are not independent job triggers. A subsequent transition into
-Reviewable remains a trigger.
+## Job outcome record
 
 The completed-code set starts with the Reviewable job's exact short code.
 Also include every contained item rendered as a `Task` or
@@ -49,10 +32,8 @@ and all its task bodies, plus the current
 intent/design capsule, human-backed decisions, and current completion/review
 report when each is present. Rejected, unresolved, and speculative proposals
 are not evidence. If those sources conflict and the current record does not
-settle that conflict, do not classify a candidate. A later Reviewable
-transition uses the then-current record and can supersede the earlier result.
-
-Run the common export, scans and presentation below at each trigger.
+settle that conflict, do not classify a candidate. A later qualifying transition
+uses the then-current record and can supersede the earlier result.
 
 ## Completed work
 
@@ -96,7 +77,8 @@ Merge both scans by target into one numbered list. Use exactly this shape:
 
 `1. **<exact code> — <exact short description>** — **<category>**. Evidence: <matching blocker code and completed code, or conflicting current-outcome evidence>. Proposed action: <specific human action>.`
 
-Record that numbered result, or the explicit no-candidate result below, with
+Load [writes.md](writes.md) before recording that numbered result, or the
+explicit no-candidate result below, with
 `add_info` on the triggering source item and mirror it in chat. When the
 trigger was resolving a standalone bug, end that same record with the bug
 completion package in `operations.md` and mirror it with the result. The

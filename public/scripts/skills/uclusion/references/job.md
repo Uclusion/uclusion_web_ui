@@ -1,65 +1,126 @@
 <!-- uclusion-skill-reference:v1 -->
-# Job stage and action routing
+# Job entry, current contract and action routing
 
-The coordinator loads this dispatcher for selected job work, including a
-standalone comment converted into a Bugs job. It supplies stage/action prerequisites rather
-than loading every job procedure. Preserve the assignment gate in [pokes.md](pokes.md)
-before coordinator lookup. Implementation helpers receive a bounded brief,
-without workflow units, assignment ownership or operational authority.
+Only the coordinator loads this unit for a selected result with a Job header,
+including a standalone bug converted into a Bugs job. Apply the core's
+assignment gate before lookup. Implementation helpers receive only a bounded
+brief, without workflow units, ownership or operational authority.
 
-## Load the applicable complete units
+## Enter or refresh selected job work
 
-Use the stored stage and the next action together. Every
-required unit must be present in full through its closing marker before acting.
-Read newly applicable units when stage or action changes; do not continue
-from the former stage's loaded set. After compaction, content change or body loss,
-reload the applicable complete units under the resident bootstrap. A summary or
-content identifier does not load an instruction body.
+1. Consume the initial lookup already held; do not repeat it because this unit
+   was loaded. If the work no longer has a Job header and has one top-level
+   comment, load [single-comment.md](single-comment.md) instead.
+2. Obtain only missing scoped context for the next action, including the complete
+   current description when needed and the tasks, assistance or Reports it uses.
+   Load [reading.md](reading.md) for the listed standing instructions and retain
+   their complete current bodies under that unit's version/reload rules.
+3. Apply the stage and assigned-update checks below to held lookup, event and
+   write outcomes. Do not replace newer stage information with an older event.
+4. Select the next action from the single table below and load its complete
+   applicable units under the core's read/reload rules before acting.
 
-| Current stage | Coordinator path | Implementation |
-| --- | --- | --- |
-| Approvable | Handle current assistance under [assistance.md](assistance.md); load [approval.md](approval.md) for applicable approval, or ask the next-action question below. | Locked. |
-| Requires Input | Resolve qualifying assistance under [assistance.md](assistance.md); load [capsules.md](capsules.md) when the answer changes the contract. Investigation continues. | Locked until resolution restores Doable or Reviewable. |
-| Doable | Select and confirm the current target under [capsules.md](capsules.md) and [job-reading.md](job-reading.md); load [coordinator-execution.md](coordinator-execution.md) for permitted execution and dispatch. | Current complete target capsule and independent permissions required. |
-| Reviewable | Load [review.md](review.md) for latest Reports-author direction, explicit feedback and authorized Review work. An actual entry triggers [completion.md](completion.md) before handling review. | Only requested work under [coordinator-execution.md](coordinator-execution.md), with current contract and permissions. |
-| Blocked | Inspect dependencies, handle selected assistance and exact requested transitions. Load [assistance.md](assistance.md) or [writes.md](writes.md) for the chosen action. | Locked. |
-| Backlog or Skippable | Handle only selected assistance or authorized transition actions, loading [assistance.md](assistance.md) when applicable. | Locked. |
+## Scoped job context
 
-Blocked and Requires Input remain distinct stored stages even when the UI labels
-both Debatable. A stage controls permission, not workflow position: Doable and
+An initial whole-scope job read supplies its name, description, tasks, assistance
+and reports. For subsequent reads, use `sections` (`description`, `tasks`,
+`assistance`, `reports`, `notes`, `resolved`) or `thread_only` for what changed. Scoped job reads retain the job header,
+stage and votes; job-child thread reads retain the job and current stage.
+Explicit `sections` reads omit the description unless `description` is selected.
+Use `get_job({short_code_id: "J-…", sections: ["description"]})` to read the
+current description with compact job context and no comment-thread bodies.
+Combine `description` with other sections when both are needed; `sections: []`
+omits the description and comment sections. An unscoped read retains the description.
+After context restoration, fetch the description through this narrow read if
+its complete body is missing before relying on it; a summary is not its body.
+
+An `Updated J-… description change` Poke requires this description refresh for
+the assigned job. For a generic job update, request only the needed sections,
+including `description` when its freshness is uncertain. Stage-named events
+follow the assigned-update rules below; load only missing context for the next
+action.
+
+## Select the target and hold its current contract
+
+Before dispatching or resuming implementation, satisfy this complete prerequisite.
+An executable stage is not a substitute for its current target contract.
+
+Select exactly one executable target for the implementation pass:
+
+- A job-level pass for one cohesive outcome uses the job capsule.
+- Unrelated top-level tasks execute as separate task passes, each with its own
+  complete task capsule and its own implementation subagent, even when the
+  human starts them together as one job.
+- Work this pass's own verification produced stays in this pass, even once it
+  is a task of its own: no capsule, and the review reports it as a
+  scope-expansion delta naming that task. A task capsule is for work queued
+  independently of the running pass.
+- An independently executing top-level task uses its task capsule. A grouped
+  task uses its top-level parent's capsule and implementation agent.
+- A task capsule is complete and solely authoritative for that task pass.
+  Never merge it with, inherit from, or fall back to the job capsule.
+
+Ordinary reads advertise current capsule R-codes and versions, or explicit
+absence, without embedding their bodies. Job reads show the job capsule and
+capsules for displayed open top-level tasks. A reference or summary does not
+satisfy the current-contract prerequisite.
+
+Reuse a complete held body matching the current target reference and version.
+When it is missing, changed or lost, fetch the advertised capsule with
+`get_job({short_code_id: "R-code", thread_only: true})` before affected source or
+test edits. Check its returned identity, target and actual version, and use the
+complete body. This returns the named capsule's current stored version, not an
+immutable historical version. A superseded capsule is not the target's current
+contract; follow the current reference instead. Reading a reply to a capsule
+loads discussion without repeating the capsule body.
+
+After a capsule create or replacement, the R-code and version that
+`set_design_capsule` returns confirm the stored capsule: its body is the one you
+just sent, so do not fetch it again before edits. On an assigned current
+capsule's `Updated` event, use the explicit R-code thread read and reload
+Reports, then load [capsules.md](capsules.md) for
+obsolete-review cleanup and reconciliation before further affected edits.
+
+If the selected target's current capsule is absent, load [capsules.md](capsules.md)
+for design dispatch and publication; do not load execution rules merely to plan
+or publish while implementation permission is unsettled. Historical work needing
+no more implementation may finish its existing review without backfill; its next
+resumed or changed implementation pass needs the current contract before edits.
+A held current contract routes permitted dispatch directly to
+[coordinator-execution.md](coordinator-execution.md), without loading publication.
+
+## Select the next action
+
+Use the stored stage and next action together. Blocked and Requires Input remain
+distinct stored stages even when the UI labels both Debatable. Doable and
 Reviewable do not prove assistance was handled. Requires Input locks only this
 job's implementation edits; investigation, reproduction and measurement may
 continue within their independent permissions.
 
-Action prerequisites are independent of stage:
+| Stage or next action | Applicable complete units and gates |
+| --- | --- |
+| Current questions, suggestions, options, votes or resolutions, in any stage | [assistance.md](assistance.md); factual questions remain available before job approval. |
+| Approvable | Settle assistance, then load [approval.md](approval.md) only for applicable approval; otherwise use the next-action question below. Implementation is locked. |
+| Requires Input | Resolve qualifying assistance under assistance.md; load [capsules.md](capsules.md) only for an answer establishing a new contract. Investigation continues; implementation stays locked until Doable or Reviewable returns. |
+| Doable implementation | Satisfy this unit's target/current-contract prerequisite, then load [coordinator-execution.md](coordinator-execution.md) for independent permissions and bounded dispatch. |
+| Reviewable direction or feedback | [review.md](review.md) for the latest Reports-author direction. An actual entry first triggers [completion.md](completion.md); an unchanged Reviewable report does not. Requested implementation uses coordinator-execution.md with the current contract and permissions. Human Reports direction alone opens no completion package. |
+| Blocked | Inspect dependencies and handle only selected assistance or exact authorized transitions; load assistance.md or [writes.md](writes.md) for that action. Implementation is locked. |
+| Backlog or Skippable | Handle only selected assistance or authorized transitions, loading assistance.md or writes.md as applicable. Implementation is locked. |
+| Absent-capsule planning/publication, permitted new-human-contract replacement or obsolete-review cleanup | [capsules.md](capsules.md); publication grants no execution permission. |
+| Completed implementation-task resolution | [coordinator-execution.md](coordinator-execution.md), with writes.md for the resolution. |
+| Durable writes or receipt reconciliation | [writes.md](writes.md), with the action's governing unit. Ordinary note writes need no assistance or capsule unit. |
+| Review publication/recovery or finished-job assignment release | [review.md](review.md); package opening separately loads [operations.md](operations.md). |
+| Completion package, notification/inbox action or context boundary | [operations.md](operations.md), only for those actions; inbox work requires no review unit. |
+| Actual completion transition or incomplete sweep retry | [completion.md](completion.md) for its scan/result procedure. |
+| Standing-note context or history/export search | [reading.md](reading.md); references and summaries never load their bodies. |
+| Progress checkpoint while work continues, lane handoff or turn ending | [handoffs.md](handoffs.md); its operations route applies only at an actual handoff/turn ending or operations action. |
+| Auto-take directions, exposed claim_work (including deferred), or a held claim | [claims.md](claims.md) before affected discovery, activation or ownership actions. |
+| Optional get_upload action when exposed | [uploads.md](uploads.md). |
 
-- Coordinator lookup and full standing-note bodies: [reading.md](reading.md).
-  Scoped job context, descriptions and explicit current capsule bodies:
-  [job-reading.md](job-reading.md). References and summaries never load a
-  standing instruction or a contract.
-- Questions, suggestions, options, votes and resolutions: [assistance.md](assistance.md),
-  available while implementation is locked.
-- Capsule selection, fresh design-helper dispatch, publication or replacement:
-  [capsules.md](capsules.md), coordinator only.
-- Implementation checks, bounded dispatch and task resolution:
-  [coordinator-execution.md](coordinator-execution.md). The coordinator reads
-  [execution.md](execution.md) only to copy its generic rules into the complete
-  implementation brief. Implementation helpers load no workflow unit or stage
-  context; design helpers load their selected design package and bounded evidence.
-- Durable writes and outcome reconciliation: [writes.md](writes.md), plus the
-  unit that governs the write. Completion packages, notifications and context
-  boundaries: [operations.md](operations.md), only for those actions.
-- Review direction/publication/recovery and assignment completion:
-  [review.md](review.md). Completion sweeps: [completion.md](completion.md), only
-  for the existing transition trigger or its incomplete retry.
-- Poke handling and discovery: [pokes.md](pokes.md), coordinator only.
-- Progress checkpoints, lane handoffs and turn ending:
-  [handoffs.md](handoffs.md), coordinator only.
-
-The coordinator retains assignment, Pokes, questions, permissions, capsule
-publication, final review and the completion package. Fresh design help and
-fresh independent-task implementation help retain their distinct roles; no
-delegation grants an unlisted action.
+The coordinator retains assignment, Pokes, questions, permissions, publication,
+final review and the completion package. Design helpers load only their selected
+sibling design package and bounded evidence. Fresh independent-task implementation
+helpers receive the compiled brief; delegation grants no unlisted action.
 
 ## Stage and transition gates
 
@@ -98,9 +159,8 @@ An Added item that changes derived readiness is emitted after its workflow
 transaction commits. Its one reload includes the item and new stage; do not wait
 for a second stage Poke or act from cached stage.
 
-For an assigned description-change Poke, load [job-reading.md](job-reading.md) and fetch
-the current description before work depending on it. For a generic update, use
-only the needed scoped reads, including description when freshness is uncertain.
+For assigned description changes and generic updates, apply the scoped-context
+reads above before work depending on that context.
 Soft-deleted work and work that no longer has a Job header follow the common
 lookup rules and [single-comment.md](single-comment.md).
 
@@ -115,13 +175,11 @@ For the assigned lane, compare a supplied transition (or an ordinary update's
 reloaded stage) with the last observed stage. An actual change into Reviewable,
 including a confirmed in-session change or ask_for_review transition, requires
 [completion.md](completion.md)'s sweep immediately, before review, handoff or
-other work. Loading an already Reviewable job or an update while it stays there
+other work. Reviewable is a handoff signal, not proof the job is final or its
+remaining deployment/other-environment verification ran. Loading an already
+Reviewable job or an update while it stays there
 does not retrigger it. A failed sweep remains incomplete work: retry it without
 new package permission before switching lanes.
-
-An assigned current capsule's Updated event routes to [job-reading.md](job-reading.md)
-for its explicit body and Reports, then [capsules.md](capsules.md) for obsolete
-review cleanup and reconciliation before affected edits.
 
 ## Reopened task stage
 
@@ -141,7 +199,7 @@ is unfinished.
 Apply handoffs.md for progress and turn-ending actions. A progress checkpoint
 or ordinary turn is not a lane handoff. Retain assignment through required input,
 package waits, incomplete authorized actions and sweeps.
-Finished-job release follows [review.md](review.md); apply [pokes.md](pokes.md)'s
+Finished-job release follows [review.md](review.md); apply [the core](../SKILL.md)'s
 assignment-aware discovery only when the assignment actually ends.
 
 <!-- uclusion-audit:v1 -->
@@ -150,6 +208,8 @@ an audit is active, load [audit.md](audit.md) in full before proceeding.
 <!-- /uclusion-audit:v1 -->
 
 A fully complete job follows [operations.md](operations.md)'s notification,
-commit and context-boundary rules. Later Resolve, signoff, shipped confirmation
-or commit never independently rerun its completion sweep.
+commit and context-boundary rules. Individual task completion, requesting review
+without a stage transition, Resolve, signoff, shipped confirmation or a completed
+code in a commit never independently rerun its completion sweep. Leaving and
+later returning to Reviewable creates a new transition and sweep.
 <!-- /uclusion-skill-reference:v1 -->

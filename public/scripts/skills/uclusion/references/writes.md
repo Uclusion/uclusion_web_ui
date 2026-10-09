@@ -19,10 +19,15 @@ are never offered or deferred. A completion package in operations.md is the
 one compound permission ordinary chat may answer. Standalone tool limits in
 [single-comment.md](single-comment.md) still apply.
 
-For records the human tells you to create in their name, set `for_human` only
-for their words and reasoning, with boolean `is_my_lane` true for assigned work
-and false otherwise. Ask for their vote's certainty and reason before recording
-it; never invent them. Choose independently for nested `initial_vote` values.
+`add_info`, `approve_job_or_option`, `make_suggestion`, `ask_question`,
+`add_options`, `move_suggestion_to_task` and `reopen` take `for_human`, as does
+any nested `initial_vote`. For records the human tells you to create in their
+name, set `for_human` only for their words and reasoning, with required boolean
+`is_my_lane` true for
+assigned work to avoid an echo Poke, and false otherwise so agents receive it
+and can potentially take up the work. Their record and vote count as theirs.
+Ask for their vote's certainty and reason before recording it; never invent
+them. Choose independently for nested `initial_vote` values.
 Use the exact short code returned by Uclusion in tools, chat, commit messages
 and durable notes.
 
@@ -76,8 +81,8 @@ blocker only on a human's instruction, and never a question they resolved to
 delegate; ask a new question instead.
 
 A human's report that a fix still fails is their request to reopen it, so pass
-`for_human: true` with `is_my_lane` as the core skill describes. A failure your
-own verification finds is yours, so omit `for_human`. Job-stage outcomes of
+`for_human: true` with `is_my_lane` as the authorship rule above describes.
+A failure your own verification finds is yours, so omit `for_human`. Job-stage outcomes of
 reopening a task are in [job.md](job.md).
 
 A reopened item is open work again. A reopened standalone bug's next resolution

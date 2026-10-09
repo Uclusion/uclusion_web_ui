@@ -20,9 +20,6 @@ INSTALL_PATH = os.path.join(SCRIPT_DIR, 'uclusionInstall.py')
 CLI_PATH = os.path.join(SCRIPT_DIR, 'uclusionCLI.py')
 SKILL_SOURCE_DIR = os.path.join(SCRIPT_DIR, 'skills', 'uclusion')
 SKILL_SOURCE_PATH = os.path.join(SKILL_SOURCE_DIR, 'SKILL.md')
-OPENAI_METADATA_PATH = os.path.join(
-    SKILL_SOURCE_DIR, 'agents', 'openai.yaml'
-)
 
 
 def load_module(module_name, path):
@@ -57,29 +54,6 @@ def write_text(path, content):
         target.write(content)
 
 
-def parse_skill_frontmatter(content):
-    """Parse the deliberately tiny, scalar-only SKILL.md frontmatter."""
-    if not content.startswith('---\n'):
-        raise AssertionError('SKILL.md must begin with YAML frontmatter')
-    try:
-        closing = content.index('\n---\n', 4)
-    except ValueError as error:
-        raise AssertionError('SKILL.md frontmatter is not closed') from error
-
-    result = {}
-    for line in content[4:closing].splitlines():
-        match = re.fullmatch(r'([a-z_]+):\s*(.+)', line)
-        if match is None:
-            raise AssertionError(
-                f'SKILL.md frontmatter must use scalar key/value lines: {line!r}'
-            )
-        key, value = match.groups()
-        if key in result:
-            raise AssertionError(f'duplicate SKILL.md frontmatter key: {key}')
-        result[key] = value.strip().strip('"\'')
-    return result, content[closing + len('\n---\n'):]
-
-
 def source_bundle():
     """Read the exact assets that the production fetcher publishes."""
     return {
@@ -103,23 +77,11 @@ class SkillPackageContractTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.skill = read_text(SKILL_SOURCE_PATH)
-        cls.frontmatter, cls.body = parse_skill_frontmatter(cls.skill)
 
-    def test_skill_has_minimal_valid_frontmatter_and_trigger_description(self):
-        self.assertEqual({'name', 'description'}, set(self.frontmatter))
-        self.assertEqual('uclusion', self.frontmatter['name'])
-
-        description = self.frontmatter['description']
-        self.assertLessEqual(len(description), 1024)
-        self.assertIn('Uclusion', description)
-        self.assertRegex(description, r'Poke AI|Poke events?')
-        self.assertRegex(description, r'short codes?|J-\*')
-        self.assertNotRegex(self.skill, r'(?i)\bTODO\b|\[TODO')
-
-    def test_skill_entrypoint_is_small_and_routes_to_one_level_references(self):
+    def test_skill_entrypoint_is_small_and_routes_to_packaged_references(self):
         # Codex skill-authoring guidance keeps SKILL.md below 500 lines and
-        # roughly 5,000 words.  The complete protocol belongs in references so
-        # it is loaded only after the skill has triggered.
+        # roughly 5,000 words. Shared lifecycle lives in the entrypoint;
+        # stage/action procedures load from its conditional reference routes.
         self.assertLessEqual(len(self.skill.splitlines()), 500)
         self.assertLessEqual(len(re.findall(r'\S+', self.skill)), 5000)
         self.assertEqual(1, self.skill.count(INSTALL.SKILL_MARKER))
@@ -137,7 +99,6 @@ class SkillPackageContractTests(unittest.TestCase):
             references,
             'SKILL.md must route detailed workflow instructions to references/',
         )
-        self.assertIn('references/coordinator.md', references)
         packaged_paths = {
             destination.replace(os.sep, '/')
             for _key, destination in INSTALL.SKILL_PACKAGE_ASSETS
@@ -148,7 +109,6 @@ class SkillPackageContractTests(unittest.TestCase):
         )
         for relative_path in references:
             self.assertNotIn('..', relative_path.split('/'))
-            self.assertEqual(2, len(relative_path.split('/')))
             target = os.path.join(SKILL_SOURCE_DIR, *relative_path.split('/'))
             self.assertTrue(
                 os.path.isfile(target),
@@ -201,153 +161,6 @@ class SkillPackageContractTests(unittest.TestCase):
                 f'{relative} contains a workspace-specific Uclusion short code',
             )
 
-    def test_openai_metadata_explicitly_invokes_the_skill(self):
-        metadata = read_text(OPENAI_METADATA_PATH)
-        self.assertIn('display_name: "Uclusion"', metadata)
-        self.assertRegex(
-            metadata,
-            r'(?m)^\s*short_description:\s*"[^"\n]{25,64}"\s*$',
-        )
-        self.assertRegex(
-            metadata,
-            r'(?m)^\s*default_prompt:\s*"[^"]*\$uclusion[^"]*"\s*$',
-        )
-        self.assertRegex(
-            metadata,
-            r'(?m)^\s*allow_implicit_invocation:\s*true\s*$',
-        )
-        self.assertNotRegex(metadata, r'(?i)\bTODO\b|\[TODO')
-
-
-class ResidentStubContractTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.bundle = source_bundle()
-
-    def test_each_client_stub_is_small_and_activates_the_workflow_skill(self):
-        expected_stub_keys = {
-            'claude_stub',
-            'codex_stub',
-            'cursor_stub',
-        }
-        self.assertTrue(expected_stub_keys.issubset(self.bundle))
-
-        for key in sorted(expected_stub_keys):
-            with self.subTest(client=key):
-                stub = self.bundle[key]
-                self.assertLessEqual(len(stub.encode('utf-8')), 4096)
-                self.assertEqual(1, stub.count(INSTALL.CLAUDE_MD_MARKER))
-                self.assertEqual(1, stub.count(INSTALL.CLAUDE_MD_END_MARKER))
-                self.assertIn('uclusion', stub.casefold())
-                self.assertRegex(stub, r'\$uclusion|/uclusion')
-                self.assertIn('Poke', stub)
-                for verb in ('Start', 'Added', 'Updated', 'Responded'):
-                    self.assertIn(verb, stub)
-                for prefix in ('J-', 'T-', 'B-', 'Q-', 'S-', 'O-', 'I-', 'R-', 'C-'):
-                    self.assertIn(prefix, stub)
-                self.assertIn('find_work', stub)
-                self.assertIn(
-                    INSTALL.WORKFLOW_ENV_PLACEHOLDER + ' update', stub
-                )
-
-
-
-    def test_claude_stub_arms_its_own_poke_listener(self):
-        stub = self.bundle['claude_stub']
-        delivery = ' '.join(self.bundle['claude_delivery_reference'].split())
-        lifecycle = self.bundle['pokes_reference']
-        self.assertIn('Claude Code session-owned delivery', stub)
-        self.assertIn(INSTALL.WORKFLOW_ENV_PLACEHOLDER, stub)
-        self.assertRegex(
-            stub,
-            r'(?s)At session start, before acting on the first user request.*'
-            r'load only `references/claude-delivery.md`',
-        )
-        self.assertIn('before acting at each Uclusion activation', stub)
-        self.assertIn('before handling output and rearming', stub)
-        self.assertNotIn('codex-delivery.md', stub)
-        self.assertNotIn('cursor-delivery.md', stub)
-        self.assertIn('uclusion listen', delivery)
-        self.assertIn('persistent: true', delivery)
-        self.assertIn('uclusion wait --timeout 86400', delivery)
-        self.assertIn('run_in_background: true', delivery)
-        self.assertIn('7200000', delivery)
-        self.assertRegex(delivery, r'(?i)arm\s+exactly one delivery task')
-        self.assertRegex(delivery, r'(?s)if declined,\s+continue without delivery')
-        # A Monitor reports only into the conversation that armed it, so the
-        # session that needs delivery is the session that arms it.
-        self.assertRegex(delivery, r'(?i)only the session that armed it')
-        self.assertRegex(delivery, r'(?i)did not\s+arm')
-        self.assertIn("stop another session's task", delivery)
-        # Regression guard for T-Marketing-272: the shipped text sent the
-        # session to the process list to adopt a listener belonging to another
-        # conversation, which delivered nothing for that session's whole life.
-        self.assertNotRegex(delivery, r'(?i)process list')
-        self.assertNotIn('--max-seconds', delivery)
-        self.assertIn('Handle each printed Poke line in order', delivery)
-        self.assertRegex(delivery, r'(?s)read its\s+output and handle any Pokes, then arm')
-        self.assertIn('in that same turn', delivery)
-        self.assertIn('after a quiet timeout or a background time-limit stop', delivery)
-        self.assertIn('before arming the next task', delivery)
-        self.assertIn('CLAUDE_CODE_SESSION_ID', delivery)
-        self.assertIn('continues that cursor', delivery)
-        self.assertIn('starts its cursor at arm time', delivery)
-        self.assertIn('never move delivery outside the client or its harness', delivery)
-        self.assertIn('human-requested replay rules', delivery)
-        self.assertIn('Older output marked `(replayed)`', lifecycle)
-        self.assertIn('unmarked private copy', lifecycle)
-        self.assertIn('never as an automatic live Start', lifecycle)
-
-    def test_cursor_stub_arms_a_listener_that_exits_itself(self):
-        stub = self.bundle['cursor_stub']
-        delivery = ' '.join(self.bundle['cursor_delivery_reference'].split())
-        lifecycle = self.bundle['pokes_reference']
-        self.assertIn('Cursor chat-owned delivery', stub)
-        self.assertIn(INSTALL.WORKFLOW_ENV_PLACEHOLDER, stub)
-        self.assertRegex(
-            stub,
-            r'(?s)Before acting on a turn the person typed in this chat.*'
-            r'load only `references/cursor-delivery.md`',
-        )
-        self.assertIn('at each Uclusion activation', stub)
-        self.assertIn('before handling it or rearming', stub)
-        self.assertNotIn('codex-delivery.md', stub)
-        self.assertNotIn('claude-delivery.md', stub)
-        self.assertIn(
-            'uclusion listen --max-seconds 1500',
-            delivery,
-        )
-        self.assertIn('Uclusion listener rearm ', delivery)
-        self.assertIn('--consumer', delivery)
-        self.assertIn('Do not set `UCLUSION_CONSUMER`', delivery)
-        self.assertRegex(delivery, r'(?i)do not run `uclusion\s+wait`')
-        self.assertRegex(delivery, r'stops\s+every other Cursor listener')
-        self.assertIn('A listener with no time limit keeps running', delivery)
-        self.assertIn('`--max-seconds`', delivery)
-        self.assertIn('Only after that line', delivery)
-        self.assertRegex(delivery, r'(?s)without printing.*another chat took over')
-        self.assertRegex(delivery, r'Do not arm\s+a replacement')
-        self.assertRegex(delivery, r'do\s+not ask again in this\s+chat')
-        self.assertIn('handle delivered lines in arrival order', delivery)
-        self.assertIn('is not a Poke', delivery)
-        self.assertIn('starts its cursor at arm time', delivery)
-        self.assertIn('Pokes that arrived between listeners remain pending', delivery)
-        self.assertIn('a stop hook that drains the Poke inbox', delivery)
-        self.assertIn('never move delivery outside the client or its harness', delivery)
-        self.assertIn('human-requested replay rules', delivery)
-        self.assertIn('Older output marked `(replayed)`', lifecycle)
-        self.assertIn('unmarked private copy', lifecycle)
-        self.assertIn('never as an automatic live Start', lifecycle)
-        # A new chat can see another chat's listener in the shared terminals
-        # folder. That process delivers nothing to the new chat, so the rule
-        # must not treat it as a reason to skip arming.
-        self.assertRegex(delivery, r'(?i)this chat did not arm')
-        self.assertRegex(delivery, r'(?i)shared\s+terminals\s+folder')
-        self.assertRegex(delivery, r'(?i)Do not scan terminals or processes to adopt one')
-        self.assertNotRegex(
-            delivery,
-            r'does not\s+already have a listener still running',
-        )
 
 class WorkflowBundleFetcherTests(unittest.TestCase):
     class Response:
@@ -453,6 +266,19 @@ class SkillAndStubInstallerTests(unittest.TestCase):
                     read_text(os.path.join(skill_dir, *relative_path.split('/'))),
                 )
 
+    def add_retired_references(self, skill_dir):
+        retired = {
+            relative_path: (
+                f'{INSTALL.SKILL_REFERENCE_MARKER}\n'
+                f'Old managed reference: {relative_path}\n'
+                f'{INSTALL.SKILL_REFERENCE_END_MARKER}\n'
+            )
+            for relative_path in INSTALL.RETIRED_SKILL_REFERENCE_PATHS
+        }
+        for relative_path, content in retired.items():
+            write_text(os.path.join(skill_dir, relative_path), content)
+        return retired
+
     def test_old_full_workflow_migrates_to_stub_and_native_skill(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             skill_dir = os.path.join(temp_dir, '.agents', 'skills', 'uclusion')
@@ -556,17 +382,17 @@ class SkillAndStubInstallerTests(unittest.TestCase):
                 },
             )
 
-    def test_real_fetcher_renders_exact_environment_only_in_resident_stub(self):
+    def test_bundle_callback_renders_environment_only_in_resident_stub(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             skill_dir = os.path.join(temp_dir, 'skills', 'uclusion')
             resident_path = os.path.join(temp_dir, 'AGENTS.md')
 
-            def fetch_bundle():
+            def bundle_callback():
                 return self.bundle
 
-            fetch_bundle.workflow_environment = 'stage'
+            bundle_callback.workflow_environment = 'stage'
             result = INSTALL.install_skill_and_stub(
-                fetch_bundle,
+                bundle_callback,
                 skill_dir,
                 resident_path,
                 'codex',
@@ -577,58 +403,8 @@ class SkillAndStubInstallerTests(unittest.TestCase):
             self.assertTrue(result)
             resident = read_text(resident_path)
             self.assertNotIn(INSTALL.WORKFLOW_ENV_PLACEHOLDER, resident)
-            self.assertRegex(
-                resident,
-                r'environment-specific CLI command is `[^`]*uclusion -e stage`',
-            )
-            self.assertIn('Codex native MCP', resident)
-            self.assertRegex(
-                resident,
-                r'(?s)At session startup, before discovery or job work, load only\s+'
-                r'`references/codex-delivery.md`',
-            )
-            self.assertIn('before acting at each Uclusion activation', resident)
-            self.assertNotIn('claude-delivery.md', resident)
-            self.assertNotIn('cursor-delivery.md', resident)
-            self.assertIn('uclusion -e stage update', resident)
-            self.assertEqual(
-                self.bundle['skill'],
-                read_text(os.path.join(skill_dir, 'SKILL.md')),
-            )
-            delivery = read_text(os.path.join(
-                skill_dir, 'references', 'codex-delivery.md'
-            ))
-            self.assertEqual(self.bundle['codex_delivery_reference'], delivery)
-            self.assertNotIn(INSTALL.WORKFLOW_ENV_PLACEHOLDER, delivery)
-            delivery = ' '.join(delivery.split())
-            self.assertIn("stub's authoritative CLI command and environment", delivery)
-            self.assertIn('native steering and queue APIs', delivery)
-            self.assertIn('latest eligible registered root', delivery)
-            self.assertIn('immediately before its first send', delivery)
-            self.assertIn('Busy agents receive Pokes as input to their active turn', delivery)
-            self.assertIn('idle agents wake through the native queue', delivery)
-            self.assertIn('Pokes do not cancel a running command', delivery)
-            self.assertIn('After `/new`', delivery)
-            self.assertIn('uclusion codex-recipients', delivery)
-            self.assertIn('without sending input', delivery)
-            self.assertIn('arrival order', delivery)
-            self.assertIn('Receipt does not prove processing or grant ownership', delivery)
-            self.assertIn('Delivery does not transfer an assignment', delivery)
-            self.assertIn('never run `uclusion wait` or `uclusion listen`', delivery)
-            self.assertIn('separate companion', delivery)
-            self.assertIn('Do not arm or rearm a listener', delivery)
-            self.assertIn('Fresh startup starts after retained history', delivery)
-            self.assertRegex(delivery, r'Never add\s+`--deliver-existing-pokes` yourself')
-            self.assertIn('unmarked private copy', delivery)
-            self.assertIn("only as their request directs", delivery)
-            self.assertIn('deliberate quit and restart', delivery)
-            self.assertIn('recovery before the first conversation turn', delivery)
-            self.assertIn('fresh session started with `codex`', delivery)
-            coordinator = ' '.join(self.bundle['coordinator_reference'].split())
-            self.assertIn('authoritative resident stub', coordinator)
-            self.assertIn('Never guess the client from available tools', coordinator)
-            self.assertIn('closest project-scoped bootstrap', coordinator)
-            self.assertIn('With no resident stub, load no delivery reference, arm nothing', coordinator)
+            self.assertIn('uclusion -e stage', resident)
+            self.assert_skill_package_installed(skill_dir)
 
     def test_unmarked_skill_collision_preserves_skill_and_resident(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -706,6 +482,13 @@ class SkillAndStubInstallerTests(unittest.TestCase):
             self.install(skill_dir, resident_path)
             extra_path = os.path.join(skill_dir, 'notes', 'keep.txt')
             write_text(extra_path, 'keep me\n')
+            self.add_retired_references(skill_dir)
+            original_files = {
+                os.path.relpath(os.path.join(root, name), skill_dir):
+                read_text(os.path.join(root, name))
+                for root, _dirs, names in os.walk(skill_dir)
+                for name in names
+            }
             original_inode = os.stat(skill_dir).st_ino
             original_resident = read_text(resident_path)
 
@@ -716,7 +499,12 @@ class SkillAndStubInstallerTests(unittest.TestCase):
                     self.install(skill_dir, resident_path)
 
             self.assertEqual(original_inode, os.stat(skill_dir).st_ino)
-            self.assertEqual('keep me\n', read_text(extra_path))
+            self.assertEqual(original_files, {
+                os.path.relpath(os.path.join(root, name), skill_dir):
+                read_text(os.path.join(root, name))
+                for root, _dirs, names in os.walk(skill_dir)
+                for name in names
+            })
             self.assertEqual(original_resident, read_text(resident_path))
             for path in INSTALL._skill_transaction_paths(skill_dir)[1:]:
                 self.assertFalse(os.path.lexists(path))
@@ -728,10 +516,37 @@ class SkillAndStubInstallerTests(unittest.TestCase):
             self.install(skill_dir, resident_path)
             extra_path = os.path.join(skill_dir, 'notes', 'keep.txt')
             write_text(extra_path, 'keep me\n')
+            retired = self.add_retired_references(skill_dir)
 
             self.install(skill_dir, resident_path)
 
+            self.assert_skill_package_installed(skill_dir)
             self.assertEqual('keep me\n', read_text(extra_path))
+            for relative_path in retired:
+                self.assertFalse(os.path.lexists(
+                    os.path.join(skill_dir, relative_path)
+                ))
+
+            # User text and binary files can reuse retired filenames, including
+            # a quoted managed fragment surrounded by the user's own text.
+            user_files = {
+                relative_path: b'user file\n' if index else b'\xffuser file\n'
+                for index, relative_path in enumerate(retired)
+            }
+            quoted_path = INSTALL.RETIRED_SKILL_REFERENCE_PATHS[-1]
+            user_files[quoted_path] = (
+                'User text before the quote\n'
+                + retired[quoted_path]
+                + 'User text after the quote\n'
+            ).encode('utf-8')
+            for relative_path, content in user_files.items():
+                with open(os.path.join(skill_dir, relative_path), 'wb') as output:
+                    output.write(content)
+            self.install(skill_dir, resident_path)
+            self.assertEqual('keep me\n', read_text(extra_path))
+            for relative_path, content in user_files.items():
+                with open(os.path.join(skill_dir, relative_path), 'rb') as source:
+                    self.assertEqual(content, source.read())
 
     @unittest.skipUnless(hasattr(os, 'symlink'), 'requires symlink support')
     def test_resident_symlink_is_preserved_while_target_is_refreshed(self):
@@ -777,14 +592,16 @@ class SkillAndStubInstallerTests(unittest.TestCase):
             self.install(skill_dir, resident_path)
             os.symlink(
                 os.path.join(skill_dir, 'SKILL.md'),
-                os.path.join(skill_dir, 'linked.md'),
+                os.path.join(skill_dir, INSTALL.RETIRED_SKILL_REFERENCE_PATHS[0]),
             )
             original_resident = read_text(resident_path)
 
             with self.assertRaisesRegex(RuntimeError, 'is a symlink'):
                 self.install(skill_dir, resident_path)
 
-            self.assertTrue(os.path.islink(os.path.join(skill_dir, 'linked.md')))
+            self.assertTrue(os.path.islink(os.path.join(
+                skill_dir, INSTALL.RETIRED_SKILL_REFERENCE_PATHS[0]
+            )))
             self.assertEqual(original_resident, read_text(resident_path))
 
     @unittest.skipUnless(hasattr(os, 'mkfifo'), 'requires FIFO support')

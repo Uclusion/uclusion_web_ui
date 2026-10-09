@@ -1,14 +1,10 @@
 <!-- uclusion-skill-reference:v1 -->
-# Reading assigned work and its context
+# Standing notes and isolated history searches
 
-Only the coordinator loads this unit for assigned lookup, full view-note reads
-and their tracking, or decision searches. Apply the Poke assignment gate before
-any lookup. These rules do not activate unassigned or unrelated work.
-
-Call `get_job` with the selected short code. If the result has a Job header,
-load [job.md](job.md) and its stage/action prerequisites before acting.
-A single-comment result loads [single-comment.md](single-comment.md), without
-job-only instructions.
+Only the coordinator loads this unit for full standing-note bodies and their
+tracking, ordinary note reads, or isolated export/history searches, including
+requests without a selected job. Initial lookup and its assignment gate belong
+to [the core](../SKILL.md); these rules activate no unassigned or unrelated work.
 
 ## Standing instructions by view
 

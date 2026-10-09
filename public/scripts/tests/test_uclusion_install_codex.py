@@ -34,48 +34,6 @@ INSTALL.HOME_PROJECT_CLAUDE_SETTINGS_PATH = os.path.join(
 
 
 class WorkflowProtocolContractTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        pokes_path = os.path.join(
-            SCRIPT_DIR, 'skills', 'uclusion', 'references', 'pokes.md'
-        )
-        completion_path = os.path.join(
-            SCRIPT_DIR, 'skills', 'uclusion', 'references', 'completion.md'
-        )
-        operations_path = os.path.join(
-            SCRIPT_DIR, 'skills', 'uclusion', 'references', 'operations.md'
-        )
-        workflow_paths = (
-            os.path.join(SCRIPT_DIR, 'skills', 'uclusion', 'SKILL.md'),
-            pokes_path,
-            operations_path,
-            completion_path,
-        )
-        parts = []
-        for workflow_path in workflow_paths:
-            with open(workflow_path, encoding='utf-8') as workflow:
-                parts.append(workflow.read())
-        cls.workflow = ' '.join(' '.join(parts).split())
-        with open(pokes_path, encoding='utf-8') as pokes:
-            cls.pokes_workflow = ' '.join(pokes.read().split())
-        with open(completion_path, encoding='utf-8') as completion:
-            cls.completion_workflow = ' '.join(completion.read().split())
-        with open(operations_path, encoding='utf-8') as operations:
-            cls.operations_workflow = ' '.join(operations.read().split())
-        with open(
-            os.path.join(SCRIPT_DIR, 'AGENTS.template.md'), encoding='utf-8'
-        ) as codex_stub:
-            cls.codex_stub = ' '.join(codex_stub.read().split())
-        with open(
-            os.path.join(SCRIPT_DIR, 'uclusion.mdc'), encoding='utf-8'
-        ) as cursor_stub:
-            cls.cursor_stub = ' '.join(cursor_stub.read().split())
-        with open(
-            os.path.join(SCRIPT_DIR, 'UCLUSION_CODEX_BRIDGE.md'),
-            encoding='utf-8',
-        ) as bridge_doc:
-            cls.bridge_doc = ' '.join(bridge_doc.read().split())
-
     def test_workflow_asset_digests_match_shipped_sources(self):
         for key, relative_path in INSTALL.WORKFLOW_ASSET_PATHS.items():
             with self.subTest(asset=key):

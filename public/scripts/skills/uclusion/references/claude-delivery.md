@@ -4,7 +4,7 @@
 Load this unit only when the selected resident stub declares Claude Code
 session-owned delivery. Use that stub's authoritative CLI command and
 environment for each `uclusion` command below. Shared discovery, ownership,
-event routing and lifecycle rules remain in [pokes.md](pokes.md).
+event routing and lifecycle rules remain in [the core](../SKILL.md).
 
 At session start, before acting on the first user request, establish Poke AI
 delivery, even for unrelated or read-only work. Arm exactly one delivery task
@@ -36,6 +36,6 @@ commands in the same session continues that cursor and delivers Pokes that
 arrived between tasks. An explicit `--consumer` or `UCLUSION_CONSUMER` overrides
 the session identity; never set `UCLUSION_CONSUMER` yourself. Outside Claude
 Code, a bare wait still uses the shared default cursor; this does not authorize
-a different delivery mode. Apply [pokes.md](pokes.md)'s shared retained-history
+a different delivery mode. Apply [the core](../SKILL.md)'s shared retained-history
 and human-requested replay rules.
 <!-- /uclusion-skill-reference:v1 -->

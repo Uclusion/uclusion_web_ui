@@ -309,22 +309,18 @@ WORKFLOW_ASSET_PATHS = {
     'codex_stub': 'AGENTS.template.md',
     'cursor_stub': 'uclusion.mdc',
     'skill': 'skills/uclusion/SKILL.md',
-    'coordinator_reference': 'skills/uclusion/references/coordinator.md',
     'codex_delivery_reference': 'skills/uclusion/references/codex-delivery.md',
     'claude_delivery_reference': 'skills/uclusion/references/claude-delivery.md',
     'cursor_delivery_reference': 'skills/uclusion/references/cursor-delivery.md',
     'job_reference': 'skills/uclusion/references/job.md',
-    'job_reading_reference': 'skills/uclusion/references/job-reading.md',
     'assistance_reference': 'skills/uclusion/references/assistance.md',
     'approval_reference': 'skills/uclusion/references/approval.md',
-    'execution_reference': 'skills/uclusion/references/execution.md',
     'coordinator_execution_reference': 'skills/uclusion/references/coordinator-execution.md',
     'single_comment_reference': 'skills/uclusion/references/single-comment.md',
     'handoffs_reference': 'skills/uclusion/references/handoffs.md',
     'capsules_reference': 'skills/uclusion/references/capsules.md',
     'review_reference': 'skills/uclusion/references/review.md',
     'writes_reference': 'skills/uclusion/references/writes.md',
-    'pokes_reference': 'skills/uclusion/references/pokes.md',
     'reading_reference': 'skills/uclusion/references/reading.md',
     'operations_reference': 'skills/uclusion/references/operations.md',
     'completion_reference': 'skills/uclusion/references/completion.md',
@@ -349,35 +345,31 @@ WORKFLOW_ASSET_SHA256 = {
     'claude_stub': '4eca10957bf058ed774e1f0178ccd79247c769af8e4dde376d4f19dbbb288a34',
     'codex_stub': 'fc05807ba1cba6dcd54482d0a8bea2921c188bd3d7919e52cdbe3afec013c7c0',
     'cursor_stub': '8bcc71ce0184eaf20b85e3387e1a55c913a877b89e6a56d2e4b9c9cabd6f21bd',
-    'skill': '379cee2c04f210efaa552c0d4fce248c383bffe7d8ed9a1b1c3cf64c7d6c4b85',
-    'coordinator_reference': '312604bc39bc7c0ab259493ab30399c10658d0c0a4b892ddfc3e41aece7bc85c',
-    'codex_delivery_reference': 'b03b4e7c0e7b78e7e5484b8b609e73940b097fa3631fcfcb8a027c1e5e9df57e',
-    'claude_delivery_reference': '6ceb776f234adc7d5bee08bf685ae487af62a6597f31b29af356b630b95785b7',
-    'cursor_delivery_reference': '68c52f43afd95d42652958007a74caad932b42c80fe6d1b20731068ea974639e',
-    'job_reference': 'b27c126ab7527dfe62bc95300ee12efad41d2ae738e1d4bd577d06c9e9dd7f3e',
-    'job_reading_reference': 'f8f1caa2946f432324c2e79dbdf99c717352e973412fd7524162ea639c6f5a5b',
-    'assistance_reference': '4492643c7d0e0c881e3e8972c723437d6a4a98b4332231ee9fbd1aca9f56f248',
+    'skill': 'bab1891b8716e90d17451ad34703152a7820fd50d3c99ffd33991e1c3b742969',
+    'codex_delivery_reference': '9b2ef500249277786dd770fce129d463db9829861b05fd2762b6bb3e096f4ac0',
+    'claude_delivery_reference': 'f13af713e67e989f9dc1a14bd6c980cb3c25102d1e54cb14715e4f74e886a99b',
+    'cursor_delivery_reference': '4cb895094b52fe998778ac6c8255f54dcd0d676f3f0b562566cba414bc2acf62',
+    'job_reference': '20064593f8260f38a45f48bed5b6702e9e8f6d964c84a77de361ffe46d20618d',
+    'assistance_reference': 'd63e808285a3910c0f6585684d6a714fc8071a02a7b7c318b5a733082a55ce11',
     'approval_reference': 'edf610304b721f9830d8446125d89f7b9efdb2a0b1668119675187f92277b377',
-    'execution_reference': 'cffba9898a160926c36b3be5cb7b4b4c2f774a506381ce56b47a0b49b15b6754',
-    'coordinator_execution_reference': '83b3b49898558681c049a6b8cc4cf23afadda8d46c2e0d9f137f3136b7f8b38c',
-    'single_comment_reference': 'db4c69abd6eced3129cac91e643a6839269208b18e5eeadbc9f5c8e67fef92f7',
-    'handoffs_reference': '42d58ab12afcca57a0a17dd4634cf3dd00070fe9a42d5ed3c8b24595e66c1b07',
-    'capsules_reference': 'a9bdead1dde58978441cafd3a5295b79517f17baf26284eb3afba675dd304d17',
-    'review_reference': 'f5bb239dfdc8dea1bf424c16a5390921abc593ac54099f5ae985ffc61c1c0c79',
-    'writes_reference': 'bf41e0a7602421c724b599f39175ff33f569e7936171985df99dc49b1281d1be',
-    'pokes_reference': 'b311681842650eb7ae0f69fcb0463f5d4579ad809606a543b3a7d0b12e90063c',
-    'reading_reference': '1ad17fa25ea2f93b7fa50067c742c9510bee5eee52855526f56594cc4dc53d9e',
-    'operations_reference': 'c570a79029f145e553bbe0cba5e97dc8357d2612a5a7f854240d19df889749c3',
-    'completion_reference': 'b7f1781be089af9703e5a835a30b8aaec3a745780b5119cb86d2cf2ff55da156',
-    'audit_reference': '9e09602afcd516da8c16ac1cbde4562072c036bf81f365b7d731c66b0b5baa70',
-    'claims_reference': 'f82dad1e09564f3d829c8df305990e4605ffa565e6ca8b12aa3b8bf80588eccf',
+    'coordinator_execution_reference': '754011807921be9bcc604ac61432bbf4b5179dd78e307bfb00f6f1e4484c930c',
+    'single_comment_reference': '9d5f5223f106972bdc7315de57ea1dc9af3185f7961193b0677f3ddb49311cb5',
+    'handoffs_reference': 'fe410e459ac9c4551760ef7e2e76b60c7401fa2d07b51192c57b6fb2888c7a82',
+    'capsules_reference': '62c9a1141e71eed159f026d073faccb13dd1c502a6ed2c0ee9b0aaed246bd90a',
+    'review_reference': '63c0dd2e5179a3bed0d4972e81e1f1156281540d8d57d3f54eada2dfd2a24da5',
+    'writes_reference': '09e7aa965db4d7387de719b221356fd7327c50ab169ff975265e11ef3fcc3664',
+    'reading_reference': 'aade2be96a59fb0209875a13a7abbb098fca2cb17f46897b2eddd284a3d9e517',
+    'operations_reference': '8b8cae681134238fb86bf9b4dcbc6c4e9cdacad6be7053ef9eceab5ce02fb572',
+    'completion_reference': 'd694873a66a4f42a603dcfa71e4bd4b226e1b23094add8f3f8d67506523eee8b',
+    'audit_reference': '5fcee1523dedd3f537a69465815f8d16c3073cb6ed4e9a766c2f304311a9a566',
+    'claims_reference': 'ab5d8585790e39fdee9b4ff375c4e7dfed38132d36399a7729f24dde50c53f52',
     'uploads_reference': 'd3fa9a9a9df21424068c26c840466c2d6aab78a3f85989007a529a09412233d3',
     'openai_metadata': 'c60b60bcccd8b171ab950477b7f09b5fc621974846f4cdc468b6c8fe0bbb2ca9',
     'design_skill': '41546c9fe11a9fe1f10c5bbc08ca6951d9cb768ff92d92fd178ce17eb3dcb918',
     'design_examples': '71f626575f8acbb0c28de20a810f4eb62d66b3185b23c1c84447ed7d29baa72e',
     'design_openai_metadata': 'd94499cb3851d46db554a0321d8469571273d446a8caefbdcbb8a68cb012c868',
     'demo_brief': '1c26c3235dba931bcbf9d88fcacf32e437f1ec10f3e70fd908f33228ba30037f',
-    'token_manifest': 'c639d7898b9ad6f1522527515171e44255ffd68c06ec0743e60bcd1add345689',
+    'token_manifest': '6886d2f82fc8bd15aa13d9e40cd5b95dcaebf0b437f57ca435cdad5a29eed4e0',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',
@@ -385,22 +377,18 @@ CLIENT_STUB_ASSET = {
     'cursor': 'cursor_stub',
 }
 SKILL_PACKAGE_ASSETS = (
-    ('coordinator_reference', os.path.join('references', 'coordinator.md')),
     ('codex_delivery_reference', os.path.join('references', 'codex-delivery.md')),
     ('claude_delivery_reference', os.path.join('references', 'claude-delivery.md')),
     ('cursor_delivery_reference', os.path.join('references', 'cursor-delivery.md')),
     ('job_reference', os.path.join('references', 'job.md')),
-    ('job_reading_reference', os.path.join('references', 'job-reading.md')),
     ('assistance_reference', os.path.join('references', 'assistance.md')),
     ('approval_reference', os.path.join('references', 'approval.md')),
-    ('execution_reference', os.path.join('references', 'execution.md')),
     ('coordinator_execution_reference', os.path.join('references', 'coordinator-execution.md')),
     ('single_comment_reference', os.path.join('references', 'single-comment.md')),
     ('handoffs_reference', os.path.join('references', 'handoffs.md')),
     ('capsules_reference', os.path.join('references', 'capsules.md')),
     ('review_reference', os.path.join('references', 'review.md')),
     ('writes_reference', os.path.join('references', 'writes.md')),
-    ('pokes_reference', os.path.join('references', 'pokes.md')),
     ('reading_reference', os.path.join('references', 'reading.md')),
     ('operations_reference', os.path.join('references', 'operations.md')),
     ('completion_reference', os.path.join('references', 'completion.md')),
@@ -411,6 +399,12 @@ SKILL_PACKAGE_ASSETS = (
     # Publish the entrypoint last so an interrupted refresh never exposes a
     # new SKILL.md before all files it routes to are durable.
     ('skill', 'SKILL.md'),
+)
+RETIRED_SKILL_REFERENCE_PATHS = (
+    os.path.join('references', 'coordinator.md'),
+    os.path.join('references', 'pokes.md'),
+    os.path.join('references', 'job-reading.md'),
+    os.path.join('references', 'execution.md'),
 )
 DESIGN_SKILL_PACKAGE_ASSETS = (
     ('design_examples', os.path.join('references', 'examples.md')),
@@ -6352,6 +6346,28 @@ def _stage_skill_package(
         shutil.copytree(skill_dir, staging_dir, symlinks=True)
     else:
         os.mkdir(staging_dir, 0o700)
+    # Validate the copied tree before pruning so a retired symlink or special
+    # file cannot disappear and mask an invalid package.
+    _validate_regular_tree(staging_dir)
+    if package == 'uclusion':
+        for relative_path in RETIRED_SKILL_REFERENCE_PATHS:
+            retired_path = os.path.join(staging_dir, relative_path)
+            if not os.path.isfile(retired_path):
+                continue
+            try:
+                content, _signature = _read_text_snapshot(retired_path)
+            except UnicodeDecodeError:
+                # Non-text user files cannot be managed reference units.
+                continue
+            if (
+                content.startswith(SKILL_REFERENCE_MARKER)
+                and content.rstrip().endswith(SKILL_REFERENCE_END_MARKER)
+                and content.count(SKILL_REFERENCE_MARKER) == 1
+                and content.count(SKILL_REFERENCE_END_MARKER) == 1
+                and content.find(SKILL_REFERENCE_MARKER)
+                < content.find(SKILL_REFERENCE_END_MARKER)
+            ):
+                os.remove(retired_path)
     for asset_key, relative_path in package_assets:
         _write_staged_asset(staging_dir, relative_path, bundle[asset_key])
     _validate_owned_skill(staging_dir, package)

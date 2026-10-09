@@ -6,8 +6,9 @@ ending. Implementation helpers return their bounded work and unresolved needs
 under the dispatch you supplied from
 [coordinator-execution.md](coordinator-execution.md); design helpers use their
 selected design package.
-Completion-package mechanics, including presentation and waiting, remain solely
-in [operations.md](operations.md).
+A progress checkpoint while work continues requires no operations unit. Load
+[operations.md](operations.md) for an actual handoff or turn ending below, or
+its own action; it alone defines completion-package presentation and waiting.
 
 ## Durable progress and handoffs
 
@@ -21,7 +22,7 @@ A progress checkpoint and an ordinary model/chat turn are not lane handoffs.
 At a genuine handoff for blocking human input, review, completion, pause or
 interruption:
 
-- Read [pokes.md](pokes.md) and apply assignment-aware discovery, respecting
+- Apply the held core's assignment-aware discovery, respecting
   operations.md's completion-package boundary.
 - For a held claim, load [claims.md](claims.md) before affected handoff actions;
   for an active assigned-job audit, load [audit.md](audit.md).
@@ -42,7 +43,7 @@ End when nothing can proceed without the human. State what you need and why
 this lane is blocked. Apply operations.md's completion-package presentation
 and later-turn rules exactly, whatever ended the turn, including a Poke or
 listener rearm. Never drop required package content to save context. Otherwise
-state the pending decision or completed task, applying pokes.md's one-time hint
+state the pending decision or completed task, applying the core's one-time hint
 and discovery triggers. A turn ending alone never calls `find_work` or repeats
 its list. When the next item is unrelated or unknown, apply operations.md's
 context-clear rule.

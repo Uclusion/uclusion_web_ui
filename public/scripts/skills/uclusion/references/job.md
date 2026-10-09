@@ -1,10 +1,7 @@
 <!-- uclusion-skill-reference:v1 -->
 # Job entry, current contract and action routing
 
-Only the coordinator loads this unit for a selected result with a Job header,
-including a standalone bug converted into a Bugs job. Apply the core's
-assignment gate before lookup. Implementation helpers receive only a bounded
-brief, without workflow units, ownership or operational authority.
+Apply [the core](../SKILL.md)'s assignment gate before lookup.
 
 ## Enter or refresh selected job work
 
@@ -22,15 +19,9 @@ brief, without workflow units, ownership or operational authority.
 
 ## Scoped job context
 
-An initial whole-scope job read supplies its name, description, tasks, assistance
-and reports. For subsequent reads, use `sections` or `thread_only` for what
-changed. Scoped job reads retain votes.
-Explicit `sections` reads omit the description unless `description` is selected.
-Use `get_job({short_code_id: "J-…", sections: ["description"]})` to read the
-current description when needed. Combine `description` with other sections
-when both are needed; `sections: []` omits the description and comment sections.
-An unscoped read retains the description.
-After context restoration, fetch the description through this narrow read if
+Keep the initial whole-scope job read. Scope subsequent reads to what changed,
+explicitly including the current description when needed.
+After context restoration, fetch the description if
 its complete body is missing before relying on it; a summary is not its body.
 
 An `Updated J-… description change` Poke requires this description refresh for
@@ -64,10 +55,9 @@ and capsules for displayed open top-level tasks.
 A reference or summary does not satisfy the current-contract prerequisite.
 
 Reuse a complete held body matching the current target reference and version.
-When it is missing, changed or lost, fetch the advertised capsule with
-`get_job({short_code_id: "R-code", thread_only: true})` before affected source or
-test edits. Check its returned identity, target and actual version, and use the
-complete body. A superseded capsule is not the target's current contract; follow
+When it is missing, changed or lost, read the advertised capsule's exact R-code
+thread before affected source or test edits. Check its returned identity, target
+and actual version, and use the complete body. A superseded capsule is not the target's current contract; follow
 the current reference instead.
 
 After a capsule create or replacement, use `set_design_capsule`'s receipt:
@@ -111,11 +101,6 @@ continue within their independent permissions.
 | Progress checkpoint while work continues, lane handoff or turn ending | [handoffs.md](handoffs.md); its operations route applies only at an actual handoff/turn ending or operations action. |
 | Auto-take directions, exposed claim_work (including deferred), or a held claim | [claims.md](claims.md) before affected discovery, activation or ownership actions. |
 | Optional get_upload action when exposed | [uploads.md](uploads.md). |
-
-The coordinator retains assignment, Pokes, questions, permissions, publication,
-final review and the completion package. Design helpers load only their selected
-sibling design package and bounded evidence. Fresh independent-task implementation
-helpers receive the compiled brief; delegation grants no unlisted action.
 
 ## Stage and transition gates
 

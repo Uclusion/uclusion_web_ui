@@ -1,9 +1,8 @@
 <!-- uclusion-skill-reference:v1 -->
 # Approvable job approval
 
-The coordinator loads this unit only for a job-level approval action in
-Approvable, after assistance is settled. Load [writes.md](writes.md) before
-recording the approval. Approval never grants a stage transition or execution.
+After settling assistance, load [writes.md](writes.md) before recording the
+approval. Approval never grants a stage transition or execution.
 
 ## Approve when applicable
 

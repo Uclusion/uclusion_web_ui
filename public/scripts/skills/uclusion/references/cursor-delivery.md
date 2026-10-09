@@ -1,10 +1,9 @@
 <!-- uclusion-skill-reference:v1 -->
 # Cursor chat-owned Poke delivery
 
-Load this unit only when the selected resident stub declares Cursor chat-owned
-delivery. Use that stub's authoritative CLI command and environment for each
-`uclusion` command below. Shared discovery, ownership, event routing and
-lifecycle rules remain in [the core](../SKILL.md).
+Use the selected resident stub's authoritative CLI command and environment for
+each `uclusion` command below. Follow [the core](../SKILL.md) for discovery,
+ownership, event routing and shared lifecycle rules.
 
 Before acting on a turn the person typed in this chat, including the first
 request of a session and a return to an older chat, even when that request is

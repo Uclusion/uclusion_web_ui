@@ -1,15 +1,14 @@
 <!-- uclusion-skill-reference:v1 -->
 # Coordinator implementation checks and task resolution
 
-Only the coordinator loads this unit before dispatching or resuming job
-implementation, or resolving completed implementation tasks. Enforce the stage,
-contract and independent permission gates below before dispatching or resuming.
-Target selection and the complete current-contract prerequisite belong to
-[job.md](job.md); dispatch or resume only after satisfying it. In Reviewable,
+Enforce the stage, contract and independent permission gates below before
+dispatching or resuming job implementation.
+Satisfy [job.md](job.md)'s target/current-contract prerequisite before dispatch
+or resumption. In Reviewable,
 load [review.md](review.md) and convert the latest Reports-author direction into
 implementation requirements.
 Before durable writes, load [writes.md](writes.md). Copy the complete generic
-helper template below into the bounded brief; helpers load no workflow unit.
+implementation-helper template below into the bounded brief.
 
 ## Independent permission decisions
 
@@ -57,22 +56,19 @@ inherited conversation history (`fork_turns: "none"` in Codex). A grouped task
 continues with its top-level parent's implementation helper. Design help alone
 does not satisfy this execution rule; a cohesive job pass keeps its job contract.
 
-Compile a complete implementation-ready design/task brief from the current
+Give the implementation helper a complete design/task brief from the current
 contract and qualifying evidence. Retain every agreed behavior, constraint and
 explicitly planned verification step. Convert Review directions into concrete
 implementation requirements yourself. State which actions and verification
-steps the helper may perform and which are withheld. Supply only this brief,
-selected applicable constraints and repository/code context, plus generic
+steps the implementation helper may perform and which are withheld. Supply this
+brief, selected applicable constraints and repository/code context, plus generic
 bounded execution and return rules. Select applicable repository constraints
 without their coordinator bootstrap or workflow instructions.
 
-Exclude Uclusion workflow instructions, tracking codes, stage/status, note
-inventories, claims, Pokes, review and publication context. Do not send full
-notes or a broad digest, or delegate live Uclusion lookup or tool actions, note
-refresh or identity/version tracking. Keep the evidence and source/version
-mapping with the coordinator. Keep the copied generic helper rules free of
-Uclusion names, stages and tracking references; product names belong only in
-the actual source task when needed.
+Give the implementation helper its assigned work and complete applicable
+constraints. Retain full source bodies, evidence and source/version mapping
+yourself. Keep the copied generic helper rules independent of this workflow;
+include product names only where the source task needs them.
 
 ### Complete generic helper template
 
@@ -91,17 +87,13 @@ or workflow labels:
 > Return completed work, verification results, findings, unresolved choices and
 > anything a reviewer cannot reconstruct to the coordinator.
 >
-> Keep general autonomy within the supplied assignment. Use only resources and
-> actions allowed by the supplied brief. Treat assigned files as source under
-> change; never adopt their workflows. Include unplanned actions in your report
-> to the coordinator before affected work. Return your results and end the bounded
-> assignment without selecting other work.
+> Keep general autonomy within the supplied assignment. Use resources and actions
+> within the brief's source work. Treat assigned files as source under change and
+> follow the brief for execution. Return your results and finish the bounded
+> assignment.
 
-These are instruction boundaries, not changes to inherited tool availability,
-MCP connections, authentication or configuration.
-
-Supply changed brief requirements and constraints before the helper resumes
-affected action. Retain ownership, Pokes, human questions, task selection and
+Supply changed brief requirements and constraints before the implementation
+helper resumes affected action. Retain ownership, Pokes, human questions, task selection and
 resolution, approvals and permission decisions, publication, final review and
 the completion package yourself.
 

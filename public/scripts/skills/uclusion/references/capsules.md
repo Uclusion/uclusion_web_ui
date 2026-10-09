@@ -1,14 +1,9 @@
 <!-- uclusion-skill-reference:v1 -->
 # Coordinator capsule design and publication
 
-Only the coordinator loads this unit for absent-capsule design help and
-publication, permitted new-human-contract replacement, or obsolete-review cleanup.
-Detailed design instructions remain in the fresh design helper. Implementation
-dispatch uses [coordinator-execution.md](coordinator-execution.md); implementation
-helpers load no Uclusion workflow units.
-Before publication or review cleanup, load [writes.md](writes.md). Target
-selection and complete current-body acquisition are prerequisites owned by
-[job.md](job.md), including its confirmation from a sent-body receipt.
+Before publication or review cleanup, load [writes.md](writes.md) and satisfy
+[job.md](job.md)'s target/current-body prerequisite, using a sent-body receipt
+when available.
 
 ## Capsule authority
 
@@ -30,28 +25,28 @@ belongs to the stated job and refuses a missing or stale job/task pairing.
 Reload the task and use its current job before retrying.
 
 Delegate planning, capsule composition, revision and cold review to a fresh
-helper without inherited conversation history (`fork_turns: "none"` in Codex).
-Give it the selected target, bounded relevant evidence, the current capsule
-when present, new human requirements since publication, and
+design helper without inherited conversation history (`fork_turns: "none"` in Codex).
+Give the design helper the selected target, bounded relevant evidence, the
+current capsule when present, new human requirements since publication, and
 `../uclusion-design/SKILL.md` resolved from the selected `uclusion` package root.
 Copy the core's complete-read and instruction-reuse/reload rules into the
 dispatch, adapted to the selected design package and its required files, even
 without a resident bootstrap; do not send core or coordinator reference bodies.
 
-Request the shortest complete contract, directing the helper to delete sentences
-whose removal loses no necessary behavior, constraint, navigation, evidence or
+Request the shortest complete contract, directing the design helper to delete
+sentences whose removal loses no necessary behavior, constraint, navigation, evidence or
 permission limit; impose no numeric cap. Require full reads of its selected
 skill and references and keep research, alternatives, planning rationale and
 transcripts with that helper. Do not read those helper-only instructions or
 examples before delegation.
 
 Accept only the complete cold-reviewed capsule with claim-local evidence links
-or typed unresolved questions. Do not import raw export searches, skill bodies
-or the planning transcript. The main agent alone files and resolves questions,
-checks stages and permissions, publishes with `set_design_capsule`, and
-coordinates execution. Delegation grants no implementation permission. If the
-helper cannot load its skill or a required reference, report a broken Uclusion
-install, suggest an environment-correct `uclusion update`, and require a client
+or typed unresolved questions. Keep raw research and planning with the design
+helper. File and resolve questions, check stages and permissions, publish with
+`set_design_capsule`, and coordinate execution yourself. Delegation grants no
+implementation permission. If the design helper cannot load its skill or a
+required reference, report a broken Uclusion install, suggest an
+environment-correct `uclusion update`, and require a client
 restart or MCP reconnect after success; do not improvise a writing workflow.
 After each create or permitted replacement, apply job.md's current-contract
 prerequisite, using the held publication receipt. A later cold review does
@@ -76,15 +71,13 @@ and is folded into the body. Its former body appears asynchronously as an
 ordinary unpinned note. Do not wait for that archive or treat it as current
 implementation context.
 
-Capsule writes are human-facing, not scratch storage. A create or replacement
-puts an inbox item in front of the current human assignees without email or
-Slack; explicit mentions keep their ordinary delivery behavior.
+Publish only human-facing contracts.
 
 After an AI replacement, resolve each review its result lists in
 `open_ai_reviews_naming_capsule` before further affected edits. After job.md's
 current-body and Reports refresh for a human capsule edit,
 resolve your open review naming that capsule first, then reconcile in-progress
-work with the new authoritative body. Review cleanup is agent workflow, not backend review parsing or linkage.
+work with the new authoritative body.
 
 ## Publication receipts and partial success
 

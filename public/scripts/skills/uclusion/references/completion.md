@@ -1,23 +1,22 @@
 <!-- uclusion-skill-reference:v1 -->
 # Completion sweeps
 
-## Fresh export and isolated scans
+## Completion trigger and isolated scans
 
-The selected lane recognizes an actual completion transition or its incomplete
-retry. At that signal, load [reading.md](reading.md) and run one fresh,
-environment-correct `uclusion export` through the configured destination. Use
-only the path reported by that successful command for both scans. If the command
-fails or reports no path, say that the completion sweep could not run and stop
-after any standalone bug's required record and presentation below; never use an
-older export or redirect the export to `/tmp` or elsewhere.
+At an actual completion transition or incomplete retry in the selected lane,
+load [reading.md](reading.md) and select a successful export under its reuse and
+freshness rules. If no suitable export is available, say that the completion
+sweep could not run and stop after any standalone bug's required record and
+presentation below.
 
-Delegate both scans together to one fresh export-search helper under
-[reading.md](reading.md). Give it that path, the exact completed-code set and
-current authoritative outcome evidence defined below, and all scan and result
-rules in this unit. The helper returns only the concise merged findings or
-explicit no-candidate result, with any incomplete scan or unsettled evidence
-identified. The coordinator records and presents the result and retains all
-later decisions and authorized actions; raw export research stays in the helper.
+Assign both scans together to one fresh read-only isolated export-search helper
+under [reading.md](reading.md). Give the export-search helper the exact successful
+export path, the exact completed-code set and current authoritative outcome
+evidence defined below, and all scan and result
+rules in this unit. Require concise merged findings or an explicit no-candidate
+result, identifying any incomplete scan or unsettled evidence. Record and present
+the result yourself and retain later decisions and authorized actions; keep raw
+export research with the export-search helper.
 
 ## Job outcome record
 
@@ -69,8 +68,7 @@ category, in this order:
 3. **modify** — otherwise, the work remains valuable but an assumption or its
    scope is now wrong.
 
-This is completion-impact analysis, not generic backlog cleanup or a server-side
-search.
+Limit outcome analysis to the completion's causal impact.
 
 ## Present and act
 
@@ -92,8 +90,7 @@ include every matching blocker code. When one target has both kinds of finding,
 show it once under its semantic category and include the blocker matches in its
 evidence. For **duplicate** or **obsolete**, propose deciding whether to resolve
 the target before offering to remove its blocker. For **modify**, propose the
-needed revision before reconsidering its blocker. This avoids recommending both
-unblocking and discarding the same work.
+needed revision before reconsidering its blocker.
 
 If both scans find nothing, say: `No completion-sweep candidates: no open
 dependency blocker matched the triggering work, and no unresolved job or bug

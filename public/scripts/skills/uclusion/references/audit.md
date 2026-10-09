@@ -1,10 +1,7 @@
 <!-- uclusion-skill-reference:v1 -->
 # Token usage audit
 
-Only the coordinator loads this optional unit for an assigned job when
-`start_job_audit` is exposed (including deferred) or an audit is active. The
-core's complete-read and reload rules apply before affected job work and
-handoffs. Use the exposed `start_job_audit`, `set_job_audit_phase`, and
+Use the exposed `start_job_audit`, `set_job_audit_phase`, and
 `end_job_audit` tools under the lifecycle below.
 
 1. A lookup used only to classify a Poke starts no audit. Audits attach only

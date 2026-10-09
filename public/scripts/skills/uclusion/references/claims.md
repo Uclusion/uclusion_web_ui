@@ -1,11 +1,8 @@
 <!-- uclusion-skill-reference:v1 -->
 # Work claim lock
 
-Only the coordinator loads this optional unit for auto-take directions, exposed
-`claim_work` (including deferred), or a held claim. The core's complete-read and
-reload rules apply before every affected action. A claim is a work lock, not a
-session assignment; assignment and discovery remain governed by
-[the core](../SKILL.md).
+Keep work claims distinct from session assignment. Follow
+[the core](../SKILL.md) for assignment and discovery.
 
 When the user opted into work claims, `claim_work` is exposed. It stops idle
 agents on any machine from starting the same work. Human-guided selections do

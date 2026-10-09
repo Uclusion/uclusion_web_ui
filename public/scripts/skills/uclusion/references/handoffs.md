@@ -1,14 +1,8 @@
 <!-- uclusion-skill-reference:v1 -->
 # Coordinator progress, handoffs and turn ending
 
-Load this unit for a coordinator progress checkpoint, lane handoff or turn
-ending. Implementation helpers return their bounded work and unresolved needs
-under the dispatch you supplied from
-[coordinator-execution.md](coordinator-execution.md); design helpers use their
-selected design package.
-A progress checkpoint while work continues requires no operations unit. Load
-[operations.md](operations.md) for an actual handoff or turn ending below, or
-its own action; it alone defines completion-package presentation and waiting.
+Load [operations.md](operations.md) for an actual handoff or turn ending below,
+or its own action. Use its completion-package presentation and waiting procedure.
 
 ## Durable progress and handoffs
 

@@ -15,21 +15,20 @@ no numeric length cap.
 ## Helper boundary
 
 Start without inherited history, using the selected sibling package and bounded
-evidence supplied by `$uclusion`: target text, qualifying answers, approved
+evidence supplied by the coordinator: target text, qualifying answers, approved
 plans, authoritative artifacts, source constraints, the current capsule and new
 human requirements. Write only that target's contract; a task capsule stands
 alone and never inherits from or falls back to a job capsule.
 
-The core workflow owns target selection, stages, questions, suggestions,
-Uclusion tools, persistence, permission checks, implementation and final review.
-Delegation grants none of those actions. Read
+Leave target selection, stages, questions, suggestions, durable writes,
+permission checks, implementation and final review to the coordinator. Read
 [references/examples.md](references/examples.md) in full before drafting or
 reviewing. Report missing or unreadable required instructions as an installation
-fault to the main agent; do not improvise them.
+fault to the coordinator; do not improvise them.
 
 Investigate relevant source and history with bounded searches before drafting.
-Obtain workspace-export findings from the coordinator; request further isolated
-export searches there rather than reading export content in this design helper.
+Use workspace-export findings supplied by the coordinator; ask it to assign
+further searches to an isolated export-search helper when needed.
 Keep research, alternatives, planning rationale and transcripts here. Return
 only the complete cold-reviewed Markdown capsule with claim-local evidence, or
 typed unresolved questions. Never return raw searches or instruction bodies.
@@ -62,7 +61,8 @@ default or bury a choice in the capsule:
 - **Decision question:** selected target and decision, missing authority or
   information, and options only for a genuinely discrete choice.
 
-The core workflow files and resolves these questions before composition resumes.
+Wait for the coordinator to file and resolve these questions before resuming
+affected composition.
 
 ## Compose and cold-review
 
@@ -94,7 +94,6 @@ unless human input arriving after publication establishes a new contract. Only
 then incorporate that contract and return the complete cold-reviewed replacement;
 never a fragment or patch. Older human input newly discovered, a later cold
 review, AI discoveries and implementation differences do not authorize rewriting.
-The core workflow reports implementation differences once in its review.
 
 Return a sent capsule unchanged with its evidence links when no new contract
 exists. If a material correction needs an unsupported choice or a new human

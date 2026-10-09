@@ -1,19 +1,16 @@
 <!-- uclusion-skill-reference:v1 -->
 # Uclusion operating procedures
 
-Load this unit for a completion package, notification/inbox action or a
-context-clear boundary. For ordinary durable writes and receipt reconciliation,
+For ordinary durable writes and receipt reconciliation,
 load [writes.md](writes.md); for exports and decision search, load
 [reading.md](reading.md).
 
 ## Completion packages
 
-A completion package is how finished work reaches the human for its
-operational permission: one explanation of what `all` does, one human reply,
-and one terminal record per attempt. It opens at a job's implementation review
-and at a standalone bug's resolution. Its **package thread** is that exact
-review, or that exact resolved bug. This section is its only statement; the
-core skill and the other references point here.
+Open a completion package at a job's implementation review or a standalone
+bug's resolution: explain what `all` does, handle one human reply, and write one
+terminal record per attempt. Keep the **package thread** at that exact review
+or resolved bug.
 
 Job review opening, readiness and publication recovery are governed by
 [review.md](review.md). The package mechanics below apply to both its review and a

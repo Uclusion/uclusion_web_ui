@@ -1,12 +1,9 @@
 <!-- uclusion-skill-reference:v1 -->
 # Durable writes and their outcomes
 
-The coordinator loads this unit before durable writes or reconciling uncertain
-write outcomes. The action-specific unit still governs what may be written;
-this unit never grants a stage, testing, security or operational permission.
-Completion-package mechanics remain solely in [operations.md](operations.md),
-loaded for that action. Workspace exports and decision searches use
-[reading.md](reading.md).
+Apply the action-specific unit's writing and permission limits. Load
+[operations.md](operations.md) for completion packages and
+[reading.md](reading.md) for workspace exports and decision searches.
 
 ## Authorship and permitted records
 
@@ -115,8 +112,8 @@ private copies. Treat later human edits to the note as authoritative.
 
 ## Requested job creation
 
-Before `add_job`, export and delegate the duplicate/related-work search under
-[reading.md](reading.md). Surface an
+Before `add_job`, assign an export-search helper the duplicate/related-work search
+under [reading.md](reading.md). Surface an
 existing match instead of duplicating it. Cite related-but-distinct short codes
 in the new description. Pass initial `tasks` when parts could be reviewed,
 committed, or documented separately.

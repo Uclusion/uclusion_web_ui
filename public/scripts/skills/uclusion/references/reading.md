@@ -1,94 +1,62 @@
 <!-- uclusion-skill-reference:v1 -->
 # Standing notes and isolated history searches
 
-Only the coordinator loads this unit for full standing-note bodies and their
-tracking, ordinary note reads, or isolated export/history searches, including
-requests without a selected job. Initial lookup and its assignment gate belong
-to [the core](../SKILL.md); these rules activate no unassigned or unrelated work.
-
 ## Standing instructions by view
 
-Reads list the view's current standing-note R-codes and versions, or explicitly
-say the inventory is empty. Treat the listed notes as standing instructions.
-Before work in that view, fetch each listed version whose complete body is not
-in the current context with an explicit R-code thread read. It returns the
-note body and its actual version.
+Before work in a view, read the exact R-code thread of every listed standing note
+whose complete current body is missing or changed and apply all listed notes.
+Track their R-codes and versions in your context; reuse complete matching bodies
+across items that list them and use any newer version returned by a read. Stop
+applying notes no longer listed.
 
-Track the notes by R-code and version in the current context. Reuse a note
-whose listed version you hold in full, on any item that lists it. Fetch a listed
-note you lack or hold only at an older version, and stop applying a note no
-longer listed. If a fetch returns a newer version, use the complete returned version.
-Note edits do not wake the agent themselves; the next relevant read advertises
-them. There is no backend session cache.
+After compaction or context restoration, reload the relevant view's notes once
+before continuing; summaries and read markers do not replace full bodies.
 
-After compaction or context restoration, treat the relevant view's notes as
-unread and reload them before continuing, even if a summary preserves their
-codes, versions or an “already read” marker. Do not infer which paragraphs
-survived. Refresh once for that view after restoration, then reuse complete
-current bodies normally.
-
-Retain full current note bodies and their source identities and versions yourself.
-Select only requirements and permission limits applicable to the implementation
-brief. Implementation helpers receive those constraints without tracking
-identities, full view-note bodies or a broad digest; they do no note fetching,
-refresh or version tracking. Keep source traceability in your context. Refresh
-changed applicable prerequisites and supply the resulting brief changes before
-further affected implementation-helper work.
+Compile applicable requirements and permission limits into implementation
+briefs. Retain full note bodies and source/version traceability yourself.
+Refresh changed prerequisites and update affected briefs before further
+implementation-helper work.
 
 ## Workspace export and decision search
 
-Full workspace exports retain note and capsule bodies for decision searches.
-When workspace data can answer a request and is not already loaded, run the
-environment-correct `uclusion export` and delegate search of the reported Markdown
-as below. The coordinator keeps only the reported path from the export command.
-Run it without `-o` or `--output` so the CLI uses the configured
-`uclusionMDFolderPath`. Never
-redirect an ordinary workflow export to `/tmp` or another destination; override
-the configured path only when the human explicitly requests a different one.
-Exports include jobs, comments, options, votes, reasons, and UTC update dates.
-Use those dates for recency.
+When workspace data can answer a request and is not already loaded, judge
+whether an available successful export is current, complete and sufficient for
+the search, including completion scans. Reuse it when sufficient; run the
+environment-correct `uclusion export` when it is stale, insufficient or uncertain.
+Use the configured destination, overriding it only for an explicit human
+request. Retain the successful command's exact reported path and use the export's
+UTC update dates as recency evidence. Poke silence does not establish freshness.
 
-Every export search, including past decisions, duplicate/related work and both
-completion-sweep scans, must run in a fresh isolated subagent without inherited
-coordinator history (`fork_turns: "none"` in Codex). Never read or search export
-content in the coordinator. If an isolated helper is unavailable, report that
-the search could not run rather than falling back to a coordinator search.
+Delegate every export search to a fresh read-only isolated export-search helper
+without inherited coordinator history (`fork_turns: "none"` in Codex). Keep
+export content and research with that helper. If a suitable export or isolated
+helper is unavailable, report that the search could not run.
 
-Dispatch a bounded read-only brief containing the successful export's exact path,
-the search question, relevant requirements or current outcome evidence, and the
-applicable matching, status and authority rules. Export-search helpers follow
-only that brief and load no Uclusion workflow units. They do not obtain another
-export, acquire work, make human decisions or perform durable writes; these role
-limits change no tool availability or configuration.
+Give the export-search helper the exact successful export path, search question,
+applicable requirements or current outcome evidence, and matching, status and
+authority rules. Assign only that bounded read-only search.
 
-Keep raw export content, large match lists and intermediate research in the
-helper. Return only concise findings with exact Uclusion codes and names, short
-supporting evidence or source locations, and proposed actions when required by
-the calling workflow. Preserve every qualifying finding; report an explicit
-no-match result only after the required search is complete, and distinguish an
-incomplete search or unsettled evidence. Do not return raw search output or
-transcripts. The coordinator retains ownership, required full context/contract
-reads, human decisions, permission checks and durable writes. Any further export
-investigation uses another fresh bounded helper.
+Require the export-search helper to return every qualifying finding concisely,
+with exact Uclusion codes and names, supporting evidence or source locations,
+and proposed actions required by the calling workflow. Require an explicit
+no-match result only after a completed search, distinguishing incomplete searches
+or unsettled evidence. Retain ownership, required full context and current-contract
+reads, human decisions, permission checks and durable writes yourself.
 
-Search before relying on a design you did not write yourself, delegating a
-design, or answering something that may already be decided, and cite what you
-find. One completed current history check covers relying on and later
-delegating that same design. Retain the successful export path and concise
-bounded helper findings as already-loaded context, and reuse a current check
-when it answers the same question. Do not repeat export/search merely because
-the design is now delegated or a scoped owner amendment or vote was fully read.
+Search history before relying on a design you did not write, delegating a
+design, or answering something that may already be decided; cite the findings.
+Use the current intent/design capsule or, if absent, the agreed design in the
+item's thread.
 
-Refresh only when a change in scope, relevant history or evidence, or governing
-context makes the held findings insufficient or no longer current, or when
-freshness or completeness is uncertain. Absence of Pokes does not prove
-freshness. Completion sweeps still require a fresh export with both scans in
-one helper.
+Reuse a completed check for the same question, including reliance on and
+delegation of the same design, while its export path and findings remain
+current and sufficient. A fully read fresh authoritative update can settle
+changed governing context without another history search.
 
-The design check stops a design re-deciding something settled or resting on
-something stale; the question check finds what settled it. A design is whatever
-records the agreed approach, which is the current intent/design capsule where
-one exists and otherwise the design written into the item's own thread, as a
-standalone bug carries one. Present enough inline detail for relevance and its
-short code; offer to drill in without requiring the human to open Uclusion.
+Refresh when a change in scope, relevant history or evidence, or governing
+context makes the findings insufficient or stale, or when freshness or
+completeness is uncertain.
+
+Explain each cited finding's relevance inline with its short code, and offer
+more detail without requiring the human to open Uclusion.
 <!-- /uclusion-skill-reference:v1 -->

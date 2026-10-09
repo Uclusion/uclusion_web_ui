@@ -2,7 +2,7 @@
 <!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->
 # Complete capsule examples
 
-These are complete capsule bodies. All codes, names and links are fictional.
+Use these complete capsule patterns; all codes, names and links are fictional.
 Keep each sentence only when deleting it would lose necessary behavior,
 constraint, navigation, evidence or permission scope.
 
@@ -18,8 +18,8 @@ constraint, navigation, evidence or permission scope.
 > existing preview; no broader tests or build ([Q-Demo-4, selected Q-Demo-4_O-1:
 > one visual check](https://uclusion.example/demo/Q-Demo-4)).
 
-Navigation, behavior and the approved check each appear once. No lifecycle or
-concurrency section is needed.
+State navigation, behavior and the approved check once. Include lifecycle or
+concurrency constraints only when the work needs them.
 
 ## Failure and concurrency matter
 
@@ -43,8 +43,8 @@ concurrency section is needed.
 > no build or broader suite ([Q-Demo-3, selected Q-Demo-3_O-1: focused
 > verification](https://uclusion.example/demo/Q-Demo-3)).
 
-Extra detail carries required failure, ownership and race behavior. Each option
-claim names both the question and its full selected option code.
+Include required failure, ownership and race behavior. Name both the question
+and its full selected option code at each option claim.
 
 ## Weak: repetitive and incomplete
 
@@ -61,10 +61,10 @@ claim names both the question and its full selected option code.
 > [Delivery question](https://uclusion.example/demo/Q-Demo-7),
 > [failure question](https://uclusion.example/demo/Q-Demo-8).
 
-The Summary repeats the outcome instead of navigating. Retention and attachments
-lack authority; “handled safely” leaves failure and race behavior unspecified.
-Detached question links establish neither claim-local evidence nor selected
-options. Deleting repetition alone cannot repair the missing contract.
+Replace a repeated outcome in Summary with navigation. Obtain authority for
+retention and attachments, and specify failure and race behavior. Place evidence
+beside each claim and name its selected option; finish the missing contract
+before tightening its prose.
 
 ## Missing evidence
 

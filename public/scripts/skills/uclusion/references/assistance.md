@@ -1,9 +1,7 @@
 <!-- uclusion-skill-reference:v1 -->
 # Job questions and suggestions
 
-The coordinator loads this unit before asking, answering, voting on or resolving
-job assistance, in any stage. A helper returns unresolved choices to the
-coordinator. Load [writes.md](writes.md) before the corresponding durable write.
+Load [writes.md](writes.md) before the corresponding durable write.
 
 ## Ask and resolve questions
 
@@ -22,10 +20,8 @@ Filing them is not itself a reason to stop. A question blocks only the work
 that depends on its answer. Requires Input bars implementation edits to the
 job, and bars nothing else: keep investigating, reproducing, measuring,
 reading source, and gathering the evidence the answers will need, and carry on
-with any other lane the human has authorised. On a hard job the answers
-usually reveal the next unknown rather than clearing the field, so a batch
-cannot be assembled up front and asking recurs; that is normal and is not a
-licence to halt each time. Filing a question never ends a turn; see
+with any other lane the human has authorised. Ask newly discovered questions
+as they arise. Filing a question never ends a turn; see
 [handoffs.md](handoffs.md). Standalone comments use
 [single-comment.md](single-comment.md) instead of this job-only unit.
 
@@ -58,8 +54,8 @@ capsule when writing it, or use `add_info` on the job/task only if missing from
 the durable thread. Do not reopen or write inside the resolved question.
 
 Finish any reply or vote before resolving a question. When its answer establishes
-a capsule change, the coordinator loads [capsules.md](capsules.md), delegates
-composition and cold review while the question stays open, then passes its code
+a capsule change, load [capsules.md](capsules.md), delegate
+composition and cold review while the question stays open, then pass its code
 in `set_design_capsule`'s `resolve_question_short_code_ids`.
 Use `resolve` when no capsule change is needed; omit questions the human already
 resolved. Resolve an open-ended question promptly once its answer is settled or

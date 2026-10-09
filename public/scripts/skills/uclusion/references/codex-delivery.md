@@ -1,10 +1,9 @@
 <!-- uclusion-skill-reference:v1 -->
 # Codex native Poke delivery
 
-Load this unit only when the selected resident stub declares Codex native MCP
-delivery. Use that stub's authoritative CLI command and environment for each
-`uclusion` command below. Shared discovery, ownership, event routing and
-lifecycle rules remain in [the core](../SKILL.md).
+Use the selected resident stub's authoritative CLI command and environment for
+each `uclusion` command below. Follow [the core](../SKILL.md) for discovery,
+ownership, event routing and shared lifecycle rules.
 
 The installed Uclusion MCP integration owns automatic Poke AI delivery through
 Codex's native steering and queue APIs. Start ordinary `codex` with that

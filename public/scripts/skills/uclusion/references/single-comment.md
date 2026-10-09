@@ -1,7 +1,6 @@
 <!-- uclusion-skill-reference:v1 -->
 # Standalone single-comment work
 
-Load this unit only for a selected single top-level comment with no Job header.
 Keep the common assignment and delivery rules in [the core](../SKILL.md), standing
 instructions and decision searches in [reading.md](reading.md), and applicable
 durable-write rules in [writes.md](writes.md). The tool limits below still apply.

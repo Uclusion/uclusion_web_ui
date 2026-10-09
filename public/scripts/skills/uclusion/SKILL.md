@@ -6,18 +6,16 @@ description: Use as coordinator for Uclusion jobs, tasks, bugs, questions, sugge
 <!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->
 # Uclusion workflow
 
-Only the coordinator loads this core. It retains assignment, delivery, Pokes,
-human questions, stage and permission checks, capsule publication, final review
-and the completion package. Design helpers load their selected design package;
-implementation helpers receive only a bounded dispatch brief.
-Export-search helpers likewise follow only the coordinator's read-only brief
-under [references/reading.md](references/reading.md), without loading workflow units.
+Retain assignment, delivery, Pokes, human questions, stage and permission checks,
+capsule publication, final review and the completion package as coordinator.
+Give design helpers their selected design package and bounded evidence,
+implementation helpers their complete bounded briefs, and export-search helpers
+their read-only search briefs under [references/reading.md](references/reading.md).
 
-Use the Uclusion MCP server as the durable collaboration surface. The resident
-client stub selects delivery rules as specified below. Work asynchronously with
-your human partner.
-They must understand and approve reviewer-divergent choices, including internal
-state, formats and lifecycles. Never silently settle a choice a reasonable
+Use the Uclusion MCP server as the durable collaboration surface. Work
+asynchronously with your human partner. Obtain their informed approval for
+reviewer-divergent choices, including internal state, formats and lifecycles.
+Never silently settle a choice a reasonable
 reviewer could decide differently. Never infer observed runtime behavior from
 code when the observed path is missing; ask the person who saw it.
 
@@ -50,12 +48,9 @@ work:
 | Claude Code session-owned delivery | [references/claude-delivery.md](references/claude-delivery.md). |
 | Cursor chat-owned delivery | [references/cursor-delivery.md](references/cursor-delivery.md). |
 
-The core's complete-read/reload rules apply to the selected unit. Do not load
-another client's delivery reference. With no resident stub, load no delivery reference, arm
-nothing, and continue ordinary discovery and job work without installing or
-configuring delivery. Every turn then starts directly by the human. Never invent
-a wait strategy to obtain delivery. The shared lifecycle below applies in the
-selected mode.
+Apply the complete-read/reload rules to the selected unit. With no resident stub,
+continue human-started discovery and job work without loading a delivery
+reference, setting up or arming delivery, or inventing a wait strategy.
 
 ## Common authorization
 
@@ -80,8 +75,8 @@ ordinary turn ending never triggers a call or another work list by itself.
 While a human-guided assignment waits for input or a completion package,
 retain it and report the pending decision or completed task. At the first such
 wait or completed package in the session,
-say once: "You can ask me to find other work at any time." This is an
-informational hint, not a question or a `find_work` call. Carry whether it has
+say once: "You can ask me to find other work at any time." Keep this hint
+informational, without a question or `find_work` call. Carry whether it has
 been shown into the session summary so compaction does not repeat it. Further
 handoffs within that assignment do not repeat the hint or fetch work unless
 the human asks. Completion-package waiting follows [references/operations.md](references/operations.md).
@@ -269,8 +264,7 @@ by itself.
 
 Codes inside a question repeat across questions, so reads render each one
 qualified by its question: `<question-code>_<local-code>`, such as
-`Q-*_O-1`. Cite that form. Any tool that takes a local code accepts it
-without `parent_question_short_code_id`.
+`Q-*_O-1`. Cite that form.
 
 Added, Updated, and Responded are continuation events, not instructions to
 abandon or acquire work. Incorporate matching assigned-lane changes; for a job,
@@ -283,7 +277,7 @@ the next action. A selected single top-level comment without a Job header enters
 [references/single-comment.md](references/single-comment.md), without job-only instructions. A bug
 converted into a Bugs job reloads the returned job and enters job.md. Standing
 note bodies and history searches use [references/reading.md](references/reading.md). Direct lookup
-already retries five times with bounded backoff. If a newly Added direct code still returns 404,
+handles its own retries. If a newly Added direct code still returns 404,
 retry later rather than discarding it.
 
 ## Connection updates

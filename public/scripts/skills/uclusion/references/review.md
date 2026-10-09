@@ -1,10 +1,8 @@
 <!-- uclusion-skill-reference:v1 -->
 # Coordinator job review and completion handoff
 
-The coordinator loads this unit for Reviewable direction, review publication,
-recovery, or assignment completion. Implementation helpers receive the applicable
-implementation requirements you derive from direction under
-[coordinator-execution.md](coordinator-execution.md). Load [writes.md](writes.md) before
+Compile Reviewable direction into applicable implementation-helper requirements
+under [coordinator-execution.md](coordinator-execution.md). Load [writes.md](writes.md) before
 review writes, [operations.md](operations.md) before opening a completion package,
 and [completion.md](completion.md) on an actual transition into Reviewable.
 For a held claim or active assigned-job audit, load [claims.md](claims.md) or
@@ -72,7 +70,7 @@ A finished task not related enough to the rest of its job gets its own review
 instead; say why in that task's review. Once it is written and tested, call
 `add_job` with its code in `task_short_code_ids`, `view_short_code_id` naming
 its job, a name taken from the task, and a description naming the job it came
-from. This is the human's standing request, so it needs no other permission.
+from. Use this standing human authorization without asking again.
 The task keeps its capsule. If the result says the new job started in the initial
 stage, ask about its next stage as [job.md](job.md) says. It joins your assignment beside the job it
 came from, so waiting on its package does not stop the tasks remaining there.
@@ -86,8 +84,7 @@ before the completion package; those actions retain their permission gates.
 Resolve completed implementation tasks first. Do not close unfinished work
 merely to make the transition eligible.
 
-Continue handling Pokes. Reviewable retains its existing asynchronous
-comment and notification cleanup.
+Continue handling Pokes.
 
 Inspect the separate review, inventory and transition outcomes.
 For confirmed package publication, follow operations.md's presentation order

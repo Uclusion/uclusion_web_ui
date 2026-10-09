@@ -1,10 +1,9 @@
 <!-- uclusion-skill-reference:v1 -->
 # Claude Code session-owned Poke delivery
 
-Load this unit only when the selected resident stub declares Claude Code
-session-owned delivery. Use that stub's authoritative CLI command and
-environment for each `uclusion` command below. Shared discovery, ownership,
-event routing and lifecycle rules remain in [the core](../SKILL.md).
+Use the selected resident stub's authoritative CLI command and environment for
+each `uclusion` command below. Follow [the core](../SKILL.md) for discovery,
+ownership, event routing and shared lifecycle rules.
 
 At session start, before acting on the first user request, establish Poke AI
 delivery, even for unrelated or read-only work. Arm exactly one delivery task

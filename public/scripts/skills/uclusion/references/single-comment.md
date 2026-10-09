@@ -17,9 +17,8 @@ returned job and follow [job.md](job.md)'s stage and action routing.
   `add_view_note` while discussion is open-ended. Ask for missing facts or
   decisions with `add_info`. A discrete-options question uses `ask_question`
   with the bug's code, a nonempty options list and one `initial_vote` giving
-  the preferred zero-based `new_option_index`, certainty 1–5 and a nonblank
-  reason. It creates a human-owned Bugs job in the same view and carries the
-  original thread across as a task. Never convert a bug merely to ask an
+  certainty 1–5 and a nonblank
+  reason. Never convert a bug merely to ask an
   open-ended question.
 - Question: use only `get_job`, `add_info` and `approve_job_or_option` for its
   options. A clear non-AI reply or Approvable For vote answers a standalone
@@ -30,9 +29,8 @@ returned job and follow [job.md](job.md)'s stage and action routing.
 
 ## Bug progress and resolution
 
-Use `add_info` for progress or questions while the bug is open. When resolving a
-bug, send its progress note as `progress_note` on that same `resolve` call,
-with `tz`, instead of a later `add_info`. A successful resolution triggers
+Use `add_info` for progress or questions while the bug is open. A successful
+resolution triggers
 [completion.md](completion.md)'s sweep immediately, followed by its own
 completion-package record in [operations.md](operations.md), even if the sweep
 could not run. A proposed commit message begins with the comment code. A

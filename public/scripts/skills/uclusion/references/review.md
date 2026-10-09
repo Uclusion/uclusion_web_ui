@@ -73,9 +73,8 @@ instead; say why in that task's review. Once it is written and tested, call
 `add_job` with its code in `task_short_code_ids`, `view_short_code_id` naming
 its job, a name taken from the task, and a description naming the job it came
 from. This is the human's standing request, so it needs no other permission.
-The task keeps its code, thread and capsule. The new job starts in its job's
-stage; if the result says it started in the initial stage, ask about its next
-stage as [job.md](job.md) says. It joins your assignment beside the job it
+The task keeps its capsule. If the result says the new job started in the initial
+stage, ask about its next stage as [job.md](job.md) says. It joins your assignment beside the job it
 came from, so waiting on its package does not stop the tasks remaining there.
 
 A job's implementation is finished when its agreed implementation is built,
@@ -87,16 +86,10 @@ before the completion package; those actions retain their permission gates.
 Resolve completed implementation tasks first. Do not close unfinished work
 merely to make the transition eligible.
 
-The operation saves the review first, then checks current tasks, issues,
-questions and suggestions. Any open item prevents the requested move; other
-stages are preserved, and already Reviewable is a no-op. This is an inventory
-snapshot and a conditional stage write, not an atomic lock against concurrent
-work. Continue handling Pokes. Reviewable retains its existing asynchronous
+Continue handling Pokes. Reviewable retains its existing asynchronous
 comment and notification cleanup.
 
-`ask_for_review` returns the saved review receipt and the job's open questions
-and suggestions, plus the conditional Reviewable transition when implementation
-is declared complete. Inspect the separate review, inventory and transition outcomes.
+Inspect the separate review, inventory and transition outcomes.
 For confirmed package publication, follow operations.md's presentation order
 before continuing recovery or a triggered sweep. Apply writes.md's receipt
 reconciliation. For an unconfirmed review, inspect

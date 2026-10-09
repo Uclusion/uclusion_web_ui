@@ -35,15 +35,9 @@ refresh or version tracking. Keep source traceability in your context. Refresh
 changed applicable prerequisites and supply the resulting brief changes before
 further affected implementation-helper work.
 
-## Ordinary notes and exports
-
-Ordinary note bodies require `sections: ["notes"]`,
-`include_all_resolved: true`, or an explicit note thread read. Visibility,
-replies and resolved status do not make notes appear by default. Full workspace
-exports retain note and capsule bodies for decision searches.
-
 ## Workspace export and decision search
 
+Full workspace exports retain note and capsule bodies for decision searches.
 When workspace data can answer a request and is not already loaded, run the
 environment-correct `uclusion export` and delegate search of the reported Markdown
 as below. The coordinator keeps only the reported path from the export command.

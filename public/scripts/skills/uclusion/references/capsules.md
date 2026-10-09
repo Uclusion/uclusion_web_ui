@@ -25,10 +25,7 @@ actor-visible outcome, not merely decisions or components.
 When job.md's selected target has no current capsule, continue read-only
 investigation and settle every reviewer-divergent choice.
 Complete drafting and cold review below before calling `set_design_capsule` in
-target mode. For a job, send `job_id` and the complete `capsule`. For a
-top-level or grouped task, send its current
-`job_id`, `task_id`, and the complete `capsule`; a grouped `task_id` normalizes
-to its top-level parent. Uclusion strongly validates that the task still
+target mode. Uclusion strongly validates that the task still
 belongs to the stated job and refuses a missing or stale job/task pairing.
 Reload the task and use its current job before retrying.
 
@@ -72,13 +69,12 @@ AI discoveries and implementation differences do not authorize a replacement;
 report those differences once in the review. Unsettled choices still require
 questions under [assistance.md](assistance.md). For a permitted replacement,
 finish drafting and cold review, then call `set_design_capsule` in update mode
-with the current R-code and version held under job.md as `update_capsule_short_code_id` and
-`update_capsule_version`, and the complete replacement body. Never patch
-fragments or blindly retry a version conflict; reload the capsule on one.
+with the current R-code and version held under job.md and the complete replacement
+body. Never patch fragments or blindly retry a version conflict; reload the capsule on one.
 Replies remain discussion until new human input establishes a new contract
-and is folded into the body. A real replacement keeps the capsule R-code; its
-former body appears asynchronously as an ordinary unpinned note. Do not wait
-for that archive or treat it as current implementation context.
+and is folded into the body. Its former body appears asynchronously as an
+ordinary unpinned note. Do not wait for that archive or treat it as current
+implementation context.
 
 Capsule writes are human-facing, not scratch storage. A create or replacement
 puts an inbox item in front of the current human assignees without email or
@@ -92,9 +88,7 @@ work with the new authoritative body. Review cleanup is agent workflow, not back
 
 ## Publication receipts and partial success
 
-`set_design_capsule` returns the stored R-code/version and, for a replacement,
-the open reviews naming it. Use job.md's receipt confirmation and writes.md's
-generic outcome reconciliation.
+Use job.md's receipt confirmation and writes.md's generic outcome reconciliation.
 
 When `set_design_capsule` also resolves selected questions, inspect the capsule
 receipt and each resolution outcome. A failed or uncertain publication resolves

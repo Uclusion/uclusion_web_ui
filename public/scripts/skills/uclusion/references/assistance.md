@@ -10,8 +10,8 @@ coordinator. Load [writes.md](writes.md) before the corresponding durable write.
 Except for the completion package defined in `operations.md`, call
 `ask_question` for ambiguity and judgment calls. Give options only for a real
 discrete choice. When facts, reproduction steps, observed behavior, or meaning
-are unknown, ask an open-ended question with no options. Apply the core's observed-behavior rule. Use one `ask_question` call per distinct question; never bundle separate
-unknowns.
+are unknown, ask an open-ended question with no options. Apply the core's
+observed-behavior rule.
 
 File every currently known distinct question in the same turn, each with its
 options and your vote, so the job enters Requires Input once and the human
@@ -30,17 +30,13 @@ licence to halt each time. Filing a question never ends a turn; see
 [single-comment.md](single-comment.md) instead of this job-only unit.
 
 Every option-bearing `ask_question` and every `add_options` call must include
-one `initial_vote` with certainty 1–5 and a nonblank reason. Select a new option
-by its zero-based `new_option_index`. With `add_options`, use either that index
-or `existing_option_id` for an Approvable option in the same question, making
-clear whether the added alternatives change your preference. Supply exactly
-one selector. An open-ended question has no vote input.
+one `initial_vote` with certainty 1–5 and a nonblank reason. With `add_options`,
+make clear whether the added alternatives change your preference. Supply exactly
+one selector.
 
-`ask_question` returns the question and option codes, initial vote and job
-stage; `update_option` names what it updated. The creation call records the vote;
-do not repeat it in a separate initial
-`approve_job_or_option` call. Use that tool for later preference changes. Hold
-your position through mere restatement or pressure; change it only for new
+`update_option` names what it updated. Do not repeat the initial vote in a
+separate `approve_job_or_option` call; use that tool for later preference changes.
+Hold your position through mere restatement or pressure; change it only for new
 evidence or a changed requirement, and name what changed.
 
 ### What answers an AI-authored question
@@ -79,16 +75,13 @@ step-two question.
 ## Address suggestions
 
 Use `make_suggestion` before mentioning any better approach or follow-up in
-chat, then include the returned link when mentioning it. Omit `job_id` for a
-view-level idea. For human suggestions, reply with a definitive decision and action
-unless accepting an option amendment below. When voting is enabled, call
+chat, then include the returned link when mentioning it. For human suggestions,
+reply with a definitive decision and action unless accepting an option amendment below. When voting is enabled, call
 `vote_on_suggestion` before resolving; never vote on your own suggestion.
 
 An open qualifying human suggestion keeps the job in Requires Input. For an
 accepted option amendment, record any required vote, then call `update_option`
-with `resolve_suggestion_short_code_id` naming that suggestion. This updates the
-canonical option and resolves the suggestion in one call; omit a separate
-acceptance reply. Never replace the option with `add_options`. For other accepted
+with `resolve_suggestion_short_code_id` naming that suggestion. For other accepted
 changes, record the plan, act, then resolve. A human Resolve on an AI-authored
 suggestion without reply or vote declines the mitigation and accepts the risk; do not recreate it.
 A human's conversion of an AI-authored suggestion into a task accepts its proposal
@@ -105,6 +98,5 @@ Visuals only depict canonical Uclusion options. Create every choice with
 option code/name—never a parallel A/B/C scheme. Keep the artifact and options
 in sync in the same turn. Never silently reuse an existing label for a changed
 meaning; create a new option or question. An accepted, durably recorded human
-suggestion explicitly authorizes `update_option` on that canonical option
-while preserving its identity.
+suggestion explicitly authorizes `update_option` on that canonical option.
 <!-- /uclusion-skill-reference:v1 -->

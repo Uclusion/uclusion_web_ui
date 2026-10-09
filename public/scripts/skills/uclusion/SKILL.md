@@ -264,15 +264,13 @@ with their exact short code. Compound targets have the form
 `of`, then locate the local item. The first load of a parent not yet read or
 written this session takes its whole scope. When that parent was already
 loaded, read only the poked item with `thread_only`, by its own code or,
-inside a question, its qualified code. That returns just the item and what
-hangs under it, not the whole thread or job again. Never globally load a bare
-local code by itself.
+inside a question, its qualified code. Never globally load a bare local code
+by itself.
 
 Codes inside a question repeat across questions, so reads render each one
 qualified by its question: `<question-code>_<local-code>`, such as
 `Q-*_O-1`. Cite that form. Any tool that takes a local code accepts it
-without `parent_question_short_code_id`, and `get_job` with it returns just
-that option or record, with its votes or replies.
+without `parent_question_short_code_id`.
 
 Added, Updated, and Responded are continuation events, not instructions to
 abandon or acquire work. Incorporate matching assigned-lane changes; for a job,

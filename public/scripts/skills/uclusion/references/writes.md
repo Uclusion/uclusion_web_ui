@@ -19,13 +19,11 @@ are never offered or deferred. A completion package in operations.md is the
 one compound permission ordinary chat may answer. Standalone tool limits in
 [single-comment.md](single-comment.md) still apply.
 
-`add_info`, `approve_job_or_option`, `make_suggestion`, `ask_question`,
-`add_options`, `move_suggestion_to_task` and `reopen` take `for_human`, as does
-any nested `initial_vote`. For records the human tells you to create in their
-name, set `for_human` only for their words and reasoning, with required boolean
+For records the human tells you to create in their name, set `for_human` only
+for their words and reasoning, with required boolean
 `is_my_lane` true for
 assigned work to avoid an echo Poke, and false otherwise so agents receive it
-and can potentially take up the work. Their record and vote count as theirs.
+and can potentially take up the work.
 Ask for their vote's certainty and reason before recording it; never invent
 them. Choose independently for nested `initial_vote` values.
 Use the exact short code returned by Uclusion in tools, chat, commit messages
@@ -43,14 +41,13 @@ and completion-package records remain mandatory without an extra recap note.
 Reply on the exact comment being answered, not its thread root; flat root
 replies separate answers from their questions and cannot be re-threaded.
 
-To correct an existing active AI-authored ordinary note, reply or option Info,
-use `add_info` with `update_info_short_code_id`, `update_info_version` and the
-complete replacement `info`, omitting the creation target `short_code_id`.
+To correct an existing ordinary note, reply or option Info, use `add_info`'s
+update form with the complete replacement body, omitting the creation target.
 Supply the version returned with the body you actually read. Keep
 `parent_question_short_code_id` for a record inside a question. On conflict,
 reload and reconcile the current body; never retry with an unseen version.
-Replacement preserves identity and threading without saving the old body or
-adding a history note. Omitted attachment metadata keeps existing files.
+Replacement preserves identity and threading without adding a history note.
+Omitted attachment metadata keeps existing files.
 Human-authored records, capsules, reviews, standing view notes and machine
 audit records cannot use this form; retain their dedicated tools and
 protections. `for_human` applies only to creation.
@@ -73,9 +70,8 @@ call `get_job` with `stage_only: true`.
 
 ## Reopening resolved work
 
-`reopen` reopens a resolved bug, task, question, suggestion or blocker.
-On your own, reopen only a
-bug or task whose fix is shown to still fail, by a human's report or a failed
+On your own, reopen only a bug or task whose fix is shown to still fail, by a
+human's report or a failed
 verification, and say why in a reply on it. Reopen a question, suggestion or
 blocker only on a human's instruction, and never a question they resolved to
 delegate; ask a new question instead.
@@ -95,28 +91,22 @@ stands; nothing is rolled back.
 For a requested new job, use the duplicate search and creation outcomes below
 before creating it.
 
-`add_job`, `add_task`, `add_bug`, and `add_blocker` create content as the human.
-Use them only for the human's explicit request. AI-originated ideas use
-`make_suggestion`. The one exception is decomposing a newly requested job into
+Use `add_job`, `add_task`, `add_bug`, and `add_blocker` only for the human's
+explicit request. AI-originated ideas use `make_suggestion`. The one exception
+is decomposing a newly requested job into
 its initial task list.
 
-For `add_bug`, use the human-indicated severity: RED critical, YELLOW normal,
-BLUE minor. For a dependency the AI discovers, suggest it; create a blocker only
-when the human explicitly says the job is blocked. View-level creation should
+For `add_bug`, use the human-indicated severity. For a dependency the AI discovers,
+suggest it; create a blocker only when the human explicitly says the job is blocked. View-level creation should
 target the implied existing job/bug view when one is named.
-
-## Recording dependencies
-
-A human-confirmed blocker on the blocked job names the prerequisite job's short code.
 
 ## Saving general lessons as view notes
 
 Machine-, environment-, or user-specific facts may stay private. General
 guidance belongs in an AI-authored view note through `add_view_note`.
 
-Default to updating the existing AI note in the active item's view. Fold in the
-lesson, prune superseded material, and keep a tight topical digest. Create a
-second note only for a genuinely separate topic. Never edit a human-authored
+Fold in the lesson, prune superseded material, and keep a tight topical digest.
+Create a second note only for a genuinely separate topic. Never edit a human-authored
 note; reply or suggest a revision.
 
 Save qualifying lessons autonomously. The first time this rule applies, sweep
@@ -132,10 +122,8 @@ in the new description. Pass initial `tasks` when parts could be reviewed,
 committed, or documented separately.
 
 When the human requests a new job containing existing bugs, pass their short
-codes in `bug_short_code_ids` alongside any new `tasks`. Only standalone bugs
-can move, and only into the job created by that call. Each distinct bug has a
-`moved`, `failed`, or `unconfirmed` outcome; one failure does not stop the other
-moves. Report those outcomes with the returned new job identity. Preserve that
-identity when checking an unconfirmed result with `get_job`: each `add_job`
+codes in `bug_short_code_ids` alongside any new `tasks`. Each distinct bug has a
+`moved`, `failed`, or `unconfirmed` outcome. Report those outcomes with the returned
+new job identity. Preserve that identity when checking an unconfirmed result with `get_job`: each `add_job`
 call creates another job, so repeating the call is not a retry of that job.
 <!-- /uclusion-skill-reference:v1 -->

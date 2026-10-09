@@ -13,15 +13,13 @@ handoffs. Use the exposed `start_job_audit`, `set_job_audit_phase`, and
    the call fails. If that comment later converts into a Bugs job, audit the
    returned job. Once an authorized activation establishes a job as the
    assigned lane and its lookup begins, call `start_job_audit` before
-   substantive planning or execution and retain the run identifier. The
-   initial bucket is `planning`.
+   substantive planning or execution and retain the run identifier.
 2. Before the kind of work changes, call `set_job_audit_phase`. Include the
    active job, run identifier, a `marker_sequence` starting at 1 and increasing
    strictly, and a concise bucket label. A replay reuses its original sequence.
    Ordinary labels are `planning`, `implementation`,
    `testing`, and `other`; use a custom label only when it is materially more
-   informative. Switch to `testing` before tests or builds. A marker applies to
-   the next model request and cannot relabel earlier tokens.
+   informative. Switch to `testing` before tests or builds.
 3. Keep the audit active across ordinary model/chat turns. Call
    `end_job_audit` only when the lane genuinely hands off for a blocking human
    dependency, review, completion, pause, or interruption. Adding or updating

@@ -87,8 +87,7 @@ Write exactly one terminal record for each attempt, on the package thread,
 replying to the human's reply when it came from there and to the thread's root
 when it came from chat. It states the reply, what completed, what failed, and
 what remains. When the clear is authorized and nothing before it failed, pass
-the record as `clear_notifications`' `record`: the server posts it silently,
-then clears, even when nothing is left to clear. Otherwise post it with
+the record as `clear_notifications`' `record`, even when nothing is left to clear. Otherwise post it with
 `add_info`, silently when the clear was authorized. Apply writes.md's receipt
 reconciliation to an uncertain terminal record, writing it only if absent from
 the package thread. A retry under the same reply reconciles what is already
@@ -109,10 +108,8 @@ scope.
 The package is its item's only clear offer. Outside a package, ask before
 clearing the exact scope of the item just worked. Read and list matches only
 when that decision needs inbox contents, making no clear call when that read
-finds nothing. `clear_notifications` takes one exact short code and covers
-what is nested under it, so naming a job includes its tasks and reviews;
-never offer or perform a broader clear. Once that scope is fixed and its
-clear authorized, clear directly and report the tool's actual outcome.
+finds nothing. Once that scope is fixed and its clear authorized, clear directly
+and report the tool's actual outcome.
 
 ## Context-clear boundary
 

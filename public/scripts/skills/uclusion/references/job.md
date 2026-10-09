@@ -23,14 +23,13 @@ brief, without workflow units, ownership or operational authority.
 ## Scoped job context
 
 An initial whole-scope job read supplies its name, description, tasks, assistance
-and reports. For subsequent reads, use `sections` (`description`, `tasks`,
-`assistance`, `reports`, `notes`, `resolved`) or `thread_only` for what changed. Scoped job reads retain the job header,
-stage and votes; job-child thread reads retain the job and current stage.
+and reports. For subsequent reads, use `sections` or `thread_only` for what
+changed. Scoped job reads retain votes.
 Explicit `sections` reads omit the description unless `description` is selected.
 Use `get_job({short_code_id: "J-…", sections: ["description"]})` to read the
-current description with compact job context and no comment-thread bodies.
-Combine `description` with other sections when both are needed; `sections: []`
-omits the description and comment sections. An unscoped read retains the description.
+current description when needed. Combine `description` with other sections
+when both are needed; `sections: []` omits the description and comment sections.
+An unscoped read retains the description.
 After context restoration, fetch the description through this narrow read if
 its complete body is missing before relying on it; a summary is not its body.
 
@@ -60,24 +59,20 @@ Select exactly one executable target for the implementation pass:
 - A task capsule is complete and solely authoritative for that task pass.
   Never merge it with, inherit from, or fall back to the job capsule.
 
-Ordinary reads advertise current capsule R-codes and versions, or explicit
-absence, without embedding their bodies. Job reads show the job capsule and
-capsules for displayed open top-level tasks. A reference or summary does not
-satisfy the current-contract prerequisite.
+Ordinary reads advertise explicit capsule absence. Job reads show the job capsule
+and capsules for displayed open top-level tasks.
+A reference or summary does not satisfy the current-contract prerequisite.
 
 Reuse a complete held body matching the current target reference and version.
 When it is missing, changed or lost, fetch the advertised capsule with
 `get_job({short_code_id: "R-code", thread_only: true})` before affected source or
 test edits. Check its returned identity, target and actual version, and use the
-complete body. This returns the named capsule's current stored version, not an
-immutable historical version. A superseded capsule is not the target's current
-contract; follow the current reference instead. Reading a reply to a capsule
-loads discussion without repeating the capsule body.
+complete body. A superseded capsule is not the target's current contract; follow
+the current reference instead.
 
-After a capsule create or replacement, the R-code and version that
-`set_design_capsule` returns confirm the stored capsule: its body is the one you
-just sent, so do not fetch it again before edits. On an assigned current
-capsule's `Updated` event, use the explicit R-code thread read and reload
+After a capsule create or replacement, use `set_design_capsule`'s receipt:
+its body is the one you just sent, so do not fetch it again before edits. On an
+assigned current capsule's `Updated` event, use the explicit R-code thread read and reload
 Reports, then load [capsules.md](capsules.md) for
 obsolete-review cleanup and reconciliation before further affected edits.
 
@@ -143,8 +138,8 @@ If initial work is ready but the job is not executable, leave its stage unchange
 and ask one question “What action should I take on this job next?” with options
 move to Doable and do an approval. Vote for move to Doable. Only exact transition
 authorization permits change_job_stage; approval itself does not.
-`change_job_stage` states the resulting stage; use its receipt without rereading
-merely to confirm it, as [writes.md](writes.md) requires.
+Use the stage-change receipt without rereading merely to confirm it, as
+[writes.md](writes.md) requires.
 
 When no delivery is armed, reread assistance and effective stage before editing,
 before a completion package, after its reply, and before and after a stage
@@ -184,9 +179,8 @@ new package permission before switching lanes.
 
 ## Reopened task stage
 
-Jobs change stage through change_job_stage, not reopen. A task an assignee
-reopens on a Reviewable job returns it to Doable; one reopened by anyone else,
-the AI included, sends it to Approvable and the usual next-action question.
+A task an assignee reopens on a Reviewable job returns it to Doable; one reopened
+by anyone else, the AI included, sends it to Approvable and the usual next-action question.
 A reopened task leaves the job unfinished until the task resolves again.
 
 ## Plan mode and handoffs

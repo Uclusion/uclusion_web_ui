@@ -21,11 +21,9 @@ resolved standalone bug.
 
 ### What the package says
 
-End the review, or the bug's completion-sweep record, with the package. Then
-print the same package in normal client chat, naming its thread, as the final
-content of that turn's last message; anything printed earlier is lost in what
-follows. Neither copy calls `ask_question` or creates assistance. Say exactly
-what `all` does for this item, in this order:
+End the review, or the bug's completion-sweep record, with the package. Neither
+copy calls `ask_question` or creates assistance. Say exactly what `all` does for
+this item, in this order:
 
 1. commit only the reviewed changes, naming each repository with its files, or
    with a file count and compact scope when a list would be long;
@@ -36,10 +34,27 @@ what `all` does for this item, in this order:
    code with the terminal record on the last, so nothing the attempt writes can
    notify after it.
 
-Leave out the commit and push when the work changed no repository files. A
-bug's sweep record is written even when its sweep could not run, so a sweep
-failure never suppresses the package. End with:
+Leave out the commit and push when the work changed no repository files. End with:
 "Reply `all`, or tell me in your own words what you want, here or on <thread>."
+
+### Publication and presentation
+
+Once durable job-package publication is confirmed, immediately print that same
+package in normal client chat, naming its exact package thread, before the
+triggered completion sweep or any follow-on work. When publication confirms an
+actual entry into Reviewable, this chat copy is the sole intervening presentation
+step before its sweep; other actual entries sweep immediately under
+[job.md](job.md). Do not defer the chat copy until the turn ends.
+
+A standalone bug keeps its package at the end of its saved completion-sweep
+record, including a failed-sweep record. Immediately after that save is
+confirmed, mirror the result and package in normal client chat, naming the exact
+package thread. A sweep failure never suppresses this record or presentation.
+
+If a qualifying human reply has already arrived, suppress any remaining
+invitation and apply the reply handling below. For a publication-confirmed
+Reviewable entry, the sweep remains next after the chat copy. A turn ending
+does not require another full package copy.
 
 ### The reply
 
@@ -54,7 +69,7 @@ tests, builds, deployment, security work, force-push, unrelated changes,
 another job or bug, a broader clear, candidate mutation, or a context clear.
 
 Until a reply arrives, retain the assignment and end each
-later turn with one line naming the package thread rather than the whole
+later turn with only one line naming the package thread rather than the whole
 package. This wait is not a handoff: no work discovery or other job or bug.
 If a claim is held, load [claims.md](claims.md) before affected package or
 handoff actions.

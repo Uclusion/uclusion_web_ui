@@ -30,8 +30,8 @@ In Reviewable, inspect the author of the latest Reports comment:
 
 Before interpreting the report for a job that just transitioned into
 Reviewable, apply [job.md](job.md)'s assigned-job transition rule and finish its
-completion sweep. If this session moved the job into Reviewable, run the sweep immediately
-instead of waiting for its `Updated` Poke.
+completion sweep. If this session moved the job into Reviewable, run its sweep
+under that rule without waiting for its `Updated` Poke.
 
 Handle a Poke through the core and [job.md](job.md)'s assigned-job update rules; it
 does not otherwise change review direction. The exceptions are the resolved-bug
@@ -97,25 +97,28 @@ comment and notification cleanup.
 `ask_for_review` returns the saved review receipt and the job's open questions
 and suggestions, plus the conditional Reviewable transition when implementation
 is declared complete. Inspect the separate review, inventory and transition outcomes.
-Apply writes.md's receipt reconciliation. For an unconfirmed review, inspect
+For confirmed package publication, follow operations.md's presentation order
+before continuing recovery or a triggered sweep. Apply writes.md's receipt
+reconciliation. For an unconfirmed review, inspect
 Reports or the exact review on an update before retrying publication. Reconcile
 an uncertain stage write under writes.md before retrying; never create a
 duplicate review to recover a later step. Once the review is confirmed and the job is still ready
 in Doable, retry only the transition with `change_job_stage`, `from_stage`
 Doable and destination Reviewable. A different stage or new open work stops
-that retry. Run the completion sweep immediately upon a confirmed transition,
-including one first confirmed during reconciliation. An already-Reviewable
+that retry. Run the completion sweep upon a confirmed actual transition,
+including one first confirmed during reconciliation, under [job.md](job.md)'s
+assigned-job transition rule. An already-Reviewable
 no-op alone is not another trigger. A failed sweep remains unfinished work
 and is retried without new permission before any lane switch.
 
 Each open suggestion on the job is unfinished or deferred work that moving the
 job to Reviewable would resolve and lose. Check the ones you hold and the
 `open_suggestions` that `ask_for_review` returns. While any is open, end the
-review, and the chat copy that ends the turn, by naming each one, including
+review and its chat copy by naming each one, including
 those this pass created, and asking the human to convert it to a task or
-resolve it; offer no package. End each later turn by naming the review and the
-suggestions still open. When Pokes show none open, rewrite the review with
-`update_review_short_code_id` to append the package, since a converted
+resolve it; offer no package. End that turn and each later turn by naming the
+review and the suggestions still open. When Pokes show none open, rewrite the
+review with `update_review_short_code_id` to append the package, since a converted
 suggestion is an open task. Include `implementation_complete: true` only if
 the whole job now qualifies. A standalone bug holds no suggestions.
 

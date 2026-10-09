@@ -40,11 +40,12 @@ and surface or create the actual next actionable item. A question blocks only
 what depends on its answer; keep going on everything else.
 
 End when nothing can proceed without the human. State what you need and why
-this lane is blocked. Apply operations.md's completion-package presentation
-and later-turn rules exactly, whatever ended the turn, including a Poke or
-listener rearm. Never drop required package content to save context. Otherwise
-state the pending decision or completed task, applying the core's one-time hint
-and discovery triggers. A turn ending alone never calls `find_work` or repeats
+this lane is blocked. Apply operations.md's later-turn and reply rules for an
+open package, whatever ended the turn, including a Poke or listener rearm; its
+publication route owns package presentation. Never omit that required
+presentation to save context. Otherwise state the pending decision or completed
+task, applying the core's one-time hint and discovery triggers. A turn ending
+alone never calls `find_work` or repeats
 its list. When the next item is unrelated or unknown, apply operations.md's
 context-clear rule.
 <!-- /uclusion-skill-reference:v1 -->

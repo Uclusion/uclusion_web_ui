@@ -103,7 +103,7 @@ continue within their independent permissions.
 | Approvable | Settle assistance, then load [approval.md](approval.md) only for applicable approval; otherwise use the next-action question below. Implementation is locked. |
 | Requires Input | Resolve qualifying assistance under assistance.md; load [capsules.md](capsules.md) only for an answer establishing a new contract. Investigation continues; implementation stays locked until Doable or Reviewable returns. |
 | Doable implementation | Satisfy this unit's target/current-contract prerequisite, then load [coordinator-execution.md](coordinator-execution.md) for independent permissions and bounded dispatch. |
-| Reviewable direction or feedback | [review.md](review.md) for the latest Reports-author direction. An actual entry first triggers [completion.md](completion.md); an unchanged Reviewable report does not. Requested implementation uses coordinator-execution.md with the current contract and permissions. Human Reports direction alone opens no completion package. |
+| Reviewable direction or feedback | [review.md](review.md) for the latest Reports-author direction. An actual entry triggers [completion.md](completion.md) under the assigned-job transition rule below; an unchanged Reviewable report does not. Requested implementation uses coordinator-execution.md with the current contract and permissions. Human Reports direction alone opens no completion package. |
 | Blocked | Inspect dependencies and handle only selected assistance or exact authorized transitions; load assistance.md or [writes.md](writes.md) for that action. Implementation is locked. |
 | Backlog or Skippable | Handle only selected assistance or authorized transitions, loading assistance.md or writes.md as applicable. Implementation is locked. |
 | Absent-capsule planning/publication, permitted new-human-contract replacement or obsolete-review cleanup | [capsules.md](capsules.md); publication grants no execution permission. |
@@ -175,9 +175,10 @@ For the assigned lane, compare a supplied transition (or an ordinary update's
 reloaded stage) with the last observed stage. An actual change into Reviewable,
 including a confirmed in-session change or ask_for_review transition, requires
 [completion.md](completion.md)'s sweep immediately, before review, handoff or
-other work. Reviewable is a handoff signal, not proof the job is final or its
-remaining deployment/other-environment verification ran. Loading an already
-Reviewable job or an update while it stays there
+other work, subject only to [operations.md](operations.md)'s confirmed-package
+presentation order. Reviewable is a handoff signal, not proof the job is final
+or its remaining deployment/other-environment verification ran. Loading an
+already Reviewable job or an update while it stays there
 does not retrigger it. A failed sweep remains incomplete work: retry it without
 new package permission before switching lanes.
 

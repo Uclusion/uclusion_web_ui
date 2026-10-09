@@ -7,8 +7,9 @@ The selected lane recognizes an actual completion transition or its incomplete
 retry. At that signal, load [reading.md](reading.md) and run one fresh,
 environment-correct `uclusion export` through the configured destination. Use
 only the path reported by that successful command for both scans. If the command
-fails or reports no path, say that the completion sweep could not run and stop;
-never use an older export or redirect the export to `/tmp` or elsewhere.
+fails or reports no path, say that the completion sweep could not run and stop
+after any standalone bug's required record and presentation below; never use an
+older export or redirect the export to `/tmp` or elsewhere.
 
 Delegate both scans together to one fresh export-search helper under
 [reading.md](reading.md). Give it that path, the exact completed-code set and
@@ -77,14 +78,14 @@ Merge both scans by target into one numbered list. Use exactly this shape:
 
 `1. **<exact code> — <exact short description>** — **<category>**. Evidence: <matching blocker code and completed code, or conflicting current-outcome evidence>. Proposed action: <specific human action>.`
 
-Load [writes.md](writes.md) before recording that numbered result, or the
-explicit no-candidate result below, with
-`add_info` on the triggering source item and mirror it in chat. When the
-trigger was resolving a standalone bug, end that same record with the bug
-completion package in `operations.md` and mirror it with the result. The
-proposed actions are part of the completion-sweep result, not new suggestion
-artifacts. Do not call `make_suggestion`, `add_info`, or any other mutating
-tool on a candidate during the sweep.
+Load [writes.md](writes.md) before recording that numbered result, the
+explicit no-candidate result below, or a standalone bug's failed-sweep outcome,
+with `add_info` on the triggering source item. Mirror a job's result in chat.
+When the trigger was resolving a standalone bug, use [operations.md](operations.md)'s
+completion-package route for that same result or failed-sweep record and its
+chat counterpart. The proposed actions are part of the completion-sweep result,
+not new suggestion artifacts. Do not call `make_suggestion`, `add_info`, or any
+other mutating tool on a candidate during the sweep.
 
 Use **dependency** as the category when there is no semantic finding, and
 include every matching blocker code. When one target has both kinds of finding,

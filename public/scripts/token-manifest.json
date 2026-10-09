@@ -1,5 +1,14 @@
 {
  "artifacts": {
+  "098bed6e75508d4c36a5a423853df8005e380688b93083c95de7e9084f440da8": {
+   "bytes": 2637,
+   "kind": "skill",
+   "name": "skills/uclusion/references/handoffs.md",
+   "tokens": {
+    "claude": 886,
+    "openai": 544
+   }
+  },
   "09e7aa965db4d7387de719b221356fd7327c50ab169ff975265e11ef3fcc3664": {
    "bytes": 7595,
    "kind": "skill",
@@ -52,6 +61,15 @@
    "tokens": {
     "claude": 872,
     "openai": 554
+   }
+  },
+  "26476887dad9839b25e19b6b3cc46c861091af741f9880826416a769dc8a5949": {
+   "bytes": 6577,
+   "kind": "skill",
+   "name": "skills/uclusion/references/operations.md",
+   "tokens": {
+    "claude": 2088,
+    "openai": 1393
    }
   },
   "2b6497a57217f134ba160c9408857306066a6fc3df7bc6fbf0c4a9352469c584": {
@@ -151,6 +169,15 @@
    "tokens": {
     "claude": 938,
     "openai": 583
+   }
+  },
+  "5e5239e0915e01de4e028521487ae4e650e15e2e3bb55149445af7516d29cd9d": {
+   "bytes": 5722,
+   "kind": "skill",
+   "name": "skills/uclusion/references/completion.md",
+   "tokens": {
+    "claude": 1828,
+    "openai": 1167
    }
   },
   "5f67224ad7564eaf1b6fac9376a5de18be9848b5de03d629f2074460a5d10075": {
@@ -288,6 +315,15 @@
     "openai": 634
    }
   },
+  "95e8728333ceb4657fad547e59d7d2342c874446e79d9657ed839ddc8ec9031a": {
+   "bytes": 14560,
+   "kind": "skill",
+   "name": "skills/uclusion/references/job.md",
+   "tokens": {
+    "claude": 4657,
+    "openai": 2920
+   }
+  },
   "9b2ef500249277786dd770fce129d463db9829861b05fd2762b6bb3e096f4ac0": {
    "bytes": 1858,
    "kind": "skill",
@@ -423,6 +459,15 @@
     "openai": 1246
    }
   },
+  "c59ec712bbbbda39fa808102b6a9cedb711047d2485c1f91f7fd1285eade3baf": {
+   "bytes": 9095,
+   "kind": "skill",
+   "name": "skills/uclusion/references/review.md",
+   "tokens": {
+    "claude": 2836,
+    "openai": 1884
+   }
+  },
   "c94f76d0611e2048bf0c0fde9b3c91e1a155a8f4eaa8a3a2fac2dacfe45cc51a": {
    "bytes": 14226,
    "kind": "skill",
@@ -520,6 +565,15 @@
    "tokens": {
     "claude": 348,
     "openai": 228
+   }
+  },
+  "f127617376a8a94b890e63fde7bc0d5b16b17a6044f95774b58977ce087bc74b": {
+   "bytes": 14352,
+   "kind": "skill",
+   "name": "skills/uclusion/references/job.md, audit removed",
+   "tokens": {
+    "claude": 4565,
+    "openai": 2865
    }
   },
   "f13af713e67e989f9dc1a14bd6c980cb3c25102d1e54cb14715e4f74e886a99b": {

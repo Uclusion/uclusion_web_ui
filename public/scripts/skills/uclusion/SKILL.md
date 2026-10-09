@@ -27,7 +27,8 @@ before acting when the stage or next action changes; do not preload future-stage
 procedures.
 
 Read every applicable instruction file in full through its closing marker when
-first needed. Reuse complete instruction bodies while they remain in context.
+first needed. At every later loading trigger, ensure its complete current body
+is held in context and reuse it without another read, including across Pokes.
 Reread affected files after a known workflow update, and reread required bodies
 lost through compaction, context restoration or other body loss before continuing.
 Summaries and saved identifiers do not replace instruction or contract bodies.
@@ -37,10 +38,11 @@ Summaries and saved identifiers do not replace instruction or contract bodies.
 Use only the authoritative resident stub's client mode and environment, with
 the closest project-scoped bootstrap and its adjacent package taking precedence
 over the user or personal package. Never guess the client from available tools
-or combine delivery modes. At the resident's startup or typed-turn triggers and
-at each Uclusion activation, load only its selected complete delivery unit
-before the action covered by that trigger, including setup, discovery or job
-work:
+or combine delivery modes. At every delivery-loading trigger defined by the
+resident, including its startup or typed-turn, delivery-output or exit, and
+Uclusion-activation triggers, ensure its selected complete current delivery
+unit is held in context before the action covered by that trigger, including
+setup, discovery or job work:
 
 | Resident client mode | Selected delivery unit |
 | --- | --- |
@@ -48,9 +50,10 @@ work:
 | Claude Code session-owned delivery | [references/claude-delivery.md](references/claude-delivery.md). |
 | Cursor chat-owned delivery | [references/cursor-delivery.md](references/cursor-delivery.md). |
 
-Apply the complete-read/reload rules to the selected unit. With no resident stub,
-continue human-started discovery and job work without loading a delivery
-reference, setting up or arming delivery, or inventing a wait strategy.
+Apply the complete-read/reuse rules to the selected unit at every such trigger;
+holding its body does not replace the delivery actions it requires. With no
+resident stub, continue human-started discovery and job work without loading a
+delivery reference, setting up or arming delivery, or inventing a wait strategy.
 
 ## Common authorization
 

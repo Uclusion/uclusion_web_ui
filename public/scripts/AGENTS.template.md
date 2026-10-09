@@ -15,22 +15,25 @@ ambiguous user `$uclusion`; directly read the closest project's
 `.agents/skills/uclusion/SKILL.md` and its required references. Ignore and do
 not combine the user Uclusion skill.
 
-Coordinators and design helpers read their selected skill and references in full
-through end of file. Each file ends with its own closing `<!-- ... -->` marker;
-a read that misses it is incomplete, so continue until it appears.
+Coordinators and design helpers read their selected skill and applicable
+references in full through end of file when first needed. Each file ends with
+its own closing `<!-- ... -->` marker; a read that misses it is incomplete, so
+continue until it appears.
 
-Reuse complete instruction bodies while they remain in context. Reread affected
-files after a known workflow update, and reread required bodies lost through
-compaction or context restoration. Summaries and saved identifiers do not
-replace complete bodies.
+At every later loading trigger, ensure the selected complete current bodies are
+held in context and reuse them without another read, including across Pokes.
+Reread affected files after a known workflow update, and reread required bodies
+lost through compaction, context restoration or other body loss. Summaries and
+saved identifiers do not replace complete bodies.
 
 The remaining rules apply only to coordinators.
 
 The authoritative resident delivery mode is Codex native MCP. Its
 environment-specific CLI command is `{{UCLUSION_CLI}}`.
-At session startup, before discovery or job work, load only
-`references/codex-delivery.md` from the selected Uclusion package and follow it.
-Load that same reference before acting at each Uclusion activation below.
+At session startup, before discovery or job work, ensure the complete current
+`references/codex-delivery.md` body from the selected Uclusion package is held
+in context and follow it. At each Uclusion activation below, ensure that same
+body is held before acting, applying the read and reuse rules above.
 Never select a delivery reference from available tools or combine client modes.
 
 On any `Start`, `Added`, `Updated`, or `Responded` line, or when a request

@@ -19,14 +19,16 @@ ambiguous user `/uclusion`; directly read the closest project's
 `.cursor/skills/uclusion/SKILL.md` and its required references. Ignore and do
 not combine the user Uclusion skill.
 
-Coordinators and design helpers read their selected skill and references in full
-through end of file. Each file ends with its own closing `<!-- ... -->` marker;
-a read that misses it is incomplete, so continue until it appears.
+Coordinators and design helpers read their selected skill and applicable
+references in full through end of file when first needed. Each file ends with
+its own closing `<!-- ... -->` marker; a read that misses it is incomplete, so
+continue until it appears.
 
-Reuse complete instruction bodies while they remain in context. Reread affected
-files after a known workflow update, and reread required bodies lost through
-compaction or context restoration. Summaries and saved identifiers do not
-replace complete bodies.
+At every later loading trigger, ensure the selected complete current bodies are
+held in context and reuse them without another read, including across Pokes.
+Reread affected files after a known workflow update, and reread required bodies
+lost through compaction, context restoration or other body loss. Summaries and
+saved identifiers do not replace complete bodies.
 
 The remaining rules apply only to coordinators.
 
@@ -34,11 +36,12 @@ The authoritative resident delivery mode is Cursor chat-owned delivery. Its
 environment-specific CLI command is `{{UCLUSION_CLI}}`.
 Before acting on a turn the person typed in this chat, including the first
 request of a session and a return to an older chat, even when unrelated to
-Uclusion, load only `references/cursor-delivery.md` from the selected Uclusion
-package and establish delivery as it directs. On listener output or exit,
-load that same reference before handling it or rearming. Load it before acting
-at each Uclusion activation below. Never select a delivery reference from
-available tools or combine client modes.
+Uclusion, ensure the complete current `references/cursor-delivery.md` body from
+the selected Uclusion package is held in context and establish delivery as it
+directs. On listener output or exit, ensure that same body is held before
+handling it or rearming. Ensure it is held before acting at each Uclusion
+activation below, applying the read and reuse rules above. Never select a
+delivery reference from available tools or combine client modes.
 
 On any `Start`, `Added`, `Updated`, or `Responded` line, or when a request
 names Uclusion, Poke AI, find_work, or a Uclusion short code beginning `J-`,

@@ -15,25 +15,28 @@ ambiguous personal `/uclusion`; directly load the closest project's
 `.claude/skills/uclusion/SKILL.md` and its required references. Ignore and do
 not combine the personal Uclusion skill.
 
-Coordinators and design helpers read their selected skill and references in full
-through end of file. Each file ends with its own closing `<!-- ... -->` marker;
-a read that misses it is incomplete, so continue until it appears.
+Coordinators and design helpers read their selected skill and applicable
+references in full through end of file when first needed. Each file ends with
+its own closing `<!-- ... -->` marker; a read that misses it is incomplete, so
+continue until it appears.
 
-Reuse complete instruction bodies while they remain in context. Reread affected
-files after a known workflow update, and reread required bodies lost through
-compaction or context restoration. Summaries and saved identifiers do not
-replace complete bodies.
+At every later loading trigger, ensure the selected complete current bodies are
+held in context and reuse them without another read, including across Pokes.
+Reread affected files after a known workflow update, and reread required bodies
+lost through compaction, context restoration or other body loss. Summaries and
+saved identifiers do not replace complete bodies.
 
 The remaining rules apply only to coordinators.
 
 The authoritative resident delivery mode is Claude Code session-owned delivery.
 Its environment-specific CLI command is `{{UCLUSION_CLI}}`.
 At session start, before acting on the first user request, even for unrelated
-or read-only work, load only `references/claude-delivery.md` from the selected
-Uclusion package and establish delivery as it directs. On delivery-task
-completion, load that same reference before handling output and rearming.
-Load it before acting at each Uclusion activation below. Never select a delivery
-reference from available tools or combine client modes.
+or read-only work, ensure the complete current `references/claude-delivery.md`
+body from the selected Uclusion package is held in context and establish
+delivery as it directs. On delivery-task completion, ensure that same body is
+held before handling output and rearming. Ensure it is held before acting at
+each Uclusion activation below, applying the read and reuse rules above. Never
+select a delivery reference from available tools or combine client modes.
 
 When delivery returns any `Start`, `Added`, `Updated`, or `Responded` line,
 or a request names Uclusion, Poke AI, find_work, or a Uclusion short code

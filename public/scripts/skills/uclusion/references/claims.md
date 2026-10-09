@@ -49,7 +49,7 @@ with operation `release` for the held short code. An implementation review and
 its completion-package wait are not a review handoff: retain the claim until
 the reply's execution attempt reaches a terminal outcome and its record is
 confirmed. Package presentation, reply handling, waiting and execution remain
-solely in [operations.md](operations.md); this unit supplies only the claim
+solely in [completion.md](completion.md); this unit supplies only the claim
 boundary. Releasing a claim does not itself release a retained assignment under
 the core or review.md. Claims a crashed agent leaves behind expire on their own,
 so never wait for another agent's claim beyond a denial.

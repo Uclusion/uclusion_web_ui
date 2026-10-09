@@ -2,32 +2,31 @@
 # Coordinator implementation checks and task resolution
 
 Enforce the stage, contract and independent permission gates below before
-dispatching or resuming job implementation.
-Satisfy [job.md](job.md)'s target/current-contract prerequisite before dispatch
-or resumption. In Reviewable,
-load [review.md](review.md) and convert the latest Reports-author direction into
-implementation requirements.
-Before durable writes, load [writes.md](writes.md). Copy the complete generic
-implementation-helper template below into the bounded brief.
+dispatching or resuming job implementation. Satisfy [the shared
+body](../SKILL.md)'s target/current-contract prerequisite before dispatch or
+resumption. In Reviewable, convert the latest Reports-author direction from the
+routed review unit into implementation requirements. Apply the shared
+durable-write rules. Copy the complete generic implementation-helper template
+below into the bounded brief.
 
 ## Independent permission decisions
 
-Execute only in Doable or Reviewable against job.md's complete current target
-contract. Apply [the core](../SKILL.md)'s common authorization and the job-specific
-qualifications below; stage, contract, testing/build, security, deployment, commit
-and push remain independent gates.
+Execute only in Doable or Reviewable against the complete current target
+contract. Apply [the core](../SKILL.md)'s common authorization and the
+job-specific qualifications below; stage, contract, testing/build, security,
+deployment, commit and push remain independent gates.
 
 An executable stage authorizes implementation, not the form of testing. An
 explicit test plan in the job counts as human approval. Otherwise, before
 running tests or builds, use one `ask_question` per unresolved decision about
-test types and quantities and wait for a qualifying human answer under
-[assistance.md](assistance.md).
+test types and quantities and wait for a qualifying human answer under the
+shared job-assistance rules.
 
 An executable stage alone does not authorize introducing or expanding security
 behavior. An explicit security plan already recorded in the human-authored job
 counts as approval. Otherwise, before implementing security work, use
 `ask_question` to describe the proposed work and wait for a qualifying human
-answer under assistance.md.
+answer under the shared job-assistance rules.
 This gate applies when work changes or introduces authentication,
 authorization, credentials or secrets, threat models, trust boundaries,
 security-sensitive persistence or lifecycle behavior, or shared security
@@ -40,30 +39,32 @@ model.
 
 1. Resolve every open question already answered by either a non-AI,
    non-advisory Approvable For vote or a clear non-AI, non-advisory reply under
-   assistance.md, including any resulting contract change under capsules.md.
+   the shared job-assistance rules, including any resulting contract change.
 2. Resolve tasks already completed, duplicated, or no longer applicable.
 3. Handle every delivered Poke first under [the core](../SKILL.md).
 
 Confirm the current target, its full current contract, executable stage, human
 approval and every independent permission before dispatch or resumption. Keep
 the complete current capsule, qualifying evidence and all tracking identities
-yourself. Refresh changed applicable prerequisites before further affected work.
+yourself. Refresh changed applicable prerequisites before further affected
+work.
 
 ## Bounded implementation dispatch
 
 Start a fresh implementation helper for every independent task pass without
 inherited conversation history (`fork_turns: "none"` in Codex). A grouped task
 continues with its top-level parent's implementation helper. Design help alone
-does not satisfy this execution rule; a cohesive job pass keeps its job contract.
+does not satisfy this execution rule; a cohesive job pass keeps its job
+contract.
 
 Give the implementation helper a complete design/task brief from the current
 contract and qualifying evidence. Retain every agreed behavior, constraint and
 explicitly planned verification step. Convert Review directions into concrete
 implementation requirements yourself. State which actions and verification
 steps the implementation helper may perform and which are withheld. Supply this
-brief, selected applicable constraints and repository/code context, plus generic
-bounded execution and return rules. Select applicable repository constraints
-without their coordinator bootstrap or workflow instructions.
+brief, selected applicable constraints and repository/code context, plus
+generic bounded execution and return rules. Select applicable repository
+constraints without their coordinator bootstrap or workflow instructions.
 
 Give the implementation helper its assigned work and complete applicable
 constraints. Retain full source bodies, evidence and source/version mapping
@@ -93,21 +94,21 @@ or workflow labels:
 > assignment.
 
 Supply changed brief requirements and constraints before the implementation
-helper resumes affected action. Retain ownership, Pokes, human questions, task selection and
-resolution, approvals and permission decisions, publication, final review and
-the completion package yourself.
+helper resumes affected action. Retain ownership, Pokes, human questions, task
+selection and resolution, approvals and permission decisions, publication,
+final review and the completion package yourself.
 
 ## Task resolution and remaining Review work
 
 Implement active tasks and grouped tasks; do not redo resolved work. Resolve
 each task when written and tested. Commit, push and deployment are separate
 gates and hold none of that. Record remaining commits, pushes, deployment and
-already-agreed verification in other environments as Review work in the
-report; they do not keep completed implementation in Doable or automatically
-need a new task. Failures requiring implementation follow the normal
-new/reopened-work rules in writes.md.
+already-agreed verification in other environments as Review work in the report;
+they do not keep completed implementation in Doable or automatically need a new
+task. Failures requiring implementation follow the normal shared
+new/reopened-work rules.
 
 Record returned decisions, trade-offs, follow-ups and anything a reviewer cannot
 reconstruct once in the relevant durable artifact. Review publication and
-completion handoff use review.md.
+completion handoff use the routed review and completion units.
 <!-- /uclusion-skill-reference:v1 -->

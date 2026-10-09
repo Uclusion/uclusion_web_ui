@@ -1,8 +1,9 @@
 <!-- uclusion-skill-reference:v1 -->
 # Approvable job approval
 
-After settling assistance, load [writes.md](writes.md) before recording the
-approval. Approval never grants a stage transition or execution.
+After settling assistance, apply [the shared body](../SKILL.md)'s durable-write
+rules before recording the approval. Approval never grants a stage transition
+or execution.
 
 ## Approve when applicable
 
@@ -15,5 +16,5 @@ certainty. Ask about missing evidence, make suggestions first, then call
 
 If the job says the AI is a required approver, approval is mandatory once
 assistance is settled. Otherwise ask "What action should I take on this job
-next?" as [job.md](job.md) specifies. Do not ask about approval separately.
+next?" as the shared body specifies. Do not ask about approval separately.
 <!-- /uclusion-skill-reference:v1 -->

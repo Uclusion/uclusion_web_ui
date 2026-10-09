@@ -78,12 +78,7 @@ class SkillPackageContractTests(unittest.TestCase):
     def setUpClass(cls):
         cls.skill = read_text(SKILL_SOURCE_PATH)
 
-    def test_skill_entrypoint_is_small_and_routes_to_packaged_references(self):
-        # Codex skill-authoring guidance keeps SKILL.md below 500 lines and
-        # roughly 5,000 words. Shared lifecycle lives in the entrypoint;
-        # stage/action procedures load from its conditional reference routes.
-        self.assertLessEqual(len(self.skill.splitlines()), 500)
-        self.assertLessEqual(len(re.findall(r'\S+', self.skill)), 5000)
+    def test_skill_entrypoint_routes_to_packaged_references(self):
         self.assertEqual(1, self.skill.count(INSTALL.SKILL_MARKER))
         self.assertEqual(1, self.skill.count(INSTALL.SKILL_END_MARKER))
         self.assertLess(

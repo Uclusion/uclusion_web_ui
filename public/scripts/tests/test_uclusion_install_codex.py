@@ -63,7 +63,7 @@ class WorkflowProtocolContractTests(unittest.TestCase):
         )
 
     def test_release_gate_rejects_changed_artifacts_with_stale_counts(self):
-        for key in ('skill', 'reading_reference', 'codex_stub'):
+        for key in ('skill', 'codex_delivery_reference', 'codex_stub'):
             with self.subTest(asset=key), tempfile.TemporaryDirectory() as scratch:
                 scripts_dir = Path(scratch) / 'scripts'
                 shutil.copytree(SCRIPT_DIR, scripts_dir,

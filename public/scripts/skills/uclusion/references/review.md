@@ -2,22 +2,19 @@
 # Coordinator job review and completion handoff
 
 Compile Reviewable direction into applicable implementation-helper requirements
-under [coordinator-execution.md](coordinator-execution.md). Load [writes.md](writes.md) before
-review writes, [operations.md](operations.md) before opening a completion package,
-and [completion.md](completion.md) on an actual transition into Reviewable.
-For a held claim or active assigned-job audit, load [claims.md](claims.md) or
-[audit.md](audit.md), respectively, before affected publication or handoff actions.
+under the routed execution unit. Apply [the shared body](../SKILL.md)'s
+durable-write, current required-set and assigned-job transition rules. The
+completion unit owns every sweep and completion-package action.
 
 ## Request or perform review
 
 Before review, turn unfinished or deferred implementation work into suggestions
-and reference those suggestions in the report. Record the remaining Review
-work described in [coordinator-execution.md](coordinator-execution.md) directly in
+and reference those suggestions in the report. Record the remaining Review work
+described in [coordinator-execution.md](coordinator-execution.md) directly in
 the report. Review opening and package holds are defined below; the package
-itself is in `operations.md`'s completion-package
-section. Read it before `ask_for_review`. For other testable
-review work, call `ask_for_review` with a concise capsule-delta report. Only
-one AI review may be open per job.
+itself is in the routed completion unit. For other testable review work, call
+`ask_for_review` with a concise capsule-delta report. Only one AI review may be
+open per job.
 
 In Reviewable, inspect the author of the latest Reports comment:
 
@@ -27,14 +24,14 @@ In Reviewable, inspect the author of the latest Reports comment:
 - From a human: review the human's work and reply through Uclusion.
 
 Before interpreting the report for a job that just transitioned into
-Reviewable, apply [job.md](job.md)'s assigned-job transition rule and finish its
+Reviewable, apply the shared body's assigned-job transition rule and finish its
 completion sweep. If this session moved the job into Reviewable, run its sweep
 under that rule without waiting for its `Updated` Poke.
 
-Handle a Poke through the core and [job.md](job.md)'s assigned-job update rules; it
+Handle a Poke through the shared assignment and assigned-job update rules; it
 does not otherwise change review direction. The exceptions are the resolved-bug
 and Reviewable-transition sweeps, and a current capsule's `Updated` event,
-which requires the obsolete-review cleanup in [capsules.md](capsules.md).
+which requires the obsolete-review cleanup in the shared capsule rules.
 
 The report names the exact current capsule R-code. A final job completion
 report covering separate task passes names each task and its exact current
@@ -58,13 +55,13 @@ so the package is the review's final content.
 A job gets one review, opened without asking once every task you were asked to
 do in that assigned job, in an executable stage, is written and tested; never
 after each pass. Another open task, such as the human's own, only leaves the
-job unfinished. The review is the capsule-delta report this unit
-describes, naming each task and its current capsule. Opening it is required
-documentation and brings the work to the human. When implementation of the
-whole job is complete, pass `implementation_complete: true` to `ask_for_review`
-to publish the review and conditionally move Doable to Reviewable together.
-For a partial review, omit that flag. No separate stage permission is needed
-for this final implementation handoff.
+job unfinished. The review is the capsule-delta report this unit describes,
+naming each task and its current capsule. Opening it is required documentation
+and brings the work to the human. When implementation of the whole job is
+complete, pass `implementation_complete: true` to `ask_for_review` to publish
+the review and conditionally move Doable to Reviewable together. For a partial
+review, omit that flag. No separate stage permission is needed for this final
+implementation handoff.
 
 A finished task not related enough to the rest of its job gets its own review
 instead; say why in that task's review. Once it is written and tested, call
@@ -72,12 +69,12 @@ instead; say why in that task's review. Once it is written and tested, call
 its job, a name taken from the task, and a description naming the job it came
 from. Use this standing human authorization without asking again.
 The task keeps its capsule. If the result says the new job started in the initial
-stage, ask about its next stage as [job.md](job.md) says. It joins your assignment beside the job it
+stage, ask about its next stage as the shared body says. It joins your assignment beside the job it
 came from, so waiting on its package does not stop the tasks remaining there.
 
-A job's implementation is finished when its agreed implementation is built,
-its initial verification is complete, and no open task remains; an empty task
-list alone never shows that. State in the review which you concluded and why.
+A job's implementation is finished when its agreed implementation is built, its
+initial verification is complete, and no open task remains; an empty task list
+alone never shows that. State in the review which you concluded and why.
 Commits, pushes, deployments and agreed verification in other environments
 belong to Review. List what remains and its approval status in the report,
 before the completion package; those actions retain their permission gates.
@@ -86,20 +83,20 @@ merely to make the transition eligible.
 
 Continue handling Pokes.
 
-Inspect the separate review, inventory and transition outcomes.
-For confirmed package publication, follow operations.md's presentation order
-before continuing recovery or a triggered sweep. Apply writes.md's receipt
-reconciliation. For an unconfirmed review, inspect
-Reports or the exact review on an update before retrying publication. Reconcile
-an uncertain stage write under writes.md before retrying; never create a
-duplicate review to recover a later step. Once the review is confirmed and the job is still ready
-in Doable, retry only the transition with `change_job_stage`, `from_stage`
-Doable and destination Reviewable. A different stage or new open work stops
-that retry. Run the completion sweep upon a confirmed actual transition,
-including one first confirmed during reconciliation, under [job.md](job.md)'s
-assigned-job transition rule. An already-Reviewable
-no-op alone is not another trigger. A failed sweep remains unfinished work
-and is retried without new permission before any lane switch.
+Inspect the separate review, inventory and transition outcomes. For confirmed
+package publication, follow the completion unit's presentation order before
+continuing recovery or a triggered sweep. Apply the shared write-receipt
+reconciliation. For an unconfirmed review, inspect Reports or the exact review
+on an update before retrying publication. Reconcile an uncertain stage write
+under the shared write-receipt rules before retrying; never create a duplicate
+review to recover a later step. Once the review is confirmed and the job is
+still ready in Doable, retry only the transition with `change_job_stage`,
+`from_stage` Doable and destination Reviewable. A different stage or new open
+work stops that retry. Run the completion sweep upon a confirmed actual
+transition, including one first confirmed during reconciliation, under the
+shared body's assigned-job transition rule. An already-Reviewable no-op alone
+is not another trigger. A failed sweep remains unfinished work and is retried
+without new permission before any lane switch.
 
 Each open suggestion on the job is unfinished or deferred work that moving the
 job to Reviewable would resolve and lose. Check the ones you hold and the
@@ -120,17 +117,16 @@ handled, every authorized action (including any clear) has succeeded, the
 terminal record is confirmed, and any triggered completion sweep is complete.
 Use the review-opening definition of a finished job above. Waiting for human
 review or later signoff after this boundary does not retain the assignment.
-When no other assigned work remains, the session is idle and accepts a new
-live `Start` without an explicit switch. Apply the assignment-ended discovery
-rule in the core. Preserve the released state across compaction; a still-open AI
+When no other assigned work remains, the session is idle and accepts a new live
+`Start` without an explicit switch. Apply the assignment-ended discovery rule
+in the core. Preserve the released state across compaction; a still-open AI
 review does not restore the assignment.
 
-Reviewable alone is not enough: retain the assignment while requested work,
-an unanswered package, a failed or unfinished authorized action, or a
-triggered completion sweep remains. A terminal failure record does not release
-it. For a finished job already in Reviewable, a reply declining some or all
-actions can complete the package; declined actions are not pending work.
-Releasing the
+Reviewable alone is not enough: retain the assignment while requested work, an
+unanswered package, a failed or unfinished authorized action, or a triggered
+completion sweep remains. A terminal failure record does not release it. For a
+finished job already in Reviewable, a reply declining some or all actions can
+complete the package; declined actions are not pending work. Releasing the
 session assignment does not resolve the job or change its human assignees.
 
 ## Job commit identities

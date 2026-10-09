@@ -319,7 +319,6 @@ WORKFLOW_ASSET_PATHS = {
     'completion_reference': 'skills/uclusion/references/completion.md',
     'audit_reference': 'skills/uclusion/references/audit.md',
     'claims_reference': 'skills/uclusion/references/claims.md',
-    'uploads_reference': 'skills/uclusion/references/uploads.md',
     'openai_metadata': 'skills/uclusion/agents/openai.yaml',
     'design_skill': 'skills/uclusion-design/SKILL.md',
     'design_examples': 'skills/uclusion-design/references/examples.md',
@@ -338,7 +337,7 @@ WORKFLOW_ASSET_SHA256 = {
     'claude_stub': '770dadc1acd5a00b1fe80e05771718868516d76ab94c4e12740fe960566faac1',
     'codex_stub': 'a22c68499a9f4e30db3e56873a65118193927a0ff58e3f5de74a54147bb98cc9',
     'cursor_stub': 'df99468a1b7b8119817329fb3ac29c11ddf3133998b89b3f112e601b3aefeb87',
-    'skill': '8391c06d1f0c1e20d97973a781b0d9ea5561d076f78978c3261a7f3e94fbbc41',
+    'skill': 'fd31af2fd368f77347f0346e1e9864efc82df1bf0255fcb0a917fab6a433fb2c',
     'codex_delivery_reference': 'cc9c3780e79fa5ea1cd45fee3128360b65e60f4f6d9c5e62c3c27a20b18d4887',
     'claude_delivery_reference': '4d965b3dad8555935ad3c403f8ff00a451d9867cc77ea46e0ee348d96d0ad0ea',
     'cursor_delivery_reference': '64bd40d2fd4c8d5467f6cc4422bc0d34699d9d937916f4bd0707e7ac8a7d8a3f',
@@ -349,13 +348,12 @@ WORKFLOW_ASSET_SHA256 = {
     'completion_reference': '6ac473b67ef1336c64634cade319b8fc95c06e1cbd851ace12d8ce9ee6040993',
     'audit_reference': 'c71f33e60bb52fe99489e056fff12a7656452bc8d905cc0b54a3882be08d5fbb',
     'claims_reference': '46295b27f0cfb3f29fcdedcff0288f81672ef9feddfffaa3b633d441cd86ab58',
-    'uploads_reference': 'cc1b1549bfc3167e379061d94df90682c4a732ac089adc5d85841c5f494d64b9',
     'openai_metadata': 'c60b60bcccd8b171ab950477b7f09b5fc621974846f4cdc468b6c8fe0bbb2ca9',
     'design_skill': 'db10d52456d87b1941e448fddb24084620550999c4a459092de106306ed8f33f',
     'design_examples': '4bbe306e72f6438bf1dddbd1a77c7eaa2c117080f89cb57ccb0c41c0fcddadd8',
     'design_openai_metadata': 'd94499cb3851d46db554a0321d8469571273d446a8caefbdcbb8a68cb012c868',
     'demo_brief': '1c26c3235dba931bcbf9d88fcacf32e437f1ec10f3e70fd908f33228ba30037f',
-    'token_manifest': '645a21b5c490a3aefebc528e8d3443171201b5c5169c26029fa630f86c468e8f',
+    'token_manifest': '2eac372fef0ee73aae4ff6bb66abf8740476c68c3f863eaa6b607837979832e7',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',
@@ -373,7 +371,6 @@ SKILL_PACKAGE_ASSETS = (
     ('completion_reference', os.path.join('references', 'completion.md')),
     ('audit_reference', os.path.join('references', 'audit.md')),
     ('claims_reference', os.path.join('references', 'claims.md')),
-    ('uploads_reference', os.path.join('references', 'uploads.md')),
     ('openai_metadata', os.path.join('agents', 'openai.yaml')),
     # Publish the entrypoint last so an interrupted refresh never exposes a
     # new SKILL.md before all files it routes to are durable.
@@ -391,6 +388,7 @@ RETIRED_SKILL_REFERENCE_PATHS = (
     os.path.join('references', 'handoffs.md'),
     os.path.join('references', 'capsules.md'),
     os.path.join('references', 'operations.md'),
+    os.path.join('references', 'uploads.md'),
 )
 DESIGN_SKILL_PACKAGE_ASSETS = (
     ('design_examples', os.path.join('references', 'examples.md')),

@@ -42,7 +42,7 @@ contract bodies.
 Use this complete shared body for every coordinator action. Select the current
 stage and next action below before loading references; combine only rows that
 apply now, plus the selected resident delivery unit at its current loading
-trigger. Optional claim, audit and upload routes add only their stated
+trigger. Optional claim and audit routes add only their stated
 conditions.
 
 | Current stage or action | Additional complete units and gates |
@@ -60,7 +60,6 @@ conditions.
 | Completion-package presentation, waiting, reply or authorized execution, for a job review or resolved standalone bug | [references/completion.md](references/completion.md). Add review.md for job review publication/recovery or assignment release. |
 | Actual assigned-job entry into Reviewable, standalone bug open-to-resolved transition, or incomplete-sweep retry | [references/completion.md](references/completion.md), immediately under the transition and presentation rules below. |
 | `auto_take_directions`, exposed `claim_work` (including deferred), or a held claim | [references/claims.md](references/claims.md) before affected discovery, activation, ownership, package or handoff actions. |
-| Optional `get_upload` action when exposed | [references/uploads.md](references/uploads.md). |
 
 <!-- uclusion-audit:v1 -->
 For the assigned job, when `start_job_audit` is exposed (including deferred) or

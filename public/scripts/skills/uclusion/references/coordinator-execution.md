@@ -2,12 +2,12 @@
 # Coordinator implementation checks and task resolution
 
 Enforce the stage, contract and independent permission gates below before
-dispatching or resuming job implementation. Satisfy [the shared
-body](../SKILL.md)'s target/current-contract prerequisite before dispatch or
-resumption. In Reviewable, convert the latest Reports-author direction from the
-routed review unit into implementation requirements. Apply the shared
-durable-write rules. Copy the complete generic implementation-helper template
-below into the bounded brief.
+dispatching or resuming job implementation. Satisfy
+[job-coordinator.md](job-coordinator.md)'s target/current-contract prerequisite
+before dispatch or resumption. In Reviewable, convert the latest Reports-author
+direction from the routed review unit into implementation requirements. Apply
+the shared durable-write rules. Copy the complete generic implementation-helper
+template below into the bounded brief.
 
 ## Independent permission decisions
 
@@ -20,13 +20,13 @@ An executable stage authorizes implementation, not the form of testing. An
 explicit test plan in the job counts as human approval. Otherwise, before
 running tests or builds, use one `ask_question` per unresolved decision about
 test types and quantities and wait for a qualifying human answer under the
-shared job-assistance rules.
+job-coordinator assistance rules.
 
 An executable stage alone does not authorize introducing or expanding security
 behavior. An explicit security plan already recorded in the human-authored job
 counts as approval. Otherwise, before implementing security work, use
 `ask_question` to describe the proposed work and wait for a qualifying human
-answer under the shared job-assistance rules.
+answer under the job-coordinator assistance rules.
 This gate applies when work changes or introduces authentication,
 authorization, credentials or secrets, threat models, trust boundaries,
 security-sensitive persistence or lifecycle behavior, or shared security
@@ -39,7 +39,7 @@ model.
 
 1. Resolve every open question already answered by either a non-AI,
    non-advisory Approvable For vote or a clear non-AI, non-advisory reply under
-   the shared job-assistance rules, including any resulting contract change.
+   the job-coordinator assistance rules, including any resulting contract change.
 2. Resolve tasks already completed, duplicated, or no longer applicable.
 3. Handle every delivered Poke first under [the core](../SKILL.md).
 

@@ -2,9 +2,10 @@
 # Coordinator job review and completion handoff
 
 Compile Reviewable direction into applicable implementation-helper requirements
-under the routed execution unit. Apply [the shared body](../SKILL.md)'s
-durable-write, current required-set and assigned-job transition rules. The
-completion unit owns every sweep and completion-package action.
+under the routed execution unit. Apply the held common durable-write rules and
+[job-coordinator.md](job-coordinator.md)'s current set, transition and
+completion-input rules. The completion unit owns every sweep and
+completion-package action.
 
 ## Request or perform review
 
@@ -24,14 +25,15 @@ In Reviewable, inspect the author of the latest Reports comment:
 - From a human: review the human's work and reply through Uclusion.
 
 Before interpreting the report for a job that just transitioned into
-Reviewable, apply the shared body's assigned-job transition rule and finish its
+Reviewable, apply job-coordinator's assigned-job transition rule and finish its
 completion sweep. If this session moved the job into Reviewable, run its sweep
 under that rule without waiting for its `Updated` Poke.
 
-Handle a Poke through the shared assignment and assigned-job update rules; it
-does not otherwise change review direction. The exceptions are the resolved-bug
-and Reviewable-transition sweeps, and a current capsule's `Updated` event,
-which requires the obsolete-review cleanup in the shared capsule rules.
+Handle a Poke through the common assignment and job-coordinator update rules;
+it does not otherwise change review direction. The exceptions are the
+resolved-bug and Reviewable-transition sweeps, and a current capsule's
+`Updated` event, which requires the obsolete-review cleanup in the
+job-coordinator capsule rules.
 
 The report names the exact current capsule R-code. A final job completion
 report covering separate task passes names each task and its exact current
@@ -69,7 +71,7 @@ instead; say why in that task's review. Once it is written and tested, call
 its job, a name taken from the task, and a description naming the job it came
 from. Use this standing human authorization without asking again.
 The task keeps its capsule. If the result says the new job started in the initial
-stage, ask about its next stage as the shared body says. It joins your assignment beside the job it
+stage, ask about its next stage as job-coordinator says. It joins your assignment beside the job it
 came from, so waiting on its package does not stop the tasks remaining there.
 
 A job's implementation is finished when its agreed implementation is built, its
@@ -80,6 +82,14 @@ belong to Review. List what remains and its approval status in the report,
 before the completion package; those actions retain their permission gates.
 Resolve completed implementation tasks first. Do not close unfinished work
 merely to make the transition eligible.
+
+For package publication, prepare the repositories and reviewed files and its
+exact clear scope: the job if this pass finishes it, otherwise the review and
+each task this pass resolved. Use the exact review identity from the held
+record or confirmed publication receipt as its package thread. Supply these
+inputs to the completion unit. A confirmed actual transition also prepares
+job-coordinator's completed-code set and authoritative outcome record before
+the immediate sweep, subject only to confirmed-package chat presentation.
 
 Continue handling Pokes.
 
@@ -92,9 +102,9 @@ under the shared write-receipt rules before retrying; never create a duplicate
 review to recover a later step. Once the review is confirmed and the job is
 still ready in Doable, retry only the transition with `change_job_stage`,
 `from_stage` Doable and destination Reviewable. A different stage or new open
-work stops that retry. Run the completion sweep upon a confirmed actual
-transition, including one first confirmed during reconciliation, under the
-shared body's assigned-job transition rule. An already-Reviewable no-op alone
+work stops that retry. Prepare job-coordinator's completed codes and authoritative outcome record,
+then run the completion sweep upon a confirmed actual transition, including one first confirmed during reconciliation, under
+job-coordinator's assigned-job transition rule. An already-Reviewable no-op alone
 is not another trigger. A failed sweep remains unfinished work and is retried
 without new permission before any lane switch.
 

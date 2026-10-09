@@ -3,7 +3,8 @@
 
 ## Completion trigger and isolated scans
 
-At an actual completion transition or incomplete retry in the selected lane,
+Use the selected lane's prepared trigger, exact completed-code set and current
+authoritative outcome evidence. At its actual transition or incomplete retry,
 select a successful export under [the shared body](../SKILL.md)'s reuse and
 freshness rules. If no suitable export is available, say that the completion
 sweep could not run and stop after any standalone bug's required record and
@@ -12,39 +13,11 @@ presentation below.
 Assign both scans together to one fresh read-only isolated export-search helper
 under the shared isolated-search rules. Give the export-search helper the exact
 successful export path, the exact completed-code set and current authoritative
-outcome evidence defined below, and all scan and result rules in this unit.
-Require concise merged findings or an explicit no-candidate result, identifying
-any incomplete scan or unsettled evidence. Record and present the result
-yourself and retain later decisions and authorized actions; keep raw export
-research with the export-search helper.
-
-## Job outcome record
-
-The completed-code set starts with the Reviewable job's exact short code.
-Also include every contained item rendered as a `Task` or
-`Grouped task`, including resolved forms and retained non-`T-` prefixes.
-Membership comes from its rendered role and containment, not its prefix;
-ordinary assistance and replies do not qualify merely because they are in the
-job.
-
-For outcome impact, use the record available at the trigger: the Reviewable job
-and all its task bodies, plus the current intent/design capsule, human-backed
-decisions, and current completion/review report when each is present. Rejected,
-unresolved, and speculative proposals are not evidence. If those sources
-conflict and the current record does not settle that conflict, do not classify
-a candidate. A later qualifying transition uses the then-current record and can
-supersede the earlier result.
-
-## Completed work
-
-For a standalone bug, the completed-code set is its exact short code. For a job
-trigger, use the set defined above.
-
-For outcome impact, use the resolved bug thread, human-backed decisions, and
-current completion report when present; a job trigger uses its outcome record
-defined above. Rejected, unresolved, and speculative proposals are not
-evidence. If the current record does not settle a conflict, do not classify a
-candidate.
+outcome evidence prepared by the lane, and all scan and result rules in this
+unit. Require concise merged findings or an explicit no-candidate result,
+identifying any incomplete scan or unsettled evidence. Record and present the
+result yourself and retain later decisions and authorized actions; keep raw
+export research with the export-search helper.
 
 ## Scans
 
@@ -104,14 +77,11 @@ authorization and workflow gates.
 
 ## Completion packages
 
-Open a completion package at a job's implementation review or a standalone
-bug's resolution: explain what `all` does, handle one human reply, and write
-one terminal record per attempt. Keep the **package thread** at that exact
-review or resolved bug.
-
-Job review opening, readiness and publication recovery are governed by
-[review.md](review.md). The package mechanics below apply to both its review
-and a resolved standalone bug.
+When the selected lane opens a completion package, explain what `all` does,
+handle one human reply and write one terminal record per attempt. Use its
+prepared **package thread**, reviewed repository changes and exact notification
+scope, at that review or resolved bug. Package readiness, trigger preparation
+and assignment release remain with the selected lane.
 
 ### What the package says
 
@@ -136,11 +106,11 @@ with: "Reply `all`, or tell me in your own words what you want, here or on
 
 Once durable job-package publication is confirmed, immediately print that same
 package in normal client chat, naming its exact package thread, before the
-triggered completion sweep or any follow-on work. When publication confirms an
-actual entry into Reviewable, this chat copy is the sole intervening
-presentation step before its sweep; other actual entries sweep immediately
-under [the shared body](../SKILL.md). Do not defer the chat copy until the turn
-ends.
+triggered completion sweep or any follow-on work. When the lane's confirmed
+publication also establishes its actual sweep trigger, this chat copy is the
+sole intervening presentation step before that sweep; other actual transitions
+invoke their lane-prepared sweep immediately. Do not defer the chat copy until
+the turn ends.
 
 A standalone bug keeps its package at the end of its saved completion-sweep
 record, including a failed-sweep record. Immediately after that save is
@@ -150,8 +120,8 @@ presentation.
 
 If a qualifying human reply has already arrived, suppress any remaining
 invitation and apply the reply handling below. For a publication-confirmed
-Reviewable entry, the sweep remains next after the chat copy. A turn ending
-does not require another full package copy.
+sweep trigger, the sweep remains next after the chat copy. A turn ending does
+not require another full package copy.
 
 ### The reply
 
@@ -191,5 +161,5 @@ durable, performs only what remains, and
 writes one new record.
 
 After a terminal attempt, apply the shared assignment ownership rules.
-Job completion release is defined in [review.md](review.md).
+Apply the selected lane's held completion-release conditions.
 <!-- /uclusion-skill-reference:v1 -->

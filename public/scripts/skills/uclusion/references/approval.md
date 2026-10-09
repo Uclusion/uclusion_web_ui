@@ -16,5 +16,5 @@ certainty. Ask about missing evidence, make suggestions first, then call
 
 If the job says the AI is a required approver, approval is mandatory once
 assistance is settled. Otherwise ask "What action should I take on this job
-next?" as the shared body specifies. Do not ask about approval separately.
+next?" as [job-coordinator.md](job-coordinator.md) specifies. Do not ask about approval separately.
 <!-- /uclusion-skill-reference:v1 -->

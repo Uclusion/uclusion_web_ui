@@ -21,10 +21,12 @@ human requirements. Write only that target's contract; a task capsule stands
 alone and never inherits from or falls back to a job capsule.
 
 Leave target selection, stages, questions, suggestions, durable writes,
-permission checks, implementation and final review to the coordinator. Read
-[references/examples.md](references/examples.md) in full before drafting or
-reviewing. Report missing or unreadable required instructions as an installation
-fault to the coordinator; do not improvise them.
+permission checks, implementation and final review to the coordinator. Before
+drafting or reviewing, read this selected SKILL.md and
+[references/examples.md](references/examples.md) in full through their closing
+markers; continue an incomplete read until its marker appears. Report missing
+or unreadable required instructions as an installation fault to the coordinator;
+do not improvise them.
 
 Investigate relevant source and history with bounded searches before drafting.
 Use workspace-export findings supplied by the coordinator; ask it to assign

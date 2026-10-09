@@ -309,6 +309,7 @@ WORKFLOW_ASSET_PATHS = {
     'codex_stub': 'AGENTS.template.md',
     'cursor_stub': 'uclusion.mdc',
     'skill': 'skills/uclusion/SKILL.md',
+    'job_coordinator_reference': 'skills/uclusion/references/job-coordinator.md',
     'codex_delivery_reference': 'skills/uclusion/references/codex-delivery.md',
     'claude_delivery_reference': 'skills/uclusion/references/claude-delivery.md',
     'cursor_delivery_reference': 'skills/uclusion/references/cursor-delivery.md',
@@ -334,26 +335,27 @@ WORKFLOW_ASSET_PATHS = {
 # These digests bind the installer to one coherent workflow release. A host
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
+    'job_coordinator_reference': '61f51ce6aacd7d47bcebccb81ed4ad8ab2ccb742ff6d211c1ff8b7fda32cfc44',
     'claude_stub': '770dadc1acd5a00b1fe80e05771718868516d76ab94c4e12740fe960566faac1',
     'codex_stub': 'a22c68499a9f4e30db3e56873a65118193927a0ff58e3f5de74a54147bb98cc9',
     'cursor_stub': 'df99468a1b7b8119817329fb3ac29c11ddf3133998b89b3f112e601b3aefeb87',
-    'skill': 'fd31af2fd368f77347f0346e1e9864efc82df1bf0255fcb0a917fab6a433fb2c',
+    'skill': '9d371944dba62a80bec7395890f5ad37323b5e8bec5222f791f68c0b56a4ed47',
     'codex_delivery_reference': 'cc9c3780e79fa5ea1cd45fee3128360b65e60f4f6d9c5e62c3c27a20b18d4887',
     'claude_delivery_reference': '4d965b3dad8555935ad3c403f8ff00a451d9867cc77ea46e0ee348d96d0ad0ea',
     'cursor_delivery_reference': '64bd40d2fd4c8d5467f6cc4422bc0d34699d9d937916f4bd0707e7ac8a7d8a3f',
-    'approval_reference': '864e73743a17ec2ec88c7740e3322ec756f5b0e5459c4315ad6735092ab2102c',
-    'coordinator_execution_reference': '4ad11946d7b1d1a2a67be42ee805b8ce3be48d796496175c9777961fdd0243ef',
-    'single_comment_reference': 'ca283ad7ab4ca0375b59a3dd4d29befbdc65a1d74141c05b0f724f65870e0ebb',
-    'review_reference': 'b0d00d3a99791d6c6983b3eb276ccd720a614130cce4c3403139a67e7cce2744',
-    'completion_reference': '6ac473b67ef1336c64634cade319b8fc95c06e1cbd851ace12d8ce9ee6040993',
+    'approval_reference': 'fc6b501df91c6c36f9f9c6090bdb7d987f248ca3a4330e5b18a61578332301d4',
+    'coordinator_execution_reference': '9444123eb989b6b03dbd6c766ef2ba0e4cc660b42be4058ed8648fe73423c54b',
+    'single_comment_reference': 'b2a61255cab89011ff36f591cc244a57a5275d7841a0f0ec98d9813420329998',
+    'review_reference': 'f5d4d2fec16cbdff93255f3d577e38b8b638cda14d0b207a3fe3b2a53d7fb7f4',
+    'completion_reference': '859810e6b293e9836877ed853a42b3de382770f55ed1398ee72e4683c4d1e3c0',
     'audit_reference': 'c71f33e60bb52fe99489e056fff12a7656452bc8d905cc0b54a3882be08d5fbb',
     'claims_reference': '46295b27f0cfb3f29fcdedcff0288f81672ef9feddfffaa3b633d441cd86ab58',
     'openai_metadata': 'c60b60bcccd8b171ab950477b7f09b5fc621974846f4cdc468b6c8fe0bbb2ca9',
-    'design_skill': 'db10d52456d87b1941e448fddb24084620550999c4a459092de106306ed8f33f',
+    'design_skill': 'cffa609b1d0cb430707cc89253f4d2e13a167ae895c49a765e0fe7c364cb541a',
     'design_examples': '4bbe306e72f6438bf1dddbd1a77c7eaa2c117080f89cb57ccb0c41c0fcddadd8',
     'design_openai_metadata': 'd94499cb3851d46db554a0321d8469571273d446a8caefbdcbb8a68cb012c868',
     'demo_brief': '1c26c3235dba931bcbf9d88fcacf32e437f1ec10f3e70fd908f33228ba30037f',
-    'token_manifest': '2eac372fef0ee73aae4ff6bb66abf8740476c68c3f863eaa6b607837979832e7',
+    'token_manifest': '2fd7c9eb844eeb4590b98adb3f36b9ac3dc78504d9c851da44e6938f3df51bfd',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',
@@ -361,6 +363,7 @@ CLIENT_STUB_ASSET = {
     'cursor': 'cursor_stub',
 }
 SKILL_PACKAGE_ASSETS = (
+    ('job_coordinator_reference', os.path.join('references', 'job-coordinator.md')),
     ('codex_delivery_reference', os.path.join('references', 'codex-delivery.md')),
     ('claude_delivery_reference', os.path.join('references', 'claude-delivery.md')),
     ('cursor_delivery_reference', os.path.join('references', 'cursor-delivery.md')),

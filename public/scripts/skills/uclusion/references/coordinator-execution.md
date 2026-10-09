@@ -1,14 +1,6 @@
 <!-- uclusion-skill-reference:v1 -->
 # Coordinator implementation checks and task resolution
 
-Enforce the stage, contract and independent permission gates below before
-dispatching or resuming job implementation. Satisfy
-[job-coordinator.md](job-coordinator.md)'s target/current-contract prerequisite
-before dispatch or resumption. In Reviewable, convert the latest Reports-author
-direction from the routed review unit into implementation requirements. Apply
-the shared durable-write rules. Copy the complete generic implementation-helper
-template below into the bounded brief.
-
 ## Independent permission decisions
 
 Execute only in Doable or Reviewable against the complete current target

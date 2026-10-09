@@ -163,7 +163,7 @@ SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionSetupMCP.py': '9aa8d3199b0c392d944fc3b2fb9f26b48230737ea2e5b07980cd3df6b79ed4f3',
     'uclusionCodexNative.py': '89587700e95582353ee9d3f2a9f48674d88d3c68ed13a6e929cd0efa3aa85300',
     'uclusionUpdateNotices.py': 'a9d6ed9e082bce28ac8340d242ad34d2f180a35de6821ce72c0684503e84b7e8',
-    'uclusionTokenAudit.py': 'a900dea0e13e03773476a3e2872572e2986e5c1779317e6a4ec8c186ed237792',
+    'uclusionTokenAudit.py': '9f1d20aac18767e710c3b91166aa2c499ceb69ade93fc2798e2800a4140fa2b7',
 }
 USER_HOME = os.path.expanduser('~')
 UCLUSION_HOME = os.path.join(uclusion_home_root(), '.uclusion')
@@ -344,7 +344,7 @@ WORKFLOW_ASSET_SHA256 = {
     'claude_delivery_reference': '4d965b3dad8555935ad3c403f8ff00a451d9867cc77ea46e0ee348d96d0ad0ea',
     'cursor_delivery_reference': '64bd40d2fd4c8d5467f6cc4422bc0d34699d9d937916f4bd0707e7ac8a7d8a3f',
     'approval_reference': 'fc6b501df91c6c36f9f9c6090bdb7d987f248ca3a4330e5b18a61578332301d4',
-    'coordinator_execution_reference': '9444123eb989b6b03dbd6c766ef2ba0e4cc660b42be4058ed8648fe73423c54b',
+    'coordinator_execution_reference': 'd0d4887df110466d169f89d71106baba9f658403157114f10ca2f185ebab679d',
     'single_comment_reference': 'b2a61255cab89011ff36f591cc244a57a5275d7841a0f0ec98d9813420329998',
     'review_reference': 'f5d4d2fec16cbdff93255f3d577e38b8b638cda14d0b207a3fe3b2a53d7fb7f4',
     'completion_reference': '859810e6b293e9836877ed853a42b3de382770f55ed1398ee72e4683c4d1e3c0',
@@ -355,7 +355,7 @@ WORKFLOW_ASSET_SHA256 = {
     'design_examples': '4bbe306e72f6438bf1dddbd1a77c7eaa2c117080f89cb57ccb0c41c0fcddadd8',
     'design_openai_metadata': 'd94499cb3851d46db554a0321d8469571273d446a8caefbdcbb8a68cb012c868',
     'demo_brief': '1c26c3235dba931bcbf9d88fcacf32e437f1ec10f3e70fd908f33228ba30037f',
-    'token_manifest': '2fd7c9eb844eeb4590b98adb3f36b9ac3dc78504d9c851da44e6938f3df51bfd',
+    'token_manifest': '270550867c668a3ee908710fd1e09c2d0ecf7f3c5f7fed18f847d1143fb3f36b',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',

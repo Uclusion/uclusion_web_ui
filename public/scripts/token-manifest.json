@@ -1071,6 +1071,15 @@
     "openai": 132
    }
   },
+  "d0d4887df110466d169f89d71106baba9f658403157114f10ca2f185ebab679d": {
+   "bytes": 5604,
+   "kind": "skill",
+   "name": "skills/uclusion/references/coordinator-execution.md",
+   "tokens": {
+    "claude": 1733,
+    "openai": 1033
+   }
+  },
   "d3fa9a9a9df21424068c26c840466c2d6aab78a3f85989007a529a09412233d3": {
    "bytes": 446,
    "kind": "skill",

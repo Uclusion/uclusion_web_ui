@@ -6740,6 +6740,19 @@ class _UclusionClassifier:
             return
         remaining = text
         tokens = estimated = 0
+        numbered = _without_read_numbering(remaining)
+        if numbered is not None and _complete_skill_spans(numbered):
+            size = len(remaining.encode("utf-8")) - len(numbered.encode("utf-8"))
+            estimated = int(round(size / counter.bytes_per_token))
+            tokens = estimated
+            remaining = numbered
+        # Delivered envelopes identify each historical body independently of
+        # its path, today's installed copy, or how JavaScript batched the read.
+        for start, end in reversed(_complete_skill_spans(remaining)):
+            exact, guess = counter.artifact(remaining[start:end])
+            tokens += exact
+            estimated += guess
+            remaining = remaining[:start] + remaining[end:]
         for path in _skill_files_named(command or ""):
             content = _read_installed_text(path)
             content = without_audit_diagnostics(content)
@@ -6785,6 +6798,41 @@ UCLUSION_SKILL_DIR = re.compile(
     r"((?:~|/)[^\s'\"`;|&]*skills/uclusion(?:-design)?(?:/references)?)/?(?=[\s'\"`;|&]|$)"
 )
 BARE_MARKDOWN = re.compile(r"(?<![/\w.-])([A-Za-z0-9_-]+\.md)\b")
+
+
+def _complete_skill_spans(text):
+    """Locate complete delivered file envelopes, including skill frontmatter."""
+    openings = list(re.finditer(
+        r"^(?:" + "|".join(re.escape(marker) for marker in UCLUSION_SKILL_MARKERS)
+        + r")[ \t]*(?:\r?\n|$)", text, re.M,
+    ))
+    spans = []
+    for index, opening in enumerate(openings):
+        marker = opening.group().rstrip()
+        closing = re.search(
+            r"^" + re.escape(marker.replace("<!-- ", "<!-- /", 1))
+            + r"(?:\r?\n|$)", text[opening.end():], re.M,
+        )
+        if closing is None:
+            continue
+        end = opening.end() + closing.end()
+        if index + 1 < len(openings) and end > openings[index + 1].start():
+            continue
+        start = opening.start()
+        frontmatter = re.search(
+            r"^---\n(?:(?!^---$).)*\n---\n\Z", text[:start], re.M | re.S,
+        )
+        if frontmatter and re.search(
+            r"^name: uclusion(?:-design)?$", frontmatter.group(), re.M,
+        ):
+            start = frontmatter.start()
+        spans.append((start, end))
+    return spans
+
+
+def _has_complete_skill_body(text):
+    numbered = _without_read_numbering(text)
+    return bool(_complete_skill_spans(text if numbered is None else numbered))
 
 
 def _skill_files_named(command):
@@ -7351,8 +7399,10 @@ def _codex_exec_output(classifier, script, output):
             if (len(batches) != 1 or type(local_index) is not int
                     or not 0 <= local_index < len(batches[0])):
                 incomplete = True
-                return
-            index = batches[0][local_index]
+                ordered_results_trustworthy = False
+                index = None
+            else:
+                index = batches[0][local_index]
         if "result" in value:
             classify(value["result"], index)
             return
@@ -7377,6 +7427,21 @@ def _codex_exec_output(classifier, script, output):
                 seen.add(index)
             else:
                 ordered_results_trustworthy = False
+            return
+        if shell and _has_complete_skill_body(value["output"]):
+            # A map/loop can deliver several reads from one lexical call. Each
+            # complete body is countable even when call association is unknown.
+            eligible = [
+                i for i, name in enumerate(invoked)
+                if name == "exec_command" and i not in seen
+            ]
+            if index is None and ordered_results_trustworthy and eligible:
+                index = eligible[0]
+            if index is not None and invoked[index] == "exec_command":
+                seen.add(index)
+            else:
+                incomplete = True
+            classifier.skill_text(value["output"])
             return
         if index is None:
             if not ordered_results_trustworthy:
@@ -7407,6 +7472,32 @@ def _codex_exec_output(classifier, script, output):
         else:
             incomplete = True
 
+    def result_envelope(value):
+        if isinstance(value, list):
+            return any(result_envelope(member) for member in value)
+        if not isinstance(value, dict):
+            return False
+        if "result" in value:
+            return result_envelope(value["result"])
+        if value.get("status") == "fulfilled" and "value" in value:
+            return result_envelope(value["value"])
+        return (value.get("status") == "rejected"
+                or isinstance(value.get("output"), str)
+                or isinstance(value.get("content"), list)
+                or "name" in value and "description" in value)
+
+    def classify_plain_output(text):
+        nonlocal incomplete, ordered_results_trustworthy
+        if (len(invoked) == 1 and invoked[0] == "exec_command"
+                and 0 in shell_commands and 0 not in seen
+                and ordered_results_trustworthy):
+            classify({"output": text})
+        else:
+            if _has_complete_skill_body(text):
+                classifier.skill_text(text)
+            incomplete = True
+            ordered_results_trustworthy = False
+
     decoder = json.JSONDecoder()
     segments = output if isinstance(output, list) else [output]
     for segment in segments:
@@ -7416,23 +7507,48 @@ def _codex_exec_output(classifier, script, output):
         text = _text_of(segment) if not isinstance(segment, str) else segment
         if re.search(r"truncated output|\d+ tokens truncated", text or ""):
             incomplete = True
-        stripped = (text or "").strip()
+        stripped = (text or "").lstrip()
+        fallback_text = text or ""
         if stripped.startswith("Warning: truncated output"):
             _, _, stripped = stripped.partition("\n\n")
             stripped = stripped.lstrip()
+            fallback_text = stripped
         if stripped.startswith("Script "):
-            _, separator, stripped = stripped.partition("Output:\n")
+            _, separator, stripped = stripped.partition("Output:")
             if not separator:
                 continue
-        while stripped:
+            if stripped.startswith("\r\n"):
+                stripped = stripped[2:]
+            elif stripped.startswith(("\r", "\n")):
+                stripped = stripped[1:]
+            fallback_text = stripped
+        values = []
+        remaining = stripped
+        while remaining:
             try:
-                value, end = decoder.raw_decode(stripped)
+                value, end = decoder.raw_decode(remaining)
             except ValueError:
-                incomplete = True
-                ordered_results_trustworthy = False
+                # Raw shell output can start with a valid JSON scalar (for
+                # example a search line number). Do not consume that prefix
+                # unless it is a recognizable tool envelope. Complete result
+                # envelopes remain usable before a truncated trailing result.
+                if any(result_envelope(value) for value in values):
+                    for value in values:
+                        classify(value)
+                    stripped = remaining
+                    fallback_text = remaining
+                    incomplete = True
+                    ordered_results_trustworthy = False
+                classify_plain_output(fallback_text)
                 break
-            classify(value)
-            stripped = stripped[end:].lstrip()
+            values.append(value)
+            remaining = remaining[end:].lstrip()
+        else:
+            if any(result_envelope(value) for value in values):
+                for value in values:
+                    classify(value)
+            elif values:
+                classify_plain_output(fallback_text)
     if audit_only:
         return False
     if any(i not in seen for i, name in enumerate(invoked)

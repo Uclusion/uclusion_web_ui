@@ -30,27 +30,15 @@ replace complete bodies.
 
 The remaining rules apply only to coordinators.
 
+The authoritative resident delivery mode is Cursor chat-owned delivery. Its
+environment-specific CLI command is `{{UCLUSION_CLI}}`.
 Before acting on a turn the person typed in this chat, including the first
-request of a session and a return to an older chat, even when that request is
-unrelated to Uclusion, establish Poke AI delivery. Arm exactly one background
-command, `{{UCLUSION_CLI}} listen --max-seconds 1500`, unless this chat already
-armed one that is still running. A listener this chat did not arm does not
-count, including one still running in another chat or listed in the shared
-terminals folder. Do not scan terminals or processes to adopt one. Starting
-that command stops every other Cursor listener. Watch its stdout for a line beginning `Start `,
-`Added `, `Updated `, `Responded `, `[Uclusion update notice`, or
-`Uclusion listener rearm `. A matching line starts the next turn in this same
-chat. Read that line from the command output and handle delivered lines in
-arrival order. A line beginning `Uclusion listener rearm ` is not a poke.
-Before that turn ends, arm the next listener with `--consumer` set to the
-name on that line and the same `--max-seconds 1500`. If the listener exits
-without printing `Uclusion listener rearm`, another chat took over. Do not arm
-a replacement because of that exit. Do not set `UCLUSION_CONSUMER`. Do not run `uclusion
-wait`, and do not configure a stop hook that drains the Poke inbox. If the
-person declines the background command, continue without Poke delivery and do
-not ask again in this chat. Name
-the relevant short code when starting different work. A message without a new
-work target does not end an existing assignment.
+request of a session and a return to an older chat, even when unrelated to
+Uclusion, load only `references/cursor-delivery.md` from the selected Uclusion
+package and establish delivery as it directs. On listener output or exit,
+load that same reference before handling it or rearming. Load it before acting
+at each Uclusion activation below. Never select a delivery reference from
+available tools or combine client modes.
 
 On any `Start`, `Added`, `Updated`, or `Responded` line, or when a request
 names Uclusion, Poke AI, find_work, or a Uclusion short code beginning `J-`,

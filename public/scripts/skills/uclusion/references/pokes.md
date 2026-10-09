@@ -59,13 +59,16 @@ call `request_work` once per dry spell instead.
 ## Delivery contract
 
 The installed resident stub gives the authoritative client-specific delivery
-mode, exact command, and environment. Establish that mode before find_work or
-job work, and never substitute a different wait/listen strategy. Handle every
-delivered line in arrival order. Never set `UCLUSION_CONSUMER` yourself; it is a
-human-controlled knob for explicitly separated consumers.
+mode, exact command, and environment. Load only its delivery reference selected
+by [coordinator.md](coordinator.md) before the resident's covered actions.
+Establish that mode before find_work or job work, and never substitute a
+different delivery strategy or guess the client from available tools. Handle
+every delivered line in arrival order. Never set `UCLUSION_CONSUMER` yourself;
+it is a human-controlled knob for explicitly separated consumers.
 
-No resident stub in context is itself the delivery mode: nothing to establish,
-no listener to arm, and every turn started directly by the human. Work
+No resident stub in context is itself the delivery mode: load no delivery
+reference, establish nothing, arm nothing, and every turn starts directly by
+the human. Work
 discovery and the job workflow then proceed normally. Following a stated mode
 is not substituting one, so the rule above still bars inventing a wait
 strategy, and never install or configure anything to obtain delivery.
@@ -77,30 +80,8 @@ and action checks; a standalone comment uses [single-comment.md](single-comment.
 
 ## Backlog and session lifecycle
 
-A session's first delivery task starts its cursor at arm time. Claude Code
-uses a persistent Monitor running `listen` when available; otherwise it runs
-`wait --timeout 86400` as a background Bash command with the largest accepted
-tool timeout. When that task ends, read its output, handle printed Pokes, and
-arm the next task in the same turn, including after a quiet timeout or a
-background time-limit stop. Both commands key the cursor on
-`CLAUDE_CODE_SESSION_ID`, so re-arming or switching commands in the same session
-continues that cursor and delivers Pokes that arrived between tasks.
-An explicit `--consumer` or `UCLUSION_CONSUMER` overrides the session identity.
-Outside Claude Code, a bare wait still uses the shared default cursor.
-A Cursor listener exits at its
-duration limit after printing `Uclusion listener rearm` and its consumer name.
-The next listener passes that name with `--consumer`, so Pokes that arrived
-between listeners are still delivered. Starting a Cursor listener stops every
-other Cursor listener, any other process running `listen` with
-`--max-seconds`. A listener with no time limit keeps running. When the person
-types in a Cursor chat, that chat arms one unless this chat already armed one
-that is still running. A listener this chat did not arm does not count,
-including one still running in another chat or listed in the shared terminals
-folder. Do not scan terminals or processes to adopt one. That start stops the
-listener in the chat they left. If a Cursor listener
-exits without printing `Uclusion listener rearm`, another chat took over. Do
-not arm a replacement because of that exit. The chat that still owns the listener
-still rearms when it prints that line. Older output marked `(replayed)`
+The selected delivery reference owns client startup, cursor and rearm mechanics.
+Older output marked `(replayed)`
 is history: drop it without reload, action, or user-facing narration. Never add
 `--ignore-existing-pokes` or `--deliver-existing-pokes` unless the human
 explicitly asks. Ignoring advances only that cursor past retained rows.
@@ -108,16 +89,14 @@ Delivering existing Pokes emits retained history as an unmarked private copy,
 without changing other consumers; handle that copy exactly as the human's ask
 directs, never as an automatic live Start. Neither flag deletes inbox rows.
 
-Delivery is broadcast to each armed listener; every armed listener may receive
-the same line. Cursor keeps a single listener, on the chat the person is
-typing in. Broadcast is transport, not assignment. Incorporate state only under the
+Delivery to armed listeners is broadcast; every armed listener may receive
+the same line. Broadcast is transport, not assignment. Delivery does not
+transfer an assignment. Incorporate state only under the
 assignment rules below and never race or coordinate through the inbox. Never
 read, edit, or delete the inbox database.
 
-When exiting with a listener/wait running, choose the plain exit. Do not move a
-poller outside its harness; it could claim work no agent will see. Arm or
-relaunch delivery before the final chat message because some clients hide text
-written before a tool call.
+Keep delivery in its client-owned harness under the selected reference's exit
+and rearm rules; delivery outside that harness could claim work no agent sees.
 
 ## Assignment ownership
 
@@ -144,10 +123,8 @@ actions succeed, the terminal record is confirmed and its triggered sweep is
 complete. Declined actions are not pending work. An unfinished package or
 failed authorized action retains the assignment.
 
-Codex sends each new Poke to the latest eligible registered root in the configured
-workspace and environment. Starting a turn in the intended conversation makes it
-latest; the resident stub's `codex-recipients` command confirms the selection
-without sending input. Delivery does not transfer an assignment.
+Name the relevant short code when starting different work. A message without a
+new work target does not end an existing assignment.
 
 On clients with broadcast delivery, `Start` remains untargeted. The human must
 not use it while more than one default agent is idle and able to accept it. In

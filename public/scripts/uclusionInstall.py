@@ -158,8 +158,8 @@ SCRIPT_FILES = (
 # deployment gate validates this table before publishing, so a sequential S3
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
-    'uclusionCLI.py': '20a9801f7aa3722963817674a39cdf05cecc6f66dbc36c02587bc49ab05091da',
-    'uclusionMCPProxy.py': '462cfe3d3c8e9ea62955649ec7b0cb12589b3bca03b51604e07e5d1ec721aa43',
+    'uclusionCLI.py': 'c2186ac13e18f90844ee577be5e1d53cf6cd8d1a1afe0742f14a88cfcf945189',
+    'uclusionMCPProxy.py': '30e128ade8e6c7d517dd2ba678bf6b76e2ae096dd206fa9f55ffabc8e1384310',
     'uclusionSetupMCP.py': '9aa8d3199b0c392d944fc3b2fb9f26b48230737ea2e5b07980cd3df6b79ed4f3',
     'uclusionCodexNative.py': '89587700e95582353ee9d3f2a9f48674d88d3c68ed13a6e929cd0efa3aa85300',
     'uclusionUpdateNotices.py': 'a9d6ed9e082bce28ac8340d242ad34d2f180a35de6821ce72c0684503e84b7e8',
@@ -310,6 +310,9 @@ WORKFLOW_ASSET_PATHS = {
     'cursor_stub': 'uclusion.mdc',
     'skill': 'skills/uclusion/SKILL.md',
     'coordinator_reference': 'skills/uclusion/references/coordinator.md',
+    'codex_delivery_reference': 'skills/uclusion/references/codex-delivery.md',
+    'claude_delivery_reference': 'skills/uclusion/references/claude-delivery.md',
+    'cursor_delivery_reference': 'skills/uclusion/references/cursor-delivery.md',
     'job_reference': 'skills/uclusion/references/job.md',
     'job_reading_reference': 'skills/uclusion/references/job-reading.md',
     'assistance_reference': 'skills/uclusion/references/assistance.md',
@@ -343,11 +346,14 @@ WORKFLOW_ASSET_PATHS = {
 # These digests bind the installer to one coherent workflow release. A host
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
-    'claude_stub': '78ac3b6ac7e7fdf91a38a61e5ece07082882e2a6e0cda2166e1a2c2e131850cb',
-    'codex_stub': '551ed0d6398cf915ba9d73cf39bdfcab313e03266ebf34c5968c59e33a0e2f5c',
-    'cursor_stub': '5431a48ae17a5304af2ceaa17ad94bc75ea168e232cd591b551a69004cf03fa0',
+    'claude_stub': '4eca10957bf058ed774e1f0178ccd79247c769af8e4dde376d4f19dbbb288a34',
+    'codex_stub': 'fc05807ba1cba6dcd54482d0a8bea2921c188bd3d7919e52cdbe3afec013c7c0',
+    'cursor_stub': '8bcc71ce0184eaf20b85e3387e1a55c913a877b89e6a56d2e4b9c9cabd6f21bd',
     'skill': '379cee2c04f210efaa552c0d4fce248c383bffe7d8ed9a1b1c3cf64c7d6c4b85',
-    'coordinator_reference': '00b417350a26eaed265ce0b04cba77dea16517655d56bba73ecb2b6f21656463',
+    'coordinator_reference': '312604bc39bc7c0ab259493ab30399c10658d0c0a4b892ddfc3e41aece7bc85c',
+    'codex_delivery_reference': 'b03b4e7c0e7b78e7e5484b8b609e73940b097fa3631fcfcb8a027c1e5e9df57e',
+    'claude_delivery_reference': '6ceb776f234adc7d5bee08bf685ae487af62a6597f31b29af356b630b95785b7',
+    'cursor_delivery_reference': '68c52f43afd95d42652958007a74caad932b42c80fe6d1b20731068ea974639e',
     'job_reference': 'b27c126ab7527dfe62bc95300ee12efad41d2ae738e1d4bd577d06c9e9dd7f3e',
     'job_reading_reference': 'f8f1caa2946f432324c2e79dbdf99c717352e973412fd7524162ea639c6f5a5b',
     'assistance_reference': '4492643c7d0e0c881e3e8972c723437d6a4a98b4332231ee9fbd1aca9f56f248',
@@ -359,8 +365,8 @@ WORKFLOW_ASSET_SHA256 = {
     'capsules_reference': 'a9bdead1dde58978441cafd3a5295b79517f17baf26284eb3afba675dd304d17',
     'review_reference': 'f5bb239dfdc8dea1bf424c16a5390921abc593ac54099f5ae985ffc61c1c0c79',
     'writes_reference': 'bf41e0a7602421c724b599f39175ff33f569e7936171985df99dc49b1281d1be',
-    'pokes_reference': '5f82f1f9325187068f8a5d1a4feba504e6fd3b27de70aef75d122e64de43ab4c',
-    'reading_reference': 'afd87a38e0d967489d766e5c1ef26df8b1306b3916c042fb18ef50c69b1601fe',
+    'pokes_reference': 'b311681842650eb7ae0f69fcb0463f5d4579ad809606a543b3a7d0b12e90063c',
+    'reading_reference': '1ad17fa25ea2f93b7fa50067c742c9510bee5eee52855526f56594cc4dc53d9e',
     'operations_reference': 'c570a79029f145e553bbe0cba5e97dc8357d2612a5a7f854240d19df889749c3',
     'completion_reference': 'b7f1781be089af9703e5a835a30b8aaec3a745780b5119cb86d2cf2ff55da156',
     'audit_reference': '9e09602afcd516da8c16ac1cbde4562072c036bf81f365b7d731c66b0b5baa70',
@@ -371,7 +377,7 @@ WORKFLOW_ASSET_SHA256 = {
     'design_examples': '71f626575f8acbb0c28de20a810f4eb62d66b3185b23c1c84447ed7d29baa72e',
     'design_openai_metadata': 'd94499cb3851d46db554a0321d8469571273d446a8caefbdcbb8a68cb012c868',
     'demo_brief': '1c26c3235dba931bcbf9d88fcacf32e437f1ec10f3e70fd908f33228ba30037f',
-    'token_manifest': '264f2e5054cab0d46d0b3020f7cfedcf584d5c8d43fdea1bc242d7ff90a67ca1',
+    'token_manifest': 'c639d7898b9ad6f1522527515171e44255ffd68c06ec0743e60bcd1add345689',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',
@@ -380,6 +386,9 @@ CLIENT_STUB_ASSET = {
 }
 SKILL_PACKAGE_ASSETS = (
     ('coordinator_reference', os.path.join('references', 'coordinator.md')),
+    ('codex_delivery_reference', os.path.join('references', 'codex-delivery.md')),
+    ('claude_delivery_reference', os.path.join('references', 'claude-delivery.md')),
+    ('cursor_delivery_reference', os.path.join('references', 'cursor-delivery.md')),
     ('job_reference', os.path.join('references', 'job.md')),
     ('job_reading_reference', os.path.join('references', 'job-reading.md')),
     ('assistance_reference', os.path.join('references', 'assistance.md')),

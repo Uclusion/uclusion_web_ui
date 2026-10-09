@@ -24,7 +24,7 @@ from contextlib import closing, redirect_stdout
 from itertools import batched
 from datetime import datetime
 from uclusionMCPProxy import (
-    DEMO_EVIDENCE_ENV, DEMO_EVIDENCE_ROLE_ENV, demo_evidence_summary, record_demo_input,
+    DEMO_EVIDENCE_ENV, DEMO_EVIDENCE_ROLE_ENV, ResponseStats, demo_evidence_summary, record_demo_input,
 )
 
 
@@ -1579,6 +1579,42 @@ def find_session_log(session=None, cwd=None):
 
 
 def cmd_usage(args):
+    response_stats_path = getattr(args, 'response_stats', None)
+    if getattr(args, 'clear', False):
+        if not response_stats_path:
+            print('❌ usage --clear requires --response-stats PATH.', file=sys.stderr)
+            return 1
+        try:
+            marker = ResponseStats.reset_measurement(response_stats_path)
+        except Exception as error:
+            print(f'❌ Cannot reset measurement windows: {error}.', file=sys.stderr)
+            return 1
+        result = {
+            'status': 'reset',
+            'measurement': {
+                'reset_id': marker['reset_id'], 'started_at': marker['cutoff_utc'],
+                'sources': {'response_stats': response_stats_path},
+            },
+        }
+        if args.json:
+            print(json.dumps(result, indent=2, sort_keys=True))
+        else:
+            print(f"Measurement windows reset: {marker['reset_id']}\n"
+                  f"UTC cutoff: {marker['cutoff_utc']}\n"
+                  f'Response statistics: {response_stats_path}')
+        return 0
+    summary = None
+    window = None
+    if response_stats_path:
+        try:
+            summary = ResponseStats.measurement_summary(response_stats_path)
+            measurement = summary['measurement']
+            if measurement['started_at'] is not None:
+                window = tuple(datetime.fromisoformat(value.replace('Z', '+00:00')).timestamp()
+                               for value in (measurement['started_at'], measurement['ended_at']))
+        except Exception as error:
+            print(f'❌ Cannot read response statistics: {error}.', file=sys.stderr)
+            return 1
     token_audit = load_token_audit_module()
     if token_audit is None:
         print('❌ uclusionTokenAudit.py is missing beside this CLI; run `uclusion update`.')
@@ -1591,12 +1627,39 @@ def cmd_usage(args):
         else:
             print('❌ No saved Claude Code or Codex session log was found for this directory.')
         return 1
-    result = token_audit.breakdown_session_log(log_path)
+    result = token_audit.breakdown_session_log(log_path, window=window)
+    if summary is not None:
+        summary['measurement']['sources'] = {
+            'session_log': log_path, 'response_stats': response_stats_path,
+        }
+        result.update(summary)
     if args.json:
         print(json.dumps(result, indent=2, sort_keys=True))
     else:
         print(f'Session log: {log_path}\n')
+        if summary is not None:
+            measurement = summary['measurement']
+            print(f"Measurement reset: {measurement['reset_id'] or 'none (whole selected sources)'}")
+            print(f"Interval UTC: {measurement['started_at'] or 'whole history'} through {measurement['ended_at']}")
+            print(f'Response statistics: {response_stats_path}')
+            bounds = measurement['response_stats_rows']
+            print(f"JSONL rows: after {bounds['after']} through {bounds['through']}\n")
         sys.stdout.write(token_audit.format_breakdown(result))
+        if summary is not None:
+            stats = summary['response_stats']
+            print(f"\nResponse statistics: {stats['response_rows']:,} response rows; "
+                  f"{stats['jsonrpc_utf8_bytes']:,} JSON-RPC UTF-8 bytes; "
+                  f"{stats['text_utf8_bytes']:,} text UTF-8 bytes")
+            for key, label in (('response_reads', 'Response reads'), ('claude_hook_reads', 'Claude hook reads')):
+                reads = stats[key]
+                coverage = reads['context_coverage']
+                print(f"{label}: {reads['rows']:,} reads; {reads['repeat_rows']:,} repeats; "
+                      f"coverage observed {coverage['observed']:,}, unknown {coverage['unknown']:,}")
+                for repeat in reads['repeat_references']:
+                    print(f"  Row {repeat['read_number']} repeats row {repeat['repeat_of']} "
+                          f"({repeat['tool']}; coverage {repeat['context_coverage']})")
+            for qualification in stats['qualifications']:
+                print(qualification)
     return 0 if result.get('status') != 'unavailable' else 1
 
 
@@ -3599,7 +3662,7 @@ def build_parser():
     )
     parser.add_argument(
         '--response-stats', type=response_stats_path, metavar='PATH',
-        help='Set local response-size statistics during an update.',
+        help='Set local response-size recording during an update, or read its measurement window with usage.',
     )
 
     subparsers = parser.add_subparsers(dest='command', metavar='COMMAND', required=True)
@@ -3650,6 +3713,14 @@ def build_parser():
     )
     usage_parser.add_argument(
         '--json', action='store_true', help='Print the breakdown as JSON.'
+    )
+    usage_parser.add_argument(
+        '--response-stats', type=response_stats_path, metavar='PATH', default=argparse.SUPPRESS,
+        help='Read response/repeat statistics and the matching token measurement window from this file.',
+    )
+    usage_parser.add_argument(
+        '--clear', action='store_true',
+        help='Append a fresh measurement window to --response-stats PATH, preserving all history.',
     )
     usage_parser.set_defaults(func=cmd_usage)
 
@@ -4583,10 +4654,12 @@ def parse_args(argv=None):
     parser = build_parser()
     args = parser.parse_args(argv)
     if args.response_stats is not None:
-        if args.command != 'update':
-            parser.error('--response-stats is supported only with update')
+        if args.command not in ('update', 'usage'):
+            parser.error('--response-stats is supported only with update or usage')
         if args.command == 'update' and args.check:
             parser.error('--check cannot change response-size recording')
+    if args.command == 'usage' and args.clear and args.response_stats is None:
+        parser.error('usage --clear requires --response-stats PATH')
     return args
 
 

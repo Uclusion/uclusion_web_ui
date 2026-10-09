@@ -81,13 +81,24 @@ transcripts. The coordinator retains ownership, required full context/contract
 reads, human decisions, permission checks and durable writes. Any further export
 investigation uses another fresh bounded helper.
 
-Search it before delegating a design, before relying on a design you did not
-write yourself, and before answering something in case it was already decided,
-and cite what you find. The first two stop a design re-deciding something
-settled or resting on something that has gone stale; the third finds what
-settled it. A design is whatever records the agreed approach, which is the
-current intent/design capsule where one exists and otherwise the design written
-into the item's own thread, as a standalone bug carries one. Present enough
-inline detail for relevance and its short code; offer to drill in without
-requiring the human to open Uclusion.
+Search before relying on a design you did not write yourself, delegating a
+design, or answering something that may already be decided, and cite what you
+find. One completed current history check covers relying on and later
+delegating that same design. Retain the successful export path and concise
+bounded helper findings as already-loaded context, and reuse a current check
+when it answers the same question. Do not repeat export/search merely because
+the design is now delegated or a scoped owner amendment or vote was fully read.
+
+Refresh only when a change in scope, relevant history or evidence, or governing
+context makes the held findings insufficient or no longer current, or when
+freshness or completeness is uncertain. Absence of Pokes does not prove
+freshness. Completion sweeps still require a fresh export with both scans in
+one helper.
+
+The design check stops a design re-deciding something settled or resting on
+something stale; the question check finds what settled it. A design is whatever
+records the agreed approach, which is the current intent/design capsule where
+one exists and otherwise the design written into the item's own thread, as a
+standalone bug carries one. Present enough inline detail for relevance and its
+short code; offer to drill in without requiring the human to open Uclusion.
 <!-- /uclusion-skill-reference:v1 -->

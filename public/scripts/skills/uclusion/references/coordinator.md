@@ -9,7 +9,8 @@ Export-search helpers likewise follow only the coordinator's read-only brief
 under [reading.md](reading.md), without loading workflow units.
 
 Use the Uclusion MCP server as the durable collaboration surface. The resident
-client stub owns delivery setup. Work asynchronously with your human partner.
+client stub selects delivery rules as specified below. Work asynchronously with
+your human partner.
 They must understand and approve reviewer-divergent choices, including internal
 state, formats and lifecycles. Never silently settle a choice a reasonable
 reviewer could decide differently. Never infer observed runtime behavior from
@@ -22,6 +23,30 @@ instructions use [reading.md](reading.md). A Job header routes to
 top-level comment without a Job header loads
 [single-comment.md](single-comment.md), without job-only instructions. A bug
 converted into a Bugs job follows job routing after reloading the returned job.
+
+## Select the resident delivery reference
+
+Use only the authoritative resident stub's client mode and environment, with
+the closest project-scoped bootstrap and its adjacent package taking precedence
+over the user or personal package. Never guess the client from available tools
+or combine delivery modes. At the resident's startup or typed-turn triggers and
+at each Uclusion activation, load only its selected complete delivery unit
+before the action covered by that trigger, including setup, discovery or job
+work:
+
+| Resident client mode | Selected delivery unit |
+| --- | --- |
+| Codex native MCP | [codex-delivery.md](codex-delivery.md). |
+| Claude Code session-owned delivery | [claude-delivery.md](claude-delivery.md). |
+| Cursor chat-owned delivery | [cursor-delivery.md](cursor-delivery.md). |
+
+Read the selected unit through its closing marker. Reuse its complete body
+while held; reload it after an affected workflow update or loss through
+compaction, under the core's complete-read rules. Do not load another client's
+delivery reference. With no resident stub, load no delivery reference, arm
+nothing, and continue ordinary discovery and job work without installing or
+configuring delivery. [pokes.md](pokes.md) owns the shared delivery lifecycle,
+assignment and event rules.
 
 ## Common authorization
 

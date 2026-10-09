@@ -254,40 +254,98 @@ class ResidentStubContractTests(unittest.TestCase):
 
     def test_claude_stub_arms_its_own_poke_listener(self):
         stub = self.bundle['claude_stub']
-        self.assertIn(INSTALL.WORKFLOW_ENV_PLACEHOLDER + ' listen', stub)
-        self.assertRegex(stub, r'(?i)arm\s+exactly one delivery task')
+        delivery = ' '.join(self.bundle['claude_delivery_reference'].split())
+        lifecycle = self.bundle['pokes_reference']
+        self.assertIn('Claude Code session-owned delivery', stub)
+        self.assertIn(INSTALL.WORKFLOW_ENV_PLACEHOLDER, stub)
+        self.assertRegex(
+            stub,
+            r'(?s)At session start, before acting on the first user request.*'
+            r'load only `references/claude-delivery.md`',
+        )
+        self.assertIn('before acting at each Uclusion activation', stub)
+        self.assertIn('before handling output and rearming', stub)
+        self.assertNotIn('codex-delivery.md', stub)
+        self.assertNotIn('cursor-delivery.md', stub)
+        self.assertIn('uclusion listen', delivery)
+        self.assertIn('persistent: true', delivery)
+        self.assertIn('uclusion wait --timeout 86400', delivery)
+        self.assertIn('run_in_background: true', delivery)
+        self.assertIn('7200000', delivery)
+        self.assertRegex(delivery, r'(?i)arm\s+exactly one delivery task')
+        self.assertRegex(delivery, r'(?s)if declined,\s+continue without delivery')
         # A Monitor reports only into the conversation that armed it, so the
         # session that needs delivery is the session that arms it.
-        self.assertRegex(stub, r'(?i)only the session that armed it')
-        self.assertRegex(stub, r'(?i)did not arm')
+        self.assertRegex(delivery, r'(?i)only the session that armed it')
+        self.assertRegex(delivery, r'(?i)did not\s+arm')
+        self.assertIn("stop another session's task", delivery)
         # Regression guard for T-Marketing-272: the shipped text sent the
         # session to the process list to adopt a listener belonging to another
         # conversation, which delivered nothing for that session's whole life.
-        self.assertNotRegex(stub, r'(?i)process list')
-        self.assertNotIn('--max-seconds', stub)
+        self.assertNotRegex(delivery, r'(?i)process list')
+        self.assertNotIn('--max-seconds', delivery)
+        self.assertIn('Handle each printed Poke line in order', delivery)
+        self.assertRegex(delivery, r'(?s)read its\s+output and handle any Pokes, then arm')
+        self.assertIn('in that same turn', delivery)
+        self.assertIn('after a quiet timeout or a background time-limit stop', delivery)
+        self.assertIn('before arming the next task', delivery)
+        self.assertIn('CLAUDE_CODE_SESSION_ID', delivery)
+        self.assertIn('continues that cursor', delivery)
+        self.assertIn('starts its cursor at arm time', delivery)
+        self.assertIn('never move delivery outside the client or its harness', delivery)
+        self.assertIn('human-requested replay rules', delivery)
+        self.assertIn('Older output marked `(replayed)`', lifecycle)
+        self.assertIn('unmarked private copy', lifecycle)
+        self.assertIn('never as an automatic live Start', lifecycle)
 
     def test_cursor_stub_arms_a_listener_that_exits_itself(self):
         stub = self.bundle['cursor_stub']
-        self.assertIn(
-            INSTALL.WORKFLOW_ENV_PLACEHOLDER + ' listen --max-seconds 1500',
+        delivery = ' '.join(self.bundle['cursor_delivery_reference'].split())
+        lifecycle = self.bundle['pokes_reference']
+        self.assertIn('Cursor chat-owned delivery', stub)
+        self.assertIn(INSTALL.WORKFLOW_ENV_PLACEHOLDER, stub)
+        self.assertRegex(
             stub,
+            r'(?s)Before acting on a turn the person typed in this chat.*'
+            r'load only `references/cursor-delivery.md`',
         )
-        self.assertIn('Uclusion listener rearm ', stub)
-        self.assertIn('--consumer', stub)
-        self.assertIn('Do not set `UCLUSION_CONSUMER`', stub)
-        self.assertRegex(stub, r'(?i)do not run `uclusion\s+wait`')
-        self.assertRegex(stub, r'stops\s+every other Cursor listener')
-        self.assertIn('a turn the person typed in this chat', stub)
-        self.assertRegex(stub, r'Do not arm\s+a replacement')
-        self.assertRegex(stub, r'do\s+not ask again in this chat')
+        self.assertIn('at each Uclusion activation', stub)
+        self.assertIn('before handling it or rearming', stub)
+        self.assertNotIn('codex-delivery.md', stub)
+        self.assertNotIn('claude-delivery.md', stub)
+        self.assertIn(
+            'uclusion listen --max-seconds 1500',
+            delivery,
+        )
+        self.assertIn('Uclusion listener rearm ', delivery)
+        self.assertIn('--consumer', delivery)
+        self.assertIn('Do not set `UCLUSION_CONSUMER`', delivery)
+        self.assertRegex(delivery, r'(?i)do not run `uclusion\s+wait`')
+        self.assertRegex(delivery, r'stops\s+every other Cursor listener')
+        self.assertIn('A listener with no time limit keeps running', delivery)
+        self.assertIn('`--max-seconds`', delivery)
+        self.assertIn('Only after that line', delivery)
+        self.assertRegex(delivery, r'(?s)without printing.*another chat took over')
+        self.assertRegex(delivery, r'Do not arm\s+a replacement')
+        self.assertRegex(delivery, r'do\s+not ask again in this\s+chat')
+        self.assertIn('handle delivered lines in arrival order', delivery)
+        self.assertIn('is not a Poke', delivery)
+        self.assertIn('starts its cursor at arm time', delivery)
+        self.assertIn('Pokes that arrived between listeners remain pending', delivery)
+        self.assertIn('a stop hook that drains the Poke inbox', delivery)
+        self.assertIn('never move delivery outside the client or its harness', delivery)
+        self.assertIn('human-requested replay rules', delivery)
+        self.assertIn('Older output marked `(replayed)`', lifecycle)
+        self.assertIn('unmarked private copy', lifecycle)
+        self.assertIn('never as an automatic live Start', lifecycle)
         # A new chat can see another chat's listener in the shared terminals
         # folder. That process delivers nothing to the new chat, so the rule
         # must not treat it as a reason to skip arming.
-        self.assertRegex(stub, r'(?i)this chat did not arm')
-        self.assertRegex(stub, r'(?i)shared\s+terminals folder')
-        self.assertRegex(stub, r'(?i)Do not scan terminals or processes to adopt one')
+        self.assertRegex(delivery, r'(?i)this chat did not arm')
+        self.assertRegex(delivery, r'(?i)shared\s+terminals\s+folder')
+        self.assertRegex(delivery, r'(?i)Do not scan terminals or processes to adopt one')
         self.assertNotRegex(
-            stub,
+            delivery,
             r'does not\s+already have a listener still running',
         )
 
@@ -519,12 +577,58 @@ class SkillAndStubInstallerTests(unittest.TestCase):
             self.assertTrue(result)
             resident = read_text(resident_path)
             self.assertNotIn(INSTALL.WORKFLOW_ENV_PLACEHOLDER, resident)
-            self.assertIn('uclusion -e stage wait --timeout 0', resident)
+            self.assertRegex(
+                resident,
+                r'environment-specific CLI command is `[^`]*uclusion -e stage`',
+            )
+            self.assertIn('Codex native MCP', resident)
+            self.assertRegex(
+                resident,
+                r'(?s)At session startup, before discovery or job work, load only\s+'
+                r'`references/codex-delivery.md`',
+            )
+            self.assertIn('before acting at each Uclusion activation', resident)
+            self.assertNotIn('claude-delivery.md', resident)
+            self.assertNotIn('cursor-delivery.md', resident)
             self.assertIn('uclusion -e stage update', resident)
             self.assertEqual(
                 self.bundle['skill'],
                 read_text(os.path.join(skill_dir, 'SKILL.md')),
             )
+            delivery = read_text(os.path.join(
+                skill_dir, 'references', 'codex-delivery.md'
+            ))
+            self.assertEqual(self.bundle['codex_delivery_reference'], delivery)
+            self.assertNotIn(INSTALL.WORKFLOW_ENV_PLACEHOLDER, delivery)
+            delivery = ' '.join(delivery.split())
+            self.assertIn("stub's authoritative CLI command and environment", delivery)
+            self.assertIn('native steering and queue APIs', delivery)
+            self.assertIn('latest eligible registered root', delivery)
+            self.assertIn('immediately before its first send', delivery)
+            self.assertIn('Busy agents receive Pokes as input to their active turn', delivery)
+            self.assertIn('idle agents wake through the native queue', delivery)
+            self.assertIn('Pokes do not cancel a running command', delivery)
+            self.assertIn('After `/new`', delivery)
+            self.assertIn('uclusion codex-recipients', delivery)
+            self.assertIn('without sending input', delivery)
+            self.assertIn('arrival order', delivery)
+            self.assertIn('Receipt does not prove processing or grant ownership', delivery)
+            self.assertIn('Delivery does not transfer an assignment', delivery)
+            self.assertIn('never run `uclusion wait` or `uclusion listen`', delivery)
+            self.assertIn('separate companion', delivery)
+            self.assertIn('Do not arm or rearm a listener', delivery)
+            self.assertIn('Fresh startup starts after retained history', delivery)
+            self.assertRegex(delivery, r'Never add\s+`--deliver-existing-pokes` yourself')
+            self.assertIn('unmarked private copy', delivery)
+            self.assertIn("only as their request directs", delivery)
+            self.assertIn('deliberate quit and restart', delivery)
+            self.assertIn('recovery before the first conversation turn', delivery)
+            self.assertIn('fresh session started with `codex`', delivery)
+            coordinator = ' '.join(self.bundle['coordinator_reference'].split())
+            self.assertIn('authoritative resident stub', coordinator)
+            self.assertIn('Never guess the client from available tools', coordinator)
+            self.assertIn('closest project-scoped bootstrap', coordinator)
+            self.assertIn('With no resident stub, load no delivery reference, arm nothing', coordinator)
 
     def test_unmarked_skill_collision_preserves_skill_and_resident(self):
         with tempfile.TemporaryDirectory() as temp_dir:

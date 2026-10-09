@@ -15,7 +15,8 @@ import threading
 import time
 import urllib.request
 import urllib.parse
-from contextlib import closing
+from contextlib import closing, contextmanager
+from datetime import datetime, timezone
 from uuid import uuid4
 
 try:
@@ -939,7 +940,7 @@ def post_to_mcp_refreshing_token(url, headers, body, token_provider, timeout=30)
 class ResponseStats:
     """Optional, failure-isolated measurements for the sequential MCP loop."""
 
-    def __init__(self, path):
+    def __init__(self, path, *, strict=False, readonly=False):
         self._fd = None
         self._request = {'method': None, 'tool': None, 'scope': None}
         self._read = None
@@ -952,13 +953,16 @@ class ResponseStats:
         self._observed = set()
         self._lock = threading.RLock()
         if path is None:
+            if strict:
+                raise ValueError('Statistics require an explicit file path')
             return
         try:
             # Do not weaken the private regular-file contract on a platform
             # that cannot check ownership or safely open a caller's path.
             if fcntl is None or not all(hasattr(os, name) for name in ('geteuid', 'O_NOFOLLOW', 'O_NONBLOCK', 'pread')):
                 raise OSError('Private statistics files are unsupported')
-            flags = os.O_RDWR | os.O_APPEND | os.O_CREAT | os.O_NONBLOCK | os.O_NOFOLLOW
+            flags = os.O_RDONLY if readonly else os.O_RDWR | os.O_APPEND | os.O_CREAT
+            flags |= os.O_NONBLOCK | os.O_NOFOLLOW
             self._fd = os.open(path, flags, 0o600)
             opened = os.fstat(self._fd)
             if (
@@ -968,6 +972,9 @@ class ResponseStats:
             ):
                 raise OSError('Statistics destination is not a private owned file')
         except Exception:
+            if strict:
+                self.close()
+                raise
             self._disable()
 
     def _disable(self):
@@ -1031,8 +1038,58 @@ class ResponseStats:
                 selector['sections'] = sorted({value for value in arguments['sections'] if cls._label(value)})
         return selector
 
+    @staticmethod
+    def _utc_now():
+        return datetime.fromtimestamp(time.time(), timezone.utc).isoformat().replace('+00:00', 'Z')
+
+    @staticmethod
+    def _validate_row(row):
+        if not isinstance(row, dict):
+            raise ValueError('Invalid statistics row')
+        event = row.get('event')
+        if event is not None and any(name in row for name in ('jsonrpc_utf8_bytes', 'text_utf8_bytes')):
+            raise ValueError('Event rows cannot contain response byte measurements')
+        if event == 'measurement_reset':
+            cutoff = row.get('cutoff_utc')
+            if not isinstance(row.get('reset_id'), str) or not row['reset_id']:
+                raise ValueError('Invalid measurement reset identifier')
+            if not isinstance(cutoff, str) or not cutoff.endswith('Z'):
+                raise ValueError('Invalid measurement reset UTC cutoff')
+            cutoff_time = datetime.fromisoformat(cutoff[:-1] + '+00:00')
+            if cutoff_time.tzinfo is None or cutoff_time.utcoffset() != timezone.utc.utcoffset(None):
+                raise ValueError('Invalid measurement reset UTC cutoff')
+            return
+        if event == 'context_reset':
+            if (not isinstance(row.get('context'), str) or not row['context']
+                    or row.get('context_coverage') not in ('observed', 'unknown')):
+                raise ValueError('Invalid context reset row')
+        elif event == 'read':
+            if not row.get('content_sha256'):
+                raise ValueError('Invalid read row')
+        elif event is not None or 'jsonrpc_utf8_bytes' not in row:
+            raise ValueError('Invalid statistics row')
+        if 'jsonrpc_utf8_bytes' in row:
+            for name in ('jsonrpc_utf8_bytes', 'text_utf8_bytes'):
+                if type(row.get(name)) is not int or row[name] < 0:
+                    raise ValueError('Invalid response byte measurement')
+        if row.get('content_sha256'):
+            if (
+                not all(isinstance(row.get(name), str) and row[name]
+                        for name in ('content_sha256', 'context', 'tool'))
+                or not isinstance(row.get('read_selector'), dict)
+                or type(row.get('read_number')) is not int or row['read_number'] < 1
+                or (row.get('repeat_of') is not None and
+                    (type(row['repeat_of']) is not int or row['repeat_of'] < 1))
+                or row.get('context_coverage') not in ('observed', 'unknown')
+            ):
+                raise ValueError('Invalid read measurement')
+
     def _apply_row(self, row):
+        self._validate_row(row)
         self._row_number += 1
+        if row.get('event') == 'measurement_reset':
+            # Measurement windows do not change the client's retained context.
+            return
         if row.get('invocation_sha256'):
             self._invocations.add(row['invocation_sha256'])
         context = row.get('context')
@@ -1046,45 +1103,56 @@ class ResponseStats:
             key = (context, row.get('tool'), json.dumps(row.get('read_selector'), sort_keys=True), row['content_sha256'])
             self._seen[key] = self._row_number
 
-    def _sync_rows(self):
+    def _sync_rows(self, capture=False):
         if os.fstat(self._fd).st_size < self._offset:
             self._offset = self._row_number = 0
             self._seen.clear()
             self._invocations.clear()
             self._observed.clear()
         pending = b''
+        rows = [] if capture else None
         while True:
             chunk = os.pread(self._fd, 65536, self._offset + len(pending))
             if not chunk:
                 if pending:
                     raise OSError('Incomplete statistics row')
-                return
+                return rows
             pending += chunk
             while b'\n' in pending:
                 line, pending = pending.split(b'\n', 1)
                 row = json.loads(line)
-                if not isinstance(row, dict):
-                    raise ValueError('Invalid statistics row')
                 self._apply_row(row)
+                if capture:
+                    rows.append(row)
                 self._offset += len(line) + 1
 
-    def _append(self, row):
+    @contextmanager
+    def _file_lock(self):
+        with self._lock:
+            deadline = time.monotonic() + .25
+            while True:
+                try:
+                    fcntl.flock(self._fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    break
+                except BlockingIOError:
+                    if time.monotonic() >= deadline:
+                        raise
+                    time.sleep(.01)
+            try:
+                yield
+            finally:
+                fcntl.flock(self._fd, fcntl.LOCK_UN)
+
+    def _append(self, row, *, strict=False):
         if self._fd is None:
             return
-        with self._lock:
-            try:
-                deadline = time.monotonic() + .25
-                while True:
-                    try:
-                        fcntl.flock(self._fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-                        break
-                    except BlockingIOError:
-                        if time.monotonic() >= deadline:
-                            raise
-                        time.sleep(.01)
+        try:
+            with self._file_lock():
                 self._sync_rows()
                 if row.get('invocation_sha256') in self._invocations:
                     return
+                if row.get('event') == 'measurement_reset':
+                    row['cutoff_utc'] = self._utc_now()
                 if row.get('content_sha256'):
                     key = (row['context'], row['tool'], json.dumps(row['read_selector'], sort_keys=True), row['content_sha256'])
                     row['context_coverage'] = 'observed' if row['context'] in self._observed else 'unknown'
@@ -1095,14 +1163,68 @@ class ResponseStats:
                     raise OSError('Incomplete statistics write')
                 self._apply_row(row)
                 self._offset += len(encoded)
-            except Exception:
-                self._disable()
-            finally:
-                if self._fd is not None:
-                    try:
-                        fcntl.flock(self._fd, fcntl.LOCK_UN)
-                    except Exception:
-                        self._disable()
+            return row
+        except Exception:
+            if strict:
+                raise
+            self._disable()
+
+    @classmethod
+    def reset_measurement(cls, path):
+        """Append a complete marker, or report the failure to the CLI caller."""
+        with closing(cls(path, strict=True)) as stats:
+            return stats._append({'event': 'measurement_reset', 'reset_id': uuid4().hex}, strict=True)
+
+    @classmethod
+    def measurement_summary(cls, path):
+        """Capture the complete rows and one UTC endpoint under the writer lock."""
+        with closing(cls(path, strict=True, readonly=True)) as stats:
+            with stats._file_lock():
+                rows = stats._sync_rows(capture=True)
+                ended_at = stats._utc_now()
+        marker_number = 0
+        marker = None
+        for number, row in enumerate(rows, 1):
+            if row.get('event') == 'measurement_reset':
+                marker_number, marker = number, row
+        selected = rows[marker_number:]
+        responses = [row for row in selected if 'jsonrpc_utf8_bytes' in row]
+
+        def reads_summary(reads):
+            return {
+                'rows': len(reads),
+                'repeat_rows': sum(row.get('repeat_of') is not None for row in reads),
+                'context_coverage': {
+                    coverage: sum(row.get('context_coverage') == coverage for row in reads)
+                    for coverage in ('observed', 'unknown')
+                },
+                'repeat_references': [
+                    {key: row[key] for key in ('read_number', 'repeat_of', 'tool', 'context_coverage')}
+                    for row in reads if row.get('repeat_of') is not None
+                ],
+            }
+
+        return {
+            'measurement': {
+                'reset_id': marker['reset_id'] if marker else None,
+                'started_at': marker['cutoff_utc'] if marker else None,
+                'ended_at': ended_at,
+                'response_stats_rows': {'after': marker_number, 'through': len(rows)},
+            },
+            'response_stats': {
+                'response_rows': len(responses),
+                'jsonrpc_utf8_bytes': sum(row['jsonrpc_utf8_bytes'] for row in responses),
+                'text_utf8_bytes': sum(row['text_utf8_bytes'] for row in responses),
+                'response_reads': reads_summary([row for row in responses if row.get('content_sha256')]),
+                'claude_hook_reads': reads_summary([row for row in selected if row.get('event') == 'read']),
+                'qualifications': [
+                    'Response bytes are not provider tokens or billed savings.',
+                    'Repeats are diagnostic evidence, not proof that a read was unnecessary.',
+                    'Response rows may use connection-level candidate history; Claude hook reads use conversation history.',
+                    'Context coverage is observed only when client context events are available.',
+                ],
+            },
+        }
 
     def context_event(self, root, reason, client='codex'):
         if self._fd is None or not isinstance(root, str) or not root:

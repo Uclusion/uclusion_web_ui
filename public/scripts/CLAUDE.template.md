@@ -26,30 +26,14 @@ replace complete bodies.
 
 The remaining rules apply only to coordinators.
 
-At session start, before acting on the first user request, establish Poke AI delivery,
-even for unrelated or read-only work. Arm exactly one delivery task unless this
-session already armed one that is running. If Monitor offers `persistent`, run
-`{{UCLUSION_CLI}} listen` with `persistent: true`. Otherwise use Bash to run
-`{{UCLUSION_CLI}} wait --timeout 86400` with `run_in_background: true` and the
-largest accepted `timeout` (normally `7200000` milliseconds for unattended
-sessions). Name the Uclusion Poke stream in the description. Do not use an
-expiring Monitor. Local background commands have no time limit; unattended
-commands normally stop after at most two hours and report that stop. Where the
-person or client expects approval for a background process, ask; if declined,
-continue without delivery.
-
-Arm delivery before reading a file or running a command requested by the user.
-
-Delivery reaches only the session that armed it. Never adopt a task you did not
-arm, stop another session's task, or enumerate processes looking for one. Handle each printed
-Poke line in order. When a delivery task ends, read its output and handle any
-Pokes, then arm the next task in that same turn, including after a quiet timeout
-or a background time-limit stop. Wait and listen share this Claude session's
-cursor, so events arriving between tasks remain pending. Leave a quiet task
-running. Never move it outside the client when exiting.
-
-For a delivered Poke, complete the target read required by `/uclusion` before
-arming the next wait. Then continue work with delivery running.
+The authoritative resident delivery mode is Claude Code session-owned delivery.
+Its environment-specific CLI command is `{{UCLUSION_CLI}}`.
+At session start, before acting on the first user request, even for unrelated
+or read-only work, load only `references/claude-delivery.md` from the selected
+Uclusion package and establish delivery as it directs. On delivery-task
+completion, load that same reference before handling output and rearming.
+Load it before acting at each Uclusion activation below. Never select a delivery
+reference from available tools or combine client modes.
 
 When delivery returns any `Start`, `Added`, `Updated`, or `Responded` line,
 or a request names Uclusion, Poke AI, find_work, or a Uclusion short code

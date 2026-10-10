@@ -450,6 +450,15 @@
     "openai": 586
    }
   },
+  "66e2021018fb3dcd6667fdcd221ea53fc15c99eda486974cce2a30e830226a99": {
+   "bytes": 32724,
+   "kind": "skill",
+   "name": "skills/uclusion/SKILL.md",
+   "tokens": {
+    "claude": 10315,
+    "openai": 6719
+   }
+  },
   "68c52f43afd95d42652958007a74caad932b42c80fe6d1b20731068ea974639e": {
    "bytes": 2680,
    "kind": "skill",
@@ -907,6 +916,15 @@
    "tokens": {
     "claude": 5660,
     "openai": 3719
+   }
+  },
+  "bed98f5c42bd07dc74ac984557385967a4626f4ac0fc8089e362b7799e72d014": {
+   "bytes": 31997,
+   "kind": "skill",
+   "name": "skills/uclusion/SKILL.md, frontmatter removed",
+   "tokens": {
+    "claude": 10059,
+    "openai": 6566
    }
   },
   "bf41e0a7602421c724b599f39175ff33f569e7936171985df99dc49b1281d1be": {

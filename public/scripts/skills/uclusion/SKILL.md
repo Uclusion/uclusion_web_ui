@@ -569,6 +569,14 @@ interruption:
   A job follows its retained-work gates and the routed review-release procedure.
 - Apply the notification and context-boundary rules and applicable commit gates.
 
+### Waiting for helpers
+
+While awaiting helpers, continue useful authorized independent work. When none
+remains, use the longest interruptible event wait the current client/tool
+permits, relying on helper progress and completion messages and waking for
+actual updates or human input. A wait expiration is never a helper shutdown
+deadline.
+
 ### Ending a turn
 
 Do not end while authorized work remains. After writing an artifact or showing

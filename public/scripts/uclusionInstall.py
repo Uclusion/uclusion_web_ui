@@ -339,7 +339,7 @@ WORKFLOW_ASSET_SHA256 = {
     'claude_stub': '770dadc1acd5a00b1fe80e05771718868516d76ab94c4e12740fe960566faac1',
     'codex_stub': 'a22c68499a9f4e30db3e56873a65118193927a0ff58e3f5de74a54147bb98cc9',
     'cursor_stub': 'df99468a1b7b8119817329fb3ac29c11ddf3133998b89b3f112e601b3aefeb87',
-    'skill': '9d371944dba62a80bec7395890f5ad37323b5e8bec5222f791f68c0b56a4ed47',
+    'skill': '66e2021018fb3dcd6667fdcd221ea53fc15c99eda486974cce2a30e830226a99',
     'codex_delivery_reference': 'cc9c3780e79fa5ea1cd45fee3128360b65e60f4f6d9c5e62c3c27a20b18d4887',
     'claude_delivery_reference': '4d965b3dad8555935ad3c403f8ff00a451d9867cc77ea46e0ee348d96d0ad0ea',
     'cursor_delivery_reference': '64bd40d2fd4c8d5467f6cc4422bc0d34699d9d937916f4bd0707e7ac8a7d8a3f',
@@ -355,7 +355,7 @@ WORKFLOW_ASSET_SHA256 = {
     'design_examples': '4bbe306e72f6438bf1dddbd1a77c7eaa2c117080f89cb57ccb0c41c0fcddadd8',
     'design_openai_metadata': 'd94499cb3851d46db554a0321d8469571273d446a8caefbdcbb8a68cb012c868',
     'demo_brief': '1c26c3235dba931bcbf9d88fcacf32e437f1ec10f3e70fd908f33228ba30037f',
-    'token_manifest': '527284b145a29d376e9ff1f90656d0adf326abad49e83722bd3b0fcae957274b',
+    'token_manifest': 'ba0650e74151b892faee79ee75570937b8cacd85093f64b95535048a06de4835',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',

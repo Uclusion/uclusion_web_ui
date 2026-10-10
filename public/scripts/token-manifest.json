@@ -1405,11 +1405,11 @@
     "openai": 132
    }
   },
-  "106462293237b63c9f746a832f2c0a8f759eb029e1470b44704c904e951107b8": {
+  "097e199785e3f77594a98d7e5fbc296c6fb56118b880b396493fbfe9273eaeec": {
    "name": "get_job",
    "tokens": {
-    "claude": 591,
-    "openai": 315
+    "claude": 673,
+    "openai": 365
    }
   },
   "142f46b8a571c064b8aae6cada07cdcff5f1dfe3dd0cbaab0c00b7f3e279bfd9": {

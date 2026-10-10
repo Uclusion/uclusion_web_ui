@@ -26,8 +26,9 @@ human that auto-take requires work claims.
   `short_code_ids`. For `auto_take_directions`, use only marked candidates in
   returned list order; otherwise use preference order, with a specifically
   requested item as a one-element list. The result names the single code you
-  now hold. Assignment begins when that claim succeeds; load and start only
-  that item, even when it is not your first preference. Continue its
+  now hold. Assignment begins when that claim succeeds; load only that item
+  with `get_job` and `initial_read: true`, then start it, even when it is not
+  your first preference. Continue its
   selected-lane workflow and material-handoff rule in the same turn. Never
   auto-start an unmarked or unclaimed item, interrupt active work, or override
   a human instruction.

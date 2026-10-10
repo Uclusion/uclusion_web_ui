@@ -783,6 +783,15 @@
     "openai": 539
    }
   },
+  "9fc20a3911f6bf3686d09f2f20b5816aebff2047a10c8e7c6aa57b6af7dc17d3": {
+   "bytes": 3233,
+   "kind": "skill",
+   "name": "skills/uclusion/references/claims.md",
+   "tokens": {
+    "claude": 1048,
+    "openai": 708
+   }
+  },
   "a44e29bde9eb7624c0ee4280be65494daa2841fe815c67cc33badd6ece9048d1": {
    "bytes": 2759,
    "kind": "bootstrap",
@@ -1459,6 +1468,37 @@
     "openai": 132
    }
   },
+  "09da414442fd7baacf0cad80f1b12e23e27681ebe1226ae88a8c93b653148919": {
+   "name": "add_info",
+   "tokens": {
+    "claude": null,
+    "openai": 442
+   },
+   "unavailable": {
+    "claude": "unsupported_input_schema"
+   }
+  },
+  "0a26e625e9da53b315fe95ff4c626fcc61842ebbcb2ef638860d203222fe4864": {
+   "name": "get_job",
+   "tokens": {
+    "claude": 850,
+    "openai": 468
+   }
+  },
+  "0da0a899954fce34175149659efcb42017a153ca43a732036ba3d5008c2daa7c": {
+   "name": "set_job_audit_phase",
+   "tokens": {
+    "claude": 2835,
+    "openai": 1349
+   }
+  },
+  "0e0e988bf8c4ac6b59d7b7932d4c5f7ce7fb9131a7375a119179b9bd561c2293": {
+   "name": "get_job_attachments",
+   "tokens": {
+    "claude": 158,
+    "openai": 69
+   }
+  },
   "142f46b8a571c064b8aae6cada07cdcff5f1dfe3dd0cbaab0c00b7f3e279bfd9": {
    "name": "add_bug",
    "tokens": {
@@ -1473,11 +1513,18 @@
     "openai": 68
    }
   },
-  "247362a9b54a68d3f8cb734c1a4c2dfbbd30cb1a03b0798392b72098395a4191": {
+  "23b6c274939ae9089e2758f30ecf927676fa184e898fc30cb9e609693ee7adf4": {
+   "name": "reopen",
+   "tokens": {
+    "claude": 411,
+    "openai": 231
+   }
+  },
+  "3033a30c5b48ae85f89d7d2ea22d5e12da4c3a8ab1ae175ccd7cad46aa85ba09": {
    "name": "move_suggestion_to_task",
    "tokens": {
-    "claude": 408,
-    "openai": 239
+    "claude": 397,
+    "openai": 228
    }
   },
   "308807290682300b9c5c8f1f22daaa53a3433d4d95959eec2c2be7daebe255ab": {
@@ -1485,6 +1532,13 @@
    "tokens": {
     "claude": 391,
     "openai": 183
+   }
+  },
+  "34f3e091e5c508e80fb669860d2dc719c310b40dbb1c4597cf9b6e680f102541": {
+   "name": "approve_job_or_option",
+   "tokens": {
+    "claude": 636,
+    "openai": 373
    }
   },
   "3717db6858165fa6c2e9e227b76e9f064fd05f516e1406ccc2f365701e98e50c": {
@@ -1525,25 +1579,11 @@
     "openai": 95
    }
   },
-  "5485966eb266b3b9439623dfb4a9491fcbd11fd25c949abed55e7aa12f548471": {
-   "name": "ask_question",
+  "4844bf9f81bc084dc67f9df961e86edeee6d01a25633fcc779c5408ea9558732": {
+   "name": "end_job_audit",
    "tokens": {
-    "claude": 1441,
-    "openai": 779
-   }
-  },
-  "66abeb477ce1aeb93ca1695fe24673a202b117f443f8cab3c738ca4d02c57ca0": {
-   "name": "make_suggestion",
-   "tokens": {
-    "claude": 701,
-    "openai": 399
-   }
-  },
-  "75bb6d3bc366bd1ac4d02d110355341c2737e1c48cc79eb5685288ba3b062ddb": {
-   "name": "reopen",
-   "tokens": {
-    "claude": 422,
-    "openai": 242
+    "claude": 2649,
+    "openai": 1236
    }
   },
   "778b678aa366153f663d799e474bce4aa2f2d0a343fd0b555a19ee743b4c3ed8": {
@@ -1563,28 +1603,11 @@
     "claude": "unsupported_input_schema"
    }
   },
-  "7de7fbb07e277bb8108756e04bbcb4c585bb49e7df4739784a2c538622a8b079": {
-   "name": "add_info",
-   "tokens": {
-    "claude": null,
-    "openai": 454
-   },
-   "unavailable": {
-    "claude": "unsupported_input_schema"
-   }
-  },
   "817e5cd1f776f46c07d1cf5a62e1daae991f4db69d688a3ba59c2144abbc6893": {
    "name": "add_view",
    "tokens": {
     "claude": 433,
     "openai": 247
-   }
-  },
-  "889accaa03402af4d13adee0abb41d353caf0de4756e0ea05a7c8378bdea212c": {
-   "name": "add_options",
-   "tokens": {
-    "claude": 1539,
-    "openai": 771
    }
   },
   "9099d113f0a0bbbd16b9b16741b6404d7e180fd3d984c4654dd10396c73fb909": {
@@ -1594,11 +1617,25 @@
     "openai": 56
    }
   },
-  "a557eeb6c06f006ff475bdb995f69ef94ba1484fe8d1d4fe69681b8f006586cb": {
-   "name": "approve_job_or_option",
+  "917a8d919b65b74cd849c82e47e50376e18eb035da44270b0c4f01a5ebe29d56": {
+   "name": "update_option",
    "tokens": {
-    "claude": 647,
-    "openai": 384
+    "claude": 554,
+    "openai": 303
+   }
+  },
+  "97738feb96bbae3516aa70ea7995f30e94f8aeeb038af3d74b28d0ab7335a5d3": {
+   "name": "add_options",
+   "tokens": {
+    "claude": 1498,
+    "openai": 727
+   }
+  },
+  "a064d880ecb07aa54e844e26bc96dcf5d6c8e8fc06245649698e3f639b366acc": {
+   "name": "make_suggestion",
+   "tokens": {
+    "claude": 690,
+    "openai": 388
    }
   },
   "ab25145e702d37614c40073e616344ccccb3ad793fecbe27db74cbeb0ead8cf5": {
@@ -1606,13 +1643,6 @@
    "tokens": {
     "claude": 255,
     "openai": 129
-   }
-  },
-  "b1d2509be452f5e8a76dfd9c7e63c129af1338e6a2323222099ce7af7e32693f": {
-   "name": "update_option",
-   "tokens": {
-    "claude": 535,
-    "openai": 287
    }
   },
   "b24880e45d90cac132d0fc772b38448eeb9d26988f64b7d1277e04b39762663f": {
@@ -1627,6 +1657,13 @@
    "tokens": {
     "claude": 306,
     "openai": 155
+   }
+  },
+  "b6b1c0b2948188e7f12828ad8f807788d76371a9e4359ca98ee99a4139c03e1c": {
+   "name": "ask_question",
+   "tokens": {
+    "claude": 1410,
+    "openai": 745
    }
   },
   "b943a94659be9e35c62ac11e3608cfba3a194e399c3735b5b674e9cd6d989573": {
@@ -1650,32 +1687,11 @@
     "openai": 164
    }
   },
-  "c29d58041cdc212b060a981704f8ed6a47a9c7777acf0ba3f8f962bac4e51d6a": {
-   "name": "set_job_audit_phase",
-   "tokens": {
-    "claude": 2820,
-    "openai": 1343
-   }
-  },
   "cc00582b69c9861f8883e99ab787322acc6d5cd63f2dfb92ab0a52366d94a473": {
    "name": "start_job_audit",
    "tokens": {
     "claude": 303,
     "openai": 172
-   }
-  },
-  "d0ba6f92acfbcf78a632a3edd59ea408e81a9dee9a5ce3bec188560c2d8284f4": {
-   "name": "end_job_audit",
-   "tokens": {
-    "claude": 2634,
-    "openai": 1230
-   }
-  },
-  "d5d7a8ac5e1b339f24980b23c0e14488e75e7aaf6aeb498d56075e1855130b96": {
-   "name": "get_job",
-   "tokens": {
-    "claude": 836,
-    "openai": 459
    }
   },
   "f279c7056358d85d1b062ba8dda5349d92083d336254aca641da0c7fbccab7b6": {

@@ -349,13 +349,13 @@ WORKFLOW_ASSET_SHA256 = {
     'review_reference': 'f5d4d2fec16cbdff93255f3d577e38b8b638cda14d0b207a3fe3b2a53d7fb7f4',
     'completion_reference': '859810e6b293e9836877ed853a42b3de382770f55ed1398ee72e4683c4d1e3c0',
     'audit_reference': 'c71f33e60bb52fe99489e056fff12a7656452bc8d905cc0b54a3882be08d5fbb',
-    'claims_reference': '46295b27f0cfb3f29fcdedcff0288f81672ef9feddfffaa3b633d441cd86ab58',
+    'claims_reference': '9fc20a3911f6bf3686d09f2f20b5816aebff2047a10c8e7c6aa57b6af7dc17d3',
     'openai_metadata': 'c60b60bcccd8b171ab950477b7f09b5fc621974846f4cdc468b6c8fe0bbb2ca9',
     'design_skill': 'cffa609b1d0cb430707cc89253f4d2e13a167ae895c49a765e0fe7c364cb541a',
     'design_examples': '4bbe306e72f6438bf1dddbd1a77c7eaa2c117080f89cb57ccb0c41c0fcddadd8',
     'design_openai_metadata': 'd94499cb3851d46db554a0321d8469571273d446a8caefbdcbb8a68cb012c868',
     'demo_brief': '1c26c3235dba931bcbf9d88fcacf32e437f1ec10f3e70fd908f33228ba30037f',
-    'token_manifest': '1ea88d1a0671115e46639a647ac42623181c744a0f9889ffef83ea40e5b2e61c',
+    'token_manifest': '263a8e5cc21e598d06b91edef9498b9d0d5d9c8bc785cf419f03eeb9908be685',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',

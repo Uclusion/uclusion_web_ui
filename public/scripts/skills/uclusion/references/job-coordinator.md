@@ -45,10 +45,10 @@ substantive work or affected phase, publication or handoff actions.
 
 ### Scoped job context
 
-Keep the initial whole-scope job read. Scope subsequent reads to what changed,
-explicitly including the current description when needed. After context
-restoration, fetch the description if its complete body is missing before
-relying on it; a summary is not its body.
+Keep the initial whole-scope job read made with `initial_read: true`. Scope
+subsequent reads to what changed, explicitly including the current description
+when needed. After context restoration, fetch the description if its complete
+body is missing before relying on it; a summary is not its body.
 
 An `Updated <job-code> description change` Poke requires this description
 refresh for the assigned job. For a generic job update, request only the needed
@@ -77,12 +77,15 @@ Select exactly one executable target for the implementation pass:
 - A task capsule is complete and solely authoritative for that task pass.
   Never merge it with, inherit from, or fall back to the job capsule.
 
-Ordinary reads advertise explicit capsule absence. Job reads show the job
-capsule and capsules for displayed open top-level tasks. A reference or summary
-does not satisfy the current-contract prerequisite.
+Ordinary reads advertise explicit capsule absence and the current references
+for the job and displayed open top-level tasks. An initial read also returns
+only the selected target's complete current capsule body, or explicit absence;
+every other capsule remains a reference. A reference or summary does not
+satisfy the current-contract prerequisite.
 
-Reuse a complete held body matching the current target reference and version.
-When it is missing, changed or lost, read the advertised capsule's exact R-code
+Reuse a complete held body, including one returned by `initial_read`, when its
+target, exact R-code and actual version match the current reference. Only when
+that body is missing, changed or lost, read the advertised capsule's exact R-code
 thread before affected source or test edits. Check its returned identity,
 target and actual version, and use the complete body. A superseded capsule is
 not the target's current contract; follow the current reference instead.

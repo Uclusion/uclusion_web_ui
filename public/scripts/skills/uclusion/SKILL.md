@@ -41,9 +41,14 @@ contract bodies.
 
 Before an accepted `get_job` lookup, hold this complete main body, the
 authoritative resident delivery body at its current trigger, and applicable
-claims. Keep the lookup result and choose the lane from its actual returned Job
-header, never from a `B-` or other code prefix. Select only the current lane
-and action's complete units; do not preload future stages.
+claims. Use `initial_read: true` for the first whole-scope lookup of the selected
+target. It returns normal context plus only that target's complete current
+capsule with its exact R-code and actual version, or explicit absence; other
+capsules remain references. Standing-note, ordinary-note and resolved-discussion
+bodies still require their explicit reads. Keep the lookup result and choose
+the lane from its actual returned Job header, never from a `B-` or other code
+prefix. Select only the current lane and action's complete units; do not preload
+future stages.
 
 | Returned lane or current action | Additional complete units |
 | --- | --- |
@@ -266,10 +271,10 @@ routed above, accepted direct targets are globally resolvable: call `get_job`
 with their exact short code. Compound targets have the form
 `<verb> <local-code> of <parent-code>`; call `get_job` with the parent after
 `of`, then locate the local item. The first load of a parent not yet read or
-written this session takes its whole scope. When that parent was already
-loaded, read only the poked item with `thread_only`, by its own code or,
-inside a question, its qualified code. Never globally load a bare local code
-by itself.
+written this session takes its whole scope with `initial_read: true`. When that
+parent was already loaded, read only the poked item with `thread_only`, by its
+own code or, inside a question, its qualified code. Never globally load a bare
+local code by itself.
 
 Codes inside a question repeat across questions, so reads render each one
 qualified by its question: `<question-code>_<local-code>`, such as

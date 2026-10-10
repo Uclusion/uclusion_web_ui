@@ -36,6 +36,15 @@
     "openai": 596
    }
   },
+  "0c799341fae45fa369d1122832f2ad584fcc9dd340a4b3ca6f1e35c37271ccf7": {
+   "bytes": 23645,
+   "kind": "skill",
+   "name": "skills/uclusion/references/job-coordinator.md",
+   "tokens": {
+    "claude": 7372,
+    "openai": 4675
+   }
+  },
   "104231a1139da55b250bb991fac18cd0311d86acb645bb975ca55253883d977e": {
    "bytes": 5721,
    "kind": "skill",
@@ -169,6 +178,15 @@
    "tokens": {
     "claude": 642,
     "openai": 392
+   }
+  },
+  "3cfbabe5b6245504a03ed3ffec8ea298a4f62180f588ab8776236fe05a148ed6": {
+   "bytes": 23381,
+   "kind": "skill",
+   "name": "skills/uclusion/references/job-coordinator.md, audit removed",
+   "tokens": {
+    "claude": 7265,
+    "openai": 4608
    }
   },
   "3ebf4e32371d85df4ca30a4ef80097251289155d26bfd216dbfbbd24e7a7b0f6": {
@@ -349,6 +367,15 @@
    "tokens": {
     "claude": 938,
     "openai": 583
+   }
+  },
+  "5bd398335b29893fd35391bca5a478cc17af276efa424a42ee32f0d66164aa39": {
+   "bytes": 33100,
+   "kind": "skill",
+   "name": "skills/uclusion/SKILL.md",
+   "tokens": {
+    "claude": 10433,
+    "openai": 6799
    }
   },
   "5df9c7f9239bc36e3af4344604b156ae50710351610724352bd23200b0a19536": {
@@ -1296,6 +1323,15 @@
     "openai": 673
    }
   },
+  "f7834de51636f39086b624b2e98176839906f14b8f8d17c08747a802d52df975": {
+   "bytes": 32373,
+   "kind": "skill",
+   "name": "skills/uclusion/SKILL.md, frontmatter removed",
+   "tokens": {
+    "claude": 10177,
+    "openai": 6646
+   }
+  },
   "f7ec9de481383a8fce7f53eef54769bc99b1d8ffd1e819cef6a21a757f3d29ef": {
    "bytes": 13984,
    "kind": "skill",
@@ -1421,13 +1457,6 @@
    "tokens": {
     "claude": 308,
     "openai": 132
-   }
-  },
-  "097e199785e3f77594a98d7e5fbc296c6fb56118b880b396493fbfe9273eaeec": {
-   "name": "get_job",
-   "tokens": {
-    "claude": 673,
-    "openai": 365
    }
   },
   "142f46b8a571c064b8aae6cada07cdcff5f1dfe3dd0cbaab0c00b7f3e279bfd9": {
@@ -1640,6 +1669,13 @@
    "tokens": {
     "claude": 2634,
     "openai": 1230
+   }
+  },
+  "d5d7a8ac5e1b339f24980b23c0e14488e75e7aaf6aeb498d56075e1855130b96": {
+   "name": "get_job",
+   "tokens": {
+    "claude": 836,
+    "openai": 459
    }
   },
   "f279c7056358d85d1b062ba8dda5349d92083d336254aca641da0c7fbccab7b6": {

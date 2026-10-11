@@ -158,7 +158,7 @@ SCRIPT_FILES = (
 # deployment gate validates this table before publishing, so a sequential S3
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
-    'uclusionCLI.py': 'c2186ac13e18f90844ee577be5e1d53cf6cd8d1a1afe0742f14a88cfcf945189',
+    'uclusionCLI.py': '9800101573e09fd9b2c596f40c4de3d29635a38016c1a81499454838269fffe9',
     'uclusionMCPProxy.py': '08ae958b4f86913452b16908167255bbcb603326247996342c8cf80a143e4191',
     'uclusionSetupMCP.py': '9aa8d3199b0c392d944fc3b2fb9f26b48230737ea2e5b07980cd3df6b79ed4f3',
     'uclusionCodexNative.py': '89587700e95582353ee9d3f2a9f48674d88d3c68ed13a6e929cd0efa3aa85300',

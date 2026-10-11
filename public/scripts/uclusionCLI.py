@@ -887,11 +887,61 @@ EXPORT_FORMAT_MARKER = f'<!-- uclusion:format:{EXPORT_FORMAT_VERSION} -->\n'
 EXPORT_LEGEND = ('<!-- uclusion-export-legend: "(updated YYYY-MM-DD)" on a job, comment, reply, or vote '
                  'line is the day (UTC) that item last changed; new items show their creation day. An item '
                  'without the annotation has no recorded update time. Use these dates to answer questions '
-                 'about recent changes. -->\n')
+                 'about recent changes. -->\n'
+                 '<!-- uclusion-export-index-legend: An index of open work follows these notes, between the '
+                 'uclusion-export-index-start and uclusion-export-index-end lines. Each index line starts with '
+                 'its kind. A job line is a job whose stage is neither Reviewable nor Skippable. A bug line is '
+                 'an unresolved view-level bug. A blocker line is an unresolved issue directly on a job in any '
+                 'stage; issues on a question\'s options do not block the job and are not listed. An '
+                 'unreadable line names a section with a heading, name, stage or priority that could not be '
+                 'read, and says which. A failed line '
+                 'is an object that failed to export and is missing from this file. Each line= value is a '
+                 'line number of this file, counted from 1 the way grep -n counts, and points at the item\'s '
+                 'heading or, for an unreadable section, at its section marker. Each name= value runs to the '
+                 'end of its line. A bug or issue has no name heading, so its name is the first non-empty '
+                 'line of its body, cut to 80 characters. -->\n')
+# The index sits between the opening notes and the first section marker, where
+# parse_export_sections ignores it, so it is rebuilt on every run while
+# unchanged sections are still reused.
+EXPORT_INDEX_START = '<!-- uclusion-export-index-start -->\n'
+EXPORT_INDEX_END = '<!-- uclusion-export-index-end -->\n'
+# Heading forms written by the renderer's report_job and report_comment. A
+# comment heading needs four hashes: comments on a question's options render
+# at five, and their resolved copies say Resolved, so neither matches an open
+# job blocker. The anchor is required so a heading inside user text does not
+# count.
+EXPORT_JOB_HEADING_RE = re.compile(r'^## Job (?P<code>[^\s<]+)<a name="[^"]*"></a>')
+EXPORT_JOB_NAME_RE = re.compile(r'^### (?P<name>.*\S)')
+EXPORT_JOB_STAGE_RE = re.compile(r'^This job is in stage (?P<stage>.+)\.$')
+EXPORT_COMMENT_HEADING_RE = re.compile(r'^#### (?P<kind>[^<]+?) (?P<code>[^\s<]+)<a name="[^"]*"></a>')
+EXPORT_PRIORITY_RE = re.compile(r'^Priority: (?P<severity>[^(]*?)(?: \([^)]*\))?\.$')
+# Author, reply, vote and comment group headers all start this way, so a
+# comment whose body is empty reaches one of them before any body line.
+EXPORT_RECORD_BOUNDARY_RE = re.compile(r'^(#{4,5} |> #{5} )')
+# Line numbers count only \n, as grep -n and sed -n do. These are the other
+# characters str.splitlines() breaks on; user text can contain them, so they
+# become spaces to keep each index entry on one line for every reader.
+EXPORT_LINE_BREAK_RE = re.compile('[\r\x0b\x0c\x1c\x1d\x1e\x85\u2028\u2029]')
+EXPORT_INDEX_FINISHED_STAGES = ('Reviewable', 'Skippable')
+# The UI shows a comment's name cut the way nameFromDescription cuts it.
+EXPORT_INDEX_NAME_LENGTH = 80
 
 
 def make_export_marker(id_type, an_id, stamp):
     return f'<!-- uclusion:{id_type}:{an_id}:{stamp} -->\n'
+
+
+def iter_export_sections(content):
+    """Yields (marker_match, section_text) for each marker section of an assembled export."""
+    matches = list(EXPORT_MARKER_RE.finditer(content))
+    for index, match in enumerate(matches):
+        end = matches[index + 1].start() if index + 1 < len(matches) else len(content)
+        text = content[match.end():end]
+        # The group separator is written between the investible and comment groups on
+        # assembly, so it cannot stay glued to a reused section
+        if text.endswith(EXPORT_SEPARATOR):
+            text = text[:-len(EXPORT_SEPARATOR)]
+        yield match, text
 
 
 def parse_export_sections(file_path):
@@ -909,19 +959,116 @@ def parse_export_sections(file_path):
         # Older format version (or none): rebuild everything rather than reuse
         # sections rendered the old way.
         return None
-    matches = list(EXPORT_MARKER_RE.finditer(content))
-    if not matches:
-        return None
     sections = {}
-    for index, match in enumerate(matches):
-        end = matches[index + 1].start() if index + 1 < len(matches) else len(content)
-        text = content[match.end():end]
-        # The group separator is written between the investible and comment groups on
-        # assembly, so it cannot stay glued to a reused section
-        if text.endswith(EXPORT_SEPARATOR):
-            text = text[:-len(EXPORT_SEPARATOR)]
+    for match, text in iter_export_sections(content):
         sections[(match.group(1), match.group(2))] = (match.group(3), text)
-    return sections
+    return sections or None
+
+
+def export_index_text(text):
+    return EXPORT_LINE_BREAK_RE.sub(' ', text).strip()
+
+
+def export_comment_name(lines, start):
+    """The first non-empty body line from lines[start], or None when the body is empty.
+
+    It is cut as nameFromDescription cuts an over-long name: at the last space that
+    leaves room for '...', or at that length when there is no space."""
+    for line in lines[start:]:
+        if EXPORT_RECORD_BOUNDARY_RE.match(line):
+            return None
+        name = export_index_text(line)
+        if not name:
+            continue
+        if len(name) > EXPORT_INDEX_NAME_LENGTH:
+            cut = name.rfind(' ', 0, EXPORT_INDEX_NAME_LENGTH - 2)
+            if cut < 0:
+                cut = EXPORT_INDEX_NAME_LENGTH - 3
+            name = name[:cut] + '...'
+        return name
+    return None
+
+
+def index_job_section(lines, first_line, found):
+    """Adds the job and its open blockers to found; returns what could not be read."""
+    heading = next((number for number, line in enumerate(lines) if EXPORT_JOB_HEADING_RE.match(line)), None)
+    if heading is None:
+        return ['job heading']
+    job_code = EXPORT_JOB_HEADING_RE.match(lines[heading]).group('code')
+    problems = []
+    name_match = EXPORT_JOB_NAME_RE.match(lines[heading + 1]) if heading + 1 < len(lines) else None
+    if name_match is None:
+        problems.append('job name')
+    stage = next((EXPORT_JOB_STAGE_RE.match(line).group('stage') for line in lines[heading + 1:]
+                  if EXPORT_JOB_STAGE_RE.match(line)), None)
+    if stage is None:
+        problems.append('job stage')
+    if not problems and stage not in EXPORT_INDEX_FINISHED_STAGES:
+        found['job'].append((first_line + heading, f'{job_code} ',
+                             f' stage={export_index_text(stage)} '
+                             f'name={export_index_text(name_match.group("name"))}'))
+    # A blocker is listed in any stage: one left open on a finished job is
+    # still unresolved.
+    for number in range(heading + 1, len(lines)):
+        match = EXPORT_COMMENT_HEADING_RE.match(lines[number])
+        if match is None or match.group('kind') != 'Issue':
+            continue
+        name = export_comment_name(lines, number + 1)
+        if name is None:
+            problems.append(f'issue {match.group("code")} name')
+            continue
+        found['blocker'].append((first_line + number, f'{match.group("code")} ',
+                                 f' job={job_code} name={name}'))
+    return problems
+
+
+def index_comment_section(lines, first_line, found):
+    """Adds the section's root comment to found when it is an open bug; returns what could not be read."""
+    heading = next((number for number, line in enumerate(lines) if EXPORT_COMMENT_HEADING_RE.match(line)), None)
+    if heading is None:
+        return ['comment heading']
+    match = EXPORT_COMMENT_HEADING_RE.match(lines[heading])
+    if match.group('kind') != 'Bug':
+        return []
+    priority_line = next((number for number in range(heading + 1, len(lines)) if lines[number].strip()), None)
+    priority = EXPORT_PRIORITY_RE.match(lines[priority_line]) if priority_line is not None else None
+    if priority is None:
+        return ['bug priority']
+    name = export_comment_name(lines, priority_line + 1)
+    if name is None:
+        return ['bug name']
+    found['bug'].append((first_line + heading, f'{match.group("code")} ',
+                         f' severity={export_index_text(priority.group("severity"))} name={name}'))
+    return []
+
+
+def build_export_index(content, failed_ids, lines_before):
+    """The open work index for assembled sections, placed after lines_before opening lines.
+
+    Line numbers are of the file as written with the index included, and count
+    only \\n. Each entry is one line, so the index's own length is known before
+    the numbers that depend on it are written."""
+    found = {'job': [], 'bug': [], 'blocker': [], 'unreadable': []}
+    marker_line = 1
+    scanned = 0
+    for match, text in iter_export_sections(content):
+        marker_line += content.count('\n', scanned, match.start())
+        scanned = match.start()
+        lines = text.split('\n')
+        index_section = index_job_section if match.group(1) == 'marketInvestible' else index_comment_section
+        problems = index_section(lines, marker_line + 1, found)
+        if problems:
+            found['unreadable'].append((marker_line, '',
+                                        f' section={match.group(1)}:{match.group(2)} could not be read: '
+                                        + ', '.join(problems)))
+    entries = [(kind, entry) for kind in ('job', 'bug', 'blocker', 'unreadable') for entry in found[kind]]
+    offset = lines_before + 2 + len(entries) + len(failed_ids)
+    index = EXPORT_INDEX_START
+    for kind, (line, before, after) in entries:
+        index += f'{kind} {before}line={line + offset}{after}\n'
+    for failed_id in failed_ids:
+        index += f'failed object={failed_id} is missing from this file\n'
+    return index + EXPORT_INDEX_END
 
 
 def fetch_export_batch(export_api_url, id_type, ids, credentials, failed_ids):
@@ -1028,7 +1175,8 @@ def fetch_workspace_export(credentials, file_path=None):
         print(f"     {', '.join(stale_ids)}")
         warnings += (f"<!-- uclusion-export-warning: {len(stale_ids)} objects failed to export "
                      f"and their sections are out of date: {', '.join(stale_ids)} -->\n")
-    return EXPORT_FORMAT_MARKER + EXPORT_LEGEND + warnings + new_file_content
+    opening = EXPORT_FORMAT_MARKER + EXPORT_LEGEND + warnings
+    return opening + build_export_index(new_file_content, failed_ids, opening.count('\n')) + new_file_content
 
 
 def get_workspace_export_destination(config, credentials):

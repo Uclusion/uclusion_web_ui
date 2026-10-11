@@ -247,7 +247,10 @@ The first word is contractual:
 - `Added <target>` reports a created task, grouped task, question, suggestion,
   blocker, or other item.
 - `Updated <target>` reports an edit, move, deletion, assignment/description
-  change, or explicit stage change. When the target is the current
+  change, explicit stage change, or type conversion. A trailing
+  `converted to <type>` means a person changed only that item's type: its text
+  and short code are unchanged and it is open, so a held complete body needs no
+  reload to learn what it became. When the target is the current
   intent/design capsule, follow the held job-coordinator update rules. This never bypasses the assignment gate.
 - `Responded <target>` hands an AI-authored assistance turn back after any
   semantic human reply, vote, or Resolve. Reload and inspect what it answers;

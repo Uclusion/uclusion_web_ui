@@ -162,6 +162,12 @@ check or assign work. Load only missing prerequisites for the next action. A
 move to Doable resumes only this session's assignment after every execution
 gate is met.
 
+An `Updated <item-code> of <job-code> converted to <type>` reports only that
+item's new type. Record it from the event when the item's complete body is
+held; otherwise read just that item with `thread_only`. It does not report the
+job's stage, and a conversion can move the job between stages without its own
+stage event, so keep the effective-stage check before stage-gated actions.
+
 For the assigned lane, compare a supplied transition (or an ordinary update's
 reloaded stage) with the last observed stage. An actual change into Reviewable,
 including a confirmed in-session change or ask_for_review transition, requires

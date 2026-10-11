@@ -1264,7 +1264,11 @@ class ResponseStats:
             if not isinstance(name, str) or not name.startswith(('mcp__uclusion__', 'mcp__Uclusion__')):
                 return
             tool = name.split('__', 2)[2]
-            fields = self._read_fields(payload.get('tool_response'), self._fingerprint('claude', session),
+            response = payload.get('tool_response')
+            # Claude Code hands this hook an MCP result as its bare content list.
+            if isinstance(response, list):
+                response = {'content': response}
+            fields = self._read_fields(response, self._fingerprint('claude', session),
                                        tool, self._read_selector(tool, payload.get('tool_input')))
             if fields:
                 invocation = payload.get('tool_use_id')

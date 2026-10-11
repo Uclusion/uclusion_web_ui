@@ -34,6 +34,8 @@ MANIFEST = {
     'bytes_per_token': {'claude': 4, 'openai': 4},
 }
 READ_RESULT = {'result': {'content': [{'type': 'text', 'text': 'Unchanged fixture note.'}]}}
+# Claude Code's PostToolUse hook receives an MCP result as its bare content list.
+CLAUDE_READ_RESPONSE = READ_RESULT['result']['content']
 
 
 def utc(second):
@@ -212,7 +214,7 @@ class StatisticsClearFixtures(unittest.TestCase):
         before = self.rows()[-1]
         hook = {'session_id': 'claude', 'hook_event_name': 'PostToolUse',
                 'tool_name': 'mcp__uclusion__get_job', 'tool_use_id': 'call-before-reset',
-                'tool_input': {'short_code_id': 'R-fixture-1'}, 'tool_response': READ_RESULT['result']}
+                'tool_input': {'short_code_id': 'R-fixture-1'}, 'tool_response': CLAUDE_READ_RESPONSE}
         existing.claude_hook({'session_id': 'claude', 'hook_event_name': 'SessionStart', 'source': 'startup'})
         existing.claude_hook(hook)
         hook_before = self.rows()[-1]

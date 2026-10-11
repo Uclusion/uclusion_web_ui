@@ -26,6 +26,8 @@ JSONRPC_RESULT = {
 }
 READ_RESULT = {'jsonrpc': '2.0', 'id': 8,
                'result': {'content': [{'type': 'text', 'text': 'Private unchanged view note body.'}]}}
+# Claude Code's PostToolUse hook receives an MCP result as its bare content list.
+CLAUDE_READ_RESPONSE = READ_RESULT['result']['content']
 
 
 class _BodyResponse:
@@ -263,7 +265,7 @@ class ResponseStatsTests(unittest.TestCase):
         start = {'hook_event_name': 'SessionStart', 'source': 'startup'}
         read = {'hook_event_name': 'PostToolUse', 'tool_name': 'mcp__Uclusion__get_job',
                 'tool_input': {'short_code_id': 'R-example-1', 'thread_only': True},
-                'tool_response': READ_RESULT['result']}
+                'tool_response': CLAUDE_READ_RESPONSE}
         hook(start)
         hook(read)
         hook(read)
@@ -286,7 +288,7 @@ class ResponseStatsTests(unittest.TestCase):
     def test_merged_claude_hooks_record_one_row_for_each_actual_read(self):
         payload = {'session_id': 'session', 'hook_event_name': 'PostToolUse',
                    'tool_name': 'mcp__uclusion__get_job', 'tool_use_id': 'first-call',
-                   'tool_input': {'short_code_id': 'R-example-1'}, 'tool_response': READ_RESULT['result']}
+                   'tool_input': {'short_code_id': 'R-example-1'}, 'tool_response': CLAUDE_READ_RESPONSE}
         for invocation in ('first-call', 'first-call', 'second-call', 'second-call'):
             recorder = self.recorder()
             recorder.claude_hook({**payload, 'tool_use_id': invocation})

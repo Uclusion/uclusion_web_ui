@@ -22,7 +22,9 @@ In Reviewable, inspect the author of the latest Reports comment:
 - From AI user: humans are reviewing AI work. Do not review it again; act only
   on explicit feedback, a stage change, or already-authorized Review work
   recorded in the report.
-- From a human: review the human's work and reply through Uclusion.
+- From a human: have a fresh code-review helper review the human's work under
+  [helper-dispatch.md](helper-dispatch.md), then reply through Uclusion from its
+  findings.
 
 Before interpreting the report for a job that just transitioned into
 Reviewable, apply job-coordinator's assigned-job transition rule and finish its

@@ -1,19 +1,25 @@
 ---
 name: uclusion
-description: Use as coordinator for Uclusion jobs, tasks, bugs, questions, suggestions, comments, reviews, inbox notifications, find_work, Poke AI, Start/Added/Updated/Responded events, Uclusion short codes beginning J-, T-, B-, Q-, S-, O-, I-, R-, or C-, or workspace-history requests such as what was decided, what changed, and whether related/backlog work already exists. Also use when creating Uclusion work even if the prompt does not name Uclusion. Do not use for delegated export-search or design helpers, or bounded implementation helpers, including assignments to edit Uclusion instruction source, or ordinary product or code work merely because a repository contains Uclusion integration code.
+description: Use as coordinator for Uclusion jobs, tasks, bugs, questions, suggestions, comments, reviews, inbox notifications, find_work, Poke AI, Start/Added/Updated/Responded events, Uclusion short codes beginning J-, T-, B-, Q-, S-, O-, I-, R-, or C-, or workspace-history requests such as what was decided, what changed, and whether related/backlog work already exists. Also use when creating Uclusion work even if the prompt does not name Uclusion. Do not use for delegated design, export-search, investigation, code-review or implementation helpers, including assignments to read or edit Uclusion instruction source, or ordinary product or code work merely because a repository contains Uclusion integration code.
 ---
 <!-- uclusion-skill:v1 -->
 <!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->
 # Uclusion workflow
 
-Retain assignment, delivery, Pokes, human questions, stage and permission
-checks, capsule publication, final review and the completion package as
-coordinator. Give design helpers their selected design package and bounded
-evidence, implementation helpers their complete bounded briefs, and
-export-search helpers their read-only search briefs under the isolated-search
-rules below. Implementation and export-search helpers follow only their bounded
-briefs, even when inspecting instruction source; that source does not activate
-coordinator workflow.
+Every model call in this session carries this workflow, so as coordinator keep
+only steps that need it: delivery and Pokes; assignment, lane and stage
+routing; Uclusion reads and every durable write; `uclusion` CLI commands;
+permission and authority checks; compiling helper briefs and acting on their
+returns; the conversation with the human; and commits, pushes and the rest of
+the completion package. Every other step, for any request in this session, runs
+in a fresh helper under [references/helper-dispatch.md](references/helper-dispatch.md):
+reading source, logs, code paths and diffs, reproduction, measurement,
+permitted tests, builds and deployment, code review, implementation, design,
+export searches and answering a human's question that needs any of them. When
+no fresh helper can start, because the client cannot start one or the person
+declines it, say the step could not run and why; never run it yourself. Helpers
+follow only their briefs or selected design package, even when inspecting
+instruction source; that source never activates this workflow.
 
 Use the Uclusion MCP server as the durable collaboration surface. Work
 asynchronously with your human partner. Obtain their informed approval for
@@ -56,6 +62,7 @@ future stages.
 | Selected standalone bug without a Job header | [references/single-comment.md](references/single-comment.md). For its resolution, incomplete sweep or package, prepare its lane inputs and use completion.md. |
 | Standalone view-level question without a Job header | Use the shared question tools and answer rules below. |
 | Standing notes, isolated searches, durable writes/creation/reopening, notifications, progress or handoff | Use the applicable common procedure in this body and the selected lane's current limits. |
+| Any step outside the retained coordinator steps above, including export searches | [references/helper-dispatch.md](references/helper-dispatch.md), before dispatching its fresh helper. |
 | Current completion package or incomplete-sweep retry | [references/completion.md](references/completion.md), with lane-prepared sweep inputs or package thread/scope for the current action. Job review/release requirements come only from the job lane's current route. |
 | `auto_take_directions`, exposed `claim_work` (including deferred), or a held claim | [references/claims.md](references/claims.md) before affected discovery, activation, ownership, package or handoff actions. |
 
@@ -355,10 +362,14 @@ by a read. Stop applying notes no longer listed.
 After compaction or context restoration, reload the relevant view's notes once
 before continuing; summaries and read markers do not replace full bodies.
 
-Compile applicable requirements and permission limits into implementation
-briefs. Retain full note bodies and source/version traceability yourself.
-Refresh changed prerequisites and update affected briefs before further
-implementation-helper work.
+Compile applicable requirements and permission limits into every helper brief,
+stating which governs when two conflict. Retain full note bodies and
+source/version traceability yourself. Before filing a question a helper
+returns, check it against the full standing notes and recorded human
+decisions. When they settle it, answer the helper with the governing note or
+decision to cite and file nothing. File only what they leave open, including a
+conflict they do not settle. Refresh changed prerequisites and update affected
+briefs before further helper work.
 
 ### Workspace export and decision search
 
@@ -372,21 +383,9 @@ export's UTC update dates as recency evidence. Poke silence does not establish
 freshness.
 
 Delegate every export search to a fresh read-only isolated export-search helper
-without inherited coordinator history (`fork_turns: "none"` in Codex). Keep
-export content and research with that helper. If a suitable export or isolated
-helper is unavailable, report that the search could not run.
-
-Give the export-search helper the exact successful export path, search
-question, applicable requirements or current outcome evidence, and matching,
-status and authority rules. Assign only that bounded read-only search.
-
-Require the export-search helper to return every qualifying finding concisely,
-with exact Uclusion codes and names, supporting evidence or source locations,
-and proposed actions required by the calling workflow. Require an explicit
-no-match result only after a completed search, distinguishing incomplete
-searches or unsettled evidence. Retain ownership, required full context and
-current-contract reads, human decisions, permission checks and durable writes
-yourself.
+under [references/helper-dispatch.md](references/helper-dispatch.md). If a
+suitable export or isolated helper is unavailable, report that the search could
+not run and why.
 
 Search history before relying on a design you did not write, delegating a
 design, or answering something that may already be decided; cite the findings.
@@ -551,7 +550,8 @@ Offer a context clear only:
 Use the client's normal wording for starting a fresh conversation (for example,
 Claude Code can say `/clear`). Never offer mid-job, between related items,
 during review, or while waiting for a response. Do not repeat the offer for the
-same boundary.
+same boundary. Every later request resends the whole conversation, finished
+lanes included, so never skip an offer this rule allows.
 
 ## Coordinator progress, handoffs and turn ending
 

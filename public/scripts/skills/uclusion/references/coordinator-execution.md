@@ -43,52 +43,21 @@ work.
 
 ## Bounded implementation dispatch
 
-Start a fresh implementation helper for every independent task pass without
-inherited conversation history (`fork_turns: "none"` in Codex). A grouped task
-continues with its top-level parent's implementation helper. Design help alone
-does not satisfy this execution rule; a cohesive job pass keeps its job
-contract.
+Start a fresh implementation helper for every independent task pass under
+[helper-dispatch.md](helper-dispatch.md). A grouped task continues with its
+top-level parent's implementation helper. Design help alone does not satisfy
+this execution rule; a cohesive job pass keeps its job contract.
 
-Give the implementation helper a complete design/task brief from the current
-contract and qualifying evidence. Retain every agreed behavior, constraint and
-explicitly planned verification step. Convert Review directions into concrete
-implementation requirements yourself. State which actions and verification
-steps the implementation helper may perform and which are withheld. Supply this
-brief, selected applicable constraints and repository/code context, plus
-generic bounded execution and return rules. Select applicable repository
-constraints without their coordinator bootstrap or workflow instructions.
-
-Give the implementation helper its assigned work and complete applicable
-constraints. Retain full source bodies, evidence and source/version mapping
-yourself. Keep the copied generic helper rules independent of this workflow;
-include product names only where the source task needs them.
-
-### Complete generic helper template
-
-Copy all the following execution and return sentences, without package markers
-or workflow labels:
-
-> Implement the supplied complete design. Make routine implementation choices
-> consistent with that note and the existing code; do not silently expand
-> behavior or scope. Follow the supplied verification steps. Do not invent
-> additional task steps, testing plans, or other work.
->
-> When instructions or prerequisites are missing or conflict, or an action would
-> expand the agreed behavior or scope, report the gap or choice to the coordinator
-> before taking that action.
->
-> Return completed work, verification results, findings, unresolved choices and
-> anything a reviewer cannot reconstruct to the coordinator.
->
-> Keep general autonomy within the supplied assignment. Use resources and actions
-> within the brief's source work. Treat assigned files as source under change and
-> follow the brief for execution. Return your results and finish the bounded
-> assignment.
+Brief the implementation helper from the current contract and qualifying
+evidence, converting Review directions into concrete implementation
+requirements yourself. Compile that brief and copy its complete generic helper
+template under helper-dispatch.md's implementation rules.
 
 Supply changed brief requirements and constraints before the implementation
 helper resumes affected action. Retain ownership, Pokes, human questions, task
-selection and resolution, approvals and permission decisions, publication,
-final review and the completion package yourself.
+selection and resolution, approvals and permission decisions, review
+publication and the completion package yourself; any code review runs in a
+fresh code-review helper.
 
 ## Task resolution and remaining Review work
 

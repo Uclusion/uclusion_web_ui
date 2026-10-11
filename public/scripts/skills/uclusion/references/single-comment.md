@@ -13,6 +13,14 @@ then read [job-coordinator.md](job-coordinator.md) in full through its closing
 marker and its complete current stage/action units before job work. Classify
 the returned Job header, even when the code retains a `B-` prefix.
 
+## Helper work
+
+Run the bug's investigation, reproduction, measurement, fix and any permitted
+tests, builds or deployment in fresh helpers under
+[helper-dispatch.md](helper-dispatch.md), briefing its implementation helper
+from the bug thread's agreed fix and human-backed decisions with that unit's
+complete generic helper template.
+
 ## Progress and resolution
 
 Use `add_info` for progress or questions while the bug is open. Resolving a

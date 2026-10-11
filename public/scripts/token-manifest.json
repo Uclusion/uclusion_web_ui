@@ -54,6 +54,15 @@
     "openai": 1207
    }
   },
+  "1307498bfc1d390ebd97a53d8bab6df8791224a04edc0f5664dbfa9b662f4518": {
+   "bytes": 2795,
+   "kind": "bootstrap",
+   "name": "codex stub (uclusion), comments removed",
+   "tokens": {
+    "claude": 938,
+    "openai": 604
+   }
+  },
   "151250c01d43228a4a2f81dd85b5ce17110316937cb689ac9af839fc8e210130": {
    "bytes": 2542,
    "kind": "bootstrap",
@@ -70,6 +79,15 @@
    "tokens": {
     "claude": 1850,
     "openai": 1201
+   }
+  },
+  "1f33b928a0a5c9b8e0c30494a9ff95e9286159c00abc2d821916eaccd4a435b9": {
+   "bytes": 2920,
+   "kind": "bootstrap",
+   "name": "codex stub (uclusion)",
+   "tokens": {
+    "claude": 1012,
+    "openai": 639
    }
   },
   "20064593f8260f38a45f48bed5b6702e9e8f6d964c84a77de361ffe46d20618d": {
@@ -153,6 +171,15 @@
     "openai": 3872
    }
   },
+  "2da8497acdecd519f85033d82feea13215f63ed04ea0ea9a2ac46d65f96c8a74": {
+   "bytes": 3053,
+   "kind": "bootstrap",
+   "name": "claude stub (uclusion -e dev), comments removed",
+   "tokens": {
+    "claude": 1013,
+    "openai": 652
+   }
+  },
   "300a02d3a2846efc9cc657b89795b7808b331e268c9ae47bd158659828206834": {
    "bytes": 6066,
    "kind": "skill",
@@ -187,6 +214,15 @@
    "tokens": {
     "claude": 642,
     "openai": 392
+   }
+  },
+  "3ab50e3f96f9e4226a3ab5bae2a0e5e8aab2e3b30d8931f83ebe5ff701294883": {
+   "bytes": 2813,
+   "kind": "bootstrap",
+   "name": "codex stub (uclusion -e stage), comments removed",
+   "tokens": {
+    "claude": 946,
+    "openai": 610
    }
   },
   "3cfbabe5b6245504a03ed3ffec8ea298a4f62180f588ab8776236fe05a148ed6": {
@@ -288,6 +324,15 @@
     "openai": 548
    }
   },
+  "49f0a222ad442c8afd650488c172a3a2213c7bcb61a67eb93ef3b43db93cb016": {
+   "bytes": 3182,
+   "kind": "bootstrap",
+   "name": "claude stub (uclusion -e stage)",
+   "tokens": {
+    "claude": 1087,
+    "openai": 687
+   }
+  },
   "4a98776ca4e7d5b1379f203783b883e53053cf121a6ca576194e30b8c0b8b4fd": {
    "bytes": 53819,
    "kind": "skill",
@@ -331,6 +376,15 @@
    "tokens": {
     "claude": 868,
     "openai": 550
+   }
+  },
+  "52c0da7c66ae2c96fd1a682265598beab713bc01111d598f7090aeb8d3ce0d00": {
+   "bytes": 3164,
+   "kind": "bootstrap",
+   "name": "claude stub (uclusion)",
+   "tokens": {
+    "claude": 1079,
+    "openai": 681
    }
   },
   "53396b6dc37230342a93367af2eeb2cb6f77194fb6694874558e0806ba90fc1c": {
@@ -394,6 +448,15 @@
    "tokens": {
     "claude": 10433,
     "openai": 6799
+   }
+  },
+  "5beea4f8cac9fc28bb3ab316913dbe12dfc9dbd6da9f4c83140796c452f86080": {
+   "bytes": 33741,
+   "kind": "skill",
+   "name": "skills/uclusion/SKILL.md",
+   "tokens": {
+    "claude": 10638,
+    "openai": 6972
    }
   },
   "5df9c7f9239bc36e3af4344604b156ae50710351610724352bd23200b0a19536": {
@@ -558,6 +621,15 @@
     "openai": 564
    }
   },
+  "6d675a5bfbccde75e2596139bdbdd5a50978b24058bcf6a1f648669ab83411ee": {
+   "bytes": 3035,
+   "kind": "bootstrap",
+   "name": "cursor stub (uclusion -e stage), comments removed",
+   "tokens": {
+    "claude": 1017,
+    "openai": 657
+   }
+  },
   "6d6d49941f76f8dd313dfbb143157aa7587d5d405480308f5cc9906200d4dde7": {
    "bytes": 1181,
    "kind": "skill",
@@ -574,6 +646,15 @@
    "tokens": {
     "claude": 946,
     "openai": 589
+   }
+  },
+  "711067336eb434b939fbde34a050a009aaef15b230d5bc0995e0ce0b0e9c541b": {
+   "bytes": 3017,
+   "kind": "bootstrap",
+   "name": "cursor stub (uclusion), comments removed",
+   "tokens": {
+    "claude": 1009,
+    "openai": 651
    }
   },
   "71cf924017f0f5fda91bdd72c458c621040c8ca4afb541b07d12c9414490dfb8": {
@@ -639,6 +720,15 @@
     "openai": 631
    }
   },
+  "7a4375a5e556d28ea1b4939fb2bb05e183094cc2371f20e1db91c4d059517162": {
+   "bytes": 2938,
+   "kind": "bootstrap",
+   "name": "codex stub (uclusion -e stage)",
+   "tokens": {
+    "claude": 1020,
+    "openai": 645
+   }
+  },
   "7cbabcb657d1f469ba3202543cb404cde64f5e2f198b6921d6c94365f888eb31": {
    "bytes": 2992,
    "kind": "bootstrap",
@@ -646,6 +736,24 @@
    "tokens": {
     "claude": 1005,
     "openai": 649
+   }
+  },
+  "7d34a7e8bd4cfec194dc9f9e4d3d4563899dfd03a5a19675fe42654f4f26aa19": {
+   "bytes": 3031,
+   "kind": "bootstrap",
+   "name": "cursor stub (uclusion -e dev), comments removed",
+   "tokens": {
+    "claude": 1017,
+    "openai": 657
+   }
+  },
+  "7db3717a1b93e52578fc4caa85047b9158ce79a5d4e3689b1e4daf90ee6d8da7": {
+   "bytes": 2851,
+   "kind": "skill",
+   "name": "skills/uclusion/references/single-comment.md",
+   "tokens": {
+    "claude": 958,
+    "openai": 606
    }
   },
   "8391c06d1f0c1e20d97973a781b0d9ea5561d076f78978c3261a7f3e94fbbc41": {
@@ -747,6 +855,24 @@
     "openai": 2920
    }
   },
+  "965087a9e3b34fa1fd420b802b6995187710bb782a999463a9f02c4583ef83ec": {
+   "bytes": 32997,
+   "kind": "skill",
+   "name": "skills/uclusion/SKILL.md, frontmatter removed",
+   "tokens": {
+    "claude": 10379,
+    "openai": 6815
+   }
+  },
+  "9795b520444f9c192a7b63abd866425a45b8cc1ffa7265f14dc9fd42dd87f10b": {
+   "bytes": 3142,
+   "kind": "bootstrap",
+   "name": "cursor stub (uclusion)",
+   "tokens": {
+    "claude": 1083,
+    "openai": 686
+   }
+  },
   "985b2cbe5949ee05348aebd023eebf6b320dd838ad919f35b5c9258648a8ba93": {
    "bytes": 5600,
    "kind": "skill",
@@ -772,6 +898,15 @@
    "tokens": {
     "claude": 634,
     "openai": 390
+   }
+  },
+  "9c422610141b1f2db8caffa20e195dfb085258e396fc074b21c1c735c7e17925": {
+   "bytes": 3057,
+   "kind": "bootstrap",
+   "name": "claude stub (uclusion -e stage), comments removed",
+   "tokens": {
+    "claude": 1013,
+    "openai": 652
    }
   },
   "9d371944dba62a80bec7395890f5ad37323b5e8bec5222f791f68c0b56a4ed47": {
@@ -927,6 +1062,15 @@
     "openai": 540
    }
   },
+  "b303f32d2c050c67e87aa4292501b34d51fa5e68120f7007c606021fd0d6e571": {
+   "bytes": 3160,
+   "kind": "bootstrap",
+   "name": "cursor stub (uclusion -e stage)",
+   "tokens": {
+    "claude": 1091,
+    "openai": 692
+   }
+  },
   "b311681842650eb7ae0f69fcb0463f5d4579ad809606a543b3a7d0b12e90063c": {
    "bytes": 13399,
    "kind": "skill",
@@ -954,6 +1098,15 @@
     "openai": 513
    }
   },
+  "b775496eeac48a8adb9778c5d97392829c687d0b3eed305b719de626fae759f1": {
+   "bytes": 3178,
+   "kind": "bootstrap",
+   "name": "claude stub (uclusion -e dev)",
+   "tokens": {
+    "claude": 1087,
+    "openai": 687
+   }
+  },
   "b7f1781be089af9703e5a835a30b8aaec3a745780b5119cb86d2cf2ff55da156": {
    "bytes": 6587,
    "kind": "skill",
@@ -970,6 +1123,15 @@
    "tokens": {
     "claude": 6025,
     "openai": 3944
+   }
+  },
+  "bc6b759a52237d4046e536157a065a777833abfad610736172973497d4e6d24b": {
+   "bytes": 2809,
+   "kind": "bootstrap",
+   "name": "codex stub (uclusion -e dev), comments removed",
+   "tokens": {
+    "claude": 946,
+    "openai": 610
    }
   },
   "be3f1ca57b53a79d48dce38ceabed345fdac95222e955bc5304dfe074cbff88b": {
@@ -997,6 +1159,15 @@
    "tokens": {
     "claude": 2373,
     "openai": 1538
+   }
+  },
+  "c388ab240502c951b86cec6d38094244151d38354c81735e8e729701221aaea7": {
+   "bytes": 2934,
+   "kind": "bootstrap",
+   "name": "codex stub (uclusion -e dev)",
+   "tokens": {
+    "claude": 1020,
+    "openai": 645
    }
   },
   "c3a6765010a9787a70e49768c42893998f2eb2b8c6ba1910f128b134246f0494": {
@@ -1233,6 +1404,15 @@
     "openai": 1031
    }
   },
+  "dbb57534b2585744e58c7a3f70d8e76bb9423ef4c70d05ae7ca16f7935b52d1a": {
+   "bytes": 3156,
+   "kind": "bootstrap",
+   "name": "cursor stub (uclusion -e dev)",
+   "tokens": {
+    "claude": 1091,
+    "openai": 692
+   }
+  },
   "dc41c388656fbb815caa3287875bb955898acd23a4fe4005e07b5307c78ea7f4": {
    "bytes": 13776,
    "kind": "skill",
@@ -1249,6 +1429,24 @@
    "tokens": {
     "claude": 1988,
     "openai": 1194
+   }
+  },
+  "e1332016648e1a7ed1a1ec047c26f9b74981cc871a14c34536243ed7f59b9ca7": {
+   "bytes": 3039,
+   "kind": "bootstrap",
+   "name": "claude stub (uclusion), comments removed",
+   "tokens": {
+    "claude": 1005,
+    "openai": 646
+   }
+  },
+  "e3207df3e700b22fdd3a3c59506f7ae58e7c55d35ea77d558d49911d55886789": {
+   "bytes": 24166,
+   "kind": "skill",
+   "name": "skills/uclusion/references/job-coordinator.md",
+   "tokens": {
+    "claude": 7549,
+    "openai": 4794
    }
   },
   "e91b741d146ad3cfd064dca572eba90482f52b48865a81a255b8d071243c76d8": {
@@ -1296,6 +1494,24 @@
     "openai": 374
    }
   },
+  "ebf71a160984d60d117a2f175605a15347ac03fb55c3a3db6cb6e8612aa49608": {
+   "bytes": 8856,
+   "kind": "skill",
+   "name": "skills/uclusion/references/review.md",
+   "tokens": {
+    "claude": 2729,
+    "openai": 1805
+   }
+  },
+  "ec49b9f977e5a8bf188f55325d559c89257f4151bedd34ede478832c4032c148": {
+   "bytes": 3990,
+   "kind": "skill",
+   "name": "skills/uclusion/references/coordinator-execution.md",
+   "tokens": {
+    "claude": 1259,
+    "openai": 745
+   }
+  },
   "edf610304b721f9830d8446125d89f7b9efdb2a0b1668119675187f92277b377": {
    "bytes": 1030,
    "kind": "skill",
@@ -1339,6 +1555,15 @@
    "tokens": {
     "claude": 893,
     "openai": 564
+   }
+  },
+  "f3441a3f1d884b4b6ab3d21a599a85dc30c71e941dd20d913f04addad88f19b5": {
+   "bytes": 5563,
+   "kind": "skill",
+   "name": "skills/uclusion/references/helper-dispatch.md",
+   "tokens": {
+    "claude": 1711,
+    "openai": 1055
    }
   },
   "f5bb239dfdc8dea1bf424c16a5390921abc593ac54099f5ae985ffc61c1c0c79": {
@@ -1456,6 +1681,15 @@
    "tokens": {
     "claude": 876,
     "openai": 535
+   }
+  },
+  "fe5988d9c83c60424be8b13fdb4dce51fc03298e0faeb3ce1aff6439b2c54238": {
+   "bytes": 23902,
+   "kind": "skill",
+   "name": "skills/uclusion/references/job-coordinator.md, audit removed",
+   "tokens": {
+    "claude": 7442,
+    "openai": 4727
    }
   },
   "ff0068da282edf6ac2d8b135ca6bb83c2d8271b7d887ab049aa585f6e22961cf": {

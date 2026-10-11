@@ -223,9 +223,10 @@ work output rather than a delay, so never withhold one to keep moving.
 
 Filing them is not itself a reason to stop. A question blocks only the work
 that depends on its answer. Requires Input bars implementation edits to the
-job, and bars nothing else: keep investigating, reproducing, measuring, reading
-source, and gathering the evidence the answers will need, and carry on with any
-other lane the human has authorised. Ask newly discovered questions as they
+job, and bars nothing else: keep fresh investigation helpers reading source,
+reproducing, measuring and gathering the evidence the answers will need under
+[helper-dispatch.md](helper-dispatch.md), and carry on with any other lane the
+human has authorised. Ask newly discovered questions as they
 arise. Filing a question never ends a turn; apply the held common turn-ending
 rules.
 
@@ -300,9 +301,11 @@ preserves the actor-visible outcome, not merely decisions or components.
 
 ### Absent-capsule design dispatch and publication
 
-When the selected target has no current capsule, continue read-only
-investigation and settle every reviewer-divergent choice. Complete drafting and
-cold review below before calling `set_design_capsule` in target mode. Uclusion
+When the selected target has no current capsule, run any read-only
+investigation in fresh investigation helpers under
+[helper-dispatch.md](helper-dispatch.md) and settle every reviewer-divergent
+choice. Complete drafting and cold review below before calling
+`set_design_capsule` in target mode. Uclusion
 strongly validates that the task still belongs to the stated job and refuses a
 missing or stale job/task pairing. Reload the task and use its current job
 before retrying.

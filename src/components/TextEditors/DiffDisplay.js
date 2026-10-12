@@ -22,6 +22,9 @@ const useStyles = makeStyles(
         },
         '& span': {
           width: '100%'
+        },
+        '& li[data-list="bullet"]': {
+          listStyleType: 'disc'
         }
       }
     }

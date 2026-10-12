@@ -79,7 +79,9 @@ Select exactly one executable target for the implementation pass:
 Whole-scope reads, including the initial read, return the selected target's
 complete current capsule body and attached nondeleted comments, including
 resolved replies. When that capsule is absent, they load active ordinary
-job/task note threads. Every other capsule remains a reference. Explicit
+job/task note threads. Default whole-job reads, including `initial_read`, omit
+token-usage audit records; explicit audit-thread and notes-section reads can
+retrieve them. Every other capsule remains a reference. Explicit
 thread and section reads retain their requested scope; standing notes and
 other resolved discussions still require explicit reads. A reference or
 summary does not satisfy the current-contract prerequisite.

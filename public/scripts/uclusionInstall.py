@@ -336,7 +336,7 @@ WORKFLOW_ASSET_PATHS = {
 # These digests bind the installer to one coherent workflow release. A host
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
-    'job_coordinator_reference': '86ab7392c6e7d515f72fa0244fe3ab9243e0babd4657a0f541177371986f531d',
+    'job_coordinator_reference': '5583bdd655eb2c1d61f20457174eeddba5cf25e9db0f57e6354643f5e45b968f',
     'claude_stub': '10cc14f4e45e713235b2702294d40e1832585e45b781df5369b96af4ad15cdec',
     'codex_stub': '3456b198d89aff817e7dbdb885e30c070d5edd8b00994266dafa0bdcafe41eaf',
     'cursor_stub': '7b5e6b556a865b0fe15c3e217c93bc738bbefcee195f7119c9689f1f5d7f8c5b',
@@ -357,7 +357,7 @@ WORKFLOW_ASSET_SHA256 = {
     'design_examples': '4bbe306e72f6438bf1dddbd1a77c7eaa2c117080f89cb57ccb0c41c0fcddadd8',
     'design_openai_metadata': 'd94499cb3851d46db554a0321d8469571273d446a8caefbdcbb8a68cb012c868',
     'demo_brief': '1c26c3235dba931bcbf9d88fcacf32e437f1ec10f3e70fd908f33228ba30037f',
-    'token_manifest': 'a33a42fce3a733684573acb0c581b4335249f042452eca6e8c505da3bb1fcd8f',
+    'token_manifest': '50680a9ce7aabe29ee1e189f20822b71bd444b0394dc95ad7bcc2d34fbba4d07',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',

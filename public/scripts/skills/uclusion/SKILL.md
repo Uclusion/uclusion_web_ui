@@ -48,10 +48,10 @@ contract bodies.
 Before an accepted `get_job` lookup, hold this complete main body, the
 authoritative resident delivery body at its current trigger, and applicable
 claims. Use `initial_read: true` for the first whole-scope lookup of the selected
-target. It returns normal context plus only that target's complete current
-capsule with its exact R-code and actual version, or explicit absence; other
-capsules remain references. Standing-note, ordinary-note and resolved-discussion
-bodies still require their explicit reads. Keep the lookup result and choose
+target. Whole-scope reads load its current capsule and nondeleted comments,
+including resolved replies, or active job/task notes when absent. Other capsules
+remain references; explicit threads and sections retain scope. Standing notes
+and other resolved discussions need explicit reads. Keep the result and choose
 the lane from its actual returned Job header, never from a `B-` or other code
 prefix. Select only the current lane and action's complete units; do not preload
 future stages.
@@ -219,7 +219,7 @@ An execution interval can hand off while its human-guided assignment remains
 available for a matching continuation event.
 
 - Handle a continuation event for the assigned item or anything known to be
-  nested under it immediately.
+  nested under it immediately, including ordinary-note Pokes.
 - While assigned, ignore an unrelated continuation event without loading it.
   Briefly name the deferral and continue. In a compound event, the parent after
   `of` identifies the assignment. Merely receiving `Added`, `Updated`, or

@@ -336,11 +336,11 @@ WORKFLOW_ASSET_PATHS = {
 # These digests bind the installer to one coherent workflow release. A host
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
-    'job_coordinator_reference': '5100b6a293233a6b1639f8214ba4ad8c4f777a08357e1672f9f31fc23d437777',
+    'job_coordinator_reference': '86ab7392c6e7d515f72fa0244fe3ab9243e0babd4657a0f541177371986f531d',
     'claude_stub': '10cc14f4e45e713235b2702294d40e1832585e45b781df5369b96af4ad15cdec',
     'codex_stub': '3456b198d89aff817e7dbdb885e30c070d5edd8b00994266dafa0bdcafe41eaf',
     'cursor_stub': '7b5e6b556a865b0fe15c3e217c93bc738bbefcee195f7119c9689f1f5d7f8c5b',
-    'skill': '9b5cefdd156ba9cd77756674d0b19cb82b5a0b3612e6d075b7e3e698c496b356',
+    'skill': 'e9e62267413a846058c1a70d7a0cd8a927561379feb0807fabbee97dfe321173',
     'codex_delivery_reference': 'cc9c3780e79fa5ea1cd45fee3128360b65e60f4f6d9c5e62c3c27a20b18d4887',
     'claude_delivery_reference': '4d965b3dad8555935ad3c403f8ff00a451d9867cc77ea46e0ee348d96d0ad0ea',
     'cursor_delivery_reference': '64bd40d2fd4c8d5467f6cc4422bc0d34699d9d937916f4bd0707e7ac8a7d8a3f',
@@ -349,7 +349,7 @@ WORKFLOW_ASSET_SHA256 = {
     'single_comment_reference': 'c6c092b2f246a41cba77cd544cdf7af7373b6201a16c00720ad394ede11d596f',
     'helper_dispatch_reference': '6656232c193b4c820840e275792792b95e9c7e1b893d303cee5c608a431599bc',
     'review_reference': '23cce5a484ade3f508f0ef552c67f122cabdae5e6ddd72c9d6cec00976d0c19b',
-    'completion_reference': '03df1ceada9150bf8e48305910cd615d3552e771fcdaede1a518a862c7576df4',
+    'completion_reference': '6fa9904f17c77b5285e3b02506a3079176972dad85d970d5d31e1a8e0b7588aa',
     'audit_reference': 'c71f33e60bb52fe99489e056fff12a7656452bc8d905cc0b54a3882be08d5fbb',
     'claims_reference': '9fc20a3911f6bf3686d09f2f20b5816aebff2047a10c8e7c6aa57b6af7dc17d3',
     'openai_metadata': 'c60b60bcccd8b171ab950477b7f09b5fc621974846f4cdc468b6c8fe0bbb2ca9',
@@ -357,7 +357,7 @@ WORKFLOW_ASSET_SHA256 = {
     'design_examples': '4bbe306e72f6438bf1dddbd1a77c7eaa2c117080f89cb57ccb0c41c0fcddadd8',
     'design_openai_metadata': 'd94499cb3851d46db554a0321d8469571273d446a8caefbdcbb8a68cb012c868',
     'demo_brief': '1c26c3235dba931bcbf9d88fcacf32e437f1ec10f3e70fd908f33228ba30037f',
-    'token_manifest': '82d78b914361177b0e90bf7c6c072a99c7bfc78c653267f173a98a1708a86957',
+    'token_manifest': 'a33a42fce3a733684573acb0c581b4335249f042452eca6e8c505da3bb1fcd8f',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',

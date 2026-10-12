@@ -76,11 +76,13 @@ Select exactly one executable target for the implementation pass:
 - A task capsule is complete and solely authoritative for that task pass.
   Never merge it with, inherit from, or fall back to the job capsule.
 
-Ordinary reads advertise explicit capsule absence and the current references
-for the job and displayed open top-level tasks. An initial read also returns
-only the selected target's complete current capsule body, or explicit absence;
-every other capsule remains a reference. A reference or summary does not
-satisfy the current-contract prerequisite.
+Whole-scope reads, including the initial read, return the selected target's
+complete current capsule body and attached nondeleted comments, including
+resolved replies. When that capsule is absent, they load active ordinary
+job/task note threads. Every other capsule remains a reference. Explicit
+thread and section reads retain their requested scope; standing notes and
+other resolved discussions still require explicit reads. A reference or
+summary does not satisfy the current-contract prerequisite.
 
 Reuse a complete held body, including one returned by `initial_read`, when its
 target, exact R-code and actual version match the current reference. Only when
@@ -88,6 +90,10 @@ that body is missing, changed or lost, read the advertised capsule's exact R-cod
 thread before affected source or test edits. Check its returned identity,
 target and actual version, and use the complete body. A superseded capsule is
 not the target's current contract; follow the current reference instead.
+Capsule comments remain context and discussion, not the implementation
+contract. Load their current contents on a whole-scope or exact capsule-thread
+refresh even when the capsule body's version is unchanged; never cache their
+contents solely by that version.
 
 After a capsule create or replacement, use `set_design_capsule`'s receipt: its
 body is the one you just sent, so do not fetch it again before edits. On an
@@ -278,6 +284,20 @@ receipt when available.
 
 ### Capsule authority
 
+Record new job/task context with `add_info` on the selected current capsule's
+exact R-code, or on the job/task as an ordinary associated note when no capsule
+exists. Use an independent task's own capsule without job fallback and a
+grouped task's top-level parent's capsule. Bugs retain direct replies. Reply
+on the exact comment being answered when continuing an existing discussion.
+Only the capsule body is the implementation contract; contextual comments
+cannot silently change or expand it.
+
+Silent writes suppress human notifications while normal UI pushes continue.
+All silent AI job/task notes and comments on their selected current capsule
+send Pokes through existing routing, without a maintenance marker. Handle your
+own context Pokes too; there is no targeted delivery or guarantee that every
+working agent receives them. Other AI writes retain their existing suppression.
+
 Once sent, keep the capsule body stable unless human input that arrives after
 it establishes a new contract. Finding older human input you had not read is
 not that; raise it as a question instead. When a new contract is established,
@@ -291,7 +311,8 @@ preserves the actor-visible outcome, not merely decisions or components.
 When the selected target has no current capsule, run any read-only
 investigation in fresh investigation helpers under
 [helper-dispatch.md](helper-dispatch.md) and settle every reviewer-divergent
-choice. Complete drafting and cold review below before calling
+choice. Incorporate relevant existing ordinary-note information into the
+first capsule's design evidence. Complete drafting and cold review below before calling
 `set_design_capsule` in target mode. Uclusion
 strongly validates that the task still belongs to the stated job and refuses a
 missing or stale job/task pairing. Reload the task and use its current job

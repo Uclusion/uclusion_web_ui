@@ -53,7 +53,9 @@ with codes as plain text so the inbox links them:
 Use **dependency** as the category when there is no semantic finding, and
 include every matching blocker code. When one target has both kinds of finding,
 show it once under its semantic category and include the blocker matches in its
-evidence. For **duplicate** or **obsolete**, propose deciding whether to
+evidence. Explain the causal reason in the evidence. The first exact code in
+each numbered finding is its candidate recipient; completed source codes and
+blocker codes in Evidence are not recipients. For **duplicate** or **obsolete**, propose deciding whether to
 resolve the target before offering to remove its blocker. For **modify**,
 propose the needed revision before reconsidering its blocker. Offer each
 matching blocker to the human; never resolve it automatically because it may
@@ -68,13 +70,37 @@ duplicate, obsolete, or in need of modification.`
 When the export failed or either scan reports anything incomplete, say what
 was incomplete and do not record; the notice returns when the claim expires.
 Otherwise, with findings, print them in chat, then call
-`backlog_maintenance_run` with action `record`, the claim's `claim_id` and the
-same Markdown as `report`. With no findings, print the no-candidate line in
-chat and record without a report, so no inbox item is created.
+`add_info` with `is_silent: true` for each candidate whose equivalent findings
+for that target and completed outcome are not already saved in the synced
+export. Save the candidate's complete findings, reasons, evidence and proposed
+actions. Use the selected current capsule's exact R-code for a job or task;
+without that capsule, use the job/task code to create an ordinary associated
+note. An independent task uses its own capsule without job fallback, and a
+grouped task uses its top-level parent's capsule. A bug receives a direct
+reply. Use the export's current capsule selection and note/reply sections to
+choose the destination and check for equivalent saved findings. Do not reread
+destinations through MCP for deduplication or add a ledger or deterministic
+identifier. Export-based reconciliation does not promise exactly-once delivery.
 
-The run only presents evidence and proposed actions. Never call
-`make_suggestion`, `add_info` or any other mutating tool on a candidate, or
-resolve, edit or change its stage. Before carrying out a later human choice,
+Inspect every write receipt. If any required contextual write fails or is
+unconfirmed, do not record the run; reconcile against the synced export and
+retry only findings not already saved. Only after every required contextual
+write succeeds or the export shows equivalent saved findings, call
+`backlog_maintenance_run` with action `record`, the claim's `claim_id` and the
+same aggregate Markdown as `report`. This retains one linked human inbox
+report per run. Silent contextual writes suppress additional human
+notifications while normal UI pushes continue. Silent AI job/task notes and
+comments on the selected current capsule send Pokes through existing routing,
+including to their author; there is no maintenance marker or guarantee that
+every working agent receives them. With no
+findings, print the no-candidate line in chat and record without a report, so
+no inbox item is created.
+
+These contextual `add_info` writes are the sole exception to the candidate
+write prohibition. They retain discussion and do not change the capsule's
+implementation contract. Never call `make_suggestion` or any other mutating
+tool on a candidate, or resolve it, edit its body or change its stage. Before
+carrying out a later human choice,
 reload the exact target because the export may no longer be current, then apply
 the ordinary authorization and workflow gates.
 

@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import argparse
+import bisect
 import calendar
 import hashlib
 import importlib.util
@@ -925,6 +926,15 @@ EXPORT_LINE_BREAK_RE = re.compile('[\r\x0b\x0c\x1c\x1d\x1e\x85\u2028\u2029]')
 EXPORT_INDEX_FINISHED_STAGES = ('Reviewable', 'Skippable')
 # The UI shows a comment's name cut the way nameFromDescription cuts it.
 EXPORT_INDEX_NAME_LENGTH = 80
+# Headings of a job's tasks and grouped tasks, open or resolved. A bug moved
+# into a job keeps its code, so the code may have any prefix.
+EXPORT_TASK_HEADING_RE = re.compile(r'^(?:#### (?:Resolved )?Task|> ##### (?:Resolved )?Grouped task) '
+                                    r'(?P<code>[^\s<]+)<a name="')
+EXPORT_BUG_KINDS = ('Bug', 'Resolved Bug')
+EXPORT_INDEX_BLOCKER_RE = re.compile(r'^blocker (?P<code>\S+) line=(?P<line>\d+) job=(?P<job>\S+) name=')
+# Each comment in a job section starts with a level four author header, and
+# the group headers are level four too, so one ends a blocker's body and replies.
+EXPORT_COMMENT_END_RE = re.compile(r'^#### ')
 
 
 def make_export_marker(id_type, an_id, stamp):
@@ -1042,6 +1052,16 @@ def index_comment_section(lines, first_line, found):
     return []
 
 
+def numbered_export_sections(content):
+    """Yields (marker_match, marker_line, section_lines), with marker_line counted from 1 in content."""
+    marker_line = 1
+    scanned = 0
+    for match, text in iter_export_sections(content):
+        marker_line += content.count('\n', scanned, match.start())
+        scanned = match.start()
+        yield match, marker_line, text.split('\n')
+
+
 def build_export_index(content, failed_ids, lines_before):
     """The open work index for assembled sections, placed after lines_before opening lines.
 
@@ -1049,12 +1069,7 @@ def build_export_index(content, failed_ids, lines_before):
     only \\n. Each entry is one line, so the index's own length is known before
     the numbers that depend on it are written."""
     found = {'job': [], 'bug': [], 'blocker': [], 'unreadable': []}
-    marker_line = 1
-    scanned = 0
-    for match, text in iter_export_sections(content):
-        marker_line += content.count('\n', scanned, match.start())
-        scanned = match.start()
-        lines = text.split('\n')
+    for match, marker_line, lines in numbered_export_sections(content):
         index_section = index_job_section if match.group(1) == 'marketInvestible' else index_comment_section
         problems = index_section(lines, marker_line + 1, found)
         if problems:
@@ -1069,6 +1084,103 @@ def build_export_index(content, failed_ids, lines_before):
     for failed_id in failed_ids:
         index += f'failed object={failed_id} is missing from this file\n'
     return index + EXPORT_INDEX_END
+
+
+def whole_code_pattern(code):
+    """Matches code only where no letter, digit, - or _ is next to it."""
+    return re.compile(r'(?<![A-Za-z0-9_-])' + re.escape(code) + r'(?![A-Za-z0-9_-])')
+
+
+def export_index_lines(content):
+    """The open work index lines of an assembled export, or None when it has no index."""
+    start = content.find(EXPORT_INDEX_START)
+    end = content.find(EXPORT_INDEX_END, start) if start >= 0 else -1
+    if end < 0:
+        return None
+    return content[start + len(EXPORT_INDEX_START):end].split('\n')[:-1]
+
+
+def scan_completed_work(content, completed_codes):
+    """Lines locating completed work in an assembled export, for a backlog maintenance run.
+
+    They give each completed job's heading line with every Task and Grouped
+    task code in its section, each completed bug's heading line, and each open
+    blocker from the index whose body or replies name a completed code as a
+    whole code, ignoring codes of the blocker's own job. Index unreadable and
+    failed lines, and completed codes the export lacks, make the scan
+    incomplete. Line numbers count only \\n, as the index's do."""
+    wanted = list(dict.fromkeys(completed_codes))
+    sections = []
+    jobs = {}
+    bugs = {}
+    for match, marker_line, lines in numbered_export_sections(content):
+        sections.append((marker_line, lines))
+        is_job = match.group(1) == 'marketInvestible'
+        heading_re = EXPORT_JOB_HEADING_RE if is_job else EXPORT_COMMENT_HEADING_RE
+        heading = next((number for number, line in enumerate(lines) if heading_re.match(line)), None)
+        if heading is None:
+            continue
+        found = heading_re.match(lines[heading])
+        code = found.group('code')
+        if code not in wanted or code in jobs or code in bugs:
+            continue
+        if is_job:
+            tasks = (EXPORT_TASK_HEADING_RE.match(line) for line in lines[heading + 1:])
+            jobs[code] = (marker_line + 1 + heading,
+                          list(dict.fromkeys(task.group('code') for task in tasks if task)))
+        elif found.group('kind') in EXPORT_BUG_KINDS:
+            bugs[code] = marker_line + 1 + heading
+    report = ['Completed work scan; each line= value is a line number in that export:']
+    completed = []
+    owners = {}
+    for code in wanted:
+        if code in jobs:
+            line, tasks = jobs[code]
+            report.append(f'completed job {code} line={line} tasks={" ".join(tasks) or "none"}')
+            completed += [code, *tasks]
+            for owned in (code, *tasks):
+                owners.setdefault(owned, code)
+        elif code in bugs:
+            report.append(f'completed bug {code} line={bugs[code]}')
+            completed.append(code)
+    patterns = [(code, whole_code_pattern(code)) for code in dict.fromkeys(completed)]
+    incomplete = [f'incomplete completed code {code} is not in this export'
+                  for code in wanted if code not in jobs and code not in bugs]
+    index_lines = export_index_lines(content)
+    if index_lines is None:
+        incomplete.append('incomplete the export has no open work index')
+    marker_lines = [marker_line for marker_line, _lines in sections]
+    blockers = []
+    for index_line in index_lines or []:
+        if index_line.startswith(('unreadable ', 'failed ')):
+            incomplete.append(f'incomplete {index_line}')
+            continue
+        blocker = EXPORT_INDEX_BLOCKER_RE.match(index_line)
+        if blocker is None:
+            continue
+        line = int(blocker.group('line'))
+        position = bisect.bisect_left(marker_lines, line) - 1
+        marker_line, lines = sections[position] if position >= 0 else (0, [])
+        number = line - marker_line - 1
+        heading = EXPORT_COMMENT_HEADING_RE.match(lines[number]) if 0 <= number < len(lines) else None
+        if heading is None or heading.group('code') != blocker.group('code'):
+            incomplete.append(f'incomplete blocker {blocker.group("code")} line={line} is not at its heading')
+            continue
+        body = []
+        for text in lines[number + 1:]:
+            if EXPORT_COMMENT_END_RE.match(text):
+                break
+            body.append(text)
+        body_text = '\n'.join(body)
+        matched = [code for code, pattern in patterns
+                   if owners.get(code) != blocker.group('job') and pattern.search(body_text)]
+        if matched:
+            blockers.append(f'blocker {blocker.group("code")} job={blocker.group("job")} line={line} '
+                            f'matched={" ".join(matched)}')
+    report += blockers or ['No open blocker names completed work.']
+    report += incomplete
+    report.append('The scan is incomplete.' if incomplete else 'The scan is complete.')
+    return report
 
 
 def fetch_export_batch(export_api_url, id_type, ids, credentials, failed_ids):
@@ -1625,6 +1737,9 @@ def cmd_export(args):
     except Exception as e:
         print(f"     -> ❌ Error writing export: {e} with path: {file_path}")
         return 1
+    if args.completed:
+        for line in scan_completed_work(new_file_content, args.completed):
+            print(line)
     return 0
 
 
@@ -3845,6 +3960,15 @@ def build_parser():
         default=None,
         help="Full path to write the export to. Without -o, writes <workspaceId>.md in the "
              "configured uclusionMDFolderPath (default: ~/.uclusion/export).",
+    )
+    export_parser.add_argument(
+        '--completed',
+        nargs='+',
+        metavar='CODE',
+        default=None,
+        help="Completed job and bug codes from a backlog maintenance notice. After writing, "
+             "print where each one and its tasks are in the export, the open blockers that "
+             "name them, and anything that left this scan incomplete.",
     )
     export_parser.set_defaults(func=cmd_export)
 

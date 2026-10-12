@@ -3,9 +3,8 @@
 
 Compile Reviewable direction into applicable implementation-helper requirements
 under the routed execution unit. Apply the held common durable-write rules and
-[job-coordinator.md](job-coordinator.md)'s current set, transition and
-completion-input rules. The completion unit owns every sweep and
-completion-package action.
+[job-coordinator.md](job-coordinator.md)'s current set and transition rules.
+The completion unit owns every completion-package action.
 
 ## Request or perform review
 
@@ -26,15 +25,9 @@ In Reviewable, inspect the author of the latest Reports comment:
   [helper-dispatch.md](helper-dispatch.md), then reply through Uclusion from its
   findings.
 
-Before interpreting the report for a job that just transitioned into
-Reviewable, apply job-coordinator's assigned-job transition rule and finish its
-completion sweep. If this session moved the job into Reviewable, run its sweep
-under that rule without waiting for its `Updated` Poke.
-
 Handle a Poke through the common assignment and job-coordinator update rules;
-it does not otherwise change review direction. The exceptions are the
-resolved-bug and Reviewable-transition sweeps, and a current capsule's
-`Updated` event, which requires the obsolete-review cleanup in the
+it does not otherwise change review direction. The exception is a current
+capsule's `Updated` event, which requires the obsolete-review cleanup in the
 job-coordinator capsule rules.
 
 The report names the exact current capsule R-code. A final job completion
@@ -89,26 +82,19 @@ For package publication, prepare the repositories and reviewed files and its
 exact clear scope: the job if this pass finishes it, otherwise the review and
 each task this pass resolved. Use the exact review identity from the held
 record or confirmed publication receipt as its package thread. Supply these
-inputs to the completion unit. A confirmed actual transition also prepares
-job-coordinator's completed-code set and authoritative outcome record before
-the immediate sweep, subject only to confirmed-package chat presentation.
+inputs to the completion unit.
 
 Continue handling Pokes.
 
 Inspect the separate review, inventory and transition outcomes. For confirmed
 package publication, follow the completion unit's presentation order before
-continuing recovery or a triggered sweep. Apply the shared write-receipt
-reconciliation. For an unconfirmed review, inspect Reports or the exact review
-on an update before retrying publication. Reconcile an uncertain stage write
-under the shared write-receipt rules before retrying; never create a duplicate
-review to recover a later step. Once the review is confirmed and the job is
-still ready in Doable, retry only the transition with `change_job_stage`,
-`from_stage` Doable and destination Reviewable. A different stage or new open
-work stops that retry. Prepare job-coordinator's completed codes and authoritative outcome record,
-then run the completion sweep upon a confirmed actual transition, including one first confirmed during reconciliation, under
-job-coordinator's assigned-job transition rule. An already-Reviewable no-op alone
-is not another trigger. A failed sweep remains unfinished work and is retried
-without new permission before any lane switch.
+continuing recovery. Apply the shared write-receipt reconciliation. For an
+unconfirmed review, inspect Reports or the exact review on an update before
+retrying publication. Reconcile an uncertain stage write under the shared
+write-receipt rules before retrying; never create a duplicate review to recover
+a later step. Once the review is confirmed and the job is still ready in Doable,
+retry only the transition with `change_job_stage`, `from_stage` Doable and
+destination Reviewable. A different stage or new open work stops that retry.
 
 Each open suggestion on the job is unfinished or deferred work that moving the
 job to Reviewable would resolve and lose. Check the ones you hold and the
@@ -125,21 +111,20 @@ the whole job now qualifies. A standalone bug holds no suggestions.
 
 A finished job in Reviewable releases its session assignment after its
 implementation review's completion package succeeds: the human's reply has been
-handled, every authorized action (including any clear) has succeeded, the
-terminal record is confirmed, and any triggered completion sweep is complete.
-Use the review-opening definition of a finished job above. Waiting for human
-review or later signoff after this boundary does not retain the assignment.
-When no other assigned work remains, the session is idle and accepts a new live
-`Start` without an explicit switch. Apply the assignment-ended discovery rule
-in the core. Preserve the released state across compaction; a still-open AI
-review does not restore the assignment.
+handled, every authorized action (including any clear) has succeeded, and the
+terminal record is confirmed. Use the review-opening definition of a finished
+job above. Waiting for human review or later signoff after this boundary does
+not retain the assignment. When no other assigned work remains, the session is
+idle and accepts a new live `Start` without an explicit switch. Apply the
+assignment-ended discovery rule in the core. Preserve the released state across
+compaction; a still-open AI review does not restore the assignment.
 
 Reviewable alone is not enough: retain the assignment while requested work, an
-unanswered package, a failed or unfinished authorized action, or a triggered
-completion sweep remains. A terminal failure record does not release it. For a
-finished job already in Reviewable, a reply declining some or all actions can
-complete the package; declined actions are not pending work. Releasing the
-session assignment does not resolve the job or change its human assignees.
+unanswered package, or a failed or unfinished authorized action remains. A
+terminal failure record does not release it. For a finished job already in
+Reviewable, a reply declining some or all actions can complete the package;
+declined actions are not pending work. Releasing the session assignment does not
+resolve the job or change its human assignees.
 
 ## Job commit identities
 

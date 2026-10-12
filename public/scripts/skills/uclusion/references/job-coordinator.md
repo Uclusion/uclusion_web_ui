@@ -14,11 +14,10 @@ applicability or preload future stages.
 | Approvable approval, after assistance is settled and approval is applicable | [approval.md](approval.md). Otherwise ask the next-action question below. Implementation is locked. |
 | Requires Input | Handle qualifying assistance and any resulting current-contract change below. Investigation continues; implementation stays locked until Doable or Reviewable returns. |
 | Doable implementation or completed implementation-task resolution | [coordinator-execution.md](coordinator-execution.md), after the complete target/current-contract prerequisite and independent permissions. |
-| Reviewable Reports direction or feedback | [review.md](review.md). Add coordinator-execution.md only for requested implementation or task resolution, with the current contract and permissions. An unchanged Reviewable report and human Reports direction open no package or sweep. |
+| Reviewable Reports direction or feedback | [review.md](review.md). Add coordinator-execution.md only for requested implementation or task resolution, with the current contract and permissions. An unchanged Reviewable report and human Reports direction open no package. |
 | Blocked, Backlog or Skippable | Handle selected assistance, dependencies or exact authorized transitions below; implementation is locked. |
-| Implementation-review publication/recovery | [review.md](review.md) and [completion.md](completion.md), with job-prepared completion inputs and package scope; apply immediate confirmed-publication presentation before follow-on work. |
-| Finished-job assignment release | [review.md](review.md). Add completion.md only for its package action or incomplete sweep. |
-| Actual assigned-job entry into Reviewable or incomplete-sweep retry | [completion.md](completion.md), after preparing the completed-code set and authoritative outcome record below. |
+| Implementation-review publication/recovery | [review.md](review.md) and [completion.md](completion.md), with the review-prepared package thread and scope; apply immediate confirmed-publication presentation before follow-on work. |
+| Finished-job assignment release | [review.md](review.md). Add completion.md only for its package action. |
 | Current implementation-review completion package | [completion.md](completion.md). Add review.md only for current publication/recovery or assignment release. |
 | Held claim | Apply the common claims route before affected ownership, package or handoff actions. |
 
@@ -168,17 +167,8 @@ held; otherwise read just that item with `thread_only`. It does not report the
 job's stage, and a conversion can move the job between stages without its own
 stage event, so keep the effective-stage check before stage-gated actions.
 
-For the assigned lane, compare a supplied transition (or an ordinary update's
-reloaded stage) with the last observed stage. An actual change into Reviewable,
-including a confirmed in-session change or ask_for_review transition, requires
-preparing the completion inputs below and invoking
-[completion.md](completion.md)'s sweep immediately, before review, handoff or
-other work, subject only to the completion unit's confirmed-package
-presentation order. Reviewable is a handoff signal, not proof the job is final
-or its remaining deployment/other-environment verification ran. Loading an
-already Reviewable job or an update while it stays there does not retrigger it.
-A failed sweep remains incomplete work: retry it with its prepared lane inputs,
-without new package permission before switching lanes.
+Reviewable is a handoff signal, not proof the job is final or its remaining
+deployment/other-environment verification ran.
 
 ### Reopened task stage
 
@@ -197,15 +187,12 @@ is unfinished.
 
 Apply the held common progress and turn-ending rules. A progress checkpoint or
 ordinary turn is not a lane handoff. Retain assignment through required input,
-package waits, incomplete authorized actions and sweeps. Finished-job release
+package waits and incomplete authorized actions. Finished-job release
 follows [review.md](review.md); apply assignment-aware discovery only when the
 assignment actually ends.
 
 A fully complete job follows the common notification and context-boundary rules
-and the review unit's commit identities. Individual task completion, requesting
-review without a stage transition, Resolve, signoff, shipped confirmation or a
-completed code in a commit never independently rerun its completion sweep.
-Leaving and later returning to Reviewable creates a new transition and sweep.
+and the review unit's commit identities.
 
 ## Job questions and suggestions
 
@@ -376,32 +363,4 @@ contract first. Once publication is confirmed, resolve only unfinished
 questions rather than replaying a stale capsule write. If the review-inventory
 lookup failed, load Reports for the existing obsolete-review cleanup. After the
 last operation, use `stage_only` before acting on the stage.
-
-## Prepare job completion inputs
-
-Before invoking a sweep at an actual Reviewable transition or its incomplete
-retry, retain the trigger's exact job identity and obtain only missing scoped
-job/task context needed for the complete outcome record. Supply this prepared
-record, completed-code set and any current package scope to the completion
-unit. A package-only action uses its held review thread and scope; it does not
-create a sweep trigger.
-
-The completed-code set starts with the Reviewable job's exact short code.
-Also include every contained item rendered as a `Task` or
-`Grouped task`, including resolved forms and retained non-`T-` prefixes.
-Membership comes from its rendered role and containment, not its prefix;
-ordinary assistance and replies do not qualify merely because they are in the
-job.
-
-For outcome impact, use the record available at the trigger: the Reviewable job
-and all its task bodies, plus the current intent/design capsule, human-backed
-decisions, and current completion/review report when each is present. Rejected,
-unresolved, and speculative proposals are not evidence. If those sources
-conflict and the current record does not settle that conflict, do not classify
-a candidate. A later qualifying transition uses the then-current record and can
-supersede the earlier result.
-
-Reuse the prepared trigger inputs for an incomplete retry while they remain
-current and sufficient; reconcile changed authoritative evidence before relying
-on it. Prepare each later qualifying transition from its then-current record.
 <!-- /uclusion-skill-reference:v1 -->

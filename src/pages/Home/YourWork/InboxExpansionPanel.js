@@ -44,10 +44,16 @@ import OptionSubmittedWizard from '../../../components/InboxWizards/Submission/O
 import UpgradeWizard from '../../../components/InboxWizards/Upgrade/UpgradeWizard';
 import NewGroupWizard from '../../../components/InboxWizards/NewGroup/NewGroupWizard';
 import RequestWorkWizard from '../../../components/InboxWizards/RequestWork/RequestWorkWizard';
+import BacklogMaintenanceWizard from '../../../components/InboxWizards/BacklogMaintenance/BacklogMaintenanceWizard';
 import RespondInOptionWizard from '../../../components/InboxWizards/OptionResponse/RespondInOptionWizard';
 import LightbulbOutlined from '../../../components/CustomChip/LightbulbOutlined';
 import TaskedWizard from '../../../components/InboxWizards/ReviewNewTask/TaskedWizard';
-import { NOT_FULLY_VOTED_TYPE, RED_LEVEL, UNREAD_JOB_APPROVAL_REQUEST } from '../../../constants/notifications';
+import {
+  BACKLOG_MAINTENANCE_TYPE,
+  NOT_FULLY_VOTED_TYPE,
+  RED_LEVEL,
+  UNREAD_JOB_APPROVAL_REQUEST
+} from '../../../constants/notifications';
 import TriageWizard from '../../../components/InboxWizards/Triage/TriageWizard';
 import InvestibleEditedWizard from '../../../components/InboxWizards/JobEdited/InvestibleEditedWizard';
 import Approval from '../../../components/CustomChip/Approval';
@@ -80,6 +86,9 @@ export function calculateTitleExpansionPanel(props) {
     setItem(item, openExpansion, <NewGroupWizard message={message} />, 'GroupWelcome', intl);
   } else if (messageType === 'REQUEST_WORK') {
     setItem(item, openExpansion, <RequestWorkWizard message={message} />, 'RequestWorkTitle', intl);
+  } else if (messageType === BACKLOG_MAINTENANCE_TYPE) {
+    setItem(item, openExpansion, <BacklogMaintenanceWizard message={message} />, 'BacklogMaintenanceTitle',
+      intl);
   }
   else if (isOutboxAccepted) {
     setItem(item, openExpansion, <AssignToOtherWizard investibleId={message.id} marketId={message.marketId}

@@ -51,7 +51,13 @@ import { DECISION_TYPE, INITIATIVE_TYPE, JOB_STAGE_WIZARD_TYPE, PLANNING_TYPE } 
 import ReplyIcon from '@material-ui/icons/Reply';
 import ListAltIcon from '@material-ui/icons/ListAlt';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { NOT_FULLY_VOTED_TYPE, POKED, UNREAD_JOB_APPROVAL_REQUEST } from '../../../constants/notifications';
+import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck';
+import {
+  BACKLOG_MAINTENANCE_TYPE,
+  NOT_FULLY_VOTED_TYPE,
+  POKED,
+  UNREAD_JOB_APPROVAL_REQUEST
+} from '../../../constants/notifications';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import _ from 'lodash';
 import Approval from '../../../components/CustomChip/Approval';
@@ -88,6 +94,9 @@ function getPriorityIcon(message, isAssigned, isMentioned, originalComment) {
   }
   if (message.type === 'REQUEST_WORK') {
     Icon = Assignment;
+  }
+  if (message.type === BACKLOG_MAINTENANCE_TYPE) {
+    Icon = PlaylistAddCheckIcon;
   }
   if ([NOT_FULLY_VOTED_TYPE, UNREAD_JOB_APPROVAL_REQUEST].includes(message.type)) {
     if (marketType === INITIATIVE_TYPE) {

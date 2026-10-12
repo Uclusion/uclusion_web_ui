@@ -13,3 +13,4 @@ export const YELLOW_LEVEL = 'YELLOW';
 export const BLUE_LEVEL = 'BLUE';
 export const POKED = 'POKED';
 export const REQUEST_WORK_TYPE = 'REQUEST_WORK';
+export const BACKLOG_MAINTENANCE_TYPE = 'BACKLOG_MAINTENANCE';

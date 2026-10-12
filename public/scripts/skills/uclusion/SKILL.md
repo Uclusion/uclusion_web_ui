@@ -59,11 +59,11 @@ future stages.
 | Returned lane or current action | Additional complete units |
 | --- | --- |
 | Result with a Job header | [references/job-coordinator.md](references/job-coordinator.md), then only its current stage/action set. |
-| Selected standalone bug without a Job header | [references/single-comment.md](references/single-comment.md). For its resolution, incomplete sweep or package, prepare its lane inputs and use completion.md. |
+| Selected standalone bug without a Job header | [references/single-comment.md](references/single-comment.md). For its completion package, prepare its lane inputs and use completion.md. |
 | Standalone view-level question without a Job header | Use the shared question tools and answer rules below. |
 | Standing notes, isolated searches, durable writes/creation/reopening, notifications, progress or handoff | Use the applicable common procedure in this body and the selected lane's current limits. |
 | Any step outside the retained coordinator steps above, including export searches | [references/helper-dispatch.md](references/helper-dispatch.md), before dispatching its fresh helper. |
-| Current completion package or incomplete-sweep retry | [references/completion.md](references/completion.md), with lane-prepared sweep inputs or package thread/scope for the current action. Job review/release requirements come only from the job lane's current route. |
+| Current completion package, or a `find_work` result with `backlog_maintenance` | [references/completion.md](references/completion.md), with the lane-prepared package thread/scope or that key's batch run. Job review/release requirements come only from the job lane's current route. |
 | `auto_take_directions`, exposed `claim_work` (including deferred), or a held claim | [references/claims.md](references/claims.md) before affected discovery, activation, ownership, package or handoff actions. |
 
 ## Select the resident delivery reference
@@ -199,9 +199,9 @@ the common gates below. Merely ending a turn never releases an assignment.
 
 For a resolved standalone bug, retain the assignment through its completion
 package. Release it only after the human's reply is handled, all authorized
-actions succeed, the terminal record is confirmed and its triggered sweep is
-complete. Declined actions are not pending work. An unfinished package or
-failed authorized action retains the assignment.
+actions succeed and the terminal record is confirmed. Declined actions are not
+pending work. An unfinished package or failed authorized action retains the
+assignment.
 
 Name the relevant short code when starting different work. A message without a
 new work target does not end an existing assignment.
@@ -264,14 +264,14 @@ The first word is contractual:
   perform every action actually unblocked and keep waiting when another
   dependency remains. For a job, the held job-coordinator qualifying-answer rules apply. A
   response on the assigned item's waiting completion package (the job's
-  current AI review, or the resolved bug's sweep record) is that package's
+  current AI review, or the resolved bug's package record) is that package's
   reply: use the routed completion unit's package procedure.
   It creates no assistance and does not itself change stage or resolution.
 
 Job description, stage and capsule updates follow the held job-coordinator
 rules after the assignment gate. A job becoming executable never activates idle
 or unrelated sessions. An assigned standalone bug's resolution update follows
-its held single-comment transition and completion-input rules.
+its held single-comment transition and package rules.
 
 A legacy bare `Responded.` has no target. Reload only the outstanding
 dependency of the assigned lane. With no assignment, ignore it.
@@ -375,12 +375,11 @@ briefs before further helper work.
 
 When workspace data can answer a request and is not already loaded, judge
 whether an available successful export is current, complete and sufficient for
-the search, including completion scans. Reuse it when sufficient; run the
-environment-correct `uclusion export` when it is stale, insufficient or
-uncertain. Use the configured destination, overriding it only for an explicit
-human request. Retain the successful command's exact reported path and use the
-export's UTC update dates as recency evidence. Poke silence does not establish
-freshness.
+the search. Reuse it when sufficient; run the environment-correct
+`uclusion export` when it is stale, insufficient or uncertain. Use the
+configured destination, overriding it only for an explicit human request.
+Retain the successful command's exact reported path and use the export's UTC
+update dates as recency evidence. Poke silence does not establish freshness.
 
 Delegate every export search to a fresh read-only isolated export-search helper
 under [references/helper-dispatch.md](references/helper-dispatch.md). If a
@@ -573,7 +572,7 @@ interruption:
 - Apply assignment-aware discovery, respecting the completion-package boundary.
 - Apply the claim route and any active assigned-job audit route to affected handoff actions.
 - Leave an exact blocking dependency in Uclusion.
-- For a resolved standalone bug, finish the completion unit's sweep and package before work discovery.
+- For a resolved standalone bug, finish the completion unit's package before work discovery.
   A job follows its retained-work gates and the routed review-release procedure.
 - Apply the notification and context-boundary rules and applicable commit gates.
 

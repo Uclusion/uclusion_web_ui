@@ -158,7 +158,7 @@ SCRIPT_FILES = (
 # deployment gate validates this table before publishing, so a sequential S3
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
-    'uclusionCLI.py': '9800101573e09fd9b2c596f40c4de3d29635a38016c1a81499454838269fffe9',
+    'uclusionCLI.py': 'c6a36233d982af4dcd9029bac8cbc1fdd3da5f82e0b12ddc156ec42a471c27bb',
     'uclusionMCPProxy.py': '08ae958b4f86913452b16908167255bbcb603326247996342c8cf80a143e4191',
     'uclusionSetupMCP.py': '9aa8d3199b0c392d944fc3b2fb9f26b48230737ea2e5b07980cd3df6b79ed4f3',
     'uclusionCodexNative.py': '89587700e95582353ee9d3f2a9f48674d88d3c68ed13a6e929cd0efa3aa85300',
@@ -336,20 +336,20 @@ WORKFLOW_ASSET_PATHS = {
 # These digests bind the installer to one coherent workflow release. A host
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
-    'job_coordinator_reference': 'e3207df3e700b22fdd3a3c59506f7ae58e7c55d35ea77d558d49911d55886789',
+    'job_coordinator_reference': '5100b6a293233a6b1639f8214ba4ad8c4f777a08357e1672f9f31fc23d437777',
     'claude_stub': '10cc14f4e45e713235b2702294d40e1832585e45b781df5369b96af4ad15cdec',
     'codex_stub': '3456b198d89aff817e7dbdb885e30c070d5edd8b00994266dafa0bdcafe41eaf',
     'cursor_stub': '7b5e6b556a865b0fe15c3e217c93bc738bbefcee195f7119c9689f1f5d7f8c5b',
-    'skill': '5beea4f8cac9fc28bb3ab316913dbe12dfc9dbd6da9f4c83140796c452f86080',
+    'skill': '9b5cefdd156ba9cd77756674d0b19cb82b5a0b3612e6d075b7e3e698c496b356',
     'codex_delivery_reference': 'cc9c3780e79fa5ea1cd45fee3128360b65e60f4f6d9c5e62c3c27a20b18d4887',
     'claude_delivery_reference': '4d965b3dad8555935ad3c403f8ff00a451d9867cc77ea46e0ee348d96d0ad0ea',
     'cursor_delivery_reference': '64bd40d2fd4c8d5467f6cc4422bc0d34699d9d937916f4bd0707e7ac8a7d8a3f',
     'approval_reference': 'fc6b501df91c6c36f9f9c6090bdb7d987f248ca3a4330e5b18a61578332301d4',
     'coordinator_execution_reference': 'ec49b9f977e5a8bf188f55325d559c89257f4151bedd34ede478832c4032c148',
-    'single_comment_reference': '7db3717a1b93e52578fc4caa85047b9158ce79a5d4e3689b1e4daf90ee6d8da7',
-    'helper_dispatch_reference': 'f3441a3f1d884b4b6ab3d21a599a85dc30c71e941dd20d913f04addad88f19b5',
-    'review_reference': 'ebf71a160984d60d117a2f175605a15347ac03fb55c3a3db6cb6e8612aa49608',
-    'completion_reference': '859810e6b293e9836877ed853a42b3de382770f55ed1398ee72e4683c4d1e3c0',
+    'single_comment_reference': 'c6c092b2f246a41cba77cd544cdf7af7373b6201a16c00720ad394ede11d596f',
+    'helper_dispatch_reference': '6656232c193b4c820840e275792792b95e9c7e1b893d303cee5c608a431599bc',
+    'review_reference': '23cce5a484ade3f508f0ef552c67f122cabdae5e6ddd72c9d6cec00976d0c19b',
+    'completion_reference': '03df1ceada9150bf8e48305910cd615d3552e771fcdaede1a518a862c7576df4',
     'audit_reference': 'c71f33e60bb52fe99489e056fff12a7656452bc8d905cc0b54a3882be08d5fbb',
     'claims_reference': '9fc20a3911f6bf3686d09f2f20b5816aebff2047a10c8e7c6aa57b6af7dc17d3',
     'openai_metadata': 'c60b60bcccd8b171ab950477b7f09b5fc621974846f4cdc468b6c8fe0bbb2ca9',
@@ -357,7 +357,7 @@ WORKFLOW_ASSET_SHA256 = {
     'design_examples': '4bbe306e72f6438bf1dddbd1a77c7eaa2c117080f89cb57ccb0c41c0fcddadd8',
     'design_openai_metadata': 'd94499cb3851d46db554a0321d8469571273d446a8caefbdcbb8a68cb012c868',
     'demo_brief': '1c26c3235dba931bcbf9d88fcacf32e437f1ec10f3e70fd908f33228ba30037f',
-    'token_manifest': '66e26a4f8a0d0cf2dd0146501b5d20bdc231e8f89f7a30b7d498c9827064014e',
+    'token_manifest': '82d78b914361177b0e90bf7c6c072a99c7bfc78c653267f173a98a1708a86957',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',

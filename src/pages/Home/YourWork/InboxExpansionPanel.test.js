@@ -16,6 +16,7 @@ jest.mock('../../../components/InboxWizards/Submission/OptionSubmittedWizard', (
 jest.mock('../../../components/InboxWizards/Upgrade/UpgradeWizard', () => () => null);
 jest.mock('../../../components/InboxWizards/NewGroup/NewGroupWizard', () => () => null);
 jest.mock('../../../components/InboxWizards/RequestWork/RequestWorkWizard', () => () => null);
+jest.mock('../../../components/InboxWizards/BacklogMaintenance/BacklogMaintenanceWizard', () => () => null);
 jest.mock('../../../components/InboxWizards/OptionResponse/RespondInOptionWizard', () => () => null);
 jest.mock('../../../components/InboxWizards/ReviewNewTask/TaskedWizard', () => () => null);
 jest.mock('../../../components/InboxWizards/Triage/TriageWizard', () => () => null);

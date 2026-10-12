@@ -485,3 +485,191 @@ class ExportIndexTestCase(unittest.TestCase):
             content = cli.fetch_workspace_export(CREDENTIALS)
         self.assertIn(cli.EXPORT_INDEX_START + cli.EXPORT_INDEX_END, content)
         self.assertEqual([], self.index_lines(content))
+
+
+# Rendered as RENDERED_SECTIONS is, for a backlog maintenance run that completed
+# J-example-5 and B-example-5. J-example-5 is Reviewable with an open task, its
+# grouped task, a resolved task that keeps a bug's code and that task's resolved
+# grouped task, plus an open issue naming its own codes and the completed bug.
+# J-example-6 is Doable. Its open issue names J-example-5 in the body and
+# T-example-6 through a reply's link. Its second open issue names only codes
+# that merely contain a completed code, and the note after it and the resolved
+# issue after that name completed codes but are not open blockers. B-example-6
+# is an open bug.
+SCAN_SECTIONS = {
+    'marketInvestible': [
+        ('job-5', '1',
+            '#### From AI user:\n'
+            '## Job J-example-5<a name="j-example-5"></a> (updated 2026-01-02)\n'
+            '### Finish the export scan\n'
+            'Job description.\n'
+            '\n'
+            '\n'
+            'This job is in stage Reviewable.\n'
+            '#### Tasks \n'
+            '#### From AI user:\n'
+            '#### Task T-example-5<a name="t-example-5"></a>  (updated 2026-01-02) \n'
+            'Write the scan.\n'
+            '\n'
+            '##### From AI user:\n'
+            '> ##### Grouped task T-example-6<a name="t-example-6"></a> to T-example-5 (updated '
+            '2026-01-02) \n'
+            'Print the matches.\n'
+            '\n'
+            '#### Assistance \n'
+            '#### From authoritative human:\n'
+            '#### Issue I-example-5<a name="i-example-5"></a>  (updated 2026-01-02) \n'
+            'Waiting on T-example-5 of J-example-5 and on B-example-5.\n'
+            '\n'
+            '#### Resolved \n'
+            '#### From AI user:\n'
+            '#### Resolved Task B-example-9<a name="b-example-9"></a>  (updated 2026-01-02) \n'
+            'A bug moved into this job.\n'
+            '\n'
+            '##### From AI user:\n'
+            '> ##### Resolved Grouped task T-example-7<a name="t-example-7"></a> to B-example-9 '
+            '(resolution inherited from parent task) (updated 2026-01-02) \n'
+            'Part of the moved bug.\n'
+            '\n'),
+        ('job-6', '1',
+            '#### From authoritative human:\n'
+            '## Job J-example-6<a name="j-example-6"></a> (updated 2026-01-02)\n'
+            '### Ship the report\n'
+            'Job description.\n'
+            '\n'
+            '\n'
+            'This job is in stage Doable.\n'
+            '#### Assistance \n'
+            '#### From authoritative human:\n'
+            '#### Issue I-example-6<a name="i-example-6"></a>  (updated 2026-01-02) \n'
+            'Blocked until J-example-5 ships.\n'
+            '\n'
+            '##### From authoritative human:\n'
+            '> ##### Reply C-example-6<a name="c-example-6"></a> to I-example-6 (updated '
+            '2026-01-03) \n'
+            'It also needs [the printer](#T-example-6).\n'
+            '\n'
+            '#### From authoritative human:\n'
+            '#### Issue I-example-7<a name="i-example-7"></a>  (updated 2026-01-02) \n'
+            'Waiting on J-example-50, Q-example-1_T-example-5, T-example-5b and B-example-55.\n'
+            '\n'
+            '#### Notes \n'
+            '#### From authoritative human:\n'
+            '#### Note R-example-6<a name="r-example-6"></a>  (updated 2026-01-02) \n'
+            'B-example-5 explains the delay.\n'
+            '\n'
+            '#### Resolved \n'
+            '#### From authoritative human:\n'
+            '#### Resolved Issue I-example-8<a name="i-example-8"></a>  (updated 2026-01-02) \n'
+            'Was waiting on J-example-5.\n'
+            '\n'),
+    ],
+    'comment': [
+        ('bug-5', '1',
+            '#### From authoritative human:\n'
+            '#### Resolved Bug B-example-5<a name="b-example-5"></a>  (updated 2026-01-02) \n'
+            'Priority: normal (YELLOW).\n'
+            'The scan misses grouped tasks.\n'
+            '\n'),
+        ('bug-6', '1',
+            '#### From authoritative human:\n'
+            '#### Bug B-example-6<a name="b-example-6"></a>  (updated 2026-01-02) \n'
+            'Priority: minor (BLUE).\n'
+            'Is this the same as J-example-5?\n'
+            '\n'),
+    ],
+}
+# A bug with an empty body, which the index cannot name.
+UNREADABLE_BUG_7 = (
+    'bug-7', '1',
+    '#### From authoritative human:\n'
+    '#### Bug B-example-7<a name="b-example-7"></a>  (updated 2026-01-02) \n'
+    'Priority: normal (YELLOW).\n'
+    '\n')
+SCAN_LINE_RE = re.compile(r'^(?:completed (?P<kind>job|bug)|(?P<blocker>blocker)) (?P<code>\S+) '
+                          r'(?:job=\S+ )?line=(?P<line>\d+)')
+
+
+class CompletedWorkScanTestCase(unittest.TestCase):
+    """uclusion export --completed prints the completed work and the open blockers naming it."""
+
+    def run_export(self, completed, sections=SCAN_SECTIONS, failing=()):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        file_path = os.path.join(directory.name, 'export.md')
+        argv = ['export', '-o', file_path] + (['--completed', *completed] if completed else [])
+        server = FakeExportServer(sections, failing)
+        output = io.StringIO()
+        with mock.patch.object(cli, 'initialize', return_value=(CREDENTIALS, {}, {})), \
+                mock.patch.object(cli, 'send', side_effect=server.send), redirect_stdout(output):
+            args = cli.build_parser().parse_args(argv)
+            result = args.func(args)
+        self.assertEqual(0, result)
+        printed = output.getvalue().split('\n')
+        file_lines = Path(file_path).read_bytes().decode('utf-8').split('\n')
+        return printed, file_lines
+
+    def scan_lines(self, printed):
+        start = next(number for number, line in enumerate(printed) if line.startswith('Completed work scan'))
+        return [line for line in printed[start:] if line]
+
+    def without_numbers(self, lines):
+        return [re.sub(r' line=\d+', ' line=N', line) for line in lines]
+
+    def test_scan_lists_completed_work_and_the_blockers_naming_it(self):
+        printed, _ = self.run_export(['J-example-5', 'B-example-5'])
+        self.assertEqual([
+            'Completed work scan; each line= value is a line number in that export:',
+            'completed job J-example-5 line=N tasks=T-example-5 T-example-6 B-example-9 T-example-7',
+            'completed bug B-example-5 line=N',
+            'blocker I-example-5 job=J-example-5 line=N matched=B-example-5',
+            'blocker I-example-6 job=J-example-6 line=N matched=J-example-5 T-example-6',
+            'The scan is complete.',
+        ], self.without_numbers(self.scan_lines(printed)))
+        written = ''.join(self.scan_lines(printed))
+        self.assertNotIn('\u2014', written)
+        self.assertNotIn('\u2013', written)
+        self.assertNotIn(' - ', written)
+
+    def test_every_line_number_lands_on_its_heading(self):
+        printed, file_lines = self.run_export(['J-example-5', 'B-example-5'])
+        headings = {'job': '## Job', 'bug': '#### Resolved Bug', 'blocker': '#### Issue'}
+        checked = 0
+        for line in self.scan_lines(printed):
+            match = SCAN_LINE_RE.match(line)
+            if match is None:
+                continue
+            target = file_lines[int(match.group('line')) - 1]
+            heading = headings[match.group('kind') or match.group('blocker')]
+            self.assertTrue(target.startswith(f'{heading} {match.group("code")}<a name="'),
+                            f'{line!r} points at {target!r}')
+            checked += 1
+        self.assertEqual(4, checked)
+
+    def test_missing_codes_and_unreadable_or_failed_sections_make_it_incomplete(self):
+        sections = {'marketInvestible': SCAN_SECTIONS['marketInvestible'],
+                    'comment': SCAN_SECTIONS['comment'] + [UNREADABLE_BUG_7]}
+        printed, _ = self.run_export(['B-example-5', 'B-example-404'], sections, failing=('comment:bug-6',))
+        self.assertEqual([
+            'Completed work scan; each line= value is a line number in that export:',
+            'completed bug B-example-5 line=N',
+            'blocker I-example-5 job=J-example-5 line=N matched=B-example-5',
+            'incomplete completed code B-example-404 is not in this export',
+            'incomplete unreadable line=N section=comment:bug-7 could not be read: bug name',
+            'incomplete failed object=comment:bug-6 is missing from this file',
+            'The scan is incomplete.',
+        ], self.without_numbers(self.scan_lines(printed)))
+
+    def test_a_scan_with_no_matching_blocker_says_so(self):
+        printed, _ = self.run_export(['B-example-6'])
+        self.assertEqual([
+            'Completed work scan; each line= value is a line number in that export:',
+            'completed bug B-example-6 line=N',
+            'No open blocker names completed work.',
+            'The scan is complete.',
+        ], self.without_numbers(self.scan_lines(printed)))
+
+    def test_an_export_without_completed_codes_prints_no_scan(self):
+        printed, file_lines = self.run_export(None)
+        self.assertFalse(any(line.startswith('Completed work scan') for line in printed))
+        self.assertIn(cli.EXPORT_INDEX_START.rstrip('\n'), file_lines)

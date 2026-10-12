@@ -37,7 +37,7 @@ core's standing-instruction rules before filing it.
 ## Export-search helpers
 
 Give the export-search helper the exact successful export path, search
-question, applicable requirements or current outcome evidence, and matching,
+question, applicable requirements or export command output, and matching,
 status and authority rules. Assign only that bounded read-only search, and keep
 export content and research with that helper.
 

@@ -58,7 +58,7 @@ function CreateTeamViewStep(props) {
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1" style={{paddingBottom: '1rem'}}>
         View members receive notifications for its active work and discussion. Backlog job comments notify people
-        who have participated in or follow that job. You can also @ mention this collaborator to involve them.
+        following that job. You can also @ mention this collaborator to involve them.
       </Typography>
       <OutlinedInput
         id="groupName"

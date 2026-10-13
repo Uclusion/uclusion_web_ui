@@ -8,6 +8,7 @@ import { getInvestible } from '../contexts/InvestibesContext/investiblesContextH
 import { getMarketInfo } from './userFunctions';
 import { MarketsContext } from '../contexts/MarketsContext/MarketsContext';
 import { getMarket } from '../contexts/MarketsContext/marketsContextHelper';
+import { MarketPresencesContext } from '../contexts/MarketPresencesContext/MarketPresencesContext';
 import _ from 'lodash';
 
 export function useInvestibleVoters(marketPresences, investibleId, marketId, includeExpired=false) {
@@ -17,16 +18,20 @@ export function useInvestibleVoters(marketPresences, investibleId, marketId, inc
     marketPresences, includeExpired);
 }
 
-export function useAddressed(groupPresences, marketPresences, investibleId, marketId) {
+export function useAddressed(groupPresences, investibleId, marketId) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
+  const [presencesState] = useContext(MarketPresencesContext);
+  // Voting presence projections omit other users' deleted investments. Their
+  // stored follow still applies, so Outside uses the raw versioned rows.
+  const marketPresences = (presencesState[marketId] || []).filter((presence) => !presence.market_banned);
   const investedOrAddressed = calculateInvestibleVoters(investibleId, marketId, marketsState, investiblesState,
     marketPresences, true, true);
   const groupPresencesIds = groupPresences.map((presence) => presence.id);
   if (_.isEmpty(groupPresencesIds)) {
     return [];
   }
-  return investedOrAddressed.filter((investor) => !groupPresencesIds.includes(investor.id));
+  return investedOrAddressed.filter((investor) => !investor.abstain && !groupPresencesIds.includes(investor.id));
 }
 
 export function calculateInvestibleVoters(investibleId, marketId, marketsState, investiblesState,

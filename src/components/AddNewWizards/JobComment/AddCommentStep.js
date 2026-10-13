@@ -194,7 +194,7 @@ function AddCommentStep (props) {
       )}
       {useType === REPORT_TYPE && !isResolve && noSubscribedToSendTo && !inFurtherWorkStage && !isNote && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          You must use @ mentions for this report to notify anyone.
+          Use @ mentions to request a review from specific people.
         </Typography>
       )}
       {useType === ISSUE_TYPE && !inFurtherWorkStage && !noSubscribedToSendTo && (
@@ -205,14 +205,14 @@ function AddCommentStep (props) {
       )}
       {useType === ISSUE_TYPE && inFurtherWorkStage && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Jobs with blocking issues are always not ready. Notifications go to people who have participated in or
-          follow this job, unless you choose No in the next step. Use @ mentions to address specific people.
+          Jobs with blocking issues are always not ready. Notifications go to people following this job,
+          unless you choose No in the next step. Use @ mentions to address specific people.
         </Typography>
       )}
       {[QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(useType) && inFurtherWorkStage && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          This {useType === QUESTION_TYPE ? 'question' : 'suggestion'} notifies people who have participated in or
-          follow this job. Use @ mentions to address specific people.
+          This {useType === QUESTION_TYPE ? 'question' : 'suggestion'} notifies people following this job.
+          Use @ mentions to address specific people.
           {useType === QUESTION_TYPE && ' Add options to start voting on possible answers.'}
         </Typography>
       )}
@@ -224,7 +224,7 @@ function AddCommentStep (props) {
       )}
       {useType === REPORT_TYPE && !isResolve && inFurtherWorkStage && !isNote && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          This report notifies people who have participated in or follow this job. Use @ mentions to require
+          This report notifies people following this job. Use @ mentions to require
           and notify specific reviewers.
         </Typography>
       )}

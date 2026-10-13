@@ -71,8 +71,8 @@ function AssignViewsStep(props) {
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1" style={{paddingBottom: '1rem'}}>
         A <Link href="https://documentation.uclusion.com/views" target="_blank">view</Link> controls the default
-        addressing of notifications. Anyone not in a view must be manually mentioned or subscribed to a job to
-        be notified.
+        addressing of notifications for active work. Backlog job comments notify the job's followers.
+        Use @ mentions to address specific people.
       </Typography>
       <IdentityList participants={presences} setChecked={onAssignmentChange} checked={checked} />
       <div className={classes.borderBottom} />

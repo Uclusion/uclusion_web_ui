@@ -117,7 +117,7 @@ export default function PlanningInvestibleNav(props) {
   const { stage, required_approvers:  requiredApprovers, open_for_investment: openForInvestment, is_visible: isVisible,
     accepted, group_id: groupId, completion_estimate: marketDaysEstimate } = marketInfo;
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
-  const addressed = useAddressed(groupPresences, marketPresences, investibleId, marketId);
+  const addressed = useAddressed(groupPresences, investibleId, marketId);
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const canEditLabel = isInReviewStage(fullStage);
   const showLabelEditor = editingLabel && canEditLabel;

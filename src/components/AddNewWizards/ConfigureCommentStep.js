@@ -176,7 +176,7 @@ function ConfigureCommentStep(props) {
       )}
       {useType === ISSUE_TYPE && (
         <Typography className={classes.introText} style={{marginBottom: '1.5rem'}}>
-          {inBacklog ? 'Notify people who have participated in or follow this job?' : 'Notify team of this issue?'}
+          {inBacklog ? 'Notify people following this job?' : 'Notify team of this issue?'}
         </Typography>
       )}
       <ChoicePills

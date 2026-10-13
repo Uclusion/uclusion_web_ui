@@ -37,7 +37,7 @@ function JobCollaboratorStep (props) {
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { assigned, group_id: groupId } = marketInfo;
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
-  const addressed = useAddressed(groupPresences, marketPresences, investibleId, marketId);
+  const addressed = useAddressed(groupPresences, investibleId, marketId);
   const addressedIds = (addressed || []).filter((address) => !address.abstain)
     .map((address) => address.id);
   const value = (formData.wasSet ? formData.addressed : addressedIds) || [];

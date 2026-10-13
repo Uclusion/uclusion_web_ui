@@ -378,7 +378,7 @@ function CommentEdit(props) {
         </Typography>
         {inBacklog && !isTask && !isInvestibleNote && (
           <Typography className={classes.introSubText} variant="subtitle1">
-            Notifications go to people who have participated in or follow this job. Use @ mentions to address
+            Notifications go to people following this job. Use @ mentions to address
             specific people.
           </Typography>
         )}
@@ -412,7 +412,7 @@ function CommentEdit(props) {
     <>
       {inBacklog && !isTask && !isDisplayOfSubTask && !isInvestibleNote && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Notifications go to people who have participated in or follow this job. Use @ mentions to address
+          Notifications go to people following this job. Use @ mentions to address
           specific people.
         </Typography>
       )}

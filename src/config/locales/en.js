@@ -790,6 +790,7 @@ const messages = defineMessages({
   SUGGESTYesConfig: 'Everyone sees results',
   SUGGESTNoConfig: 'Only you see results',
   ISSUEYesConfig: 'The team will be notified to help',
+  ISSUEYesBacklogConfig: 'Job participants and followers will be notified to help',
   ISSUENoConfig: 'No notifications',
   singlePersonMode: 'Single person mode',
 

@@ -83,7 +83,7 @@ function AddCommentStep (props) {
   // The AI user gets its notifications through the poke queue, so showing it in a "notifies" list
   // just confuses (B-all-500)
   const subscribedNotMe = getHumanPresences(subscribed).filter((presence) => presence.id !== userId);
-  const noSubscribedToSendTo = _.isEmpty(subscribedNotMe) || inFurtherWorkStage;
+  const noSubscribedToSendTo = _.isEmpty(subscribedNotMe);
 
   function onSave(comment) {
     if (comment.is_sent) {
@@ -142,7 +142,7 @@ function AddCommentStep (props) {
   // B-all-675: a task from an option keeps its own draft. The job's shared task draft - even one left
   // empty by the last task added - is stored state, which the editor prefers to the prefilled option link.
   const draftName = `jobComment${useType}${decisionInvestibleId || ''}`;
-  const movingJob = isAssistance && !inAssistanceStage && userIsAssigned;
+  const movingJob = isAssistance && !inAssistanceStage && !inFurtherWorkStage && userIsAssigned;
   const optionUrl = `${formInvestibleLink(marketId, investibleId)}#option${decisionInvestibleId}`;
   const titleByType = {
     [TODO_TYPE]: 'New Task',
@@ -192,7 +192,7 @@ function AddCommentStep (props) {
           The link to the below option is prefilled in this task.
         </Typography>
       )}
-      {useType === REPORT_TYPE && !isResolve && noSubscribedToSendTo && (
+      {useType === REPORT_TYPE && !isResolve && noSubscribedToSendTo && !inFurtherWorkStage && !isNote && (
         <Typography className={classes.introSubText} variant="subtitle1">
           You must use @ mentions for this report to notify anyone.
         </Typography>
@@ -203,27 +203,29 @@ function AddCommentStep (props) {
           notified unless use @ mentions.
         </Typography>
       )}
-      {useType === ISSUE_TYPE && inFurtherWorkStage && !noSubscribedToSendTo && (
-        <Typography className={classes.introSubText} variant="subtitle1">
-          Jobs with blocking issues are always not ready.
-          {subscribedGravatars}
-          notified unless use @ mentions.
-        </Typography>
-      )}
       {useType === ISSUE_TYPE && inFurtherWorkStage && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Jobs with blocking issues are always not ready. Use @ mentions to send notifications.
+          Jobs with blocking issues are always not ready. Notifications go to people who have participated in or
+          follow this job, unless you choose No in the next step. Use @ mentions to address specific people.
         </Typography>
       )}
       {[QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(useType) && inFurtherWorkStage && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Use @ mentions or options / voting to send notifications from backlog.
+          This {useType === QUESTION_TYPE ? 'question' : 'suggestion'} notifies people who have participated in or
+          follow this job. Use @ mentions to address specific people.
+          {useType === QUESTION_TYPE && ' Add options to start voting on possible answers.'}
         </Typography>
       )}
-      {useType === REPORT_TYPE && !isResolve && !noSubscribedToSendTo && !isNote && (
+      {useType === REPORT_TYPE && !isResolve && !noSubscribedToSendTo && !inFurtherWorkStage && !isNote && (
         <Typography className={classes.introSubText} variant="subtitle1">
           {subscribedGravatars}
           notified unless use @ mentions to require and only notify specific reviewers.
+        </Typography>
+      )}
+      {useType === REPORT_TYPE && !isResolve && inFurtherWorkStage && !isNote && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          This report notifies people who have participated in or follow this job. Use @ mentions to require
+          and notify specific reviewers.
         </Typography>
       )}
       {useType === REPORT_TYPE && isResolve && !isNote && (
@@ -237,21 +239,21 @@ function AddCommentStep (props) {
           Notes do not notify unless you use @ mentions.
         </Typography>
       )}
-      {useType === QUESTION_TYPE && !movingJob && !noSubscribedToSendTo && (
+      {useType === QUESTION_TYPE && !movingJob && !noSubscribedToSendTo && !inFurtherWorkStage && (
         <Typography className={classes.introSubText} variant="subtitle1">
           This question notifies
           {subscribedGravatars}
           unless use @ mentions. Add options to start voting on possible answers to this question.
         </Typography>
       )}
-      {useType === SUGGEST_CHANGE_TYPE && !movingJob && !noSubscribedToSendTo && (
+      {useType === SUGGEST_CHANGE_TYPE && !movingJob && !noSubscribedToSendTo && !inFurtherWorkStage && (
         <Typography className={classes.introSubText} variant="subtitle1">
           This suggestion notifies
           {subscribedGravatars}
           unless use @ mentions.
         </Typography>
       )}
-      {useType === QUESTION_TYPE && !movingJob && noSubscribedToSendTo && (
+      {useType === QUESTION_TYPE && !movingJob && noSubscribedToSendTo && !inFurtherWorkStage && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Add options to start voting on possible answers to this question.
         </Typography>

@@ -45,6 +45,9 @@ import { formCommentLink } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { navigate } from '../../utils/marketIdPathFunctions';
 import useSubmissionNavigation from '../../utils/useSubmissionNavigation';
+import { getMarketInfo } from '../../utils/userFunctions';
+import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { getFullStage, isFurtherWorkStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 
 const useStyles = makeStyles((theme) => ({
   visible: {
@@ -272,6 +275,9 @@ function CommentEdit(props) {
   const presences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = presences?.find((presence) => presence.current_user) || {};
   const [marketStagesState] = useContext(MarketStagesContext);
+  const marketInfo = getMarketInfo(getInvestible(investibleState, investibleId), marketId) || {};
+  const fullStage = getFullStage(marketStagesState, marketId, marketInfo.stage);
+  const inBacklog = !!investibleId && !!fullStage && isFurtherWorkStage(fullStage);
   const groupPresences = getGroupPresences(presences, groupPresencesState, marketId, groupId) || [];
   const investedOrAddressed = calculateInvestibleVoters(investibleId, marketId, marketsState, investiblesState,
     presences, true, true);
@@ -370,7 +376,13 @@ function CommentEdit(props) {
         <Typography className={wizardClasses.introSubText} variant="subtitle1">
           Pick up where you left off with this {isQuestion ? 'question' : 'blocking issue'}.
         </Typography>
-        {!noSubscribedToSendTo && !isTask && !isInvestibleNote && (
+        {inBacklog && !isTask && !isInvestibleNote && (
+          <Typography className={classes.introSubText} variant="subtitle1">
+            Notifications go to people who have participated in or follow this job. Use @ mentions to address
+            specific people.
+          </Typography>
+        )}
+        {!inBacklog && !noSubscribedToSendTo && !isTask && !isInvestibleNote && (
           <Typography className={classes.introSubText} variant="subtitle1">
             <GravatarGroup users={subscribedNotMe}/>
             notified unless use @ mentions.
@@ -398,7 +410,13 @@ function CommentEdit(props) {
 
   return (
     <>
-      {!noSubscribedToSendTo && !isTask && !isDisplayOfSubTask && !isInvestibleNote && (
+      {inBacklog && !isTask && !isDisplayOfSubTask && !isInvestibleNote && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Notifications go to people who have participated in or follow this job. Use @ mentions to address
+          specific people.
+        </Typography>
+      )}
+      {!inBacklog && !noSubscribedToSendTo && !isTask && !isDisplayOfSubTask && !isInvestibleNote && (
         <Typography className={classes.introSubText} variant="subtitle1">
           <GravatarGroup users={subscribedNotMe}/>
           notified unless use @ mentions.

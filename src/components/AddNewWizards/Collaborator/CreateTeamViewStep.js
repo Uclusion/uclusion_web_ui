@@ -57,8 +57,8 @@ function CreateTeamViewStep(props) {
         Do you want a view for you and this collaborator?
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1" style={{paddingBottom: '1rem'}}>
-        Anything created in that view will notify this person. Otherwise you will have to @ mention them each time
-        you want them involved.
+        View members receive notifications for its active work and discussion. Backlog job comments notify people
+        who have participated in or follow that job. You can also @ mention this collaborator to involve them.
       </Typography>
       <OutlinedInput
         id="groupName"

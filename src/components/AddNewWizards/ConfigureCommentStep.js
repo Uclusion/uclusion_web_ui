@@ -157,6 +157,9 @@ function ConfigureCommentStep(props) {
     }
   }
   const defaultAnswer = useType === QUESTION_TYPE ? (allowMulti ? 'Yes': 'No') : 'Yes';
+  const marketInfo = getMarketInfo(getInvestible(investibleState, investibleId), marketId) || {};
+  const fullStage = getFullStage(marketStagesState, marketId, marketInfo.stage);
+  const inBacklog = !!investibleId && !!fullStage && isFurtherWorkStage(fullStage);
   return (
     <WizardStepContainer
       {...props}
@@ -173,7 +176,7 @@ function ConfigureCommentStep(props) {
       )}
       {useType === ISSUE_TYPE && (
         <Typography className={classes.introText} style={{marginBottom: '1.5rem'}}>
-          Notify team of this issue?
+          {inBacklog ? 'Notify people who have participated in or follow this job?' : 'Notify team of this issue?'}
         </Typography>
       )}
       <ChoicePills
@@ -182,7 +185,9 @@ function ConfigureCommentStep(props) {
         onChange={(value) => updateFormData({ useAnswer: value })}
         options={['Yes', 'No'].map((answer) => {
           const answerId = `${useType}${answer}`;
-          return { value: answer, id: answerId, label: <FormattedMessage id={`${answerId}Config`} /> };
+          const labelId = inBacklog && useType === ISSUE_TYPE && answer === 'Yes'
+            ? 'ISSUEYesBacklogConfig' : `${answerId}Config`;
+          return { value: answer, id: answerId, label: <FormattedMessage id={labelId} /> };
         })}
       />
       <div className={classes.borderBottom} />

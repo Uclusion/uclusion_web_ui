@@ -8,9 +8,9 @@ description: Plan, compose, revise, and cold-review a Uclusion intent/design cap
 
 Return the shortest standalone implementation contract for the selected target.
 During composition and cold review, delete every sentence whose removal loses
-no necessary implementation behavior, constraint, navigation, evidence or
-permission limit. State each idea once, omit irrelevant categories, and impose
-no numeric length cap.
+no necessary implementation behavior, constraint, or permission limit. 
+
+If the implementation requires testing include the test plan.
 
 ## Helper boundary
 
@@ -21,10 +21,7 @@ human requirements. Write only that target's contract; a task capsule stands
 alone and never inherits from or falls back to a job capsule.
 
 Leave target selection, stages, questions, suggestions, durable writes,
-permission checks, implementation and final review to the coordinator. Before
-drafting or reviewing, read this selected SKILL.md and
-[references/examples.md](references/examples.md) in full through their closing
-markers; continue an incomplete read until its marker appears. Report missing
+permission checks, implementation and final review to the coordinator. Report missing
 or unreadable required instructions as an installation fault to the coordinator;
 do not improvise them.
 
@@ -37,23 +34,17 @@ typed unresolved questions. Never return raw searches or instruction bodies.
 
 ## Evidence gate
 
-A choice a reasonable reviewer could make differently needs qualifying human
-evidence beside that exact claim: human-authored job/task text, a clear non-AI,
-non-advisory reply answering the choice, a non-AI, non-advisory For vote on the
-selected Approvable option, an accepted human suggestion, or an explicitly
-approved test/security plan. Source constraints and prior authoritative
-artifacts support forced facts; they cannot authorize divergent choices.
-
-A human's conversion of an AI suggestion to a task accepts its proposal as
-written, despite the retained AI author. Cite the conversion and proposal for
-its specified choices. Re-ask only when new evidence found after conversion
-bears on them, naming that evidence; unspecified choices still need authority.
+Treat the coordinator-supplied settled requirements and applicable limits as the
+design baseline. Use bounded evidence to substantiate claims; return genuine
+missing facts or unresolved choices to the coordinator. Do not reconstruct
+approval history or re-decide acceptance from authorship.
 
 Use descriptive inline links in the claim block they support. Detached ledgers,
 unlinked sources, links beside other claims, unaccepted AI text, advisory input,
 job-value approval and invitations to object do not qualify. Selected-option
-evidence names the exact question, full selected option code and behavior, e.g.
-`[Q-Demo-7, selected Q-Demo-7_O-1: retain the prior result](#q-demo-7)`.
+evidence links to the supplied canonical parent-question URL and labels the
+exact question, full qualified option code/name and accepted behavior, e.g.
+`[Q-Demo-7, selected Q-Demo-7_O-1 (Retain): retain the prior result](<supplied-canonical-question-URL>)`.
 
 Return a typed unresolved question when evidence is missing; never invent a
 default or bury a choice in the capsule:
@@ -88,16 +79,4 @@ material constraints, with qualifying authority at each divergent claim and
 both exact identifiers for selected options. Its Summary must navigate without
 repeating the contract. Apply the sentence-deletion test above; do not demand
 irrelevant categories to make the capsule look complete.
-
-## Sent-capsule stability
-
-Finish drafting and cold review before publication. A sent body stays unchanged
-unless human input arriving after publication establishes a new contract. Only
-then incorporate that contract and return the complete cold-reviewed replacement;
-never a fragment or patch. Older human input newly discovered, a later cold
-review, AI discoveries and implementation differences do not authorize rewriting.
-
-Return a sent capsule unchanged with its evidence links when no new contract
-exists. If a material correction needs an unsupported choice or a new human
-contract, return typed unresolved questions instead.
 <!-- /uclusion-design-skill:v1 -->

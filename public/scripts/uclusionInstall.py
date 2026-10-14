@@ -301,8 +301,6 @@ SKILL_REFERENCE_END_MARKER = '<!-- /uclusion-skill-reference:v1 -->'
 DESIGN_SKILL_NAME = 'uclusion-design'
 DESIGN_SKILL_MARKER = '<!-- uclusion-design-skill:v1 -->'
 DESIGN_SKILL_END_MARKER = '<!-- /uclusion-design-skill:v1 -->'
-DESIGN_SKILL_REFERENCE_MARKER = '<!-- uclusion-design-reference:v1 -->'
-DESIGN_SKILL_REFERENCE_END_MARKER = '<!-- /uclusion-design-reference:v1 -->'
 WORKFLOW_ENV_PLACEHOLDER = '{{UCLUSION_CLI}}'
 WORKFLOW_ASSET_PATHS = {
     'claude_stub': 'CLAUDE.template.md',
@@ -323,7 +321,6 @@ WORKFLOW_ASSET_PATHS = {
     'claims_reference': 'skills/uclusion/references/claims.md',
     'openai_metadata': 'skills/uclusion/agents/openai.yaml',
     'design_skill': 'skills/uclusion-design/SKILL.md',
-    'design_examples': 'skills/uclusion-design/references/examples.md',
     'design_openai_metadata': 'skills/uclusion-design/agents/openai.yaml',
     # The owner's directions travel with the workflow rather than being
     # fetched: a session's grant holds the demo's tools and its CLI, and
@@ -336,7 +333,7 @@ WORKFLOW_ASSET_PATHS = {
 # These digests bind the installer to one coherent workflow release. A host
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
-    'job_coordinator_reference': '5583bdd655eb2c1d61f20457174eeddba5cf25e9db0f57e6354643f5e45b968f',
+    'job_coordinator_reference': 'c82e2c39d9e372d544d7a89866ed6de192d3d6936975669bd8e5f5786cf905d9',
     'claude_stub': '10cc14f4e45e713235b2702294d40e1832585e45b781df5369b96af4ad15cdec',
     'codex_stub': '3456b198d89aff817e7dbdb885e30c070d5edd8b00994266dafa0bdcafe41eaf',
     'cursor_stub': '7b5e6b556a865b0fe15c3e217c93bc738bbefcee195f7119c9689f1f5d7f8c5b',
@@ -353,8 +350,7 @@ WORKFLOW_ASSET_SHA256 = {
     'audit_reference': 'c71f33e60bb52fe99489e056fff12a7656452bc8d905cc0b54a3882be08d5fbb',
     'claims_reference': '9fc20a3911f6bf3686d09f2f20b5816aebff2047a10c8e7c6aa57b6af7dc17d3',
     'openai_metadata': 'c60b60bcccd8b171ab950477b7f09b5fc621974846f4cdc468b6c8fe0bbb2ca9',
-    'design_skill': 'cffa609b1d0cb430707cc89253f4d2e13a167ae895c49a765e0fe7c364cb541a',
-    'design_examples': '4bbe306e72f6438bf1dddbd1a77c7eaa2c117080f89cb57ccb0c41c0fcddadd8',
+    'design_skill': 'ee15a06a26fbf07b976f93cf230260bf1655d2ed614900772749e2ba1a490b89',
     'design_openai_metadata': 'd94499cb3851d46db554a0321d8469571273d446a8caefbdcbb8a68cb012c868',
     'demo_brief': '1c26c3235dba931bcbf9d88fcacf32e437f1ec10f3e70fd908f33228ba30037f',
     'token_manifest': '50680a9ce7aabe29ee1e189f20822b71bd444b0394dc95ad7bcc2d34fbba4d07',
@@ -397,7 +393,6 @@ RETIRED_SKILL_REFERENCE_PATHS = (
     os.path.join('references', 'uploads.md'),
 )
 DESIGN_SKILL_PACKAGE_ASSETS = (
-    ('design_examples', os.path.join('references', 'examples.md')),
     ('design_openai_metadata', os.path.join('agents', 'openai.yaml')),
     ('design_skill', 'SKILL.md'),
 )
@@ -5875,20 +5870,6 @@ def validate_workflow_bundle(bundle):
             raise RuntimeError(
                 f'workflow asset {key} has invalid reference markers'
             )
-
-    design_examples = bundle['design_examples']
-    if (
-        design_examples.count(DESIGN_SKILL_REFERENCE_MARKER) != 1
-        or design_examples.count(DESIGN_SKILL_REFERENCE_END_MARKER) != 1
-        or design_examples.find(DESIGN_SKILL_REFERENCE_MARKER)
-        > design_examples.find(DESIGN_SKILL_REFERENCE_END_MARKER)
-        or not design_examples.rstrip().endswith(
-            DESIGN_SKILL_REFERENCE_END_MARKER
-        )
-    ):
-        raise RuntimeError(
-            'workflow asset design_examples has invalid reference markers'
-        )
 
     metadata = bundle['openai_metadata']
     if (

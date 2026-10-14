@@ -327,6 +327,10 @@ current capsule when present, new human requirements since publication, and
 `../uclusion-design/SKILL.md` resolved from the selected `uclusion` package root.
 Do not send shared coordinator or coordinator-reference bodies.
 
+For every referenced question, resolve and supply its canonical URL, relevant
+question and option text, the selected option's qualified code/name, and the
+settled answer or outcome.
+
 Request the shortest complete contract, directing the design helper to delete
 sentences whose removal loses no necessary behavior, constraint, navigation,
 evidence or permission limit; impose no numeric cap. Keep research,

@@ -17,55 +17,15 @@ whose body or replies name a completed code exactly, with the codes it
 matched, and `incomplete` lines for anything it could not read or find.
 
 Assign the outcome-impact scan for the whole batch to one fresh read-only
-export-search helper under [helper-dispatch.md](helper-dispatch.md). Give it
-the export path, that output, and every rule from Outcome impact through
-Findings below. Require one merged numbered list that includes every
-dependency match from the output, or the no-candidate result, naming anything
-incomplete either way.
-
-## Outcome impact
-
-Evidence comes from the completed items' own sections, read at the output's
-line numbers: job and task bodies, the current capsule, human-backed decisions
-and the latest review. Rejected, unresolved and speculative proposals are not
-evidence. If those sources conflict and the record does not settle that
-conflict, do not classify a candidate.
-
-Candidates are the export index's job and bug lines, each read at its line
-number rather than searched for. Similar language is not enough: the completed
-outcome must have causally changed whether or how the candidate should
-proceed. Assign exactly one semantic category, in this order:
-
-1. **duplicate**: the completed result already supplies the intended outcome;
-2. **obsolete**: otherwise, the completed result makes the premise false; or
-3. **modify**: otherwise, the work remains valuable but an assumption or its
-   scope is now wrong.
-
-Limit outcome analysis to the completed work's causal impact.
-
-## Findings
-
-Merge both scans by target into one numbered list. Use exactly this shape,
-with codes as plain text so the inbox links them:
-
-`1. **<exact code>**, <exact short description>: **<category>**. Evidence: <matching blocker code and completed code, or conflicting current-outcome evidence>. Proposed action: <specific human action>.`
-
-Use **dependency** as the category when there is no semantic finding, and
-include every matching blocker code. When one target has both kinds of finding,
-show it once under its semantic category and include the blocker matches in its
-evidence. Explain the causal reason in the evidence. The first exact code in
-each numbered finding is its candidate recipient; completed source codes and
-blocker codes in Evidence are not recipients. For **duplicate** or **obsolete**, propose deciding whether to
-resolve the target before offering to remove its blocker. For **modify**,
-propose the needed revision before reconsidering its blocker. Offer each
-matching blocker to the human; never resolve it automatically because it may
-represent more than one condition.
-
-If both scans find nothing, say: `No backlog maintenance candidates: no open
-blocker named the completed work, and no unresolved job or bug became
-duplicate, obsolete, or in need of modification.`
+export-search helper via the shared body's workspace-export route, in
+maintenance mode. Supply the exact successful export path, every completed
+code and the original complete `--completed` output; do not rescan or copy the
+helper's analysis instructions.
 
 ## Record the run
+
+The first exact code in each numbered finding is its candidate recipient;
+completed source codes and blocker codes in Evidence are not recipients.
 
 When the export failed or either scan reports anything incomplete, say what
 was incomplete and do not record; the notice returns when the claim expires.

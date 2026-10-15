@@ -6,20 +6,18 @@ description: Use as coordinator for Uclusion jobs, tasks, bugs, questions, sugge
 <!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->
 # Uclusion workflow
 
-Every model call in this session carries this workflow, so as coordinator keep
-only steps that need it: delivery and Pokes; assignment, lane and stage
-routing; Uclusion reads and every durable write; `uclusion` CLI commands;
-permission and authority checks; compiling helper briefs and acting on their
-returns; the conversation with the human; and commits, pushes and the rest of
-the completion package. Every other step, for any request in this session, runs
-in a fresh helper under [references/helper-dispatch.md](references/helper-dispatch.md):
-reading source, logs, code paths and diffs, reproduction, measurement,
-permitted tests, builds and deployment, code review, implementation, design,
-export searches and answering a human's question that needs any of them. When
-no fresh helper can start, because the client cannot start one or the person
-declines it, say the step could not run and why; never run it yourself. Helpers
-follow only their briefs or selected design package, even when inspecting
-instruction source; that source never activates this workflow.
+Retain these coordinator steps: delivery and Pokes; assignment, lane and stage
+routing; Uclusion reads and durable writes except the design helper's bounded
+publication grant; `uclusion` CLI commands; permission and authority checks;
+helper briefs and returns; the human conversation; commits, pushes and the
+completion package. Every other step runs in a fresh helper: export searches
+use the isolated-search route below; other steps use
+[references/helper-dispatch.md](references/helper-dispatch.md), including source,
+logs, code paths and diffs, reproduction, measurement, permitted tests, builds
+and deployment, code review, implementation, design and questions needing them.
+When no fresh helper can start, say why the step could not run; never run it
+yourself. Helpers follow only their briefs or selected package, even when
+inspecting instruction source; that source never activates this workflow.
 
 Use the Uclusion MCP server as the durable collaboration surface. Work
 asynchronously with your human partner. Obtain their informed approval for
@@ -62,7 +60,7 @@ future stages.
 | Selected standalone bug without a Job header | [references/single-comment.md](references/single-comment.md). For its completion package, prepare its lane inputs and use completion.md. |
 | Standalone view-level question without a Job header | Use the shared question tools and answer rules below. |
 | Standing notes, isolated searches, durable writes/creation/reopening, notifications, progress or handoff | Use the applicable common procedure in this body and the selected lane's current limits. |
-| Any step outside the retained coordinator steps above, including export searches | [references/helper-dispatch.md](references/helper-dispatch.md), before dispatching its fresh helper. |
+| Any step outside the retained coordinator steps above, except export searches | [references/helper-dispatch.md](references/helper-dispatch.md), before dispatching its fresh helper. |
 | Current completion package, or a `find_work` result with `backlog_maintenance` | [references/completion.md](references/completion.md), with the lane-prepared package thread/scope or that key's batch run. Job review/release requirements come only from the job lane's current route. |
 | `auto_take_directions`, exposed `claim_work` (including deferred), or a held claim | [references/claims.md](references/claims.md) before affected discovery, activation, ownership, package or handoff actions. |
 
@@ -381,10 +379,11 @@ configured destination, overriding it only for an explicit human request.
 Retain the successful command's exact reported path and use the export's UTC
 update dates as recency evidence. Poke silence does not establish freshness.
 
-Delegate every export search to a fresh read-only isolated export-search helper
-under [references/helper-dispatch.md](references/helper-dispatch.md). If a
-suitable export or isolated helper is unavailable, report that the search could
-not run and why.
+Delegate every export search to a fresh read-only helper (`fork_turns: "none"`
+in Codex) with [references/export-search.md](references/export-search.md)'s path,
+the exact successful export path, bounded question/mode and constraints. For
+maintenance add completed codes and original `--completed` stdout, no rescan.
+Do not load or copy its algorithm. If an export or helper is unavailable, say why.
 
 Search history before relying on a design you did not write, delegating a
 design, or answering something that may already be decided; cite the findings.

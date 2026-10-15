@@ -13,14 +13,13 @@ declines it, do not run the step yourself; say it could not run and why.
 
 Give each step to one helper role:
 
-- Export-search helpers search workspace exports.
 - Investigation helpers read source, logs, code paths and diffs, reproduce,
   measure, and answer a human's question that needs any of these.
 - Code-review helpers review code, including a human's work in Reviewable,
   briefed as investigation helpers whose bounded question is that review.
 - Implementation helpers implement job tasks and standalone bug fixes.
-- Design helpers plan, compose and cold-review capsules under the job lane's
-  design dispatch.
+- Design helpers plan, compose, cold-review and publish capsules within the
+  job lane's bounded design grant.
 
 Run permitted tests and builds only in the investigation or implementation
 helper whose brief lists them, and permitted deployment only in an
@@ -34,25 +33,12 @@ need for questions, choices and briefs. Supply changed requirements before a
 helper resumes affected work. Check each question a helper returns under the
 core's standing-instruction rules before filing it.
 
-## Export-search helpers
-
-Give the export-search helper the exact successful export path, search
-question, applicable requirements or export command output, and matching,
-status and authority rules. Assign only that bounded read-only search, and keep
-export content and research with that helper.
-
-Require the export-search helper to return every qualifying finding concisely,
-with exact Uclusion codes and names, supporting evidence or source locations,
-and proposed actions required by the calling workflow. Require an explicit
-no-match result only after a completed search, distinguishing incomplete
-searches or unsettled evidence.
-
 ## Investigation and code-review helpers
 
-Brief an investigation helper as you brief an export-search helper: one bounded
-question, the repository context it needs, the applicable requirements and the
-actions it may take. It stays read-only unless the brief lists reproduction,
-measurement, tests or builds whose independent permission you have confirmed.
+Give an investigation helper one bounded question, the repository context it
+needs, the applicable requirements and the actions it may take. It stays
+read-only unless the brief lists reproduction, measurement, tests or builds
+whose independent permission you have confirmed.
 
 Copy all the following sentences into the dispatch, without package markers or
 workflow labels:

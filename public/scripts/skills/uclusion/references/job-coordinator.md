@@ -10,7 +10,7 @@ applicability or preload future stages.
 
 | Current job stage or action | Additional complete units and gates |
 | --- | --- |
-| Scoped entry/context/updates, questions/suggestions/options/votes/resolutions, capsule design/publication, or exact authorized transition | Use this body's procedure and the held common tools/write/permission rules. |
+| Scoped entry/context/updates, questions/suggestions/options/votes/resolutions, capsule delegation/receipts, or exact authorized transition | Use this body's procedure and the held common tools/write/permission rules. |
 | Approvable approval, after assistance is settled and approval is applicable | [approval.md](approval.md). Otherwise ask the next-action question below. Implementation is locked. |
 | Requires Input | Handle qualifying assistance and any resulting current-contract change below. Investigation continues; implementation stays locked until Doable or Reviewable returns. |
 | Doable implementation or completed implementation-task resolution | [coordinator-execution.md](coordinator-execution.md), after the complete target/current-contract prerequisite and independent permissions. |
@@ -97,11 +97,13 @@ contract. Load their current contents on a whole-scope or exact capsule-thread
 refresh even when the capsule body's version is unchanged; never cache their
 contents solely by that version.
 
-After a capsule create or replacement, use `set_design_capsule`'s receipt: its
-body is the one you just sent, so do not fetch it again before edits. On an
-assigned current capsule's `Updated` event, use the explicit R-code thread read
-and reload Reports, then apply the capsule rules below for obsolete-review
-cleanup and reconciliation before further affected edits.
+After helper publication, use its canonical target/R-code/actual-version
+receipt to apply this prerequisite. Reuse a matching complete held body;
+otherwise read the canonical R-code thread once for the missing body, checking
+identity, version and current discussion as above before implementation. On an
+assigned current capsule's `Updated` event, read that R-code thread and reload
+Reports; for a human edit, apply the reconciliation route below before affected
+edits.
 
 If the selected target's current capsule is absent, use design dispatch and
 publication below; do not load execution rules merely to plan or publish while
@@ -246,8 +248,8 @@ resolved question.
 
 Finish any reply or vote before resolving a question. When its answer
 establishes a capsule change, apply the capsule procedure below and delegate
-composition and cold review while the question stays open, then pass its code
-in `set_design_capsule`'s `resolve_question_short_code_ids`. Use `resolve` when
+composition, cold review and publication while the question stays open,
+explicitly granting its named resolution to the design helper. Use `resolve` when
 no capsule change is needed; omit questions the human already resolved. Resolve
 an open-ended question promptly once its answer is settled or the question is
 no longer needed, after any required reply and capsule update. Without option
@@ -280,9 +282,9 @@ You may ask whether to begin completely independent tasks first.
 
 ## Coordinator capsule design and publication
 
-Before publication or review cleanup, apply the held common durable-write rules
-and satisfy the target/current-body prerequisite above, using a sent-body
-receipt when available.
+Before granting publication or handling a human capsule edit, apply the held
+common durable-write rules and satisfy the target/current-body prerequisite
+above.
 
 ### Capsule authority
 
@@ -308,28 +310,34 @@ ends, even when there are no edits. A settled decision must not sit beside a
 capsule that still states what it replaced. The capsule stands alone and
 preserves the actor-visible outcome, not merely decisions or components.
 
-### Absent-capsule design dispatch and publication
+### Bounded design dispatch and publication
 
 When the selected target has no current capsule, run any read-only
 investigation in fresh investigation helpers under
 [helper-dispatch.md](helper-dispatch.md) and settle every reviewer-divergent
 choice. Incorporate relevant existing ordinary-note information into the
-first capsule's design evidence. Complete drafting and cold review below before calling
-`set_design_capsule` in target mode. Uclusion
-strongly validates that the task still belongs to the stated job and refuses a
-missing or stale job/task pairing. Reload the task and use its current job
-before retrying.
+first capsule's design evidence.
 
-Delegate planning, capsule composition, revision and cold review to a fresh
+Delegate planning, composition, revision, cold review and MCP publication to a fresh
 design helper without inherited conversation history (`fork_turns: "none"` in Codex).
-Give the design helper the selected target, bounded relevant evidence, the
-current capsule when present, new human requirements since publication, and
+Supply the selected job/task, bounded evidence and settled requirements, new
+human requirements since publication, either confirmed capsule absence or the
+complete current body/R-code/actual version, and
 `../uclusion-design/SKILL.md` resolved from the selected `uclusion` package root.
 Do not send shared coordinator or coordinator-reference bodies.
 
-For every referenced question, resolve and supply its canonical URL, relevant
+For every referenced question, supply its canonical URL, relevant
 question and option text, the selected option's qualified code/name, and the
 settled answer or outcome.
+
+Select and grant only exact creation or permitted replacement, explicitly named
+capsule-changing answered-question resolutions with settled canonical outcomes,
+and obsolete-AI-review cleanup from replacement. Qualify human answers and
+finish required replies/votes yourself under the assistance rules above; omit
+questions the human already resolved. Resolutions requiring no capsule change
+stay with you. The helper uses this supplied authority without repeating your
+qualification or a full-thread approval pass; missing or stale scope/evidence
+and unsettled choices return as typed unresolved questions before publication.
 
 Request the shortest complete contract, directing the design helper to delete
 sentences whose removal loses no necessary behavior, constraint, navigation,
@@ -337,17 +345,20 @@ evidence or permission limit; impose no numeric cap. Keep research,
 alternatives, planning rationale and transcripts with that helper. Do not read
 those helper-only instructions or examples before delegation.
 
-Accept only the complete cold-reviewed capsule with claim-local evidence links
-or typed unresolved questions. Keep raw research and planning with the design
-helper. File and resolve questions, check stages and permissions, publish with
-`set_design_capsule`, and coordinate execution yourself. Delegation grants no
-implementation permission. If the design helper cannot load its skill or a
-required reference, report a broken Uclusion install, suggest an
+Accept only a compact canonical receipt identifying target, link/R-code/actual
+version, publication status, individual question-resolution and obsolete-review
+outcomes, and unfinished recovery, or typed unresolved questions. Keep the full
+body, raw research and planning with the helper; do not re-emit its body. Pending
+publisher operations remain not ready; return only unfinished work to that role.
+File questions, check stages and permissions, and coordinate execution yourself.
+Delegation grants no implementation permission. If the helper cannot load its
+skill or a required reference, report a broken Uclusion install, suggest an
 environment-correct `uclusion update`, and require a client
 restart or MCP reconnect after success; do not improvise a writing workflow.
-After each create or permitted replacement, apply the current-contract
-prerequisite, using the held publication receipt. A later cold review does
-not authorize polishing or rewriting a sent capsule.
+After publication, apply the current-contract prerequisite above. When the next
+action needs the effective stage, fetch `stage_only` after the publisher's last
+operation, preserving any newer held stage. A later cold review does not
+authorize polishing or rewriting a sent capsule.
 
 When permitted implementation is the next action after publication, use the
 routed execution unit for its independent gates and fresh independent-task
@@ -356,38 +367,14 @@ tracking evidence yourself; compile the complete implementation brief under
 that unit rather than sending workflow context. Delegation creates no separate
 ownership claim and grants no unlisted action.
 
-Replace a sent capsule only when new human input establishes a new contract. AI
-discoveries and implementation differences do not authorize a replacement;
+Replace a sent capsule only when new human input establishes a new contract.
+AI discoveries and implementation differences do not authorize replacement;
 report those differences once in the review. Unsettled choices still require
-questions under the job-assistance rules above. For a permitted replacement,
-finish drafting and cold review, then call `set_design_capsule` in update mode
-with the current R-code and version held under the current-contract rules and
-the complete replacement body. Never patch fragments or blindly retry a version
-conflict; reload the capsule on one. Replies remain discussion until new human
-input establishes a new contract and is folded into the body. Its former body
-appears asynchronously as an ordinary unpinned note. Do not wait for that
-archive or treat it as current implementation context.
+questions under the assistance rules above. Return target/version conflicts or
+missing authority from publication to this prerequisite and renew only the
+settled exact grant.
 
-Publish only human-facing contracts.
-
-After an AI replacement, resolve each review its result lists in
-`open_ai_reviews_naming_capsule` before further affected edits. After the
-current-body and Reports refresh for a human capsule edit,
-resolve your open review naming that capsule first, then reconcile in-progress
-work with the new authoritative body.
-
-### Publication receipts and partial success
-
-Use the current-contract receipt confirmation and the held common write
-reconciliation.
-
-When `set_design_capsule` also resolves selected questions, inspect the capsule
-receipt and each resolution outcome. A failed or uncertain publication resolves
-no questions; a later resolution failure leaves the published capsule in place
-and stops the remaining resolutions. Resume resolutions only after confirming
-the intended capsule was published; otherwise reconcile and publish that
-contract first. Once publication is confirmed, resolve only unfinished
-questions rather than replaying a stale capsule write. If the review-inventory
-lookup failed, load Reports for the existing obsolete-review cleanup. After the
-last operation, use `stage_only` before acting on the stage.
+For a human capsule edit, refresh its current R-code body and Reports, resolve
+your open review naming that capsule first, then reconcile in-progress work
+with the new authoritative body. Publisher cleanup never replaces this route.
 <!-- /uclusion-skill-reference:v1 -->

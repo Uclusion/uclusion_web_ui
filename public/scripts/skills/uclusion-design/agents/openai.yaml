@@ -1,6 +1,6 @@
 interface:
   display_name: "Uclusion Design"
-  short_description: "Write and cold-review the shortest complete Uclusion capsule"
-  default_prompt: "Use $uclusion-design as a fresh helper without inherited history. From the selected target and bounded evidence, compose and cold-review the shortest complete implementation contract. Delete every sentence whose removal loses no necessary behavior, constraint, navigation, evidence or permission limit; impose no numeric cap. Return only the complete capsule with claim-local evidence or typed unresolved questions. Keep research, alternatives, rationale and transcripts local; preserve sent-capsule stability."
+  short_description: "Compose, review and publish a bounded Uclusion capsule"
+  default_prompt: "Use $uclusion-design to compose, cold-review and publish the selected capsule within the coordinator's grant."
 policy:
   allow_implicit_invocation: true

@@ -29,19 +29,6 @@ substantive work or affected phase, publication or handoff actions.
 
 ## Job entry and current contract
 
-### Enter or refresh selected job work
-
-1. Consume the initial lookup already held; do not repeat it because this
-   workflow was loaded. If the work no longer has a Job header and has one top-level
-   comment, return to the common standalone bug or question route instead.
-2. Obtain only missing scoped context for the next action, including the complete
-   current description when needed and the tasks, assistance or Reports it uses.
-   Apply the held common standing-note rules and retain complete current bodies.
-3. Apply the stage and assigned-update checks below to held lookup, event and
-   write outcomes. Do not replace newer stage information with an older event.
-4. Select the current required set above and hold its complete current bodies
-   before acting.
-
 ### Scoped job context
 
 Keep the initial whole-scope job read made with `initial_read: true`. Scope
@@ -76,15 +63,8 @@ Select exactly one executable target for the implementation pass:
 - A task capsule is complete and solely authoritative for that task pass.
   Never merge it with, inherit from, or fall back to the job capsule.
 
-Whole-scope reads, including the initial read, return the selected target's
-complete current capsule body and attached nondeleted comments, including
-resolved replies. When that capsule is absent, they load active ordinary
-job/task note threads. Default whole-job reads, including `initial_read`, omit
-token-usage audit records; explicit audit-thread and notes-section reads can
-retrieve them. Every other capsule remains a reference. Explicit
-thread and section reads retain their requested scope; standing notes and
-other resolved discussions still require explicit reads. A reference or
-summary does not satisfy the current-contract prerequisite.
+Default whole-job reads, including `initial_read`, omit token-usage audit
+records; explicit audit-thread and notes-section reads can retrieve them.
 
 Reuse a complete held body, including one returned by `initial_read`, when its
 target, exact R-code and actual version match the current reference. Only when
@@ -97,13 +77,9 @@ contract. Load their current contents on a whole-scope or exact capsule-thread
 refresh even when the capsule body's version is unchanged; never cache their
 contents solely by that version.
 
-After helper publication, use its canonical target/R-code/actual-version
-receipt to apply this prerequisite. Reuse a matching complete held body;
-otherwise read the canonical R-code thread once for the missing body, checking
-identity, version and current discussion as above before implementation. On an
-assigned current capsule's `Updated` event, read that R-code thread and reload
-Reports; for a human edit, apply the reconciliation route below before affected
-edits.
+After helper publication, apply this prerequisite to its canonical receipt. On
+an assigned current capsule's `Updated` event, read its R-code thread and reload
+Reports; for a human edit, reconcile below before affected edits.
 
 If the selected target's current capsule is absent, use design dispatch and
 publication below; do not load execution rules merely to plan or publish while
@@ -140,10 +116,7 @@ about the exact job and destination when authorization is missing.
 
 If initial work is ready but the job is not executable, leave its stage
 unchanged and ask one question “What action should I take on this job next?”
-with options move to Doable and do an approval. Vote for move to Doable. Only
-exact transition authorization permits change_job_stage; approval itself does
-not. Use the stage-change receipt without rereading merely to confirm it, under
-the held common write-receipt rules.
+with options move to Doable and do an approval. Vote for move to Doable.
 
 When no delivery is armed, reread assistance and effective stage before
 editing, before a completion package, after its reply, and before and after a
@@ -157,11 +130,6 @@ commit and push gates stay independent.
 An Added item that changes derived readiness is emitted after its workflow
 transaction commits. Its one reload includes the item and new stage; do not
 wait for a second stage Poke or act from cached stage.
-
-For assigned description changes and generic updates, apply the scoped-context
-reads above before work depending on that context. Soft-deleted work and work
-that no longer has a Job header follow the common lookup rules and standalone
-routes.
 
 An `Updated <job-code> stage is now <stage-name>` reports the stored
 transition. Apply assignment routing first; record it without get_job or
@@ -180,13 +148,6 @@ stage event, so keep the effective-stage check before stage-gated actions.
 Reviewable is a handoff signal, not proof the job is final or its remaining
 deployment/other-environment verification ran.
 
-### Reopened task stage
-
-A task an assignee reopens on a Reviewable job returns it to Doable; one
-reopened by anyone else, the AI included, sends it to Approvable and the usual
-next-action question. A reopened task leaves the job unfinished until the task
-resolves again.
-
 ### Plan mode and handoffs
 
 Plan-mode restrictions govern machine and repository changes, not Uclusion
@@ -194,15 +155,6 @@ artifacts. File job questions and suggestions immediately. Before leaving plan
 mode, ensure the plan is durable in the applicable artifact and show its link;
 use add_info only for information still missing. A chat-only or local-file plan
 is unfinished.
-
-Apply the held common progress and turn-ending rules. A progress checkpoint or
-ordinary turn is not a lane handoff. Retain assignment through required input,
-package waits and incomplete authorized actions. Finished-job release
-follows [review.md](review.md); apply assignment-aware discovery only when the
-assignment actually ends.
-
-A fully complete job follows the common notification and context-boundary rules
-and the review unit's commit identities.
 
 ## Job questions and suggestions
 
@@ -218,15 +170,6 @@ options and your vote, so the job enters Requires Input once and the human
 answers the whole set in one sitting. Questions, suggestions, and votes are
 work output rather than a delay, so never withhold one to keep moving.
 
-Filing them is not itself a reason to stop. A question blocks only the work
-that depends on its answer. Requires Input bars implementation edits to the
-job, and bars nothing else: keep fresh investigation helpers reading source,
-reproducing, measuring and gathering the evidence the answers will need under
-[helper-dispatch.md](helper-dispatch.md), and carry on with any other lane the
-human has authorised. Ask newly discovered questions as they
-arise. Filing a question never ends a turn; apply the held common turn-ending
-rules.
-
 #### What answers an AI-authored question
 
 For a question on a job, an Approvable option's For vote answers only when it
@@ -236,26 +179,15 @@ marker as authoritative; do not infer authority from other metadata. Advisory
 input can change the AI's reasoning or vote and sends a Responded Poke, but
 cannot make the question answerable or unlock execution.
 
-An open AI-authored question moves a job in Approvable, Doable or Reviewable to
-Requires Input, whichever stage the question was opened in. A primary,
-non-advisory reply or vote makes it answerable, but the job stays locked until
-the AI resolves the question. A human may instead Resolve the question
-directly; that delegates the choice to the AI, does not silently select an
-option, and restores the prior stage. Record a new non-obvious delegated choice
-in the applicable capsule when writing it, or use `add_info` on the job/task
-only if missing from the durable thread. Do not reopen or write inside the
-resolved question.
+A human may instead Resolve a question directly; that delegates the choice to the AI. 
+Do not reopen or write inside a resolved question.
 
 Finish any reply or vote before resolving a question. When its answer
 establishes a capsule change, apply the capsule procedure below and delegate
 composition, cold review and publication while the question stays open,
 explicitly granting its named resolution to the design helper. Use `resolve` when
-no capsule change is needed; omit questions the human already resolved. Resolve
-an open-ended question promptly once its answer is settled or the question is
-no longer needed, after any required reply and capsule update. Without option
-votes, an open thread gives no reliable completion signal. Option-bearing
-questions may await completed vote review or the existing execution gate; do
-not resolve merely to acknowledge each vote. The qualifying human-answer and
+no capsule change is needed unless the human already resolved. Without option
+votes, an open thread gives no reliable completion signal. The qualifying human-answer and
 execution-lock rules above still apply. Clarify ambiguous replies. Only
 Approvable options count or accept votes. If later work would say "flag if you
 prefer" or "verify this choice," stop: that was an unasked step-two question.
@@ -267,8 +199,7 @@ chat, then include the returned link when mentioning it. For human suggestions,
 reply with a definitive decision and action unless accepting an option amendment below. When voting is enabled, call
 `vote_on_suggestion` before resolving; never vote on your own suggestion.
 
-An open qualifying human suggestion keeps the job in Requires Input. For an
-accepted option amendment, record any required vote, then call `update_option`
+For an accepted option amendment, record any required vote, then call `update_option`
 with `resolve_suggestion_short_code_id` naming that suggestion. For other
 accepted changes, record the plan, act, then resolve. A human Resolve on an
 AI-authored suggestion without reply or vote declines the mitigation and
@@ -277,7 +208,7 @@ suggestion into a task accepts its proposal as written. Do not re-ask a choice
 the suggestion already made, unless new evidence found after the conversion
 bears on it; then name that evidence in the question.
 
-Do not offer execution or approve the job while an unanswered question remains.
+Do not offer execution or approve the job while your unanswered question or open suggestion remains.
 You may ask whether to begin completely independent tasks first.
 
 ## Coordinator capsule design and publication
@@ -291,16 +222,7 @@ above.
 Record new job/task context with `add_info` on the selected current capsule's
 exact R-code, or on the job/task as an ordinary associated note when no capsule
 exists. Use an independent task's own capsule without job fallback and a
-grouped task's top-level parent's capsule. Bugs retain direct replies. Reply
-on the exact comment being answered when continuing an existing discussion.
-Only the capsule body is the implementation contract; contextual comments
-cannot silently change or expand it.
-
-Silent writes suppress human notifications while normal UI pushes continue.
-All silent AI job/task notes and comments on their selected current capsule
-send Pokes through existing routing, without a maintenance marker. Handle your
-own context Pokes too; there is no targeted delivery or guarantee that every
-working agent receives them. Other AI writes retain their existing suppression.
+grouped task's top-level parent's capsule.
 
 Once sent, keep the capsule body stable unless human input that arrives after
 it establishes a new contract. Finding older human input you had not read is
@@ -339,16 +261,11 @@ stay with you. The helper uses this supplied authority without repeating your
 qualification or a full-thread approval pass; missing or stale scope/evidence
 and unsettled choices return as typed unresolved questions before publication.
 
-Request the shortest complete contract, directing the design helper to delete
-sentences whose removal loses no necessary behavior, constraint, navigation,
-evidence or permission limit; impose no numeric cap. Keep research,
-alternatives, planning rationale and transcripts with that helper. Do not read
-those helper-only instructions or examples before delegation.
+Impose no numeric cap; do not read helper-only instructions before delegation.
 
 Accept only a compact canonical receipt identifying target, link/R-code/actual
 version, publication status, individual question-resolution and obsolete-review
-outcomes, and unfinished recovery, or typed unresolved questions. Keep the full
-body, raw research and planning with the helper; do not re-emit its body. Pending
+outcomes, and unfinished recovery, or typed unresolved questions. Pending
 publisher operations remain not ready; return only unfinished work to that role.
 File questions, check stages and permissions, and coordinate execution yourself.
 Delegation grants no implementation permission. If the helper cannot load its
@@ -360,19 +277,10 @@ action needs the effective stage, fetch `stage_only` after the publisher's last
 operation, preserving any newer held stage. A later cold review does not
 authorize polishing or rewriting a sent capsule.
 
-When permitted implementation is the next action after publication, use the
-routed execution unit for its independent gates and fresh independent-task
-dispatch, against the held current contract. Keep the full capsule and its
-tracking evidence yourself; compile the complete implementation brief under
-that unit rather than sending workflow context. Delegation creates no separate
-ownership claim and grants no unlisted action.
+Delegation creates no separate ownership claim and grants no unlisted action.
 
-Replace a sent capsule only when new human input establishes a new contract.
-AI discoveries and implementation differences do not authorize replacement;
-report those differences once in the review. Unsettled choices still require
-questions under the assistance rules above. Return target/version conflicts or
-missing authority from publication to this prerequisite and renew only the
-settled exact grant.
+For publication target/version conflicts or missing authority, reapply the
+current-contract prerequisite and renew only the settled exact grant.
 
 For a human capsule edit, refresh its current R-code body and Reports, resolve
 your open review naming that capsule first, then reconcile in-progress work

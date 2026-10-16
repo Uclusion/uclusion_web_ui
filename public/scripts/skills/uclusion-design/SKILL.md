@@ -111,9 +111,19 @@ is folded into the body. Its former body appears asynchronously as an ordinary
 unpinned note; do not wait for that archive or use it as current context.
 
 The coordinator has already qualified each named answer and finished required
-replies/votes. Pass only its explicitly authorized capsule-changing question
-codes in `resolve_question_short_code_ids`; omit questions the human already
-resolved. Resolutions that do not change the capsule remain with the coordinator.
+replies/votes. Include its explicitly authorized capsule-changing question
+codes, including human-resolved questions pending AI handling, in
+`resolve_question_short_code_ids`. Pass exactly their supplied evidence versions
+in `resolve_question_versions`; never substitute a newer lookup's version for
+the evidence handled. Resolutions requiring no capsule change remain with the
+coordinator.
+
+Acknowledge incorporation only after all required capsule targets are
+confirmed. Publish earlier targets without question acknowledgements. The
+final target may include them only with the coordinator's grant and confirmed
+receipts for all other required targets. An unchanged-body publication also
+confirms its target. Return missing confirmation to the coordinator rather than
+settling the question early.
 
 Inspect each write outcome separately; a later failure does not erase an earlier
 successful write. Reconcile uncertain outcomes with scoped MCP reads and retry
@@ -123,12 +133,18 @@ version conflicts, uncertain publication/resolution outcomes and obsolete review
 inventory, without repeating the coordinator's authority review.
 
 When `set_design_capsule` also resolves selected questions, inspect the capsule
-receipt and each resolution outcome. A failed or uncertain publication resolves
+receipt and each resolution outcome's question version, delegated flag and
+included_in_capsule flag. A resolved flag alone does not confirm handling;
+incorporation requires delegated false and included_in_capsule true.
+A failed or uncertain publication resolves
 no questions; a later resolution failure leaves the published capsule in place
 and stops the remaining resolutions. Resume resolutions only after confirming
 the intended capsule was published; otherwise reconcile and publish that
 contract first. Once publication is confirmed, resolve only unfinished
-questions rather than replaying a stale capsule write.
+questions rather than replaying a stale capsule write. Use `resolve` with their
+handled `expected_question_version` and `included_in_capsule: true` only after
+all required targets are confirmed. A stale acknowledgement requires evidence
+reconciliation and a renewed grant, not a fresh version pasted into a retry.
 
 After an AI replacement, resolve each review its result lists in
 `open_ai_reviews_naming_capsule` before reporting readiness for further affected

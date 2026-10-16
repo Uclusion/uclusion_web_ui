@@ -179,14 +179,18 @@ marker as authoritative; do not infer authority from other metadata. Advisory
 input can change the AI's reasoning or vote and sends a Responded Poke, but
 cannot make the question answerable or unlock execution.
 
-A human may instead Resolve a question directly; that delegates the choice to the AI. 
-Do not reopen or write inside a resolved question.
+A human may instead Resolve a question directly; that delegates the choice to
+the AI. A resolved question marked pending AI handling still needs that choice
+handled. Keep its rendered question version with the evidence. Do not reopen or
+write inside a resolved question.
 
 Finish any reply or vote before resolving a question. When its answer
 establishes a capsule change, apply the capsule procedure below and delegate
 composition, cold review and publication while the question stays open,
-explicitly granting its named resolution to the design helper. Use `resolve` when
-no capsule change is needed unless the human already resolved. Without option
+explicitly granting its named resolution to the design helper. Include pending
+human-resolved questions. When no capsule change is needed, settle immediately
+with `resolve`, passing `expected_question_version` from the handled evidence
+and `included_in_capsule: false` for pending handling. Without option
 votes, an open thread gives no reliable completion signal. The qualifying human-answer and
 execution-lock rules above still apply. Clarify ambiguous replies. Only
 Approvable options count or accept votes. If later work would say "flag if you
@@ -249,15 +253,20 @@ complete current body/R-code/actual version, and
 Do not send shared coordinator or coordinator-reference bodies.
 
 For every referenced question, supply its canonical URL, relevant
-question and option text, the selected option's qualified code/name, and the
-settled answer or outcome.
+question and option text, the selected option's qualified code/name, the settled
+answer or outcome, and its rendered question version and pending state. Name
+every capsule target required by that answer.
 
 Select and grant only exact creation or permitted replacement, explicitly named
 capsule-changing answered-question resolutions with settled canonical outcomes,
 and obsolete-AI-review cleanup from replacement. Qualify human answers and
-finish required replies/votes yourself under the assistance rules above; omit
-questions the human already resolved. Resolutions requiring no capsule change
-stay with you. The helper uses this supplied authority without repeating your
+finish required replies/votes yourself under the assistance rules above. Keep
+human-resolved questions pending AI handling in that grant. Acknowledge
+incorporation only after every required target is confirmed, including an
+unchanged-body publication. Earlier targets publish without question
+acknowledgement; grant it with the final target only when all others are
+confirmed, or as unfinished resolution after all publications are confirmed.
+Resolutions requiring no capsule change stay with you. The helper uses this supplied authority without repeating your
 qualification or a full-thread approval pass; missing or stale scope/evidence
 and unsettled choices return as typed unresolved questions before publication.
 
@@ -265,7 +274,9 @@ Impose no numeric cap; do not read helper-only instructions before delegation.
 
 Accept only a compact canonical receipt identifying target, link/R-code/actual
 version, publication status, individual question-resolution and obsolete-review
-outcomes, and unfinished recovery, or typed unresolved questions. Pending
+outcomes with question version and both handling flags, and unfinished recovery,
+or typed unresolved questions. A resolved flag alone does not confirm handling:
+incorporation requires delegated false and included_in_capsule true. Pending
 publisher operations remain not ready; return only unfinished work to that role.
 File questions, check stages and permissions, and coordinate execution yourself.
 Delegation grants no implementation permission. If the helper cannot load its

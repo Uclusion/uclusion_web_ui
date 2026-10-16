@@ -420,13 +420,27 @@ class ResponseStatsTests(unittest.TestCase):
         self.assertEqual(len(stdout.getvalue().encode()), self.rows()[0]['jsonrpc_utf8_bytes'])
 
     def test_existing_private_file_is_appended(self):
-        self.path.write_text('{"prior":true}\n')
-        self.path.chmod(0o600)
-        recorder = self.recorder()
+        request = {'method': 'tools/call', 'params': {'name': 'get_job',
+            'arguments': {'short_code_id': 'J-secret-1'}, '_meta': {'threadId': 'private-thread'}}}
+        prior = self.recorder(request)
         with redirect_stdout(io.StringIO()):
-            proxy.write_message(JSONRPC_RESULT, stats=recorder)
-        self.assertEqual({'prior': True}, self.rows()[0])
-        self.assertEqual(2, len(self.rows()))
+            proxy.write_message(READ_RESULT, stats=prior)
+        prior.close()
+        original = self.path.read_bytes()
+        original_rows = self.rows()
+        recorder = self.recorder(request)
+        output = io.StringIO()
+        with redirect_stdout(output):
+            proxy.write_message(READ_RESULT, stats=recorder)
+        self.assertEqual(READ_RESULT, json.loads(output.getvalue()))
+        self.assertTrue(self.path.read_bytes().startswith(original))
+        rows = self.rows()
+        self.assertEqual(original_rows, rows[:-1])
+        self.assertEqual('ok', rows[-1]['status'])
+        self.assertEqual(len(output.getvalue().encode()), rows[-1]['jsonrpc_utf8_bytes'])
+        self.assertEqual(rows[0]['read_number'], rows[-1]['repeat_of'])
+        self.assertEqual(request['params']['arguments'], rows[-1]['read_selector'])
+        self.assertNotIn(READ_RESULT['result']['content'][0]['text'], self.path.read_text())
 
     def test_unsafe_or_missing_destinations_disable_without_altering_them(self):
         public = self.directory / 'public.jsonl'
@@ -498,6 +512,67 @@ class ResponseStatsTests(unittest.TestCase):
         self.assertEqual(1, closing.call_count)
         self.assertEqual('Uclusion response statistics disabled.\n', stderr.getvalue())
         self.assertEqual('', self.path.read_text())
+
+
+
+class ServedCatalogAccountingTests(unittest.TestCase):
+    def test_catalog_storage_failure_preserves_json_and_sse_success_responses(self):
+        import sqlite3
+        import threading
+        from types import SimpleNamespace
+        import uclusionCodexNative as native
+        import uclusionTokenAudit as audit
+        for transport in ('json', 'sse'):
+            with self.subTest(transport=transport):
+                delivery = native.NativeCodexDelivery.__new__(native.NativeCodexDelivery)
+                delivery.lock = threading.RLock()
+                store = SimpleNamespace(record_catalog=mock.Mock(side_effect=sqlite3.OperationalError('private failure')))
+                delivery.collectors = {'root': SimpleNamespace(primary_session_fp='session', store=store)}
+                output, errors = io.StringIO(), io.StringIO()
+                with mock.patch.object(audit, 'load_token_manifest', return_value={}), \
+                        redirect_stdout(output), redirect_stderr(errors):
+                    if transport == 'json':
+                        proxy.handle_json_response(_BodyResponse(json.dumps(JSONRPC_RESULT)),
+                            response_observer=delivery.observe_catalog)
+                    else:
+                        proxy.handle_sse_response(_LineResponse(['data: ' + json.dumps(JSONRPC_RESULT) + '\n']),
+                            response_observer=delivery.observe_catalog)
+                self.assertEqual(JSONRPC_RESULT, json.loads(output.getvalue()))
+                self.assertEqual(1, store.record_catalog.call_count)
+                self.assertTrue(errors.getvalue())
+                self.assertNotIn('private failure', errors.getvalue())
+
+    def test_json_and_sse_observe_exact_outgoing_catalog_for_all_options(self):
+        catalog = {"jsonrpc": "2.0", "id": 7, "result": {"tools": [
+            {"name": "get_job", "description": "Current work", "inputSchema": {"type": "object"}},
+            {"name": "end_job_audit", "inputSchema": {"properties": {"job_id": {}, "finalization": {"type": "object"}}}}]}}
+        for handler, body in ((proxy.handle_json_response, json.dumps(catalog)),
+                              (proxy.handle_sse_response, "data: " + json.dumps(catalog) + "\n")):
+            for enabled in (True, False):
+                for claims in (True, False):
+                    observed, written = [], []
+                    response = _BodyResponse(body) if handler is proxy.handle_json_response else _LineResponse([body])
+                    with mock.patch.object(proxy, "write_message", side_effect=lambda message, **kwargs: written.append(message)):
+                        handler(response, token_audit_enabled=enabled, work_claims_enabled=claims,
+                                response_observer=observed.append)
+                    self.assertEqual(written, observed)
+                    names = [t["name"] for t in observed[0]["result"]["tools"]]
+                    self.assertEqual(enabled, "end_job_audit" in names)
+                    self.assertEqual(claims, "claim_work" in names)
+
+    def test_served_definition_manifest_lookup_preserves_historical_counts(self):
+        import uclusionTokenAudit as audit
+        old = {"name": "get_job", "description": "Old", "inputSchema": {}}
+        current = {"name": "get_job", "description": "Current", "inputSchema": {}}
+        old_key = audit.tool_definition_key(old["name"], old["description"], {})
+        key = audit.tool_definition_key(current["name"], current["description"], {})
+        manifest = {"tools": {old_key: {"name": "get_job", "tokens": {"openai": 300}},
+                              key: {"name": "get_job", "tokens": {"openai": 400}}}}
+        report = audit.catalog_token_report([current], manifest, "openai")
+        self.assertEqual(400, report["definition_tokens"])
+        self.assertEqual([key], report["definition_fingerprints"])
+        self.assertEqual("unknown", report["provider_injection"])
+        self.assertEqual(2, len(manifest["tools"]))
 
 
 if __name__ == '__main__':

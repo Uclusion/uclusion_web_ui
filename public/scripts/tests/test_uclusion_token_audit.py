@@ -5079,5 +5079,691 @@ class ProxyContractTests(TokenAuditTestCase):
                     )(row)
 
 
+
+class WeightedAccountingRegressionTests(TokenAuditTestCase):
+    def write_rollout(self, records, name="root.jsonl"):
+        path = Path(self.temporary.name) / name
+        self.assertFalse(path.exists())
+        path.write_text("".join(json.dumps(r) + "\n" for r in records))
+        return str(path)
+
+    @staticmethod
+    def meta(thread="synthetic-root", parent=None, scope=None):
+        payload = {"id": thread, "timestamp": "2026-10-13T00:00:00Z"}
+        if parent:
+            payload["parent_thread_id"] = parent
+        if scope:
+            payload["accounting_scope"] = scope
+        return {"type": "session_meta", "payload": payload}
+
+    @staticmethod
+    def request(response="synthetic-response", total=120, **extra):
+        payload = {"thread_id": "synthetic-root", "turn_id": "synthetic-turn",
+                   "root_turn_id": "synthetic-turn", "response_id": response,
+                   "usage": {"input_tokens": total - 20, "cached_input_tokens": 80,
+                             "output_tokens": 20, "reasoning_output_tokens": 5,
+                             "total_tokens": total}, **extra}
+        return {"type": "token_usage_record", "timestamp": "2026-10-13T00:00:10Z",
+                "payload": payload}
+
+    @staticmethod
+    def profile():
+        return {"name": "synthetic frozen reference", "published_source": "https://example.test/rates",
+                "effective_date": "2026-10-13", "applicability": {
+                    "model": "synthetic-model", "rate_category": "reference", "context_category": "standard"},
+                "weights": {"fresh_input": 1, "cached_input": .1, "output": 4,
+                            "cache_write:short": 1.25, "cache_write:long": 2},
+                "separately_charged_write_categories": ["short", "long"]}
+
+    def test_duplicate_final_response_and_cumulative_snapshot_use_one_ledger(self):
+        first = self.request(total=120, thread_token_usage={"input_tokens": 100,
+             "cached_input_tokens": 80, "output_tokens": 20, "total_tokens": 120})
+        final = self.request(total=140, thread_token_usage={"input_tokens": 120,
+             "cached_input_tokens": 80, "output_tokens": 20, "total_tokens": 140})
+        result = audit.breakdown_session_log(self.write_rollout([self.meta(), first, first, final]))
+        self.assertEqual(1, result["model_requests"])
+        self.assertEqual(140, result["provider_total_tokens"])
+        self.assertEqual("matched", result["ledger"]["reconciliation"][0]["status"])
+        self.assertEqual(40, result["measured_usage"]["categories"]["fresh_input"])
+        self.assertEqual(5, result["measured_usage"]["reasoning_output_subset"])
+
+    def test_selected_response_identity_survives_receipt_window_skew(self):
+        excluded = self.request("excluded", total=180)
+        excluded["timestamp"] = "2026-10-13T00:00:20Z"
+        path = self.write_rollout([self.meta(), self.request("selected"), excluded])
+        result = audit.breakdown_session_log(path, selected_requests=[{
+            "thread_id": "synthetic-root", "response_id": "selected"}])
+        self.assertEqual((1, 120), (result["model_requests"], result["provider_total_tokens"]))
+        self.assertEqual(1, len(result["ledger"]["requests"]))
+        self.assertTrue(result["ledger"]["requests"][0]["response_fp"])
+        self.assertNotIn("synthetic-root", json.dumps(result["ledger"]))
+        self.assertNotIn("response_id", result["ledger"]["requests"][0])
+        cutoff = audit._event_timestamp("2026-10-13T00:00:15Z")
+        interval = audit.breakdown_session_log(path, window=(cutoff, cutoff + 10))
+        self.assertEqual((1, 180), (interval["model_requests"], interval["provider_total_tokens"]))
+        self.assertEqual(80, interval["measured_usage"]["categories"]["fresh_input"])
+
+    def test_inherited_and_review_requests_do_not_enter_assignment_ledger(self):
+        inherited = self.request("inherited")
+        inherited["timestamp"] = "2026-10-12T23:59:00Z"
+        own = self.request("own")
+        own["payload"]["thread_id"] = "synthetic-child"
+        child = self.meta("synthetic-child", "synthetic-root")
+        result = audit.breakdown_session_log(self.write_rollout([child, inherited, own]))
+        self.assertEqual(1, result["model_requests"])
+        self.assertEqual("partial", result["coverage"]["inherited_context"])
+        review = self.write_rollout([self.meta("synthetic-review", "synthetic-child", "review"),
+                                     self.request("review")], "review.jsonl")
+        result = audit.breakdown_session_log(review)
+        self.assertEqual("excluded_scope", result["reason"])
+
+    def test_physical_skill_repetitions_ignore_wrappers_and_survive_compaction(self):
+        body = "<!-- uclusion-skill:v1 -->\n" + "Read the current assigned work.\n" * 20 + "<!-- /uclusion-skill:v1 -->"
+        records = [self.meta()]
+        for index, output in enumerate((body, "1\t" + body.replace("\n", "\n2\t"), body)):
+            if index == 2:
+                records.append({"type": "compacted", "payload": {}})
+            records.extend([
+                {"type": "response_item", "payload": {"type": "function_call", "name": "exec_command",
+                 "call_id": str(index), "arguments": json.dumps({"cmd": "cat /synthetic/skills/uclusion/SKILL.md"})}},
+                {"type": "response_item", "payload": {"type": "function_call_output", "call_id": str(index), "output": output}},
+                self.request(str(index))])
+        result = audit.breakdown_session_log(self.write_rollout(records))
+        self.assertEqual(3, result["physical_reads"]["occurrences"])
+        self.assertEqual(2, result["physical_reads"]["repeat_occurrences"])
+        self.assertGreater(result["physical_reads"]["repeat_utf8_bytes"], 0)
+
+    def test_truncated_batch_preserves_known_reads_and_distinct_coverage(self):
+        acc = audit.BreakdownAccumulator(audit.TokenCounter({}, "openai"))
+        classifier = audit._UclusionClassifier(acc)
+        script = 'const r=await Promise.allSettled([tools.exec_command({cmd:"rg x /synthetic/.uclusion/export/work.json"}),tools.exec_command({cmd:"rg y /synthetic/.uclusion/export/work.json"})]);text(r);'
+        partial = audit._codex_exec_output(classifier, script,
+            '{"i":0,"status":"fulfilled","value":{"output":"known search result"}}{broken')
+        self.assertTrue(partial)
+        self.assertEqual(1, acc.physical_reads_result()["occurrences"])
+        self.assertIn("malformed_or_truncated_batch", acc.coverage_reasons)
+
+    def test_unknown_injection_does_not_sum_historical_manifest_entries(self):
+        manifest = {"schema_version": 1, "tools": {
+            "old": {"name": "get_job", "tokens": {"openai": 300}},
+            "new": {"name": "get_job", "tokens": {"openai": 400}}}}
+        result = audit.breakdown_session_log(self.write_rollout([self.meta(), self.request()]), manifest=manifest)
+        definitions = next(i for i in result["items"] if i["line"] == "tool_definitions")
+        self.assertEqual(0, definitions["total_tokens"])
+        self.assertEqual("unknown", result["tool_injection"]["status"])
+
+    def test_full_weighted_equation_reports_raw_and_contribution_and_recalculates(self):
+        categories = {"fresh_input": 100, "cached_input": 800, "output": 20,
+                      "cache_write:short": 10, "cache_write:long": 5}
+        profile = self.profile()
+        result = audit.weighted_token_report(categories, profile)
+        self.assertEqual(282.5, result["weighted_tokens"])
+        self.assertEqual(80, result["weighted_contributions"]["cached_input"])
+        self.assertEqual(categories, result["raw_categories"])
+        profile["weights"]["output"] = 5
+        self.assertEqual(302.5, audit.weighted_token_report(categories, profile)["weighted_tokens"])
+        self.assertEqual(4, result["profile"]["weights"]["output"])
+        baseline = audit.weighted_token_report(dict.fromkeys(categories, 10), result["profile"])
+        comparison = audit.weighted_overhead(result, baseline)
+        self.assertAlmostEqual(100 * (282.5 / 83.5 - 1), comparison["overhead_percent"])
+        self.assertEqual("unknown", result["actual_billing"]["status"])
+
+    def test_weighted_unknown_categories_profiles_and_nonpositive_baselines(self):
+        profile = self.profile()
+        missing = audit.weighted_token_report({"fresh_input": 10, "cached_input": None, "output": 1}, profile)
+        self.assertEqual("unavailable", missing["status"])
+        self.assertIn("cached_input", missing["missing_categories"])
+        zero = audit.weighted_token_report(dict.fromkeys(profile["weights"], 0), profile)
+        self.assertEqual("nonpositive_baseline", audit.weighted_overhead(zero, zero)["reason"])
+        self.assertEqual("profile_missing", audit.weighted_token_report({}, None)["reason"])
+
+    def test_live_raw_response_upgrades_snapshot_without_double_counting(self):
+        observer = audit.CodexTokenAudit("stage", "workspace-1")
+        observer.set_primary_thread({"id": "synthetic-root"})
+        run = str(uuid.uuid4())
+        observer.store.start_run("codex", "openai", "native", observer.primary_session_fp, run, "synthetic-job")
+        observer.observe_notification({"method": "turn/started", "params": {
+            "threadId": "synthetic-root", "turn": {"id": "synthetic-turn"}}})
+        observer.observe_notification({"method": "thread/tokenUsage/updated", "params": {
+            "threadId": "synthetic-root", "turnId": "synthetic-turn",
+            "tokenUsage": {"last": usage(120, 100, 20, cached=80), "total": usage(120, 100, 20, cached=80)}}})
+        observer.observe_notification(raw_response("synthetic-root", "synthetic-turn", "synthetic-response", usage(120, 100, 20, cached=80)))
+        observer.store.request_end(run, "progress", client="codex", session_fp=observer.primary_session_fp)
+        observer.store.signal_complete("codex", observer.primary_session_fp)
+        final = observer.store.claim_outbox()["finalization"]
+        self.assertEqual(120, final["measurement"]["normalized_total_tokens"])
+        self.assertEqual(1, final["activity"]["model_requests"])
+        with closing(observer.store.connect()) as connection:
+            rows = connection.execute("SELECT provenance_json FROM token_audit_usage WHERE superseded_by IS NULL").fetchall()
+        provenance = json.loads(rows[0]["provenance_json"])
+        self.assertEqual("native_response_id", provenance["identity_basis"])
+        self.assertEqual(observer.primary_session_fp, provenance["root_session_fp"])
+
+
+    def test_live_final_completed_response_replaces_intermediate_counters(self):
+        observer = audit.CodexTokenAudit("stage", "workspace-1")
+        observer.set_primary_thread({"id": "synthetic-root"})
+        run = str(uuid.uuid4())
+        observer.store.start_run("codex", "openai", "native", observer.primary_session_fp, run, "synthetic-job")
+        for total in (120, 140, 140):
+            observer.observe_notification(raw_response("synthetic-root", "synthetic-turn", "same-response", usage(total, total-20, 20, cached=80)))
+        observer.store.request_end(run, "progress", client="codex", session_fp=observer.primary_session_fp)
+        observer.store.signal_complete("codex", observer.primary_session_fp)
+        result = observer.store.claim_outbox()["finalization"]
+        self.assertEqual(140, result["measurement"]["normalized_total_tokens"])
+        self.assertEqual(1, result["activity"]["model_requests"])
+
+    def test_automatic_finalization_attribution_uses_the_persisted_response_identity(self):
+        path = self.write_rollout([self.meta(), self.request("selected"), self.request("unrelated", total=180)])
+        observer = audit.CodexTokenAudit("stage", "workspace-1")
+        observer.set_primary_thread({"id": "synthetic-root"})
+        run = str(uuid.uuid4())
+        observer.store.start_run("codex", "openai", "native", observer.primary_session_fp, run, "synthetic-job")
+        observer.store.register_session_log("codex", observer.primary_session_fp, path)
+        observer.observe_notification(raw_response("synthetic-root", "synthetic-turn", "selected", usage(120, 100, 20, cached=80)))
+        observer.store.request_end(run, "progress", client="codex", session_fp=observer.primary_session_fp)
+        observer.store.signal_complete("codex", observer.primary_session_fp)
+        result = observer.store.claim_outbox()["finalization"]
+        self.assertEqual(result["measurement"]["normalized_total_tokens"], result["uclusion"]["provider_total_tokens"])
+        self.assertEqual(result["activity"]["model_requests"], result["uclusion"]["model_requests"])
+        self.assertEqual(120, result["uclusion"]["provider_total_tokens"])
+
+    def test_equal_raw_responses_remain_distinct_and_snapshot_cumulative_is_not_a_request(self):
+        records = [self.meta(), self.request("a"), self.request("b")]
+        records.append({"type": "event_msg", "payload": {"type": "token_count", "info": {
+            "last_token_usage": records[-1]["payload"]["usage"],
+            "total_token_usage": {"input_tokens": 200, "cached_input_tokens": 160,
+                                  "output_tokens": 40, "total_tokens": 240}}}})
+        result = audit.breakdown_session_log(self.write_rollout(records))
+        self.assertEqual((2, 240), (result["model_requests"], result["provider_total_tokens"]))
+        self.assertEqual(40, result["measured_usage"]["categories"]["fresh_input"])
+
+    def test_missing_cached_and_nonzero_unclassified_writes_remain_unknown(self):
+        request = self.request()
+        request["payload"]["usage"].pop("cached_input_tokens")
+        request["payload"]["usage"]["cache_write_input_tokens"] = 10
+        result = audit.breakdown_session_log(self.write_rollout([self.meta(), request]), profile=self.profile())
+        self.assertIsNone(result["measured_usage"]["categories"]["cached_input"])
+        self.assertIsNone(result["measured_usage"]["categories"]["fresh_input"])
+        self.assertIsNone(result["measured_usage"]["categories"]["cache_write:unknown"])
+        self.assertEqual("unavailable", result["weighted_usage"]["status"])
+
+    def test_nested_provider_subsets_and_separate_write_categories_are_disjoint(self):
+        usage = {"input_tokens": 100, "output_tokens": 20, "total_tokens": 120,
+                 "input_tokens_details": {"cached_tokens": 80},
+                 "output_tokens_details": {"reasoning_tokens": 5},
+                 "separately_charged_cache_writes": {"short": 10, "long": 5}}
+        self.assertTrue(audit._valid_openai_usage(usage))
+        categories = audit._measured_categories(usage)
+        report = audit.weighted_token_report(categories, self.profile())
+        self.assertEqual(130.5, report["weighted_tokens"])
+        self.assertEqual(5, audit._openai_counts(usage)["reasoning_output_tokens"])
+        usage["output_tokens_details"]["reasoning_tokens"] = 21
+        self.assertFalse(audit._valid_openai_usage(usage))
+
+    def test_weighted_profile_and_category_compatibility_are_required(self):
+        profile = self.profile()
+        raw = dict.fromkeys(profile["weights"], 10)
+        first = audit.weighted_token_report(raw, profile)
+        profile["effective_date"] = "2026-10-14"
+        changed = audit.weighted_token_report(raw, profile)
+        self.assertEqual("profiles_incompatible", audit.weighted_overhead(first, changed)["reason"])
+        self.assertEqual("profile_inapplicable", audit.weighted_token_report(raw, profile,
+            {"model": "unknown-alias", "rate_category": "reference", "context_category": "standard"})["reason"])
+
+    def test_missing_declared_helper_log_and_malformed_log_have_distinct_reasons(self):
+        records = [self.meta(), {"type": "response_item", "payload": {
+            "type": "function_call", "name": "spawn_agent", "call_id": "spawn",
+            "arguments": json.dumps({"fork_turns": "none"})}},
+            {"type": "response_item", "payload": {"type": "function_call_output", "call_id": "spawn",
+             "output": json.dumps({"agent_id": "synthetic-missing"})}}, self.request()]
+        path = self.write_rollout(records)
+        with open(path, "a") as handle:
+            handle.write('{truncated\n')
+        result = audit.breakdown_session_log(path)
+        self.assertEqual(120, result["provider_total_tokens"])
+        self.assertIn("missing_descendant_logs", result["coverage"]["reasons"])
+        self.assertIn("malformed_log_record", result["coverage"]["reasons"])
+
+
+    def test_native_completed_reads_are_recognized_once_across_duplicate_deliveries(self):
+        body = "<!-- uclusion-skill:v1 -->\n" + "Synthetic assigned instructions.\n" * 10 + "<!-- /uclusion-skill:v1 -->\n"
+        records = [self.meta()]
+        for index in range(2):
+            if index:
+                records.append({"type": "compacted", "payload": {}})
+            call = "outer-" + str(index)
+            records.append({"type": "response_item", "payload": {"type": "custom_tool_call", "name": "exec", "call_id": call,
+                "input": 'text(await tools.exec_command({cmd:"cat /synthetic/skills/uclusion/SKILL.md"}));'}})
+            item = {"type": "event_msg", "payload": {"type": "item_completed", "thread_id": "synthetic-root",
+                "item": {"type": "CommandExecution", "id": "native-" + str(index), "status": "completed",
+                         "command": ["/bin/bash", "-lc", "cat /synthetic/skills/uclusion/SKILL.md"], "aggregated_output": body}}}
+            records.extend([item, item, {"type": "response_item", "payload": {"type": "custom_tool_call_output", "call_id": call,
+                "output": json.dumps({"output": body})}}, self.request(str(index))])
+        result = audit.breakdown_session_log(self.write_rollout(records))
+        self.assertEqual(2, result["physical_reads"]["occurrences"])
+        self.assertEqual(1, result["physical_reads"]["repeat_occurrences"])
+        self.assertEqual(2 * len(body.encode()), result["physical_reads"]["utf8_bytes"])
+
+
+    def test_native_read_without_outer_result_preserves_known_partial_attribution(self):
+        body = "<!-- uclusion-skill:v1 -->\n" + "Synthetic known instructions.\n" * 10 + "<!-- /uclusion-skill:v1 -->\n"
+        records = [self.meta(), {"type": "event_msg", "payload": {"type": "item_completed", "item": {
+            "type": "CommandExecution", "id": "synthetic-native-read", "status": "completed",
+            "command": ["/bin/bash", "-lc", "cat /synthetic/skills/uclusion/SKILL.md"], "aggregated_output": body}}}, self.request()]
+        result = audit.breakdown_session_log(self.write_rollout(records))
+        skills = next(item for item in result["items"] if item["line"] == "skills")
+        self.assertGreater(skills["arrival_tokens"], 0)
+        self.assertEqual(120, result["provider_total_tokens"])
+        self.assertEqual(1, result["physical_reads"]["occurrences"])
+
+
+    def test_native_mcp_and_search_repeats_remain_physical_after_compaction(self):
+        text = json.dumps({"job": "synthetic-job", "stage": "Ready", "open_questions": [], "open_suggestions": []})
+        records = [self.meta()]
+        for index in range(2):
+            if index:
+                records.append({"type": "compacted", "payload": {}})
+            records.extend([
+                {"type": "event_msg", "payload": {"type": "item_completed", "item": {
+                    "type": "McpToolCall", "id": "mcp-" + str(index), "server": "uclusion", "tool": "get_job",
+                    "arguments": {"stage_only": True}, "result": {"content": [{"type": "text", "text": text}]}}}},
+                {"type": "event_msg", "payload": {"type": "item_completed", "item": {
+                    "type": "CommandExecution", "id": "search-" + str(index), "command": "rg useful /synthetic/.uclusion/export/work.md",
+                    "aggregated_output": "42:synthetic known search result"}}}, self.request(str(index))])
+        result = audit.breakdown_session_log(self.write_rollout(records))
+        workflow = next(item for item in result["items"] if item["line"] == "workflow")
+        self.assertGreater(workflow["arrival_tokens"], 0)
+        self.assertEqual(4, result["physical_reads"]["occurrences"])
+        self.assertEqual(2, result["physical_reads"]["repeat_occurrences"])
+
+
+    def test_additive_provider_cache_writes_do_not_overlap_fresh_or_cached_input(self):
+        records = [{"type": "assistant", "sessionId": "synthetic-claude", "requestId": "synthetic-request", "message": {
+            "id": "synthetic-message", "content": [], "usage": {"input_tokens": 100,
+            "cache_read_input_tokens": 800, "cache_creation_input_tokens": 15,
+            "cache_creation": {"short": 10, "long": 5}, "output_tokens": 20}}}]
+        result = audit.breakdown_session_log(self.write_rollout(records), profile=self.profile())
+        self.assertEqual(935, result["provider_total_tokens"])
+        self.assertEqual(282.5, result["weighted_usage"]["weighted_tokens"])
+        self.assertEqual(100, result["measured_usage"]["categories"]["fresh_input"])
+        self.assertIsNone(result["measured_usage"]["reasoning_output_subset"])
+
+
+    def test_equal_sized_fallback_requests_keep_distinct_cumulative_positions(self):
+        observer = audit.CodexTokenAudit("stage", "workspace-1")
+        observer.set_primary_thread({"id": "synthetic-root"})
+        run = str(uuid.uuid4())
+        observer.store.start_run("codex", "openai", "native", observer.primary_session_fp, run, "synthetic-job")
+        observer.observe_notification({"method": "turn/started", "params": {"threadId": "synthetic-root", "turn": {"id": "synthetic-turn"}}})
+        for total in (120, 240):
+            observer.observe_notification({"method": "thread/tokenUsage/updated", "params": {
+                "threadId": "synthetic-root", "turnId": "synthetic-turn", "tokenUsage": {
+                    "last": usage(120, 100, 20, cached=80),
+                    "total": usage(total, total*5//6, total//6, cached=total*2//3)}}})
+        observer.observe_notification(raw_response("synthetic-root", "synthetic-turn", "late-raw", usage(120, 100, 20, cached=80)))
+        observer.store.request_end(run, "progress", client="codex", session_fp=observer.primary_session_fp)
+        observer.store.signal_complete("codex", observer.primary_session_fp)
+        result = observer.store.claim_outbox()["finalization"]
+        self.assertEqual(240, result["measurement"]["normalized_total_tokens"])
+        self.assertEqual(2, result["activity"]["model_requests"])
+
+    def test_breakdown_cli_persists_frozen_profile_for_recalculation(self):
+        path = self.write_rollout([self.meta(), self.request()])
+        profile_path = Path(self.temporary.name) / "profile.json"
+        profile_path.write_text(json.dumps(self.profile()))
+        output = io.StringIO()
+        with mock.patch("sys.stdout", output):
+            audit.main(["breakdown", "--log", path, "--json", "--profile", str(profile_path)])
+        result = json.loads(output.getvalue())
+        self.assertEqual(self.profile(), result["weighted_usage"]["profile"])
+        self.assertEqual("unavailable", result["weighted_usage"]["status"])
+
+    def test_breakdown_cli_reconciles_native_and_equal_sized_snapshot_positions(self):
+        snapshots = []
+        for total in (120, 240):
+            snapshots.append({"type": "event_msg", "timestamp": "2026-10-13T00:00:10Z",
+                "payload": {"type": "token_count", "info": {
+                    "turn_id": "synthetic-turn", "last_token_usage": self.request()["payload"]["usage"],
+                    "total_token_usage": {"input_tokens": total * 5 // 6,
+                        "cached_input_tokens": total * 2 // 3, "output_tokens": total // 6,
+                        "total_tokens": total}}}})
+        for name, records in (
+                ("native-first", [self.request("first-native"), *snapshots, snapshots[-1]]),
+                ("native-last", [*snapshots, self.request("first-native")]),
+                ("two-native", [self.request("first-native"), self.request("second-native"), *snapshots])):
+            with self.subTest(order=name):
+                path = self.write_rollout([self.meta(), *records], name + ".jsonl")
+                output = io.StringIO()
+                with mock.patch("sys.stdout", output):
+                    audit.main(["breakdown", "--log", path, "--json"])
+                result = json.loads(output.getvalue())
+                self.assertEqual((2, 240), (result["model_requests"], result["provider_total_tokens"]))
+                self.assertEqual(2, len(result["ledger"]["requests"]))
+                self.assertEqual({"fresh_input": 40, "cached_input": 160, "output": 40},
+                    result["measured_usage"]["categories"])
+                self.assertEqual("matched", result["ledger"]["reconciliation"][0]["status"])
+
+    def test_missing_reasoning_is_unavailable_in_native_finalization_and_reports(self):
+        for reasoning in (None, 0, 5):
+            with self.subTest(reasoning=reasoning):
+                thread = "synthetic-reasoning-" + str(reasoning)
+                observer = audit.CodexTokenAudit("stage", "workspace-1")
+                self.addCleanup(observer.close)
+                observer.set_primary_thread({"id": thread})
+                run = str(uuid.uuid4())
+                observer.store.start_run("codex", "openai", "native", observer.primary_session_fp, run, "synthetic-job")
+                token_usage = usage(120, 100, 20, cached=80, reasoning=reasoning)
+                request = self.request(thread_id=thread)
+                if reasoning is None:
+                    token_usage.pop("reasoningOutputTokens")
+                    request["payload"]["usage"].pop("reasoning_output_tokens")
+                else:
+                    request["payload"]["usage"]["reasoning_output_tokens"] = reasoning
+                path = self.write_rollout([self.meta(thread=thread), request], thread + ".jsonl")
+                observer.store.register_session_log("codex", observer.primary_session_fp, path)
+                observer.observe_notification(raw_response(thread, "synthetic-turn", "synthetic-response", token_usage))
+                observer.store.request_end(run, "progress", client="codex", session_fp=observer.primary_session_fp)
+                observer.store.signal_complete("codex", observer.primary_session_fp)
+                final = observer.store.claim_outbox()["finalization"]
+                raw = {item["field"]: item["value"] for item in final["measurement"]["raw_counts"]}
+                if reasoning is None:
+                    self.assertNotIn("reasoning_output_tokens", raw)
+                else:
+                    self.assertEqual(reasoning, raw["reasoning_output_tokens"])
+                report = audit.breakdown_session_log(path)
+                self.assertEqual(reasoning, report["measured_usage"]["reasoning_output_subset"])
+                self.assertEqual(120, final["measurement"]["normalized_total_tokens"])
+                self.assertEqual(20, report["measured_usage"]["categories"]["output"])
+                with closing(observer.store.connect()) as connection:
+                    row = dict(connection.execute("SELECT * FROM token_audit_usage WHERE audit_run_id=?", (run,)).fetchone())
+                provenance = json.loads(row["provenance_json"])
+                provenance.pop("response_fp")
+                unmatched = audit.breakdown_session_log(path, selected_requests=[{**row, "event_key": "unmatched",
+                    "provenance_json": json.dumps(provenance)}],
+                    fingerprint=observer.store.fingerprint)
+                self.assertEqual(reasoning, unmatched["measured_usage"]["reasoning_output_subset"])
+
+    def test_served_catalog_report_selects_session_history_without_inventing_injection(self):
+        observer = audit.CodexTokenAudit("stage", "workspace-1")
+        self.addCleanup(observer.close)
+        observer.set_primary_thread({"id": "synthetic-root"})
+        path = self.write_rollout([self.meta(), self.request()])
+        observer.store.register_session_log("codex", observer.primary_session_fp, path)
+        moment = audit._event_timestamp("2026-10-13T00:00:10Z")
+        catalogs = [audit.catalog_token_report([{"name": "get_job", "description": description,
+            "inputSchema": {}}], {}, "openai") for description in ("Older definition", "Current definition", "Later definition")]
+        for at, catalog in zip((moment - 2, moment, moment + 2), catalogs):
+            with mock.patch.object(audit.time, "time", return_value=at):
+                observer.store.record_catalog(observer.primary_session_fp, catalog)
+        other = observer.store.fingerprint("codex-thread", "unrelated-session")
+        observer.store.register_session_log("codex", other, self.write_rollout([self.meta("unrelated-session")], "other.jsonl"))
+        observer.store.record_catalog(other, audit.catalog_token_report([{"name": "unrelated_tool"}], {}, "openai"))
+        result = audit.breakdown_session_log(path, window=(moment - 1, moment + 1))
+        evidence = result["served_catalogs"]
+        versions = evidence["versions"]
+        self.assertEqual([catalog["catalog_fingerprint"] for catalog in catalogs[:2]],
+            [version["catalog_fingerprint"] for version in versions])
+        self.assertEqual(["observed_before_selected_interval", "observed_in_selected_interval"],
+            [version["observation_basis"] for version in versions])
+        self.assertTrue(all(version["request_applicability"] == "unknown" for version in versions))
+        self.assertEqual("unknown", evidence["provider_injection"])
+        self.assertNotIn("definition_tokens", evidence)
+        self.assertEqual(3, len(audit.breakdown_session_log(path)["served_catalogs"]["versions"]))
+        self.assertIn("request applicability is unknown", audit.format_breakdown(result))
+
+    def test_persisted_fallback_positions_select_both_requests_for_automatic_attribution(self):
+        observer = audit.CodexTokenAudit("stage", "workspace-1")
+        self.addCleanup(observer.close)
+        observer.set_primary_thread({"id": "synthetic-root"})
+        run = str(uuid.uuid4())
+        observer.store.start_run("codex", "openai", "native", observer.primary_session_fp, run, "synthetic-job")
+        observer.observe_notification({"method": "turn/started", "params": {
+            "threadId": "synthetic-root", "turn": {"id": "synthetic-turn"}}})
+        records = [self.meta()]
+        for index, total in enumerate((120, 240)):
+            body = "<!-- uclusion-skill:v1 -->\n" + ("Synthetic instructions " + str(index) + ".\n") * 10 + "<!-- /uclusion-skill:v1 -->"
+            records.extend([
+                {"type": "response_item", "payload": {"type": "function_call", "name": "exec_command",
+                    "call_id": str(index), "arguments": json.dumps({"cmd": "cat /synthetic/skills/uclusion/SKILL.md"})}},
+                {"type": "response_item", "payload": {"type": "function_call_output", "call_id": str(index), "output": body}},
+                {"type": "event_msg", "timestamp": "2026-10-13T00:00:10Z", "payload": {"type": "token_count", "info": {
+                    "turn_id": "synthetic-turn", "last_token_usage": self.request()["payload"]["usage"],
+                    "total_token_usage": {"input_tokens": total * 5 // 6, "cached_input_tokens": total * 2 // 3,
+                        "output_tokens": total // 6, "total_tokens": total}}}}])
+            observer.observe_notification({"method": "thread/tokenUsage/updated", "params": {
+                "threadId": "synthetic-root", "turnId": "synthetic-turn", "tokenUsage": {
+                    "last": usage(120, 100, 20, cached=80),
+                    "total": usage(total, total * 5 // 6, total // 6, cached=total * 2 // 3)}}})
+        path = self.write_rollout(records)
+        observer.store.register_session_log("codex", observer.primary_session_fp, path)
+        observer.store.request_end(run, "progress", client="codex", session_fp=observer.primary_session_fp)
+        observer.store.signal_complete("codex", observer.primary_session_fp)
+        final = observer.store.claim_outbox()["finalization"]
+        with closing(observer.store.connect()) as connection:
+            selected = [dict(row) for row in connection.execute("SELECT * FROM token_audit_usage WHERE audit_run_id=? AND superseded_by IS NULL", (run,))]
+        report = audit.breakdown_session_log(path, selected_requests=selected, fingerprint=observer.store.fingerprint)
+        self.assertEqual((2, 240), (final["uclusion"]["model_requests"], final["uclusion"]["provider_total_tokens"]))
+        self.assertNotIn("selected_requests_missing_from_log", report["coverage"]["reasons"])
+        self.assertFalse(any(row.get("content_coverage") == "log_request_unmatched" for row in report["ledger"]["requests"]))
+        self.assertEqual(2, report["physical_reads"]["occurrences"])
+        self.assertEqual(240, final["measurement"]["normalized_total_tokens"])
+
+    def test_claude_automatic_attribution_uses_ingested_request_identity_and_counters(self):
+        for source_mode in ("otel", "transcript"):
+            with self.subTest(source_mode=source_mode):
+                store = self.store()
+                session_id = "synthetic-claude-" + source_mode
+                session_fp = store.fingerprint("claude-session", session_id)
+                store.bind_session("claude", session_fp, is_root=True)
+                run = str(uuid.uuid4())
+                store.start_run("claude", "anthropic", "otel" if source_mode == "otel" else "transcript_fallback",
+                    session_fp, run, "synthetic-job")
+                request = {"type": "assistant", "sessionId": session_id, "version": "2.1.222",
+                    "requestId": "selected", "timestamp": audit._utc_iso(), "message": {"id": "message", "content": [],
+                    "usage": {"input_tokens": 100, "cache_read_input_tokens": 80,
+                        "cache_creation_input_tokens": 0, "output_tokens": 20}}}
+                path = self.write_rollout([{"type": "attachment", "attachment": {
+                    "type": "skill_listing", "content": "- uclusion: Synthetic work instructions"}}, request], source_mode + ".jsonl")
+                store.register_session_log("claude", session_fp, path)
+                if source_mode == "otel":
+                    audit.ingest_otlp_json(store, OtlpAndOutboxTests().otlp_payload(
+                        session=session_id, request="selected", duplicate=False))
+                    expected = 20
+                else:
+                    audit.process_claude_hook("stage", "workspace-1", "transcript", {
+                        "session_id": session_id, "hook_event_name": "PostToolUse", "transcript_path": path})
+                    expected = 200
+                with open(path, "a") as handle:
+                    handle.write(json.dumps({**request, "requestId": "unselected", "message": {
+                        **request["message"], "id": "unselected-message"}}) + "\n")
+                store.request_end(run, "progress", client="claude", session_fp=session_fp)
+                store.signal_complete("claude", session_fp)
+                future = time.time() + 100
+                drain_checkpoints(store, future)
+                final = store.claim_outbox(future)["finalization"]
+                self.assertEqual((1, expected), (final["uclusion"]["model_requests"], final["uclusion"]["provider_total_tokens"]))
+                self.assertEqual(expected, final["measurement"]["normalized_total_tokens"])
+                self.assertGreater(final["uclusion"]["uclusion_total_tokens"], 0)
+
+    def test_completed_native_response_supersedes_growing_fallback_in_one_interval(self):
+        for native_first, native_larger in ((False, False), (False, True), (True, False), (True, True)):
+            with self.subTest(native_first=native_first, native_larger=native_larger):
+                observer = audit.CodexTokenAudit("stage", "workspace-1")
+                self.addCleanup(observer.close)
+                thread = "synthetic-growth-" + str(native_first) + "-" + str(native_larger)
+                observer.set_primary_thread({"id": thread})
+                run = str(uuid.uuid4())
+                observer.store.start_run("codex", "openai", "native", observer.primary_session_fp, run, "synthetic-job")
+                observer.observe_notification({"method": "turn/started", "params": {
+                    "threadId": thread, "turn": {"id": "synthetic-turn"}}})
+                partial, complete = usage(120, 100, 20, cached=80), usage(140, 100, 40, cached=80)
+                native_usage = complete if native_larger else partial
+                fallback_usage = partial if native_larger else complete
+                snapshot = {"method": "thread/tokenUsage/updated", "params": {"threadId": thread,
+                    "turnId": "synthetic-turn", "tokenUsage": {"last": fallback_usage, "total": fallback_usage}}}
+                native = raw_response(thread, "synthetic-turn", "completed-response", native_usage)
+                native["params"]["threadTokenUsage"] = native_usage
+                for event in ([native, snapshot] if native_first else [snapshot, native]):
+                    observer.observe_notification(event)
+                observer.store.request_end(run, "progress", client="codex", session_fp=observer.primary_session_fp)
+                observer.store.signal_complete("codex", observer.primary_session_fp)
+                final = observer.store.claim_outbox()["finalization"]
+                self.assertEqual((1, 140), (final["activity"]["model_requests"], final["measurement"]["normalized_total_tokens"]))
+            with self.subTest(native_first=native_first, native_larger=native_larger, entrypoint="saved_log"):
+                raw = self.request(thread_id=thread)
+                raw["payload"].update(usage=native_usage, thread_token_usage=native_usage)
+                fallback = {"type": "event_msg", "timestamp": raw["timestamp"], "payload": {"type": "token_count",
+                    "info": {"turn_id": "synthetic-turn", "last_token_usage": fallback_usage, "total_token_usage": fallback_usage}}}
+                records = [raw, fallback] if native_first else [fallback, raw]
+                result = audit.breakdown_session_log(self.write_rollout([self.meta(thread), *records], thread + ".jsonl"))
+                self.assertEqual((1, 140), (result["model_requests"], result["provider_total_tokens"]))
+                self.assertEqual(40, result["measured_usage"]["categories"]["output"])
+        for native_first in (False, True):
+            with self.subTest(native_first=native_first, cached="unreported"):
+                thread = "synthetic-absent-cached-" + str(native_first)
+                observer = audit.CodexTokenAudit("stage", "workspace-1")
+                self.addCleanup(observer.close)
+                observer.set_primary_thread({"id": thread})
+                run = str(uuid.uuid4())
+                observer.store.start_run("codex", "openai", "native", observer.primary_session_fp, run, "synthetic-job")
+                observer.observe_notification({"method": "turn/started", "params": {
+                    "threadId": thread, "turn": {"id": "synthetic-turn"}}})
+                counts = {"input_tokens": 100, "output_tokens": 20, "total_tokens": 120}
+                native = raw_response(thread, "synthetic-turn", "native", counts)
+                native["params"]["threadTokenUsage"] = counts
+                snapshot = {"method": "thread/tokenUsage/updated", "params": {"threadId": thread,
+                    "turnId": "synthetic-turn", "tokenUsage": {"last": counts, "total": counts}}}
+                for event in ([native, snapshot] if native_first else [snapshot, native]):
+                    observer.observe_notification(event)
+                raw = self.request("native", thread_id=thread, usage=counts, thread_token_usage=counts)
+                fallback = {"type": "event_msg", "timestamp": raw["timestamp"], "payload": {"type": "token_count",
+                    "info": {"turn_id": "synthetic-turn", "last_token_usage": counts, "total_token_usage": counts}}}
+                path = self.write_rollout([self.meta(thread), *([raw, fallback] if native_first else [fallback, raw])], thread + ".jsonl")
+                observer.store.register_session_log("codex", observer.primary_session_fp, path)
+                observer.store.request_end(run, "progress", client="codex", session_fp=observer.primary_session_fp)
+                observer.store.signal_complete("codex", observer.primary_session_fp)
+                final = observer.store.claim_outbox()["finalization"]
+                self.assertEqual((1, 120), (final["activity"]["model_requests"], final["measurement"]["normalized_total_tokens"]))
+                raw_fields = {item["field"] for item in final["measurement"]["raw_counts"]}
+                self.assertNotIn("cached_input_tokens", raw_fields)
+                self.assertNotIn("fresh_input_tokens", raw_fields)
+                result = audit.breakdown_session_log(path)
+                self.assertEqual((1, 120), (result["model_requests"], result["provider_total_tokens"]))
+                self.assertIsNone(result["measured_usage"]["categories"]["cached_input"])
+                self.assertIsNone(result["measured_usage"]["categories"]["fresh_input"])
+
+    def test_reconciled_native_interval_does_not_charge_conflicting_snapshot_bases(self):
+        # Three adjacent native counters and two overlapping legacy snapshots
+        # from the saved offline trace. The native interval starts above zero.
+        native_values = (
+            (95422, 93568, 1377, 68122285, 66642176, 390778),
+            (96825, 95232, 540, 68219110, 66737408, 391318),
+            (97392, 96640, 165, 68316502, 66834048, 391483))
+        snapshot_values = ((67231751, 65764352, 362233), (67328576, 65859584, 362773))
+        observer = audit.CodexTokenAudit("stage", "workspace-1")
+        self.addCleanup(observer.close)
+        observer.set_primary_thread({"id": "synthetic-root"})
+        run = str(uuid.uuid4())
+        observer.store.start_run("codex", "openai", "native", observer.primary_session_fp, run, "synthetic-job")
+        observer.observe_notification({"method": "turn/started", "params": {
+            "threadId": "synthetic-root", "turn": {"id": "synthetic-turn"}}})
+        records = [self.meta()]
+        for index, (inputs, cached, output, cumulative_input, cumulative_cached, cumulative_output) in enumerate(native_values):
+            last = usage(inputs + output, inputs, output, cached=cached)
+            cumulative = usage(cumulative_input + cumulative_output, cumulative_input, cumulative_output, cached=cumulative_cached)
+            raw = raw_response("synthetic-root", "synthetic-turn", "response-" + str(index), last)
+            raw["params"]["threadTokenUsage"] = cumulative
+            observer.observe_notification(raw)
+            records.append(self.request("response-" + str(index), usage=last, thread_token_usage=cumulative))
+            if index < len(snapshot_values):
+                inputs, cached, output = snapshot_values[index]
+                snapshot = usage(inputs + output, inputs, output, cached=cached)
+                observer.observe_notification({"method": "thread/tokenUsage/updated", "params": {
+                    "threadId": "synthetic-root", "turnId": "synthetic-turn", "tokenUsage": {"last": last, "total": snapshot}}})
+                records.append({"type": "event_msg", "timestamp": "2026-10-13T00:00:10Z", "payload": {
+                    "type": "token_count", "info": {"turn_id": "synthetic-turn", "last_token_usage": last, "total_token_usage": snapshot}}})
+        path = self.write_rollout(records)
+        observer.store.register_session_log("codex", observer.primary_session_fp, path)
+        observer.store.request_end(run, "progress", client="codex", session_fp=observer.primary_session_fp)
+        observer.store.signal_complete("codex", observer.primary_session_fp)
+        final = observer.store.claim_outbox()["finalization"]
+        self.assertEqual((3, 291721), (final["activity"]["model_requests"], final["measurement"]["normalized_total_tokens"]))
+        self.assertEqual("partial", final["measurement"]["status"])
+        self.assertEqual((3, 291721), (final["uclusion"]["model_requests"], final["uclusion"]["provider_total_tokens"]))
+        with closing(observer.store.connect()) as connection:
+            rows = [dict(row) for row in connection.execute("SELECT * FROM token_audit_usage WHERE audit_run_id=? AND superseded_by IS NULL", (run,))]
+        for selected in (None, rows):
+            with self.subTest(selection="whole_saved_log" if selected is None else "persisted_run"):
+                result = audit.breakdown_session_log(path, selected_requests=selected, fingerprint=observer.store.fingerprint)
+                self.assertEqual((3, 291721), (result["model_requests"], result["provider_total_tokens"]))
+                self.assertEqual(3, len(result["ledger"]["requests"]))
+                self.assertIn("snapshot_cumulative_basis_differs", result["coverage"]["reasons"])
+                self.assertEqual("partial_thread_coverage", result["ledger"]["reconciliation"][0]["status"])
+        for edge, inputs, cached, output in (
+                ("before", 68026863, 66548608, 389401),
+                ("after", 68316602, 66834128, 391503)):
+            with self.subTest(additional_request=edge):
+                extra = {"type": "event_msg", "timestamp": "2026-10-13T00:00:10Z", "payload": {
+                    "type": "token_count", "info": {"turn_id": "synthetic-turn", "last_token_usage": usage(120, 100, 20, cached=80),
+                    "total_token_usage": usage(inputs + output, inputs, output, cached=cached)}}}
+                extended = [records[0], extra, *records[1:]] if edge == "before" else [*records, extra]
+                result = audit.breakdown_session_log(self.write_rollout(extended, edge + ".jsonl"))
+                self.assertEqual((4, 291841), (result["model_requests"], result["provider_total_tokens"]))
+        for boundary in ("missing_cumulative_cached", "selected_fallback_only"):
+            with self.subTest(boundary=boundary):
+                thread = "synthetic-" + boundary
+                collector = audit.CodexTokenAudit("stage", "workspace-1")
+                self.addCleanup(collector.close)
+                collector.set_primary_thread({"id": thread})
+                selected_run = str(uuid.uuid4())
+                collector.store.start_run("codex", "openai", "native", collector.primary_session_fp, selected_run, "synthetic-job")
+                collector.observe_notification({"method": "turn/started", "params": {
+                    "threadId": thread, "turn": {"id": "synthetic-turn"}}})
+                records = [self.meta(thread)]
+                if boundary == "missing_cumulative_cached":
+                    last = usage(120, 100, 20, cached=0)
+                    cumulative = {"input_tokens": 1000, "output_tokens": 200, "total_tokens": 1200}
+                    raw = raw_response(thread, "synthetic-turn", "selected-native", last)
+                    raw["params"]["threadTokenUsage"] = cumulative
+                    collector.observe_notification(raw)
+                    records.append(self.request("selected-native", thread_id=thread, usage=last, thread_token_usage=cumulative))
+                    total = {"input_tokens": 1100, "cached_input_tokens": 600, "output_tokens": 220, "total_tokens": 1320}
+                    expected_requests, expected_tokens = 2, 240
+                else:
+                    last = usage(120, 100, 20, cached=80)
+                    for index, total in enumerate((120, 240)):
+                        records.append(self.request("earlier-" + str(index), thread_id=thread,
+                            thread_token_usage=usage(total, total * 5 // 6, total // 6, cached=total * 2 // 3)))
+                    body = "<!-- uclusion-skill:v1 -->\n" + "Synthetic selected work instructions.\n" * 20 + "<!-- /uclusion-skill:v1 -->"
+                    records.extend([{"type": "response_item", "payload": {"type": "function_call", "name": "exec_command",
+                        "call_id": "selected-read", "arguments": json.dumps({"cmd": "cat /synthetic/skills/uclusion/SKILL.md"})}},
+                        {"type": "response_item", "payload": {"type": "function_call_output", "call_id": "selected-read", "output": body}}])
+                    total = usage(1200, 1000, 200, cached=800)
+                    expected_requests, expected_tokens = 1, 120
+                collector.observe_notification({"method": "thread/tokenUsage/updated", "params": {
+                    "threadId": thread, "turnId": "synthetic-turn", "tokenUsage": {"last": last, "total": total}}})
+                records.append({"type": "event_msg", "timestamp": "2026-10-13T00:00:10Z", "payload": {
+                    "type": "token_count", "info": {"turn_id": "synthetic-turn", "last_token_usage": last, "total_token_usage": total}}})
+                path = self.write_rollout(records, boundary + ".jsonl")
+                collector.store.register_session_log("codex", collector.primary_session_fp, path)
+                collector.store.request_end(selected_run, "progress", client="codex", session_fp=collector.primary_session_fp)
+                collector.store.signal_complete("codex", collector.primary_session_fp)
+                final = collector.store.claim_outbox()["finalization"]
+                self.assertEqual((expected_requests, expected_tokens),
+                    (final["activity"]["model_requests"], final["measurement"]["normalized_total_tokens"]))
+                with closing(collector.store.connect()) as connection:
+                    selected = [dict(row) for row in connection.execute(
+                        "SELECT * FROM token_audit_usage WHERE audit_run_id=? AND superseded_by IS NULL ORDER BY created_at,event_key", (selected_run,))]
+                result = audit.breakdown_session_log(path, selected_requests=selected, fingerprint=collector.store.fingerprint)
+                self.assertEqual((expected_requests, expected_tokens), (result["model_requests"], result["provider_total_tokens"]))
+                if boundary == "missing_cumulative_cached":
+                    self.assertIsNone(json.loads(selected[0]["provenance_json"])["thread_cumulative"]["cached_input_tokens"])
+                else:
+                    self.assertEqual(1, result["physical_reads"]["occurrences"])
+                    self.assertNotIn("selected_requests_missing_from_log", result["coverage"]["reasons"])
+                    self.assertGreater(final["uclusion"]["uclusion_total_tokens"], 0)
+
+
 if __name__ == "__main__":
     unittest.main()

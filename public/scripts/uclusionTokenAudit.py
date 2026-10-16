@@ -19,6 +19,7 @@ import errno
 import hashlib
 import http.client
 import json
+import math
 import os
 import queue
 import re
@@ -34,7 +35,7 @@ import uuid
 from contextlib import closing
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import urlsplit
+from urllib.parse import quote, urlsplit
 
 
 SCHEMA_VERSION = 1
@@ -649,6 +650,20 @@ class AuditStore:
         # write lock is held so two upgraders cannot add the same column.
         connection.execute("BEGIN IMMEDIATE")
         try:
+            usage_columns = {row[1] for row in connection.execute(
+                "PRAGMA table_info(token_audit_usage)")}
+            for name in ("provenance_json", "superseded_by"):
+                if name not in usage_columns:
+                    connection.execute(
+                        "ALTER TABLE token_audit_usage ADD COLUMN " + name + " TEXT")
+            connection.execute("""
+                CREATE TABLE IF NOT EXISTS token_audit_catalogs (
+                    environment TEXT NOT NULL, workspace_id TEXT NOT NULL,
+                    session_fp TEXT NOT NULL, report_json TEXT NOT NULL,
+                    updated_at REAL NOT NULL,
+                    PRIMARY KEY (environment, workspace_id, session_fp)
+                )
+            """)
             run_columns = {
                 row[1] for row in connection.execute(
                     "PRAGMA table_info(token_audit_runs)"
@@ -1163,6 +1178,33 @@ class AuditStore:
             (self.environment, self.workspace_id, client, session_fp),
         ).fetchone()
         return row["log_path"] if row is not None else None
+
+    def record_catalog(self, session_fp, report):
+        """Persist fingerprints and counting bases, never tool contents."""
+        if not session_fp:
+            return
+        with closing(self.connect()) as connection, connection:
+            connection.execute("BEGIN IMMEDIATE")
+            previous = connection.execute(
+                "SELECT report_json, updated_at FROM token_audit_catalogs "
+                "WHERE environment=? AND workspace_id=? AND session_fp=?",
+                (self.environment, self.workspace_id, session_fp)).fetchone()
+            versions = _catalog_versions(previous) if previous else []
+            now = time.time()
+            version = next((item for item in versions
+                if item["catalog_fingerprint"] == report["catalog_fingerprint"]), None)
+            if version is None:
+                versions.append({**report, "first_observed_at": now, "last_observed_at": now})
+            else:
+                version.update(report)
+                version["last_observed_at"] = now
+            connection.execute("""
+                INSERT INTO token_audit_catalogs VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(environment, workspace_id, session_fp)
+                DO UPDATE SET report_json=excluded.report_json,
+                    updated_at=excluded.updated_at
+            """, (self.environment, self.workspace_id, session_fp,
+                  _canonical_json({"versions": versions}), now))
 
     def _backfill_start_request(
         self, connection, client, session_fp, audit_run_id, started_at
@@ -2554,6 +2596,9 @@ class AuditStore:
         model=None,
         effort=None,
         created_at=None,
+        provenance=None,
+        supersedes=None,
+        update_existing=False,
     ):
         """Persist one allowlisted provider usage event, idempotently."""
         if (
@@ -2588,6 +2633,9 @@ class AuditStore:
         if raw_provider_total is not None and provider_total is None:
             return False
         event_key = self.fingerprint("usage-event", client + "\0" + event_identity)
+        if client == "codex":
+            provenance = {**(provenance or {}),
+                "reasoning_output_subset": counts.get("reasoning_output_tokens")}
         received_at = time.time()
         timestamp = received_at if created_at is None else float(created_at)
         settle_grace = _source_settle_grace(source_mode)
@@ -2637,7 +2685,59 @@ class AuditStore:
                 ),
             )
             if cursor.rowcount != 1:
-                return False
+                existing = connection.execute(
+                    "SELECT * FROM token_audit_usage WHERE environment=? AND workspace_id=? "
+                    "AND client=? AND event_key=?",
+                    (self.environment, self.workspace_id, client, event_key)).fetchone()
+                if (not update_existing or existing is None or
+                        normalized < existing["normalized_total_tokens"] or
+                        normalized == existing["normalized_total_tokens"] and
+                        all(existing[name] == value for name, value in values.items()) and
+                        existing["provenance_json"] == (_canonical_json(provenance) if provenance else None)):
+                    return False
+                # A later completed observation replaces its intermediate
+                # counters while keeping the original request membership.
+                connection.execute("""
+                    UPDATE token_audit_usage SET input_tokens=?, cached_input_tokens=?,
+                        cache_write_tokens=?, output_tokens=?, reasoning_output_tokens=?,
+                        cache_read_tokens=?, cache_creation_tokens=?, provider_total_tokens=?,
+                        normalized_total_tokens=?, model=?, effort=?
+                    WHERE environment=? AND workspace_id=? AND client=? AND event_key=?
+                """, (*values.values(), provider_total, normalized, safe_model, safe_effort,
+                      self.environment, self.workspace_id, client, event_key))
+                run_id = existing["audit_run_id"]
+                if supersedes and existing["superseded_by"]:
+                    connection.execute(
+                        "UPDATE token_audit_usage SET superseded_by=NULL WHERE "
+                        "environment=? AND workspace_id=? AND client=? AND event_key=?",
+                        (self.environment, self.workspace_id, client, event_key))
+            elif supersedes:
+                previous_rows = connection.execute(
+                    "SELECT * FROM token_audit_usage WHERE environment=? AND workspace_id=? "
+                    "AND client=? AND session_fp=? AND event_key IN (" +
+                    ",".join("?" for _ in supersedes) + ") ORDER BY created_at",
+                    (self.environment, self.workspace_id, client, session_fp, *supersedes)).fetchall()
+                if previous_rows:
+                    previous = previous_rows[0]
+                    run_id, timestamp = previous["audit_run_id"], previous["created_at"]
+                    connection.execute(
+                        "UPDATE token_audit_usage SET audit_run_id=?, phase=?, created_at=? "
+                        "WHERE environment=? AND workspace_id=? AND client=? AND event_key=?",
+                        (run_id, previous["phase"], timestamp, self.environment,
+                         self.workspace_id, client, event_key))
+            if provenance is not None:
+                connection.execute(
+                    "UPDATE token_audit_usage SET provenance_json=? "
+                    "WHERE environment=? AND workspace_id=? AND client=? AND event_key=?",
+                    (_canonical_json(provenance), self.environment,
+                     self.workspace_id, client, event_key))
+            for previous in supersedes or ():
+                connection.execute(
+                    "UPDATE token_audit_usage SET superseded_by=? "
+                    "WHERE environment=? AND workspace_id=? AND client=? "
+                    "AND event_key=? AND session_fp=? AND superseded_by IS NULL",
+                    (event_key, self.environment, self.workspace_id, client,
+                     previous, session_fp))
             connection.execute(
                 """
                 DELETE FROM token_audit_usage
@@ -2984,6 +3084,8 @@ class AuditStore:
                 f"AND created_at{usage_boundary}?",
                 (run["audit_run_id"], ended_at),
             ).fetchall()
+        usage = [event for event in usage if not event["superseded_by"]]
+        usage, uncertain_snapshots = _select_persisted_usage(usage)
         all_sessions = connection.execute(
             "SELECT * FROM token_audit_run_sessions "
             "WHERE audit_run_id=?",
@@ -3196,6 +3298,8 @@ class AuditStore:
                 for reason in session_reasons.get(item["session_fp"], ())
             ]
             reasons = run_reasons + root_reasons + descendant_reasons
+        if uncertain_snapshots:
+            reasons.append("telemetry_unavailable")
         if not main_seen:
             main_coverage = "unavailable"
         elif run_reason or root_reasons:
@@ -3283,6 +3387,20 @@ class AuditStore:
                     sums["provider_total_tokens"],
                     "provider_reported_total",
                 ))
+            # Native optional counters retain their presence in provenance.
+            # Omitting one is uncertainty, even though the legacy storage
+            # columns need numeric defaults for totals and old writers.
+            presence = [_json_object(event["provenance_json"]) for event in usage]
+            if any(item is None or item.get("reasoning_output_subset") is None for item in presence):
+                raw_counts = [item for item in raw_counts if item["field"] != "reasoning_output_tokens"]
+            for category, names in (
+                ("fresh_input", {"fresh_input_tokens"}),
+                ("cached_input", {"cached_input_tokens"}),
+                ("output", {"output_tokens"}),
+            ):
+                if any(item is not None and item.get("categories", {}).get(category) is None
+                       for item in presence):
+                    raw_counts = [item for item in raw_counts if item["field"] not in names]
             if usage and scalar_events == len(usage):
                 normalization = "provider_reported_total_v1"
             elif scalar_events:
@@ -3405,13 +3523,13 @@ class AuditStore:
         )
         if not log_path:
             return finalization_breakdown(unavailable_breakdown("log_missing"))
-        times = [float(event["created_at"]) for event in usage]
-        window = (
-            min(times) - BREAKDOWN_WINDOW_SLACK_SECONDS,
-            max(times) + BREAKDOWN_WINDOW_SLACK_SECONDS,
-        )
         try:
-            result = breakdown_session_log(log_path, window=window)
+            result = breakdown_session_log(
+                log_path, selected_requests=[dict(event) for event in usage],
+                fingerprint=self.fingerprint,
+                session_logs={session: self._session_log(
+                    connection, run["client"], session)
+                    for session in dict.fromkeys(event["session_fp"] for event in usage)})
         except Exception:
             # The breakdown is additive evidence; its failure must never
             # cost the run its totals.
@@ -4182,7 +4300,9 @@ def _openai_counts(usage):
     input_tokens = _first_int(usage, "inputTokens", "input_tokens") or 0
     cached = _first_int(
         usage, "cachedInputTokens", "cached_input_tokens"
-    ) or 0
+    )
+    if cached is None:
+        cached = _first_int(usage.get("input_tokens_details"), "cached_tokens")
     cache_write = _first_int(
         usage,
         "cacheWriteInputTokens",
@@ -4193,22 +4313,107 @@ def _openai_counts(usage):
     output = _first_int(usage, "outputTokens", "output_tokens") or 0
     reasoning = _first_int(
         usage, "reasoningOutputTokens", "reasoning_output_tokens"
-    ) or 0
+    )
+    if reasoning is None:
+        reasoning = _first_int(usage.get("output_tokens_details"), "reasoning_tokens")
     provider_total = _first_int(usage, "totalTokens", "total_tokens")
     normalized = provider_total
     if normalized is None:
         normalized = input_tokens + output
     return {
         "input_tokens": input_tokens,
-        "cached_input_tokens": min(cached, input_tokens),
+        "cached_input_tokens": min(cached, input_tokens) if cached is not None else None,
         "cache_write_tokens": cache_write,
         "output_tokens": output,
-        "reasoning_output_tokens": min(reasoning, output),
+        "reasoning_output_tokens": min(reasoning, output) if reasoning is not None else None,
         "cache_read_tokens": 0,
         "cache_creation_tokens": 0,
         "provider_total_tokens": provider_total,
         "normalized_total_tokens": normalized,
     }
+
+
+def _request_interval(counts, cumulative):
+    """Cumulative counters before this request, stable as its output grows."""
+    if not isinstance(cumulative, dict):
+        return None
+    fields = ("input_tokens", "cached_input_tokens", "output_tokens")
+    if any(_non_negative_int(cumulative.get(field)) is None or
+           _non_negative_int(counts[field]) is None or
+           cumulative[field] < counts[field] for field in fields):
+        return None
+    return tuple(cumulative[field] - counts[field] for field in fields)
+
+
+def _native_coverage(requests):
+    """A recorded native cumulative interval fully covered by these responses."""
+    if not requests or any(value is None or key.startswith("cache_write:")
+            for key, value in _sum_measured_requests(requests).items()):
+        return None
+    cumulative = []
+    for request in (requests[0], requests[-1]):
+        value = request["thread_cumulative"]
+        if not isinstance(value, dict):
+            return None
+        if "normalized_total_tokens" not in value:
+            if not _valid_openai_usage(value):
+                return None
+            value = _openai_counts(value)
+        cumulative.append(value)
+    fields = ("input_tokens", "cached_input_tokens", "output_tokens", "normalized_total_tokens")
+    if any(_non_negative_int(value.get(key)) is None for value in cumulative for key in fields):
+        return None
+    before = {key: cumulative[0][key] - requests[0]["counts"][key] for key in fields}
+    after = {key: cumulative[-1][key] for key in fields}
+    if any(before[key] < 0 or sum(request["counts"][key] for request in requests) != after[key] - before[key]
+           for key in fields):
+        return None
+    return before, after
+
+
+def _select_persisted_usage(usage):
+    """Keep one denominator when known native coverage overlaps snapshots."""
+    sessions = {}
+    for event in usage:
+        provenance = _json_object(event["provenance_json"]) or {}
+        sessions.setdefault(event["session_fp"], []).append((event, provenance))
+    excluded = set()
+    for events in sessions.values():
+        events.sort(key=lambda pair: (pair[0]["created_at"], pair[0]["event_key"]))
+        native = [{"counts": dict(event), "categories": provenance.get("categories") or {
+            "fresh_input": None, "cached_input": None, "output": None},
+            "thread_cumulative": provenance.get("thread_cumulative")}
+            for event, provenance in events if provenance.get("identity_basis") == "native_response_id"]
+        coverage = _native_coverage(native)
+        if coverage is None:
+            continue
+        snapshots = [(event, provenance.get("thread_cumulative")) for event, provenance in events
+                     if provenance.get("identity_basis") == "cumulative_snapshot_fallback"]
+        additional = _outside_native_coverage(snapshots, coverage)
+        for index, (event, _) in enumerate(snapshots):
+            if index not in additional:
+                excluded.add(event["event_key"])
+    return [event for event in usage if event["event_key"] not in excluded], bool(excluded)
+
+
+def _outside_native_coverage(snapshots, coverage):
+    """Keep snapshots that conclusively extend either recorded native boundary."""
+    before, after = coverage
+    fields = ("input_tokens", "cached_input_tokens", "output_tokens")
+    additional = set()
+    for index, (counts, cumulative) in enumerate(snapshots):
+        interval = _request_interval(counts, cumulative)
+        if counts["normalized_total_tokens"] > 0 and interval == tuple(after[key] for key in fields):
+            additional.add(index)
+            after = cumulative
+    for index in reversed(range(len(snapshots))):
+        counts, cumulative = snapshots[index]
+        interval = _request_interval(counts, cumulative)
+        if counts["normalized_total_tokens"] > 0 and interval is not None and all(
+                cumulative[key] == before[key] for key in fields):
+            additional.add(index)
+            before = {key: cumulative[key] - counts[key] for key in fields}
+    return additional
 
 
 def _valid_openai_usage(usage):
@@ -4251,6 +4456,18 @@ def _valid_openai_usage(usage):
         reasoning = _first_int(
             usage, "reasoningOutputTokens", "reasoning_output_tokens"
         )
+        details = usage.get("input_tokens_details")
+        if isinstance(details, dict) and "cached_tokens" in details:
+            nested = _non_negative_int(details["cached_tokens"])
+            if nested is None or cached is not None and cached != nested:
+                return False
+            cached = nested
+        details = usage.get("output_tokens_details")
+        if isinstance(details, dict) and "reasoning_tokens" in details:
+            nested = _non_negative_int(details["reasoning_tokens"])
+            if nested is None or reasoning is not None and reasoning != nested:
+                return False
+            reasoning = nested
         if cached is not None and cached > input_tokens:
             return False
         if reasoning is not None and reasoning > output_tokens:
@@ -4590,7 +4807,6 @@ class CodexTokenAudit:
         self.model = None
         self.effort = None
         self._descendants = queue.Queue()
-        self._raw_usage_signatures = set()
         self._live_turns = set()
         self._thread_metadata = {}
         self._lock = threading.RLock()
@@ -4722,26 +4938,14 @@ class CodexTokenAudit:
         }
         return hashlib.sha256(_canonical_json(allowlisted).encode()).hexdigest()
 
-    @staticmethod
-    def _usage_signature(thread_id, turn_id, counts):
-        return (
-            thread_id,
-            turn_id,
-            counts["input_tokens"],
-            counts["cached_input_tokens"],
-            counts["cache_write_tokens"],
-            counts["output_tokens"],
-            counts["reasoning_output_tokens"],
-            counts["provider_total_tokens"],
-            counts["normalized_total_tokens"],
-        )
-
     def observe_descendant(self, thread):
         if not isinstance(thread, dict):
             return False
         thread_id = thread.get('id')
         parent_id = thread.get('parentThreadId')
         if not isinstance(thread_id, str) or not isinstance(parent_id, str):
+            return False
+        if _accounting_scope(thread) in {"review", "auditor", "unrelated"}:
             return False
         with self._lock:
             if parent_id not in self._thread_metadata:
@@ -4781,12 +4985,109 @@ class CodexTokenAudit:
                 'reasoningEffort': item.get('reasoningEffort') or item.get('effort'),
             })
 
+    def _record_native_usage(self, thread_id, session_fp, turn_id, usage,
+                             identity, params, basis, model, effort):
+        """One durable response ledger, including reconciled fallback rows."""
+        counts = _openai_counts(usage)
+        turn_fp = self.store.fingerprint("codex-turn", turn_id)
+        response = params.get("responseId")
+        cumulative = params.get("threadTokenUsage") or params.get("tokenUsage", {}).get("total")
+        provenance = {
+            "identity_basis": basis,
+            "counter_basis": basis,
+            "response_fp": self.store.fingerprint("codex-response", response),
+            "session_fp": session_fp, "turn_fp": turn_fp,
+            "root_session_fp": self.primary_session_fp,
+            "root_turn_fp": self.store.fingerprint("codex-turn", params.get("rootTurnId") or
+                (turn_id if thread_id == self.primary_thread_id else None)),
+            "scope": "root" if thread_id == self.primary_thread_id else "helper",
+            "timestamp_basis": "collector_receipt_time",
+            "source_timestamp": None, "context_applicability": "unknown",
+            "categories": _measured_categories(usage),
+            "thread_cumulative": _openai_counts(cumulative) if _valid_openai_usage(cumulative) else None,
+            "turn_cumulative": _openai_counts(params.get("turnTokenUsage"))
+                if _valid_openai_usage(params.get("turnTokenUsage")) else None,
+        }
+        supersedes = []
+        event_key = self.store.fingerprint("usage-event", self.client + "\0" + identity)
+        observed_cumulative = provenance["thread_cumulative"]
+        with closing(self.store.connect()) as connection:
+            session = connection.execute(
+                "SELECT parent_session_fp FROM token_audit_sessions WHERE environment=? "
+                "AND workspace_id=? AND client=? AND session_fp=?",
+                (self.store.environment, self.store.workspace_id, self.client, session_fp)).fetchone()
+            provenance["parent_session_fp"] = session["parent_session_fp"] if session else None
+            rows = connection.execute(
+                "SELECT * FROM token_audit_usage WHERE environment=? AND workspace_id=? "
+                "AND client=? AND session_fp=? AND turn_fp IS ? AND superseded_by IS NULL "
+                "ORDER BY created_at DESC",
+                (self.store.environment, self.store.workspace_id, self.client, session_fp, turn_fp)).fetchall()
+            for row in rows:
+                prior = _json_object(row["provenance_json"]) or {}
+                if response and prior.get("response_fp") == provenance["response_fp"]:
+                    if counts["normalized_total_tokens"] < row["normalized_total_tokens"]:
+                        return "native_matched"
+                    if row["event_key"] != event_key:
+                        supersedes.append(row["event_key"])
+                    provenance = {**prior, "categories": provenance["categories"],
+                        "counter_basis": basis,
+                        "thread_cumulative": provenance["thread_cumulative"] or prior.get("thread_cumulative"),
+                        "turn_cumulative": provenance["turn_cumulative"] or prior.get("turn_cumulative")}
+                prior_cached = (prior.get("categories") or {}).get("cached_input")
+                equal = prior_cached == counts["cached_input_tokens"] and all(
+                    row[field] == counts[field] for field in ("input_tokens", "output_tokens", "normalized_total_tokens"))
+                prior_cumulative = prior.get("thread_cumulative")
+                compatible_position = (prior_cumulative is None or observed_cumulative is None or
+                    prior_cumulative["normalized_total_tokens"] == observed_cumulative["normalized_total_tokens"])
+                interval = _request_interval(counts, observed_cumulative)
+                same_interval = interval is not None and interval == _request_interval(row, prior_cumulative)
+                if (basis == "cumulative_snapshot_fallback" and same_interval and
+                        prior.get("identity_basis") == "native_response_id" and
+                        counts["normalized_total_tokens"] > row["normalized_total_tokens"]):
+                    supersedes.append(row["event_key"])
+                    provenance = {**prior, "categories": provenance["categories"],
+                        "thread_cumulative": observed_cumulative,
+                        "turn_cumulative": provenance["turn_cumulative"] or prior.get("turn_cumulative"),
+                        "counter_basis": "cumulative_snapshot_fallback"}
+                if (basis == "cumulative_snapshot_fallback" and
+                        (equal and compatible_position or same_interval) and
+                        counts["normalized_total_tokens"] <= row["normalized_total_tokens"]
+                        and prior.get("identity_basis") == "native_response_id"):
+                    if observed_cumulative is not None and (prior_cumulative is None or
+                            observed_cumulative["normalized_total_tokens"] >= prior_cumulative["normalized_total_tokens"]):
+                        prior["thread_cumulative"] = observed_cumulative
+                    connection.execute(
+                        "UPDATE token_audit_usage SET provenance_json=? WHERE environment=? "
+                        "AND workspace_id=? AND client=? AND event_key=?",
+                        (_canonical_json(prior), self.store.environment, self.store.workspace_id,
+                         self.client, row["event_key"]))
+                    connection.commit()
+                    return "native_matched"
+                if prior.get("identity_basis") == "cumulative_snapshot_fallback":
+                    if basis == "native_response_id" and (equal and compatible_position or same_interval) and not supersedes:
+                        supersedes.append(row["event_key"])
+                        if counts["normalized_total_tokens"] < row["normalized_total_tokens"]:
+                            counts = {key: row[key] for key in counts}
+                            counts["reasoning_output_tokens"] = prior.get("reasoning_output_subset")
+                            provenance.update(categories=prior.get("categories"),
+                                thread_cumulative=prior_cumulative,
+                                counter_basis="cumulative_snapshot_fallback")
+                        provenance["thread_cumulative"] = provenance["thread_cumulative"] or prior_cumulative
+                        provenance["fallback_reconciliation"] = "counter_match_identity_partial"
+                    elif basis == "cumulative_snapshot_fallback" and (equal and compatible_position or same_interval):
+                        supersedes.append(row["event_key"])
+        self.store.record_usage(self.client, session_fp, identity, counts, "native",
+            turn_fp=turn_fp, model=model, effort=effort,
+            provenance=provenance, supersedes=supersedes, update_existing=True)
+
     def observe_notification(self, message):
         if not isinstance(message, dict):
             return
         method = message.get("method")
         params = message.get("params")
         if not isinstance(params, dict):
+            return
+        if params.get("accountingScope") in {"review", "auditor", "unrelated"}:
             return
         thread_id, session_fp = self._thread(params)
         if session_fp is not None:
@@ -4824,7 +5125,6 @@ class CodexTokenAudit:
                 )
                 return
             turn_id = params.get("turnId")
-            turn_fp = self.store.fingerprint("codex-turn", turn_id)
             with self._lock:
                 thread_model, thread_effort = self._thread_metadata.get(
                     thread_id, (self.model, self.effort)
@@ -4833,23 +5133,8 @@ class CodexTokenAudit:
             effort = _safe_label(
                 params.get("reasoningEffort") or params.get("effort")
             ) or thread_effort
-            counts = _openai_counts(usage)
-            with self._lock:
-                self._raw_usage_signatures.add(
-                    self._usage_signature(thread_id, turn_id, counts)
-                )
-                if len(self._raw_usage_signatures) > 2048:
-                    self._raw_usage_signatures.clear()
-            self.store.record_usage(
-                self.client,
-                session_fp,
-                str(thread_id) + "\0" + response_id,
-                counts,
-                "native",
-                turn_fp=turn_fp,
-                model=model,
-                effort=effort,
-            )
+            self._record_native_usage(thread_id, session_fp, turn_id, usage,
+                str(thread_id) + "\0" + response_id, params, "native_response_id", model, effort)
             return
 
         if method == "thread/tokenUsage/updated":
@@ -4872,11 +5157,6 @@ class CodexTokenAudit:
                     # snapshot. It is a baseline, not usage by this job.
                     return
             counts = _openai_counts(last)
-            signature = self._usage_signature(thread_id, turn_id, counts)
-            with self._lock:
-                if signature in self._raw_usage_signatures:
-                    self._raw_usage_signatures.discard(signature)
-                    return
             # Resume/fork cannot request experimental raw events in Codex
             # 0.146. The standard last-request snapshot preserves useful
             # totals, while the explicit partial status avoids claiming raw
@@ -4887,23 +5167,15 @@ class CodexTokenAudit:
                 "last": counts,
                 "cumulative": _openai_counts(total),
             })
-            turn_fp = self.store.fingerprint(
-                "codex-turn", params.get("turnId")
-            )
             with self._lock:
                 thread_model, thread_effort = self._thread_metadata.get(
                     thread_id, (self.model, self.effort)
                 )
-            self.store.record_usage(
-                self.client,
-                session_fp,
-                "snapshot\0" + identity,
-                counts,
-                "native",
-                turn_fp=turn_fp,
-                model=thread_model,
-                effort=thread_effort,
-            )
+            matched = self._record_native_usage(thread_id, session_fp, turn_id, last,
+                "snapshot\0" + identity, params, "cumulative_snapshot_fallback",
+                thread_model, thread_effort)
+            if matched == "native_matched":
+                return
             self.store.mark_partial(
                 self.client, session_fp, "telemetry_unavailable"
             )
@@ -4974,11 +5246,10 @@ class CodexTokenAudit:
             ) or "completed").lower()
             with self._lock:
                 is_primary = thread_id == self.primary_thread_id
+            self.store.register_session_log(
+                self.client, session_fp, find_codex_rollout(thread_id))
             if is_primary:
                 # Codex writes the rollout during the turn, so it exists now.
-                self.store.register_session_log(
-                    self.client, session_fp, find_codex_rollout(thread_id)
-                )
                 self.store.signal_complete(
                     self.client,
                     session_fp,
@@ -5226,6 +5497,7 @@ def scan_claude_transcript(store, session_fp, transcript_path):
                                     "transcript_fallback",
                                     model=message.get("model"),
                                     created_at=record_time,
+                                    provenance={"categories": _measured_categories(usage, "anthropic")},
                                 )
                     content = message.get("content")
                     if isinstance(content, list):
@@ -5720,6 +5992,7 @@ def ingest_otlp_json(store, payload):
                         model=_first_value(attrs, "model", "model_name"),
                         effort=_first_value(attrs, "effort", "reasoning_effort"),
                         created_at=timestamp,
+                        provenance={"categories": _measured_categories(usage, "anthropic")},
                     ):
                         accepted += 1
                 elif event_name in {
@@ -6211,6 +6484,8 @@ class TokenCounter:
             ratio = FALLBACK_BYTES_PER_TOKEN[self.family]
         self.bytes_per_token = float(ratio)
         self.has_manifest = bool(manifest)
+        self.count_model = (manifest.get("models") or {}).get(self.family)
+        self.manifest_method = manifest.get("method")
 
     def estimate(self, text):
         size = len(text.encode("utf-8")) if isinstance(text, str) else 0
@@ -6243,17 +6518,214 @@ class TokenCounter:
         }))
         return estimate, estimate
 
-    def shipped_tool_total(self, include):
-        """Sum shipped tool counts whose names ``include`` accepts."""
-        total = 0
-        for entry in self.tools.values():
-            if not isinstance(entry, dict) or not include(entry.get("name")):
-                continue
-            tokens = (entry.get("tokens") or {}).get(self.family)
-            if isinstance(tokens, int) and tokens >= 0:
-                total += tokens
-        return total
 
+def catalog_token_report(tools, manifest=None, family="openai"):
+    """Count exact served versions; a catalog is not an injection receipt."""
+    counter = TokenCounter(manifest, family)
+    fingerprints, bases = [], []
+    tokens = estimated = 0
+    for tool in tools:
+        if not isinstance(tool, dict) or not isinstance(tool.get("name"), str):
+            continue
+        name, description = tool["name"], tool.get("description") or ""
+        schema = tool.get("inputSchema") or tool.get("input_schema") or {}
+        key = tool_definition_key(name, description, schema)
+        if key in fingerprints:
+            continue
+        fingerprints.append(key)
+        count, guess = counter.tool(name, description, schema)
+        tokens += count
+        estimated += guess
+        bases.append({"fingerprint": key, "tokens": count,
+                      "basis": "utf8_byte_ratio_estimate" if guess else "exact_manifest_definition",
+                      "token_family": counter.family})
+    return {"catalog_fingerprint": _sha256_text(_canonical_json(fingerprints)),
+            "definition_fingerprints": fingerprints, "definitions": bases,
+            "definition_tokens": tokens, "estimated_tokens": estimated,
+            "provider_injection": "unknown", "basis": "observed_served_catalog",
+            "manifest_count_model": counter.count_model, "manifest_method": counter.manifest_method,
+            "estimate_bytes_per_token": counter.bytes_per_token}
+
+
+def _catalog_versions(row):
+    stored = _json_object(row["report_json"]) or {}
+    if isinstance(stored.get("versions"), list):
+        return stored["versions"]
+    if stored.get("catalog_fingerprint"):
+        return [{**stored, "first_observed_at": row["updated_at"],
+                 "last_observed_at": row["updated_at"],
+                 "history_coverage": "latest_legacy_observation_only"}]
+    return []
+
+
+def _stored_catalog_evidence(log_paths, window, selected_requests):
+    """Read only catalogs bound to the selected saved sessions."""
+    evidence = {"status": "unavailable", "versions": [], "provider_injection": "unknown",
+                "reason": "no_selected_session_catalog_observation"}
+    paths = list(dict.fromkeys(os.path.abspath(os.path.expanduser(path)) for path in log_paths))
+    database = _database_path()
+    if not paths or not os.path.isfile(database):
+        return evidence
+    try:
+        with closing(sqlite3.connect("file:" + quote(database, safe="/") + "?mode=ro", uri=True)) as connection:
+            connection.row_factory = sqlite3.Row
+            rows = connection.execute(
+                "SELECT DISTINCT c.session_fp, c.report_json, c.updated_at "
+                "FROM token_audit_catalogs c JOIN token_audit_session_logs l "
+                "ON c.environment=l.environment AND c.workspace_id=l.workspace_id "
+                "AND c.session_fp=l.session_fp WHERE l.log_path IN (" +
+                ",".join("?" for _ in paths) + ")", paths).fetchall()
+    except sqlite3.Error:
+        evidence["reason"] = "catalog_store_unavailable"
+        return evidence
+    selected_sessions = {request["session_fp"] for request in selected_requests or []
+                         if request.get("session_fp")}
+    if window is None and selected_requests is not None:
+        times = [request["created_at"] for request in selected_requests if request.get("created_at") is not None]
+        if times:
+            window = (min(times), max(times))
+    for row in rows:
+        if selected_sessions and row["session_fp"] not in selected_sessions:
+            continue
+        for version in _catalog_versions(row):
+            first, last = version["first_observed_at"], version["last_observed_at"]
+            if window is not None and first > window[1]:
+                continue
+            basis = "observed_in_selected_session"
+            if window is not None:
+                basis = ("observed_before_selected_interval" if last < window[0] else
+                         "observed_in_selected_interval" if window[0] <= first <= window[1] or
+                         window[0] <= last <= window[1] else
+                         "observation_range_overlaps_selected_interval")
+            evidence["versions"].append({**version, "session_fp": row["session_fp"],
+                "observation_basis": basis, "request_applicability": "unknown"})
+    evidence["versions"].sort(key=lambda version: (version["first_observed_at"], version["catalog_fingerprint"]))
+    if evidence["versions"]:
+        evidence["status"] = "observed"
+        evidence.pop("reason")
+    return evidence
+
+
+def weighted_token_report(categories, profile, applicability=None):
+    """Apply an explicit frozen reference profile to disjoint raw categories.
+
+    The profile records the published source, date and model/rate/context
+    applicability. Supplying it declares a reference assumption; it never
+    identifies an account's actual billing SKU. Raw categories remain available
+    for recalculation, including unknown values and separately charged writes.
+    """
+    result = {"raw_categories": dict(categories), "status": "unavailable",
+              "actual_billing": {"status": "unknown"}}
+    if not isinstance(profile, dict):
+        return {**result, "reason": "profile_missing"}
+    result["profile"] = json.loads(_canonical_json(profile))
+    result["profile_fingerprint"] = _sha256_text(_canonical_json(profile))
+    weights = profile.get("weights")
+    applicable = profile.get("applicability")
+    required = {"fresh_input", "cached_input", "output"}
+    writes = profile.get("separately_charged_write_categories")
+    if (not profile.get("published_source") or not profile.get("effective_date")
+            or not isinstance(applicable, dict)
+            or any(not applicable.get(k) for k in ("model", "rate_category", "context_category"))
+            or not isinstance(weights, dict) or not isinstance(writes, list)
+            or any(not isinstance(name, str) or not name for name in writes)):
+        return {**result, "reason": "profile_incomplete"}
+    required.update("cache_write:" + name for name in writes)
+    required.update(k for k in categories if k.startswith("cache_write:"))
+    missing = sorted(k for k in required if categories.get(k) is None)
+    if missing:
+        return {**result, "reason": "categories_missing", "missing_categories": missing}
+    if any(type(categories[k]) is not int or categories[k] < 0 for k in required):
+        return {**result, "reason": "categories_invalid"}
+    if (weights.get("fresh_input") != 1
+            or any(type(weights.get(k)) not in (int, float)
+                   or not math.isfinite(weights[k]) or weights[k] < 0 for k in required)):
+        return {**result, "reason": "weights_missing_or_invalid"}
+    if applicability is not None and any(applicability.get(k) != applicable[k]
+            for k in ("model", "rate_category", "context_category")):
+        return {**result, "reason": "profile_inapplicable"}
+    contributions = {k: categories[k] * weights[k] for k in sorted(required)}
+    if not all(math.isfinite(value) for value in contributions.values()):
+        return {**result, "reason": "weighted_overflow"}
+    return {**result, "status": "available", "weighted_tokens": sum(contributions.values()),
+            "weighted_contributions": contributions,
+            "applicability_basis": "declared_frozen_reference_assumption" if applicability is None else "matched"}
+
+
+def weighted_overhead(with_usage, without_usage):
+    """Compare only compatible measured categories under the same profile."""
+    result = {"status": "unavailable"}
+    if with_usage.get("status") != "available" or without_usage.get("status") != "available":
+        return {**result, "reason": "weighted_usage_unavailable"}
+    if with_usage.get("profile_fingerprint") != without_usage.get("profile_fingerprint"):
+        return {**result, "reason": "profiles_incompatible"}
+    if set(with_usage["raw_categories"]) != set(without_usage["raw_categories"]):
+        return {**result, "reason": "categories_incompatible"}
+    baseline = without_usage["weighted_tokens"]
+    if baseline <= 0:
+        return {**result, "reason": "nonpositive_baseline"}
+    return {"status": "available", "overhead_percent":
+            100 * (with_usage["weighted_tokens"] / baseline - 1),
+            "profile_fingerprint": with_usage["profile_fingerprint"]}
+
+
+def _measured_categories(usage, provider="openai"):
+    """Preserve absent counters; normalize provider subsets once."""
+    if provider == "anthropic":
+        fresh = _first_int(usage, "input_tokens", "inputTokens")
+        cached = _first_int(usage, "cache_read_input_tokens", "cache_read_tokens")
+        output = _first_int(usage, "output_tokens", "outputTokens")
+        categories = {"fresh_input": fresh, "cached_input": cached, "output": output}
+        writes = usage.get("cache_creation")
+        if isinstance(writes, dict):
+            for name, value in writes.items():
+                count = _first_int(value, "input_tokens") if isinstance(value, dict) else _non_negative_int(value)
+                categories["cache_write:" + name] = count
+        elif _first_int(usage, "cache_creation_input_tokens"):
+            categories["cache_write:unspecified"] = _first_int(usage, "cache_creation_input_tokens")
+        return categories
+    total_input = _first_int(usage, "input_tokens", "inputTokens")
+    cached = _first_int(usage, "cached_input_tokens", "cachedInputTokens")
+    details = usage.get("input_tokens_details")
+    if cached is None and isinstance(details, dict):
+        cached = _first_int(details, "cached_tokens")
+    output = _first_int(usage, "output_tokens", "outputTokens")
+    categories = {"fresh_input": total_input - cached if total_input is not None and cached is not None else None,
+                  "cached_input": cached, "output": output}
+    # OpenAI cache writes have unknown charging semantics unless explicitly
+    # reported as separate categories. Never subtract or charge them twice.
+    writes = usage.get("separately_charged_cache_writes")
+    if isinstance(writes, dict):
+        categories.update({"cache_write:" + name: _non_negative_int(value)
+                           for name, value in writes.items()})
+    elif _first_int(usage, "cache_write_input_tokens", "cacheWriteInputTokens",
+                    "cache_write_tokens", "cacheWriteTokens"):
+        categories["cache_write:unknown"] = None
+    return categories
+
+
+def _sum_measured_requests(requests):
+    keys = {"fresh_input", "cached_input", "output"}
+    for request in requests:
+        keys.update(request["categories"])
+    return {key: sum(r["categories"][key] for r in requests)
+            if requests and all(r["categories"].get(key) is not None for r in requests) else None
+            for key in sorted(keys)}
+
+
+def _report_ledger_identity(value, fingerprint):
+    """Keep raw provider identities out of saved local reports too."""
+    namespaces = {"thread_id": ("thread_fp", "codex-thread"),
+                  "response_id": ("response_fp", "codex-response"),
+                  "turn_id": ("turn_fp", "codex-turn"),
+                  "session_id": ("session_fp", "codex-thread"),
+                  "root_turn_id": ("root_turn_fp", "codex-turn"),
+                  "parent_thread_id": ("parent_thread_fp", "codex-thread")}
+    result = {key: item for key, item in value.items() if key not in namespaces}
+    for key, (field, namespace) in namespaces.items():
+        if isinstance(value.get(key), str) and value[key]:
+            result[field] = fingerprint(namespace, value[key])
+    return result
 
 class BreakdownAccumulator:
     """Charge Uclusion content once on arrival and on every re-send."""
@@ -6279,6 +6751,29 @@ class BreakdownAccumulator:
         # False while reading records outside the requested time window:
         # content still enters the context, but nothing is charged.
         self.charging = True
+        self.physical_reads = {}
+        self.coverage_reasons = set()
+
+    def physical_read(self, kind, text, key=None):
+        """Count delivered bytes independently of retained prompt re-sends."""
+        if not self.charging or not text:
+            return
+        identity = (kind, key or _sha256_text(text))
+        item = self.physical_reads.setdefault(identity, {
+            "kind": kind, "content_sha256": identity[1], "occurrences": 0,
+            "utf8_bytes": 0, "repeat_occurrences": 0, "repeat_utf8_bytes": 0})
+        size = len(text.encode("utf-8"))
+        if item["occurrences"]:
+            item["repeat_occurrences"] += 1
+            item["repeat_utf8_bytes"] += size
+        item["occurrences"] += 1
+        item["utf8_bytes"] += size
+
+    def physical_reads_result(self):
+        fields = ("occurrences", "utf8_bytes", "repeat_occurrences", "repeat_utf8_bytes")
+        return {**{key: sum(item[key] for item in self.physical_reads.values()) for key in fields},
+                "basis": "delivered_physical_reads", "encrypted_brief_plaintext_bytes": None,
+                "avoidability": "unknown", "items": list(self.physical_reads.values())}
 
     def add(self, line, tokens, estimated=0, key=None):
         if not tokens:
@@ -6424,7 +6919,6 @@ BREAKDOWN_REASONS = (
     "log_missing", "unsupported_client_version", "no_model_requests",
     "collector_failure",
 )
-BREAKDOWN_WINDOW_SLACK_SECONDS = 2.0
 
 
 def finalization_breakdown(result):
@@ -6436,6 +6930,8 @@ def finalization_breakdown(result):
     items = []
     for item in result.get("items") or []:
         if item.get("line") not in BREAKDOWN_LINE_KEYS:
+            continue
+        if item.get("status") == "unknown":
             continue
         total = clamp(item.get("total_tokens"))
         items.append({
@@ -6694,6 +7190,8 @@ class _UclusionClassifier:
         if tool in MARKER_TOOLS:
             self.acc.exclude_text(text, remember="audit_run_id" in text)
             return
+        if isinstance(tool, str) and tool.startswith(("get_", "find_")):
+            self.acc.physical_read("mcp", text, key=_sha256_text(split_mcp_framing(text)[1] or text))
         text = self.acc.work_text(text)
         arguments = arguments if isinstance(arguments, dict) else {}
         stripped = text.strip()
@@ -6719,22 +7217,36 @@ class _UclusionClassifier:
 
     def shell_result(self, command, text):
         """Charge a shell, Read or search result if Uclusion caused it."""
+        if isinstance(command, list) and all(isinstance(part, str) for part in command):
+            command = " ".join(command)
         if not isinstance(command, str) or not text:
             return
-        text = self.acc.work_text(text)
+        text = _shell_output(text)
+        if not UCLUSION_SKILL_PATH.search(command):
+            if UCLUSION_EXPORT_COMMAND.search(command):
+                self.acc.physical_read("export", text)
+            elif re.search(r"(?:^|[\s;&|])(?:rg|grep)\s", command):
+                self.acc.physical_read("search", text)
+            elif re.search(r"(?:^|[\s;&|])(?:cat|sed|head|tail)\s", command):
+                self.acc.physical_read("file", text)
         if UCLUSION_LISTEN_COMMAND.search(command):
-            self.acc.add_text("pokes", text)
+            self.acc.add_text("pokes", self.acc.work_text(text))
         elif UCLUSION_EXPORT_COMMAND.search(command):
-            self.acc.add_text("export", text)
+            self.acc.add_text("export", self.acc.work_text(text))
         elif UCLUSION_SKILL_PATH.search(command):
             self.skill_text(text, command)
         elif UCLUSION_EXPORT_PATH.search(command):
-            self.acc.add_text("export_search", text)
+            self.acc.add_text("export_search", self.acc.work_text(text))
 
     def skill_text(self, text, command=None):
         """Charge skill text: shipped files exactly, anything around them
         (a Read tool's line numbers, a skill header) by size."""
         counter = self.acc.counter
+        numbered = _without_read_numbering(text)
+        canonical = numbered if numbered is not None else text
+        spans = _complete_skill_spans(canonical)
+        physical_text = "\n".join(canonical[start:end] for start, end in spans) if spans else canonical
+        self.acc.physical_read("file", physical_text)
         text = self.acc.work_text(text)
         if not text.strip():
             return
@@ -6784,7 +7296,7 @@ class _UclusionClassifier:
         exact, guess = counter.artifact(remaining)
         self.acc.add(
             "skills", tokens + exact, estimated + guess,
-            key="skill:" + _sha256_text(text),
+            key="skill:" + _sha256_text(physical_text),
         )
 
 
@@ -6885,19 +7397,42 @@ def _claude_usage_total(usage):
     return total, _non_negative_int(usage.get("output_tokens")) or 0
 
 
-def breakdown_claude_transcript(path, counter, window=None):
+def breakdown_claude_transcript(path, counter, window=None, selected_requests=None, fingerprint=None):
     """Account one Claude Code transcript (and its subagents)."""
     acc = BreakdownAccumulator(counter)
     classifier = _UclusionClassifier(acc)
     calls = {}
     pending = None
     unknown_shapes = 0
+    acc.ledger = {"requests": [], "reconciliation": []}
 
     def flush():
         nonlocal pending
         if pending is not None:
             _set_charging(acc, window, pending["created_at"])
-            acc.request(pending["total"], pending["output"])
+            selected = None
+            if selected_requests is not None:
+                identities = [pending["key"]]
+                if pending["session_id"]:
+                    identities.append(pending["session_id"] + "\0" + pending["key"])
+                keys = {fingerprint("usage-event", "claude\0" + identity) for identity in identities} if fingerprint else set()
+                selected = next((row for row in selected_requests if row.get("event_key") in keys), None)
+                acc.charging = selected is not None
+            counts = _anthropic_counts(pending["usage"])
+            if selected is not None:
+                counts = {key: selected.get(key) for key in counts}
+            acc.request(counts["normalized_total_tokens"], counts["output_tokens"])
+            if acc.charging:
+                entry = {"response_id": pending["key"],
+                    "counts": counts,
+                    "categories": _measured_categories(pending["usage"], "anthropic"),
+                    "reasoning_output_subset": None, "identity_basis": "transcript_request_id"}
+                if selected is not None:
+                    provenance = _json_object(selected.get("provenance_json")) or {}
+                    entry.update(selected_event_key=selected["event_key"], session_fp=selected["session_fp"],
+                        categories=provenance.get("categories") or {
+                            "fresh_input": None, "cached_input": None, "output": None})
+                acc.ledger["requests"].append(entry)
             pending = None
 
     with open(path, "rb") as source:
@@ -6916,17 +7451,19 @@ def breakdown_claude_transcript(path, counter, window=None):
                     record.get("requestId") or message.get("id")
                     or record.get("uuid")
                 )
-                total, output = _claude_usage_total(message.get("usage"))
+                total, _ = _claude_usage_total(message.get("usage"))
                 if pending is not None and pending["key"] != identity:
                     flush()
                 if pending is None and total is not None:
                     pending = {
-                        "key": identity, "total": total, "output": output,
+                        "key": identity, "total": total,
+                        "session_id": record.get("sessionId") or record.get("session_id"),
+                        "usage": message["usage"],
                         "created_at": _event_timestamp(record.get("timestamp")),
                     }
-                elif pending is not None and total is not None:
-                    pending["total"] = max(pending["total"], total)
-                    pending["output"] = max(pending["output"], output)
+                elif pending is not None and total is not None and total >= pending["total"]:
+                    pending["total"] = total
+                    pending["usage"] = message["usage"]
                 for item in message.get("content") or []:
                     if not isinstance(item, dict):
                         continue
@@ -7149,80 +7686,313 @@ def _codex_parent(metadata):
     return spawn.get("parent_thread_id") if isinstance(spawn, dict) else None
 
 
-def breakdown_codex_rollout(path, counter, window=None, records=None):
+
+def _accounting_scope(metadata):
+    scope = metadata.get("accounting_scope") or metadata.get("accountingScope")
+    if scope in ("root", "helper", "review", "auditor", "unrelated"):
+        return scope
+    path = metadata.get("agent_path")
+    leaf = path.rsplit("/", 1)[-1] if isinstance(path, str) else ""
+    if leaf.startswith(("review_", "audit_", "auditor_")):
+        return "review" if leaf.startswith("review_") else "auditor"
+    return "helper" if _codex_parent(metadata) or metadata.get("parentThreadId") else "root"
+
+
+def _codex_request_ledger(records, metadata, selected_requests=None, fingerprint=None):
+    """Select final per-response observations, never cumulative counters."""
+    ledger, snapshots, reasons = {}, {}, set()
+    cumulative_observations = {}
+    scope = _accounting_scope(metadata)
+    if scope in ("review", "auditor", "unrelated"):
+        return [], {"excluded_scope"}, []
+    parent = _codex_parent(metadata)
+    born = _event_timestamp(metadata.get("timestamp")) if parent else None
+    for index, record in enumerate(records):
+        payload = record.get("payload")
+        if not isinstance(payload, dict):
+            continue
+        kind = record.get("type")
+        native = kind == "token_usage_record" or (kind == "event_msg" and payload.get("type") == "raw_response_completed")
+        snapshot = kind == "event_msg" and payload.get("type") == "token_count"
+        if not native and not snapshot:
+            continue
+        created = _event_timestamp(record.get("timestamp"))
+        thread = payload.get("thread_id") or metadata.get("id")
+        if ((born is not None and created is not None and created < born)
+                or (metadata.get("id") and thread != metadata["id"])):
+            continue
+        info = payload.get("info") if isinstance(payload.get("info"), dict) else {}
+        usage = payload.get("usage") if native else info.get("last_token_usage")
+        if not _valid_openai_usage(usage):
+            reasons.add("unsupported_record_shape")
+            continue
+        response = payload.get("response_id")
+        turn = payload.get("turn_id") or info.get("turn_id")
+        cumulative = payload.get("thread_token_usage") if native else info.get("total_token_usage")
+        if _valid_openai_usage(cumulative):
+            cumulative_observations[thread] = cumulative
+        counts = _openai_counts(usage)
+        entry = {"index": index, "thread_id": thread, "response_id": response,
+                 "turn_id": turn, "session_id": payload.get("session_id") or thread,
+                 "root_turn_id": payload.get("root_turn_id"), "parent_thread_id": parent,
+                 "scope": scope, "created_at": created, "counts": counts,
+                 "timestamp_basis": "source_log_timestamp" if created is not None else "unavailable",
+                 "context_applicability": "unknown",
+                 "categories": _measured_categories(usage),
+                 "reasoning_output_subset": counts["reasoning_output_tokens"],
+                 "thread_cumulative": cumulative,
+                 "turn_cumulative": payload.get("turn_token_usage"),
+                 "identity_basis": "native_response_id" if isinstance(response, str) and response else "cumulative_snapshot_fallback"}
+        if isinstance(response, str) and response:
+            key = (thread, response)
+            prior = ledger.get(key)
+            if prior is None or counts["normalized_total_tokens"] >= prior["counts"]["normalized_total_tokens"]:
+                ledger[key] = entry
+        else:
+            # Output can grow while the same request completes. The stable
+            # cumulative input identifies that fallback interval, not another
+            # chargeable request. Missing cumulative input stays uncertain.
+            cumulative_counts = _openai_counts(cumulative) if _valid_openai_usage(cumulative) else None
+            key = (thread, turn, cumulative_counts["input_tokens"] if cumulative_counts else counts["input_tokens"],
+                   cumulative_counts["cached_input_tokens"] if cumulative_counts else counts["cached_input_tokens"])
+            snapshots[key] = entry
+    entries = list(ledger.values())
+    native_positions, thread_totals = {}, {}
+    for entry in sorted(entries, key=lambda item: item["index"]):
+        thread = entry["thread_id"]
+        thread_totals[thread] = thread_totals.get(thread, 0) + entry["counts"]["normalized_total_tokens"]
+        native_positions[entry["index"]] = thread_totals[thread]
+    for snapshot in snapshots.values():
+        cumulative_counts = (_openai_counts(snapshot["thread_cumulative"])
+            if _valid_openai_usage(snapshot["thread_cumulative"]) else None)
+        matches = []
+        interval = _request_interval(snapshot["counts"], cumulative_counts)
+        for entry in entries:
+            if entry["thread_id"] != snapshot["thread_id"] or (
+                    snapshot["turn_id"] is not None and entry["turn_id"] != snapshot["turn_id"]):
+                continue
+            prior_cumulative = (_openai_counts(entry["thread_cumulative"])
+                if _valid_openai_usage(entry["thread_cumulative"]) else None)
+            same_interval = interval is not None and interval == _request_interval(entry["counts"], prior_cumulative)
+            compatible_position = (prior_cumulative is None or cumulative_counts is None or
+                prior_cumulative["normalized_total_tokens"] == cumulative_counts["normalized_total_tokens"])
+            equal = all(entry["counts"][key] == snapshot["counts"][key] for key in
+                ("input_tokens", "cached_input_tokens", "output_tokens", "normalized_total_tokens"))
+            if same_interval or compatible_position and equal:
+                matches.append(entry)
+        if not matches:
+            entries.append(snapshot)
+            reasons.add("fallback_request_identity")
+        elif cumulative_counts is not None:
+            positioned = [entry for entry in matches if
+                native_positions.get(entry["index"]) == cumulative_counts["normalized_total_tokens"]]
+            latest = max(positioned or matches, key=lambda entry: entry["index"])
+            if snapshot["counts"]["normalized_total_tokens"] > latest["counts"]["normalized_total_tokens"]:
+                latest.update(counts=snapshot["counts"], categories=snapshot["categories"],
+                    reasoning_output_subset=snapshot["reasoning_output_subset"],
+                    thread_cumulative=snapshot["thread_cumulative"],
+                    counter_basis="cumulative_snapshot_fallback",
+                    counter_observed_at=snapshot["created_at"])
+            if latest["thread_cumulative"] is None:
+                latest["thread_cumulative"] = snapshot["thread_cumulative"]
+            elif latest["thread_cumulative"] != snapshot["thread_cumulative"]:
+                reasons.add("snapshot_cumulative_basis_differs")
+    entries.sort(key=lambda entry: entry["index"])
+    excluded = set()
+    for thread in dict.fromkeys(entry["thread_id"] for entry in entries):
+        native = []
+        for entry in entries:
+            if entry["thread_id"] != thread or not entry["response_id"]:
+                continue
+            source = _selected_request(entry, selected_requests, fingerprint)
+            if source is None:
+                continue
+            if "normalized_total_tokens" in source:
+                provenance = _json_object(source.get("provenance_json")) or {}
+                native.append({"counts": source, "thread_cumulative": provenance.get("thread_cumulative"),
+                    "categories": provenance.get("categories") or {
+                        "fresh_input": None, "cached_input": None, "output": None}})
+            else:
+                native.append(entry)
+        coverage = _native_coverage(native)
+        if coverage is None:
+            continue
+        snapshots = [entry for entry in entries if entry["thread_id"] == thread and not entry["response_id"]]
+        additional = _outside_native_coverage([(entry["counts"],
+            _openai_counts(entry["thread_cumulative"]) if _valid_openai_usage(entry["thread_cumulative"]) else None)
+            for entry in snapshots], coverage)
+        for index, entry in enumerate(snapshots):
+            if index not in additional:
+                excluded.add(entry["index"])
+                reasons.add("snapshot_cumulative_basis_differs")
+    entries = [entry for entry in entries if entry["index"] not in excluded]
+    if not any(not entry["response_id"] for entry in entries):
+        reasons.discard("fallback_request_identity")
+    reconciliation = []
+    for thread in dict.fromkeys(entry["thread_id"] for entry in entries):
+        thread_entries = [e for e in entries if e["thread_id"] == thread]
+        cumulative = cumulative_observations.get(thread)
+        response_counts = {key: sum(e["counts"][key] or 0 for e in thread_entries)
+                           for key in ("input_tokens", "cached_input_tokens", "output_tokens", "normalized_total_tokens")}
+        cumulative_counts = _openai_counts(cumulative) if cumulative else None
+        matched = cumulative_counts is not None and all(response_counts[key] == cumulative_counts[key] for key in response_counts)
+        status = "matched" if matched else "cumulative_missing" if cumulative_counts is None else "partial_thread_coverage"
+        reconciliation.append({"thread_id": thread, "response_sum": response_counts["normalized_total_tokens"],
+                               "response_categories": response_counts, "cumulative_categories": cumulative_counts,
+                               "cumulative_total": cumulative_counts["normalized_total_tokens"] if cumulative_counts else None,
+                               "status": status, "scope": "whole_thread_reference"})
+        if cumulative_counts is not None and not matched:
+            reasons.add("cumulative_reconciliation_gap")
+        for turn in dict.fromkeys(entry["turn_id"] for entry in thread_entries):
+            turn_entries = [entry for entry in thread_entries if entry["turn_id"] == turn]
+            total = next((entry["turn_cumulative"] for entry in reversed(turn_entries)
+                          if _valid_openai_usage(entry["turn_cumulative"])), None)
+            if total is None:
+                continue
+            turn_sum = sum(entry["counts"]["normalized_total_tokens"] for entry in turn_entries)
+            turn_total = _openai_counts(total)["normalized_total_tokens"]
+            reconciliation.append({"thread_id": thread, "turn_id": turn,
+                "response_sum": turn_sum, "cumulative_total": turn_total,
+                "status": "matched" if turn_sum == turn_total else "partial_turn_coverage",
+                "scope": "whole_turn_reference"})
+            if turn_sum != turn_total:
+                reasons.add("cumulative_reconciliation_gap")
+    return entries, reasons, reconciliation
+
+
+def _selected_request(request, selected_requests, fingerprint=None):
+    if selected_requests is None:
+        return request
+    fallback_matches = []
+    for selected in selected_requests:
+        if "event_key" not in selected:
+            if (selected.get("thread_id") == request.get("thread_id") and
+                    selected.get("response_id") == request.get("response_id")):
+                return selected
+            continue
+        if fingerprint is None:
+            continue
+        if selected.get("session_fp") != fingerprint("codex-thread", request.get("thread_id")):
+            continue
+        provenance = _json_object(selected.get("provenance_json")) or {}
+        response = request.get("response_id")
+        if response and (provenance.get("response_fp") == fingerprint("codex-response", response)
+                or selected["event_key"] == fingerprint("usage-event", "codex\0" + str(request.get("thread_id")) + "\0" + response)):
+            return selected
+        if not response and selected.get("turn_fp") == fingerprint("codex-turn", request.get("turn_id")):
+            if all(selected.get(k) == request["counts"][k] for k in
+                    ("input_tokens", "cached_input_tokens", "output_tokens", "normalized_total_tokens")):
+                cumulative = request.get("thread_cumulative")
+                interval = _request_interval(request["counts"], _openai_counts(cumulative)) if _valid_openai_usage(cumulative) else None
+                selected_interval = _request_interval(selected, provenance.get("thread_cumulative"))
+                if interval is not None and selected_interval is not None and interval != selected_interval:
+                    continue
+                fallback_matches.append(selected)
+    return fallback_matches[0] if len(fallback_matches) == 1 else None
+
+def breakdown_codex_rollout(path, counter, window=None, records=None,
+                            selected_requests=None, fingerprint=None):
     """Account one Codex rollout."""
     acc = BreakdownAccumulator(counter)
     classifier = _UclusionClassifier(acc)
     calls = {}
-    seen_responses = set()
-    used_record_usage = False
-    claims_used = False
-
-    def include_tool(name):
-        if name in MARKER_TOOLS:
-            return False
-        if name == "claim_work" and not claims_used:
-            return False
-        return isinstance(name, str)
-
+    pending_calls = []
+    native_calls = {}
+    seen_items = set()
     records, unknown_shapes = records if records is not None else _codex_records(path)
     metadata = next((r.get("payload", {}) for r in records
                      if r.get("type") == "session_meta"), {})
     if not isinstance(metadata, dict):
         metadata = {}
         unknown_shapes += 1
-    inherited_before = (
-        _event_timestamp(metadata.get("timestamp"))
-        if _codex_parent(metadata) else None
-    )
-    for record in records:
-        blob = _canonical_json(record)
-        if "claim_work" in blob:
-            claims_used = True
-    for record in records:
-        if record.get("type") == "token_usage_record":
-            used_record_usage = True
-            break
-
-    definitions_sent = False
-    for record in records:
+    entries, ledger_reasons, reconciliation = _codex_request_ledger(records, metadata, selected_requests, fingerprint)
+    selected = []
+    selected_event_keys = set()
+    for entry in entries:
+        if window is not None:
+            if entry["created_at"] is None:
+                ledger_reasons.add("missing_request_timestamp")
+                continue
+            if not window[0] <= entry["created_at"] <= window[1]:
+                continue
+        source = _selected_request(entry, selected_requests, fingerprint)
+        if source is None:
+            continue
+        if "normalized_total_tokens" in source:
+            if source["event_key"] in selected_event_keys:
+                continue
+            selected_event_keys.add(source["event_key"])
+            # The durable run ledger owns the counters. The log supplies
+            # content attribution and must not change that selected charge.
+            if source["normalized_total_tokens"] != entry["counts"]["normalized_total_tokens"]:
+                ledger_reasons.add("selected_counter_mismatch")
+            entry = {**entry, "counts": {key: source.get(key) for key in entry["counts"]},
+                     "selected_event_key": source["event_key"]}
+            provenance = _json_object(source.get("provenance_json")) or {}
+            entry["categories"] = provenance.get("categories") or {
+                "fresh_input": None, "cached_input": None, "output": None}
+            entry["reasoning_output_subset"] = provenance.get("reasoning_output_subset")
+        selected.append(entry)
+    selected_by_index = {entry["index"]: entry for entry in selected}
+    acc.ledger = {"requests": selected, "reconciliation": reconciliation,
+                  "scope": "selected_request_ledger", "excluded_requests": len(entries) - len(selected)}
+    acc.coverage_reasons.update(ledger_reasons)
+    if unknown_shapes:
+        acc.coverage_reasons.add("malformed_log_record")
+    inherited_before = _event_timestamp(metadata.get("timestamp")) if _codex_parent(metadata) else None
+    request_cursor = 0
+    for index, record in enumerate(records):
         kind = record.get("type")
-        payload = record.get("payload") if isinstance(
-            record.get("payload"), dict
-        ) else {}
+        payload = record.get("payload") if isinstance(record.get("payload"), dict) else {}
         payload_type = payload.get("type")
         created_at = _event_timestamp(record.get("timestamp"))
         _set_charging(acc, window, created_at)
-        if inherited_before is not None and created_at is not None:
-            if created_at < inherited_before:
-                acc.charging = False
-        if not definitions_sent:
-            # Codex sends every MCP tool definition with every request; the
-            # rollout does not record them, so the shipped counts stand in
-            # for content this session cannot show, marked as estimated.
-            definitions_sent = True
-            definitions = counter.shipped_tool_total(include_tool)
-            acc.add("tool_definitions", definitions, definitions)
-            acc.exclude(counter.shipped_tool_total(
-                lambda name: name in MARKER_TOOLS
-            ), persistent=True)
-        usage = None
-        if kind == "token_usage_record":
-            response_id = payload.get("response_id")
-            if response_id in seen_responses:
-                continue
-            seen_responses.add(response_id)
-            usage = _codex_usage(payload)
-        elif (
-            kind == "event_msg" and payload_type == "token_count"
-            and not used_record_usage
-        ):
-            usage = _codex_usage(payload)
-        if usage is not None:
-            acc.request(*usage)
+        if selected_requests is not None:
+            while request_cursor < len(entries) and entries[request_cursor]["index"] < index:
+                request_cursor += 1
+            next_request = entries[request_cursor] if request_cursor < len(entries) else None
+            acc.charging = next_request is not None and next_request["index"] in selected_by_index
+        if inherited_before is not None and created_at is not None and created_at < inherited_before:
+            acc.charging = False
+        if index in selected_by_index:
+            entry = selected_by_index[index]
+            acc.request(entry["counts"]["normalized_total_tokens"], entry["counts"]["output_tokens"])
             continue
         if kind == "compacted":
             acc.compact()
+            continue
+        if kind == "event_msg" and payload_type == "item_completed":
+            item = payload.get("item")
+            if not isinstance(item, dict):
+                acc.coverage_reasons.add("unsupported_record_shape")
+                continue
+            identity = item.get("id")
+            if identity and identity in seen_items:
+                continue
+            if identity:
+                seen_items.add(identity)
+            item_type = item.get("type")
+            if item_type not in ("CommandExecution", "commandExecution", "McpToolCall", "mcpToolCall"):
+                continue
+            parent_call = identity if identity in calls else next(
+                (call for call in reversed(pending_calls) if calls[call][0] in ("exec", "functions.exec")), None)
+            if parent_call:
+                native_calls[parent_call] = native_calls.get(parent_call, 0) + 1
+            status = str(item.get("status") or "completed").lower()
+            if status in ("failed", "error", "cancelled"):
+                acc.coverage_reasons.add("failed_read")
+                continue
+            if item_type in ("CommandExecution", "commandExecution"):
+                text = item.get("aggregated_output") or item.get("aggregatedOutput")
+                if isinstance(text, str):
+                    classifier.shell_result(item.get("command"), text)
+                else:
+                    acc.coverage_reasons.add("missing_read_output")
+            elif str(item.get("server") or "").lower() == "uclusion":
+                tool = item.get("tool")
+                classifier.uclusion_call(tool, item.get("arguments"))
+                classifier.uclusion_result(tool, item.get("arguments"),
+                    _text_of(item.get("result")))
             continue
         if kind != "response_item":
             continue
@@ -7265,12 +8035,27 @@ def breakdown_codex_rollout(path, counter, window=None, records=None):
             if isinstance(namespace, str) and "uclusion" in namespace.lower():
                 name = "mcp__uclusion__" + str(name)
             calls[payload.get("call_id")] = (name, arguments)
+            pending_calls.append(payload.get("call_id"))
             tool = _uclusion_tool_basename(name)
             if tool:
                 classifier.uclusion_call(tool, arguments)
             continue
         if payload_type in ("function_call_output", "custom_tool_call_output"):
-            name, arguments = calls.get(payload.get("call_id"), (None, {}))
+            call_id = payload.get("call_id")
+            name, arguments = calls.get(call_id, (None, {}))
+            if call_id in pending_calls:
+                pending_calls.remove(call_id)
+            if call_id in native_calls:
+                # The completed native items already account for physical
+                # execution. The outer delivery is another observation of
+                # those results, not another read or retained-content copy.
+                if name in ("exec", "functions.exec") and isinstance(arguments, str):
+                    code = CODEX_JS_LITERAL.sub(lambda match: " " * len(match.group()), arguments)
+                    relevant = sum(call.group(1) == "exec_command" or bool(_uclusion_tool_basename(call.group(1)))
+                                   for call in CODEX_TOOL_CALL.finditer(code))
+                    if relevant > native_calls[call_id]:
+                        acc.coverage_reasons.add("missing_native_batch_results")
+                continue
             output = payload.get("output")
             if name == "exec" and isinstance(arguments, str):
                 if _codex_exec_output(classifier, arguments, output):
@@ -7284,10 +8069,10 @@ def breakdown_codex_rollout(path, counter, window=None, records=None):
                 command = arguments.get("cmd") if isinstance(
                     arguments, dict
                 ) else None
-                if isinstance(command, list):
-                    command = " ".join(str(part) for part in command)
                 classifier.shell_result(command, _shell_output(text))
-    reason = "unsupported_client_version" if unknown_shapes else None
+    if unknown_shapes:
+        acc.coverage_reasons.add("unsupported_record_shape")
+    reason = sorted(acc.coverage_reasons)[0] if acc.coverage_reasons else None
     return acc, reason
 
 
@@ -7317,6 +8102,10 @@ def _shell_output(text):
             return text
         if isinstance(parsed, dict) and isinstance(parsed.get("output"), str):
             return parsed["output"]
+    if stripped.startswith(("Chunk ID:", "Wall time:", "Process exited with")):
+        match = re.search(r"(?:^|\n)(?:Final output|Output):\r?\n", text)
+        if match:
+            return text[match.end():]
     return text
 
 
@@ -7390,6 +8179,7 @@ def _codex_exec_output(classifier, script, output):
             return
         if not isinstance(value, dict):
             incomplete = True
+            classifier.acc.coverage_reasons.add("unsupported_result_shape")
             ordered_results_trustworthy = False
             return
         if "i" in value:
@@ -7399,6 +8189,7 @@ def _codex_exec_output(classifier, script, output):
             if (len(batches) != 1 or type(local_index) is not int
                     or not 0 <= local_index < len(batches[0])):
                 incomplete = True
+                classifier.acc.coverage_reasons.add("unsupported_batch_association")
                 ordered_results_trustworthy = False
                 index = None
             else:
@@ -7411,6 +8202,7 @@ def _codex_exec_output(classifier, script, output):
             return
         if value.get("status") == "rejected":
             incomplete = True
+            classifier.acc.coverage_reasons.add("failed_batch_member")
             if index is not None:
                 seen.add(index)
             else:
@@ -7423,6 +8215,7 @@ def _codex_exec_output(classifier, script, output):
         mcp = isinstance(value.get("content"), list)
         if not shell and not mcp:
             incomplete = True
+            classifier.acc.coverage_reasons.add("unsupported_result_shape")
             if index is not None:
                 seen.add(index)
             else:
@@ -7507,6 +8300,7 @@ def _codex_exec_output(classifier, script, output):
         text = _text_of(segment) if not isinstance(segment, str) else segment
         if re.search(r"truncated output|\d+ tokens truncated", text or ""):
             incomplete = True
+            classifier.acc.coverage_reasons.add("malformed_or_truncated_batch")
         stripped = (text or "").lstrip()
         fallback_text = text or ""
         if stripped.startswith("Warning: truncated output"):
@@ -7538,6 +8332,7 @@ def _codex_exec_output(classifier, script, output):
                     stripped = remaining
                     fallback_text = remaining
                     incomplete = True
+                    classifier.acc.coverage_reasons.add("malformed_or_truncated_batch")
                     ordered_results_trustworthy = False
                 classify_plain_output(fallback_text)
                 break
@@ -7554,6 +8349,7 @@ def _codex_exec_output(classifier, script, output):
     if any(i not in seen for i, name in enumerate(invoked)
            if name == "exec_command" or _uclusion_tool_basename(name)):
         incomplete = True
+        classifier.acc.coverage_reasons.add("missing_batch_results")
     for name, call in uclusion_calls:
         if _tool_basename(name):
             classifier.acc.exclude_text(
@@ -7563,6 +8359,8 @@ def _codex_exec_output(classifier, script, output):
             classifier.acc.add_text("mcp_framing", re.sub(
                 r"(\"(?:[^\"\\]|\\.){200,}\"|`[^`]{200,}`)", "\"\"", call.group(1)
             ))
+    if incomplete and not classifier.acc.coverage_reasons:
+        classifier.acc.coverage_reasons.add("malformed_or_truncated_batch")
     return incomplete
 
 
@@ -7646,6 +8444,8 @@ def codex_descendant_logs(path, window=None):
     selected = [(path, by_id[root][1])]
     seen = {root}
     for _, parent_meta in selected:
+        if _accounting_scope(parent_meta) in ("review", "auditor", "unrelated"):
+            continue
         for thread, (candidate, meta, _) in sorted(by_id.items()):
             parent_id = _codex_parent(meta)
             born = _event_timestamp(meta.get("timestamp"))
@@ -7683,42 +8483,74 @@ def _codex_spawned_agents(records, window=None):
     return spawned
 
 
-def breakdown_session_log(path, manifest=None, window=None):
+def breakdown_session_log(path, manifest=None, window=None, selected_requests=None,
+                          fingerprint=None, profile=None, session_logs=None):
     """Compute the Uclusion breakdown for one saved session log."""
+    uncertain_snapshots = False
+    if selected_requests is not None and all("provenance_json" in row and "event_key" in row for row in selected_requests):
+        selected_requests, uncertain_snapshots = _select_persisted_usage(selected_requests)
     client = detect_session_log(path)
     if client is None:
         if not os.path.exists(path):
             return unavailable_breakdown("log_missing")
-        return unavailable_breakdown("unsupported_client_version")
+        return unavailable_breakdown("unsupported_record_shape")
     if manifest is None:
         manifest = load_token_manifest()
     family = "claude" if client == "claude" else "openai"
     counter = TokenCounter(manifest, family)
     coverage = None
+    catalog_paths = []
     try:
         if client == "claude":
             accumulators = []
             reasons = []
             for log in [path] + claude_subagent_logs(path):
-                acc, reason = breakdown_claude_transcript(log, counter, window)
+                acc, reason = breakdown_claude_transcript(log, counter, window, selected_requests, fingerprint)
                 accumulators.append(acc)
+                if acc.ledger["requests"]:
+                    catalog_paths.append(log)
                 if reason:
                     reasons.append(reason)
         else:
-            logs = codex_descendant_logs(path, window)
             accumulators, reasons = [], []
+            missing_source_logs = 0
+            if session_logs is None:
+                logs = codex_descendant_logs(path, window)
+            else:
+                logs = []
+                for log in dict.fromkeys([path, *session_logs.values()]):
+                    if not log:
+                        reasons.append("missing_descendant_logs")
+                        missing_source_logs += 1
+                        continue
+                    try:
+                        with open(log, encoding="utf-8") as source:
+                            metadata = json.loads(source.readline()).get("payload", {})
+                        logs.append((log, metadata))
+                    except (OSError, ValueError, AttributeError):
+                        reasons.append("log_missing")
+                        missing_source_logs += 1
             spawned = []
             included = set()
+            excluded = set()
             for log, metadata in logs:
                 try:
                     records = _codex_records(log)
                     acc, reason = breakdown_codex_rollout(
-                        log, counter, window, records=records
+                        log, counter, window, records=records,
+                        selected_requests=selected_requests, fingerprint=fingerprint
                     )
                 except OSError:
                     reasons.append("log_missing")
                     continue
+                if _accounting_scope(metadata) in ("review", "auditor", "unrelated"):
+                    excluded.add(metadata.get("id"))
+                    if log == path:
+                        reasons.append("excluded_scope")
+                    continue
                 accumulators.append(acc)
+                if acc.ledger["requests"]:
+                    catalog_paths.append(log)
                 included.add(metadata.get("id"))
                 spawned.extend(
                     (metadata.get("id"), identity, fork)
@@ -7726,24 +8558,32 @@ def breakdown_session_log(path, manifest=None, window=None):
                 )
                 if reason:
                     reasons.append(reason)
-            missing = 0
+            missing = missing_source_logs
             known_forks = {}
             for parent, identity, fork in spawned:
                 child = next((meta for _, meta in logs[1:]
                               if _codex_parent(meta) == parent and identity in
                               (meta.get("id"), meta.get("agent_path"))), None)
+                if child is not None and child.get("id") in excluded:
+                    continue
+                if session_logs is not None and (child is None or child.get("id") not in included):
+                    continue
                 if child is None or child.get("id") not in included:
                     missing += 1
                 else:
                     known_forks[child.get("id")] = fork
-            inherited_unknown = bool(_codex_parent(logs[0][1])) or any(
+            inherited_unknown = bool(logs and _codex_parent(logs[0][1])) or any(
                 known_forks.get(meta.get("id")) != "none" for _, meta in logs[1:]
+                if meta.get("id") in included
             )
-            if missing or inherited_unknown:
-                reasons.append("unsupported_client_version")
+            if missing:
+                reasons.append("missing_descendant_logs")
+            if inherited_unknown:
+                reasons.append("inherited_helper_coverage")
             coverage = {
                 "descendants_discovered": len(logs) - 1,
                 "descendants_included": sum(meta.get("id") in included for _, meta in logs[1:]),
+                "descendants_excluded": len(excluded),
                 "missing_descendant_logs": missing,
                 "inherited_context": "partial" if inherited_unknown else "complete",
             }
@@ -7765,12 +8605,81 @@ def breakdown_session_log(path, manifest=None, window=None):
         reason=reasons[0] if reasons else None,
     )
     result["client"] = client
+    result["measurement_basis"] = "provider_request_counters"
+    result["attribution_basis"] = "manifest_or_utf8_byte_ratio_content_estimate"
+    result["tool_injection"] = {"status": "unknown", "reason": "served_catalog_does_not_establish_injection"}
+    result["served_catalogs"] = _stored_catalog_evidence(catalog_paths, window, selected_requests)
+    if client == "codex":
+        for item in result["items"]:
+            if item["line"] == "tool_definitions":
+                item["status"] = "unknown"
+                item["measurement_basis"] = "provider_injection_unobserved"
+    physical = [a.physical_reads_result() for a in accumulators]
+    result["physical_reads"] = {
+        **{key: sum(p[key] for p in physical) for key in
+           ("occurrences", "utf8_bytes", "repeat_occurrences", "repeat_utf8_bytes")},
+        "basis": "delivered_physical_reads", "avoidability": "unknown",
+        "coverage": "partial" if reasons else "observed_supported_reads",
+        "encrypted_brief_plaintext_bytes": None,
+        "items": [item for p in physical for item in p["items"]]}
+    if client in ("codex", "claude"):
+        requests = [r for a in accumulators for r in a.ledger["requests"]]
+        matched_requests = len(requests)
+        if selected_requests is not None:
+            matched_keys = {r.get("selected_event_key") for r in requests}
+            for source in selected_requests:
+                if "normalized_total_tokens" not in source or source["event_key"] in matched_keys:
+                    continue
+                provenance = _json_object(source.get("provenance_json")) or {}
+                requests.append({"selected_event_key": source["event_key"],
+                    "response_id": None, "response_fp": provenance.get("response_fp"),
+                    "session_fp": source["session_fp"], "turn_fp": source.get("turn_fp"),
+                    "scope": provenance.get("scope"), "content_coverage": "log_request_unmatched",
+                    "created_at": source.get("created_at"),
+                    "timestamp_basis": provenance.get("timestamp_basis", "collector_storage_time"),
+                    "source_timestamp": provenance.get("source_timestamp"),
+                    "context_applicability": provenance.get("context_applicability", "unknown"),
+                    "counts": {key: source.get(key) for key in (
+                        "input_tokens", "cached_input_tokens", "output_tokens",
+                        "reasoning_output_tokens", "normalized_total_tokens")},
+                    "categories": provenance.get("categories") or {
+                        "fresh_input": None, "cached_input": None, "output": None},
+                    "reasoning_output_subset": provenance.get("reasoning_output_subset"),
+                    "identity_basis": provenance.get("identity_basis", "legacy_identity_unknown")})
+            if all("normalized_total_tokens" in source for source in selected_requests):
+                result["provider_total_tokens"] = sum(source["normalized_total_tokens"] for source in selected_requests)
+                result["model_requests"] = len(selected_requests)
+        report_salt = secrets.token_bytes(32)
+        report_fingerprint = fingerprint or (lambda namespace, value: hashlib.sha256(
+            report_salt + namespace.encode("utf-8") + b"\0" + value.encode("utf-8")).hexdigest())
+        result["ledger"] = {"requests": [_report_ledger_identity(r, report_fingerprint) for r in requests],
+            "scope": "selected_request_ledger", "identity_basis": "salted_fingerprints",
+            "reconciliation": [_report_ledger_identity(r, report_fingerprint)
+                for a in accumulators for r in a.ledger["reconciliation"]]}
+        result["measured_usage"] = {"categories": _sum_measured_requests(requests),
+            "reasoning_output_subset": sum(r["reasoning_output_subset"] for r in requests)
+                if requests and all(r["reasoning_output_subset"] is not None for r in requests) else None,
+            "normalization": "input_includes_cached_reasoning_in_output" if client == "codex"
+                else "input_excludes_cache_creation_and_cache_read"}
+        coverage = coverage or {}
+        coverage["reasons"] = sorted(set(reasons) | {r for a in accumulators for r in a.coverage_reasons})
+        if uncertain_snapshots:
+            coverage["reasons"].append("snapshot_cumulative_basis_differs")
+            result["status"] = "partial"
+            result["reason"] = "snapshot_cumulative_basis_differs"
+        if selected_requests is not None and matched_requests != len(selected_requests):
+            coverage["reasons"].append("selected_requests_missing_from_log")
+            result["status"] = "partial"
+            result["reason"] = "selected_requests_missing_from_log"
+        result["weighted_usage"] = weighted_token_report(result["measured_usage"]["categories"], profile)
     if coverage is not None:
         result["coverage"] = coverage
     if not counter.has_manifest:
         result["counts"] = "estimated_without_manifest"
     if not result["model_requests"]:
-        return unavailable_breakdown("no_model_requests")
+        missing = unavailable_breakdown("excluded_scope" if "excluded_scope" in reasons else "no_model_requests")
+        missing["coverage"] = result.get("coverage", {})
+        return missing
     return result
 
 
@@ -7789,7 +8698,7 @@ def format_breakdown(result, title="Uclusion token usage"):
     uclusion = result.get("uclusion_total_tokens") or 0
     share = (uclusion / total) if total else 0.0
     lines.append(
-        f"- Uclusion: **{uclusion:,} of {total:,} tokens ({share:.1%})** "
+        f"- Estimated Uclusion content attribution: **{uclusion:,} of {total:,} measured tokens ({share:.1%})** "
         f"across {result.get('model_requests', 0):,} model requests"
     )
     for item in result.get("items") or []:
@@ -7833,6 +8742,45 @@ def format_breakdown(result, title="Uclusion token usage"):
         )
     if coverage.get("inherited_context") == "partial":
         lines.append("- Inherited Uclusion context is only partially recoverable from saved logs.")
+    physical = result.get("physical_reads")
+    if physical:
+        lines.append("- Physical reads: {:,} occurrences, {:,} delivered UTF-8 bytes; "
+                     "{:,} repeats, {:,} repeated bytes. Required rereads and "
+                     "retained prompt re-sends have separate meanings.".format(
+                         physical["occurrences"], physical["utf8_bytes"],
+                         physical["repeat_occurrences"], physical["repeat_utf8_bytes"]))
+    lines.append("- Historical provider tool injection is unknown. Served catalogs and "
+                 "manifest counts describe definitions, not injected provider tokens.")
+    for version in result.get("served_catalogs", {}).get("versions", []):
+        lines.append("- Served catalog `{}`: {:,} definition tokens ({:,} estimated), {}; "
+                     "request applicability is unknown. Historical versions are separate observations.".format(
+                         version["catalog_fingerprint"], version["definition_tokens"],
+                         version["estimated_tokens"], version["observation_basis"]))
+    weighted = result.get("weighted_usage")
+    if weighted:
+        contributions = weighted.get("weighted_contributions", {})
+        lines.extend(["", "| Measured category | Raw tokens | Weighted contribution |",
+                      "| --- | ---: | ---: |"])
+        for key, raw in sorted(weighted["raw_categories"].items()):
+            value = contributions.get(key)
+            raw_text = f"{raw:,}" if raw is not None else "unknown"
+            contribution = f"{value:,.4g}" if value is not None else "unknown"
+            lines.append(f"| {key} | {raw_text} | {contribution} |")
+        if weighted.get("status") == "available":
+            lines.append(f"- Weighted tokens: **{weighted['weighted_tokens']:,.4g}**, "
+                         "fresh input normalized to 1; reasoning remains an output subset.")
+            profile = weighted["profile"]
+            lines.append("- Frozen reference: {} ({}); model/rate/context applicability: {}. "
+                         "Actual billing is unknown.".format(profile["published_source"],
+                             profile["effective_date"], _canonical_json(profile["applicability"])))
+        else:
+            lines.append(f"- Weighted tokens unavailable: `{weighted.get('reason')}`; "
+                         "missing counters or profile assumptions remain unknown.")
+    comparison = result.get("weighted_comparison")
+    if comparison:
+        lines.append("- With/without overhead: {:.2f}%.".format(comparison["overhead_percent"])
+                     if comparison.get("status") == "available" else
+                     f"- With/without overhead unavailable: `{comparison.get('reason')}`.")
     return "\n".join(lines) + "\n"
 
 
@@ -7863,11 +8811,21 @@ def build_parser():
     breakdown = subparsers.add_parser(
         "breakdown",
         help="Print the Uclusion token breakdown of one saved session log.",
+        description="Read measured request categories and estimated content attribution. "
+            "Selection includes the whole completed log and eligible descendant logs. "
+            "For comparable runs, explicitly reset statistics before each run and start a fresh session log per run. "
+            "An explicit reference profile JSON supplies published_source, effective_date, "
+            "applicability (model, rate_category, context_category), weights "
+            "(fresh_input=1, cached_input, output, cache_write:<category>) and "
+            "separately_charged_write_categories. The output preserves that profile "
+            "for recalculation; actual billing stays unknown.",
     )
-    breakdown.add_argument("--log", required=True, help="Session log path.")
+    breakdown.add_argument("--log", required=True, help="Completed session log path; includes eligible descendants.")
     breakdown.add_argument(
         "--json", action="store_true", help="Print the result as JSON."
     )
+    breakdown.add_argument("--profile", help="Explicit frozen reference profile JSON file.")
+    breakdown.add_argument("--baseline", help="Prior measured breakdown JSON under the same profile.")
     retry = subparsers.add_parser(
         "retry-blocked",
         help="Retry saved audit uploads after repairing their rejection or outage.",
@@ -7915,7 +8873,16 @@ def main(argv=None):
             )
         return 0
     if args.command == "breakdown":
-        result = breakdown_session_log(args.log)
+        profile = None
+        if args.profile:
+            with open(args.profile, encoding="utf-8") as source:
+                profile = json.load(source)
+        result = breakdown_session_log(args.log, profile=profile)
+        if args.baseline:
+            with open(args.baseline, encoding="utf-8") as source:
+                baseline = json.load(source)
+            result["weighted_comparison"] = weighted_overhead(
+                result.get("weighted_usage", {}), baseline.get("weighted_usage", {}))
         if args.json:
             print(json.dumps(result, indent=2, sort_keys=True))
         else:

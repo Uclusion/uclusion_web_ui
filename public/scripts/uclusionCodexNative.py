@@ -465,6 +465,30 @@ class NativeCodexDelivery:
         if self.token_audit and 'result' in response:
             response['result'].setdefault('capabilities', {}).setdefault('tools', {})['listChanged'] = True
 
+    def observe_catalog(self, response):
+        """Fingerprint the outgoing catalog within this proxy's native scope."""
+        tools = response.get('result', {}).get('tools')
+        if not isinstance(tools, list):
+            return
+        try:
+            from uclusionTokenAudit import catalog_token_report, load_token_manifest
+            report = catalog_token_report(tools, load_token_manifest(), 'openai')
+        except Exception:
+            sys.stderr.write('Uclusion served catalog capture unavailable.\n')
+            return
+        with self.lock:
+            self.served_catalog = report
+            collectors = tuple(self.collectors.values())
+        for collector in collectors:
+            self._record_catalog(collector, report)
+
+    @staticmethod
+    def _record_catalog(collector, report):
+        try:
+            collector.store.record_catalog(collector.primary_session_fp, report)
+        except Exception:
+            sys.stderr.write('Uclusion served catalog capture unavailable.\n')
+
     def tools_ready(self):
         # Codex reads the initial catalog without honoring later list changes.
         # Wait for transport only. A cold root appears after catalog discovery.
@@ -509,6 +533,10 @@ class NativeCodexDelivery:
                 collector = CodexTokenAudit(self.environment, self.workspace_id,
                                            client_version=thread.get('cliVersion'))
                 collector.set_primary_thread(thread)
+                if getattr(self, 'served_catalog', None) is not None:
+                    self._record_catalog(collector, self.served_catalog)
+                collector.store.register_session_log(
+                    collector.client, collector.primary_session_fp, thread['path'])
                 with self.lock:
                     self.collectors[root] = collector
             try:

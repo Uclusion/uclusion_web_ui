@@ -159,11 +159,11 @@ SCRIPT_FILES = (
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCLI.py': 'c6a36233d982af4dcd9029bac8cbc1fdd3da5f82e0b12ddc156ec42a471c27bb',
-    'uclusionMCPProxy.py': '08ae958b4f86913452b16908167255bbcb603326247996342c8cf80a143e4191',
+    'uclusionMCPProxy.py': '543eb4c0f0e6a824a6c408b1cbed89519ba63349b73118a9361c9a9563b445f1',
     'uclusionSetupMCP.py': '9aa8d3199b0c392d944fc3b2fb9f26b48230737ea2e5b07980cd3df6b79ed4f3',
-    'uclusionCodexNative.py': '89587700e95582353ee9d3f2a9f48674d88d3c68ed13a6e929cd0efa3aa85300',
+    'uclusionCodexNative.py': 'a3c5a318b54a0fcea6381d6e79b4a8b57de3f2dc7c567b2b27f249418d8ee72d',
     'uclusionUpdateNotices.py': 'a9d6ed9e082bce28ac8340d242ad34d2f180a35de6821ce72c0684503e84b7e8',
-    'uclusionTokenAudit.py': '9f1d20aac18767e710c3b91166aa2c499ceb69ade93fc2798e2800a4140fa2b7',
+    'uclusionTokenAudit.py': '616caf9ea8d040299e83a6aefee07e7834b974dfbe2cfba9e71441e27af58873',
 }
 USER_HOME = os.path.expanduser('~')
 UCLUSION_HOME = os.path.join(uclusion_home_root(), '.uclusion')

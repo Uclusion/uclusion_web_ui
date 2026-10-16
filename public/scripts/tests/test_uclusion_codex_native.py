@@ -658,5 +658,24 @@ class NativeNoticeTests(unittest.TestCase):
             finish.set()
 
 
+
+class NativeCatalogAccountingTests(unittest.TestCase):
+    def test_outgoing_catalog_is_recorded_for_owned_collectors_without_discovery(self):
+        import uclusionTokenAudit as audit
+        delivery = NativeCodexDelivery.__new__(NativeCodexDelivery)
+        delivery.lock = threading.RLock()
+        recorded = []
+        store = SimpleNamespace(record_catalog=lambda session, report: recorded.append((session, report)))
+        delivery.collectors = {"synthetic-root": SimpleNamespace(
+            primary_session_fp="synthetic-session-fingerprint", store=store)}
+        catalog = {"result": {"tools": [{"name": "get_job", "description": "Current work", "inputSchema": {}}]}}
+        with patch.object(audit, "load_token_manifest", return_value={}):
+            delivery.observe_catalog(catalog)
+        self.assertEqual(1, len(recorded))
+        self.assertEqual("synthetic-session-fingerprint", recorded[0][0])
+        self.assertEqual("unknown", recorded[0][1]["provider_injection"])
+        self.assertEqual(delivery.served_catalog["catalog_fingerprint"], recorded[0][1]["catalog_fingerprint"])
+
+
 if __name__ == '__main__':
     unittest.main()

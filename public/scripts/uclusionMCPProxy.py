@@ -1427,11 +1427,12 @@ def handle_json_response(resp, token_audit_enabled=False, work_claims_enabled=Fa
     if payload is None:
         write_non_object_mcp_error(request_id, stats=stats)
         return
+    payload = inject_work_claim_tool(filter_token_audit_tools(
+        payload, token_audit_enabled
+    ), work_claims_enabled)
     if response_observer is not None:
         response_observer(payload)
-    write_message(inject_work_claim_tool(filter_token_audit_tools(
-        payload, token_audit_enabled
-    ), work_claims_enabled), stats=stats)
+    write_message(payload, stats=stats)
 
 
 def handle_sse_response(resp, token_audit_enabled=False, work_claims_enabled=False,
@@ -1444,11 +1445,12 @@ def handle_sse_response(resp, token_audit_enabled=False, work_claims_enabled=Fal
         payload = load_mcp_stdio_object(line[6:])
         if payload is None:
             continue
+        payload = inject_work_claim_tool(filter_token_audit_tools(
+            payload, token_audit_enabled
+        ), work_claims_enabled)
         if response_observer is not None:
             response_observer(payload)
-        write_message(inject_work_claim_tool(filter_token_audit_tools(
-            payload, token_audit_enabled
-        ), work_claims_enabled), stats=stats)
+        write_message(payload, stats=stats)
         wrote = True
     if not wrote:
         write_non_object_mcp_error(request_id, stats=stats)
@@ -1948,6 +1950,8 @@ def main():
                 content_type = resp.headers.get('Content-Type', '')
                 observer = (native_delivery.stamp_initialize
                             if native_delivery and msg.get('method') == 'initialize' else None)
+                if native_delivery and msg.get('method') == 'tools/list':
+                    observer = native_delivery.observe_catalog
                 if 'text/event-stream' in content_type:
                     handle_sse_response(resp, token_audit_available(),
                                         work_claims is not None,

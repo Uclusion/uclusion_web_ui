@@ -6723,7 +6723,7 @@ def _report_ledger_identity(value, fingerprint):
                   "parent_thread_id": ("parent_thread_fp", "codex-thread")}
     result = {key: item for key, item in value.items() if key not in namespaces}
     for key, (field, namespace) in namespaces.items():
-        if isinstance(value.get(key), str) and value[key]:
+        if field not in result and isinstance(value.get(key), str) and value[key]:
             result[field] = fingerprint(namespace, value[key])
     return result
 
@@ -7798,13 +7798,14 @@ def _codex_request_ledger(records, metadata, selected_requests=None, fingerprint
             elif latest["thread_cumulative"] != snapshot["thread_cumulative"]:
                 reasons.add("snapshot_cumulative_basis_differs")
     entries.sort(key=lambda entry: entry["index"])
+    selected_sources = _selected_codex_requests(entries, selected_requests, fingerprint)
     excluded = set()
     for thread in dict.fromkeys(entry["thread_id"] for entry in entries):
         native = []
         for entry in entries:
             if entry["thread_id"] != thread or not entry["response_id"]:
                 continue
-            source = _selected_request(entry, selected_requests, fingerprint)
+            source = selected_sources.get(entry["index"])
             if source is None:
                 continue
             if "normalized_total_tokens" in source:
@@ -7860,35 +7861,62 @@ def _codex_request_ledger(records, metadata, selected_requests=None, fingerprint
     return entries, reasons, reconciliation
 
 
-def _selected_request(request, selected_requests, fingerprint=None):
+def _selected_codex_requests(requests, selected_requests, fingerprint=None):
+    """Match saved charges once, preferring provider response identity."""
     if selected_requests is None:
-        return request
-    fallback_matches = []
-    for selected in selected_requests:
-        if "event_key" not in selected:
-            if (selected.get("thread_id") == request.get("thread_id") and
-                    selected.get("response_id") == request.get("response_id")):
-                return selected
+        return {request["index"]: request for request in requests}
+    exact, fallback = {}, {}
+    for request in requests:
+        candidates = []
+        for selected in selected_requests:
+            if "event_key" not in selected:
+                if (selected.get("thread_id") == request.get("thread_id") and
+                        selected.get("response_id") == request.get("response_id")):
+                    exact[request["index"]] = selected
+                continue
+            if fingerprint is None or selected.get("session_fp") != fingerprint("codex-thread", request.get("thread_id")):
+                continue
+            provenance = _json_object(selected.get("provenance_json")) or {}
+            response = request.get("response_id")
+            if response and (provenance.get("response_fp") == fingerprint("codex-response", response)
+                    or selected["event_key"] == fingerprint("usage-event", "codex\0" + str(request.get("thread_id")) + "\0" + response)):
+                exact[request["index"]] = selected
+                continue
+            # Only identity-free saved snapshots may use counters. Both sides
+            # must establish the same turn and cumulative request interval.
+            if (provenance.get("identity_basis") != "cumulative_snapshot_fallback"
+                    or provenance.get("response_fp") or not request.get("turn_id")
+                    or selected.get("turn_fp") != fingerprint("codex-turn", request["turn_id"])):
+                continue
+            cumulative = request.get("thread_cumulative")
+            cumulative = _openai_counts(cumulative) if _valid_openai_usage(cumulative) else None
+            selected_cumulative = provenance.get("thread_cumulative")
+            interval = _request_interval(request["counts"], cumulative)
+            if interval is None or interval != _request_interval(selected, selected_cumulative):
+                continue
+            if any(left.get(key) is not None and right.get(key) is not None and left[key] != right[key]
+                   for left, right in ((request["counts"], selected), (cumulative, selected_cumulative),
+                       (request["categories"], provenance.get("categories") or {}))
+                   for key in left):
+                continue
+            candidates.append(selected)
+        if candidates:
+            fallback[request["index"]] = candidates
+    claimed = {source["event_key"] for source in exact.values() if "event_key" in source}
+    candidates_by_event = {}
+    for index, candidates in fallback.items():
+        if index in exact:
             continue
-        if fingerprint is None:
+        for source in candidates:
+            if source["event_key"] not in claimed:
+                candidates_by_event.setdefault(source["event_key"], set()).add(index)
+    for index, candidates in fallback.items():
+        if index in exact:
             continue
-        if selected.get("session_fp") != fingerprint("codex-thread", request.get("thread_id")):
-            continue
-        provenance = _json_object(selected.get("provenance_json")) or {}
-        response = request.get("response_id")
-        if response and (provenance.get("response_fp") == fingerprint("codex-response", response)
-                or selected["event_key"] == fingerprint("usage-event", "codex\0" + str(request.get("thread_id")) + "\0" + response)):
-            return selected
-        if not response and selected.get("turn_fp") == fingerprint("codex-turn", request.get("turn_id")):
-            if all(selected.get(k) == request["counts"][k] for k in
-                    ("input_tokens", "cached_input_tokens", "output_tokens", "normalized_total_tokens")):
-                cumulative = request.get("thread_cumulative")
-                interval = _request_interval(request["counts"], _openai_counts(cumulative)) if _valid_openai_usage(cumulative) else None
-                selected_interval = _request_interval(selected, provenance.get("thread_cumulative"))
-                if interval is not None and selected_interval is not None and interval != selected_interval:
-                    continue
-                fallback_matches.append(selected)
-    return fallback_matches[0] if len(fallback_matches) == 1 else None
+        candidates = [source for source in candidates if source["event_key"] not in claimed]
+        if len(candidates) == 1 and len(candidates_by_event[candidates[0]["event_key"]]) == 1:
+            exact[index] = candidates[0]
+    return exact
 
 def breakdown_codex_rollout(path, counter, window=None, records=None,
                             selected_requests=None, fingerprint=None):
@@ -7906,6 +7934,7 @@ def breakdown_codex_rollout(path, counter, window=None, records=None,
         metadata = {}
         unknown_shapes += 1
     entries, ledger_reasons, reconciliation = _codex_request_ledger(records, metadata, selected_requests, fingerprint)
+    selected_sources = _selected_codex_requests(entries, selected_requests, fingerprint)
     selected = []
     selected_event_keys = set()
     for entry in entries:
@@ -7915,7 +7944,7 @@ def breakdown_codex_rollout(path, counter, window=None, records=None,
                 continue
             if not window[0] <= entry["created_at"] <= window[1]:
                 continue
-        source = _selected_request(entry, selected_requests, fingerprint)
+        source = selected_sources.get(entry["index"])
         if source is None:
             continue
         if "normalized_total_tokens" in source:
@@ -7929,6 +7958,11 @@ def breakdown_codex_rollout(path, counter, window=None, records=None,
             entry = {**entry, "counts": {key: source.get(key) for key in entry["counts"]},
                      "selected_event_key": source["event_key"]}
             provenance = _json_object(source.get("provenance_json")) or {}
+            entry.update(session_fp=source["session_fp"], turn_fp=source.get("turn_fp"))
+            for saved_field, report_field in (("scope", "scope"), ("root_session_fp", "root_session_fp"),
+                    ("root_turn_fp", "root_turn_fp"), ("parent_session_fp", "parent_thread_fp")):
+                if saved_field in provenance:
+                    entry[report_field] = provenance[saved_field]
             entry["categories"] = provenance.get("categories") or {
                 "fresh_input": None, "cached_input": None, "output": None}
             entry["reasoning_output_subset"] = provenance.get("reasoning_output_subset")
@@ -8486,10 +8520,12 @@ def _codex_spawned_agents(records, window=None):
 def breakdown_session_log(path, manifest=None, window=None, selected_requests=None,
                           fingerprint=None, profile=None, session_logs=None):
     """Compute the Uclusion breakdown for one saved session log."""
+    client = detect_session_log(path)
     uncertain_snapshots = False
+    if client == "codex" and selected_requests is not None and all("event_key" in row for row in selected_requests):
+        selected_requests = list({row["event_key"]: row for row in selected_requests}.values())
     if selected_requests is not None and all("provenance_json" in row and "event_key" in row for row in selected_requests):
         selected_requests, uncertain_snapshots = _select_persisted_usage(selected_requests)
-    client = detect_session_log(path)
     if client is None:
         if not os.path.exists(path):
             return unavailable_breakdown("log_missing")

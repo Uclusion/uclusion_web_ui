@@ -163,7 +163,7 @@ SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionSetupMCP.py': '9aa8d3199b0c392d944fc3b2fb9f26b48230737ea2e5b07980cd3df6b79ed4f3',
     'uclusionCodexNative.py': 'a3c5a318b54a0fcea6381d6e79b4a8b57de3f2dc7c567b2b27f249418d8ee72d',
     'uclusionUpdateNotices.py': 'a9d6ed9e082bce28ac8340d242ad34d2f180a35de6821ce72c0684503e84b7e8',
-    'uclusionTokenAudit.py': '616caf9ea8d040299e83a6aefee07e7834b974dfbe2cfba9e71441e27af58873',
+    'uclusionTokenAudit.py': '5045b9c9d08300a8c7a58446a219d0eb503327f26a8020bd7b4be9bae1bb0de1',
 }
 USER_HOME = os.path.expanduser('~')
 UCLUSION_HOME = os.path.join(uclusion_home_root(), '.uclusion')
@@ -355,7 +355,7 @@ WORKFLOW_ASSET_SHA256 = {
     'design_skill': '4f2a57504c6f8646fbdc06af79e8a992b906442a0f90e3a860e6723b2864fd60',
     'design_openai_metadata': 'e17bf96989b457cfcad9040ae23b8918a10eb9805fe6109168717562b3770d73',
     'demo_brief': '1c26c3235dba931bcbf9d88fcacf32e437f1ec10f3e70fd908f33228ba30037f',
-    'token_manifest': 'a880d39f7bc6dd6c4dc304f8866b22415e8220a01b8915665aa0cfce1e484437',
+    'token_manifest': 'b0717c388600e635db1efebb957f8aec1c16bceefab00cdbfd44f97de31d56e1',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',

@@ -5533,7 +5533,7 @@ class WeightedAccountingRegressionTests(TokenAuditTestCase):
                         "output_tokens": total // 6, "total_tokens": total}}}}])
             observer.observe_notification({"method": "thread/tokenUsage/updated", "params": {
                 "threadId": "synthetic-root", "turnId": "synthetic-turn", "tokenUsage": {
-                    "last": usage(120, 100, 20, cached=80),
+                    "last": usage(120, 100, 20, cached=80, reasoning=5),
                     "total": usage(total, total * 5 // 6, total // 6, cached=total * 2 // 3)}}})
         path = self.write_rollout(records)
         observer.store.register_session_log("codex", observer.primary_session_fp, path)
@@ -5548,6 +5548,155 @@ class WeightedAccountingRegressionTests(TokenAuditTestCase):
         self.assertFalse(any(row.get("content_coverage") == "log_request_unmatched" for row in report["ledger"]["requests"]))
         self.assertEqual(2, report["physical_reads"]["occurrences"])
         self.assertEqual(240, final["measurement"]["normalized_total_tokens"])
+
+    def saved_snapshot_rows(self, totals=(120, 240), last=None):
+        observer = audit.CodexTokenAudit("stage", "workspace-1")
+        self.addCleanup(observer.close)
+        observer.set_primary_thread({"id": "synthetic-root"})
+        run = str(uuid.uuid4())
+        observer.store.start_run("codex", "openai", "native", observer.primary_session_fp, run, "synthetic-job")
+        observer.observe_notification({"method": "turn/started", "params": {
+            "threadId": "synthetic-root", "turn": {"id": "synthetic-turn"}}})
+        for index, total in enumerate(totals):
+            observer.observe_notification({"method": "thread/tokenUsage/updated", "params": {
+                "threadId": "synthetic-root", "turnId": "synthetic-turn", "tokenUsage": {
+                    "last": last or usage(120, 100, 20, cached=80, reasoning=5),
+                    "total": usage(total, total * 5 // 6, total // 6,
+                        cached=total * 2 // 3, reasoning=(index + 1) * 5)}}})
+        with closing(observer.store.connect()) as connection:
+            rows = [dict(row) for row in connection.execute(
+                "SELECT * FROM token_audit_usage WHERE audit_run_id=? AND superseded_by IS NULL ORDER BY created_at,event_key", (run,))]
+        return rows, observer.store.fingerprint
+
+    def test_saved_snapshots_match_distinct_equal_count_native_responses_once(self):
+        rows, fingerprint = self.saved_snapshot_rows()
+        records = [self.meta()]
+        for index, total in enumerate((120, 240)):
+            request = self.request("native-" + str(index), thread_token_usage=usage(
+                total, total * 5 // 6, total // 6, cached=total * 2 // 3, reasoning=(index + 1) * 5))
+            records.extend([request, request])
+        path = self.write_rollout(records)
+        for selection in (rows, rows + rows):
+            with self.subTest(duplicate_selection=len(selection) > len(rows)):
+                report = audit.breakdown_session_log(path, selected_requests=selection, fingerprint=fingerprint)
+                self.assertEqual((2, 240), (report["model_requests"], report["provider_total_tokens"]))
+                requests = report["ledger"]["requests"]
+                self.assertEqual(2, len(requests))
+                self.assertEqual(2, len({request["response_fp"] for request in requests}))
+                self.assertEqual({row["event_key"] for row in rows}, {request["selected_event_key"] for request in requests})
+                self.assertNotIn("selected_requests_missing_from_log", report["coverage"]["reasons"])
+                self.assertTrue(all(request.get("content_coverage") != "log_request_unmatched" for request in requests))
+
+    def test_saved_snapshot_fallback_requires_unambiguous_session_turn_interval_and_counters(self):
+        rows, fingerprint = self.saved_snapshot_rows((120,))
+        native = self.request(thread_token_usage=usage(120, 100, 20, cached=80, reasoning=5))
+        for boundary in ("ambiguous_native", "ambiguous_saved", "unrelated_session", "different_turn",
+                         "missing_turn", "missing_interval", "different_interval", "different_reasoning", "different_cumulative_reasoning",
+                         "provider_identity", "non_snapshot"):
+            with self.subTest(boundary=boundary):
+                selected = [dict(rows[0])]
+                records = [self.meta(), json.loads(json.dumps(native))]
+                provenance = json.loads(selected[0]["provenance_json"])
+                if boundary == "ambiguous_native":
+                    records.append(self.request("distinct-native", thread_token_usage=native["payload"]["thread_token_usage"]))
+                elif boundary == "ambiguous_saved":
+                    selected.append({**selected[0], "event_key": "another-saved-charge"})
+                elif boundary == "unrelated_session":
+                    selected[0]["session_fp"] = fingerprint("codex-thread", "unrelated-session")
+                elif boundary == "different_turn":
+                    selected[0]["turn_fp"] = fingerprint("codex-turn", "unrelated-turn")
+                elif boundary == "missing_turn":
+                    records[1]["payload"].pop("turn_id")
+                elif boundary == "missing_interval":
+                    records[1]["payload"].pop("thread_token_usage")
+                elif boundary == "different_interval":
+                    records[1]["payload"]["thread_token_usage"] = usage(240, 200, 40, cached=160, reasoning=10)
+                elif boundary == "different_reasoning":
+                    selected[0]["reasoning_output_tokens"] = 4
+                elif boundary == "different_cumulative_reasoning":
+                    provenance["thread_cumulative"]["reasoning_output_tokens"] = 4
+                elif boundary == "provider_identity":
+                    provenance["response_fp"] = fingerprint("codex-response", "another-response")
+                elif boundary == "non_snapshot":
+                    provenance["identity_basis"] = "native_response_id"
+                selected[0]["provenance_json"] = json.dumps(provenance)
+                report = audit.breakdown_session_log(self.write_rollout(records, boundary + ".jsonl"),
+                    selected_requests=selected, fingerprint=fingerprint)
+                self.assertEqual((len(selected), 120 * len(selected)),
+                    (report["model_requests"], report["provider_total_tokens"]))
+                self.assertEqual("partial", report["status"])
+                self.assertIn("selected_requests_missing_from_log", report["coverage"]["reasons"])
+                self.assertTrue(all(request.get("content_coverage") == "log_request_unmatched"
+                    for request in report["ledger"]["requests"]))
+
+    def test_saved_provider_identity_wins_over_snapshot_counter_candidates(self):
+        rows, fingerprint = self.saved_snapshot_rows((120,))
+        row = rows[0]
+        provenance = json.loads(row["provenance_json"])
+        provenance.update(identity_basis="native_response_id", response_fp=fingerprint("codex-response", "exact"))
+        row = {**row, "provenance_json": json.dumps(provenance)}
+        native = self.request("exact", thread_token_usage=usage(120, 100, 20, cached=80, reasoning=5))
+        other = self.request("equal-counters", thread_token_usage=native["payload"]["thread_token_usage"])
+        report = audit.breakdown_session_log(self.write_rollout([self.meta(), other, native, native]),
+            selected_requests=[row], fingerprint=fingerprint)
+        self.assertEqual((1, 120), (report["model_requests"], report["provider_total_tokens"]))
+        self.assertEqual(fingerprint("codex-response", "exact"), report["ledger"]["requests"][0]["response_fp"])
+        self.assertNotIn("selected_requests_missing_from_log", report["coverage"]["reasons"])
+
+    def test_reconciled_saved_snapshot_preserves_unknown_usage_and_attribution(self):
+        last = usage(120, 100, 20, cached=80)
+        last.pop("reasoningOutputTokens")
+        last["cacheWriteInputTokens"] = 8
+        rows, fingerprint = self.saved_snapshot_rows((120,), last=last)
+        native = self.request(usage=last, thread_token_usage=usage(120, 100, 20, cached=80, reasoning=5))
+        report = audit.breakdown_session_log(self.write_rollout([self.meta(), native]), manifest={},
+            selected_requests=rows, fingerprint=fingerprint, profile=self.profile())
+        self.assertNotIn("selected_requests_missing_from_log", report["coverage"]["reasons"])
+        self.assertIsNone(report["measured_usage"]["reasoning_output_subset"])
+        self.assertIsNone(report["measured_usage"]["categories"]["cache_write:unknown"])
+        self.assertEqual("unavailable", report["weighted_usage"]["status"])
+        self.assertEqual("unknown", report["tool_injection"]["status"])
+        self.assertIsNone(report["physical_reads"]["encrypted_brief_plaintext_bytes"])
+        definitions = next(item for item in report["items"] if item["line"] == "tool_definitions")
+        self.assertEqual("unknown", definitions["status"])
+
+    def test_duplicate_saved_native_and_snapshot_replay_preserves_one_charge(self):
+        rows, fingerprint = self.saved_snapshot_rows((120,))
+        snapshot = rows[0]
+        provenance = json.loads(snapshot["provenance_json"])
+        provenance.update(identity_basis="native_response_id", response_fp=fingerprint("codex-response", "native"))
+        native_row = {**snapshot, "event_key": "native-saved-event", "provenance_json": json.dumps(provenance)}
+        native = self.request("native", thread_token_usage=usage(120, 100, 20, cached=80, reasoning=5))
+        path = self.write_rollout([self.meta(), native, native])
+        for selection in ([native_row, snapshot], [native_row, snapshot] * 2):
+            with self.subTest(duplicate_selection=len(selection) > 2):
+                report = audit.breakdown_session_log(path, selected_requests=selection, fingerprint=fingerprint)
+                self.assertEqual((1, 120), (report["model_requests"], report["provider_total_tokens"]))
+                self.assertEqual(1, len(report["ledger"]["requests"]))
+                self.assertEqual(native_row["event_key"], report["ledger"]["requests"][0]["selected_event_key"])
+                self.assertNotIn("selected_requests_missing_from_log", report["coverage"]["reasons"])
+
+    def test_reconciled_saved_helper_retains_durable_session_and_parent_provenance(self):
+        rows, fingerprint = self.saved_snapshot_rows((120,))
+        row = rows[0]
+        provenance = json.loads(row["provenance_json"])
+        provenance.update(scope="helper", root_session_fp=fingerprint("codex-thread", "saved-root"),
+            root_turn_fp=fingerprint("codex-turn", "saved-root-turn"),
+            parent_session_fp=fingerprint("codex-thread", "saved-parent"))
+        row = {**row, "provenance_json": json.dumps(provenance)}
+        native = self.request(session_id="log-session-alias", root_turn_id="log-root-turn",
+            thread_token_usage=usage(120, 100, 20, cached=80, reasoning=5))
+        report = audit.breakdown_session_log(self.write_rollout([self.meta(), native]),
+            selected_requests=[row], fingerprint=fingerprint)
+        request = report["ledger"]["requests"][0]
+        self.assertNotIn("selected_requests_missing_from_log", report["coverage"]["reasons"])
+        self.assertEqual("helper", request["scope"])
+        self.assertEqual(row["session_fp"], request["session_fp"])
+        self.assertEqual(row["turn_fp"], request["turn_fp"])
+        self.assertEqual(provenance["root_session_fp"], request["root_session_fp"])
+        self.assertEqual(provenance["root_turn_fp"], request["root_turn_fp"])
+        self.assertEqual(provenance["parent_session_fp"], request["parent_thread_fp"])
+        self.assertEqual(row["normalized_total_tokens"], request["counts"]["normalized_total_tokens"])
 
     def test_claude_automatic_attribution_uses_ingested_request_identity_and_counters(self):
         for source_mode in ("otel", "transcript"):

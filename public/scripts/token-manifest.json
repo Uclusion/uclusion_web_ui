@@ -2149,6 +2149,13 @@
     "openai": 102
    }
   },
+  "72aa80b38f319009d3300326a8797a091a755018117919bfe07f94ecf1690768": {
+   "name": "resolve",
+   "tokens": {
+    "claude": 596,
+    "openai": 330
+   }
+  },
   "733bb2007a6ef4c15c65b1dcae7935ab6dd1d98fc838fba4398f7b56d5486fcc": {
    "name": "set_design_capsule",
    "tokens": {
@@ -2174,6 +2181,13 @@
    },
    "unavailable": {
     "claude": "unsupported_input_schema"
+   }
+  },
+  "798005eb3c7df17c45674f76cabf70c4efaf814494f0e8319b5daf3298cb63d2": {
+   "name": "make_suggestion",
+   "tokens": {
+    "claude": 679,
+    "openai": 372
    }
   },
   "817e5cd1f776f46c07d1cf5a62e1daae991f4db69d688a3ba59c2144abbc6893": {
@@ -2272,6 +2286,13 @@
    "tokens": {
     "claude": 311,
     "openai": 164
+   }
+  },
+  "c5d2fbcaf2fd3c95e2ed7b1d89a1f8800e976bff3eaa0cefd94e1c84c6a25c0a": {
+   "name": "reopen",
+   "tokens": {
+    "claude": 399,
+    "openai": 214
    }
   },
   "cc00582b69c9861f8883e99ab787322acc6d5cd63f2dfb92ab0a52366d94a473": {

@@ -3,10 +3,10 @@
 
 ## Independent permission decisions
 
-Execute only in Doable or Reviewable against the complete current target
-contract. Apply [the core](../SKILL.md)'s common authorization and the
-job-specific qualifications below; stage, contract, testing/build, security,
-deployment, commit and push remain independent gates.
+Dispatch implementation only in Doable or Reviewable against the current target
+contract, read and validated by its helper. Apply [the core](../SKILL.md)'s common
+authorization and the job-specific qualifications below; stage, contract,
+testing/build, security, deployment, commit and push remain independent gates.
 
 An executable stage authorizes implementation, not the form of testing. An
 explicit test plan in the job counts as human approval. Otherwise, before
@@ -35,11 +35,11 @@ model.
 2. Resolve tasks already completed, duplicated, or no longer applicable.
 3. Handle every delivered Poke first under [the core](../SKILL.md).
 
-Confirm the current target, its full current contract, executable stage, human
-approval and every independent permission before dispatch or resumption. Keep
-the complete current capsule, qualifying evidence and all tracking identities
-yourself. Refresh changed applicable prerequisites before further affected
-work.
+Confirm the selected target, expected capsule owner, advertised current R-code
+and actual version, executable stage, human approval and every independent
+permission before dispatch or resumption. Keep qualifying decision evidence
+and tracking identities; dispatch alone needs no capsule body copy. Stop
+affected helper edits and reconcile changed prerequisites before resumption.
 
 ## Bounded implementation dispatch
 
@@ -48,16 +48,17 @@ Start a fresh implementation helper for every independent task pass under
 top-level parent's implementation helper. Design help alone does not satisfy
 this execution rule; a cohesive job pass keeps its job contract.
 
-Brief the implementation helper from the current contract and qualifying
-evidence, converting Review directions into concrete implementation
-requirements yourself. Compile that brief and copy its complete generic helper
-template under helper-dispatch.md's implementation rules.
+Pass the published contract's exact target/owner/reference/version and
+qualifying evidence under helper-dispatch.md's implementation rules, without
+reconstructing its body. Reconcile Review directions with the current contract
+yourself. Compile the brief and copy its complete generic helper template,
+including the scoped read grant and validation/stop rules.
 
-Supply changed brief requirements and constraints before the implementation
-helper resumes affected action. Retain ownership, Pokes, human questions, task
-selection and resolution, approvals and permission decisions, review
-publication and the completion package yourself; any code review runs in a
-fresh code-review helper.
+Supply refreshed target/reference/version, requirements, constraints and
+permissions before the implementation helper resumes affected action. Retain
+ownership, Pokes, human questions, task selection and resolution, approvals and
+permission decisions, review publication and the completion package yourself;
+any code review runs in a fresh code-review helper.
 
 ## Task resolution and remaining Review work
 

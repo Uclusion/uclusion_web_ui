@@ -31,10 +31,11 @@ substantive work or affected phase, publication or handoff actions.
 
 ### Scoped job context
 
-Keep the initial whole-scope job read made with `initial_read: true`. Scope
-subsequent reads to what changed, explicitly including the current description
-when needed. After context restoration, fetch the description if its complete
-body is missing before relying on it; a summary is not its body.
+Keep decision evidence from the initial whole-scope job read made with
+`initial_read: true`. Scope subsequent reads to what changed, explicitly
+including the current description when needed. After context restoration,
+fetch the description if its complete body is missing before relying on it;
+a summary is not its body.
 
 An `Updated <job-code> description change` Poke requires this description
 refresh for the assigned job. For a generic job update, request only the needed
@@ -42,11 +43,12 @@ sections, including `description` when its freshness is uncertain. Stage-named
 events follow the assigned-update rules below; load only missing context for
 the next action.
 
-### Select the target and hold its current contract
+### Select the target and current contract
 
-Before dispatching or resuming implementation, satisfy this complete
-prerequisite. An executable stage is not a substitute for its current target
-contract.
+Before dispatching or resuming implementation, identify the selected target,
+its expected capsule-owning target, and that owner's advertised current
+capsule R-code and actual version. An executable stage does not supply this
+prerequisite.
 
 Select exactly one executable target for the implementation pass:
 
@@ -66,27 +68,33 @@ Select exactly one executable target for the implementation pass:
 Default whole-job reads, including `initial_read`, omit token-usage audit
 records; explicit audit-thread and notes-section reads can retrieve them.
 
-Reuse a complete held body, including one returned by `initial_read`, when its
-target, exact R-code and actual version match the current reference. Only when
-that body is missing, changed or lost, read the advertised capsule's exact R-code
-thread before affected source or test edits. Check its returned identity,
-target and actual version, and use the complete body. A superseded capsule is
-not the target's current contract; follow the current reference instead.
-Capsule comments remain context and discussion, not the implementation
-contract. Load their current contents on a whole-scope or exact capsule-thread
-refresh even when the capsule body's version is unchanged; never cache their
-contents solely by that version.
+Do not fetch or retain the body solely to dispatch implementation, or
+reconstruct its contract in the brief. Pass the exact target, owner, reference
+and version under [helper-dispatch.md](helper-dispatch.md); the implementation
+helper reads the complete body and checks its returned job, owner, advertised
+current reference, note identity and actual version before affected edits.
 
-After helper publication, apply this prerequisite to its canonical receipt. On
-an assigned current capsule's `Updated` event, read its R-code thread and reload
-Reports; for a human edit, reconcile below before affected edits.
+For your own substantive decisions, retain the complete bodies and qualifying
+evidence needed. Reuse a held capsule body only when its job, owner, exact
+R-code and actual version match the current reference; otherwise read the
+advertised R-code thread. A superseded capsule is not the current contract.
+Capsule comments are context, not that contract. Load current comments on a
+whole-scope or exact thread refresh even when the body version is unchanged;
+that version alone does not establish their freshness.
+
+After helper publication, apply this prerequisite to its canonical receipt;
+dispatch needs no coordinator body copy. On an assigned current capsule's
+`Updated` event, stop affected helper edits, read its R-code thread and reload
+Reports; for a human edit, reconcile below before resumption. Reconcile changed
+prerequisites and supply refreshed target/reference/version, requirements and
+permissions before the helper resumes.
 
 If the selected target's current capsule is absent, use design dispatch and
 publication below; do not load execution rules merely to plan or publish while
 implementation permission is unsettled. Historical work needing no more
 implementation may finish its existing review without backfill; its next
 resumed or changed implementation pass needs the current contract before edits.
-A held current contract routes permitted dispatch to the execution unit.
+A selected current contract routes permitted dispatch to the execution unit.
 
 Stored stage and next action both govern work. Blocked and Requires Input
 remain distinct stored stages even when the UI labels both Debatable. Doable
@@ -218,7 +226,7 @@ You may ask whether to begin completely independent tasks first.
 ## Coordinator capsule design and publication
 
 Before granting publication or handling a human capsule edit, apply the held
-common durable-write rules and satisfy the target/current-body prerequisite
+common durable-write rules and satisfy the target/current-contract prerequisite
 above.
 
 ### Capsule authority

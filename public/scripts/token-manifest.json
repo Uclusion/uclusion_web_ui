@@ -135,6 +135,15 @@
     "openai": 2896
    }
   },
+  "212a244740bb64e83b51eb90113d5fdf9a4bf015cfe50f9ef07cb093922d7bfc": {
+   "bytes": 17983,
+   "kind": "skill",
+   "name": "skills/uclusion/references/job-coordinator.md, audit removed",
+   "tokens": {
+    "claude": 5592,
+    "openai": 3516
+   }
+  },
   "2150f3bfb51fc1b700b32892d27b9eb8502ff7e7058dae6eef6fd994657fb9cc": {
    "bytes": 2978,
    "kind": "bootstrap",
@@ -225,6 +234,15 @@
     "openai": 3872
    }
   },
+  "2d351150816e21d949b9189ece98a71bb8722742ca1bd161070283e2595a336e": {
+   "bytes": 32926,
+   "kind": "skill",
+   "name": "skills/uclusion/SKILL.md, frontmatter removed",
+   "tokens": {
+    "claude": 10384,
+    "openai": 6796
+   }
+  },
   "2da8497acdecd519f85033d82feea13215f63ed04ea0ea9a2ac46d65f96c8a74": {
    "bytes": 3053,
    "kind": "bootstrap",
@@ -268,6 +286,15 @@
    "tokens": {
     "claude": 642,
     "openai": 392
+   }
+  },
+  "396e42570088eec23142f0c795a0fafd87eec3188f03b70bcdba8cdd65947678": {
+   "bytes": 7095,
+   "kind": "skill",
+   "name": "skills/uclusion/references/helper-dispatch.md",
+   "tokens": {
+    "claude": 2203,
+    "openai": 1388
    }
   },
   "3ab50e3f96f9e4226a3ab5bae2a0e5e8aab2e3b30d8931f83ebe5ff701294883": {
@@ -963,6 +990,15 @@
     "openai": 4526
    }
   },
+  "8aa8b5b85a1bd4f548fe0f1b5f2c015f2297ddecdf8aa5de437b8dd6b8dc0ce6": {
+   "bytes": 33670,
+   "kind": "skill",
+   "name": "skills/uclusion/SKILL.md",
+   "tokens": {
+    "claude": 10643,
+    "openai": 6953
+   }
+  },
   "8b8cae681134238fb86bf9b4dcbc6c4e9cdacad6be7053ef9eceab5ce02fb572": {
    "bytes": 5798,
    "kind": "skill",
@@ -1044,6 +1080,15 @@
     "openai": 1075
    }
   },
+  "99221711a98e4014da3ded0c4dc71b65836c67f2d85f9e41808e8724cd528e1b": {
+   "bytes": 4213,
+   "kind": "skill",
+   "name": "skills/uclusion/references/coordinator-execution.md",
+   "tokens": {
+    "claude": 1339,
+    "openai": 790
+   }
+  },
   "9961bd2e7de925e7ae26b19ea9b45184705c09df182d5c44e4eebe68f0abd49a": {
    "bytes": 3186,
    "kind": "skill",
@@ -1087,6 +1132,15 @@
    "tokens": {
     "claude": 3107,
     "openai": 2078
+   }
+  },
+  "9d20d6287e95ccd24891fa4e05b192ae3fc8a3ed3f5d76f6039059eedbf72632": {
+   "bytes": 9655,
+   "kind": "skill",
+   "name": "skills/uclusion-design/SKILL.md",
+   "tokens": {
+    "claude": 3059,
+    "openai": 1803
    }
   },
   "9d371944dba62a80bec7395890f5ad37323b5e8bec5222f791f68c0b56a4ed47": {
@@ -1321,6 +1375,15 @@
    "tokens": {
     "claude": 2095,
     "openai": 1349
+   }
+  },
+  "b96a586b89abc477f7987c233e23690bab0c16a643d79c11da693a363c6b2971": {
+   "bytes": 18247,
+   "kind": "skill",
+   "name": "skills/uclusion/references/job-coordinator.md",
+   "tokens": {
+    "claude": 5699,
+    "openai": 3583
    }
   },
   "bab1891b8716e90d17451ad34703152a7820fd50d3c99ffd33991e1c3b742969": {
@@ -1816,6 +1879,15 @@
    "tokens": {
     "claude": 893,
     "openai": 564
+   }
+  },
+  "f1903d8d104d62d2e93a2c8ba42c29ff8a956054fbe61ba707420fcde8038cd2": {
+   "bytes": 9288,
+   "kind": "skill",
+   "name": "skills/uclusion-design/SKILL.md, frontmatter removed",
+   "tokens": {
+    "claude": 2940,
+    "openai": 1736
    }
   },
   "f3441a3f1d884b4b6ab3d21a599a85dc30c71e941dd20d913f04addad88f19b5": {

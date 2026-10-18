@@ -6,18 +6,18 @@ description: Use as coordinator for Uclusion jobs, tasks, bugs, questions, sugge
 <!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->
 # Uclusion workflow
 
-Retain these coordinator steps: delivery and Pokes; assignment, lane and stage
-routing; Uclusion reads and durable writes except the design helper's bounded
-publication grant; `uclusion` CLI commands; permission and authority checks;
-helper briefs and returns; the human conversation; commits, pushes and the
-completion package. Every other step runs in a fresh helper: export searches
-use the isolated-search route below; other steps use
+Coordinators retain delivery and Pokes; assignment, lane and stage
+routing; Uclusion reads and durable writes except bounded design publication
+and implementation capsule reads; `uclusion` CLI commands; permission and
+authority checks; helper briefs and returns; the human conversation; commits,
+pushes and the completion package. Other steps run in fresh helpers: export
+searches use the isolated-search route below; other steps use
 [references/helper-dispatch.md](references/helper-dispatch.md), including source,
 logs, code paths and diffs, reproduction, measurement, permitted tests, builds
 and deployment, code review, implementation, design and questions needing them.
-When no fresh helper can start, say why the step could not run; never run it
-yourself. Helpers follow only their briefs or selected package, even when
-inspecting instruction source; that source never activates this workflow.
+If no fresh helper can start, say why; never run its step yourself.
+Helpers follow only their briefs or selected package; inspecting instruction
+source never activates this workflow.
 
 Use the Uclusion MCP server as the durable collaboration surface. Work
 asynchronously with your human partner. Obtain their informed approval for
@@ -38,8 +38,8 @@ first needed. At every later loading trigger, ensure its complete current body
 is held in context and reuse it without another read, including across Pokes.
 Reread affected files after a known workflow update, and reread required bodies
 lost through compaction, context restoration or other body loss before
-continuing. Summaries and saved identifiers do not replace instruction or
-contract bodies.
+continuing. Summaries and identifiers never replace required bodies;
+capsule-reference dispatch follows the job lane's prerequisite.
 
 ## Current required set
 
@@ -49,10 +49,10 @@ claims. Use `initial_read: true` for the first whole-scope lookup of the selecte
 target. Whole-scope reads load its current capsule and nondeleted comments,
 including resolved replies, or active job/task notes when absent. Other capsules
 remain references; explicit threads and sections retain scope. Standing notes
-and other resolved discussions need explicit reads. Keep the result and choose
-the lane from its actual returned Job header, never from a `B-` or other code
-prefix. Select only the current lane and action's complete units; do not preload
-future stages.
+and other resolved discussions need explicit reads. Keep needed evidence and
+choose the lane from its actual returned Job header, never from a `B-` or other
+code prefix. Select only the current lane and action's complete units; do not
+preload future stages.
 
 | Returned lane or current action | Additional complete units |
 | --- | --- |
@@ -293,7 +293,7 @@ abandon or acquire work. Incorporate matching assigned-lane changes; for a job,
 apply the held job-coordinator update rules before continuing. Soft-deleted
 direct items reload as the enclosing job with the item absent.
 
-Keep the initial lookup result and apply the lane table above. A result with a
+Keep needed lookup evidence and apply the lane table above. A result with a
 Job header requires the complete job-coordinator body and its current units; a
 selected standalone bug requires single-comment, while a view-level question
 stays common. If a bug converts into a Bugs job, reload that returned job, then

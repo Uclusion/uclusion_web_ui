@@ -155,7 +155,9 @@ Return a compact canonical receipt with the selected target, capsule link,
 exact R-code and actual version, publication status, each authorized question
 resolution and obsolete-review outcome, and unfinished recovery. Mark pending,
 failed or unconfirmed operations not ready; never claim them complete. Retain
-the complete sent body here for reconciliation. The coordinator obtains the
-canonical body before implementation and handles the effective stage after the
-publisher's final operation; this grant permits no stage change or execution.
+the complete sent body here for reconciliation. The coordinator passes the
+canonical target/reference/version for implementation; its helper reads and
+validates the body before edits. The coordinator handles the effective stage
+after the publisher's final operation; this grant permits no stage change or
+execution.
 <!-- /uclusion-design-skill:v1 -->

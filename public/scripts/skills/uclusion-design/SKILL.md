@@ -55,7 +55,7 @@ unlinked sources, links beside other claims, unaccepted AI text, advisory input,
 job-value approval and invitations to object do not qualify. Selected-option
 evidence links to the supplied canonical parent-question URL and labels the
 exact question, full qualified option code/name and accepted behavior, e.g.
-`[Q-Demo-7, selected Q-Demo-7_O-1 (Retain): retain the prior result](<supplied-canonical-question-URL>)`.
+`[<question>, selected <qualified option code> (Retain): retain the prior result](<supplied-canonical-question-URL>)`.
 
 Return a typed unresolved question when evidence is missing; never invent a
 default or bury a choice in the capsule:

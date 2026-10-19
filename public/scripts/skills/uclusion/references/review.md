@@ -1,134 +1,27 @@
 <!-- uclusion-skill-reference:v1 -->
 # Coordinator job review and completion handoff
 
-Compile Reviewable direction into applicable implementation-helper requirements
-under the routed execution unit. Apply the held common durable-write rules and
-[job-coordinator.md](job-coordinator.md)'s current set and transition rules.
-The completion unit owns every completion-package action.
-
 ## Request or perform review
 
-Before review, turn unfinished or deferred implementation work into suggestions
-and reference those suggestions in the report. Record the remaining Review work
-described in [coordinator-execution.md](coordinator-execution.md) directly in
-the report. Review opening and package holds are defined below; the package
-itself is in the routed completion unit. For other testable review work, call
-`ask_for_review` with a concise capsule-delta report. Only one AI review may be
-open per job.
+Compile Reviewable feedback into implementation requirements. Pokes use assignment gate/job-context.md, not a new review direction; current-capsule updates require capsule-dispatch.md cleanup. Latest Reports from AI means humans review: act only on explicit feedback/stage change/authorized recorded Review work. Human Reports require a fresh helper review and Uclusion reply.
 
-In Reviewable, inspect the author of the latest Reports comment:
-
-- From AI user: humans are reviewing AI work. Do not review it again; act only
-  on explicit feedback, a stage change, or already-authorized Review work
-  recorded in the report.
-- From a human: have a fresh code-review helper review the human's work under
-  [helper-dispatch.md](helper-dispatch.md), then reply through Uclusion from its
-  findings.
-
-Handle a Poke through the common assignment and job-coordinator update rules;
-it does not otherwise change review direction. The exception is a current
-capsule's `Updated` event, which requires the obsolete-review cleanup in the
-job-coordinator capsule rules.
-
-The report names the exact current capsule R-code. A final job completion
-report covering separate task passes names each task and its exact current
-capsule R-code, with deltas attributed to that capsule. It keeps those
-contracts separate and retains the limit of one open AI review per job.
-It does not restate unchanged capsule content. Under `Deltas`, say
-`No implementation deltas` or give one concise bullet for each actual omission,
-changed behavior, addition, scope expansion, or newly introduced decision. Name
-its observable effect and verification or approval status. Report
-implementation differences once here; only new human input establishing a new
-contract calls for a capsule replacement. Never hide a remaining choice in
-review prose; ask it as a question. End the report narrative with the AI
-product, exact model/version, and, when you can see it, the effort level. For
-an implementation review, append the completion package after that provenance
-so the package is the review's final content.
+Before review turn deferred/unfinished implementation into suggestions and cite them; put remaining commit/push/deploy/agreed other-environment verification and approval status directly in report. For testable work ask_for_review with one AI review maximum. Name exact current capsule; separate-task final reports name each task/capsule and attribute deltas separately. Do not restate unchanged contract. Deltas says No implementation deltas or concise bullets for each actual omission/change/addition/scope expansion/new decision with observable effect and verification/approval. Unsettled choices require questions, never hidden review prose. End narrative with AI product/exact model/version/visible effort, then append package last.
 
 ## Job review opening and recovery
 
-### The review and when it opens
+Open one review without asking after every requested executable-stage task is written/tested, never each pass. Other people's open tasks leave job unfinished. Whole implementation complete means agreed result built, initial verification complete and no open tasks, never empty list alone; state that conclusion and why. Resolve completed tasks first, never close unfinished work for eligibility. Whole completion uses implementation_complete:true for atomic review/conditional Doable-to-Reviewable; partial review omits it. No separate final-transition permission. Commits/pushes/deploy/other-environment checks stay Review work and retain their independent gates.
 
-A job gets one review, opened without asking once every task you were asked to
-do in that assigned job, in an executable stage, is written and tested; never
-after each pass. Another open task, such as the human's own, only leaves the
-job unfinished. The review is the capsule-delta report this unit describes,
-naming each task and its current capsule. Opening it is required documentation
-and brings the work to the human. When implementation of the whole job is
-complete, pass `implementation_complete: true` to `ask_for_review` to publish
-the review and conditionally move Doable to Reviewable together. For a partial
-review, omit that flag. No separate stage permission is needed for this final
-implementation handoff.
+For an unrelated completed task, establish its separate review target with add_job under standing authorization: task_short_code_ids, view_short_code_id naming original job, task-derived name and originating-job description; explain the separate review's reason. Capsule stays; initial stage requires normal next-action question. Both jobs remain assigned; its package wait does not stop original tasks.
 
-A finished task not related enough to the rest of its job gets its own review
-instead; say why in that task's review. Once it is written and tested, call
-`add_job` with its code in `task_short_code_ids`, `view_short_code_id` naming
-its job, a name taken from the task, and a description naming the job it came
-from. Use this standing human authorization without asking again.
-The task keeps its capsule. If the result says the new job started in the initial
-stage, ask about its next stage as job-coordinator says. It joins your assignment beside the job it
-came from, so waiting on its package does not stop the tasks remaining there.
+Prepare reviewed repositories/files and clear scope (whole finished job, otherwise review+resolved tasks), using exact confirmed review identity as package thread. Confirmed package publication presents immediately before recovery/follow-on work. Handle Pokes. Inspect review/inventory/transition outcomes separately. Uncertain review reads Reports/exact review before retry; uncertain stage reconciles independently, never republishes a confirmed review. If confirmed and still ready Doable, retry only change_job_stage with from_stage:Doable and destination Reviewable; new work/different stage stops retry.
 
-A job's implementation is finished when its agreed implementation is built, its
-initial verification is complete, and no open task remains; an empty task list
-alone never shows that. State in the review which you concluded and why.
-Commits, pushes, deployments and agreed verification in other environments
-belong to Review. List what remains and its approval status in the report,
-before the completion package; those actions retain their permission gates.
-Resolve completed implementation tasks first. Do not close unfinished work
-merely to make the transition eligible.
-
-For package publication, prepare the repositories and reviewed files and its
-exact clear scope: the job if this pass finishes it, otherwise the review and
-each task this pass resolved. Use the exact review identity from the held
-record or confirmed publication receipt as its package thread. Supply these
-inputs to the completion unit.
-
-Continue handling Pokes.
-
-Inspect the separate review, inventory and transition outcomes. For confirmed
-package publication, follow the completion unit's presentation order before
-continuing recovery. Apply the shared write-receipt reconciliation. For an
-unconfirmed review, inspect Reports or the exact review on an update before
-retrying publication. Reconcile an uncertain stage write under the shared
-write-receipt rules before retrying; never create a duplicate review to recover
-a later step. Once the review is confirmed and the job is still ready in Doable,
-retry only the transition with `change_job_stage`, `from_stage` Doable and
-destination Reviewable. A different stage or new open work stops that retry.
-
-Each open suggestion on the job is unfinished or deferred work that moving the
-job to Reviewable would resolve and lose. Check the ones you hold and the
-`open_suggestions` that `ask_for_review` returns. While any is open, end the
-review and its chat copy by naming each one, including
-those this pass created, and asking the human to convert it to a task or
-resolve it; offer no package. End that turn and each later turn by naming the
-review and the suggestions still open. When Pokes show none open, rewrite the
-review with `update_review_short_code_id` to append the package, since a converted
-suggestion is an open task. Include `implementation_complete: true` only if
-the whole job now qualifies. A standalone bug holds no suggestions.
+Every open suggestion would be lost on Reviewable transition: check held and returned open_suggestions. While any remain, review/chat end naming each and asking conversion to task or resolution, with no package; later turns name review/open suggestions. Once Pokes show none, use update_review_short_code_id on the same review to append package; converted suggestions are open tasks, so implementation_complete:true only if whole job qualifies. Bugs have no suggestions.
 
 ## Job assignment completion
 
-A finished job in Reviewable releases its session assignment after its
-implementation review's completion package succeeds: the human's reply has been
-handled, every authorized action (including any clear) has succeeded, and the
-terminal record is confirmed. Use the review-opening definition of a finished
-job above. Waiting for human review or later signoff after this boundary does
-not retain the assignment. When no other assigned work remains, the session is
-idle and accepts a new live `Start` without an explicit switch. Apply the
-assignment-ended discovery rule in the core. Preserve the released state across
-compaction; a still-open AI review does not restore the assignment.
-
-Reviewable alone is not enough: retain the assignment while requested work, an
-unanswered package, or a failed or unfinished authorized action remains. A
-terminal failure record does not release it. For a finished job already in
-Reviewable, a reply declining some or all actions can complete the package;
-declined actions are not pending work. Releasing the session assignment does not
-resolve the job or change its human assignees.
+A finished Reviewable job releases only after package reply handled, all authorized actions/clear succeed and terminal record confirms. Declined actions are complete; unfinished work/reply/actions or terminal failure retains assignment. Later human review/signoff may wait after release. Release changes neither job resolution nor human assignees; retain released state across compaction, open AI review never reacquires it. When no other assignment remains use assignment-ended discovery and accept new live Start.
 
 ## Job commit identities
 
-After review opens, a proposed commit message begins with the completed
-task/comment code. A job code at the start means the whole job is done, so use
-it only when no tasks remain.
+After review opens commit messages begin completed task/comment code. Job-code prefix means whole job done, permitted only with no tasks remaining.
 <!-- /uclusion-skill-reference:v1 -->

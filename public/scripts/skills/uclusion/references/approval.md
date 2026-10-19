@@ -1,20 +1,5 @@
 <!-- uclusion-skill-reference:v1 -->
 # Approvable job approval
 
-After settling assistance, apply [the shared body](../SKILL.md)'s durable-write
-rules before recording the approval. Approval never grants a stage transition
-or execution.
-
-## Approve when applicable
-
-Only approve a job in Approvable, with all questions answered and no existing
-AI job-level approval. Name the unstated business/value premise and test it
-against available evidence and related work; do not accept the author's premise
-unexamined. A weak, untested, or contradicted premise warrants low or moderate
-certainty. Ask about missing evidence, make suggestions first, then call
-`approve_job_or_option` with a 1–5 certainty and reason.
-
-If the job says the AI is a required approver, approval is mandatory once
-assistance is settled. Otherwise ask "What action should I take on this job
-next?" as [job-coordinator.md](job-coordinator.md) specifies. Do not ask about approval separately.
+Approve only Approvable, settled assistance, no existing AI job approval. Examine the unstated business/value premise against evidence/related work; weak/untested/contradicted premises merit lower certainty. Ask missing facts/suggest first, then approve_job_or_option with certainty 1 to 5 and a reason. Mandatory required-AI approval proceeds once settled; otherwise ask job-coordinator.md's next-action question, never a separate approval question. Approval grants no transition or execution.
 <!-- /uclusion-skill-reference:v1 -->

@@ -3,41 +3,17 @@
 
 ## Permitted tools and discussion
 
-Use only `get_job`, `add_info`, `resolve` and, for a general lesson,
-`add_view_note` while discussion is open-ended. Ask for missing facts or
-decisions with `add_info`. A discrete-options question uses `ask_question`
-with the bug's code, a nonempty options list and one `initial_vote` giving
-certainty 1–5 and a nonblank reason. Never convert a bug merely to ask an
-open-ended question. If it converts into a Bugs job, reload that returned job
-then read [job-coordinator.md](job-coordinator.md) in full through its closing
-marker and its complete current stage/action units before job work. Classify
-the returned Job header, even when the code retains a `B-` prefix.
+Open discussion permits only get_job/add_info/resolve and general-lesson add_view_note. Missing facts/choices use add_info; discrete choices may use ask_question with bug code, nonempty options and one initial_vote with certainty 1 to 5 and a nonblank reason. Never convert merely to ask open questions. Bugs-job conversion reloads and uses actual returned Job header/job-coordinator.md even with B-prefix.
 
 ## Helper work
 
-Run the bug's investigation, reproduction, measurement, fix and any permitted
-tests, builds or deployment in fresh helpers under
-[helper-dispatch.md](helper-dispatch.md), briefing its implementation helper
-from the bug thread's agreed fix and human-backed decisions with that unit's
-complete generic helper template.
+Isolate investigation/fix/measurement and independently permitted tests/builds/deploy under helper-dispatch.md. Supply standalone implementation's complete agreed fix/human evidence/verification plus selected role path and bounded grant.
 
 ## Progress and resolution
 
-Use `add_info` for progress or questions while the bug is open. Resolving a
-standalone bug is also an `Updated` state transition. For an assigned bug,
-compare its reloaded resolution state with the state this session last
-observed. When it changes from open to resolved, including by a successful
-in-session Resolve, and this session completed that fix, open the bug's
-completion package under [completion.md](completion.md).
-
-Merely loading a bug already resolved, or receiving another update while it
-stays resolved, does not reopen its package. After a `reopen`, the bug is open
-again; its next resolution, for a fix this session completed, opens a new
-package. A proposed commit message begins with the comment code.
+Progress/questions use add_info. An assigned bug's observed open-to-resolved transition, including own resolve, opens completion.md only if this session fixed it. Loading already resolved or another still-resolved update never repeats the package. Reopening restores open work; the next session-fixed resolution opens another package. Bug commits begin with comment code.
 
 ## Prepare the bug's package
 
-Prepare its package at the exact resolved bug thread, with the reviewed
-repository changes and exact bug/reply notification scope, and reuse them for
-later package actions.
+Use exact resolved-bug thread, reviewed repository changes and exact bug/replies notification scope; retain these inputs for later package actions.
 <!-- /uclusion-skill-reference:v1 -->

@@ -1,58 +1,15 @@
 <!-- uclusion-skill-reference:v1 -->
 # Work claim lock
 
-Keep work claims distinct from session assignment. Follow
-[the core](../SKILL.md) for assignment and discovery.
-
-When the user opted into work claims, `claim_work` is exposed. It stops idle
-agents on any machine from starting the same work. Human-guided selections do
-not require the tool. Classification lookups and triage reads never claim;
-merely reading an item must not block another agent.
+Claims differ from assignment. Exposed claim_work means human opt-in; human-guided selection needs no claim, and classification never claims. Auto-take applies only when no retained human-guided assignment, including pending input/package. Without claim_work, present auto-take results but load/start nothing and explain required claims.
 
 ## Auto-take activation
 
-Auto-take applies only while the session has no human-guided assignment. While
-that assignment is retained under the core's Assignment ownership rules, a
-find-work result may be presented but must not switch the session automatically.
-Waiting for input or an unfinished completion package retains that assignment;
-a completed job handoff follows [review.md](review.md).
+Before auto-take lookup/start, use claim_work with operation:claim and short_code_ids listing all willing candidates: marked auto_take_directions items only in returned order, otherwise preference order (explicit requested item alone). Successful claim assigns its returned code; load only it with initial_read:true and continue that lane immediately. Never start unmarked/unclaimed work, interrupt assignments or override humans. Denial returns idle; no rediscovery from rearm/Pokes. Error/timeout grants nothing: remain idle/report; later human selection may bypass claims.
 
-Every auto-take activation is claim-gated. If `auto_take_directions` arrive
-without `claim_work`, present the list but do not load or start an item; tell the
-human that auto-take requires work claims.
-
-- Call `claim_work` with operation `claim` before loading or starting an
-  auto-take lane. Pass every candidate you would be willing to start as
-  `short_code_ids`. For `auto_take_directions`, use only marked candidates in
-  returned list order; otherwise use preference order, with a specifically
-  requested item as a one-element list. The result names the single code you
-  now hold. Assignment begins when that claim succeeds; load only that item
-  with `get_job` and `initial_read: true`, then start it, even when it is not
-  your first preference. Continue its
-  selected-lane workflow and material-handoff rule in the same turn. Never
-  auto-start an unmarked or unclaimed item, interrupt active work, or override
-  a human instruction.
-- A denied claim means every listed item is already held by other agents. Do
-  not start a lane; return to idle delivery. Further discovery follows the
-  triggers in [the core](../SKILL.md), not another Poke or delivery rearm.
-- A timeout or error result means the lock service is unreachable. No claim was
-  granted, so do not start auto-take work; remain idle and report the failure.
-  A later direct human selection may use the human-guided path without a claim.
-
-After any first-session onboarding required by [the core](../SKILL.md), when an
-auto-take view goes dry, call `request_work` once per dry spell instead of the
-human empty-list opt-in. Keep the core's discovery triggers.
+First-session onboarding takes precedence; later dry auto-take views request_work once per dry spell under normal discovery triggers.
 
 ## Retention and release
 
-At every lane handoff (blocked, review requested, or complete), call `claim_work`
-with operation `release` for the held short code. An implementation review and
-its completion-package wait are not a review handoff: retain the claim until
-the reply's execution attempt reaches a terminal outcome and its record is
-confirmed. Package presentation, reply handling, waiting and execution remain
-solely in [completion.md](completion.md); this unit supplies only the claim
-boundary. Releasing a claim does not itself release a retained assignment under
-the core or review.md. Claims a crashed agent leaves behind expire on their own,
-so never wait for another agent's claim beyond a denial.
-
+Use claim_work with operation:release for the held short code at real blocked/review/complete handoff, except implementation review/package waits retain it through terminal execution outcome and confirmed record. completion.md owns package actions. Claim release never releases retained assignment; review.md/core own that. Crashed claims expire; never wait past denial.
 <!-- /uclusion-skill-reference:v1 -->

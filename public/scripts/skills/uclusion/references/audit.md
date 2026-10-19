@@ -1,34 +1,9 @@
 <!-- uclusion-skill-reference:v1 -->
 # Token usage audit
 
-Use the exposed `start_job_audit`, `set_job_audit_phase`, and
-`end_job_audit` tools under the lifecycle below.
+Use exposed start_job_audit/set_job_audit_phase/end_job_audit. Classification-only Poke reads and standalone lanes without Job header start none. Authorized assigned-job activation starts audit before substantive work; retain run ID. Bug conversion audits returned job.
 
-1. A lookup used only to classify a Poke starts no audit. Audits attach only
-   to jobs: a standalone view-level comment lane (a single-comment result with
-   no Job header) has no assigned job, so never call `start_job_audit` for it;
-   the call fails. If that comment later converts into a Bugs job, audit the
-   returned job. Once an authorized activation establishes a job as the
-   assigned lane and its lookup begins, call `start_job_audit` before
-   substantive planning or execution and retain the run identifier.
-2. Before the kind of work changes, call `set_job_audit_phase`. Include the
-   active job, run identifier, a `marker_sequence` starting at 1 and increasing
-   strictly, and a concise bucket label. A replay reuses its original sequence.
-   Ordinary labels are `planning`, `implementation`,
-   `testing`, and `other`; use a custom label only when it is materially more
-   informative. Switch to `testing` before tests or builds.
-3. Keep the audit active across ordinary model/chat turns. Call
-   `end_job_audit` only when the lane genuinely hands off for a blocking human
-   dependency, review, completion, pause, or interruption. Adding or updating
-   a durable artifact, showing its link, or returning an ordinary model/chat
-   turn is not a lane handoff and must not end the audit. Ending an audit alone
-   never clears a human-guided assignment; [the core](../SKILL.md) and
-   [review.md](review.md) govern assignment release. Collection finishes
-   asynchronously; do not poll for it.
+Before work-kind changes, set phase with job/run and strictly increasing marker_sequence from 1; replay reuses its sequence. Standard planning/implementation/testing/other; custom only if materially clearer. Switch to testing before tests/builds.
 
-Keep at most 32 labels, each 1–80 safe characters. Re-entering a bucket adds to
-its total; do not create separate standard/custom dimensions or a new run when
-the task or turn changes. Every request belongs to one bucket. Audit errors or
-partial telemetry never block the work.
-
+Keep active across artifacts/checkpoints/ordinary turns. End only real blocking-human/review/completion/pause/interruption handoffs; audit end does not release assignment. Collection is asynchronous, never poll. At most 32 labels of 1 to 80 safe characters; repeated bucket adds totals, no separate dimensions/runs per task/turn. Every request has one bucket. Errors/partial telemetry never block work.
 <!-- /uclusion-skill-reference:v1 -->

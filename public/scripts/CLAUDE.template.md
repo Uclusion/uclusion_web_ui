@@ -2,54 +2,15 @@
 <!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->
 # Uclusion bootstrap for Claude Code
 
-Implementation, investigation, code-review and export-search helpers follow
-only bounded briefs, even when reading or editing instruction source. Design
-helpers load only their coordinator-selected design package. These limits
-change no tool availability or configuration.
+Helpers follow only selected role references/bounded briefs, including instruction-source work; design helpers only their selected design package. Never inherit coordinator workflow or fall back to it. This changes no tools/configuration.
 
-The coordinator workflow lives in `/uclusion`; only coordinators apply its
-activation, delivery and work-discovery rules below.
-For coordinators, if both personal and project Uclusion bootstrap blocks are visible,
-only the closest project-scoped block and its adjacent Uclusion skill/reference package
-own delivery, work discovery, and workflow. In that case do not invoke the
-ambiguous personal `/uclusion`; directly load the closest project's
-`.claude/skills/uclusion/SKILL.md` and its required references. Ignore and do
-not combine the personal Uclusion skill.
+Only coordinators apply the rest. The closest project bootstrap and adjacent .claude/skills/uclusion/SKILL.md override personal/user packages: load that exact skill, never ambiguous global /uclusion or combined packages; otherwise use /uclusion.
 
-Coordinators and design helpers read their selected skill and applicable
-references in full through end of file when first needed. Each file ends with
-its own closing `<!-- ... -->` marker; a read that misses it is incomplete, so
-continue until it appears.
+At known applicable triggers read selected complete current bodies through closing markers once; reuse while held across Pokes. Reload only known updates, incomplete reads or body loss/restoration/compaction. No summaries/IDs replace bodies; never preload future actions to learn applicability.
 
-At every later loading trigger, ensure the selected complete current bodies are
-held in context and reuse them without another read, including across Pokes.
-Reread affected files after a known workflow update, and reread required bodies
-lost through compaction, context restoration or other body loss. Summaries and
-saved identifiers do not replace complete bodies.
+Resident authority: Claude Code session-owned delivery; CLI `{{UCLUSION_CLI}}`. Before the first request, even unrelated/read-only, on delivery-task completion before output/rearm, and every Uclusion activation, hold selected-package references/claude-delivery.md plus references/delivery-common.md and follow them. Never infer mode from tools/combine clients.
 
-The remaining rules apply only to coordinators.
+Before Start/Added/Updated/Responded or requests naming Uclusion/Poke AI/find_work or J-/T-/B-/Q-/S-/O-/I-/R-/C- codes, load the selected skill. Handle delivered lines in order. At unassigned startup/assignment end load it and find_work; retained assignments discover others only on explicit human request, never Poke/rearm/turn end.
 
-The authoritative resident delivery mode is Claude Code session-owned delivery.
-Its environment-specific CLI command is `{{UCLUSION_CLI}}`.
-At session start, before acting on the first user request, even for unrelated
-or read-only work, ensure the complete current `references/claude-delivery.md`
-body from the selected Uclusion package is held in context and establish
-delivery as it directs. On delivery-task completion, ensure that same body is
-held before handling output and rearming. Ensure it is held before acting at
-each Uclusion activation below, applying the read and reuse rules above. Never
-select a delivery reference from available tools or combine client modes.
-
-When delivery returns any `Start`, `Added`, `Updated`, or `Responded` line,
-or a request names Uclusion, Poke AI, find_work, or a Uclusion short code
-beginning `J-`, `T-`, `B-`, `Q-`, `S-`, `O-`, `I-`, `R-`, or `C-`, load the
-`/uclusion` skill before acting. Handle every delivered line in order.
-
-At an unassigned session start or when the assignment ends, load `/uclusion`
-and call `find_work`. While an assignment remains, find other work only on an
-explicit human request. A Poke, delivery rearm, or turn ending alone never
-triggers discovery. If the skill or one of its required
-references is absent or unreadable, report that the Uclusion install is broken,
-ask permission to run `{{UCLUSION_CLI}} update`, and after success require a
-client restart or MCP reconnect before Uclusion work. Do not improvise the
-workflow.
+Missing/unreadable skill/reference means broken install: request permission for `{{UCLUSION_CLI}} update`, then require client restart/MCP reconnect before Uclusion work; never improvise.
 <!-- /uclusion-workflow:v1 -->

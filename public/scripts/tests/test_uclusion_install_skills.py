@@ -102,6 +102,17 @@ class SkillPackageContractTests(unittest.TestCase):
             ('skill', 'SKILL.md'),
             INSTALL.SKILL_PACKAGE_ASSETS[-1],
         )
+        shipped_markdown = {
+            os.path.relpath(os.path.join(root, name), SKILL_SOURCE_DIR)
+            .replace(os.sep, '/')
+            for root, _dirs, names in os.walk(SKILL_SOURCE_DIR)
+            for name in names if name.endswith('.md')
+        }
+        self.assertEqual(
+            shipped_markdown,
+            {path for path in packaged_paths if path.endswith('.md')},
+            'Every action and helper body must ship in ordinary and demo installs',
+        )
         for relative_path in references:
             self.assertNotIn('..', relative_path.split('/'))
             target = os.path.join(SKILL_SOURCE_DIR, *relative_path.split('/'))

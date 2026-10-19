@@ -1,145 +1,29 @@
 <!-- uclusion-skill-reference:v1 -->
-# Backlog maintenance and completion packages
+# Completion packages
 
-## Batch run
+## What the package says
 
-A `find_work` result with `backlog_maintenance` starts one run covering every
-item in its `completed` list. Call `backlog_maintenance_run` with action
-`claim` and the key's exact `since` and `through`; when the claim is refused,
-skip the run. Present the work list and handle the human's choice without
-waiting for the run, under [the shared body](../SKILL.md)'s rules for waiting
-for helpers.
+Use lane-prepared package thread, reviewed changes and exact notification scope. End job review with package after provenance; a bug fixed here gets its own add_info package on resolved bug. No ask_question/assistance. Explain exactly what all does, in order:
 
-Run the environment-correct `uclusion export` with `--completed` and every
-completed code, and keep its exact reported path and complete output. That
-output is the dependency scan: each completed item's line, each open blocker
-whose body or replies name a completed code exactly, with the codes it
-matched, and `incomplete` lines for anything it could not read or find.
+1. Commit only reviewed changes, naming repositories/files or compact scope/count.
+2. Push only those commits.
+3. Clear only exact completed job, otherwise exact review plus resolved tasks; bugs exact bug/replies. Clear last, one call/code, terminal record on last so no later attempt write notifies.
 
-Assign the outcome-impact scan for the whole batch to one fresh read-only
-export-search helper via the shared body's workspace-export route, in
-maintenance mode. Supply the exact successful export path, every completed
-code and the original complete `--completed` output; do not rescan or copy the
-helper's analysis instructions.
+No repository changes means omit commit/push. End: "Reply `all`, or tell me in your own words what you want, here or on <thread>."
 
-## Record the run
+## Publication and presentation
 
-The first exact code in each numbered finding is its candidate recipient;
-completed source codes and blocker codes in Evidence are not recipients.
+Immediately mirror the same confirmed durable package in normal chat with exact thread before follow-on work; never wait for turn end. A bug-package response is its reply. If qualifying reply already arrived, suppress invitations and handle it; no repeated full package at later turn ends.
 
-When the export failed or either scan reports anything incomplete, say what
-was incomplete and do not record; the notice returns when the claim expires.
-Otherwise, with findings, print them in chat, then call
-`add_info` with `is_silent: true` for each candidate whose equivalent findings
-for that target and completed outcome are not already saved in the synced
-export. Save the candidate's complete findings, reasons, evidence and proposed
-actions. Use the selected current capsule's exact R-code for a job or task;
-without that capsule, use the job/task code to create an ordinary associated
-note. An independent task uses its own capsule without job fallback, and a
-grouped task uses its top-level parent's capsule. A bug receives a direct
-reply. Use the export's current capsule selection and note/reply sections to
-choose the destination and check for equivalent saved findings. Do not reread
-destinations through MCP for deduplication or add a ledger or deterministic
-identifier. Export-based reconciliation does not promise exactly-once delivery.
+## The reply
 
-Inspect every write receipt. If any required contextual write fails or is
-unconfirmed, do not record the run; reconcile against the synced export and
-retry only findings not already saved. Only after every required contextual
-write succeeds or the export shows equivalent saved findings, call
-`backlog_maintenance_run` with action `record`, the claim's `claim_id` and the
-same aggregate Markdown as `report`. This retains one linked human inbox
-report per run. Silent contextual writes suppress additional human
-notifications while normal UI pushes continue. Silent AI job/task notes and
-comments on the selected current capsule send Pokes through existing routing,
-including to their author; there is no maintenance marker or guarantee that
-every working agent receives them. With no
-findings, print the no-candidate line in chat and record without a report, so
-no inbox item is created.
+Only non-AI/non-advisory human thread/chat replies qualify. all grants exactly listed actions; other wording is ordinary instruction, ambiguity one narrow clarification where received. Decline-all completes without action; later replies are new instructions, never repeat finished work. Package grants no tests/builds/deploy/security/force-push/unrelated changes/broader clear/candidate mutation/context clear.
 
-These contextual `add_info` writes are the sole exception to the candidate
-write prohibition. They retain discussion and do not change the capsule's
-implementation contract. Never call `make_suggestion` or any other mutating
-tool on a candidate, or resolve it, edit its body or change its stage. Before
-carrying out a later human choice,
-reload the exact target because the export may no longer be current, then apply
-the ordinary authorization and workflow gates.
+Until reply, retain assignment; later turns end with one thread-naming line only, no discovery/other work. Claims remain independently gated. Poked reply is read before action; chat needs no read.
 
-## Completion packages
+## Carrying it out
 
-When the selected lane opens a completion package, explain what `all` does,
-handle one human reply and write one terminal record per attempt. Use its
-prepared **package thread**, reviewed repository changes and exact notification
-scope, at that review or resolved bug. Package readiness and assignment release
-remain with the selected lane.
+Run authorized actions in order, stop at first failure without rollback. Nothing to commit/push/clear is successful no-op. Fixed authorized scope clears directly, no notification preview; report actual outcome.
 
-### What the package says
-
-End the review with the package; a standalone bug fixed in this session gets
-its package as its own `add_info` record on the resolved bug. Neither calls
-`ask_question` or creates assistance. Say exactly what `all` does for this
-item, in this order:
-
-1. commit only the reviewed changes, naming each repository with its files, or
-   with a file count and compact scope when a list would be long;
-2. push only those commits;
-3. clear only this work's notifications: the exact job when the pass
-   finishes it, otherwise the exact review plus each task the pass resolved,
-   and for a bug the exact bug with its replies. This runs last, one call per
-   code with the terminal record on the last, so nothing the attempt writes can
-   notify after it.
-
-Leave out the commit and push when the work changed no repository files. End
-with: "Reply `all`, or tell me in your own words what you want, here or on
-<thread>."
-
-### Publication and presentation
-
-Once a job's review or a bug's package record is confirmed durable,
-immediately print that same package in normal client chat, naming its exact
-package thread, before any follow-on work. Do not defer the chat copy until the
-turn ends. A response on a bug's package record is the package reply.
-
-If a qualifying human reply has already arrived, suppress any remaining
-invitation and apply the reply handling below. A turn ending does not require
-another full package copy.
-
-### The reply
-
-Only a reply from a non-AI, non-advisory human counts, on the package thread or
-in normal client chat. `all` authorizes exactly the listed actions. Any other
-reply is an ordinary instruction under the shared body's authorization rules;
-an ambiguous reply gets one narrow clarification where it appeared. A reply
-declining everything completes the package with no action. A later reply is a
-new instruction and never repeats work that has already completed. The package
-never authorizes tests, builds, deployment, security work, force-push,
-unrelated changes, another job or bug, a broader clear, candidate mutation, or
-a context clear.
-
-Until a reply arrives, retain the assignment and end each later turn with only
-one line naming the package thread rather than the whole package. This wait is
-not a handoff: no work discovery or other job or bug. Apply the shared body's
-claim route before affected package or handoff actions.
-
-### Carrying it out
-
-A reply that arrives by Poke is read before acting; a chat reply needs no read.
-Perform the authorized actions in the listed order and stop at the first
-failure, without rolling back what succeeded. Having nothing to commit, push or
-clear is a successful no-op. For an authorized clear with a fixed exact scope,
-call `clear_notifications` directly and report its actual outcome. Do not call
-`get_notifications` merely to preview matches.
-
-Write exactly one terminal record for each attempt, on the package thread,
-replying to the human's reply when it came from there and to the thread's root
-when it came from chat. It states the reply, what completed, what failed, and
-what remains. When the clear is authorized and nothing before it failed, pass
-the record as `clear_notifications`' `record`, even when nothing is left to clear. Otherwise post it with
-`add_info`, silently when the clear was authorized. Apply the shared write-receipt
-reconciliation to an uncertain terminal record, writing it only if absent from
-the package thread. A retry under the same reply reconciles what is already
-durable, performs only what remains, and
-writes one new record.
-
-After a terminal attempt, apply the shared assignment ownership rules.
-Apply the selected lane's held completion-release conditions.
+One terminal record per attempt, replying to exact human thread reply or root for chat. State reply/completed/failed/remaining. If clear authorized and prior steps succeeded, pass record to last clear_notifications even when empty; otherwise add_info, silently if clear authorized. Reconcile uncertain record in exact package thread before writing only if absent. Same-reply retry performs only unfinished work and writes one new record. Lane assignment release still requires its distinct conditions.
 <!-- /uclusion-skill-reference:v1 -->

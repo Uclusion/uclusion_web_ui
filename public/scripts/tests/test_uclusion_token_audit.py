@@ -5357,6 +5357,35 @@ class WeightedAccountingRegressionTests(TokenAuditTestCase):
         self.assertEqual(120, result["provider_total_tokens"])
         self.assertEqual(1, result["physical_reads"]["occurrences"])
 
+    def test_packaged_role_and_action_reads_keep_exact_counts_after_decoding(self):
+        paths = [SCRIPT_DIR / 'skills/uclusion/references' / name for name in (
+            'implementation-helper.md', 'investigation-helper.md',
+            'job-context.md', 'work-discovery.md',
+        )]
+        bodies = [path.read_text() for path in paths]
+        decoded = json.loads(json.dumps({'output': ''.join(bodies)}))['output']
+        self.assertEqual(len(paths), len(audit._complete_skill_spans(decoded)))
+        command = 'cat ' + ' '.join(str(path) for path in paths)
+        records = [self.meta(), {
+            'type': 'response_item', 'payload': {
+                'type': 'function_call', 'name': 'exec_command', 'call_id': 'roles',
+                'arguments': json.dumps({'cmd': command}),
+            },
+        }, {
+            'type': 'response_item', 'payload': {
+                'type': 'function_call_output', 'call_id': 'roles', 'output': decoded,
+            },
+        }, self.request('role-read', total=10000),
+            self.request('retained-role', total=10000)]
+        manifest = audit.load_token_manifest()
+        counter = audit.TokenCounter(manifest, 'openai')
+        expected = sum(counter.artifact(body)[0] for body in bodies)
+        result = audit.breakdown_session_log(self.write_rollout(records), manifest=manifest)
+        skills = next(item for item in result['items'] if item['line'] == 'skills')
+        self.assertEqual(expected, skills['arrival_tokens'])
+        self.assertEqual(2 * expected, skills['total_tokens'])
+        self.assertEqual(0, skills['estimated_tokens'])
+
 
     def test_native_mcp_and_search_repeats_remain_physical_after_compaction(self):
         text = json.dumps({"job": "synthetic-job", "stage": "Ready", "open_questions": [], "open_suggestions": []})

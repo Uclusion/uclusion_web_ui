@@ -37,7 +37,7 @@ import { getMessageId, isInInbox,
   messageIsSynced } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { deleteOrDehilightMessages } from '../../../api/users';
+import { deleteOrDehilightMessages, shouldRemoveMessage } from '../../../api/users';
 import { useHistory } from 'react-router';
 import DeleteSweepIcon from '@material-ui/icons/DeleteSweep';
 import DoneAllIcon from '@material-ui/icons/DoneAll';
@@ -222,7 +222,7 @@ function InboxRow(props) {
   // before the move; the finished-work prompt is not part of this (C-all-2248).
   if (!_.isEmpty(inv) && market.market_type === PLANNING_TYPE && !_.isEmpty(assigned)) {
     const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
-    const jobSweepActions = [{
+    const jobSweepActions = shouldRemoveMessage(message, false, true) ? [{
       translationId: 'inboxClearJob',
       icon: <DeleteSweepIcon />,
       onClick: (event) => {
@@ -232,7 +232,7 @@ function InboxRow(props) {
           .filter((jobMessage) => isInInbox(jobMessage)), messagesDispatch, true, false, true)
           .finally(() => setOperationRunning(false));
       }
-    }];
+    }] : [];
     if (stage !== inReviewStage.id) {
       const wizardLink = `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId,
         investibleId)}&stageId=${inReviewStage.id}`;

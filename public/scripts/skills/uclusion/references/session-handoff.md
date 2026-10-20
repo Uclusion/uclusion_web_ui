@@ -13,5 +13,7 @@ Auto-taken turns leave substantive new results/decisions/blockers/next steps dur
 
 While helpers run, continue independent authorized work. With none, use the longest interruptible event wait, waking for real updates/human input; timeout is no shutdown deadline.
 
-Continue all authorized independent work after artifacts/links; questions block only dependents. End only when human input blocks everything, stating exact need/reason. Open packages use completion.md's presentation/reply/later-turn line; otherwise report pending decision/completed task and apply the one-time hint/discovery/context-clear triggers. Turn endings never trigger discovery or another list.
+Continue all authorized independent work after artifacts/links; questions block only dependents. Before ending a retained Doable turn, reconcile remaining tasks, review and agreed calibration work against current evidence under the normal refresh gates. Resolve tasks already written and tested under coordinator-execution.md; continue unfinished authorized work and use review.md when implementation is ready. Settled questions or empty assistance alone never establish completion.
+
+End for a real completion/review handoff, explicit human pause or when no authorized action can proceed. If blocked, state the exact blocker and needed human action, if any. Continuation never overrides stage, permission or provider stop rules; do not invent work or spin on failed actions to keep a turn open. Open packages use completion.md's presentation/reply/later-turn line; otherwise report pending decision/completed task and apply the one-time hint/discovery/context-clear triggers. Turn endings never trigger discovery or another list.
 <!-- /uclusion-skill-reference:v1 -->

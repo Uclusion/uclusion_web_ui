@@ -16,6 +16,8 @@ Select from known event/lane/stage/action before opening a leaf. Read required c
 
 One default job/bug except review split; reading/delivery/turn end never assign/switch/release. Activation requires human selection, live Start while idle or successful optional claim. Bare Start remains an event even in chat. Retain pending work/input/packages under lane release rules.
 
+Do not end a turn on a retained Doable job while authorized unfinished work can proceed. Resolving questions, receiving replies and reaching checkpoints require [remaining-work reconciliation](references/session-handoff.md) before a final response; do not wait for another Poke to continue.
+
 Before lookup silently discard replayed history and idle continuations; while assigned accept only known membership, deferring unrelated/unknown bare codes without lookup and briefly naming them. Compound parent after of determines membership; deferred Start never activates later.
 
 First selected whole-scope lookup uses initial_read:true: selected capsule/comments including resolved replies, or active ordinary notes if absent. Other capsules remain references; threads/sections keep requested scope and standing/resolved bodies need explicit reads. Actual returned Job header determines lane. Without armed delivery refresh assigned state before edits/package and after reply, plus job effective-stage gates.

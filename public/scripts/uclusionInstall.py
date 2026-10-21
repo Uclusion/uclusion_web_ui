@@ -56,6 +56,7 @@ import base64
 import errno
 import filecmp
 import hashlib
+import importlib.util
 import json
 import os
 import getpass
@@ -263,7 +264,7 @@ RUNTIME_CLEANUP_MODE = '--uclusion-cleanup-after-setup'
 # the second mode to delete the disposable home it is running out of.
 DEMO_REMOVE_MODE = '--uclusion-demo-remove'
 DEMO_PURGE_MODE = '--uclusion-demo-purge'
-# S-Marketing-77: the demo command hands the exercise to a copy of this installer
+# S-Marketing-77: the demo command hands the exercise to the installed installer
 # running in this mode, detached, so the command returns instead of blocking for
 # the length of the exercise. `uclusion demo --result` reads the run it names.
 DEMO_SUPERVISE_MODE = '--uclusion-demo-supervise'
@@ -2304,10 +2305,21 @@ def demo_choice_args(client, model, effort):
     return arguments
 
 
+def load_demo_token_budget():
+    """Use this release's budget module, or the owned install for a standalone download."""
+    path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'uclusionTokenBudget.py')
+    if not os.path.isfile(path):
+        path = os.path.realpath(_public_link_path('uclusionTokenBudget.py'))
+    spec = importlib.util.spec_from_file_location('uclusion_demo_budget', path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def prepare_demo_budget(run_dir, max_input_tokens, max_output_tokens):
-    from uclusionTokenBudget import BudgetLedger
-    BudgetLedger(os.path.join(run_dir, 'token-budget.sqlite3'), os.path.basename(run_dir),
-                 max_input_tokens, max_output_tokens, create=True)
+    budget = load_demo_token_budget()
+    budget.BudgetLedger(os.path.join(run_dir, 'token-budget.sqlite3'), os.path.basename(run_dir),
+                        max_input_tokens, max_output_tokens, create=True)
     with open(os.path.join(run_dir, 'token-budget-limits.json'), 'x', encoding='utf-8') as handle:
         json.dump({'max_input_tokens': max_input_tokens, 'max_output_tokens': max_output_tokens}, handle)
 
@@ -2318,9 +2330,10 @@ def start_demo_supervisor(env, client, workspace_id, start_prompt, response_stat
     """S-Marketing-77: start the exercise detached and return.
 
     A prospect's agent that ran this command in the foreground waited out the
-    whole exercise and could lose it to its own command timeout. The copy runs
-    from the home's .local directory so the demo's process scan, and therefore
-    `demo --remove`, recognises it as this demo's.
+    whole exercise and could lose it to its own command timeout. The installed
+    release keeps every runtime dependency beside the supervisor after the
+    shell removes its temporary download. Its path is also inside the home's
+    .local directory, where `demo --remove` recognises it as this demo's.
     """
     # T-Marketing-307: Codex displays `GPT-6.1-Sol`, but its API only knows
     # `gpt-6.1-sol`, so a choice copied from a client's display must not fail.
@@ -2330,8 +2343,7 @@ def start_demo_supervisor(env, client, workspace_id, start_prompt, response_stat
     prepare_demo_budget(run_dir, max_input_tokens, max_output_tokens)
     print(f'📊 Shared limits: {max_input_tokens} input tokens and {max_output_tokens} output tokens. '
           'These provisional limits cover both sessions and their helpers.', flush=True)
-    supervisor = os.path.join(SYMLINK_DIR, 'uclusionDemoSupervisor.py')
-    shutil.copyfile(os.path.abspath(__file__), supervisor)
+    supervisor = os.path.realpath(_public_link_path('uclusionInstall.py'))
     with open(demo_current_run_path(), 'w', encoding='utf-8') as handle:
         handle.write(run_dir)
     with open(os.path.join(run_dir, DEMO_RUN_CHOICE_FILE), 'w', encoding='utf-8') as handle:

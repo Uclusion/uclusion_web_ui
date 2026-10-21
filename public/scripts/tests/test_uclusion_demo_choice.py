@@ -152,7 +152,9 @@ class DemoChoiceHandOffTests(unittest.TestCase):
         self.assertTrue(printed.startswith(
             b'Demo run: Claude Code, model opus, effort xhigh, as chosen by the person '
             b'who ran it.\n'), printed)
-        self.assertTrue(printed.endswith(report), printed)
+        self.assertIn(report, printed)
+        self.assertEqual(1, printed.count(report))
+        self.assertIn(b'The Uclusion token breakdown is still being measured', printed)
 
 
 if __name__ == '__main__':

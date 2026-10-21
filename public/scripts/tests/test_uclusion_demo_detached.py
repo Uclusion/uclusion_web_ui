@@ -73,6 +73,7 @@ class DetachedDemoTests(unittest.TestCase):
         def publish_while_waiting(_seconds):
             waits.append(True)
             (run_dir / 'evaluation.md').write_bytes(report)
+            (run_dir / cli.DEMO_TOKEN_BREAKDOWN_NAME).write_text('Token breakdown fixture.\n')
 
         output = io.TextIOWrapper(io.BytesIO(), encoding='utf-8')
         args = cli.build_parser().parse_args(['-e', 'stage', 'demo', '--result', '--wait'])
@@ -86,7 +87,7 @@ class DetachedDemoTests(unittest.TestCase):
         self.assertEqual(1, len(waits), 'It should wait until the report is published')
         header = cli.demo_evidence_summary(str(run_dir)).encode('utf-8')
         self.assertIn(b'INCOMPLETE', header)
-        self.assertEqual(header + b'\n' + report, output.buffer.getvalue())
+        self.assertEqual(header + b'\n' + report + b'Token breakdown fixture.\n', output.buffer.getvalue())
 
 
 if __name__ == '__main__':

@@ -132,7 +132,7 @@ class ClaudeDemoRunTests(unittest.TestCase):
         self.evaluator_turn = lambda: self.report_path().write_text('Report')
         self.assertEqual(self.run_demo(), 0)
         prompt = (self.report_path().parent / 'owner-input.md').read_text()
-        self.assertIn(f'`{INSTALL.workflow_cli_command("stage")} watch`', prompt)
+        self.assertIn(f'`{INSTALL.workflow_cli_command("stage")} watch --once`', prompt)
         self.assertIn('only for `watch`', prompt)
         self.assertIn(f'`mcp__{INSTALL.MCP_SERVER_KEY}__get_job`', prompt)
         self.assertIn('tool search', prompt)

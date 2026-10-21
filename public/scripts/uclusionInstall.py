@@ -2780,24 +2780,33 @@ def _run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_d
     # S-Marketing-107: the shared brief no longer mentions the CLI, so the
     # watch is described here, with its one use, beside the MCP tool names a
     # session whose tools are deferred has to search for.
+    native_wait_note = (
+        'Run every Bash wait/watch command in the foreground inside exactly '
+        'one native Bash task with run_in_background=true. Do not add shell &, '
+        'nohup, disown, self-backgrounding, or an echo-PID wrapper. When that '
+        'task completes, read its output through the normal native task path '
+        'and immediately rearm one task if you are still waiting. Process '
+        'already-pending events through the normal native wait/workflow.\n'
+    )
     owner_prompt = (
         f'Read the file {demo_brief_path()} and follow it exactly. '
         'It is addressed to you. You play the human workshop owner. You receive '
-        f'human notifications through `{workflow_cli_command(env)} watch`, not '
-        'Pokes: run it and hold it open throughout, and do not start a Poke '
+        f'human notifications through `{workflow_cli_command(env)} watch --once`, not '
+        'Pokes: keep one watch armed while waiting, rearming after each '
+        'notification or task completion, and do not start a Poke '
         'listener or drain. Each line it prints means only that something '
         'arrived. Do not end your turn until you have replied to the '
         'evaluator\'s completion package as the brief describes. Use that '
         'command only for `watch`: make every read and record through your '
         f'Uclusion MCP tools, named `mcp__{MCP_SERVER_KEY}__<tool>` (for example '
         f'`mcp__{MCP_SERVER_KEY}__get_job`), loading them through tool search '
-        'first if they are deferred.\n'
+        'first if they are deferred.\n' + native_wait_note
     )
     # Its prompt carries the starting job and the ask it answers at the end.
     # The ask lives here rather than reaching it later as a Poke so that the
     # published evaluation is the evaluator's last act.
     evaluator_prompt = (
-        f'{start_prompt} {DEMO_SCRIPTED_OWNER}\n\n{DEMO_EFFORT_NOTE}\n\n'
+        f'{start_prompt} {DEMO_SCRIPTED_OWNER}\n\n{DEMO_EFFORT_NOTE}\n\n' + native_wait_note +
         'After presenting your completion package, wait for the owner\'s '
         'selection on the review and handle it through the normal workflow. '
         'Do not begin the evaluation merely because you presented the package. '

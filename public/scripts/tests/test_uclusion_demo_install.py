@@ -182,7 +182,7 @@ class DemoHomeTests(unittest.TestCase):
             f'Read the file {brief} and follow it exactly. It is addressed to you. '
         ), opening)
         self.assertIn(
-            f'through `{INSTALL.workflow_cli_command("stage")} watch`, not Pokes', opening)
+            f'through `{INSTALL.workflow_cli_command("stage")} watch --once`, not Pokes', opening)
         self.assertIn('do not start a Poke listener or drain.', opening)
         # S-Marketing-107: the demo feeds the Codex owner, which still must not
         # start one of its own.

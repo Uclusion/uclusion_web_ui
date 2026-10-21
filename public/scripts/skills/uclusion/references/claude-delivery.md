@@ -1,9 +1,7 @@
 <!-- uclusion-skill-reference:v1 -->
 # Claude Code session-owned Poke delivery
 
-Use resident CLI/environment and delivery-common.md. Before the first request, even unrelated/read-only, arm exactly one session-owned task unless already running. Monitor persistent:true uses `uclusion listen`; otherwise Bash background `uclusion wait --timeout 86400`, largest accepted timeout (normally 7200000 ms unattended), description naming Pokes. Never expiring Monitor. Local background has no limit; unattended normally ends by 2 hours and reports. Ask when client/person expects process approval; decline continues without delivery. Arm before requested file/command work.
+Before work, arm one session-owned delivery task unless already running. Use Monitor `persistent:true` with `uclusion listen`; never expiring Monitor. Otherwise run `uclusion wait --timeout 86400` in the foreground inside one Bash `run_in_background=true` task with the largest accepted tool timeout; never add shell `&` or a PID wrapper. If launch approval is declined, continue without delivery.
 
-Never adopt/stop another session's task or scan processes. Handle printed lines in order. On task end read/handle output, complete required target lookup, then rearm same turn even quiet timeout/time-limit stop; continue with delivery running. Leave quiet tasks alone. Plain exit only; no external harness. Arm/relaunch before final chat because some clients hide earlier text.
-
-First task cursor starts at arm; wait/listen share CLAUDE_CODE_SESSION_ID, preserving between-task Pokes. Explicit consumer/UCLUSION_CONSUMER overrides identity; never set the latter. Outside Claude bare wait uses default cursor, granting no different mode.
+On completion, read output and complete required target lookup, then rearm the same turn before final chat, including quiet timeout/limit exits. Never adopt/stop another session's delivery task or scan processes to find one.
 <!-- /uclusion-skill-reference:v1 -->

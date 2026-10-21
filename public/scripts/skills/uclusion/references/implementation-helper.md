@@ -10,7 +10,7 @@ A missing/unreadable role or conflicting grant returns an installation fault
 or scope gap to the coordinator, never a root-workflow fallback.
 
 When this brief names a published capsule, its complete body is the
-implementation contract. The only Uclusion grant is
+implementation contract. The capsule-read grant is
 `get_job({short_code_id: "<selected R-code>", thread_only: true})`, using the
 exact R-code in this brief. Before starting or resuming affected source or
 test edits, read the complete returned body and verify that the returned job,
@@ -34,9 +34,16 @@ version. The coordinator handles Pokes and changed prerequisites, stops
 affected edits and reconciles them before resumption with refreshed
 target/reference/version, requirements and permissions.
 
-No other Uclusion reads or writes, work discovery or standing view-note reads
-are granted. Follow this brief without loading coordinator instructions; a
-Job header in the scoped result does not activate that workflow.
+Before work, read every standing view-note R-thread explicitly listed in the
+grant with `get_job({short_code_id: "<listed R-code>", thread_only: true})`.
+Reuse complete current bodies until known change or body loss. Apply constraints
+within this assignment; report any requiring coordinator action with the exact
+note R-code/version. Do not discover notes/jobs outside the grant.
+
+Beyond the named capsule and listed view-note threads, no other Uclusion reads
+or writes or work discovery are granted. Follow this brief without loading
+coordinator instructions; a Job header in the scoped result does not activate
+that workflow.
 
 Implement the supplied complete design. Make routine implementation choices
 consistent with that note and the existing code; do not silently expand

@@ -311,7 +311,6 @@ WORKFLOW_ASSET_PATHS = {
     'cursor_stub': 'uclusion.mdc',
     'skill': 'skills/uclusion/SKILL.md',
     'job_coordinator_reference': 'skills/uclusion/references/job-coordinator.md',
-    'codex_delivery_reference': 'skills/uclusion/references/codex-delivery.md',
     'claude_delivery_reference': 'skills/uclusion/references/claude-delivery.md',
     'cursor_delivery_reference': 'skills/uclusion/references/cursor-delivery.md',
     'approval_reference': 'skills/uclusion/references/approval.md',
@@ -335,7 +334,6 @@ WORKFLOW_ASSET_PATHS = {
     'job_context_reference': 'skills/uclusion/references/job-context.md',
     'question_tools_reference': 'skills/uclusion/references/question-tools.md',
     'session_handoff_reference': 'skills/uclusion/references/session-handoff.md',
-    'standing_instructions_reference': 'skills/uclusion/references/standing-instructions.md',
     'work_discovery_reference': 'skills/uclusion/references/work-discovery.md',
     'openai_metadata': 'skills/uclusion/agents/openai.yaml',
     'design_skill': 'skills/uclusion-design/SKILL.md',
@@ -352,41 +350,39 @@ WORKFLOW_ASSET_PATHS = {
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
     'claude_stub': '9b64799c2a6d1be2212c8aafe9805ef0347a94683dc38b8b984ea4bdc5978b1d',
-    'codex_stub': '7ea2870a1415940ceb2de821e3d567a1e90ca3dc8336e4ecba509c3f502c7569',
+    'codex_stub': '6535f7d2648c78b8e45c5f6d902067a31572c3cb337f4101730ff539f03db4b5',
     'cursor_stub': 'eb9b6663f29dafa82ebcab26b31f0c7c0f7ec7481abad46819d94d8f8ad79ae8',
-    'skill': 'd2a689df40a4e27eabec59b33eaff5856d3ae8edad40f1ef1f281ce3ee156883',
+    'skill': 'e11888363e2001b03433ad5ab93e888aa3add723540e3b8d39d1a093371d25bc',
     'job_coordinator_reference': '710ed9970f70e6be9c527b249a37c6a5ac224ba9606e24c904d9c1dfa12aadb1',
-    'codex_delivery_reference': '3b9877ae40023b80a0f68826c5fb1b212b9a2f0748318add1fd793a62e0ef477',
-    'claude_delivery_reference': 'ae383f49e5fc2b3b2b57829c55ea027d3daf2acc285670fdbff4694868f9f8f7',
+    'claude_delivery_reference': '38c9c0fd81a9f92544256f989cd3c907dd43b7eb3897241788d33cfb9ab87887',
     'cursor_delivery_reference': '5a3d2848a3c929524d331e6f4709040c51823250383995a11aa3e196cd5c4aa5',
     'approval_reference': '0b6843b075bebd77d4daaf3d9c9a58d1f4ee7a712a3ace97c89cf5c6308a7c32',
     'coordinator_execution_reference': 'd97af6a32e66d318cded4fccb8f44ca8befc972a7dcb3c81a3691da1c2bd5341',
-    'single_comment_reference': 'efaf093a709f2446be1376c43fc667a6d8ec30435a6039854a1697ed66d2cbff',
-    'helper_dispatch_reference': 'a99a808d0cacdbf139af2ab34bcf8390e3cac239ceac72e0d1486ea10d26e149',
+    'single_comment_reference': '09dbb6388a4d89efdd66b9d0d42f7aaaf9b0258ab8817d1051643ad38ee4de0b',
+    'helper_dispatch_reference': '77267ff446a16e409254fca6913ab55fe8de8de3dd373276777a0c8acd5296ef',
     'export_search_reference': 'd8fcb7fa92c837c73ba3babf7d6ccbc47f06bd7e413e0707257fc21b32467442',
     'review_reference': 'a19e300edcd95c72996f02fd92220f3da140c721f52f2de9afd639fae815c238',
     'completion_reference': '8a477b770059d247ce9b385f599059cae027ba73ddd3645433bb002f05bc9ec1',
     'audit_reference': 'eab92f4aeb103c989b0156e9b1f62d794ee6c3241c921ba736d2633f1af69481',
     'claims_reference': '7ba2a48e96a6dc0cf3222537334a72454930fe8961748fdcd7c77fadf11a034c',
     'backlog_maintenance_reference': 'f81bb179b6460a0c84cb05140d495fcdbd4102f8aac5080fecd2061445fb7045',
-    'capsule_dispatch_reference': 'cc12364ba2736dfbba6d04fb7046985b6cccdf90267640293c7605062db376ec',
+    'capsule_dispatch_reference': '22d27135b33f76557f8e059e61a2da1b23e7e19964e5579cb186ff6ffd8b04fa',
     'delivery_common_reference': '2eefb8fec3354df90f3b6f88c7038e4d53c306b6c88edddbf6507d87b4740a3a',
     'durable_records_reference': '84d4641c1bd759ff148ccf8697ee1d0732e0352e497728fcc8c03208b0d52e35',
-    'event_routing_reference': 'c9f40609d4f10dbec388afcea18470a93f857ba4cb233c31be8e9b4e4a40e117',
+    'event_routing_reference': 'c35601ff2d6cae7cce3ccaeb28f9d63fde476cd4f5301aa34dd0ae7b9a803ea3',
     'history_search_reference': 'ec4e561146056039bb0f152f0e3f3e3d32fc4d609047cd5999fb2df142385649',
-    'implementation_helper_reference': '9927111039d821c3ce3eed360aaac4496eb26e0efcecec20af82f0d26ebd5f30',
-    'investigation_helper_reference': 'eb8f1e80501c5a7637ffa4199e6a93b3c12aeac08f8707e4a6f25b37932f67f4',
+    'implementation_helper_reference': '8e600c36c549abe29d8c722329df72d348a32ad5e0994977572fbd71ccceb830',
+    'investigation_helper_reference': '375ee0325c12419d4219ca9cbc30687467f8b8f3325efcf09ee67f561bcd112f',
     'job_assistance_reference': '7ad93d47412b989cd3328b112a4e3f38cddf6a93c9501962c53ba60c2cabfdd8',
     'job_context_reference': '074b20bbe7ba55f719bc83771e09a0e0a809b57f96e85a2f2b2f5896d6455954',
     'question_tools_reference': '63e5a8fa2562c7d899b3c9ea69a2fb4a0882ae9de0c504e8686b204dd897fe96',
     'session_handoff_reference': '17b33e07a8a9497a92554ddcdf0086fce7ba5a34420117ebc8a9b13504ae430b',
-    'standing_instructions_reference': 'd0ada685ca5ef560585d0f541e56fe19b2ae391bf5c070b68e18f600ac03ed01',
     'work_discovery_reference': '85269b67a27eb178c5ae57043a7af31a0cead608676dfe14d20c7f649c9ff85d',
     'openai_metadata': 'c60b60bcccd8b171ab950477b7f09b5fc621974846f4cdc468b6c8fe0bbb2ca9',
-    'design_skill': 'a830477ea35d529e89366b0f9360c007d02c9e30c508bead99bdb659e8a89f2a',
+    'design_skill': '3a2fe4dcca8649075b3ef500316f592c4b112a382ee00d48827a05c080a4b103',
     'design_openai_metadata': 'e17bf96989b457cfcad9040ae23b8918a10eb9805fe6109168717562b3770d73',
     'demo_brief': '1c26c3235dba931bcbf9d88fcacf32e437f1ec10f3e70fd908f33228ba30037f',
-    'token_manifest': '56106df7bbdaff5163df457f56da1fc81780cd4f0d43c1a28b23a9b07ec3f61b',
+    'token_manifest': '0dd79bfa598b586d7734d69065de84688e6f460fd0123c1b4ee59f8cd1738755',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',
@@ -395,7 +391,6 @@ CLIENT_STUB_ASSET = {
 }
 SKILL_PACKAGE_ASSETS = (
     ('job_coordinator_reference', os.path.join('references', 'job-coordinator.md')),
-    ('codex_delivery_reference', os.path.join('references', 'codex-delivery.md')),
     ('claude_delivery_reference', os.path.join('references', 'claude-delivery.md')),
     ('cursor_delivery_reference', os.path.join('references', 'cursor-delivery.md')),
     ('approval_reference', os.path.join('references', 'approval.md')),
@@ -419,7 +414,6 @@ SKILL_PACKAGE_ASSETS = (
     ('job_context_reference', os.path.join('references', 'job-context.md')),
     ('question_tools_reference', os.path.join('references', 'question-tools.md')),
     ('session_handoff_reference', os.path.join('references', 'session-handoff.md')),
-    ('standing_instructions_reference', os.path.join('references', 'standing-instructions.md')),
     ('work_discovery_reference', os.path.join('references', 'work-discovery.md')),
     ('openai_metadata', os.path.join('agents', 'openai.yaml')),
     # Publish the entrypoint last so an interrupted refresh never exposes a
@@ -439,6 +433,8 @@ RETIRED_SKILL_REFERENCE_PATHS = (
     os.path.join('references', 'capsules.md'),
     os.path.join('references', 'operations.md'),
     os.path.join('references', 'uploads.md'),
+    os.path.join('references', 'codex-delivery.md'),
+    os.path.join('references', 'standing-instructions.md'),
 )
 DESIGN_SKILL_PACKAGE_ASSETS = (
     ('design_openai_metadata', os.path.join('agents', 'openai.yaml')),
@@ -1893,15 +1889,32 @@ def demo_home_processes(home, needle=None):
     """
     try:
         listing = subprocess.run(
-            ['ps', '-eo', 'pid=,args='],
+            ['ps', '-eo', 'pid=,ppid=,args='],
             capture_output=True, text=True, timeout=30,
         ).stdout
     except Exception:
         return []
-    found = []
+    processes = {}
     for line in listing.splitlines():
-        pid_text, _, args = line.strip().partition(' ')
-        if not args or home not in args:
+        try:
+            pid_text, parent_text, args = line.split(None, 2)
+            processes[int(pid_text)] = (int(parent_text), args)
+        except ValueError:
+            continue
+    # The public supervisor is above the guardian and worker, and all three
+    # run the installed script from this home. Stopping any ancestor cuts the
+    # guardian's lifetime pipe while an otherwise successful run is finishing.
+    ancestors = {os.getpid()}
+    ancestor = os.getppid()
+    while ancestor not in ancestors:
+        ancestors.add(ancestor)
+        row = processes.get(ancestor)
+        if row is None:
+            break
+        ancestor = row[0]
+    found = []
+    for pid, (_parent, args) in processes.items():
+        if pid in ancestors or home not in args:
             continue
         # Mentioning the home is not enough to be killed for. A grep, an
         # editor, or a script passed the path as an argument all name it and
@@ -1936,12 +1949,6 @@ def demo_home_processes(home, needle=None):
             # Readiness requires the running CLI, not text inside a prompt.
             if is_demo_session or is_demo_codex or needle not in args:
                 continue
-        try:
-            pid = int(pid_text)
-        except ValueError:
-            continue
-        if pid in (os.getpid(), os.getppid()):
-            continue
         # The removal pipeline names this home on its own command line, as
         # does whatever shell invoked it. Stopping those would be stopping
         # ourselves partway through a delete.

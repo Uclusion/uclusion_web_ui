@@ -194,6 +194,135 @@ class DownloadedDemoBootstrapTests(unittest.TestCase):
         self.assertEqual(['claude', 'codex'], result['completed'])
         self.assertEqual(2, result['summaries'])
 
+    @unittest.skipUnless(hasattr(os, 'fork'), 'the demo guardian requires fork')
+    def test_guarded_report_shutdown_keeps_supervisor_and_stops_owned_processes(self):
+        result = self.run_probe(r'''
+            import io, json, os, pathlib, subprocess, sys, threading, time
+            from contextlib import ExitStack
+            from unittest import mock
+            if sys.argv[1:] == ['--participant']:
+                time.sleep(30)
+                raise SystemExit(0)
+            import uclusion as cli
+            import uclusionInstall as install
+            import uclusionTokenBudget as token
+            home = pathlib.Path(os.environ['UCLUSION_HOME'])
+            run = home / '.uclusion' / 'demo-runs' / 'run-guarded'
+            run.mkdir(parents=True)
+            report = b'  Local evaluation\r\nUnicode: \xe2\x9c\x93\n\n'
+            ledger = token.BudgetLedger(run / 'token-budget.sqlite3', run.name,
+                                        1_000_000_000, 100_000_000, create=True)
+            public, public_parent = os.getpid(), os.getppid()
+            children, participants, residuals = [], [], []
+            real_fork = os.fork
+
+            def fork():
+                child = real_fork()
+                if child:
+                    children.append(child)
+                return child
+
+            class LocalTree(token.OwnedProcesses):
+                # Use the real guardian and stop logic with only this fixture's
+                # explicit fork PIDs; no ps or /proc discovery is permitted.
+                def __init__(self, watch=False):
+                    self.root, self.known, self.excluded = os.getpid(), {}, set()
+                    self.lock = threading.RLock()
+
+                def processes(self):
+                    return {pid: (self.root, 1, 'S') for pid in children if pid != self.root}
+
+            class LocalBudget:
+                base_url = 'http://127.0.0.1:1/no-requests'
+                def __init__(self, *_args):
+                    self.ledger = ledger
+
+                def check(self):
+                    if ledger.snapshot()['halt_reason']:
+                        raise token.BudgetError(ledger.snapshot()['halt_reason'])
+
+                def track(self, process):
+                    return process
+
+                def close(self):
+                    # Record before fallback cleanup so a missed residual
+                    # cannot be hidden by the budget's final participant stop.
+                    (run / 'shutdown.json').write_text(json.dumps(
+                        [process.poll() for process in participants]))
+                    for process in participants:
+                        install.stop_demo_session(process)
+                    ledger.finish_active()
+
+            def participant():
+                process = subprocess.Popen([sys.executable, __file__, '--participant'],
+                    stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL, start_new_session=True)
+                participants.append(process)
+                return process
+
+            class LocalTerminal:
+                def __init__(self, _command, environment, _log):
+                    self.environment, self.published = environment, False
+                    self.process = participant()
+
+                def drain(self, timeout=.25):
+                    if 'UCLUSION_DEMO_REPORT_FILE' in self.environment and not self.published:
+                        self.published = True
+                        with mock.patch.dict(os.environ, self.environment), \
+                                mock.patch.object(cli.sys, 'stdin', io.TextIOWrapper(
+                                    io.BytesIO(report), encoding='utf-8')):
+                            assert cli.publish_demo_report() == 0
+                        residuals.append(participant())
+                    return False
+
+                def close(self):
+                    pass
+
+            def ps(command, **_kwargs):
+                assert command in (['ps', '-eo', 'pid=,args='],
+                                   ['ps', '-eo', 'pid=,ppid=,args=']), command
+                rows = [(public, public_parent), (os.getppid(), public),
+                        (os.getpid(), os.getppid())]
+                rows.extend((process.pid, os.getpid()) for process in residuals
+                            if process.poll() is None)
+                return mock.Mock(stdout='\n'.join(f'{pid} '
+                    + (f'{parent} ' if command[-1] == 'pid=,ppid=,args=' else '')
+                    + f'{sys.executable} {__file__}' for pid, parent in rows))
+
+            with ExitStack() as stack:
+                for target, name, replacement in (
+                    (os, 'fork', fork), (token, 'OwnedProcesses', LocalTree),
+                    (token, 'RunBudget', LocalBudget),
+                    (install, 'demo_claude_session_environment', lambda: {}),
+                    (install, 'demo_session_args', lambda *_args: []),
+                    (install, 'write_demo_owner_mcp_config', lambda *_args: None),
+                    (install, 'write_demo_evaluator_mcp_config', lambda *_args: None),
+                    (install, 'accept_demo_workspace_trust', lambda *_args: None),
+                    (install, 'snapshot_demo_evidence', lambda *_args: str(run / 'evidence')),
+                    (install, 'wait_for_owner_watch', lambda *_args, **_kwargs: True),
+                    (install, 'DemoCodexTerminal', LocalTerminal),
+                    (install, 'demo_evaluator_log', lambda *_args: None),
+                    (install.subprocess, 'run', ps),
+                ):
+                    stack.enter_context(mock.patch.object(target, name, replacement))
+                status = install.supervise_demo(['stage', 'claude', 'local-workspace', str(run),
+                    'Local fixture only.', '', '1000000000', '100000000', '', ''])
+            if os.getpid() != public:
+                raise SystemExit(status)
+            print(json.dumps({'status': status, 'report': (run / 'evaluation.md').read_bytes().hex(),
+                'stopped': json.loads((run / 'shutdown.json').read_text()),
+                'failure': (run / 'failure.txt').exists(), 'halt': ledger.snapshot()['halt_reason'],
+                'lifetime': json.loads((run / 'token-budget-lifetime.json').read_text())}))
+        ''')
+        self.assertEqual(0, result['status'])
+        self.assertEqual(b'  Local evaluation\r\nUnicode: \xe2\x9c\x93\n\n'.hex(), result['report'])
+        self.assertEqual([-15, -15, -15], result['stopped'])
+        self.assertFalse(result['failure'])
+        self.assertIsNone(result['halt'])
+        self.assertTrue(result['lifetime']['owned_processes_stopped'])
+        self.assertIsNone(result['lifetime']['stop_reason'])
+        self.assertEqual(0, result['lifetime']['controller_exit_status'])
+
 
 if __name__ == '__main__':
     unittest.main()

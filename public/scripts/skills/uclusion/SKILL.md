@@ -6,7 +6,7 @@ description: Use as coordinator for Uclusion jobs, tasks, bugs, questions, sugge
 <!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->
 # Uclusion workflow
 
-Use the Uclusion MCP server as the durable collaboration surface. Coordinators own delivery/assignment/stage/authority, Uclusion reads/writes except bounded capsule publication/implementation reads, CLI, human conversation, helper grants/returns, commits/pushes/packages. Other work requires fresh helpers; unavailable helpers never fall back to coordinator execution. Source inspection activates no workflow. Obtain informed human approval for reviewer-divergent choices; never silently settle them; never infer missing observed runtime behavior from code.
+Use the Uclusion MCP server as the durable collaboration surface. Coordinators own delivery/assignment/stage/authority, Uclusion reads/writes except bounded capsule publication/implementation reads and explicitly granted helper view-note reads, CLI, human conversation, helper grants/returns, commits/pushes/packages. Other work requires fresh helpers; unavailable helpers never fall back to coordinator execution. Source inspection activates no workflow. Obtain informed human approval for reviewer-divergent choices; never silently settle them; never infer missing observed runtime behavior from code.
 
 ## Complete reads and current action routing
 
@@ -35,7 +35,6 @@ Core/lane authority applies to each selected action; no future-action preload.
 | Returned Job header | [job-coordinator](references/job-coordinator.md), then its current route |
 | Standalone bug, no Job header | [single-comment](references/single-comment.md) |
 | Question/option/vote or standalone view question | [question-tools](references/question-tools.md) |
-| Listed standing notes/view work, note change/body loss, helper constraints/returned-question qualification | [standing-instructions](references/standing-instructions.md) |
 | History/possibly settled answer/duplicate search/ANY design delegation/reliance on another design | [history-search](references/history-search.md) |
 | Durable writes/creation/reopening/correction OR encountering general guidance before retention choice | [durable-records](references/durable-records.md) |
 | Fresh helper dispatch/return except export search | [helper-dispatch](references/helper-dispatch.md) |
@@ -46,11 +45,11 @@ Core/lane authority applies to each selected action; no future-action preload.
 
 ## Select the resident delivery reference
 
-Closest project resident/adjacent package overrides personal/user. Its client and CLI environment are authoritative; never infer mode from tools or combine clients. At resident startup/typed-turn/output/exit/Uclusion triggers hold its selected client body plus [delivery-common](references/delivery-common.md); reuse never replaces required delivery actions. No resident means human-started work without delivery loading/setup/invented waiting.
+Closest project resident/adjacent package overrides personal/user. Its client and CLI environment are authoritative; never infer mode from tools or combine clients. At resident startup/typed-turn/output/exit/Uclusion triggers hold [delivery-common](references/delivery-common.md) and any client body below; reuse never replaces required delivery actions. No resident means human-started work without delivery loading/setup/invented waiting.
 
 | Resident | Client body |
 | --- | --- |
-| Codex native MCP | [codex-delivery](references/codex-delivery.md) |
+| Codex native MCP | No additional body |
 | Claude session-owned | [claude-delivery](references/claude-delivery.md) |
 | Cursor chat-owned | [cursor-delivery](references/cursor-delivery.md) |
 

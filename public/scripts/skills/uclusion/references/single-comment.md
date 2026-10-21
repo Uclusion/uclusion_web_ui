@@ -15,5 +15,5 @@ Progress/questions use add_info. An assigned bug's observed open-to-resolved tra
 
 ## Prepare the bug's package
 
-Use exact resolved-bug thread, reviewed repository changes and exact bug/replies notification scope; retain these inputs for later package actions.
+Use exact resolved-bug thread, reviewed repository changes and exact bug/replies notification scope; retain these inputs for later package actions. Release this assignment only after the package reply is handled, authorized actions/clear succeed and terminal record confirms; declined actions are complete, failures retain assignment.
 <!-- /uclusion-skill-reference:v1 -->

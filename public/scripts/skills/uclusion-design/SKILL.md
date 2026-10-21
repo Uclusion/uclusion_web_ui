@@ -22,7 +22,13 @@ absence or its complete current body, exact R-code and actual version. Write
 only that target's contract; a task capsule stands alone and never inherits
 from or falls back to a job capsule.
 
-The coordinator grants only exact capsule creation or replacement, explicitly
+Before work, read every standing view-note R-thread explicitly listed in the
+grant with `get_job({short_code_id: "<listed R-code>", thread_only: true})`.
+Reuse complete current bodies until known change or body loss. Apply constraints
+within this assignment; report any requiring coordinator action with the exact
+note R-code/version. Do not discover notes/jobs outside the grant.
+
+The coordinator grants mutations only for exact capsule creation or replacement, explicitly
 named capsule-changing answered-question resolutions with settled canonical
 outcomes, and obsolete-AI-review cleanup from replacement. Leave target
 selection, human-answer qualification, required replies/votes, other questions
@@ -39,9 +45,10 @@ Investigate relevant source and history with bounded searches before drafting.
 Use workspace-export findings supplied by the coordinator; ask it to assign
 further searches to an isolated export-search helper when needed.
 Keep research, alternatives, planning rationale and transcripts here. Return
-only the compact canonical publication receipt below or typed unresolved
-questions, never the full body for coordinator re-emission, raw searches or
-instruction bodies.
+only the compact canonical publication receipt below, typed unresolved
+questions or concrete coordinator-action constraints with exact view-note
+R-code/version; never the full body for coordinator re-emission, raw searches
+or instruction bodies.
 
 ## Evidence gate
 
@@ -153,7 +160,8 @@ review cleanup. Human capsule-edit handling remains with the coordinator.
 
 Return a compact canonical receipt with the selected target, capsule link,
 exact R-code and actual version, publication status, each authorized question
-resolution and obsolete-review outcome, and unfinished recovery. Mark pending,
+resolution and obsolete-review outcome, unfinished recovery and any concrete
+coordinator-action note constraint with its exact R-code/version. Mark pending,
 failed or unconfirmed operations not ready; never claim them complete. Retain
 the complete sent body here for reconciliation. The coordinator passes the
 canonical target/reference/version for implementation; its helper reads and

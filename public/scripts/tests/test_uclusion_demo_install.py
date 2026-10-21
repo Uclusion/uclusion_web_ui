@@ -403,28 +403,28 @@ class DemoHomeTests(unittest.TestCase):
         # it meant killing the gate.
         home = INSTALL.demo_home_path()
         listing = '\n'.join([
-            f'  111 claude --mcp-config {home}/.uclusion/mcp.json',
-            f'  222 python3 {home}/.local/bin/uclusionInstall.py '
+            f'  111 1 claude --mcp-config {home}/.uclusion/mcp.json',
+            f'  222 1 python3 {home}/.local/bin/uclusionInstall.py '
             f'{INSTALL.DEMO_REMOVE_MODE} stage',
-            f'  333 bash -c UCLUSION_HOME={home} uclusion -e stage demo --remove',
-            f'  {os.getpid()} python3 {home}/anything',
-            '  444 an unrelated process',
-            f'  555 grep -r something {home}',
-            f'  666 /bin/bash ./gate.sh {home} stage',
+            f'  333 1 bash -c UCLUSION_HOME={home} uclusion -e stage demo --remove',
+            f'  {os.getpid()} {os.getppid()} python3 {home}/anything',
+            '  444 1 an unrelated process',
+            f'  555 1 grep -r something {home}',
+            f'  666 1 /bin/bash ./gate.sh {home} stage',
             # Named a file inside the home on its command line without ever
             # running it. This is what killed the gate twice.
-            f'  777 /bin/bash -c GATE_INSTALLER={home}/.local/bin/x.py ./gate.sh',
-            f'  888 vim {home}/.uclusion/bootstrap.md',
+            f'  777 1 /bin/bash -c GATE_INSTALLER={home}/.local/bin/x.py ./gate.sh',
+            f'  888 1 vim {home}/.uclusion/bootstrap.md',
             # The demo's own client, running from the home.
-            f'  999 python3 {home}/.local/bin/uclusion.py -e stage watch',
-            f'  1001 codex exec -c projects={{"{home}"={{trust_level="trusted"}}}} '
+            f'  999 1 python3 {home}/.local/bin/uclusion.py -e stage watch',
+            f'  1001 1 codex exec -c projects={{"{home}"={{trust_level="trusted"}}}} '
             f'-c mcp_servers={{Uclusion={{args=["{home}/.local/bin/uclusionMCPProxy.py"]}}}} '
             f'Read the brief and run {home}/.local/bin/uclusion -e stage watch',
-            f'  1002 codex exec inspect files in {home}',
+            f'  1002 1 codex exec inspect files in {home}',
             # The person's agent following the run: it only reads a log and
             # ends on its own, and killing it would hand the agent a failed
             # command just as the report arrives.
-            f'  1003 python3 {home}/.local/bin/uclusion -e stage demo '
+            f'  1003 1 python3 {home}/.local/bin/uclusion -e stage demo '
             '--progress --wait',
         ])
         with mock.patch.object(
@@ -434,6 +434,38 @@ class DemoHomeTests(unittest.TestCase):
             watchers = INSTALL.demo_home_processes(home, ' watch')
         self.assertEqual([111, 999, 1001], sorted(pid for pid, _args in found))
         self.assertEqual([999], [pid for pid, _args in watchers])
+
+    def test_home_cleanup_preserves_all_ancestors_and_keeps_owned_peers(self):
+        home = INSTALL.demo_home_path()
+        installer = f'python3 {home}/.local/bin/uclusionInstall.py --demo-supervise'
+        watch = f'python3 {home}/.local/bin/uclusion.py -e stage watch'
+        # An unrelated shell between installed ancestors must not end the walk.
+        rows = [(10, 1, installer), (20, 10, installer),
+                (30, 20, '/bin/bash launcher'), (40, 30, installer),
+                (50, 40, installer), (60, 20, installer),
+                (70, 50, watch),
+                (80, 1, f'claude --mcp-config {home}/.uclusion/mcp.json')]
+
+        for omitted, root_parent in ((set(), 0), ({50}, 0), (set(), 10), ({40}, 0)):
+            with self.subTest(omitted=omitted, root_parent=root_parent):
+                snapshot = [(1, root_parent, 'init'), *rows]
+
+                def ps(command, **_kwargs):
+                    # Both forms let this regression expose the old selector's
+                    # actual ancestor matches before the PPID change.
+                    parents = command[-1] == 'pid=,ppid=,args='
+                    return mock.Mock(stdout='\n'.join(
+                        f'{pid} ' + (f'{parent} ' if parents else '') + args
+                        for pid, parent, args in snapshot if pid not in omitted))
+
+                with mock.patch.object(INSTALL.os, 'getpid', return_value=50), \
+                        mock.patch.object(INSTALL.os, 'getppid', return_value=40), \
+                        mock.patch.object(INSTALL.subprocess, 'run', side_effect=ps):
+                    found = INSTALL.demo_home_processes(home)
+                    watchers = INSTALL.demo_home_processes(home, ' watch')
+                expected = [60, 70, 80] if 40 not in omitted else [10, 20, 60, 70, 80]
+                self.assertEqual(expected, sorted(pid for pid, _args in found))
+                self.assertEqual([70], [pid for pid, _args in watchers])
 
 
 class DemoProvisionTests(unittest.TestCase):

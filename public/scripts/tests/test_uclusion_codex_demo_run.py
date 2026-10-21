@@ -14,6 +14,7 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import uclusionCLI as CLI
+import uclusionTokenBudget as BUDGET
 
 
 spec = importlib.util.spec_from_file_location(
@@ -47,6 +48,9 @@ class CodexDemoRunTests(unittest.TestCase):
         self.report = None
         self.commands = []
         self.session_calls = []
+        self.native_server = mock.Mock(socket_path=str(self.home / 'owned.sock'),
+                                      remote_args=['--remote', 'unix://' + str(self.home / 'owned.sock')])
+        self.native_server.process.poll.return_value = None
 
         def session_args(*_args, **kwargs):
             self.session_calls.append(kwargs)
@@ -95,6 +99,12 @@ class CodexDemoRunTests(unittest.TestCase):
             self.addCleanup(patch.stop)
         self.watch_ready = self.mocks[-3]
         self.stop = self.mocks[-2]
+        native_patch = mock.patch.object(BUDGET, 'OwnedCodexServer', return_value=self.native_server)
+        native_patch.start()
+        self.addCleanup(native_patch.stop)
+        account_patch = mock.patch.object(BUDGET, 'bind_codex_account')
+        account_patch.start()
+        self.addCleanup(account_patch.stop)
 
     @staticmethod
     def close_watch_pipe(write, stdout):
@@ -112,6 +122,10 @@ class CodexDemoRunTests(unittest.TestCase):
                 if call.args[0][:2] == ['codex', 'exec']]
 
     def run_demo(self, **kwargs):
+        if kwargs.get('run_dir'):
+            INSTALL.prepare_demo_budget(kwargs['run_dir'],
+                kwargs.get('max_input_tokens', BUDGET.PROVISIONAL_INPUT_TOKENS),
+                kwargs.get('max_output_tokens', BUDGET.PROVISIONAL_OUTPUT_TOKENS))
         return INSTALL.run_codex_demo('stage', 'workspace', 'Start J-Demo-1.', **kwargs)
 
     def test_only_the_evaluator_is_launched_with_statistics(self):
@@ -172,7 +186,9 @@ class CodexDemoRunTests(unittest.TestCase):
         self.assertEqual(self.run_demo(model='gpt-6', effort='high'), 0)
         choice = ['-m', 'gpt-6', '-c', 'model_reasoning_effort="high"']
         owner_command = self.owner_commands()[-1]
-        self.assertEqual(choice, owner_command[:-1][-4:])
+        offset = owner_command.index('-m')
+        self.assertEqual(choice, owner_command[offset:offset + len(choice)])
+        self.assertEqual(choice, self.native_server.args[1:5])
         self.assertEqual('gpt-6', self.session_calls[-1]['model'])
         self.assertEqual('high', self.session_calls[-1]['effort'])
         self.assertNotIn('-c', self.commands[-1])
@@ -229,16 +245,13 @@ class CodexDemoRunTests(unittest.TestCase):
             {'type': 'turn.failed', 'error': {'message': final}},
         ]
         reason = 'the owner\'s first turn failed'
-        timeout = INSTALL.subprocess.TimeoutExpired('codex', 180)
         for name, lines, ending, expected in (
             ('404', run_79g5sk80, 1, f'{reason}: {final}. Records:'),
             ('no top-level error', run_79g5sk80[:3], 1, f'{reason}. Records:'),
             ('no thread', [{'type': 'turn.completed'}], 0, f'{reason}. Records:'),
-            ('timeout', run_79g5sk80[:3], timeout, f'{reason}. Records:'),
         ):
             with self.subTest(name):
                 self.first_turn = lines
-                self.owner.wait.side_effect = ending if ending is timeout else None
                 self.owner.wait.return_value = ending
                 run_dir = self.home / f'run-{name}'
                 run_dir.mkdir()
@@ -328,6 +341,89 @@ class CodexDemoRunTests(unittest.TestCase):
     def test_normal_owner_exit_can_precede_report(self):
         self.terminal.drain.side_effect = lambda: self.report.write_text('complete')
         self.assertEqual(self.run_demo(), 0)
+
+    def test_healthy_first_owner_turn_can_exceed_three_minutes(self):
+        elapsed = 0
+
+        def owner_wait(timeout):
+            nonlocal elapsed
+            elapsed += timeout
+            if elapsed < 181:
+                raise subprocess.TimeoutExpired('healthy owner', timeout)
+            return 0
+
+        self.owner.wait.side_effect = owner_wait
+        self.terminal.drain.side_effect = lambda: self.report.write_bytes(b'Report\r\n')
+        clock = mock.Mock(wraps=time)
+        clock.monotonic.side_effect = lambda: elapsed
+        with mock.patch.object(INSTALL, 'time', clock):
+            self.assertEqual(self.run_demo(), 0)
+        self.assertGreaterEqual(elapsed, 181)
+        self.assertEqual(b'Report\r\n', self.report.read_bytes())
+        self.stop.assert_any_call(self.watch)
+        self.native_server.close.assert_called_once()
+
+    def test_token_ceiling_during_first_owner_turn_stops_owned_sessions(self):
+        for dimension, incoming, outgoing in (
+                ('input', 100_000_001, 1), ('output', 1, 10_000_001)):
+            with self.subTest(dimension=dimension):
+                run_dir = self.home / f'owner-{dimension}-ceiling'
+                run_dir.mkdir()
+
+                def owner_wait(timeout):
+                    ledger = BUDGET.BudgetLedger(
+                        run_dir / 'token-budget.sqlite3', run_dir.name,
+                        100_000_000, 10_000_000,
+                    )
+                    with self.assertRaises(BUDGET.BudgetError):
+                        ledger.reserve(incoming, outgoing, '/responses', 'fixture')
+                    raise subprocess.TimeoutExpired('owner', timeout)
+
+                self.owner.wait.side_effect = owner_wait
+                self.assertEqual(self.run_demo(run_dir=str(run_dir),
+                    max_input_tokens=100_000_000, max_output_tokens=10_000_000), 1)
+                self.assertEqual([], self.commands)
+                self.stop.assert_any_call(self.owner)
+                self.stop.assert_any_call(self.watch)
+                summary = json.loads((run_dir / 'token-budget-summary.json').read_text())
+                self.assertIn(f'{dimension} token ceiling', summary['halt_reason'])
+
+    def test_interrupt_during_first_owner_turn_stops_owned_sessions(self):
+        self.owner.wait.side_effect = KeyboardInterrupt
+        self.assertEqual(self.run_demo(), 1)
+        self.assertEqual([], self.commands)
+        self.stop.assert_any_call(self.owner)
+        self.stop.assert_any_call(self.watch)
+        self.native_server.close.assert_called_once()
+
+    def test_owned_process_exit_during_first_owner_turn_stops_the_run(self):
+        for role, process, diagnostic in (
+                ('watch', self.watch, 'the notification watch stopped'),
+                ('native', self.native_server.process,
+                 'the owned native Codex server stopped')):
+            with self.subTest(role=role):
+                self.watch.poll.return_value = None
+                self.native_server.process.poll.return_value = None
+                self.owner.wait.reset_mock()
+                self.native_server.close.reset_mock()
+                run_dir = self.home / f'owner-{role}-exit'
+                run_dir.mkdir()
+
+                def owner_wait(timeout):
+                    process.poll.return_value = 7
+                    if self.owner.wait.call_count > 1:
+                        raise KeyboardInterrupt('process exit was not detected')
+                    raise subprocess.TimeoutExpired('owner', timeout)
+
+                self.owner.wait.side_effect = owner_wait
+                self.assertEqual(self.run_demo(run_dir=str(run_dir)), 1)
+                self.assertIn(diagnostic,
+                              (run_dir / INSTALL.DEMO_FAILURE_FILE).read_text())
+                self.assertEqual(1, self.owner.wait.call_count)
+                self.assertEqual([], self.commands)
+                self.stop.assert_any_call(self.owner)
+                self.stop.assert_any_call(self.watch)
+                self.native_server.close.assert_called_once()
 
     def test_interrupt_cleans_up_both_sessions(self):
         self.terminal.drain.side_effect = KeyboardInterrupt

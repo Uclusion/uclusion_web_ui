@@ -20,6 +20,7 @@ SCRIPTS_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SCRIPTS_DIR))
 
 import uclusionCLI as cli
+import uclusionTokenBudget as budget
 
 spec = importlib.util.spec_from_file_location('demo_choice', SCRIPTS_DIR / 'uclusionInstall.py')
 INSTALL = importlib.util.module_from_spec(spec)
@@ -97,7 +98,8 @@ class DemoChoiceHandOffTests(unittest.TestCase):
             json.loads((run_dir / INSTALL.DEMO_RUN_CHOICE_FILE).read_text()),
         )
         # The detached half hands the same choice to the runner
-        with mock.patch.object(INSTALL, 'run_claude_demo', return_value=0) as runner:
+        with mock.patch.object(INSTALL, 'run_claude_demo', return_value=0) as runner, \
+                mock.patch.object(budget, 'guard_demo_supervisor', return_value=None):
             self.assertEqual(0, INSTALL.supervise_demo(command[3:]))
         self.assertEqual('opus', runner.call_args.kwargs['model'])
         self.assertEqual('xhigh', runner.call_args.kwargs['effort'])
@@ -120,7 +122,8 @@ class DemoChoiceHandOffTests(unittest.TestCase):
             {'client': 'codex', 'model': 'gpt-6.1-sol', 'effort': 'high'},
             json.loads((run_dir / INSTALL.DEMO_RUN_CHOICE_FILE).read_text()),
         )
-        with mock.patch.object(INSTALL, 'run_codex_demo', return_value=0) as runner:
+        with mock.patch.object(INSTALL, 'run_codex_demo', return_value=0) as runner, \
+                mock.patch.object(budget, 'guard_demo_supervisor', return_value=None):
             self.assertEqual(0, INSTALL.supervise_demo(command[3:]))
         self.assertEqual('gpt-6.1-sol', runner.call_args.kwargs['model'])
         self.assertEqual('high', runner.call_args.kwargs['effort'])

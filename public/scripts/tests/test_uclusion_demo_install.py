@@ -129,7 +129,7 @@ class DemoHomeTests(unittest.TestCase):
         supervise = inspect.getsource(INSTALL.supervise_demo)
         self.assertIn('run_claude_demo', supervise)
         self.assertIn('run_codex_demo', supervise)
-        source = inspect.getsource(INSTALL.run_claude_demo)
+        source = inspect.getsource(INSTALL._run_claude_demo)
         self.assertIn('wait_for_owner_watch(', source)
         self.assertIn('stop_demo_home_processes(', source)
         # S-Marketing-73: the evaluator publishes its report to the installer,
@@ -147,7 +147,7 @@ class DemoHomeTests(unittest.TestCase):
         self.assertTrue(
             INSTALL.demo_brief_path().startswith(INSTALL.UCLUSION_HOME)
         )
-        source = inspect.getsource(INSTALL.run_claude_demo)
+        source = inspect.getsource(INSTALL._run_claude_demo)
         self.assertIn('demo_brief_path()', source)
         self.assertNotIn('demo_brief_url', source)
 
@@ -186,7 +186,7 @@ class DemoHomeTests(unittest.TestCase):
         self.assertIn('do not start a Poke listener or drain.', opening)
         # S-Marketing-107: the demo feeds the Codex owner, which still must not
         # start one of its own.
-        codex = inspect.getsource(INSTALL.run_codex_demo)
+        codex = inspect.getsource(INSTALL._run_codex_demo)
         self.assertIn("'a Poke listener or wait for notifications yourself.", codex)
 
     def test_the_evaluator_is_not_told_what_its_report_is_for(self):
@@ -194,7 +194,7 @@ class DemoHomeTests(unittest.TestCase):
         # makes it, hands it a frame to write toward - which is the coaching
         # the demo is not allowed to do, and naming the project is what puts
         # the project in the room.
-        source = inspect.getsource(INSTALL.run_claude_demo)
+        source = inspect.getsource(INSTALL._run_claude_demo)
         self.assertIn('Report on Uclusion itself', source)
         for leak in ('compare your report', 'whoever is reading',
                      'Do not speculate about the project'):
@@ -217,7 +217,7 @@ class DemoHomeTests(unittest.TestCase):
         # sessions behave. Project and local mean the demo home, where they start.
         args = INSTALL.demo_session_args('stage')
         self.assertEqual('project,local', args[args.index('--setting-sources') + 1])
-        source = inspect.getsource(INSTALL.run_claude_demo)
+        source = inspect.getsource(INSTALL._run_claude_demo)
         self.assertEqual(2, source.count("['claude'] + "))
         self.assertEqual(2, source.count('DemoCodexTerminal('))
         self.assertIn(
@@ -229,11 +229,11 @@ class DemoHomeTests(unittest.TestCase):
         # The brief and the workflow references sit under the demo home.
         self.assertIn('--add-dir', INSTALL.demo_session_args('stage'))
         # The launch must use that definition rather than assembling its own.
-        self.assertEqual(2, inspect.getsource(INSTALL.run_claude_demo).count('demo_session_args('))
+        self.assertEqual(2, inspect.getsource(INSTALL._run_claude_demo).count('demo_session_args('))
 
     def test_the_owner_session_is_kept_for_diagnosis(self):
         # When the owner never wakes, its session is the only evidence of why.
-        source = inspect.getsource(INSTALL.run_claude_demo)
+        source = inspect.getsource(INSTALL._run_claude_demo)
         self.assertIn("'owner.log'", source)
         self.assertIn("'evaluator.log'", source)
         self.assertNotIn('stdout=subprocess.DEVNULL', source)
@@ -244,7 +244,7 @@ class DemoHomeTests(unittest.TestCase):
         # stream-json is not a terminal, so Claude Code would have no Monitor.
         args = INSTALL.demo_session_args('stage')
         self.assertNotIn('--output-format', args)
-        source = inspect.getsource(INSTALL.run_claude_demo)
+        source = inspect.getsource(INSTALL._run_claude_demo)
         self.assertIn('owner_terminal.drain(', source)
         self.assertIn('evaluator_terminal.drain(', source)
 
@@ -346,7 +346,7 @@ class DemoHomeTests(unittest.TestCase):
         )
 
     def test_the_claude_evaluator_is_launched_with_its_own_config(self):
-        source = inspect.getsource(INSTALL.run_claude_demo)
+        source = inspect.getsource(INSTALL._run_claude_demo)
         self.assertIn('write_demo_evaluator_mcp_config(response_stats, evidence_dir)', source)
         self.assertIn("['claude'] + evaluator_session_args", source)
         self.assertIn('response_stats=args.response_stats',

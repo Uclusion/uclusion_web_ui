@@ -5,7 +5,7 @@
 # Usage:
 #   install.sh <workspaceId> <viewId> [environment] [--project] [--clients claude,cursor,codex]
 #   install.sh setup [environment] --clients <claude|cursor|codex> [--project]
-#   install.sh demo [environment] --clients <claude|codex> --model <model> --effort <level>
+#   install.sh demo [environment] --clients <claude|codex> --model <model> --effort <level> [--max-input-tokens N] [--max-output-tokens N]
 #
 # Extra flags after the positional arguments are forwarded to uclusionInstall.py;
 # --clients makes the install non-interactive and --project configures the

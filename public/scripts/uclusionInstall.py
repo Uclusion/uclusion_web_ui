@@ -150,6 +150,7 @@ SCRIPT_FILES = (
     ('uclusionCodexNative.py', 'uclusionCodexNative.py', 'uclusionCodexNative.py'),
     ('uclusionUpdateNotices.py', 'uclusionUpdateNotices.py', 'uclusionUpdateNotices.py'),
     ('uclusionTokenAudit.py', 'uclusionTokenAudit.py', TOKEN_AUDIT_SYMLINK_NAME),
+    ('uclusionTokenBudget.py', 'uclusionTokenBudget.py', 'uclusionTokenBudget.py'),
 )
 # Setup has no account credential with which to resolve
 # ``script_reinstall_version``. The downloaded installer is therefore its own
@@ -158,12 +159,13 @@ SCRIPT_FILES = (
 # deployment gate validates this table before publishing, so a sequential S3
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
-    'uclusionCLI.py': 'c6a36233d982af4dcd9029bac8cbc1fdd3da5f82e0b12ddc156ec42a471c27bb',
+    'uclusionCLI.py': 'fc2af9709545a33b45e89df69ff682c80d681f6a74e57af75ad8a9743eea0e32',
     'uclusionMCPProxy.py': '543eb4c0f0e6a824a6c408b1cbed89519ba63349b73118a9361c9a9563b445f1',
     'uclusionSetupMCP.py': '9aa8d3199b0c392d944fc3b2fb9f26b48230737ea2e5b07980cd3df6b79ed4f3',
-    'uclusionCodexNative.py': 'a3c5a318b54a0fcea6381d6e79b4a8b57de3f2dc7c567b2b27f249418d8ee72d',
+    'uclusionCodexNative.py': 'fb5f75f9f3e695c73ced443a116f504682ab34aa26616cfe1f8877c9d0e093c0',
     'uclusionUpdateNotices.py': 'a9d6ed9e082bce28ac8340d242ad34d2f180a35de6821ce72c0684503e84b7e8',
     'uclusionTokenAudit.py': '5045b9c9d08300a8c7a58446a219d0eb503327f26a8020bd7b4be9bae1bb0de1',
+    'uclusionTokenBudget.py': '15fdd602339eebf1a60230bb92d0621b3a963049084bba51dab65bf3413fd1fc',
 }
 USER_HOME = os.path.expanduser('~')
 UCLUSION_HOME = os.path.join(uclusion_home_root(), '.uclusion')
@@ -383,7 +385,7 @@ WORKFLOW_ASSET_SHA256 = {
     'design_skill': 'a830477ea35d529e89366b0f9360c007d02c9e30c508bead99bdb659e8a89f2a',
     'design_openai_metadata': 'e17bf96989b457cfcad9040ae23b8918a10eb9805fe6109168717562b3770d73',
     'demo_brief': '1c26c3235dba931bcbf9d88fcacf32e437f1ec10f3e70fd908f33228ba30037f',
-    'token_manifest': '0f6a53ea51902606d85e0fb09325de34b9c848e9f211475f6d0da4493ee1e861',
+    'token_manifest': '56106df7bbdaff5163df457f56da1fc81780cd4f0d43c1a28b23a9b07ec3f61b',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',
@@ -1782,6 +1784,7 @@ def demo_codex_session_args(environment, workspace_id, evidence_dir=None,
             'HOME', 'UCLUSION_HOME', 'CODEX_HOME', 'PATH',
             'UCLUSION_DEMO_REPORT_FILE', 'UCLUSION_DEMO_EVIDENCE_DIR',
             'UCLUSION_DEMO_EVIDENCE_ROLE',
+            'UCLUSION_CODEX_NATIVE_SOCKET',
         ):
             if name in child_environment:
                 lines.append(name + '=' + _toml_basic_string(child_environment[name]))
@@ -1791,6 +1794,10 @@ def demo_codex_session_args(environment, workspace_id, evidence_dir=None,
                 lines.extend(['[mcp_servers.' + _toml_basic_string(name) + ']', 'enabled=false'])
         descriptor['args'] = proxy_args
         block = build_codex_mcp_block(descriptor=descriptor)
+        if child_environment.get('UCLUSION_CODEX_NATIVE_SOCKET'):
+            block = block.replace('env_vars = ["CODEX_HOME"]',
+                'env_vars = ["CODEX_HOME"]\nenv = {UCLUSION_CODEX_NATIVE_SOCKET=' +
+                _toml_basic_string(child_environment['UCLUSION_CODEX_NATIVE_SOCKET']) + '}')
         block = block.replace('default_tools_approval_mode', 'required=true\ndefault_tools_approval_mode', 1)
         text = '\n'.join(lines) + '\n\n' + block
         path = os.path.join(uclusion_home_root(), '.codex', 'config.toml')
@@ -2223,15 +2230,15 @@ def snapshot_demo_evidence(run_dir, client):
         deliveries = ('poke_delivered records Codex admission, with message and delivery '
                       'identity. Reconciled Codex deliveries may repeat an identity; they are '
                       'not additional instructions.')
-        provider_request = ('This evidence does not intercept the HTTP request Codex sends '
-                            'the model provider.')
+        provider_request = ('The shared token controller relays Codex provider requests in memory '
+                            'and does not retain the HTTP request or response bodies; it records numeric usage.')
     else:
         owner_directions = 'the owner brief'
         owner_log = 'owner.log'
         deliveries = ('poke_delivered records the CLI output that delivered each Poke, with '
                       'message and delivery identity.')
-        provider_request = ('Claude Code does not retain the HTTP request it sends the model '
-                            'provider, and this evidence does not intercept that request.')
+        provider_request = ('The shared token controller relays Claude Code provider requests in memory '
+                            'and does not retain the HTTP request or response bodies; it records numeric usage.')
     with open(os.path.join(directory, 'README.md'), 'w', encoding='utf-8') as handle:
         handle.write(
             '# Evaluator disclosure\n\n'
@@ -2297,8 +2304,17 @@ def demo_choice_args(client, model, effort):
     return arguments
 
 
+def prepare_demo_budget(run_dir, max_input_tokens, max_output_tokens):
+    from uclusionTokenBudget import BudgetLedger
+    BudgetLedger(os.path.join(run_dir, 'token-budget.sqlite3'), os.path.basename(run_dir),
+                 max_input_tokens, max_output_tokens, create=True)
+    with open(os.path.join(run_dir, 'token-budget-limits.json'), 'x', encoding='utf-8') as handle:
+        json.dump({'max_input_tokens': max_input_tokens, 'max_output_tokens': max_output_tokens}, handle)
+
+
 def start_demo_supervisor(env, client, workspace_id, start_prompt, response_stats=None,
-                          model=None, effort=None):
+                          model=None, effort=None, max_input_tokens=1_000_000_000,
+                          max_output_tokens=100_000_000):
     """S-Marketing-77: start the exercise detached and return.
 
     A prospect's agent that ran this command in the foreground waited out the
@@ -2311,6 +2327,9 @@ def start_demo_supervisor(env, client, workspace_id, start_prompt, response_stat
     model = model.lower() if model else model
     effort = effort.lower() if effort else effort
     run_dir = new_demo_run_dir()
+    prepare_demo_budget(run_dir, max_input_tokens, max_output_tokens)
+    print(f'📊 Shared limits: {max_input_tokens} input tokens and {max_output_tokens} output tokens. '
+          'These provisional limits cover both sessions and their helpers.', flush=True)
     supervisor = os.path.join(SYMLINK_DIR, 'uclusionDemoSupervisor.py')
     shutil.copyfile(os.path.abspath(__file__), supervisor)
     with open(demo_current_run_path(), 'w', encoding='utf-8') as handle:
@@ -2320,7 +2339,8 @@ def start_demo_supervisor(env, client, workspace_id, start_prompt, response_stat
     with open(os.path.join(run_dir, 'supervisor.log'), 'wb') as log:
         process = subprocess.Popen(
             [sys.executable, supervisor, DEMO_SUPERVISE_MODE, env, client, workspace_id, run_dir,
-             start_prompt, response_stats or '', model or '', effort or ''],
+             start_prompt, response_stats or '', str(max_input_tokens), str(max_output_tokens),
+             model or '', effort or ''],
             cwd=uclusion_home_root(), stdin=subprocess.DEVNULL, stdout=log,
             stderr=subprocess.STDOUT, start_new_session=True,
         )
@@ -2366,12 +2386,17 @@ def start_demo_supervisor(env, client, workspace_id, start_prompt, response_stat
 
 def supervise_demo(argv):
     """The detached half of the demo command: run the exercise to its end."""
-    env, client, workspace_id, run_dir, start_prompt, response_stats, model, effort = argv
+    env, client, workspace_id, run_dir, start_prompt, response_stats, max_input, max_output, model, effort = argv
+    from uclusionTokenBudget import guard_demo_supervisor
+    result = guard_demo_supervisor(run_dir, int(max_input), int(max_output))
+    if result is not None:
+        return result
     runner = run_codex_demo if client == 'codex' else run_claude_demo
     try:
         return runner(env, workspace_id, start_prompt,
                       response_stats=response_stats or None, run_dir=run_dir,
-                      model=model or None, effort=effort or None)
+                      model=model or None, effort=effort or None,
+                      max_input_tokens=int(max_input), max_output_tokens=int(max_output))
     except (OSError, RuntimeError) as error:
         message = f'Could not start the demo: {error}. Records: {run_dir}.'
         record_demo_failure(run_dir, message)
@@ -2442,10 +2467,47 @@ def codex_owner_turn_prompt(lines):
     )
 
 
+def wait_for_codex_owner(process, budget, watch, native_process):
+    while True:
+        budget.check()
+        if watch.poll() is not None:
+            raise RuntimeError('the notification watch stopped')
+        if native_process.poll() is not None:
+            raise RuntimeError('the owned native Codex server stopped')
+        try:
+            return process.wait(timeout=.1)
+        except subprocess.TimeoutExpired:
+            pass
+
+
+def _run_budgeted_demo(runner, client, env, workspace_id, start_prompt,
+                       response_stats, run_dir, model, effort,
+                       max_input_tokens, max_output_tokens):
+    from uclusionTokenBudget import RunBudget
+    if run_dir is None:
+        run_dir = new_demo_run_dir()
+        prepare_demo_budget(run_dir, max_input_tokens, max_output_tokens)
+    budget = RunBudget(run_dir, client, max_input_tokens, max_output_tokens)
+    try:
+        result = runner(env, workspace_id, start_prompt, response_stats=response_stats,
+                      run_dir=run_dir, model=model, effort=effort, budget=budget)
+    finally:
+        budget.close()
+    return 1 if budget.ledger.snapshot()['halt_reason'] else result
+
+
 def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir=None,
-                   model=None, effort=None):
+                   model=None, effort=None, max_input_tokens=1_000_000_000,
+                   max_output_tokens=100_000_000):
+    return _run_budgeted_demo(_run_codex_demo, 'codex', env, workspace_id, start_prompt,
+                             response_stats, run_dir, model, effort,
+                             max_input_tokens, max_output_tokens)
+
+
+def _run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir=None,
+                    model=None, effort=None, budget=None):
     """Supervise the owner and native evaluator until publication."""
-    run_dir = run_dir or new_demo_run_dir()
+    from uclusionTokenBudget import OwnedCodexServer, bind_codex_account, codex_runtime_args
     report_path = os.path.join(run_dir, 'evaluation.md')
     # Only session logs written after this belong to the run.
     demo_started_at = time.time()
@@ -2508,14 +2570,19 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
         env, workspace_id, evidence_dir=evidence_dir, evidence_role='owner',
         instructions_path=demo_codex_owner_instructions_path(),
         child_environment=environment,
-    ) + choice_args
+    ) + choice_args + codex_runtime_args(budget.base_url)
+    native_server = OwnedCodexServer([], evaluator_environment, uclusion_home_root(),
+                                    socket_path=budget.native_socket_path)
+    evaluator_environment['UCLUSION_CODEX_NATIVE_SOCKET'] = native_server.socket_path
     evaluator_session_args = demo_codex_session_args(
         env, workspace_id, native=True, response_stats=response_stats,
         evidence_dir=evidence_dir, evidence_role='evaluator',
         model=model, effort=effort,
         child_environment=evaluator_environment,
     )
-    owner = terminal = watch = None
+    native_server.args = ['codex', *evaluator_session_args, *choice_args,
+                          *codex_runtime_args(budget.base_url)]
+    owner = terminal = watch = account_client = None
     selector = selectors.DefaultSelector()
     print(f'📁 Demo session records: {run_dir}', flush=True)
     try:
@@ -2532,15 +2599,21 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
                 # launch options. Every turn appends to the one owner log.
                 resume = ['resume'] if thread_id else []
                 session = [thread_id] if thread_id else []
-                return subprocess.Popen(
+                return budget.track(subprocess.Popen(
                     ['codex', 'exec', *resume, '--skip-git-repo-check', '--json',
                      *owner_session_args, *session, prompt],
                     cwd=uclusion_home_root(), env=environment,
                     stdin=subprocess.DEVNULL, stdout=owner_log,
                     stderr=subprocess.STDOUT, start_new_session=True,
-                )
+                ))
 
             try:
+                # Resolve saved-account requirements before the exec owner can
+                # generate. The same native reader guards every later request.
+                native_server.start()
+                budget.track(native_server.process)
+                account_client = bind_codex_account(budget.gateway,
+                    CODEX_HOME, native_server.socket_path)
                 print('🤝 Starting the workshop owner.', flush=True)
                 watch = subprocess.Popen(
                     [*demo_codex_cli_args(env), 'watch'],
@@ -2548,13 +2621,11 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
                     stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
                     stderr=watch_log, start_new_session=True,
                 )
+                budget.track(watch)
                 if not wait_for_owner_watch(uclusion_home_root(), owner=watch):
                     raise RuntimeError('the notification watch did not start')
                 owner = start_owner_turn(owner_prompt)
-                try:
-                    first_turn = owner.wait(timeout=180)
-                except subprocess.TimeoutExpired:
-                    first_turn = None
+                first_turn = wait_for_codex_owner(owner, budget, watch, native_server.process)
                 thread_id = (codex_owner_thread_id(owner_log.name)
                              if first_turn == 0 else None)
                 if thread_id is None:
@@ -2565,13 +2636,16 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
                     )
                 owner = None
                 print('🧠 Starting the evaluating agent.', flush=True)
+                budget.check()
                 terminal = DemoCodexTerminal(
-                    ['codex', *evaluator_session_args, evaluator_prompt],
+                    ['codex', *native_server.remote_args, evaluator_prompt],
                     evaluator_environment, evaluator_log,
                 )
+                budget.track(terminal.process)
                 selector.register(watch.stdout, selectors.EVENT_READ)
                 held, partial = [], b''
                 while True:
+                    budget.check()
                     if os.path.isfile(report_path):
                         with open(report_path, 'rb') as handle:
                             answer = handle.read()
@@ -2607,6 +2681,14 @@ def run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_dir
                         if watch is not None:
                             watch.stdout.close()
                     finally:
+                        # Drain native continuations while their saved-account
+                        # reader and owned writer are still available.
+                        budget.monitor_stop.set()
+                        budget.monitor.join(timeout=3)
+                        budget.gateway.close()
+                        if account_client is not None:
+                            account_client.close()
+                        native_server.close()
                         # Codex shell tools may create their own process
                         # groups. The demo's existing removal scan catches
                         # its CLI/watch/proxy children that escaped ours.
@@ -2656,7 +2738,15 @@ def demo_claude_session_environment():
 
 
 def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_dir=None,
-                    model=None, effort=None):
+                    model=None, effort=None, max_input_tokens=1_000_000_000,
+                    max_output_tokens=100_000_000):
+    return _run_budgeted_demo(_run_claude_demo, 'claude', env, workspace_id, start_prompt,
+                             response_stats, run_dir, model, effort,
+                             max_input_tokens, max_output_tokens)
+
+
+def _run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_dir=None,
+                     model=None, effort=None, budget=None):
     """Supervise the Claude owner and evaluator until the evaluator publishes.
 
     S-Marketing-73: the report is the file the evaluator publishes with
@@ -2664,7 +2754,6 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_di
     expiry once woke the evaluator after its evaluation, and whatever that
     extra turn said would have replaced the report.
     """
-    run_dir = run_dir or new_demo_run_dir()
     report_path = os.path.join(run_dir, 'evaluation.md')
     # Only session logs written after this belong to the run.
     demo_started_at = time.time()
@@ -2679,6 +2768,8 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_di
     evaluator_environment = demo_claude_session_environment()
     evaluator_environment['UCLUSION_DEMO_REPORT_FILE'] = report_path
     owner_environment = demo_claude_session_environment()
+    owner_environment['ANTHROPIC_BASE_URL'] = budget.base_url
+    evaluator_environment['ANTHROPIC_BASE_URL'] = budget.base_url
     owner_environment.pop('UCLUSION_DEMO_EVIDENCE_DIR', None)
     owner_environment.pop('UCLUSION_DEMO_EVIDENCE_ROLE', None)
     # The owner has no other way to learn where its directions are: the
@@ -2768,6 +2859,7 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_di
                     ['claude'] + owner_session_args + [owner_prompt],
                     owner_environment, owner_log,
                 )
+                budget.track(owner_terminal.process)
                 if not wait_for_owner_watch(
                     uclusion_home_root(), owner=owner_terminal.process,
                     drain=owner_terminal.drain,
@@ -2786,7 +2878,9 @@ def run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_di
                     ['claude'] + evaluator_session_args + [evaluator_prompt],
                     evaluator_environment, evaluator_log,
                 )
+                budget.track(evaluator_terminal.process)
                 while True:
+                    budget.check()
                     # A published report is complete: the CLI links it into
                     # place only after writing it in full.
                     if os.path.isfile(report_path):
@@ -4263,7 +4357,29 @@ def remove_demo_install(argv):
         )
         return 1
     print(f'🧹 Removing the Uclusion demo installed under {home}.')
-    status = _print_removal_outcomes(remove_demo_client_traces(env))
+    # Close admission before stopping a supervisor or removing its durable
+    # state. A missing ledger for a recorded budgeted run is a broken run,
+    # never permission to grant that identity another allowance.
+    from uclusionTokenBudget import BudgetLedger
+    runs = os.path.join(UCLUSION_HOME, 'demo-runs')
+    budget_unavailable = False
+    guarded_runs = []
+    if os.path.isdir(runs):
+        for name in os.listdir(runs):
+            run = os.path.join(runs, name)
+            if os.path.isfile(os.path.join(run, 'token-budget-running.json')):
+                guarded_runs.append(run)
+            limits_path = os.path.join(run, 'token-budget-limits.json')
+            if not os.path.isfile(limits_path):
+                continue
+            try:
+                with open(limits_path, encoding='utf-8') as handle:
+                    limits = json.load(handle)
+                ledger = BudgetLedger(os.path.join(run, 'token-budget.sqlite3'), name,
+                                      limits['max_input_tokens'], limits['max_output_tokens'])
+                ledger.halt('demo removal requested')
+            except (OSError, RuntimeError, ValueError, KeyError, TypeError):
+                budget_unavailable = True
     # Nothing records the sessions a run started, so removal has to look for
     # them. A session started against this home keeps its client and its
     # credentials inside it, and deleting underneath one does not fail
@@ -4281,6 +4397,24 @@ def remove_demo_install(argv):
             file=sys.stderr,
         )
         return 1
+    if budget_unavailable:
+        print('❌ Stopped owned sessions, but budget state could not be confirmed; '
+              'usage is unknown. The demo files and accounting evidence were retained.', file=sys.stderr)
+        return 1
+    for run in guarded_runs:
+        deadline = time.monotonic() + 9
+        while os.path.exists(os.path.join(run, 'token-budget-running.json')) and time.monotonic() < deadline:
+            time.sleep(.05)
+        try:
+            with open(os.path.join(run, 'token-budget-lifetime.json'), encoding='utf-8') as handle:
+                proof = json.load(handle)
+            stopped = proof.get('owned_processes_stopped') is True
+        except (OSError, ValueError, TypeError):
+            stopped = False
+        if os.path.exists(os.path.join(run, 'token-budget-running.json')) or not stopped:
+            print('❌ The run has not confirmed owned cleanup. Its demo files and accounting evidence were retained.', file=sys.stderr)
+            return 1
+    status = _print_removal_outcomes(remove_demo_client_traces(env))
     # Only now, with no session left to write them again.
     status = _print_removal_outcomes(remove_demo_claude_session_traces(home)) or status
     status = _print_removal_outcomes(remove_demo_codex_session_traces(home)) or status
@@ -6977,6 +7111,16 @@ def build_parser():
              'sessions run at, as the person running the demo chose it.',
     )
     parser.add_argument(
+        '--max-input-tokens', type=int, default=None,
+        help='Demo shared input-token ceiling, including cached input and all helpers. '
+             'Provisional calibration limit: 1000000000.',
+    )
+    parser.add_argument(
+        '--max-output-tokens', type=int, default=None,
+        help='Demo shared output-token ceiling, including thinking and all helpers. '
+             'Provisional calibration limit: 100000000.',
+    )
+    parser.add_argument(
         '--force',
         action='store_true',
         help='Change token audit or work claims on an existing install without '
@@ -7633,6 +7777,11 @@ def main():
     )
     if bootstrap_mode != 'demo' and (args.model is not None or args.effort is not None):
         parser.error('--model and --effort only go with demo mode')
+    if bootstrap_mode != 'demo' and (args.max_input_tokens is not None or args.max_output_tokens is not None):
+        parser.error('--max-input-tokens and --max-output-tokens only go with demo mode')
+    for value in (args.max_input_tokens, args.max_output_tokens):
+        if value is not None and not 0 < value <= 2**63 - 1:
+            parser.error('token limits must be positive finite integers')
     if bootstrap_mode is not None:
         mode = bootstrap_mode
         if view_id is not None:
@@ -7697,6 +7846,8 @@ def main():
                         'the demo requires Poke AI delivery through '
                         + ' or '.join(sorted(DEMO_CLIENTS))
                     )
+                if not sys.platform.startswith('linux') or not os.path.isfile('/proc/self/stat'):
+                    raise RuntimeError('the shared-limit demo currently requires Linux process-tree supervision')
                 if setup_client == 'codex' and os.name == 'nt':
                     raise RuntimeError(
                         'the Codex demo needs a Unix receiver; use Claude Code '
@@ -7862,6 +8013,8 @@ def main():
                 env, setup_client, workspace_id, start_prompt,
                 response_stats=args.response_stats,
                 model=args.model.strip(), effort=args.effort.strip(),
+                max_input_tokens=args.max_input_tokens if args.max_input_tokens is not None else 1_000_000_000,
+                max_output_tokens=args.max_output_tokens if args.max_output_tokens is not None else 100_000_000,
             )
         except OSError as error:
             print(f'❌ Could not start the demo: {error}')

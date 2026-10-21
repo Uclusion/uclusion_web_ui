@@ -101,6 +101,7 @@ class ReconnectTests(unittest.TestCase):
         clients = []
         delivery = native.NativeCodexDelivery.__new__(native.NativeCodexDelivery)
         delivery.codex_home = '/unused-codex-home'
+        delivery.socket_path = None
         delivery.stop = clock
         delivery.healthy = threading.Event()
         delivery.scan_requested = threading.Event()

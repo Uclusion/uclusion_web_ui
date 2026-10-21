@@ -2406,6 +2406,23 @@ def demo_run_choice_header(run_dir):
 DEMO_TOKEN_BREAKDOWN_NAME = 'evaluator-tokens.md'
 
 
+def demo_budget_header(run_dir):
+    path = os.path.join(run_dir, 'token-budget.sqlite3')
+    if not os.path.isfile(path):
+        if os.path.isfile(os.path.join(run_dir, 'token-budget-limits.json')):
+            return 'budget diagnostics unavailable; usage is unknown\n'
+        return None
+    from uclusionTokenBudget import BudgetError, read_budget_status
+    try:
+        state = read_budget_status(path)
+    except BudgetError as error:
+        return str(error) + '\n'
+    return ('Shared token budget: input {measured_input_tokens}/{max_input_tokens}; '
+            'output {measured_output_tokens}/{max_output_tokens}; outstanding reservations '
+            '{reserved_input_tokens} input, {reserved_output_tokens} output; stop: '
+            '{halt_reason}.\n').format(**state)
+
+
 def cmd_demo_result(args):
     """S-Marketing-77: print the evaluating agent's published report; reads only files."""
     _api_url, _json_path, credentials_path = get_env_paths(args.env)
@@ -2436,6 +2453,9 @@ def cmd_demo_result(args):
             header = demo_run_choice_header(run_dir)
             if header:
                 print(header, flush=True)
+            budget_header = demo_budget_header(run_dir)
+            if budget_header:
+                print(budget_header, end='', flush=True)
             print(demo_evidence_summary(run_dir), flush=True)
             with open(report, 'rb') as handle:
                 sys.stdout.flush()
@@ -2450,11 +2470,17 @@ def cmd_demo_result(args):
             return 0
         ended = demo_run_ended(run_dir)
         if ended is not None:
+            budget_header = demo_budget_header(run_dir)
+            if budget_header:
+                print(budget_header, end='', flush=True)
             print(ended, flush=True)
             return 1
         if time.monotonic() >= deadline:
             break
         time.sleep(1)
+    budget_header = demo_budget_header(run_dir)
+    if budget_header:
+        print(budget_header, end='', flush=True)
     print('⏳ The evaluating agent has not published its report yet; run this again.', flush=True)
     return 0
 

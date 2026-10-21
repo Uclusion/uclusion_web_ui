@@ -161,7 +161,7 @@ class ClaudeSessionTraceTests(unittest.TestCase):
         kept = json.loads(home_config.read_text())['projects']['/home/me/project']
         self.assertIs(False, kept['hasTrustDialogAccepted'])
         self.assertEqual([], kept['allowedTools'])
-        source = inspect.getsource(INSTALL.run_claude_demo)
+        source = inspect.getsource(INSTALL._run_claude_demo)
         self.assertLess(
             source.index('accept_demo_workspace_trust('),
             source.index('DemoCodexTerminal('),

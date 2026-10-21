@@ -107,9 +107,9 @@ class NativeNotSent(ConnectionError):
 
 
 class NativeClient:
-    def __init__(self, codex_home, observe):
-        self.connection = WebSocketConnection('unix://' + os.path.join(
-            codex_home, 'app-server-control', 'app-server-control.sock'))
+    def __init__(self, codex_home, observe, socket_path=None):
+        self.connection = WebSocketConnection('unix://' + (socket_path or os.path.join(
+            codex_home, 'app-server-control', 'app-server-control.sock')))
         self.observe = observe
         self.pending = {}
         self.lock = threading.Lock()
@@ -422,10 +422,14 @@ class NativeInbox:
 class NativeCodexDelivery:
     def __init__(self, environment, workspace_id, codex_home=None, replay=False,
                  token_audit=False, tools_changed=lambda: None,
-                 notice_source=update_notice_source, context_events=None):
+                 notice_source=update_notice_source, context_events=None,
+                 socket_path=None):
         self.codex_home = os.path.abspath(os.path.expanduser(
             codex_home or os.environ.get('CODEX_HOME') or '~/.codex'))
         os.environ['CODEX_HOME'] = self.codex_home
+        self.socket_path = socket_path or os.environ.get('UCLUSION_CODEX_NATIVE_SOCKET')
+        if self.socket_path and not os.path.isabs(self.socket_path):
+            raise ValueError('The native Codex socket must be an absolute path')
         os.environ.setdefault('UCLUSION_TOKEN_AUDIT_HOME', os.path.join(uclusion_home_root(), '.uclusion'))
         self.environment, self.workspace_id = environment, workspace_id
         self.scope_marker = native_scope(environment, workspace_id)
@@ -807,7 +811,8 @@ class NativeCodexDelivery:
         reported_error = None
         backoff = ReconnectBackoff()
         while not self.stop.is_set():
-            client = NativeClient(self.codex_home, self._observe)
+            client = (NativeClient(self.codex_home, self._observe, self.socket_path)
+                      if self.socket_path else NativeClient(self.codex_home, self._observe))
             self.client = client
             try:
                 client.start()

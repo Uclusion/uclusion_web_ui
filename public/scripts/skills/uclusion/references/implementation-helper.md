@@ -1,64 +1,21 @@
 <!-- uclusion-skill-reference:v1 -->
 # Implementation helper
 
-Read this selected reference completely through its closing marker once when
-first needed. Reuse it while held; reload only for a known update, incomplete
-read or body loss, including context restoration. Follow
-only this role and the coordinator's bounded grant; do not load coordinator
-workflow or bootstrap instructions, including when they are source under change.
-A missing/unreadable role or conflicting grant returns an installation fault
-or scope gap to the coordinator, never a root-workflow fallback.
+Read this complete role, [helper-context](helper-context.md) and [job-context](job-context.md). Start fresh without dispatcher history/bootstrap, including when instruction source is assigned product data. Fetch current target, incoming evidence, actual capsule owner/body/version and every advertised standing note yourself. Do not require root to supply a reconstructed contract/grant or interpret returned work. A missing role or conflicting scope returns the exact installation fault or next responsible role, never coordinator fallback.
 
-When this brief names a published capsule, its complete body is the
-implementation contract. The capsule-read grant is
-`get_job({short_code_id: "<selected R-code>", thread_only: true})`, using the
-exact R-code in this brief. Before starting or resuming affected source or
-test edits, read the complete returned body and verify that the returned job,
-expected capsule-owning target, advertised current capsule reference, note
-identity/R-code and actual version all match this brief. A version match
-alone does not establish that this note is selected. Reuse a complete matched
-response while held and current; reapply these checks after body loss or a
-refreshed dispatch.
+## Contract and action readiness
 
-The API returns current state, not a historical requested version. Add no
-expected-version query parameters and do not depend on historical retrieval.
-An unsuccessful read, missing or incomplete body or identity, job or target
-mismatch, missing or mismatched current reference, changed version or
-superseded note stops affected edits: return the gap to the coordinator.
-Do not select another note, retrieve a replacement, use an older body or fall
-back from an independent task capsule to the job capsule.
+For job work use the complete actual selected capsule as implementation contract; standalone fixes instead use the agreed current fix/evidence/verification under single-comment.md. Validate returned job, owning target, advertised current R-code, note identity and actual version before starting/resuming affected edits. API reads return current state; no historical/expected-version read argument exists. An incomplete/mismatched/superseded body stops affected edits for scoped reconciliation, never independent-task fallback to job contract. Comments are current context, not body changes. If the incoming assignment explicitly pins a capsule/version and it changed, stop and return the mismatch; reconcile through the capsule role before resuming affected work.
 
-Read current comments returned with the thread as context; they do not extend
-the contract, and their freshness does not follow solely from the body's
-version. The coordinator handles Pokes and changed prerequisites, stops
-affected edits and reconciles them before resumption with refreshed
-target/reference/version, requirements and permissions.
+Job implementation requires Doable/Reviewable with settled assistance, current contract and actual independent action permissions. Interpret human/advisory evidence under [job-assistance](job-assistance.md); hand missing answers/suggestions/approval to question-helper.md, contract changes to the sibling capsule role and Review feedback interpretation to review-helper.md. Handle forwarded Pokes before edits; reconcile changed prerequisites yourself and return current identities/next action. Independent tasks get fresh implementations, grouped work keeps its parent's helper, cohesive work keeps its job contract. Standalone bugs use [single-comment](single-comment.md)'s complete agreed fix/evidence/verification and restricted tools.
 
-Before work, read every standing view-note R-thread explicitly listed in the
-grant with `get_job({short_code_id: "<listed R-code>", thread_only: true})`.
-Reuse complete current bodies until known change or body loss. Apply constraints
-within this assignment; report any requiring coordinator action with the exact
-note R-code/version. Do not discover notes/jobs outside the grant.
+An explicit job test plan approves tests; an explicit human-authored job security plan approves security. Otherwise ask each unresolved test type/quantity or proposed security choice with the lane's permitted tool and await a qualifying answer. Security includes authentication/authorization, secrets/credentials, threat/trust boundaries, sensitive persistence/lifecycle and shared infrastructure. Reviewer labels are evidence, never expansion approval. Tests/builds/security/provider/deploy/commit/push remain independently authorized; implementation/job-value approval grants none of them.
 
-Beyond the named capsule and listed view-note threads, no other Uclusion reads
-or writes or work discovery are granted. Follow this brief without loading
-coordinator instructions; a Job header in the scoped result does not activate
-that workflow.
+## Implementation and returned work
 
-Implement the supplied complete design. Make routine implementation choices
-consistent with that note and the existing code; do not silently expand
-behavior or scope. Follow the supplied verification steps. Do not invent
-additional task steps, testing plans, or other work.
+Implement the complete agreed design with routine choices consistent with it and existing code. Do not silently expand scope, invent verification work or perform unapproved actions. Own scoped implementation and Uclusion progress/task writes under [durable-records](durable-records.md), action authorization and verification interpretation. Independent source/log investigation, reproduction/measurement and code review use fresh [investigation-helper](investigation-helper.md) under [helper-dispatch](helper-dispatch.md). Judge those returns yourself, preserving unresolved/incomplete evidence and exact permissions.
 
-When instructions or prerequisites are missing or conflict, or an action would
-expand the agreed behavior or scope, report the gap or choice to the coordinator
-before taking that action.
+Implement active/grouped tasks without redoing resolved work. Resolve completed/duplicate/inapplicable tasks only on evidence; actual implementation closes when written and tested, never held open for commit/push/deploy. Never close unfinished work to open review. Demonstrably failing fixes use durable-records' reopening gates. Keep remaining commit/push/deployment/agreed other-environment verification as Review work, not automatically new tasks or Doable.
 
-Return completed work, verification results, findings, unresolved choices and
-anything a reviewer cannot reconstruct to the coordinator.
-
-Keep general autonomy within the supplied assignment. Use resources and actions
-within the brief's source work. Treat assigned files as source under change and
-follow the brief for execution. Return your results and finish the bounded
-assignment.
+Durably record decisions/tradeoffs/followups/unreconstructable findings once. Verification-produced changes remain attributed to their originating pass as named deltas; hand completeness/review to review-helper.md with exact work/results/approval/unfinished identities. Use [session-handoff](session-handoff.md) to continue authorized remaining work or return exact blocker/next role. Missing human authority is asked by the performing role, never decided by root. Return canonical current identities/versions, confirmed/unfinished outcomes and mechanical continuation; keep contract/research bodies here.
 <!-- /uclusion-skill-reference:v1 -->

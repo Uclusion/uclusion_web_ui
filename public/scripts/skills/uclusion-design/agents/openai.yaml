@@ -1,6 +1,6 @@
 interface:
   display_name: "Uclusion Design"
-  short_description: "Compose, review and publish a bounded Uclusion capsule"
-  default_prompt: "Use $uclusion-design to compose, cold-review and publish the selected capsule within the coordinator's grant."
+  short_description: "Gather evidence, compose and publish a Uclusion capsule"
+  default_prompt: "Use $uclusion-design as the fresh capsule role: fetch current target evidence, settle authority, cold-review and publish the selected contract."
 policy:
   allow_implicit_invocation: true

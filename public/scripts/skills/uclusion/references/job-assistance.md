@@ -1,5 +1,5 @@
 <!-- uclusion-skill-reference:v1 -->
-# Job questions and suggestions
+# Working roles: job questions and suggestions
 
 ## Ask and resolve questions
 
@@ -9,7 +9,7 @@ Except completion packages, ask_question handles ambiguity/judgment under questi
 
 Only a non-AI, non-advisory clear reply or Approvable For vote answers job questions. Trust rendered advisory markers, not inferred metadata. Advisory input may change reasoning/vote and Poke but cannot unlock execution. Human Resolve delegates choice; pending AI handling still requires that choice, rendered evidence version and no reopening/writing inside the resolved question.
 
-Finish required replies/votes before resolving. Capsule-changing answers use capsule-dispatch.md: keep open/pending, grant named publication/resolution and incorporate all targets first. No capsule change: resolve immediately with handled expected_question_version and included_in_capsule:false for pending handling. An open thread without option votes is no completion signal. Clarify ambiguity; only Approvable options accept/count votes. A later "flag if you prefer"/"verify this choice" reveals an unasked decision: stop and ask it.
+Finish required replies/votes before resolving. Capsule-changing answers use capsule-dispatch.md: keep open/pending and hand exact handled evidence to the fresh capsule role, which validates authority and incorporates all targets first. No capsule change: resolve immediately with handled expected_question_version and included_in_capsule:false for pending handling. An open thread without option votes is no completion signal. Clarify ambiguity; only Approvable options accept/count votes. A later "flag if you prefer"/"verify this choice" reveals an unasked decision: stop and ask it.
 
 ## Address suggestions
 

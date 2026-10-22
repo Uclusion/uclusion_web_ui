@@ -1,15 +1,9 @@
 <!-- uclusion-skill-reference:v1 -->
-# Helper dispatch
+# Fresh bounded assistance
 
-Use fresh helpers without inherited history (`fork_turns: "none"`) for all nonretained coordinator work. No available/permitted fresh helper means report why, never coordinator fallback. Source/log/diff investigation, reproduction/measurement and code review use investigation helpers; implementation/tasks/bugs/permitted deployment use implementation helpers; design uses its selected sibling package. Tests/builds require the investigation/implementation brief's independently approved actions. Helpers receive no coordinator bodies/history/bootstrap.
+Working roles use fresh helpers without inherited history (`fork_turns: "none"` in Codex) for independent investigation, code review, implementation and capsule work. No permitted fresh helper means report the limitation, never root fallback. Pass selected absolute role path, target, incoming request, available canonical evidence/receipt identities, repository context and the bounded question/action. Do not copy role/bootstrap bodies or reconstruct a contract. Each working role fetches its own current evidence and checks its action authorization; a supplied permission receipt still needs to match its exact scope.
 
-Pass the bounded question/fix, repository/evidence paths and independent permissions. For job/view work, include every listed view-note R-code/current version as an exact thread-read grant; do not preload bodies to prepare the grant or filter relevance. Require each working helper to read all granted notes. Before acting on a helper-reported note constraint requiring coordinator action, read that exact current R-thread.
+Investigation/code review selects [investigation-helper](investigation-helper.md); implementation selects [implementation-helper](implementation-helper.md); capsule planning/publication selects the sibling `../uclusion-design/SKILL.md` from the selected uclusion package root. Export search selects [export-search](export-search.md) through [history-search](history-search.md), with exact successful export path and bounded mode. Code review is an investigation question; tests/builds require independently approved type/quantity. Standalone work keeps its restricted lane.
 
-## Investigation and code-review helpers
-
-Pass the selected absolute [investigation-helper.md](investigation-helper.md) path plus one bounded question and exact permitted reproduction/measurement/tests/builds; require its complete read before action. Code review is that bounded question. Never read/copy its stable body for dispatch.
-
-## Implementation helpers
-
-Pass selected absolute [implementation-helper.md](implementation-helper.md), target/job/owner/current R-code/actual version, constraints/evidence/independent permissions and exact thread-read grants for that capsule and every listed view note. The helper reads/validates the complete capsule, not a reconstructed brief; no coordinator body fetch solely for dispatch. Job/independent/grouped ownership follows job-context.md. Standalone bugs instead receive the complete agreed fix/evidence/verification. Require role read before edits, exclude coordinator bootstrap from repository constraints and include product names only when source work needs them. No copied protocol, parser or grant/state architecture.
+Root can mechanically start the named fresh role and forward results. The responsible role owns interpretation of its returns and changed prerequisites. Read all advertised standing notes within working scope yourself; never send note constraints to root for substantive interpretation. Return another responsible role or exact missing human decision when outside your role. No copied protocol, parser, grant/state architecture or altered tool configuration is introduced.
 <!-- /uclusion-skill-reference:v1 -->

@@ -1,5 +1,5 @@
 <!-- uclusion-skill-reference:v1 -->
-# Backlog maintenance
+# Discovery role: backlog maintenance
 
 ## Batch run
 

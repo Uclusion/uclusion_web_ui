@@ -1,171 +1,147 @@
 ---
 name: uclusion-design
-description: Plan, compose, revise, cold-review and publish a Uclusion intent/design capsule as a fresh helper from the selected target, bounded evidence and exact coordinator grant. Use only for delegated capsule work; the coordinator owns work selection, assistance qualification, stages, permissions, implementation and final review.
+description: Fresh capsule role for Uclusion target/owner/current-history interpretation, settled-evidence gathering, contract composition, cold review, publication and incorporation/obsolete-review reconciliation. Fetch current evidence from target, incoming message and reference identities; own authorization and Uclusion actions for this role. The dispatcher only starts roles and carries confirmed handoffs.
 ---
 <!-- uclusion-design-skill:v1 -->
 <!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->
-# Uclusion design capsule
+# Uclusion capsule helper
 
 Compose and publish the shortest standalone contract for the selected target.
 During composition and cold review, delete every sentence whose removal loses
-no necessary implementation behavior, constraint, or permission limit.
+no necessary behavior, constraint or permission limit. Include a test plan when
+implementation requires testing, preserving actual approval rather than
+inventing authorization.
 
-If the implementation requires testing include the test plan.
+## Current role and evidence
 
-## Helper boundary
+Start fresh without inherited transcript (`fork_turns: "none"` in Codex). Read
+this complete body plus the selected sibling uclusion package's
+`../uclusion/references/helper-context.md`, `job-context.md` and
+`capsule-dispatch.md` in that references directory. These are helper policy,
+not coordinator/bootstrap instructions. The dispatcher supplies target,
+incoming message and available identities; fetch/validate current target,
+actual job/capsule owner/body/R-code/version, comments, all standing notes and
+claim-local authoritative evidence yourself. Complete bodies are required;
+root never prepares a settled grant or qualifies answers for you.
 
-Start without inherited history, using the selected sibling package and bounded
-evidence supplied by the coordinator: selected job/task, target text, settled
-answers, approved plans, authoritative artifacts, source constraints, canonical
-question/option identities, new human requirements, and either confirmed capsule
-absence or its complete current body, exact R-code and actual version. Write
-only that target's contract; a task capsule stands alone and never inherits
-from or falls back to a job capsule.
+Own contract-change and independent/grouped/originating-pass decisions,
+history needs, relevant-source investigation, actual human authorization,
+answer/suggestion incorporation and publication/recovery. Use the sibling
+`job-assistance.md`, `question-tools.md` and `durable-records.md` for affected
+qualification/questions/writes; standalone tool limits remain binding. Finish
+required replies/votes before acknowledging answers. No-change handling goes
+to the question role. Missing facts, unsettled choices or permission use the
+permitted lane tool or a named responsible fresh role; never return them for
+root to decide. Missing instructions return installation fault/update/restart
+requirement, never improvised publication.
 
-Before work, read every standing view-note R-thread explicitly listed in the
-grant with `get_job({short_code_id: "<listed R-code>", thread_only: true})`.
-Reuse complete current bodies until known change or body loss. Apply constraints
-within this assignment; report any requiring coordinator action with the exact
-note R-code/version. Do not discover notes/jobs outside the grant.
+Before any design delegation or reliance on another design, use sibling
+`history-search.md`: retain current successful configured export path and
+bounded findings; delegate further searches fresh/read-only to its selected
+export-search role. Do not load/copy that search algorithm or send research
+to root. Investigate relevant source/history before drafting, using fresh
+bounded investigation when needed. Scope stays with the selected target;
+a task capsule stands alone and never inherits/falls back to job contract.
 
-The coordinator grants mutations only for exact capsule creation or replacement, explicitly
-named capsule-changing answered-question resolutions with settled canonical
-outcomes, and obsolete-AI-review cleanup from replacement. Leave target
-selection, human-answer qualification, required replies/votes, other questions
-and resolutions, suggestions, stages, permission checks, implementation and
-final review with it. Do not repeat its assistance qualification or a full-thread
-approval pass. Return missing or stale scope/evidence and unsettled choices as
-typed unresolved questions before publication. Confirmed absence is supplied
-brief state, not an extra API argument or an atomic creation guarantee.
+## Settled authority
 
-Report missing or unreadable required instructions as an installation fault to
-the coordinator; do not improvise them. Do not load coordinator workflow bodies.
+Use current human-backed requirements and applicable constraints as baseline.
+Qualify actual clear non-AI/non-advisory answers, Approvable For votes and
+human-delegated choices yourself. Advisory input, unaccepted AI prose,
+job-value approval and invitations to object supply no execution authority.
+A later human input can establish a new contract; discovering older input
+requires a question. Never polish a sent capsule for later cold-review or
+implementation differences alone.
 
-Investigate relevant source and history with bounded searches before drafting.
-Use workspace-export findings supplied by the coordinator; ask it to assign
-further searches to an isolated export-search helper when needed.
-Keep research, alternatives, planning rationale and transcripts here. Return
-only the compact canonical publication receipt below, typed unresolved
-questions or concrete coordinator-action constraints with exact view-note
-R-code/version; never the full body for coordinator re-emission, raw searches
-or instruction bodies.
+Use descriptive inline links in each supported claim block. Detached ledgers,
+unlinked sources or links beside other claims do not qualify. Selected-option
+evidence links the returned canonical parent-question URL and labels exact
+question, full qualified option code/name and accepted behavior, for example
+`[<question>, selected <qualified option code> (Retain): retain the prior result](<canonical-question-URL>)`.
+Keep question/option text, selected outcome, handled rendered evidence version,
+pending state and every required publication target here.
 
-## Evidence gate
+File genuine missing facts or unresolved choices before affected composition:
 
-Treat the coordinator-supplied settled requirements and applicable limits as the
-design baseline. Use bounded evidence to substantiate claims; return genuine
-missing facts or unresolved choices to the coordinator. Do not reconstruct
-approval history or re-decide acceptance from authorship.
+- **Missing-evidence question:** selected target/claim and needed source or
+  observed behavior; never infer runtime observation from code.
+- **Decision question:** selected target/decision, missing authority or
+  information, and options only for a real discrete choice.
 
-Use descriptive inline links in the claim block they support. Detached ledgers,
-unlinked sources, links beside other claims, unaccepted AI text, advisory input,
-job-value approval and invitations to object do not qualify. Selected-option
-evidence links to the supplied canonical parent-question URL and labels the
-exact question, full qualified option code/name and accepted behavior, e.g.
-`[<question>, selected <qualified option code> (Retain): retain the prior result](<supplied-canonical-question-URL>)`.
-
-Return a typed unresolved question when evidence is missing; never invent a
-default or bury a choice in the capsule:
-
-- **Missing-evidence question:** selected target and claim, needed source or
-  observed behavior.
-- **Decision question:** selected target and decision, missing authority or
-  information, and options only for a genuinely discrete choice.
-
-Wait for the coordinator to file and resolve these questions before resuming
-affected composition.
+Settle reviewer-divergent choices with informed human approval. Wait only on
+affected work; root can carry the exact question/blocker and next role without
+interpreting it. Preserve independent testing/security/build/provider/deploy/
+commit/push permissions; a published contract grants no execution or stage.
 
 ## Compose and cold-review
 
-Open with `## Summary`: files or surfaces to open first and the shape of the
-change. One line can suffice. Keep the outcome, evidence recap and contract
-below out of this navigation; mention a changed table and its reason only when
-applicable.
+Open with `## Summary`: files/surfaces to open first and shape of change. One
+line can suffice. Keep outcome, evidence recap and contract below out of this
+navigation; mention a changed table and reason only when applicable.
 
-Then state the actor's trigger and outcome with only material implementation
-constraints. Include ownership, state, interfaces, failure or concurrency only
-when needed for this work. Preserve explicit scope and permission limits,
-including testing/security work already approved by the human. Use short
-claim-local links instead of retelling decisions; omit status history, repeated
-rationale, obvious consequences, coding plans and question recaps. Small work
-may need just one paragraph after the summary.
+Then state the actor's trigger/outcome and material implementation constraints.
+Include ownership, state, interfaces, failure/concurrency only when needed.
+Preserve scope and permission limits, including already approved testing and
+security. Use short claim-local links rather than retelling decisions. Omit
+status history, repeated rationale, obvious consequences, coding plans and
+question recaps; small work can be one paragraph after Summary.
 
-Complete cold review before publication. Discard remembered chat and
-questions; read only the candidate and its claim-local evidence as a new
-implementer. Check that it alone conveys the agreed outcome and all applicable
-material constraints, with the supplied settled authority linked at each
-divergent claim and both exact identifiers for selected options. Its Summary
-must navigate without repeating the contract. Apply the sentence-deletion test
-above; do not demand irrelevant categories to make the capsule look complete.
+Complete cold review before publication. Discard remembered chat/questions;
+read candidate and claim-local evidence as a new implementer. Check it alone
+conveys agreed outcome and material constraints, settled authority at each
+divergent claim and both exact selected-option identifiers. Summary navigates
+without repeating contract. Apply the sentence-deletion test; do not invent
+irrelevant categories. Keep alternatives, planning rationale and research here.
 
-## Bounded MCP publication
+## Publication and recovery
 
-Publish only human-facing contracts after composition and cold review, within
-the supplied grant. For creation, call `set_design_capsule` in target mode for
-the selected job/task with confirmed absence. Uclusion strongly validates that
-the task still belongs to the stated job and refuses a missing or stale pairing.
-Return that mismatch to the coordinator to reload the task and supply its current
-job before retrying; never select another target yourself.
+Publish only the human-facing contract whose settled evidence/actual authority
+you validated. Creation uses `set_design_capsule` target mode after confirming
+current absence. The API validates task/job pairing; on mismatch reload exact
+target, reconcile ownership and stop affected publication rather than choosing
+another assignment or blindly retrying.
 
-Replace a sent capsule only for the supplied new human input establishing a new
-contract. AI discoveries, implementation differences and later cold review do
-not authorize replacement or polishing. Call `set_design_capsule` in update
-mode with the supplied current R-code and actual version and the complete
-replacement body. Never patch fragments or blindly retry a version conflict;
-reload the current capsule on one and return the stale grant to the coordinator.
-Replies remain discussion until new human input establishes a new contract and
-is folded into the body. Its former body appears asynchronously as an ordinary
-unpinned note; do not wait for that archive or use it as current context.
+Replacement uses update mode with the actual current R-code/version and full
+replacement body for later human input establishing that contract. Never patch
+fragments or paste a new version into a stale write. On conflict scoped-read
+current state, reconcile changed evidence and authority, and resume only the
+settled contract. Replies remain discussion until folded into a new authorized
+body. The former body archives asynchronously as ordinary unpinned note; do
+not wait for it or use it as current context.
 
-The coordinator has already qualified each named answer and finished required
-replies/votes. Include its explicitly authorized capsule-changing question
-codes, including human-resolved questions pending AI handling, in
-`resolve_question_short_code_ids`. Pass exactly their supplied evidence versions
-in `resolve_question_versions`; never substitute a newer lookup's version for
-the evidence handled. Resolutions requiring no capsule change remain with the
-coordinator.
+Use `resolve_question_short_code_ids` only for qualified capsule-changing
+answers, including human-resolved pending handling, and pass their exact
+handled evidence versions in `resolve_question_versions`. Never substitute a
+new lookup version for what was handled. Confirm every required target before
+acknowledgement: earlier targets publish without it; the final target can
+acknowledge only with confirmed other-target receipts. Unchanged-body
+publication confirms its target too. Missing target confirmation returns the
+exact next capsule handoff, never early settlement.
 
-Acknowledge incorporation only after all required capsule targets are
-confirmed. Publish earlier targets without question acknowledgements. The
-final target may include them only with the coordinator's grant and confirmed
-receipts for all other required targets. An unchanged-body publication also
-confirms its target. Return missing confirmation to the coordinator rather than
-settling the question early.
+Inspect capsule and every resolution outcome's question version, delegated
+and included_in_capsule flags separately. Resolved alone is insufficient:
+incorporation requires delegated:false and included_in_capsule:true. Failed or
+uncertain publication resolves no questions. Later resolution failure leaves
+confirmed publication in place and stops remaining resolutions. Scoped-read
+uncertainty; once all intended publications confirm, resolve only unfinished
+questions with handled `expected_question_version` and
+`included_in_capsule:true`. Stale acknowledgement requires evidence/authority
+reconciliation, never a version pasted into retry. Do not republish a confirmed
+capsule after a later operation failure.
 
-Inspect each write outcome separately; a later failure does not erase an earlier
-successful write. Reconcile uncertain outcomes with scoped MCP reads and retry
-only unfinished operations. A write receipt confirms what it produced; do not
-reread a confirmed held write merely to see it. Use scoped reads for target or
-version conflicts, uncertain publication/resolution outcomes and obsolete review
-inventory, without repeating the coordinator's authority review.
+After AI replacement resolve each result's `open_ai_reviews_naming_capsule`
+before readiness for affected edits; failed inventory fetch selects Reports.
+For human edits read current R-thread and Reports, resolve your open review
+naming it first, then reconcile affected work with new identities/requirements/
+permissions. Receipts are reads for their produced state; do not reread held
+confirmed writes. Other uncertain outcomes use scoped reads and retry only
+unfinished actions. Use stage_only when effective stage is needed after the
+last operation, preserving newer events; this role grants no transition.
 
-When `set_design_capsule` also resolves selected questions, inspect the capsule
-receipt and each resolution outcome's question version, delegated flag and
-included_in_capsule flag. A resolved flag alone does not confirm handling;
-incorporation requires delegated false and included_in_capsule true.
-A failed or uncertain publication resolves
-no questions; a later resolution failure leaves the published capsule in place
-and stops the remaining resolutions. Resume resolutions only after confirming
-the intended capsule was published; otherwise reconcile and publish that
-contract first. Once publication is confirmed, resolve only unfinished
-questions rather than replaying a stale capsule write. Use `resolve` with their
-handled `expected_question_version` and `included_in_capsule: true` only after
-all required targets are confirmed. A stale acknowledgement requires evidence
-reconciliation and a renewed grant, not a fresh version pasted into a retry.
-
-After an AI replacement, resolve each review its result lists in
-`open_ai_reviews_naming_capsule` before reporting readiness for further affected
-edits. If the review-inventory lookup failed, load Reports for that obsolete
-review cleanup. Human capsule-edit handling remains with the coordinator.
-
-Return a compact canonical receipt with the selected target, capsule link,
-exact R-code and actual version, publication status, each authorized question
-resolution and obsolete-review outcome, unfinished recovery and any concrete
-coordinator-action note constraint with its exact R-code/version. Mark pending,
-failed or unconfirmed operations not ready; never claim them complete. Retain
-the complete sent body here for reconciliation. The coordinator passes the
-canonical target/reference/version for implementation; its helper reads and
-validates the body before edits. The coordinator handles the effective stage
-after the publisher's final operation; this grant permits no stage change or
-execution.
+Return canonical target/link/R-code/actual-version publication receipt,
+per-question handled-version/delegated/included outcomes, obsolete-review
+outcomes, unfinished recovery, exact missing decisions/permissions and next
+mechanical handoff. Pending/failed/unconfirmed means not ready. Retain complete
+sent body here for reconciliation. Implementation fetches and validates its
+own current body; root forwards identities and confirmed outcomes only.
 <!-- /uclusion-design-skill:v1 -->

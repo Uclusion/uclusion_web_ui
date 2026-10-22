@@ -1,13 +1,13 @@
 <!-- uclusion-skill-reference:v1 -->
-# Standalone bug work
+# Standalone role policy
 
 ## Permitted tools and discussion
 
-Open discussion permits only get_job/add_info/resolve and general-lesson add_view_note. Missing facts/choices use add_info; discrete choices may use ask_question with bug code, nonempty options and one initial_vote with certainty 1 to 5 and a nonblank reason. Never convert merely to ask open questions. Bugs-job conversion reloads and uses actual returned Job header/job-coordinator.md even with B-prefix.
+Open discussion permits only get_job/add_info/resolve and general-lesson add_view_note. Missing facts/choices use add_info; discrete choices may use ask_question with bug code, nonempty options and one initial_vote with certainty 1 to 5 and a nonblank reason. Never convert merely to ask open questions. Bugs-job conversion reloads and uses actual returned Job header and the responsible fresh job role even with B-prefix.
 
 ## Helper work
 
-Isolate investigation/fix/measurement and independently permitted tests/builds/deploy under helper-dispatch.md. Supply standalone implementation's complete agreed fix/human evidence/verification plus selected role path and bounded grant.
+Isolate investigation/fix/measurement and independently permitted tests/builds/deploy under helper-dispatch.md. Pass selected role/target/incoming message and evidence identities. The working helper fetches the complete agreed fix/human evidence/verification and checks its own action authorization; preserve standalone tool limits.
 
 ## Progress and resolution
 

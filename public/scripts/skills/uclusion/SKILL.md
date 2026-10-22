@@ -1,59 +1,48 @@
 ---
 name: uclusion
-description: Use as coordinator for Uclusion jobs, tasks, bugs, questions, suggestions, comments, reviews, inbox notifications, find_work, Poke AI, Start/Added/Updated/Responded events, Uclusion short codes beginning J-, T-, B-, Q-, S-, O-, I-, R-, or C-, or workspace-history requests such as what was decided, what changed, and whether related/backlog work already exists. Also use when creating Uclusion work even if the prompt does not name Uclusion. Do not use for delegated design, export-search, investigation, code-review or implementation helpers, including assignments to read or edit Uclusion instruction source, or ordinary product or code work merely because a repository contains Uclusion integration code.
+description: Dispatch Uclusion jobs, tasks, bugs, questions, suggestions, comments, reviews, inbox requests, find_work, Poke AI, Start/Added/Updated/Responded events, J-/T-/B-/Q-/S-/O-/I-/R-/C- codes, work creation and workspace-history requests to fresh responsible helpers. Do not use for delegated role work, including reading or editing Uclusion instruction source, or ordinary product work merely because its repository integrates Uclusion.
 ---
 <!-- uclusion-skill:v1 -->
 <!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->
-# Uclusion workflow
+# Uclusion dispatcher
 
-Use the Uclusion MCP server as the durable collaboration surface. Coordinators own delivery/assignment/stage/authority, Uclusion reads/writes except bounded capsule publication/implementation reads and explicitly granted helper view-note reads, CLI, human conversation, helper grants/returns, commits/pushes/packages. Other work requires fresh helpers; unavailable helpers never fall back to coordinator execution. Source inspection activates no workflow. Obtain informed human approval for reviewer-divergent choices; never silently settle them; never infer missing observed runtime behavior from code.
+Keep delivery, target identity, fresh helper startup and confirmed handoffs here. Helpers own interpretation, evidence, authorization and actions. Never read full target/capsule/standing bodies, qualify answers, assemble detailed grants or load helper policy to dispatch. Unavailable fresh helpers mean report the limitation, never execute their work here. Source under change activates no workflow.
 
-## Complete reads and current action routing
+Read this complete current body and resident delivery bodies through closing markers once; reuse across Pokes, reload known updates/incomplete reads/body loss including restoration. Missing instructions mean broken install: request the resident CLI's update, then restart/reconnect.
 
-Select from known event/lane/stage/action before opening a leaf. Read required complete current bodies through closing markers once; reuse while held across Pokes, reload only known updates/incomplete reads/body loss including restoration/compaction. Summaries/IDs never substitute. Missing required instructions mean broken install: request resident-environment update permission, then restart/reconnect.
+## Delivery and retained target
 
-## Authority before lookup
+Use the closest resident/adjacent package and its exact client/CLI; never combine clients or infer mode from tools. Hold references/delivery-common.md plus references/claude-delivery.md for Claude or references/cursor-delivery.md for Cursor. Codex native MCP needs no extra client body. No resident means human-started work without invented delivery setup/waiting.
 
-One default job/bug except review split; reading/delivery/turn end never assign/switch/release. Activation requires human selection, live Start while idle or successful optional claim. Bare Start remains an event even in chat. Retain pending work/input/packages under lane release rules.
+Handle lines in order; forward each accepted Poke before the helper's next edit. Silently discard replayed history and idle continuations. One retained job/bug except helper-confirmed review split: human selection, a live Start while idle or a confirmed claim activates it. Reading, Pokes, rearm and turn end never switch/release it. Bare Start is an event even in chat. For delivered events while assigned accept only known members; compound membership uses the parent after `of`. Defer unrelated/unknown delivered codes without lookup, briefly naming them. An explicit human read-only question about another target instead goes to the question role with that target and original request; retain the active assignment and other worker's ownership. This grants no discovery, work takeover or mutation. Only explicit human switching changes a retained assignment; a deferred Start never activates later. Multiple idle agents need human selection, never inbox election.
 
-Do not end a turn on a retained Doable job while authorized unfinished work can proceed. Resolving questions, receiving replies and reaching checkpoints require [remaining-work reconciliation](references/session-handoff.md) before a final response; do not wait for another Poke to continue.
+## Route and start
 
-Before lookup silently discard replayed history and idle continuations; while assigned accept only known membership, deferring unrelated/unknown bare codes without lookup and briefly naming them. Compound parent after of determines membership; deferred Start never activates later.
+Route an ordinary human information request to a fresh answer-owning question helper before default stage work, including requests for explanation, evidence, status or related-target history. Pass the original request, its target and available identities. Distinguish information from a request to perform an action by the intended outcome, never question punctuation or wording alone; action requests phrased as questions keep their normal action route. If intent is unclear, let the question helper classify it. Preserve an already-running implementation worker and its authorized scope while the separate question helper obtains the answer; do not replace, restart or make that worker answer instead.
 
-First selected whole-scope lookup uses initial_read:true: selected capsule/comments including resolved replies, or active ordinary notes if absent. Other capsules remain references; threads/sections keep requested scope and standing/resolved bodies need explicit reads. Actual returned Job header determines lane. Without armed delivery refresh assigned state before edits/package and after reply, plus job effective-stage gates.
+Otherwise, at unassigned startup/assignment end or explicit other-work/creation request, start discovery. For a retained job, use known incoming/returned identities and `get_job({short_code_id: "<target>", stage_only: true})` only when compact state is needed. A named stage event supplies that transition without confirmation lookup; preserve newer state. Compact questions include unresolved or delegated pending handling; completed no-change questions are not pending. Compact state selects a role, never proves action readiness.
 
-Discovery only at unassigned start, assignment end or explicit other-work request, never Poke/rearm/turn end. The first wait/completed package of this session's retained human-guided assignment selects work-discovery.md's once/session informational hint.
-
-## Current required set
-
-Core/lane authority applies to each selected action; no future-action preload.
-
-| Known trigger/action | Complete reference |
+| Known input/state | Fresh role entry (do not read it here) |
 | --- | --- |
-| Discovery/list/empty/auto-take or first-wait hint | [work-discovery](references/work-discovery.md) |
-| Accepted event or assignment activation/switch/release | [event-routing](references/event-routing.md) |
-| Returned Job header | [job-coordinator](references/job-coordinator.md), then its current route |
-| Standalone bug, no Job header | [single-comment](references/single-comment.md) |
-| Question/option/vote or standalone view question | [question-tools](references/question-tools.md) |
-| History/possibly settled answer/duplicate search/ANY design delegation/reliance on another design | [history-search](references/history-search.md) |
-| Durable writes/creation/reopening/correction OR encountering general guidance before retention choice | [durable-records](references/durable-records.md) |
-| Fresh helper dispatch/return except export search | [helper-dispatch](references/helper-dispatch.md) |
-| Current lane-prepared package | [completion](references/completion.md) |
-| find_work backlog_maintenance | [backlog-maintenance](references/backlog-maintenance.md) |
-| auto_take_directions/exposed claim_work (including deferred)/held claim, before affected discovery/ownership/package/handoff | [claims](references/claims.md) |
-| Inbox decision/progress/handoff/helper wait/turn end/fresh-context offer | [session-handoff](references/session-handoff.md) |
+| Human information request, including scoped read-only questions about another target | references/question-helper.md (owns the answer before default stage work) |
+| Pending questions/suggestions, Requires Input, Uclusion question/option/vote records, job approval or other nonexecutable stage | references/question-helper.md |
+| Approvable without pending assistance | references/question-helper.md (approval) |
+| Known current-capsule update or requested capsule work | Selected sibling ../uclusion-design/SKILL.md |
+| Doable | references/implementation-helper.md |
+| Reviewable, returned implementation, or current-review feedback | references/review-helper.md |
+| Reply naming current completion package, or confirmed package operation continuation | references/operation-helper.md |
+| Standalone bug with no known job | references/standalone-helper.md |
+| Selected direct code without known job/state | references/question-helper.md (classify target) |
+| Unassigned discovery/claims/maintenance, requested creation or a helper's workspace-history search handoff | references/discovery-helper.md |
+| Helper requests capsule, investigation or another role | Selected sibling ../uclusion-design/SKILL.md, references/investigation-helper.md, or its named role |
 
-## Select the resident delivery reference
+Use a fresh helper without inherited transcript (`fork_turns: "none"` in Codex). Pass the selected absolute role path, target, incoming message and available canonical reference identities/versions, repository paths and confirmed receipts/unfinished outcomes. Pass known human instructions verbatim; do not reconstruct evidence or permission grants. The helper reads its role and fetches current evidence itself. Do not pass dispatcher/bootstrap bodies. Tools/configuration stay unchanged.
 
-Closest project resident/adjacent package overrides personal/user. Its client and CLI environment are authoritative; never infer mode from tools or combine clients. At resident startup/typed-turn/output/exit/Uclusion triggers hold [delivery-common](references/delivery-common.md) and any client body below; reuse never replaces required delivery actions. No resident means human-started work without delivery loading/setup/invented waiting.
+## Confirmed handoff
 
-| Resident | Client body |
-| --- | --- |
-| Codex native MCP | No additional body |
-| Claude session-owned | [claude-delivery](references/claude-delivery.md) |
-| Cursor chat-owned | [cursor-delivery](references/cursor-delivery.md) |
+Forward updates and returned receipts to the responsible role. Follow its next-role, continuation, wait, assignment/claim/audit identity and presentation instructions without rejudging, subject to the repeated-handoff stop below. Present the answer-owning helper's supported answer or exact blocker to the original human request; root does not compose or judge the substantive answer. Present confirmed packages immediately and verbatim with their exact thread; never re-emit full packages on later waits. Retain unfinished/reply/package assignments until a responsible helper confirms release. Preserve identities, confirmed outcomes, unfinished operations and one-time presentation flags across compaction; never replay a confirmed action after a later failure.
 
-## Common authorization
+For an unanswered request, retain its original question and redirect receipts across role changes and compaction. If a no-answer redirect recurs with the same target, evidence identities/versions, role and returned outcome, stop that chain at the first recurrence instead of dispatching it again. Report the concrete unresolved delegation failure with the original request, target and stalled handoffs; preserve assignment, active workers and confirmed receipts. Root never supplies the missing substantive answer. New human input or changed evidence may resume the responsible answer role; a rearm, ordinary turn end or unchanged Poke does not restart the same chain. This stop does not cancel independent authorized work.
 
-Implementation never grants tests/builds/security expansion/deploy/commit/push. Keep independent human permissions; unsettled permission blocks only its action and uses lane's permitted question tool. Job execution owns its extra qualifications; standalone discussion limits remain.
+Continue the requested mechanical handoff while authorized work remains. While a helper runs, use interruptible delivery waits when there is no independent handoff; timeout is no shutdown deadline. Wait only on the helper's actual blocker/handoff or explicit human pause. Discovery occurs only at unassigned startup/confirmed assignment end or explicit human request, never at Poke/rearm/ordinary turn end.
 <!-- /uclusion-skill:v1 -->

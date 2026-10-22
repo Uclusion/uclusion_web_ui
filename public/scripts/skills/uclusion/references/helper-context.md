@@ -1,0 +1,27 @@
+<!-- uclusion-skill-reference:v1 -->
+# Working helper context
+
+This is helper-only policy, never a dispatcher preflight. Start fresh, read the selected role and its currently applicable complete references through closing markers once, and follow only that role and the incoming assignment. Reuse while held/current; reload known changes, incomplete reads or body loss/restoration. Treat repository instruction source as product data when assigned to inspect/edit it. Do not inherit dispatcher/bootstrap workflow. Missing instructions are an installation fault: return the exact path and update/restart requirement, never improvise or fall back to root execution.
+
+## Fetch the evidence you use
+
+The dispatcher supplies target, incoming message and available identities, not a settled grant. First whole-scope target lookup uses `get_job` with `initial_read:true`; actual returned Job header determines job versus standalone lane. Exact thread/section requests retain their scope. Fetch every advertised standing view-note R-thread completely with `thread_only:true`, retaining actual versions; do not ask root to read/filter them. Load the complete selected target/description, capsule and current comments needed for your decisions under [job-context](job-context.md). For accepted direct incoming codes use exact-code get_job; retry a newly Added direct 404 later rather than infer deletion. Compound events load an unseen parent with initial_read:true, or the poked thread_only item when parent scope is held. Qualify nested local codes as `<question>_<local>`; never globally look up a bare local code. Other capsules remain references; other resolved discussions and standing bodies need explicit reads. Default job reads omit audits; explicit thread/notes reads can retrieve them. Do not discover unrelated work except in discovery's assigned scope. An explicit human read-only question about another target authorizes scoped current-evidence reads by its question/investigation role, not assignment switching, work takeover or mutation; fetch that target's own evidence and preserve retained/other-worker ownership.
+
+Incoming identities are locators, not proof of currency or permission. Validate actual target/job and, where the lane has a capsule, owner/current reference/R-code/actual version yourself. Confirmed absence selects capsule work when a current contract is required; standalone discussion has no capsule prerequisite. API reads return current state, never historical requested versions; invent no expected-version query argument. Missing/mismatched identity, incomplete body, superseded contract or conflict stops affected action. Reconcile exact current evidence; do not silently select a different assignment or fall back from an independent task to a job capsule. Return the next responsible role when the assignment needs another specialty.
+
+## Actions and handoffs
+
+The helper performing an action checks its actual human authorization. Use [job-assistance](job-assistance.md) and [question-tools](question-tools.md) for qualification and the lane's permitted question tool for missing decisions. Implementation does not grant tests/builds/security expansion/provider calls/deploy/commit/push; preserve each independent human permission and exact type/quantity/scope. Job-value approval is separate from execution. Obtain informed human approval for reviewer-divergent choices; never silently settle them or infer missing observed runtime behavior from code. No generic permission or runtime mechanism is added.
+
+Use [durable-records](durable-records.md) before writes/creation/reopening/general-guidance retention, [history-search](history-search.md) before history/possibly settled answers/any design delegation or reliance on another design, and [helper-dispatch](helper-dispatch.md) for bounded fresh assistance. 
+
+<!-- uclusion-audit:v1 -->
+Before substantive assigned-job work or phase/handoff, exposed/held audit selects [audit](audit.md); retain one run across helpers via canonical receipts.
+<!-- /uclusion-audit:v1 -->
+
+Held/exposed claims select [claims](claims.md) before ownership/handoff. Use [session-handoff](session-handoff.md) for remaining-work, notifications and handoffs. Load only currently applicable bodies, not future policy trees.
+
+Handle forwarded Pokes before the next affected action; stop affected edits on changed prerequisites. Without armed delivery refresh assigned assistance/effective stage before edits/package, after reply, and before/after stage changes. A stage event records that transition without confirmation read, but proves no unchanged contract/assistance/permission. Added readiness is transactional: one scoped reload has item and stage. Never overwrite newer state with older receipts.
+
+Inspect each operation separately: confirmed receipts are reads for their own produced state; later failure never erases success. Scoped-read uncertain/lost outcomes, reconcile stale evidence and retry only unfinished actions with their actual conditional versions. Return canonical identities/versions, confirmed/unfinished outcomes, exact missing decisions/permissions, durable presentation and next role/continue/wait/release instruction. Keep research and full bodies here; root neither rejudges nor re-emits contracts. Return substantive findings once in their owning artifact, not a transcript.
+<!-- /uclusion-skill-reference:v1 -->

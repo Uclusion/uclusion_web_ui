@@ -1,5 +1,5 @@
 <!-- uclusion-skill-reference:v1 -->
-# Work claim lock
+# Working roles: work claim lock
 
 Claims differ from assignment. Exposed claim_work means human opt-in; human-guided selection needs no claim, and classification never claims. Auto-take applies only when no retained human-guided assignment, including pending input/package. Without claim_work, present auto-take results but load/start nothing and explain required claims.
 
@@ -11,5 +11,5 @@ First-session onboarding takes precedence; later dry auto-take views request_wor
 
 ## Retention and release
 
-Use claim_work with operation:release for the held short code at real blocked/review/complete handoff, except implementation review/package waits retain it through terminal execution outcome and confirmed record. completion.md owns package actions. Claim release never releases retained assignment; review.md/core own that. Crashed claims expire; never wait past denial.
+Use claim_work with operation:release for the held short code at real blocked/review/complete handoff, except implementation review/package waits retain it through terminal execution outcome and confirmed record. completion.md owns package actions. Claim release never releases retained assignment; review/standalone roles confirm release to root. Crashed claims expire; never wait past denial.
 <!-- /uclusion-skill-reference:v1 -->

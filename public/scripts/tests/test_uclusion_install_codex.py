@@ -87,8 +87,8 @@ class WorkflowProtocolContractTests(unittest.TestCase):
                             ignore=shutil.ignore_patterns('__pycache__'))
             path = scripts_dir / INSTALL.WORKFLOW_ASSET_PATHS['skill']
             old_text = path.read_text(encoding='utf-8')
-            new_text = old_text.replace('Use the Uclusion MCP server',
-                                        'Use the connected Uclusion MCP server', 1)
+            new_text = old_text.replace('Keep delivery, target identity',
+                                        'Keep ordered delivery, target identity', 1)
             self._write_pinned_asset(scripts_dir, 'skill', new_text)
             manifest_path = scripts_dir / INSTALL.WORKFLOW_ASSET_PATHS['token_manifest']
             manifest = json.loads(manifest_path.read_text(encoding='utf-8'))

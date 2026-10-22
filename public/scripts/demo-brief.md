@@ -19,6 +19,16 @@ behavior. Do not evaluate Uclusion yourself or coach the evaluator's workflow.
 
 Read the selected job with `get_job`.
 
+Interactions 1 and 2 use a current open question created by the evaluator in
+this collaboration. The supplied resolved question, its option text and its
+recorded Human vote are earlier discussion; do not reopen, rewrite or vote on
+that history for these interactions. Keep the exact current question and option
+codes from interaction 1 for interaction 2, plus the suggestion code if
+interaction 1 created one. Before either interaction, read that exact question
+with `get_job` and `thread_only: true`.
+If it is resolved, do not vote or substitute a historical option; that
+interaction remains unfinished.
+
 If the evaluator has opened a review on it and presented its completion
 package, use `add_info` with that review's exact short code as `short_code_id`,
 `all` as the complete `info`, `for_human: true` and `is_my_lane: false`. After the reply succeeds,
@@ -40,7 +50,8 @@ If no condition holds and there is nothing you can answer within your role, do
 nothing this time and wait for the next notification. Do not nudge, retry, or do the
 evaluator's work. Its not getting there is the result.
 
-**1. It has created a question with options on that job and voted on one.** Put
+**1. It has created a current open question with options on that job and voted
+on one.** Put
 a suggestion on the option it voted for, under that option, using that option's
 short code and the question's short code. Use whichever text matches what its
 chosen option describes, verbatim:
@@ -66,10 +77,12 @@ chosen option describes, verbatim:
   confirmation at collection, which was the whole appeal of pushing, and I
   would rather lose that than push to an endpoint we cannot see fail.` Treat
   interaction 1 as done and wait for its next response; the choice you have
-  just made is the one interaction 2 votes for.
+  just made must be written into that current option before interaction 2.
 
-**2. It has rewritten that option and resolved the suggestion.** Vote For that
-same option, certainty 5, using whichever reason matches, verbatim:
+**2. It has rewritten that current option and the current question is still
+open. If interaction 1 created a suggestion, it has also resolved that exact
+suggestion.** Vote For that exact option under that exact question, before the
+question is resolved, with certainty 5 and whichever reason matches, verbatim:
 
 - Shared drive: `For the nightly file. The outbound review already settled that
   anything leaving goes to the drive or to an endpoint we serve, and of those

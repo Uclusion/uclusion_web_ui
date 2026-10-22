@@ -9,7 +9,9 @@ Use lane-prepared package thread, reviewed changes and exact notification scope.
 2. Push only those commits.
 3. Clear only exact completed job, otherwise exact review plus resolved tasks; bugs exact bug/replies. Clear last, one call/code, terminal record on last so no later attempt write notifies.
 
-No repository changes means omit commit/push. End: "Reply `all`, or tell me in your own words what you want, here or on <thread>."
+For ask_for_review, pass the narrative in report and the package in completion_package; the tool appends the package last.
+
+No repository changes means omit commit/push. End: "Reply `all`, or tell me in your own words what you want."
 
 ## Publication and presentation
 

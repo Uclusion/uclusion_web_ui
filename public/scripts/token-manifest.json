@@ -972,6 +972,15 @@
     "openai": 6972
    }
   },
+  "5d880f3a040131ad6106494890c50b0e861ea0fa21cdd831449076519527323a": {
+   "bytes": 2604,
+   "kind": "skill",
+   "name": "skills/uclusion/references/completion.md",
+   "tokens": {
+    "claude": 842,
+    "openai": 510
+   }
+  },
   "5df9c7f9239bc36e3af4344604b156ae50710351610724352bd23200b0a19536": {
    "bytes": 944,
    "kind": "skill",

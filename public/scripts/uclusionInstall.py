@@ -160,7 +160,7 @@ SCRIPT_FILES = (
 # deployment gate validates this table before publishing, so a sequential S3
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
-    'uclusionCLI.py': 'fc2af9709545a33b45e89df69ff682c80d681f6a74e57af75ad8a9743eea0e32',
+    'uclusionCLI.py': '2ec0df3f4de9cf04d329a64ab8b214be7da5237473eaf285824f8c42f8df3461',
     'uclusionMCPProxy.py': '543eb4c0f0e6a824a6c408b1cbed89519ba63349b73118a9361c9a9563b445f1',
     'uclusionSetupMCP.py': '9aa8d3199b0c392d944fc3b2fb9f26b48230737ea2e5b07980cd3df6b79ed4f3',
     'uclusionCodexNative.py': 'fb5f75f9f3e695c73ced443a116f504682ab34aa26616cfe1f8877c9d0e093c0',
@@ -362,7 +362,7 @@ WORKFLOW_ASSET_SHA256 = {
     'helper_dispatch_reference': '77267ff446a16e409254fca6913ab55fe8de8de3dd373276777a0c8acd5296ef',
     'export_search_reference': 'd8fcb7fa92c837c73ba3babf7d6ccbc47f06bd7e413e0707257fc21b32467442',
     'review_reference': 'a19e300edcd95c72996f02fd92220f3da140c721f52f2de9afd639fae815c238',
-    'completion_reference': '8a477b770059d247ce9b385f599059cae027ba73ddd3645433bb002f05bc9ec1',
+    'completion_reference': '5d880f3a040131ad6106494890c50b0e861ea0fa21cdd831449076519527323a',
     'audit_reference': 'eab92f4aeb103c989b0156e9b1f62d794ee6c3241c921ba736d2633f1af69481',
     'claims_reference': '7ba2a48e96a6dc0cf3222537334a72454930fe8961748fdcd7c77fadf11a034c',
     'backlog_maintenance_reference': 'f81bb179b6460a0c84cb05140d495fcdbd4102f8aac5080fecd2061445fb7045',
@@ -381,8 +381,8 @@ WORKFLOW_ASSET_SHA256 = {
     'openai_metadata': 'c60b60bcccd8b171ab950477b7f09b5fc621974846f4cdc468b6c8fe0bbb2ca9',
     'design_skill': '3a2fe4dcca8649075b3ef500316f592c4b112a382ee00d48827a05c080a4b103',
     'design_openai_metadata': 'e17bf96989b457cfcad9040ae23b8918a10eb9805fe6109168717562b3770d73',
-    'demo_brief': '1c26c3235dba931bcbf9d88fcacf32e437f1ec10f3e70fd908f33228ba30037f',
-    'token_manifest': '0dd79bfa598b586d7734d69065de84688e6f460fd0123c1b4ee59f8cd1738755',
+    'demo_brief': 'b68f6501270c63456c19053d1b5af296350288754239c7f9d6074a3a5497789f',
+    'token_manifest': '1ddbc55a3c0e56cb4fd879009a62f2db8f9c71bb31467f5aa70a6f9b8668c3ee',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',

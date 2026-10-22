@@ -3586,6 +3586,12 @@ def validate_review(arguments):
         )
     if update_mode and 'uploaded_files' in arguments:
         raise CLIArgumentError('uploaded_files are supported only when creating a review')
+    if 'completion_package' in arguments:
+        package = arguments['completion_package']
+        if not isinstance(package, str) or not package.strip():
+            raise CLIArgumentError('completion_package must be nonblank Markdown')
+    elif arguments.get('implementation_complete') is True:
+        raise CLIArgumentError('implementation_complete requires completion_package')
 
 
 def validate_view_note(arguments):
@@ -3870,6 +3876,22 @@ def configure_mcp_parser(command_parser, tool_name, fields=(), required=(),
         mcp_required=required,
         mcp_validator=validator,
         mcp_builder=builder or declared_mcp_arguments,
+    )
+
+
+def add_review_completion_arguments(command_parser):
+    command_parser.add_argument(
+        '--completion-package', help='Completion-package Markdown appended after the report. '
+                                     'Required with --implementation-complete.',
+    )
+    completion = command_parser.add_mutually_exclusive_group()
+    completion.add_argument(
+        '--implementation-complete', action='store_true', default=None,
+        help='Request Reviewable after saving the report and package and checking open work.',
+    )
+    completion.add_argument(
+        '--no-implementation-complete', action='store_false', default=None,
+        dest='implementation_complete', help='Save the review without requesting Reviewable.',
     )
 
 
@@ -4818,12 +4840,15 @@ def build_parser():
         '--update-review-short-code-id', help='Existing review short code for update mode.'
     )
     ask_review_parser.add_argument('--report', help='Complete report Markdown.')
+    add_review_completion_arguments(ask_review_parser)
     add_uploaded_file_argument(ask_review_parser)
     review_fields = (
         mcp_field('job_id', 'job_id'),
         mcp_field('update_review_short_code_id', 'update_review_short_code_id'),
         mcp_field('report', 'report'),
         mcp_field('uploaded_files', 'uploaded_files'),
+        mcp_field('completion_package', 'completion_package'),
+        mcp_field('implementation_complete', 'implementation_complete'),
     )
     configure_mcp_parser(
         ask_review_parser,
@@ -4843,6 +4868,7 @@ def build_parser():
         '--update-review-short-code-id', help='Existing review short code for update mode.'
     )
     add_report_parser.add_argument('--report', help='Complete report Markdown.')
+    add_review_completion_arguments(add_report_parser)
     add_uploaded_file_argument(add_report_parser)
     configure_mcp_parser(
         add_report_parser,
@@ -4852,6 +4878,8 @@ def build_parser():
             mcp_field('update_review_short_code_id', 'update_review_short_code_id'),
             mcp_field('report', 'report', 'legacy_report'),
             mcp_field('uploaded_files', 'uploaded_files'),
+            mcp_field('completion_package', 'completion_package'),
+            mcp_field('implementation_complete', 'implementation_complete'),
         ),
         ('report',),
         validator=validate_review,

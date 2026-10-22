@@ -47,7 +47,8 @@ def compress(raw, encoding):
 
 
 class TransportTests(unittest.TestCase):
-    def fixture(self, encoding='identity', *, streaming=False, status=200, truncate=False):
+    def fixture(self, encoding='identity', *, streaming=False, status=200, truncate=False,
+                root_role=None):
         directory = tempfile.TemporaryDirectory()
         self.addCleanup(directory.cleanup)
         ledger = budget.BudgetLedger(Path(directory.name) / 'ledger', 'transport', 100, 100, create=True)
@@ -70,8 +71,10 @@ class TransportTests(unittest.TestCase):
         class Provider(http.server.BaseHTTPRequestHandler):
             def log_message(self, *unused): pass
             def do_POST(self):
-                self.rfile.read(int(self.headers['Content-Length']))
-                seen.append(self.headers.get_all('Accept-Encoding'))
+                seen.append({'method': self.command, 'path': self.path,
+                             'body': self.rfile.read(int(self.headers['Content-Length'])),
+                             'headers': {key.lower(): value for key, value in self.headers.items()},
+                             'accept_encoding': self.headers.get_all('Accept-Encoding')})
                 self.send_response(status)
                 self.send_header('Content-Type', 'text/event-stream' if streaming else 'application/json; charset=utf-8')
                 self.send_header('Content-Encoding', encoding)
@@ -91,13 +94,15 @@ class TransportTests(unittest.TestCase):
         self.addCleanup(server.shutdown)
         gateway = budget.BudgetGateway(ledger, 'claude', f'http://127.0.0.1:{server.server_port}',
                                       model_bounds={'fixture': (80, 20, 'local fixture')})
-        address = urllib.parse.urlsplit(gateway.start())
+        gateway.start()
+        address = urllib.parse.urlsplit(gateway.url_for_role(root_role) if root_role else gateway.base_url)
         self.addCleanup(gateway.close)
         connection = http.client.HTTPConnection(address.hostname, address.port, timeout=3)
         self.addCleanup(connection.close)
         connection.request('POST', address.path + '/v1/messages',
                            json.dumps({'model': 'fixture', 'max_tokens': 20}),
-                           {'Content-Type': 'application/json', 'accept-encoding': 'gzip, deflate, br, zstd'})
+                           {'Content-Type': 'application/json', 'accept-encoding': 'gzip, deflate, br, zstd',
+                            'Authorization': 'native-fixture-in-memory', 'X-Native-Fixture': 'unchanged'})
         response = connection.getresponse()
         return ledger, response, wire, seen
 
@@ -116,11 +121,45 @@ class TransportTests(unittest.TestCase):
                 ledger, response, wire, seen = self.fixture(encoding)
                 self.release.set()
                 self.assertEqual(wire, response.read())
-                self.assertEqual([['gzip, deflate, br, zstd']], seen)
+                self.assertEqual([['gzip, deflate, br, zstd']], [item['accept_encoding'] for item in seen])
                 state = self.finish(ledger)
                 self.assertIsNone(state['halt_reason'])
                 self.assertEqual((60, 4, 0, 0), tuple(state[k] for k in (
                     'measured_input_tokens', 'measured_output_tokens', 'reserved_input_tokens', 'reserved_output_tokens')))
+
+    def test_role_aliases_preserve_native_request_and_streaming_response_transport(self):
+        for role in (None, 'owner', 'evaluator'):
+            with self.subTest(root_role=role):
+                ledger, response, wire, seen = self.fixture('gzip', streaming=True, root_role=role)
+                self.assertEqual(wire[:1], response.read(1))
+                self.assertFalse(self.release.is_set())
+                self.release.set()
+                self.assertEqual(wire[1:], response.read())
+                state = self.finish(ledger)
+                self.assertEqual((60, 4, 0, 0, 1), tuple(state[key] for key in (
+                    'measured_input_tokens', 'measured_output_tokens', 'reserved_input_tokens',
+                    'reserved_output_tokens', 'generation_attempts')))
+                self.assertEqual({'method': 'POST', 'path': '/v1/messages',
+                                  'body': b'{"model": "fixture", "max_tokens": 20}',
+                                  'accept_encoding': ['gzip, deflate, br, zstd'],
+                                  'headers': {'accept-encoding': 'gzip, deflate, br, zstd',
+                                              'content-type': 'application/json',
+                                              'authorization': 'native-fixture-in-memory',
+                                              'x-native-fixture': 'unchanged',
+                                              'content-length': '38'}},
+                                 {**seen[0], 'headers': {key: value for key, value in seen[0]['headers'].items()
+                                                       if key != 'host'}})
+                self.assertEqual((200, 'text/event-stream', 'gzip', 'req_fixture_123', str(len(wire))),
+                                 (response.status, *(response.getheader(key) for key in (
+                                     'Content-Type', 'Content-Encoding', 'Request-Id', 'Content-Length'))))
+                deadline = time.monotonic() + 2
+                while not ledger.requests()[0]['delivered'] and time.monotonic() < deadline:
+                    time.sleep(.005)
+                row = ledger.requests()[0]
+                self.assertEqual(role or 'unknown', row['root_role'])
+                self.assertEqual('msg_test', row['provider_request_id'])
+                self.assertEqual(1, row['delivered'])
+                self.assertNotIn(b'native-fixture-in-memory', Path(ledger.path).read_bytes())
 
     def test_compressed_sse_forwards_first_bytes_before_provider_completion(self):
         for encoding in ('gzip', 'deflate', 'br', 'zstd'):
@@ -276,7 +315,8 @@ class CodexResponseProtocolTests(unittest.TestCase):
         self.addCleanup(server.shutdown)
         gateway = budget.BudgetGateway(ledger, 'codex', f'http://127.0.0.1:{server.server_port}',
                                       model_bounds={'fixture': (80, 20, 'local fixture')})
-        address = urllib.parse.urlsplit(gateway.start())
+        gateway.start()
+        address = urllib.parse.urlsplit(gateway.url_for_role('evaluator'))
         self.addCleanup(gateway.close)
         connection = http.client.HTTPConnection(address.hostname, address.port, timeout=3)
         self.addCleanup(connection.close)
@@ -302,6 +342,7 @@ class CodexResponseProtocolTests(unittest.TestCase):
         self.assertEqual((10, 4, 0, 0), tuple(state[key] for key in (
             'measured_input_tokens', 'measured_output_tokens', 'reserved_input_tokens', 'reserved_output_tokens')))
         self.assertEqual('settled', row['status'])
+        self.assertEqual('evaluator', row['root_role'])
 
     def test_requested_stream_without_content_type_reads_chunked_sse(self):
         self.assert_settled(*self.request())

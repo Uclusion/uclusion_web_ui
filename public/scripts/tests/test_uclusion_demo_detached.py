@@ -232,10 +232,16 @@ class DownloadedDemoBootstrapTests(unittest.TestCase):
                 def processes(self):
                     return {pid: (self.root, 1, 'S') for pid in children if pid != self.root}
 
+            class LocalGateway:
+                def url_for_role(self, root_role):
+                    assert root_role in ('owner', 'evaluator')
+                    return 'http://127.0.0.1:1/no-requests/' + root_role
+
             class LocalBudget:
                 base_url = 'http://127.0.0.1:1/no-requests'
                 def __init__(self, *_args):
                     self.ledger = ledger
+                    self.gateway = LocalGateway()
 
                 def check(self):
                     if ledger.snapshot()['halt_reason']:

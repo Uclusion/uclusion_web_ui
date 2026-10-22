@@ -4,7 +4,9 @@ import http.client
 import http.server
 import json
 import pathlib
+import socket
 import sqlite3
+import struct
 import sys
 import tempfile
 import threading
@@ -97,6 +99,23 @@ class LedgerTests(unittest.TestCase):
         self.reserve(reopened, 1, 1)
         reopened.settle(identity, 'codex', usage())
         self.assertEqual(10, reopened.snapshot()['measured_input_tokens'])
+
+    def test_legacy_rows_gain_unknown_provenance_without_reclassifying_usage(self):
+        ledger = self.ledger()
+        identity = self.reserve(ledger)
+        ledger.settle(identity, 'codex', usage(), 'response_legacy')
+        before = ledger.requests()[0]
+        with sqlite3.connect(self.path) as db:
+            columns = ','.join(row[1] for row in db.execute('PRAGMA table_info(requests)')
+                               if row[1] != 'root_role')
+            db.execute('CREATE TABLE legacy_requests AS SELECT ' + columns + ' FROM requests')
+            db.execute('DROP TABLE requests')
+            db.execute('ALTER TABLE legacy_requests RENAME TO requests')
+        reopened = budget.BudgetLedger(self.path, 'same-run', 100, 100)
+        self.assertEqual(before, reopened.requests()[0])
+        self.assertEqual('unknown', reopened.requests()[0]['root_role'])
+        self.assertEqual((10, 4, 1), tuple(reopened.snapshot()[key] for key in (
+            'measured_input_tokens', 'measured_output_tokens', 'generation_attempts')))
 
     def test_unfinished_restart_and_missing_corrupt_or_mismatched_state_refuse(self):
         ledger = self.ledger()
@@ -205,12 +224,127 @@ class GatewayTests(unittest.TestCase):
         self.url = self.gateway.start()
         self.addCleanup(self.gateway.close)
 
-    def request(self, path='/responses', body=None):
-        parsed = budget.urllib.parse.urlsplit(self.url)
+    def request(self, path='/responses', body=None, *, url=None):
+        parsed = budget.urllib.parse.urlsplit(url or self.url)
         connection = http.client.HTTPConnection(parsed.hostname, parsed.port, timeout=3)
         self.addCleanup(connection.close)
         connection.request('POST', parsed.path + path, json.dumps(body or {'model': 'fake-model'}), {'Content-Type': 'application/json'})
         return connection.getresponse()
+
+    def test_owner_and_evaluator_overlap_in_one_ledger(self):
+        responses = [self.request(url=self.gateway.url_for_role(role))
+                     for role in ('owner', 'evaluator')]
+        self.assertEqual([200, 200], [response.status for response in responses])
+        self.assertEqual((100, 40, 2), tuple(self.ledger.snapshot()[key] for key in (
+            'reserved_input_tokens', 'reserved_output_tokens', 'generation_attempts')))
+        self.assertEqual(['owner', 'evaluator'], [row['root_role'] for row in self.ledger.requests()])
+        self.release.set()
+        for response in responses:
+            response.read()
+        self.gateway.close()
+        state = self.ledger.snapshot()
+        self.assertEqual((20, 8, 0, 0, 2), tuple(state[key] for key in (
+            'measured_input_tokens', 'measured_output_tokens', 'reserved_input_tokens',
+            'reserved_output_tokens', 'generation_attempts')))
+        self.assertEqual([1, 1], [row['delivered'] for row in self.ledger.requests()])
+
+    def assert_roles_share_ceiling(self, bounds, axis):
+        self.gateway.model_bounds = {'fake-model': (*bounds, 'local fixture')}
+        owner = self.request(url=self.gateway.url_for_role('owner'))
+        evaluator = self.request(url=self.gateway.url_for_role('evaluator'))
+        self.assertEqual((200, 409), (owner.status, evaluator.status))
+        evaluator.read()
+        self.assertEqual(1, len(self.seen), 'refused role reached the provider')
+        self.assertTrue(self.ledger.snapshot()['halt_reason'].startswith(axis + ' token ceiling'))
+        self.assertEqual(['owner'], [row['root_role'] for row in self.ledger.requests()])
+        self.release.set()
+        owner.read()
+        self.gateway.close()
+        self.assertEqual(1, self.ledger.snapshot()['generation_attempts'])
+
+    def test_root_roles_share_the_input_ceiling(self):
+        self.assert_roles_share_ceiling((60, 20), 'input')
+
+    def test_root_roles_share_the_output_ceiling(self):
+        self.assert_roles_share_ceiling((50, 60), 'output')
+
+    def test_legacy_and_unrecognized_role_routes_keep_unknown_provenance(self):
+        self.release.set()
+        unknown_url = self.url.replace(self.gateway.prefix, '/unrecognized' + self.gateway.prefix)
+        for url in (self.url, unknown_url):
+            response = self.request(url=url)
+            self.assertEqual(200, response.status)
+            response.read()
+        self.gateway.close()
+        self.assertEqual(['unknown', 'unknown'], [row['root_role'] for row in self.ledger.requests()])
+        self.assertEqual(['/v1/responses', '/v1/responses'], [path for path, _raw in self.seen])
+        self.assertEqual((20, 8, 2), tuple(self.ledger.snapshot()[key] for key in (
+            'measured_input_tokens', 'measured_output_tokens', 'generation_attempts')))
+
+    def test_inherited_root_alias_does_not_claim_native_participant_or_helper_identity(self):
+        self.release.set()
+        # These descendant identifiers travel in the native request. They are
+        # not an authoritative provider-response/native-session/parent join.
+        descendant = {'session_id': 'child_fixture', 'parent_session_id': 'root_fixture'}
+        for native_metadata in ({}, descendant):
+            response = self.request(url=self.gateway.url_for_role('evaluator'),
+                                    body={'model': 'fake-model', 'client_metadata': native_metadata})
+            self.assertEqual(200, response.status)
+            response.read()
+        self.gateway.close()
+        for row in self.ledger.requests():
+            self.assertEqual('evaluator', row['root_role'])
+            self.assertIsNone(row['provider_request_id'])
+            for field in ('participant_identity', 'helper_identity', 'request_purpose',
+                          'session_id', 'parent_session_id'):
+                self.assertNotIn(field, row)
+        self.assertEqual(descendant, json.loads(self.seen[1][1])['client_metadata'])
+
+    def test_root_roles_survive_run_summary_and_ledger_reopen(self):
+        self.release.set()
+        run_dir = pathlib.Path(self.directory.name) / 'summary-run'
+        upstream = 'http://127.0.0.1:' + str(self.provider.server_port) + '/v1'
+        # No native children are launched by this accounting fixture.
+        with mock.patch.object(budget, 'OwnedProcesses'), mock.patch('builtins.print'):
+            run = budget.RunBudget(run_dir, 'codex', 100, 100, upstream_base=upstream, create=True)
+        self.addCleanup(lambda: run.close() if not run.monitor_stop.is_set() else None)
+        run.gateway.model_bounds = {'fake-model': (50, 20, 'local fixture')}
+        for role in ('owner', 'evaluator'):
+            response = self.request(url=run.gateway.url_for_role(role))
+            self.assertEqual(200, response.status)
+            response.read()
+        with mock.patch('builtins.print'):
+            run.close()
+        summary = json.loads((run_dir / 'token-budget-summary.json').read_text())
+        reopened = budget.BudgetLedger(run_dir / 'token-budget.sqlite3', run_dir.name, 100, 100)
+        self.assertEqual(summary['requests'], reopened.requests())
+        self.assertEqual(['owner', 'evaluator'], [row['root_role'] for row in summary['requests']])
+        self.assertEqual((20, 8, 0, 0, 2), tuple(summary[key] for key in (
+            'measured_input_tokens', 'measured_output_tokens', 'reserved_input_tokens',
+            'reserved_output_tokens', 'generation_attempts')))
+
+    def test_downstream_disconnect_preserves_role_and_provider_usage(self):
+        address = budget.urllib.parse.urlsplit(self.gateway.url_for_role('evaluator'))
+        raw = b'{"model":"fake-model","stream":true}'
+        client = socket.create_connection((address.hostname, address.port), timeout=3)
+        self.addCleanup(client.close)
+        client.sendall(('POST ' + address.path + '/responses HTTP/1.1\r\nHost: localhost\r\n'
+                        'Content-Length: ' + str(len(raw)) + '\r\n\r\n').encode() + raw)
+        received = b''
+        while b'response.created' not in received:
+            chunk = client.recv(65536)
+            self.assertTrue(chunk, 'stream ended before the provider completion')
+            received += chunk
+        client.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack('ii', 1, 0))
+        client.close()
+        self.release.set()
+        self.gateway.close()
+        row = self.ledger.requests()[0]
+        self.assertEqual(('evaluator', 'settled', 0), (row['root_role'], row['status'], row['delivered']))
+        self.assertEqual((10, 4, 0, 0, 1), tuple(self.ledger.snapshot()[key] for key in (
+            'measured_input_tokens', 'measured_output_tokens', 'reserved_input_tokens',
+            'reserved_output_tokens', 'generation_attempts')))
+        self.assertEqual(1, len(self.seen))
 
     def test_live_events_arrive_before_completion_and_original_full_request_is_forwarded(self):
         body = {'model': 'fake-model', 'stream': True, 'reasoning': {'effort': 'medium'},

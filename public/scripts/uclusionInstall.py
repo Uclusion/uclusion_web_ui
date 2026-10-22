@@ -166,7 +166,7 @@ SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCodexNative.py': 'fb5f75f9f3e695c73ced443a116f504682ab34aa26616cfe1f8877c9d0e093c0',
     'uclusionUpdateNotices.py': 'a9d6ed9e082bce28ac8340d242ad34d2f180a35de6821ce72c0684503e84b7e8',
     'uclusionTokenAudit.py': '5045b9c9d08300a8c7a58446a219d0eb503327f26a8020bd7b4be9bae1bb0de1',
-    'uclusionTokenBudget.py': '15fdd602339eebf1a60230bb92d0621b3a963049084bba51dab65bf3413fd1fc',
+    'uclusionTokenBudget.py': '936891478e05b74af69e754571bb684cd1771ffb5db4e7cfbae79c9a5d6b6195',
 }
 USER_HOME = os.path.expanduser('~')
 UCLUSION_HOME = os.path.join(uclusion_home_root(), '.uclusion')
@@ -2589,7 +2589,7 @@ def _run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_di
         env, workspace_id, evidence_dir=evidence_dir, evidence_role='owner',
         instructions_path=demo_codex_owner_instructions_path(),
         child_environment=environment,
-    ) + choice_args + codex_runtime_args(budget.base_url)
+    ) + choice_args + codex_runtime_args(budget.gateway.url_for_role('owner'))
     native_server = OwnedCodexServer([], evaluator_environment, uclusion_home_root(),
                                     socket_path=budget.native_socket_path)
     evaluator_environment['UCLUSION_CODEX_NATIVE_SOCKET'] = native_server.socket_path
@@ -2600,7 +2600,7 @@ def _run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_di
         child_environment=evaluator_environment,
     )
     native_server.args = ['codex', *evaluator_session_args, *choice_args,
-                          *codex_runtime_args(budget.base_url)]
+                          *codex_runtime_args(budget.gateway.url_for_role('evaluator'))]
     owner = terminal = watch = account_client = None
     selector = selectors.DefaultSelector()
     print(f'📁 Demo session records: {run_dir}', flush=True)
@@ -2787,8 +2787,8 @@ def _run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_d
     evaluator_environment = demo_claude_session_environment()
     evaluator_environment['UCLUSION_DEMO_REPORT_FILE'] = report_path
     owner_environment = demo_claude_session_environment()
-    owner_environment['ANTHROPIC_BASE_URL'] = budget.base_url
-    evaluator_environment['ANTHROPIC_BASE_URL'] = budget.base_url
+    owner_environment['ANTHROPIC_BASE_URL'] = budget.gateway.url_for_role('owner')
+    evaluator_environment['ANTHROPIC_BASE_URL'] = budget.gateway.url_for_role('evaluator')
     owner_environment.pop('UCLUSION_DEMO_EVIDENCE_DIR', None)
     owner_environment.pop('UCLUSION_DEMO_EVIDENCE_ROLE', None)
     # The owner has no other way to learn where its directions are: the

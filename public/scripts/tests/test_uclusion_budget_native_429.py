@@ -56,7 +56,8 @@ class Native429Tests(unittest.TestCase):
                                       model_bounds={'fixture': (80, 20, 'local fixture')})
         address = urllib.parse.urlsplit(gateway.start())
         self.addCleanup(gateway.close)
-        def request(path='/v1/messages', method='POST'):
+        def request(path='/v1/messages', method='POST', *, root_role=None):
+            address = urllib.parse.urlsplit(gateway.url_for_role(root_role) if root_role else gateway.base_url)
             connection = http.client.HTTPConnection(address.hostname, address.port, timeout=3)
             self.addCleanup(connection.close)
             raw = (b'{"model":"fixture","max_tokens":20}' if provider == 'claude'
@@ -104,6 +105,26 @@ class Native429Tests(unittest.TestCase):
         self.assertEqual(2, len(seen))
         self.assertEqual(b'{"model":"fixture","max_tokens":20}', seen[0][1])
         self.assertEqual('unchanged', seen[0][2]['X-Native-Fixture'])
+
+    def test_root_roles_preserve_shared_429_liability_and_exactly_once_settlement(self):
+        wire = gzip.compress(json.dumps(ERROR).encode())
+        ledger, _, seen, request = self.fixture([(429, wire, {'Content-Encoding': 'gzip'}),
+                                               (200, json.dumps(COMPLETE).encode(), {})])
+        self.assertEqual((429, wire), request(root_role='owner')[:2])
+        self.completed(ledger)
+        self.assertEqual(200, request(root_role='evaluator')[0])
+        self.completed(ledger, 2)
+        rows = ledger.requests()
+        self.assertEqual(['owner', 'evaluator'], [row['root_role'] for row in rows])
+        self.assertEqual(['retained', 'settled'], [row['status'] for row in rows])
+        ledger.settle(rows[1]['id'], 'claude', USAGE, 'msg_complete')
+        ledger.settle(rows[1]['id'], 'claude', USAGE, 'msg_complete')
+        self.assertEqual((60, 4, 80, 20, 2, 1), tuple(ledger.snapshot()[key] for key in (
+            'measured_input_tokens', 'measured_output_tokens', 'reserved_input_tokens',
+            'reserved_output_tokens', 'generation_attempts', 'uncertain_attempts')))
+        self.assertIsNone(ledger.snapshot()['halt_reason'])
+        self.assertEqual(2, len(seen), 'gateway retried a role-routed request')
+        self.assertEqual(['/v1/messages', '/v1/messages'], [row[0] for row in seen])
 
     def test_429_without_quota_signature_and_codex_use_same_native_rule(self):
         for provider, path in (('claude', '/v1/messages'), ('codex', '/responses')):

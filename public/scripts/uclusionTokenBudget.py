@@ -193,7 +193,7 @@ class BudgetLedger:
             try:
                 with self._transaction() as db:
                     db.execute('CREATE TABLE run (singleton INTEGER PRIMARY KEY CHECK(singleton=1), config TEXT NOT NULL, state TEXT NOT NULL)')
-                    db.execute('CREATE TABLE requests (id TEXT PRIMARY KEY, provider TEXT NOT NULL, route TEXT NOT NULL, model TEXT NOT NULL, input_bound INTEGER NOT NULL, output_bound INTEGER NOT NULL, status TEXT NOT NULL, usage TEXT, input_tokens INTEGER NOT NULL DEFAULT 0, output_tokens INTEGER NOT NULL DEFAULT 0, delivered INTEGER NOT NULL DEFAULT 0, bound_basis TEXT NOT NULL, started REAL NOT NULL, completed REAL, admission_ms REAL, first_byte_ms REAL, settlement_ms REAL, provider_request_id TEXT, response_metadata TEXT)')
+                    db.execute("CREATE TABLE requests (id TEXT PRIMARY KEY, provider TEXT NOT NULL, route TEXT NOT NULL, model TEXT NOT NULL, input_bound INTEGER NOT NULL, output_bound INTEGER NOT NULL, status TEXT NOT NULL, usage TEXT, input_tokens INTEGER NOT NULL DEFAULT 0, output_tokens INTEGER NOT NULL DEFAULT 0, delivered INTEGER NOT NULL DEFAULT 0, bound_basis TEXT NOT NULL, started REAL NOT NULL, completed REAL, admission_ms REAL, first_byte_ms REAL, settlement_ms REAL, provider_request_id TEXT, response_metadata TEXT, root_role TEXT NOT NULL DEFAULT 'unknown')")
                     db.execute('INSERT INTO run VALUES (1,?,?)', (json.dumps(self.config, sort_keys=True), json.dumps({
                         'halt_reason': None, 'ceiling_valid': True, 'peak_input_reservation': 0,
                         'peak_output_reservation': 0, 'active_seconds': 0, 'active_since': time.time(),
@@ -204,8 +204,11 @@ class BudgetLedger:
         else:
             with self._transaction() as db:
                 state = self._state(db)
-                if 'response_metadata' not in {row['name'] for row in db.execute('PRAGMA table_info(requests)')}:
+                columns = {row['name'] for row in db.execute('PRAGMA table_info(requests)')}
+                if 'response_metadata' not in columns:
                     db.execute('ALTER TABLE requests ADD COLUMN response_metadata TEXT')
+                if 'root_role' not in columns:
+                    db.execute("ALTER TABLE requests ADD COLUMN root_role TEXT NOT NULL DEFAULT 'unknown'")
 
     @contextmanager
     def _transaction(self):
@@ -251,9 +254,13 @@ class BudgetLedger:
         row = db.execute("SELECT COALESCE(SUM(input_tokens),0),COALESCE(SUM(output_tokens),0),COALESCE(SUM(CASE WHEN status!='settled' THEN input_bound ELSE 0 END),0),COALESCE(SUM(CASE WHEN status!='settled' THEN output_bound ELSE 0 END),0),COUNT(*) FROM requests").fetchone()
         return tuple(row)
 
-    def reserve(self, input_bound, output_bound, route, model, *, provider='codex', bound_basis=''):
+    def reserve(self, input_bound, output_bound, route, model, *, provider='codex', bound_basis='',
+                root_role='unknown'):
         started = time.perf_counter()
         input_bound, output_bound = positive_tokens(input_bound), positive_tokens(output_bound)
+        # Launch provenance only: an inherited alias cannot identify a helper,
+        # participant or request purpose. Unrecognized/legacy callers stay unknown.
+        root_role = root_role if root_role in ('owner', 'evaluator') else 'unknown'
         refusal = None
         with self._transaction() as db:
             state = self._state(db)
@@ -276,8 +283,8 @@ class BudgetLedger:
                 self._halt(db, state, refusal)
             else:
                 identity = uuid.uuid4().hex
-                db.execute('INSERT INTO requests (id,provider,route,model,input_bound,output_bound,status,bound_basis,started) VALUES (?,?,?,?,?,?,\'reserved\',?,?)',
-                           (identity, provider, route, model, input_bound, output_bound, bound_basis, time.time()))
+                db.execute('INSERT INTO requests (id,provider,route,model,input_bound,output_bound,status,bound_basis,started,root_role) VALUES (?,?,?,?,?,?,\'reserved\',?,?,?)',
+                           (identity, provider, route, model, input_bound, output_bound, bound_basis, time.time(), root_role))
                 state['peak_input_reservation'] = max(state['peak_input_reservation'], held_in + input_bound)
                 state['peak_output_reservation'] = max(state['peak_output_reservation'], held_out + output_bound)
                 self._save(db, state)
@@ -869,6 +876,12 @@ class BudgetGateway:
         self.base_url = f'http://127.0.0.1:{self.server.server_port}{self.prefix}'
         return self.base_url
 
+    def url_for_role(self, root_role):
+        """Run-owned launch alias; keep the native provider suffix intact."""
+        if root_role not in ('owner', 'evaluator'):
+            raise ValueError('unsupported launch root role')
+        return f'http://127.0.0.1:{self.server.server_port}/{root_role}{self.prefix}'
+
     def check(self):
         state = self.ledger.snapshot()
         if state['halt_reason']:
@@ -890,9 +903,11 @@ class BudgetGateway:
             self.handlers.add(threading.current_thread())
         try:
             handler.connection.settimeout(5)
-            if not handler.path.startswith(self.prefix + '/'):
+            role_prefix, separator, remainder = handler.path.partition(self.prefix + '/')
+            if not separator or (role_prefix and not re.fullmatch(r'/[A-Za-z0-9_-]+', role_prefix)):
                 raise BudgetError('uncovered provider route')
-            route = handler.path[len(self.prefix):]
+            root_role = role_prefix[1:] if role_prefix in ('/owner', '/evaluator') else 'unknown'
+            route = '/' + remainder
             path = urllib.parse.urlsplit(route).path
             generation = handler.command == 'POST' and path in ('/responses', '/responses/compact', '/v1/messages')
             metadata = (handler.command == 'GET' and (path == '/models' or path == '/v1/models' or path.startswith('/v1/models/'))
@@ -920,7 +935,8 @@ class BudgetGateway:
                     body = json.loads(decode_request(raw, handler.headers.get('Content-Encoding')))
                     incoming, outgoing, basis = request_bounds(self.provider, path, body, self.model_bounds)
                     identity = self.ledger.reserve(incoming, outgoing, path, body['model'],
-                                                   provider=self.provider, bound_basis=basis)
+                                                   provider=self.provider, bound_basis=basis,
+                                                   root_role=root_role)
             connection = http.client.HTTPSConnection if self.upstream.scheme == 'https' else http.client.HTTPConnection
             upstream = connection(self.upstream.hostname, self.upstream.port, timeout=60)
             with self.lock:

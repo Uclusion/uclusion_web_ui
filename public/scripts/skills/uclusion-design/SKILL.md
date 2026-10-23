@@ -49,9 +49,12 @@ Use current human-backed requirements and applicable constraints as baseline.
 Qualify actual clear non-AI/non-advisory answers, Approvable For votes and
 human-delegated choices yourself. Advisory input, unaccepted AI prose,
 job-value approval and invitations to object supply no execution authority.
-A later human input can establish a new contract; discovering older input
-requires a question. Never polish a sent capsule for later cold-review or
-implementation differences alone.
+A newer clear non-AI, non-advisory human answer conflicting with the current
+capsule is capsule-changing input, including a reply. Stop affected execution,
+clarify any missing decision and publish the settled change before resuming.
+Never consume that answer with `included_in_capsule:false`. Discovering older
+input requires a question. Never polish a sent capsule for later cold-review
+or implementation differences alone.
 
 Use descriptive inline links in each supported claim block. Detached ledgers,
 unlinked sources or links beside other claims do not qualify. Selected-option
@@ -105,7 +108,7 @@ Replacement uses update mode with the actual current R-code/version and full
 replacement body for later human input establishing that contract. Never patch
 fragments or paste a new version into a stale write. On conflict scoped-read
 current state, reconcile changed evidence and authority, and resume only the
-settled contract. Replies remain discussion until folded into a new authorized
+settled contract. Other replies remain discussion until folded into a new authorized
 body. The former body archives asynchronously as ordinary unpinned note; do
 not wait for it or use it as current context.
 

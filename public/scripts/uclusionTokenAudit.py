@@ -7397,7 +7397,8 @@ def _claude_usage_total(usage):
     return total, _non_negative_int(usage.get("output_tokens")) or 0
 
 
-def breakdown_claude_transcript(path, counter, window=None, selected_requests=None, fingerprint=None):
+def breakdown_claude_transcript(path, counter, window=None, selected_requests=None, fingerprint=None,
+                                request_indexes=None):
     """Account one Claude Code transcript (and its subagents)."""
     acc = BreakdownAccumulator(counter)
     classifier = _UclusionClassifier(acc)
@@ -7410,6 +7411,8 @@ def breakdown_claude_transcript(path, counter, window=None, selected_requests=No
         nonlocal pending
         if pending is not None:
             _set_charging(acc, window, pending["created_at"])
+            if request_indexes is not None:
+                acc.charging = acc.charging and pending["index"] in request_indexes
             selected = None
             if selected_requests is not None:
                 identities = [pending["key"]]
@@ -7436,7 +7439,7 @@ def breakdown_claude_transcript(path, counter, window=None, selected_requests=No
             pending = None
 
     with open(path, "rb") as source:
-        for raw_line in source:
+        for index, raw_line in enumerate(source):
             try:
                 record = json.loads(raw_line.decode("utf-8"))
             except (UnicodeDecodeError, ValueError):
@@ -7460,10 +7463,12 @@ def breakdown_claude_transcript(path, counter, window=None, selected_requests=No
                         "session_id": record.get("sessionId") or record.get("session_id"),
                         "usage": message["usage"],
                         "created_at": _event_timestamp(record.get("timestamp")),
+                        "index": index,
                     }
                 elif pending is not None and total is not None and total >= pending["total"]:
                     pending["total"] = total
                     pending["usage"] = message["usage"]
+                    pending["index"] = index
                 for item in message.get("content") or []:
                     if not isinstance(item, dict):
                         continue
@@ -7698,12 +7703,13 @@ def _accounting_scope(metadata):
     return "helper" if _codex_parent(metadata) or metadata.get("parentThreadId") else "root"
 
 
-def _codex_request_ledger(records, metadata, selected_requests=None, fingerprint=None):
+def _codex_request_ledger(records, metadata, selected_requests=None, fingerprint=None,
+                          include_all_scopes=False):
     """Select final per-response observations, never cumulative counters."""
     ledger, snapshots, reasons = {}, {}, set()
     cumulative_observations = {}
     scope = _accounting_scope(metadata)
-    if scope in ("review", "auditor", "unrelated"):
+    if not include_all_scopes and scope in ("review", "auditor", "unrelated"):
         return [], {"excluded_scope"}, []
     parent = _codex_parent(metadata)
     born = _event_timestamp(metadata.get("timestamp")) if parent else None
@@ -7919,7 +7925,7 @@ def _selected_codex_requests(requests, selected_requests, fingerprint=None):
     return exact
 
 def breakdown_codex_rollout(path, counter, window=None, records=None,
-                            selected_requests=None, fingerprint=None):
+                            selected_requests=None, fingerprint=None, request_ledger=None):
     """Account one Codex rollout."""
     acc = BreakdownAccumulator(counter)
     classifier = _UclusionClassifier(acc)
@@ -7933,7 +7939,8 @@ def breakdown_codex_rollout(path, counter, window=None, records=None,
     if not isinstance(metadata, dict):
         metadata = {}
         unknown_shapes += 1
-    entries, ledger_reasons, reconciliation = _codex_request_ledger(records, metadata, selected_requests, fingerprint)
+    entries, ledger_reasons, reconciliation = (request_ledger if request_ledger is not None else
+        _codex_request_ledger(records, metadata, selected_requests, fingerprint))
     selected_sources = _selected_codex_requests(entries, selected_requests, fingerprint)
     selected = []
     selected_event_keys = set()
@@ -8717,6 +8724,278 @@ def breakdown_session_log(path, manifest=None, window=None, selected_requests=No
         missing["coverage"] = result.get("coverage", {})
         return missing
     return result
+
+
+def _demo_session_tree(path, client, window):
+    """Find the evaluator's explicit native tree, including review sessions."""
+    reasons = set()
+    path = os.path.realpath(path)
+    if client == "codex":
+        directory = os.path.dirname(path)
+        while os.path.dirname(directory) != directory and os.path.basename(directory) not in (
+                "sessions", "archived_sessions"):
+            directory = os.path.dirname(directory)
+        if os.path.basename(directory) not in ("sessions", "archived_sessions"):
+            directory = os.path.dirname(path)
+        else:
+            directory = os.path.dirname(directory)
+        candidates = []
+        for parent, _, names in os.walk(directory):
+            for name in names:
+                if not name.endswith(".jsonl"):
+                    continue
+                candidate = os.path.realpath(os.path.join(parent, name))
+                try:
+                    with open(candidate, encoding="utf-8") as source:
+                        first = json.loads(source.readline())
+                    meta = first.get("payload") if first.get("type") == "session_meta" else None
+                except (OSError, ValueError, UnicodeError, AttributeError):
+                    continue
+                if isinstance(meta, dict) and isinstance(meta.get("id"), str):
+                    candidates.append((candidate, meta))
+        root = next((meta for candidate, meta in candidates if candidate == path), None)
+        if root is None or _codex_parent(root):
+            return [], {"evaluator_identity_unknown"}
+        identities = {root["id"]}
+        while True:
+            children = {meta["id"] for _, meta in candidates
+                        if _codex_parent(meta) in identities
+                        and (_event_timestamp(meta.get("timestamp")) or 0) <= window[1]}
+            if children <= identities:
+                break
+            identities.update(children)
+        logs = []
+        metadata_by_id = {}
+        for candidate, meta in candidates:
+            if meta["id"] not in identities:
+                continue
+            if meta["id"] == root["id"] and _codex_parent(meta):
+                reasons.add("conflicting_session_identity")
+            if meta["id"] != root["id"] and _codex_parent(meta) not in identities:
+                reasons.add("conflicting_descendant_identity")
+            identity_evidence = (_codex_parent(meta), meta.get("cwd"), meta.get("timestamp"))
+            previous = metadata_by_id.setdefault(meta["id"], identity_evidence)
+            if previous != identity_evidence:
+                reasons.add("conflicting_session_identity")
+            logs.append((candidate, meta))
+        logs.sort(key=lambda entry: (entry[0] != path, entry[0]))
+    else:
+        logs = [(path, {})]
+        directory = os.path.join(os.path.splitext(path)[0], "subagents")
+        for parent, _, names in os.walk(directory):
+            logs.extend((os.path.join(parent, name), {}) for name in sorted(names)
+                        if name.endswith(".jsonl"))
+    tree = []
+    for log, meta in logs:
+        records, malformed = _codex_records(log)
+        if malformed:
+            reasons.add("malformed_log_record")
+        tree.append((log, records, meta))
+    if client == "codex":
+        for _, records, meta in tree:
+            for identity, _fork in _codex_spawned_agents(records, window):
+                if not any(_codex_parent(child) == meta["id"] and identity in (
+                        child.get("id"), child.get("agent_path")) for _, _, child in tree):
+                    reasons.add("missing_descendant_logs")
+    else:
+        present, declared = set(), set()
+        root_records = next(records for log, records, _ in tree if log == path)
+        root_identities = {record.get("sessionId") for record in root_records if record.get("sessionId")}
+        if len(root_identities) != 1:
+            reasons.add("conflicting_session_identity")
+        for log, records, _ in tree:
+            if log != path:
+                if any(record.get("sessionId") not in root_identities for record in records
+                       if record.get("sessionId")):
+                    reasons.add("conflicting_descendant_identity")
+                identities = {record.get("agentId") for record in records if record.get("agentId")}
+                if not identities:
+                    identities = {os.path.basename(log).removesuffix(".jsonl").removeprefix("agent-")}
+                if len(identities) != 1:
+                    reasons.add("conflicting_descendant_identity")
+                present.update(identities)
+            for record in records:
+                created = _event_timestamp(record.get("timestamp"))
+                if created is not None and not window[0] <= created <= window[1]:
+                    continue
+                result = record.get("toolUseResult")
+                if isinstance(result, dict) and isinstance(result.get("agentId"), str):
+                    declared.add(result["agentId"])
+                message = record.get("message")
+                content = message.get("content") if isinstance(message, dict) else None
+                if isinstance(content, list):
+                    for item in content:
+                        if isinstance(item, dict) and item.get("type") == "tool_result":
+                            declared.update(re.findall(r"\bagentId:\s*([\w-]+)", _text_of(item.get("content"))))
+        if declared - present:
+            reasons.add("missing_descendant_logs")
+        if present - declared:
+            reasons.add("descendant_membership_unknown")
+    return tree, reasons
+
+
+def _demo_codex_cumulative_reasons(tree, unique, window):
+    """Reconcile whole-thread references after copied responses are removed."""
+    reasons = set()
+    by_thread = {}
+    for _, entry in unique.values():
+        by_thread.setdefault(entry["thread_id"], []).append(entry)
+    for _, records, meta in tree:
+        reference = None
+        born = _event_timestamp(meta.get("timestamp"))
+        for record in records:
+            payload = record.get("payload")
+            if not isinstance(payload, dict):
+                continue
+            native = record.get("type") == "token_usage_record" or (
+                record.get("type") == "event_msg" and payload.get("type") == "raw_response_completed")
+            snapshot = record.get("type") == "event_msg" and payload.get("type") == "token_count"
+            if not native and not snapshot:
+                continue
+            created = _event_timestamp(record.get("timestamp"))
+            if created is None:
+                reasons.add("request_timestamp_missing")
+                continue
+            if (not window[0] <= created <= window[1] or born is not None and created < born
+                    or payload.get("thread_id", meta["id"]) != meta["id"]):
+                continue
+            info = payload.get("info") if isinstance(payload.get("info"), dict) else {}
+            cumulative = payload.get("thread_token_usage") if native else info.get("total_token_usage")
+            if _valid_openai_usage(cumulative):
+                reference = _openai_counts(cumulative)
+        if reference is not None:
+            entries = by_thread.get(meta["id"], [])
+            keys = ["input_tokens", "output_tokens", "normalized_total_tokens"]
+            if reference["cached_input_tokens"] is not None and all(
+                    entry["counts"]["cached_input_tokens"] is not None for entry in entries):
+                keys.append("cached_input_tokens")
+            if any(sum(entry["counts"][key] for entry in entries) != reference[key] for key in keys):
+                reasons.add("cumulative_reconciliation_gap")
+    return reasons
+
+
+def breakdown_demo_session_log(path, window, manifest=None):
+    """Derived demo reporting only; never an audit or limiter accounting source.
+
+    Provider identities are reconciled across the complete selected tree before
+    its content is attributed. Missing evidence cannot yield a measured total.
+    """
+    client = detect_session_log(path)
+    if client not in ("codex", "claude"):
+        return unavailable_breakdown("evaluator_log_missing")
+    try:
+        tree, reasons = _demo_session_tree(path, client, window)
+        unique, selections = {}, {}
+        for log, records, meta in tree:
+            observations = []
+            if client == "codex":
+                entries, ledger_reasons, _ = _codex_request_ledger(
+                    records, meta, include_all_scopes=True)
+                reasons.update(ledger_reasons - {"cumulative_reconciliation_gap",
+                                                "snapshot_cumulative_basis_differs"})
+                born = _event_timestamp(meta.get("timestamp"))
+                if born is None:
+                    reasons.add("session_timestamp_missing")
+                # Final native observations of the same response must agree,
+                # including copies within one transcript.
+                native_counts = {}
+                for record in records:
+                    payload = record.get("payload") or {}
+                    if not isinstance(payload, dict) or not (record.get("type") == "token_usage_record"
+                            or record.get("type") == "event_msg" and payload.get("type") == "raw_response_completed"):
+                        continue
+                    created = _event_timestamp(record.get("timestamp"))
+                    if created is not None and (not window[0] <= created <= window[1]
+                            or born is not None and created < born):
+                        continue
+                    if payload.get("thread_id", meta.get("id")) != meta.get("id"):
+                        continue
+                    identity = payload.get("response_id")
+                    usage = payload.get("usage")
+                    if not identity or not _valid_openai_usage(usage):
+                        reasons.add("request_identity_or_usage_missing")
+                        continue
+                    counts = _openai_counts(usage)
+                    if identity in native_counts and native_counts[identity] != counts:
+                        reasons.add("conflicting_request_usage")
+                    native_counts[identity] = counts
+                for entry in entries:
+                    created = entry["created_at"]
+                    if created is None:
+                        reasons.add("request_timestamp_missing")
+                    elif window[0] <= created <= window[1]:
+                        observations.append(entry)
+            else:
+                for index, record in enumerate(records):
+                    message = record.get("message")
+                    if record.get("type") != "assistant" or not isinstance(message, dict):
+                        continue
+                    created = _event_timestamp(record.get("timestamp"))
+                    if created is None:
+                        reasons.add("request_timestamp_missing")
+                    elif not window[0] <= created <= window[1]:
+                        continue
+                    identity = message.get("id") or record.get("requestId")
+                    usage = message.get("usage")
+                    total, _ = _claude_usage_total(usage)
+                    if not identity or total is None:
+                        reasons.add("request_identity_or_usage_missing")
+                        continue
+                    observations.append({"response_id": identity, "index": index,
+                        "counts": _anthropic_counts(usage), "categories": _measured_categories(usage, "anthropic"),
+                        "reasoning_output_subset": None})
+            for entry in observations:
+                identity = entry["response_id"]
+                if not identity:
+                    reasons.add("request_identity_missing")
+                    continue
+                previous = unique.get(identity)
+                if previous is not None:
+                    if (previous[1]["counts"] != entry["counts"] or
+                            previous[1]["categories"] != entry["categories"]):
+                        reasons.add("conflicting_request_usage")
+                    elif client == "claude" and previous[0] == log:
+                        selections[log].remove(previous[1])
+                        selections[log].append(entry)
+                        unique[identity] = (log, entry)
+                    continue
+                unique[identity] = (log, entry)
+                selections.setdefault(log, []).append(entry)
+        if client == "codex":
+            reasons.update(_demo_codex_cumulative_reasons(tree, unique, window))
+        if not unique:
+            reasons.add("no_model_requests")
+        sources = [log for log, _, _ in tree]
+        if reasons:
+            result = unavailable_breakdown(", ".join(sorted(reasons)))
+        else:
+            counter = TokenCounter(manifest if manifest is not None else load_token_manifest(),
+                                   "openai" if client == "codex" else "claude")
+            accumulators = []
+            for log, records, _ in tree:
+                entries = selections.get(log, [])
+                if client == "codex":
+                    acc, _ = breakdown_codex_rollout(log, counter, window, records=(records, 0),
+                        request_ledger=(entries, set(), []), selected_requests=entries)
+                else:
+                    acc, _ = breakdown_claude_transcript(log, counter, window,
+                        request_indexes={entry["index"] for entry in entries})
+                accumulators.append(acc)
+            result = breakdown_result([
+                {"line": line, **{key + "_tokens": sum(getattr(acc, key)[line] for acc in accumulators)
+                                   for key in ("arrival", "total", "estimated")}}
+                for line in BREAKDOWN_LINE_KEYS],
+                sum(entry["counts"]["normalized_total_tokens"] for _, entry in unique.values()), len(unique))
+            result["measurement_basis"] = "reconciled_unique_provider_responses"
+            result["measured_usage"] = {"categories": _sum_measured_requests(
+                [entry for _, entry in unique.values()])}
+            result["weighted_usage"] = weighted_token_report(result["measured_usage"]["categories"], None)
+        result["client"] = client
+        result["coverage"] = {"source_logs": sources, "request_window": list(window),
+                              "reasons": sorted(reasons), "scope": "evaluator_and_all_descendants"}
+        return result
+    except (OSError, ValueError, TypeError):
+        return unavailable_breakdown("evaluator_tree_unreadable")
 
 
 def format_breakdown(result, title="Uclusion token usage"):

@@ -479,7 +479,8 @@ function DecisionInvestible(props) {
         getActions()
       )}
       {isSent && (
-        <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} />
+        <InvesibleCommentLinker investibleId={investibleId} marketId={marketId}
+                               parentQuestionCode={parentComment.ticket_code} />
       )}
       {myMessageDescription && diff && (
         <>

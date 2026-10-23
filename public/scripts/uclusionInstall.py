@@ -165,7 +165,7 @@ SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionSetupMCP.py': '9aa8d3199b0c392d944fc3b2fb9f26b48230737ea2e5b07980cd3df6b79ed4f3',
     'uclusionCodexNative.py': 'fb5f75f9f3e695c73ced443a116f504682ab34aa26616cfe1f8877c9d0e093c0',
     'uclusionUpdateNotices.py': 'a9d6ed9e082bce28ac8340d242ad34d2f180a35de6821ce72c0684503e84b7e8',
-    'uclusionTokenAudit.py': '5045b9c9d08300a8c7a58446a219d0eb503327f26a8020bd7b4be9bae1bb0de1',
+    'uclusionTokenAudit.py': '0aabdfd9d3612a75b1273717373c20a5f5e16d44bdf06ed05029b646e9fb86d7',
     'uclusionTokenBudget.py': '936891478e05b74af69e754571bb684cd1771ffb5db4e7cfbae79c9a5d6b6195',
 }
 USER_HOME = os.path.expanduser('~')
@@ -367,13 +367,13 @@ WORKFLOW_ASSET_SHA256 = {
     'audit_reference': '81bf1773dbdca64bb32dd4fb021adb3ae3102d9726dd6425ed885a76df6cba09',
     'claims_reference': 'ed6f3236cd0751141a0542c946ae985d39bedc7f181e69c190da0a1dec232134',
     'backlog_maintenance_reference': 'a465be2a974144a0f3df43a3d0085e79ddc41c0a465c230a789cc38dcf9726cf',
-    'capsule_dispatch_reference': 'e1172faae6fee73c6bca13d33f5829246647b41ec1fa4808d779900f25d55496',
+    'capsule_dispatch_reference': '88f3cbabda472c25e74debf9aafa0ef05b30a45009c833756ee628dd5f539645',
     'delivery_common_reference': '2eefb8fec3354df90f3b6f88c7038e4d53c306b6c88edddbf6507d87b4740a3a',
     'durable_records_reference': '84d4641c1bd759ff148ccf8697ee1d0732e0352e497728fcc8c03208b0d52e35',
     'history_search_reference': 'ec4e561146056039bb0f152f0e3f3e3d32fc4d609047cd5999fb2df142385649',
     'implementation_helper_reference': '4ffcff1cb4a4d924494d6fc07f2d50dac1b68dc0f4dafcb1b43488416d8709ff',
     'investigation_helper_reference': 'eed801408dd5849c8f2065252f9bb3652e6bfca2c44a7111dd3d0abec0139bcb',
-    'job_assistance_reference': '4c5d2b0d3593d539ae1197ad067682e4675a108c2a0e8f5151557e3d87d1a357',
+    'job_assistance_reference': '7b013d83b6397fce57bd52b364059253a9fabc308f4e30dd6349eb08a1a40905',
     'job_context_reference': '37637b13f969a509752f92da40c1262d2c6972a68524dbe8906aeef31c1e1159',
     'question_tools_reference': '63e5a8fa2562c7d899b3c9ea69a2fb4a0882ae9de0c504e8686b204dd897fe96',
     'session_handoff_reference': '26bb3c8edd4eac02536fcb187a7ca27fc0b0c3671818bd3115b939f2d9d68405',
@@ -385,10 +385,10 @@ WORKFLOW_ASSET_SHA256 = {
     'discovery_helper_reference': '0f43951ca6bd4e64662980b2d1fd1a4f8b740d67e3d5f3a4af1e4fb8e0a3accf',
     'standalone_helper_reference': 'e9c2807400fbed8ea423ac2792ce0972e9c330d1b18e25d9a4e49d4b14d93c4d',
     'openai_metadata': '38b8291127e8d4a466d5683a6113d28eae55b7f77d99e7ec4bfdf849144eca55',
-    'design_skill': '3e68431cbf2c9a679cfe18f962114007dd54b649231c3b2a5ff234cd59b94a0f',
+    'design_skill': '9c803bb5464344ecea52bfec7c890be8f635ebc017c57214982ebdeff377c747',
     'design_openai_metadata': '0fa0f0de65361f3ea7ea87b901b9b20fb8b68e4bccf02abe6e03cf1959ca63a0',
     'demo_brief': 'b68f6501270c63456c19053d1b5af296350288754239c7f9d6074a3a5497789f',
-    'token_manifest': '90c849c2402c0afd0a23a3e8f77e807a64769b638ad56463b24a2eef23a80832',
+    'token_manifest': '9a270f22a4f55c6a46e323597d68d16e96764f7edf9c5258be70ab4c777a8e59',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',
@@ -2542,6 +2542,7 @@ def _run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_di
     report_path = os.path.join(run_dir, 'evaluation.md')
     # Only session logs written after this belong to the run.
     demo_started_at = time.time()
+    evaluator_selection = new_demo_evaluator_selection('codex', uclusion_home_root(), demo_started_at)
     environment = demo_codex_environment()
     environment['TERM'] = 'xterm-256color'
     environment['UCLUSION_DEMO_REPORT_FILE'] = report_path
@@ -2565,7 +2566,8 @@ def _run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_di
         'says is due now, then end your turn.\n'
     )
     evaluator_prompt = (
-        f'{start_prompt} {DEMO_SCRIPTED_OWNER}\n\n{DEMO_EFFORT_NOTE}\n\n'
+        f'{start_prompt} {DEMO_SCRIPTED_OWNER}\n\n'
+        f'{evaluator_selection["prompt_marker"]}\n\n{DEMO_EFFORT_NOTE}\n\n'
         'After presenting your completion package, wait for the owner\'s '
         'selection on the review and handle it through the normal workflow. '
         'Do not begin the evaluation merely because you presented the package. '
@@ -2736,7 +2738,9 @@ def _run_codex_demo(env, workspace_id, start_prompt, response_stats=None, run_di
         return 1
     section = write_demo_token_breakdown(
         run_dir,
-        demo_evaluator_log('codex', uclusion_home_root(), demo_started_at),
+        demo_evaluator_log('codex', uclusion_home_root(), demo_started_at,
+                           selection=evaluator_selection, ended_at=time.time()),
+        selection=evaluator_selection,
     )
     from uclusionMCPProxy import demo_evidence_summary
     print(demo_evidence_summary(run_dir), end='', flush=True)
@@ -2788,6 +2792,7 @@ def _run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_d
     report_path = os.path.join(run_dir, 'evaluation.md')
     # Only session logs written after this belong to the run.
     demo_started_at = time.time()
+    evaluator_selection = new_demo_evaluator_selection('claude', uclusion_home_root(), demo_started_at)
     # Both sessions are started here rather than printed for someone else to
     # run: this process is the only participant that ever sees both, so
     # ordering and cleanup can live in one place. A session already running
@@ -2837,7 +2842,8 @@ def _run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_d
     # The ask lives here rather than reaching it later as a Poke so that the
     # published evaluation is the evaluator's last act.
     evaluator_prompt = (
-        f'{start_prompt} {DEMO_SCRIPTED_OWNER}\n\n{DEMO_EFFORT_NOTE}\n\n' + native_wait_note +
+        f'{start_prompt} {DEMO_SCRIPTED_OWNER}\n\n'
+        f'{evaluator_selection["prompt_marker"]}\n\n{DEMO_EFFORT_NOTE}\n\n' + native_wait_note +
         'After presenting your completion package, wait for the owner\'s '
         'selection on the review and handle it through the normal workflow. '
         'Do not begin the evaluation merely because you presented the package. '
@@ -2971,7 +2977,9 @@ def _run_claude_demo(env, workspace_id, start_prompt, response_stats=None, run_d
         return 1
     section = write_demo_token_breakdown(
         run_dir,
-        demo_evaluator_log('claude', uclusion_home_root(), demo_started_at),
+        demo_evaluator_log('claude', uclusion_home_root(), demo_started_at,
+                           selection=evaluator_selection, ended_at=time.time()),
+        selection=evaluator_selection,
     )
     from uclusionMCPProxy import demo_evidence_summary
     print(demo_evidence_summary(run_dir), end='', flush=True)
@@ -2992,14 +3000,23 @@ def _log_mentions(path, needle, limit=4 * 1024 * 1024):
             return needle.encode('utf-8') in handle.read(limit)
     except OSError:
         return False
+def new_demo_evaluator_selection(client, home, started_at):
+    """Evidence unique to this evaluator launch, never inherited session aliases."""
+    return {'client': client, 'cwd': os.path.realpath(home), 'started_at': started_at,
+            'prompt_marker': 'Uclusion evaluator launch: ' + uuid.uuid4().hex}
 
 
-def demo_evaluator_log(client, home, started_at):
-    """The evaluator's own saved session log for this demo run, or None.
-
-    Only the evaluator's opening prompt asks it to report on Uclusion, so
-    that phrase tells its log from the owner's.
-    """
+def demo_evaluator_log(client, home, started_at, *, selection=None, ended_at=None):
+    """Select one native root using the supervisor's unique opening marker."""
+    from uclusionTokenAudit import _codex_parent, _codex_records, _event_timestamp, _text_of
+    if selection is None:
+        return None
+    selection.update(ended_at=ended_at if ended_at is not None else time.time(),
+                     selected_log=None, root_session_id=None, candidates=[])
+    selection['reason'] = 'evaluator_identity_unknown'
+    if (selection.get('client') != client or selection.get('cwd') != os.path.realpath(home)
+            or selection.get('started_at') != started_at or not selection.get('prompt_marker')):
+        return None
     candidates = []
     if client == 'claude':
         for config_home in _demo_claude_config_homes():
@@ -3026,21 +3043,50 @@ def demo_evaluator_log(client, home, started_at):
             )
     found = []
     for path in dict.fromkeys(candidates):
-        try:
-            modified = os.path.getmtime(path)
-        except OSError:
+        if not _log_mentions(path, selection['prompt_marker']):
             continue
-        if modified >= started_at and _log_mentions(
-            path, DEMO_EVALUATOR_PROMPT_MARK
-        ):
-            found.append((modified, path))
-    return max(found)[1] if found else None
+        records, malformed = _codex_records(path)
+        if malformed:
+            selection['reason'] = 'evaluator_log_malformed'
+            continue
+        if client == 'codex':
+            meta = next((record.get('payload') for record in records
+                         if record.get('type') == 'session_meta'), {})
+            if not isinstance(meta, dict) or _codex_parent(meta):
+                continue
+            identity, cwd, created = meta.get('id'), meta.get('cwd'), meta.get('timestamp')
+            openings = [record for record in records if record.get('type') == 'response_item'
+                        and isinstance(record.get('payload'), dict)
+                        and record['payload'].get('role') == 'user']
+            marked = [record for record in openings if selection['prompt_marker'] in
+                      _text_of(record['payload'].get('content'))]
+        else:
+            openings = [record for record in records if record.get('type') == 'user'
+                        and not record.get('isSidechain') and not record.get('agentId')]
+            marked = [record for record in openings if isinstance(record.get('message'), dict)
+                      and selection['prompt_marker'] in _text_of(record['message'].get('content'))]
+            meta = marked[0] if marked else {}
+            identity, cwd, created = meta.get('sessionId'), meta.get('cwd'), meta.get('timestamp')
+        created = _event_timestamp(created)
+        if (not identity or not isinstance(cwd, str) or os.path.realpath(cwd) != selection['cwd']
+                or created is None or not started_at <= created <= selection['ended_at'] or not marked):
+            continue
+        found.append((os.path.realpath(path), identity))
+    selection['candidates'] = [{'path': path, 'session_id': identity} for path, identity in found]
+    if len(found) != 1:
+        if found:
+            selection['reason'] = 'evaluator_identity_ambiguous'
+        return None
+    path, identity = found[0]
+    selection.update(selected_log=path, root_session_id=identity, reason=None,
+                     identity_basis='unique_supervisor_prompt_native_root_cwd_and_interval')
+    return path
 
 
 DEMO_TOKEN_BREAKDOWN_NAME = 'evaluator-tokens.md'
 
 
-def write_demo_token_breakdown(run_dir, log_path):
+def write_demo_token_breakdown(run_dir, log_path, *, selection=None):
     """Publish the evaluator's Uclusion breakdown beside its evaluation.
 
     This runs only after the evaluator is stopped, so the numbers never reach
@@ -3050,16 +3096,25 @@ def write_demo_token_breakdown(run_dir, log_path):
     """
     try:
         from uclusionTokenAudit import (
-            breakdown_session_log, format_breakdown, unavailable_breakdown,
+            breakdown_demo_session_log, format_breakdown, unavailable_breakdown,
         )
         try:
             result = (
-                breakdown_session_log(log_path) if log_path
-                else unavailable_breakdown('log_missing')
+                breakdown_demo_session_log(log_path, (selection['started_at'], selection['ended_at']))
+                if (log_path and selection and selection.get('selected_log') == os.path.realpath(log_path)
+                    and selection.get('root_session_id') and not selection.get('reason'))
+                else unavailable_breakdown((selection or {}).get('reason') or 'evaluator_identity_unknown')
             )
         except Exception:
             # Still publish a file, so demo --result never waits on one.
             result = unavailable_breakdown('collector_failure')
+        evidence = {'selection': selection, 'coverage': result.get('coverage'),
+                    'status': result['status'], 'reason': result.get('reason'),
+                    'provider_total_tokens': result.get('provider_total_tokens'),
+                    'model_requests': result.get('model_requests')}
+        with open(os.path.join(run_dir, 'evaluator-token-selection.json'), 'w', encoding='utf-8') as handle:
+            json.dump(evidence, handle, indent=2)
+            handle.write('\n')
         section = '\n\n' + format_breakdown(
             result,
             title='Uclusion token usage of the evaluating agent '

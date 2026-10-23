@@ -892,6 +892,7 @@ const messages = defineMessages({
   inviteLinkerDirectionsPlan: 'Click to copy link',
   commitMessageDirections: 'Click to copy commit message',
   codeOnlyDirections: 'Click to copy code only',
+  optionCodeDirections: 'Click to copy question and option code',
   inviteLinkerCopied: 'Link copied to clipboard',
   commitMessageCopied: 'Commit message copied to clipboard',
   codeOnlyCopied: 'Code copied to clipboard',

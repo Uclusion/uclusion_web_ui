@@ -9,7 +9,9 @@ Except completion packages, ask_question handles ambiguity/judgment under questi
 
 Only a non-AI, non-advisory clear reply or Approvable For vote answers job questions. Trust rendered advisory markers, not inferred metadata. Advisory input may change reasoning/vote and Poke but cannot unlock execution. Human Resolve delegates choice; pending AI handling still requires that choice, rendered evidence version and no reopening/writing inside the resolved question.
 
-Finish required replies/votes before resolving. Capsule-changing answers use capsule-dispatch.md: keep open/pending and hand exact handled evidence to the fresh capsule role, which validates authority and incorporates all targets first. No capsule change: resolve immediately with handled expected_question_version and included_in_capsule:false for pending handling. An open thread without option votes is no completion signal. Clarify ambiguity; only Approvable options accept/count votes. A later "flag if you prefer"/"verify this choice" reveals an unasked decision: stop and ask it.
+Before no-change settlement, compare the answer with the current capsule. A newer clear non-AI, non-advisory human answer that conflicts with it is capsule-changing input, even when posted as a reply. Stop affected execution, clarify any missing decision and route a settled change through capsule-dispatch.md. Never consume that answer with included_in_capsule:false.
+
+Finish required replies/votes before resolving. Capsule-changing answers use capsule-dispatch.md: keep open/pending and hand exact handled evidence to the fresh capsule role, which validates authority and incorporates all targets first. Only when no capsule change is needed, resolve immediately with handled expected_question_version and included_in_capsule:false for pending handling. An open thread without option votes is no completion signal. Clarify ambiguity; only Approvable options accept/count votes. A later "flag if you prefer"/"verify this choice" reveals an unasked decision: stop and ask it.
 
 ## Address suggestions
 

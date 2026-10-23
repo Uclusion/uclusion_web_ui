@@ -67,6 +67,7 @@ function InvesibleCommentLinker(props) {
     flushBottom,
     textColor,
     hideLink = false,
+    parentQuestionCode,
   } = props;
   const classes = useStyles();
   const [investiblesState] = useContext(InvestiblesContext);
@@ -101,6 +102,11 @@ function InvesibleCommentLinker(props) {
   } else {
     commitMessage = `${decodedTicketCode} ${inv.investible.name}`;
   }
+  const codeToCopy = isOption
+    ? (!commentId && parentQuestionCode?.startsWith('Q-')
+      ? `${decodeURI(parentQuestionCode)}_${shortTicketCode}` : undefined)
+    : decodedTicketCode;
+  const codeCopyDirections = isOption ? 'optionCodeDirections' : 'codeOnlyDirections';
   return (
     <div
       id="inviteLinker"
@@ -163,14 +169,15 @@ function InvesibleCommentLinker(props) {
           {shortTicketCode}
         </div>
       )}
-      {!isOption && !useTextInsteadOfLink && decodedTicketCode ? (
+      {!useTextInsteadOfLink && codeToCopy ? (
         <IconButton
+          aria-label={intl.formatMessage({ id: codeCopyDirections })}
           className={`${classes.iconButton} ${classes.iconButtonTight}`}
           style={{textTransform: 'none', justifyContent: 'left', whiteSpace: 'nowrap', marginLeft: 0, padding: 2}}
           disableRipple={true}
           onClick={(event) => {
             preventDefaultAndProp(event);
-            navigator.clipboard.writeText(decodedTicketCode);
+            navigator.clipboard.writeText(codeToCopy);
             setCopiedCodeToClipboard(true);
           }}
           onMouseLeave={() => {
@@ -182,7 +189,7 @@ function InvesibleCommentLinker(props) {
           <Tooltip title={
             <h3>
               {intl.formatMessage({
-                id: inCodeCopy && copiedCodeToClipboard ? 'codeOnlyCopied' : 'codeOnlyDirections',
+                id: inCodeCopy && copiedCodeToClipboard ? 'codeOnlyCopied' : codeCopyDirections,
               })}
             </h3>
           } placement="top">

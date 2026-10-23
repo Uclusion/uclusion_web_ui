@@ -8,10 +8,12 @@ import importlib.util
 import inspect
 import io
 from pathlib import Path
+import sys
 import tempfile
 import unittest
 from unittest import mock
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 spec = importlib.util.spec_from_file_location(
     'claude_demo_run', Path(__file__).resolve().parents[1] / 'uclusionInstall.py'
@@ -88,9 +90,9 @@ class ClaudeDemoRunTests(unittest.TestCase):
         printed = self.printed()
         breakdown = printed.index(b'Uclusion token usage of the evaluating agent')
         self.assertLess(printed.index(report), breakdown)
-        self.assertIn(b'unavailable (`log_missing`)', printed[breakdown:])
+        self.assertIn(b'unavailable (`evaluator_identity_unknown`)', printed[breakdown:])
         self.assertEqual(report, self.report_path().read_bytes())
-        self.assertIn('log_missing', (
+        self.assertIn('evaluator_identity_unknown', (
             self.report_path().parent / 'evaluator-tokens.md').read_text())
         self.stop.assert_has_calls([mock.call(self.evaluator), mock.call(self.owner)])
         self.evaluator_terminal.close.assert_called_once()

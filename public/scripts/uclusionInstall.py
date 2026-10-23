@@ -388,7 +388,7 @@ WORKFLOW_ASSET_SHA256 = {
     'design_skill': '3e68431cbf2c9a679cfe18f962114007dd54b649231c3b2a5ff234cd59b94a0f',
     'design_openai_metadata': '0fa0f0de65361f3ea7ea87b901b9b20fb8b68e4bccf02abe6e03cf1959ca63a0',
     'demo_brief': 'b68f6501270c63456c19053d1b5af296350288754239c7f9d6074a3a5497789f',
-    'token_manifest': '1ddbc55a3c0e56cb4fd879009a62f2db8f9c71bb31467f5aa70a6f9b8668c3ee',
+    'token_manifest': '90c849c2402c0afd0a23a3e8f77e807a64769b638ad56463b24a2eef23a80832',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',

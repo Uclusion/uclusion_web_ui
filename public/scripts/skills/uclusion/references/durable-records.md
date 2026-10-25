@@ -1,33 +1,35 @@
 <!-- uclusion-skill-reference:v1 -->
 # Durable writes and their outcomes
 
-## Authorship and permitted records
+## Authorship and threading
 
-Use Uclusion tools for questions/suggestions/approvals/votes/resolutions/reviews and lane-owned designs/findings; chat never substitutes. Ask unsettled choices with the lane tool. AI questions/suggestions/reviews need no permission, offer or deferral; only completion packages permit compound chat approval. Lane tool limits remain binding.
+Use the selected role's permitted Uclusion tools for questions, suggestions, approvals, votes, resolutions, reviews and findings. File AI questions, suggestions and reviews directly within that authority; chat does not replace their records. Completion packages own combined chat approval.
 
-When the human asks creation in their name, `for_human` uses only their words/reasoning; creation requires `is_my_lane:true` for assigned work to avoid echo Pokes, false otherwise. Ask missing human-vote certainty/reason; never invent them. Choose nested initial votes independently. Use exact returned codes everywhere.
+For human-authored creation, use only the person's words and reasoning. For a permitted `for_human:true` write, use the coordinator's `is_my_lane` classification for its affected canonical target. If that classification is missing or its target/membership no longer matches, return a bounded classification request with the available target/member identities; obtain missing canonical membership from scoped evidence when needed, then await the classification before writing. Ask for missing human-vote certainty or reason; choose a nested initial vote's authorship separately and apply the same classification requirement when it is human-attributed. Native job/task/bug/blocker creation has its own schema.
 
-## Durable threading and commit identities
+Record new findings, decisions, blockers and next steps once in their owning artifact. Reply to the exact answered comment. Use returned codes and canonical links; source-question citations use the full returned URL.
 
-Record substantive information once in its owning artifact. `add_info` adds only missing findings/decisions/blockers/next steps, never recaps/reloads/transitions. Stable sent capsules still require their authority for edits; mandatory reviews/packages remain. Reply to the exact answered comment, never flatten at root.
+## Ordinary note creation and correction
 
-Correct an ordinary AI note/reply/option Info with add_info update: complete body, read version, no creation target; retain parent_question_short_code_id inside questions. On conflict read/reconcile, never substitute an unseen version. Identity/threading persist; omitted attachments persist. This update excludes human records, capsules, reviews, standing notes and machine audits; `for_human` is creation-only. Source question citations use full returned URLs; bug commit messages begin with completed comment code, jobs use review.md.
+Create an ordinary note or reply with `add_info`, its exact `short_code_id`, `info` and the human's `tz`. Preserve question identity with a qualified code or `parent_question_short_code_id` for a local code.
 
-## Write receipts and reconciliation
+To correct an active AI-authored ordinary note, reply or option Info, supply `update_info_short_code_id`, the actually read `update_info_version` and the complete revised body, without a creation target. Replacement preserves identity and threading but replaces the old body; retain still-relevant information. Omitted attachments persist. On conflict, read and reconcile before retrying with the new version. `for_human` and `is_silent` are creation-only. Human records, canonical option bodies, tasks, capsules, reviews, standing notes and machine audits use their own mutations and authority.
 
-A receipt is the read for its produced state. Inspect outcomes separately; later failure never erases success. Read only unseen/lost or uncertain state, not a held confirmed own write. Reconcile scoped uncertain operations and retry only unfinished steps. Resolve receipts cover only their resolution; process others' Pokes instead of confirmation reads.
+## Receipts and recovery
 
-## Reopening resolved work
+A confirmed receipt establishes its produced state; retain its canonical identity/link, version and actual outcome. Inspect publication, action, settlement and note results separately. Later failure leaves earlier successes intact. Read lost, uncertain or changed evidence in its exact scope, then retry only unfinished operations. A held confirmed write needs no confirmation read.
 
-Autonomously reopen only bugs/tasks whose fix demonstrably still fails, explaining in a reply. Human failure reports request reopening: for_human with is_my_lane applies; own failed verification omits it. Questions/suggestions/blockers reopen only on human instruction; never reopen a delegated resolved question, ask a new one. Reopened work follows its lane/stage; prior package results stand.
+## Reopening failed fixes
 
-## Creating jobs and human-authored artifacts
+Autonomously reopen only bugs or tasks whose fix demonstrably still fails, explaining the failure in a reply. A human failure report requests reopening: use `for_human:true` with the coordinator's classification for that target as above. Own failed verification omits `for_human`. Questions, suggestions and blockers reopen only on human instruction; for a delegated resolved question, ask a new question. Resume the reopened work under its lane and stage, preserving prior package results.
 
-Use add_job/add_task/add_bug/add_blocker only on explicit human request, except initial decomposition of a newly requested job. AI ideas/dependencies use make_suggestion; create discovered blockers only when the human explicitly says blocked. Preserve human bug severity and implied existing view.
+## Work creation
 
-Before requested add_job, isolate a duplicate/related search through history-search.md. Surface matches; cite related distinct codes. Supply initial tasks for independently reviewable/committable/documentable parts. Existing requested bugs use bug_short_code_ids; inspect each moved/failed/unconfirmed outcome. Retain the new job identity to reconcile: repeating add_job creates another job.
+Native job/task/bug/blocker creation requires the human's explicit request, with initial decomposition of a newly requested job and the implementation-owned review split of an unrelated finished task as their existing exceptions. AI ideas or dependencies use suggestions. Requested creation and its duplicate search belong to discovery; implementation owns its review task split. Preserve returned creation and move outcomes separately: another `add_job` call creates another job.
 
-## Saving general lessons as view notes
+## Shared general lessons
 
-Autonomously save general guidance with add_view_note; machine/environment/user-specific facts may remain private. Maintain one tight topical digest, pruning superseded material; a genuinely distinct topic may get another note. Never edit human notes, reply/suggest. At first applicability migrate general private lessons and delete private copies; subsequent human edits govern.
+Save general lessons with `add_view_note` in the worked item's view, normally updating its active AI-authored note. Supply either `update_note_short_code_id` for replacement or the item's `view_short_code_id` for creation, never both. Maintain a concise topical note, pruning superseded material; a distinct topic may use another note. Reply or suggest changes to human notes. These writes notify the view's humans.
+
+When a known private general lesson becomes applicable, migrate it to the shared view note and remove its duplicate private copy after the save is confirmed. Machine-, environment- and user-specific facts may remain private. Subsequent human edits govern the shared guidance.
 <!-- /uclusion-skill-reference:v1 -->

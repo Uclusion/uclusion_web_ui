@@ -1,7 +1,7 @@
 <!-- uclusion-skill-reference:v1 -->
-# Claude Code session-owned Poke delivery
+# Claude Code session-owned delivery
 
-Before work, arm one session-owned delivery task unless already running. Use Monitor `persistent:true` with `uclusion listen`; never expiring Monitor. Otherwise run `uclusion wait --timeout 86400` in the foreground inside one Bash `run_in_background=true` task with the largest accepted tool timeout; never add shell `&` or a PID wrapper. If launch approval is declined, continue without delivery.
+Before work, arm one session-owned delivery task unless already running. Use the resident CLI's `listen` in a persistent Monitor (`persistent:true`). If unavailable, run the resident CLI's `wait --timeout 86400` in the foreground inside one native Bash background task (`run_in_background:true`), with the largest accepted tool timeout. Keep the command attached to that task: no shell `&` or PID wrapper. A declined launch lets work continue without delivery.
 
-On completion, read output, route accepted messages/start the responsible helper, then rearm the same turn before final chat, including quiet timeout/limit exits. Never adopt/stop another session's delivery task or scan processes to find one.
+Route accepted messages from delivered output through the dispatcher. On task completion, including quiet timeout or limit exits, route any remaining output and rearm in the same turn before final chat. Preserve the owning session's identity and launch results. Manage only this session's task; do not adopt or stop another session's task or scan processes to find one.
 <!-- /uclusion-skill-reference:v1 -->

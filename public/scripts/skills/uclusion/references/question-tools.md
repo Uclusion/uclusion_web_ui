@@ -1,15 +1,18 @@
 <!-- uclusion-skill-reference:v1 -->
-# Shared question tools
+# Question and option tools
 
-Use only the lane's permitted tool. Unknown facts/reproduction/observed behavior/meaning require an open question without options; real discrete choices may have options. Never infer missing runtime observations from source.
+Use the role's permitted tool. Unknown facts, reproduction, observed behavior and meaning need open questions without options; real discrete choices may have options. Source inspection does not establish unobserved runtime behavior. Call `ask_question` once per distinct question.
 
-Every option-bearing `ask_question` and `add_options` needs one `initial_vote`, certainty 1 to 5, nonblank reason and exactly one selector. For added options state any preference change. `update_option` identifies its update; do not repeat an initial vote with `approve_job_or_option`, which handles later changes. Change position only for new evidence/requirements, naming them, never pressure/restatement.
+An open `ask_question` omits `initial_vote`. Nonempty options require one explained For vote: integer certainty 1–5, nonblank reason and the zero-based `new_option_index` from that call. `add_options` requires nonempty options and one initial vote selecting exactly one `new_option_index` or `existing_option_id`; an existing option must be Approvable in that question. The initial vote is already recorded. Record and initial-vote authorship are separate; human attribution requires the human's supplied words, certainty and reasoning.
 
-## Visual options
+Retain the question-creation receipt's link, qualified option codes/names, initial vote and resulting stage. Use qualified option codes, or supply the parent question with a local code. Name new evidence or requirements for any preference change, including when adding options. Use `approve_job_or_option` for later vote changes.
 
-Depict only canonical ask_question/add_options choices, labeled exact option code/name, never parallel A/B/C. Synchronize visuals/options that turn; changed meaning requires a new identity. An accepted durable human suggestion authorizes `update_option` of that canonical option.
+Use `update_option` for an accepted human suggestion that amends a canonical option, supplying its complete replacement name and description. The accepted suggestion can be resolved in that call; its required enabled vote remains separate. Give a new choice its own identity. Visuals show the exact canonical option codes/names and stay synchronized with the options in the same turn.
 
-## Standalone view-level questions
+## Existing standalone questions
 
-Only `get_job`, `add_info`, `approve_job_or_option`. A clear non-AI reply/Approvable For vote answers; AI votes do not, and no advisory gate applies. If all answering votes are at most 50/100 certainty, add a better option if available, otherwise certainty-improving information, otherwise proceed. The better-option rule conflicts with permitted tools: surface the conflict before an unlisted mutation; it grants no `add_options` authority.
+The permitted tools are `get_job`, `add_info` and `approve_job_or_option`. A clear non-AI reply or non-AI Approvable For vote answers; no job advisory gate applies. When every answering vote has rendered certainty at most 50/100:
+
+- If a better option is available, report that creating it requires `add_options`, outside this permitted set.
+- Otherwise add certainty-improving information if available, or proceed.
 <!-- /uclusion-skill-reference:v1 -->

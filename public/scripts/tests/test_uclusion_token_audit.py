@@ -5360,7 +5360,7 @@ class WeightedAccountingRegressionTests(TokenAuditTestCase):
     def test_packaged_role_and_action_reads_keep_exact_counts_after_decoding(self):
         paths = [SCRIPT_DIR / 'skills/uclusion/references' / name for name in (
             'implementation-helper.md', 'investigation-helper.md',
-            'job-context.md', 'work-discovery.md',
+            'durable-records.md', 'work-discovery.md',
         )]
         bodies = [path.read_text() for path in paths]
         decoded = json.loads(json.dumps({'output': ''.join(bodies)}))['output']
@@ -5377,7 +5377,7 @@ class WeightedAccountingRegressionTests(TokenAuditTestCase):
             },
         }, self.request('role-read', total=10000),
             self.request('retained-role', total=10000)]
-        manifest = audit.load_token_manifest()
+        manifest = audit.load_token_manifest(SCRIPT_DIR / 'token-manifest.json')
         counter = audit.TokenCounter(manifest, 'openai')
         expected = sum(counter.artifact(body)[0] for body in bodies)
         result = audit.breakdown_session_log(self.write_rollout(records), manifest=manifest)

@@ -209,9 +209,7 @@ class WorkflowBundleFetcherTests(unittest.TestCase):
 
     def test_bundle_validation_rejects_one_structurally_valid_mixed_asset(self):
         bundle = source_bundle()
-        bundle['claude_stub'] = bundle['claude_stub'].replace(
-            'Uclusion bootstrap', 'Uclusion  bootstrap', 1
-        )
+        bundle['claude_stub'] += '\n'
         with self.assertRaisesRegex(RuntimeError, 'installer release'):
             INSTALL.validate_workflow_bundle(bundle)
 

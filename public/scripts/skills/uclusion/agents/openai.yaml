@@ -1,6 +1,6 @@
 interface:
   display_name: "Uclusion"
-  short_description: "Dispatch Uclusion work and Poke AI to fresh roles"
-  default_prompt: "Use $uclusion to dispatch the referenced Uclusion item to its fresh responsible role."
+  short_description: "Coordinate Uclusion work and information requests"
+  default_prompt: "Use $uclusion to route this Uclusion request to the responsible helper and return its confirmed result."
 policy:
   allow_implicit_invocation: true

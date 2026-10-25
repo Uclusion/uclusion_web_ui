@@ -1,9 +1,11 @@
 <!-- uclusion-skill-reference:v1 -->
-# Workspace export and decision search
+# History preparation
 
-Use loaded workspace evidence or a successful export only while current/complete/sufficient; otherwise run the environment-correct `uclusion export` to its configured destination, overriding only on explicit human request. Retain exact successful reported path and UTC update dates; Poke silence proves no freshness.
+Check relevant history before answering a question that may be settled, relying on another design, or requesting design work. Reuse loaded evidence or a successful export while current, complete and sufficient. Refresh when scope, history, evidence or governance changes, or sufficiency is uncertain; a fully read authoritative update may settle changed context.
 
-Delegate every search fresh/read-only with selected export-search.md, exact export path, bounded question/mode and constraints; maintenance also carries all completed codes and original --completed stdout, never a rescan. Never load/copy its algorithm; report unavailable export/helper.
+When an export is needed, use `uclusion -e <environment> export` in the caller's configured environment. Preserve the configured destination; use `-o/--output` only for a human-requested alternative. Retain the actual destination reported by a successful write and relevant UTC update dates. A nonzero result is failure; a zero result can still carry warnings about missing, stale or incomplete evidence. Carry those limitations into the answer or search request.
 
-Search before relying on a design you did not write, ANY design delegation, or a possibly settled answer. Cite relevant findings inline with code and explanation, offering detail without requiring Uclusion access. Use current capsule or, absent one, agreed thread design. Reuse same-question/design checks while export/findings remain sufficient/current; a fully read fresh authoritative update may settle changed context. Changed scope/history/evidence/governance or uncertain freshness/completeness requires refresh.
+When the evidence needs searching, return the coordinator a bounded search request with the exact written export path, the question or mode, relevant current evidence, and matching, status and authority constraints. A maintenance request also supplies the entire completed batch and the original complete stdout from `export --completed CODE...`. Report unavailable export or search assistance.
+
+Interpret returned findings for your original assignment. Explain relevant findings with their codes inline so the answer is understandable without opening Uclusion; preserve reported gaps and unsettled evidence.
 <!-- /uclusion-skill-reference:v1 -->

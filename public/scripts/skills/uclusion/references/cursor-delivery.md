@@ -1,9 +1,9 @@
 <!-- uclusion-skill-reference:v1 -->
-# Cursor chat-owned Poke delivery
+# Cursor chat-owned delivery
 
-Use resident CLI/environment and delivery-common.md. Before every typed turn, including first/return/unrelated requests, arm one chat-owned `uclusion listen --max-seconds 1500` unless this chat already owns a running one. Never adopt another chat's listener or scan terminals/processes. Starting a max-seconds listener stops other Cursor max-seconds listeners, including the departed chat's; unlimited listeners persist. Human decline continues without delivery/no repeat ask in this chat.
+Use the resident CLI/environment and [delivery-common.md](delivery-common.md). Before every typed turn, including first, return and unrelated requests, use this chat's launch/rearm results to arm one `listen --max-seconds 1500` unless already running or this chat declined delivery. Apply the exit rules below before replacing an exited listener. A declined launch lets work continue without delivery; remember it for this chat. Manage this chat's own listener without adopting another chat's or scanning terminals/processes.
 
-Start/Added/Updated/Responded, update-notice or `Uclusion listener rearm ` stdout begins next turn here. Handle lines in arrival order. Rearm line is not a Poke: on duration exit, use its consumer with same max-seconds before turn end, retaining between-listener Pokes. Exit without that line means another chat took over: never replace it; only current owner rearms.
+Start/Added/Updated/Responded, update-notice and `Uclusion listener rearm ` stdout begin the next turn here. Handle lines in arrival order. The rearm line is control output: on duration exit, use its consumer with `listen --max-seconds 1500 --consumer <consumer>`, retaining between-listener Pokes. An exit without that line supplies no automatic rearm instruction; preserve confirmed takeover and reconcile the exact exit/error before replacement.
 
-First cursor starts at arm. Never set UCLUSION_CONSUMER, run wait, or configure inbox-draining stop hooks. Use delivery-common.md replay rules. Plain exit, no external harness; owned rearm/relaunch precedes final chat because some clients hide earlier text.
+The CLI normally starts a new named consumer at arm time. Its timed launch records the cursor and stops other timed listeners; unlimited listeners remain. Keep a plain exit in this chat-owned listener, without an external harness or inbox-draining stop hooks. Complete owned rearm/relaunch before final chat.
 <!-- /uclusion-skill-reference:v1 -->

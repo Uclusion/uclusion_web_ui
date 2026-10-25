@@ -1,19 +1,25 @@
 <!-- uclusion-skill-reference:v1 -->
-# Working roles: job questions and suggestions
+# Job questions and suggestions
 
-## Ask and resolve questions
+File every known distinct question, option and required vote in the current turn using the role's permitted tool and [question-tools](question-tools.md). The performer checks its own action authority and returns the original question and exact unresolved evidence to the question or capsule owner. Unsettled assistance blocks dependent work and approval; continue independent authorized work.
 
-Except completion packages, ask_question handles ambiguity/judgment under question-tools.md. File every known distinct question/options/vote that turn so Requires Input happens once; never suppress assistance to continue work.
+Record proposed improvements with `make_suggestion` and cite its returned link when that write is permitted; otherwise return a bounded suggestion request to the question owner.
 
-## What answers an AI-authored question
+## Question owner: qualify and settle
 
-Only a non-AI, non-advisory clear reply or Approvable For vote answers job questions. Trust rendered advisory markers, not inferred metadata. Advisory input may change reasoning/vote and Poke but cannot unlock execution. Human Resolve delegates choice; pending AI handling still requires that choice, rendered evidence version and no reopening/writing inside the resolved question.
+A clear human reply or Approvable For vote answers a job question when it is non-AI and non-advisory. Use the rendered advisory markers. Advisory input may inform reasoning or votes; execution still requires qualifying authority. Human Resolve delegates the choice and leaves versioned AI handling pending; handle it without reopening or writing inside the resolved question.
 
-Before no-change settlement, compare the answer with the current capsule. A newer clear non-AI, non-advisory human answer that conflicts with it is capsule-changing input, even when posted as a reply. Stop affected execution, clarify any missing decision and route a settled change through capsule-dispatch.md. Never consume that answer with included_in_capsule:false.
+Compare the answer with the current capsule. A newer qualifying answer that conflicts with it requires capsule reconciliation before affected execution, including work without repository changes. Clarify missing or ambiguous decisions. An open thread without option votes is no completion signal; a later request to verify an unasked choice still needs that choice answered.
 
-Finish required replies/votes before resolving. Capsule-changing answers use capsule-dispatch.md: keep open/pending and hand exact handled evidence to the fresh capsule role, which validates authority and incorporates all targets first. Only when no capsule change is needed, resolve immediately with handled expected_question_version and included_in_capsule:false for pending handling. An open thread without option votes is no completion signal. Clarify ambiguity; only Approvable options accept/count votes. A later "flag if you prefer"/"verify this choice" reveals an unasked decision: stop and ask it.
+Complete required replies and votes before resolution; only Approvable options accept and count votes. For a changed contract, return the coordinator a bounded contract-change request with the target/question identities, selected-option identities when present, handled rendered evidence version and every intended target. The coordinator selects and starts the capsule owner. Keep handling open or pending until that owner confirms every intended publication and incorporation acknowledgement.
 
-## Address suggestions
+When no capsule change is needed, the question owner resolves immediately, using the handled `expected_question_version` and `included_in_capsule:false` for pending AI handling. Keep that handled version distinct from the returned settlement version, and inspect settlement separately from any progress-note outcome. Return confirmed or unfinished settlement. A settled decision can leave its resulting implementation unfinished.
 
-Before mentioning a better approach/follow-up in chat, make_suggestion and cite its returned link. Human suggestions need definitive decision/action; when voting enabled vote before resolution, never on your own suggestion. Accepted option amendment: required vote then update_option with resolve_suggestion_short_code_id. Other accepted changes: record plan, act, resolve. Human Resolve without reply/vote on an AI suggestion declines mitigation/accepts risk; do not recreate. Human conversion to task accepts its exact proposal; re-ask only for new subsequent evidence, naming it. Never offer execution/job approval with unanswered own questions/open suggestions; independent tasks may be asked about separately.
+## Question owner: suggestions
+
+Give human suggestions a definitive decision or action and, when voting is enabled, vote before resolution. Leave one's own suggestions unvoted.
+
+For an accepted canonical-option amendment, cast the required suggestion vote, then use `update_option` with `resolve_suggestion_short_code_id`. For another accepted change, record the plan and obtain the responsible role's required action result before resolving that suggestion.
+
+Human Resolve of an AI suggestion without a reply or vote declines its mitigation and accepts the risk; conversion to a task accepts that exact proposal. Revisit either decision only for subsequent new evidence, naming it.
 <!-- /uclusion-skill-reference:v1 -->

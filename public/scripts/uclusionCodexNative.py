@@ -447,7 +447,6 @@ class NativeCodexDelivery:
         self.roots = {}
         self.collectors = {}
         self.joined_roots = set()
-        self.descendant_subscriptions = set()
         self.pending_descendants = set()
         self.reconciliation_errors = {}
         self.token_audit = token_audit
@@ -514,7 +513,8 @@ class NativeCodexDelivery:
             if collector.owns_thread(root):
                 collector.observe_notification(message)
                 item = params.get('item') or {}
-                if item.get('type') == 'subAgentActivity' and item.get('agentThreadId'):
+                if (item.get('type') == 'subAgentActivity'
+                        and collector.owns_thread(item.get('agentThreadId'))):
                     with self.lock:
                         self.pending_descendants.add(item['agentThreadId'])
                     self.scan_requested.set()
@@ -555,6 +555,15 @@ class NativeCodexDelivery:
                 if collector:
                     collector.close()
                 raise
+            if collector:
+                # A reconnect need not replay child-creation notifications.
+                # Recover identities from history without rejoining children.
+                try:
+                    history = self.client.request('thread/read', {
+                        'threadId': root, 'includeTurns': True})['thread']
+                    collector.observe_thread_history(history)
+                except NativeRequestError:
+                    collector.mark_partial('incomplete_descendant_coverage')
 
     def ensure_collector(self, request):
         meta = request.get('params', {}).get('_meta', {})
@@ -645,7 +654,14 @@ class NativeCodexDelivery:
         return next((turn['id'] for turn in reversed(thread['turns'])
                      if turn.get('status') == 'inProgress'), None)
 
-    def _subscribe_descendants(self):
+    def _collect_descendant_history(self):
+        """Read child history without loading or subscribing to the child.
+
+        Resume is not a subscription-only operation, even after a loaded-state
+        check: a helper can complete or unload between the check and resume.
+        Direct notifications remain useful, but history does not prove live
+        notification coverage and must not clear the collector's partial flag.
+        """
         with self.lock:
             collectors = tuple(self.collectors.values())
         for collector in collectors:
@@ -654,31 +670,23 @@ class NativeCodexDelivery:
         with self.lock:
             pending = tuple(self.pending_descendants)
         for child in pending:
-            if child in self.descendant_subscriptions:
-                with self.lock:
-                    self.pending_descendants.discard(child)
-                continue
             try:
                 thread = self.client.request('thread/read', {'threadId': child, 'includeTurns': False})['thread']
                 collector = next((owner for owner in collectors
                                   if owner.observe_descendant(thread)), None)
                 if collector is None:
-                    continue
-                if thread.get('path'):
-                    self.client.request('thread/resume', {'threadId': child, 'excludeTurns': True})
-                    collector.store.register_session_log(
-                        collector.client, collector.store.fingerprint('codex-thread', child), thread['path'])
-                    current = self.client.request('thread/read', {
-                        'threadId': child, 'includeTurns': True})['thread']
-                    for turn in current.get('turns', []):
-                        if turn.get('status') == 'inProgress':
-                            collector.observe_notification({'method': 'turn/started', 'params': {
-                                'threadId': child, 'turn': {'id': turn['id']}}})
-                    self.descendant_subscriptions.add(child)
                     with self.lock:
                         self.pending_descendants.discard(child)
+                    continue
+                current = self.client.request('thread/read', {
+                    'threadId': child, 'includeTurns': True})['thread']
+                collector.observe_thread_history(current)
             except NativeRequestError:
-                continue
+                # Keep already registered history and missing-coverage flags.
+                # A later activity/discovery can supply the missing metadata.
+                pass
+            with self.lock:
+                self.pending_descendants.discard(child)
 
     def _deliver(self):
         try:
@@ -826,7 +834,7 @@ class NativeCodexDelivery:
                         self.scan_requested.clear()
                         self._scan()
                         next_scan = time.monotonic() + 1
-                    self._subscribe_descendants()
+                    self._collect_descendant_history()
                     self._deliver()
                     self._deliver_update_notice()
                     backoff.reset_if_stable(connected_at)
@@ -848,7 +856,6 @@ class NativeCodexDelivery:
                         collector.close()
                     self.collectors.clear()
                     self.joined_roots.clear()
-                    self.descendant_subscriptions.clear()
                     self.pending_descendants.clear()
                 self.tools_changed()
             if backoff.wait(self.stop):

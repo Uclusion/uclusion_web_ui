@@ -1149,7 +1149,7 @@ class AuditStore:
         return dict(row) if row is not None else None
 
     def register_session_log(self, client, session_fp, log_path):
-        """Remember where a root session's own saved log lives."""
+        """Remember where this session's own saved log lives."""
         if session_fp is None or not isinstance(log_path, str) or not log_path:
             return
         log_path = os.path.abspath(os.path.expanduser(log_path))
@@ -4957,30 +4957,47 @@ class CodexTokenAudit:
                 _safe_label(thread.get('model')) or model,
                 _safe_label(thread.get('reasoningEffort')) or effort,
             )
-            if known:
-                return True
         parent_fp = self.store.fingerprint('codex-thread', parent_id)
         child_fp = self.store.fingerprint('codex-thread', thread_id)
-        self.store.discover_descendant(self.client, parent_fp, child_fp)
-        self.store.mark_partial(self.client, child_fp, 'incomplete_descendant_coverage')
-        self._descendants.put(thread_id)
+        rebound = self.store.discover_descendant(self.client, parent_fp, child_fp)
+        if not known or rebound:
+            self.store.mark_partial(self.client, child_fp, 'incomplete_descendant_coverage')
+        if not known:
+            self._descendants.put(thread_id)
+        self.observe_thread_history(thread)
         return True
 
-    def _observe_descendants(self, item, parent_thread_id):
-        if not isinstance(item, dict) or item.get("type") != "collabAgentToolCall":
+    def observe_thread_history(self, thread):
+        """Retain an owned thread's path and child identities, not live usage."""
+        thread_id = thread.get('id')
+        if not self.owns_thread(thread_id):
             return
-        receiver_ids = item.get("receiverThreadIds")
+        self.store.register_session_log(
+            self.client, self.store.fingerprint('codex-thread', thread_id), thread.get('path'))
+        for turn in thread.get('turns', []):
+            for item in turn.get('items', []):
+                self._observe_descendants(item, thread_id)
+
+    def _observe_descendants(self, item, parent_thread_id):
+        if not isinstance(item, dict):
+            return
+        if item.get("type") == "subAgentActivity":
+            receiver_ids = [item.get("agentThreadId")]
+        elif item.get("type") == "collabAgentToolCall":
+            receiver_ids = item.get("receiverThreadIds")
+        else:
+            return
         if not isinstance(receiver_ids, list):
             return
         for thread_id in receiver_ids:
             if not isinstance(thread_id, str) or not thread_id:
                 continue
-            # receiverThreadIds are delivered after child creation, while the
-            # auxiliary app-server subscription is asynchronous. A child can
-            # issue a request before that subscription is acknowledged; later
-            # captured usage cannot prove the earlier interval was complete.
+            # Discovery can arrive after the child's first request. Captured
+            # notifications and saved history cannot prove earlier live
+            # coverage, so observe_descendant retains the partial marker.
             self.observe_descendant({
                 'id': thread_id, 'parentThreadId': parent_thread_id,
+                'agentPath': item.get('agentPath'),
                 'model': item.get('model'),
                 'reasoningEffort': item.get('reasoningEffort') or item.get('effort'),
             })
@@ -7696,7 +7713,11 @@ def _accounting_scope(metadata):
     scope = metadata.get("accounting_scope") or metadata.get("accountingScope")
     if scope in ("root", "helper", "review", "auditor", "unrelated"):
         return scope
-    path = metadata.get("agent_path")
+    source = metadata.get("source")
+    subagent = (source.get("subAgent") or source.get("subagent")) if isinstance(source, dict) else None
+    spawn = subagent.get("thread_spawn") if isinstance(subagent, dict) else None
+    path = (metadata.get("agent_path") or metadata.get("agentPath")
+            or (spawn.get("agent_path") if isinstance(spawn, dict) else None))
     leaf = path.rsplit("/", 1)[-1] if isinstance(path, str) else ""
     if leaf.startswith(("review_", "audit_", "auditor_")):
         return "review" if leaf.startswith("review_") else "auditor"

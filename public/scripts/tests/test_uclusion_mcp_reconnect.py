@@ -109,11 +109,10 @@ class ReconnectTests(unittest.TestCase):
         delivery.context_events = None
         delivery.collectors = {}
         delivery.joined_roots = set()
-        delivery.descendant_subscriptions = set()
         delivery.pending_descendants = set()
         delivery.tools_changed = lambda: None
         delivery._observe = lambda message: None
-        delivery._subscribe_descendants = lambda: None
+        delivery._collect_descendant_history = lambda: None
         delivery._deliver = lambda: None
         delivery._deliver_update_notice = lambda: delivery.client.closed.set()
 

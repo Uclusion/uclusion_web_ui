@@ -7,6 +7,7 @@ import tempfile
 import threading
 import time
 import unittest
+import uuid
 from contextlib import closing, redirect_stdout
 from pathlib import Path
 from types import SimpleNamespace
@@ -675,6 +676,183 @@ class NativeCatalogAccountingTests(unittest.TestCase):
         self.assertEqual("synthetic-session-fingerprint", recorded[0][0])
         self.assertEqual("unknown", recorded[0][1]["provider_injection"])
         self.assertEqual(delivery.served_catalog["catalog_fingerprint"], recorded[0][1]["catalog_fingerprint"])
+
+
+class NativeDescendantHistoryTests(unittest.TestCase):
+    def setUp(self):
+        import uclusionTokenAudit as audit
+        self.audit = audit
+        self.home = tempfile.TemporaryDirectory()
+        self.addCleanup(self.home.cleanup)
+        directory = Path(self.home.name)
+        env = patch.dict(os.environ, {
+            'UCLUSION_HOME': str(directory),
+            'UCLUSION_TOKEN_AUDIT_DB': str(directory / 'audit.sqlite3'),
+            'UCLUSION_TOKEN_AUDIT_SALT': str(directory / 'salt'),
+        })
+        env.start()
+        self.addCleanup(env.stop)
+        self.collector = audit.CodexTokenAudit('stage', 'workspace')
+        self.collector.set_primary_thread({'id': 'root'})
+        self.addCleanup(self.collector.close)
+        self.delivery = NativeCodexDelivery.__new__(NativeCodexDelivery)
+        self.delivery.collectors = {'root': self.collector}
+        self.delivery.pending_descendants = set()
+        self.delivery.descendant_subscriptions = set()  # Before-version comparison only.
+        self.delivery.joined_roots = {'root'}
+        self.delivery.context_events = None
+        self.delivery.lock = threading.RLock()
+        self.delivery.scan_requested = threading.Event()
+        self.methods = []
+        self.threads = {}
+        self.delivery.client = SimpleNamespace(request=self.request)
+
+    def request(self, method, params):
+        self.methods.append((method, dict(params)))
+        if method == 'thread/read':
+            thread = self.threads[params['threadId']]
+            if params.get('includeTurns') and thread.get('history_error'):
+                raise NativeRequestError('history unavailable')
+            return {'thread': thread}
+        if method == 'thread/resume' and params['threadId'] == 'root':
+            return {'thread': self.threads['root']}
+        raise NativeRequestError('observation must not resume child')
+
+    def collect(self):
+        # The previous entry point is retained only for a computed regression
+        # comparison against the exact saved before source.
+        operation = getattr(self.delivery, '_collect_descendant_history', None)
+        (operation or self.delivery._subscribe_descendants)()
+
+    def logs(self):
+        with self.collector.store.connect() as db:
+            return {row['session_fp']: row['log_path'] for row in
+                    db.execute('SELECT * FROM token_audit_session_logs')}
+
+    def child(self, identity='child', parent='root', **fields):
+        path = Path(self.home.name) / (identity + '.jsonl')
+        path.write_text(json.dumps({'type': 'session_meta', 'payload': {
+            'id': identity, 'parent_thread_id': parent}}) + '\n')
+        return {'id': identity, 'parentThreadId': parent, 'path': str(path),
+                'status': {'type': 'notLoaded'}, **fields}
+
+    def test_archived_history_survives_duplicate_discovery_without_resume(self):
+        child = self.child()
+        self.threads['child'] = child
+        for _ in range(2):
+            self.collector.observe_descendant(child)
+            self.delivery.pending_descendants.add('child')
+            self.collect()
+        fingerprint = self.collector.store.fingerprint('codex-thread', 'child')
+        self.assertEqual(child['path'], self.logs().get(fingerprint))
+        self.assertNotIn('child', self.delivery.pending_descendants)
+        self.assertTrue(all(method == 'thread/read' for method, _ in self.methods))
+        with self.collector.store.connect() as db:
+            self.assertEqual(0, db.execute('SELECT COUNT(*) FROM token_audit_usage').fetchone()[0])
+
+    def test_path_is_retained_when_full_history_is_unavailable(self):
+        child = self.child(history_error=True)
+        self.threads['child'] = child
+        self.collector.observe_descendant({'id': 'child', 'parentThreadId': 'root'})
+        self.collect()
+        fingerprint = self.collector.store.fingerprint('codex-thread', 'child')
+        self.assertEqual(child['path'], self.logs().get(fingerprint))
+        self.assertNotIn('child', self.delivery.pending_descendants)
+        # A vanished log stays registered, allowing the existing breakdown to
+        # return log_missing rather than erase the missing-history evidence.
+        Path(child['path']).unlink()
+        result = self.audit.breakdown_session_log(child['path'], manifest={})
+        self.assertEqual('unavailable', result['status'])
+        self.assertEqual('log_missing', result['reason'])
+
+    def test_root_reconnect_recovers_nested_child_history_without_child_resume(self):
+        self.delivery.roots = {}
+        self.delivery.identity = 'owner'
+        self.delivery.joined_roots.clear()
+        self.delivery.token_audit = True
+        root = {'id': 'root', 'path': str(Path(self.home.name) / 'root.jsonl'),
+                '_uclusion_versions': ['1+owner'], 'turns': [{'items': [{
+                    'type': 'subAgentActivity', 'agentThreadId': 'child'}]}]}
+        child = self.child(turns=[{'items': [{'type': 'collabAgentToolCall',
+                                            'receiverThreadIds': ['grandchild']}]}])
+        grandchild = self.child('grandchild', 'child')
+        self.threads.update(root=root, child=child, grandchild=grandchild)
+        with patch.object(self.audit, 'CodexTokenAudit', return_value=self.collector):
+            self.delivery.environment, self.delivery.workspace_id = 'stage', 'workspace'
+            self.delivery._register(root)
+        self.collect()
+        self.collect()
+        self.assertTrue(self.collector.owns_thread('grandchild'))
+        for thread in (child, grandchild):
+            fingerprint = self.collector.store.fingerprint('codex-thread', thread['id'])
+            self.assertEqual(thread['path'], self.logs().get(fingerprint))
+        self.assertEqual(['root'], [params['threadId'] for method, params in self.methods
+                                   if method == 'thread/resume'])
+
+    def test_activity_discovers_child_before_direct_usage_without_claiming_subscription(self):
+        activity = {'method': 'item/started', 'params': {'threadId': 'root',
+            'turnId': 'parent-turn', 'item': {'type': 'subAgentActivity',
+            'agentThreadId': 'child', 'agentPath': '/root/implementation'}}}
+        self.delivery._observe(activity)
+        self.assertTrue(self.collector.owns_thread('child'))
+        started = {'method': 'turn/started', 'params': {'threadId': 'child',
+                                                     'turn': {'id': 'child-turn'}}}
+        event = {'method': 'thread/tokenUsage/updated', 'params': {'threadId': 'child',
+            'turnId': 'child-turn', 'tokenUsage': {'last': {'inputTokens': 20,
+                'cachedInputTokens': 0, 'outputTokens': 5, 'totalTokens': 25},
+                'total': {'inputTokens': 20, 'cachedInputTokens': 0,
+                          'outputTokens': 5, 'totalTokens': 25}}}}
+        for _ in range(2):
+            self.delivery._observe(activity)
+            self.delivery._observe(started)
+            self.delivery._observe(event)
+        with self.collector.store.connect() as db:
+            self.assertEqual(1, db.execute('SELECT COUNT(*) FROM token_audit_usage').fetchone()[0])
+        self.assertEqual([], self.methods)
+
+    def test_excluded_native_activity_does_not_join_audit_tree(self):
+        for name in ('review_source', 'audit_work', 'auditor_check'):
+            self.delivery._observe({'method': 'item/started', 'params': {
+                'threadId': 'root', 'item': {'type': 'subAgentActivity',
+                'agentThreadId': name, 'agentPath': '/root/' + name}}})
+            self.assertFalse(self.collector.owns_thread(name))
+            # Thread/read uses the installed native nested source shape, not
+            # the top-level agentPath carried by subAgentActivity.
+            self.threads[name] = self.child(name, source={'subAgent': {
+                'thread_spawn': {'parent_thread_id': 'root', 'agent_path': '/root/' + name}}})
+            self.assertNotIn(name, self.delivery.pending_descendants)
+            # Also exercise discovery that did not see the labeled activity.
+            self.delivery.pending_descendants.add(name)
+            self.collect()
+            self.assertFalse(self.collector.owns_thread(name))
+            self.assertNotIn(name, self.delivery.pending_descendants)
+
+    def test_known_child_inherits_new_run_without_reassigning_prior_usage(self):
+        child = self.child()
+        self.collector.observe_descendant(child)
+        def usage(response):
+            self.collector.observe_notification({'method': 'rawResponse/completed', 'params': {
+                'threadId': 'child', 'turnId': response, 'responseId': response,
+                'usage': {'inputTokens': 20, 'cachedInputTokens': 0,
+                          'outputTokens': 5, 'totalTokens': 25}}})
+        usage('before-start')
+        child_fp = self.collector.store.fingerprint('codex-thread', 'child')
+        for _ in range(2):
+            run_id = str(uuid.uuid4())
+            self.assertTrue(self.collector.store.start_run('codex', 'openai', 'native',
+                self.collector.primary_session_fp, run_id, 'fixture-job'))
+            self.collector.observe_descendant(child)
+            usage(run_id)
+            with self.collector.store.connect() as db:
+                session = db.execute('SELECT * FROM token_audit_sessions WHERE session_fp=?',
+                                     (child_fp,)).fetchone()
+                self.assertEqual(run_id, session['audit_run_id'])
+                self.assertEqual('incomplete_descendant_coverage', session['partial_reason'])
+                rows = list(db.execute('SELECT * FROM token_audit_usage ORDER BY created_at'))
+                self.assertIsNone(rows[0]['audit_run_id'])
+                self.assertEqual(run_id, rows[-1]['audit_run_id'])
+                if len(rows) == 3:
+                    self.assertNotEqual(run_id, rows[1]['audit_run_id'])
 
 
 if __name__ == '__main__':

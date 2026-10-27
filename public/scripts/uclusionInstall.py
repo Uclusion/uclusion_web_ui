@@ -161,9 +161,9 @@ SCRIPT_FILES = (
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCLI.py': '39b08580749413f824bc3ee979797af6c2460d09c230b5947105b030a0262486',
-    'uclusionMCPProxy.py': '6e35586b71ce343059045c1ae7bb59c50029e48c04226db756a335740d4a185f',
+    'uclusionMCPProxy.py': 'bfaf4be18791c48435340158d53f8e9f9bfb78b7869a1c18d24e523991676874',
     'uclusionSetupMCP.py': 'c4740e2c6a5e17e594cb7010e740d494a0e3a90cab237402e32e61061979bd22',
-    'uclusionCodexNative.py': '11c88241a7209c771439be37a57c6768d3e2317a262efdf198876dba44bba8e7',
+    'uclusionCodexNative.py': 'f036f0fec3692a3f6e9e8f4873cebb4cf4ee921fdb2e36cff398ebcaed496d46',
     'uclusionUpdateNotices.py': 'a9d6ed9e082bce28ac8340d242ad34d2f180a35de6821ce72c0684503e84b7e8',
     'uclusionTokenAudit.py': '2fc24cdb8c6210b613e7931cfe0e45fa628d1c9f01267880c7d436e785ae642f',
     'uclusionTokenBudget.py': '936891478e05b74af69e754571bb684cd1771ffb5db4e7cfbae79c9a5d6b6195',

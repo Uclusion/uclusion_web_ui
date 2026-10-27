@@ -1934,15 +1934,35 @@ def main():
                 and params.get('name') in TOKEN_AUDIT_TOOLS
             )
             collector_unready = False
-            if (audit_tool_call and args.token_collector
+            if (audit_tool_call and args.token_audit and args.token_collector
                     and native_delivery is not None):
                 collector_unready = not native_delivery.ensure_collector(msg)
-            if audit_tool_call and (not token_notes_available() or collector_unready):
+            if audit_tool_call and not args.token_audit:
                 if not is_notification:
                     write_jsonrpc_error(
                         request_id=request_id,
                         code=-32601,
                         message='Token audit is not enabled for this connection',
+                        stats=response_stats,
+                    )
+                continue
+            if audit_tool_call and (collector_unready or not token_notes_available()):
+                # token_notes_available() is false here only when auditing is
+                # enabled: the runtime is missing or tools_ready() failed.
+                # That is collector unreadiness, not an audit opt-out.
+                if not is_notification:
+                    failure = (native_delivery.collector_failure(msg)
+                               if native_delivery is not None else None)
+                    data = None
+                    message = 'Token audit collector is unavailable for this connection'
+                    if failure and failure.get('predicate') is not None:
+                        data = {'predicate': failure['predicate'], 'time': failure['time']}
+                        message += ' ' + json.dumps(data, separators=(',', ':'), sort_keys=True)
+                    write_jsonrpc_error(
+                        request_id=request_id,
+                        code=-32002,
+                        message=message,
+                        data=data,
                         stats=response_stats,
                     )
                 continue

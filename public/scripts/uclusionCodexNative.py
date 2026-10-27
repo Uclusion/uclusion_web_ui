@@ -36,12 +36,55 @@ def version_has_marker(version, marker):
     return marker in str(version).replace('+', '.').split('.')
 
 
-def native_recipients(client, scope):
+def _json_scalar(value):
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    return str(value)
+
+
+def _record_eligibility(eligibility, root, predicate):
+    if eligibility is not None and root not in eligibility:
+        eligibility[root] = predicate
+
+
+def _shape_failure(thread):
+    if thread.get('threadSource') != 'user':
+        return {'check': 'thread_source', 'passed': False,
+                'threadSource': _json_scalar(thread.get('threadSource'))}
+    if thread.get('parentThreadId'):
+        return {'check': 'parent_thread', 'passed': False,
+                'parentThreadId': _json_scalar(thread.get('parentThreadId'))}
+    if thread.get('canAcceptDirectInput') is not True:
+        return {'check': 'direct_input', 'passed': False,
+                'canAcceptDirectInput': _json_scalar(thread.get('canAcceptDirectInput'))}
+    return None
+
+
+def _connected_versions(client, root):
+    """Return connected Uclusion server versions without unscoped discovery."""
+    versions = []
+    for server_name in ('uclusion', 'Uclusion'):
+        status_cursor = None
+        while True:
+            status = client.request('mcpServerStatus/list', {
+                'threadId': root, 'serverName': server_name,
+                'detail': 'toolsAndAuthOnly', 'cursor': status_cursor})
+            versions.extend((server.get('serverInfo') or {}).get('version', '')
+                            for server in status['data'] if server.get('runtimeStatus') == 'connected')
+            status_cursor = status.get('nextCursor')
+            if status_cursor is None:
+                break
+    return versions
+
+
+def native_recipients(client, scope, eligibility=None):
     """Return eligible roots in the server's exact native recency order.
 
     Neither saved timestamps nor observer subscriptions establish recency.
     Any failed read leaves ordering/binding unconfirmed rather than skipping a
     possibly newer recipient. This read-only path is also used by inspection.
+    When eligibility is a dict, it receives the first failed check for each
+    root this scan actually examined.
     """
     loaded = set()
     cursor = None
@@ -59,27 +102,21 @@ def native_recipients(client, scope):
         for listed in page['data']:
             root = listed['id']
             if root not in loaded:
+                _record_eligibility(eligibility, root, {'check': 'loaded', 'passed': False})
                 continue
             thread = client.request('thread/read', {'threadId': root, 'includeTurns': False})['thread']
-            if (thread.get('threadSource') != 'user' or thread.get('parentThreadId')
-                    or thread.get('canAcceptDirectInput') is not True):
+            shape = _shape_failure(thread)
+            if shape is not None:
+                _record_eligibility(eligibility, root, shape)
                 continue
-            versions = []
-            # Unscoped discovery starts fresh MCP clients in Codex. A proxy
-            # inspecting itself would recursively start more proxies.
-            for server_name in ('uclusion', 'Uclusion'):
-                status_cursor = None
-                while True:
-                    status = client.request('mcpServerStatus/list', {
-                        'threadId': root, 'serverName': server_name,
-                        'detail': 'toolsAndAuthOnly', 'cursor': status_cursor})
-                    versions.extend((server.get('serverInfo') or {}).get('version', '')
-                                    for server in status['data'] if server.get('runtimeStatus') == 'connected')
-                    status_cursor = status.get('nextCursor')
-                    if status_cursor is None:
-                        break
+            versions = _connected_versions(client, root)
             if any(version_has_marker(version, scope) for version in versions):
                 recipients.append({**thread, '_uclusion_versions': versions})
+            else:
+                _record_eligibility(eligibility, root, {
+                    'check': 'scope_marker', 'passed': False, 'scope': scope,
+                    'versions': [_json_scalar(version) for version in versions],
+                })
         cursor = page.get('nextCursor')
         if cursor is None:
             return recipients
@@ -446,6 +483,9 @@ class NativeCodexDelivery:
         self.client = None
         self.roots = {}
         self.collectors = {}
+        self.detached = {}
+        self.eligibility_failures = {}
+        self.scoped_roots = None
         self.joined_roots = set()
         self.pending_descendants = set()
         self.reconciliation_errors = {}
@@ -482,7 +522,7 @@ class NativeCodexDelivery:
             return
         with self.lock:
             self.served_catalog = report
-            collectors = tuple(self.collectors.values())
+            collectors = self._held_collectors()
         for collector in collectors:
             self._record_catalog(collector, report)
 
@@ -492,6 +532,16 @@ class NativeCodexDelivery:
             collector.store.record_catalog(collector.primary_session_fp, report)
         except Exception:
             sys.stderr.write('Uclusion served catalog capture unavailable.\n')
+
+    def _held_collectors(self):
+        """Active and detached collectors. Caller may already hold self.lock."""
+        with self.lock:
+            found = {}
+            for collector in self.collectors.values():
+                found[id(collector)] = collector
+            for collector in getattr(self, 'detached', {}).values():
+                found.setdefault(id(collector), collector)
+            return tuple(found.values())
 
     def tools_ready(self):
         # Codex reads the initial catalog without honoring later list changes.
@@ -507,7 +557,7 @@ class NativeCodexDelivery:
                     message.get('method') == 'item/completed' and item.get('type') == 'contextCompaction')):
             self.context_events(root, 'compact')
         with self.lock:
-            collectors = tuple(self.collectors.values())
+            collectors = self._held_collectors()
         for collector in collectors:
             if message.get('method') == 'thread/started':
                 collector.observe_descendant(params.get('thread'))
@@ -522,17 +572,86 @@ class NativeCodexDelivery:
         if message.get('method') in {'thread/started', 'thread/closed', 'mcpServer/startupStatus/updated'}:
             self.scan_requested.set()
 
+    def _predicate_for(self, root, recipients, eligibility):
+        for thread in recipients:
+            if thread['id'] != root:
+                continue
+            return {
+                'check': 'identity_marker', 'passed': False,
+                'versions': [_json_scalar(version) for version in thread.get('_uclusion_versions') or ()],
+                'identity': self.identity,
+            }
+        found = eligibility.get(root) if isinstance(eligibility, dict) else None
+        if found is not None:
+            return found
+        return {'check': 'listed', 'passed': False}
+
+    def _keep_detached(self, root, predicate, force=False):
+        """Retain an already joined collector when ownership misses.
+
+        Closing it would drop the active run. The same object is restored
+        when a later scan owns the root.
+        """
+        saved = dict(predicate)
+        saved['root'] = root
+        with self.lock:
+            if not hasattr(self, 'detached'):
+                self.detached = {}
+            if not hasattr(self, 'eligibility_failures'):
+                self.eligibility_failures = {}
+            was_joined = root in self.joined_roots
+            collector = self.collectors.pop(root, None)
+            tracked = was_joined or collector is not None or root in self.detached
+            if not tracked and not force:
+                return
+            if collector is not None:
+                self.detached[root] = collector
+            self.joined_roots.discard(root)
+            self.eligibility_failures[root] = {'predicate': saved, 'time': time.time()}
+        if was_joined and self.context_events:
+            self.context_events(root, 'unavailable')
+
+    def _restore_collector(self, root, collector):
+        try:
+            self.client.request('thread/resume', {'threadId': root, 'excludeTurns': True})
+        except Exception:
+            # One root's resume failed. Keep this collector and do not let the
+            # exception reach _run, which would close every still-joined one.
+            with self.lock:
+                self.collectors.pop(root, None)
+                self.joined_roots.discard(root)
+                if not hasattr(self, 'detached'):
+                    self.detached = {}
+                self.detached[root] = collector
+            return False
+        with self.lock:
+            getattr(self, 'detached', {}).pop(root, None)
+            self.collectors[root] = collector
+            self.joined_roots.add(root)
+            failures = getattr(self, 'eligibility_failures', None)
+            if failures is not None:
+                failures.pop(root, None)
+        if self.context_events:
+            self.context_events(root, 'connected')
+        return True
+
     def _register(self, thread):
         root = thread['id']
         with self.lock:
             self.roots[root] = thread
         owned = any(version_has_marker(version, self.identity)
                     for version in thread['_uclusion_versions'])
+        if not owned:
+            return
+        with self.lock:
+            if root in self.joined_roots:
+                return
+            retained = getattr(self, 'detached', {}).get(root)
+        if retained is not None:
+            self._restore_collector(root, retained)
+            return
         collector_enabled = getattr(self, 'token_collector', False)
-        if owned and (collector_enabled or self.context_events) and thread.get('path'):
-            with self.lock:
-                if root in self.joined_roots:
-                    return
+        if (collector_enabled or self.context_events) and thread.get('path'):
             collector = None
             if collector_enabled:
                 from uclusionTokenAudit import CodexTokenAudit
@@ -572,21 +691,71 @@ class NativeCodexDelivery:
         root = meta.get('threadId') if isinstance(meta, dict) else None
         if not isinstance(root, str) or not root:
             return False
+        self._ensure_observer(root)
         self.scan_requested.set()
         deadline = time.monotonic() + 8
         while time.monotonic() < deadline and not self.stop.wait(.05):
-            with self.lock:
-                collector = self.collectors.get(root)
-            if collector is not None and root in self.joined_roots and self.healthy.is_set():
-                turn = meta.get('x-codex-turn-metadata', {})
-                if isinstance(turn, dict) and turn.get('turn_id'):
-                    collector.observe_notification({'method': 'turn/started', 'params': {
-                        'threadId': root, 'turn': {'id': turn['turn_id']}}})
+            if self._accept_ready_collector(root, meta):
                 return True
-        return False
+        return self._accept_ready_collector(root, meta)
+
+    def _accept_ready_collector(self, root, meta):
+        with self.lock:
+            collector = self.collectors.get(root)
+            ready = collector is not None and root in self.joined_roots and self.healthy.is_set()
+        if not ready:
+            return False
+        turn = meta.get('x-codex-turn-metadata', {})
+        if isinstance(turn, dict) and turn.get('turn_id'):
+            collector.observe_notification({'method': 'turn/started', 'params': {
+                'threadId': root, 'turn': {'id': turn['turn_id']}}})
+        return True
+
+    def collector_failure(self, request):
+        meta = request.get('params', {}).get('_meta', {}) if isinstance(request, dict) else {}
+        root = meta.get('threadId') if isinstance(meta, dict) else None
+        if not isinstance(root, str) or not root:
+            return None
+        with self.lock:
+            saved = getattr(self, 'eligibility_failures', {}).get(root)
+        if not saved:
+            return None
+        return {'predicate': saved['predicate'], 'time': saved['time']}
+
+    def _ensure_observer(self, root):
+        """Start a replacement observer only after the delivery thread has exited."""
+        if self.stop.is_set():
+            return
+        with self.lock:
+            if self.stop.is_set():
+                return
+            if self.thread.is_alive():
+                if self.scoped_roots is not None:
+                    self.scoped_roots.add(root)
+                return
+            self.scoped_roots = {root}
+            self.thread = threading.Thread(
+                target=self._run, daemon=True, name='uclusion-codex-native-delivery')
+            self.thread.start()
+
+    def _rejoin_only(self, root):
+        eligibility = {}
+        recipients = native_recipients(self.client, self.scope_marker, eligibility)
+        owned_thread = next((thread for thread in recipients if thread['id'] == root and any(
+            version_has_marker(version, self.identity) for version in thread['_uclusion_versions'])), None)
+        if owned_thread is None:
+            self._keep_detached(root, self._predicate_for(root, recipients, eligibility), force=True)
+            return
+        with self.lock:
+            collector = self.detached.get(root) or self.collectors.get(root)
+            joined = collector is not None and root in self.joined_roots and self.collectors.get(root) is collector
+        if collector is None or joined:
+            return
+        self._restore_collector(root, collector)
 
     def _scan(self):
-        recipients = native_recipients(self.client, self.scope_marker)
+        eligibility = {}
+        recipients = native_recipients(self.client, self.scope_marker, eligibility)
         bound = {thread['id'] for thread in recipients}
         for thread in recipients:
             self._register(thread)
@@ -611,13 +780,11 @@ class NativeCodexDelivery:
         with self.lock:
             for root in set(self.roots) - bound:
                 self.roots.pop(root, None)
-            for root in (set(self.collectors) | self.joined_roots) - owned:
-                self.joined_roots.discard(root)
-                if self.context_events:
-                    self.context_events(root, 'unavailable')
-                collector = self.collectors.pop(root, None)
-                if collector:
-                    collector.close()
+            tracked = ((set(self.collectors) | set(self.joined_roots)
+                        | set(getattr(self, 'detached', {}))) - owned)
+        for root in tracked:
+            self._keep_detached(root, self._predicate_for(root, recipients, eligibility))
+        with self.lock:
             collectors = tuple(self.collectors.values())
         # Loaded children may precede their parents in the native list.
         while descendants:
@@ -817,7 +984,44 @@ class NativeCodexDelivery:
             # An update check must not interrupt Poke delivery.
             pass
 
+    def _park_held_collectors(self):
+        """Retain every still-held collector when the delivery thread exits.
+
+        Intentional shutdown does not use this path. Nothing here calls
+        mark_partial or close.
+        """
+        with self.lock:
+            joined = tuple(self.joined_roots)
+            for root, collector in list(self.collectors.items()):
+                self.detached[root] = collector
+            self.collectors.clear()
+            self.joined_roots.clear()
+        if self.context_events:
+            for root in joined:
+                self.context_events(root, 'unavailable')
+
+    def _close_joined_collectors(self):
+        if self.context_events:
+            for root in tuple(self.joined_roots):
+                self.context_events(root, 'unavailable')
+        with self.lock:
+            for collector in self.collectors.values():
+                collector.mark_partial('session_interrupted')
+                collector.close()
+            self.collectors.clear()
+            self.joined_roots.clear()
+            self.pending_descendants.clear()
+
     def _run(self):
+        try:
+            self._run_connections()
+        finally:
+            # close() sets stop before the thread returns. Any other return
+            # leaves still-held collectors for a replacement to restore.
+            if not self.stop.is_set():
+                self._park_held_collectors()
+
+    def _run_connections(self):
         reported_error = None
         backoff = ReconnectBackoff()
         while not self.stop.is_set():
@@ -832,13 +1036,26 @@ class NativeCodexDelivery:
                 self.tools_changed()
                 next_scan = 0
                 while not self.stop.is_set() and not client.closed.is_set():
-                    if self.scan_requested.is_set() or time.monotonic() >= next_scan:
+                    with self.lock:
+                        scoped_roots = getattr(self, 'scoped_roots', None)
+                        scoped = None if scoped_roots is None else tuple(scoped_roots)
+                    if scoped is None:
+                        if self.scan_requested.is_set() or time.monotonic() >= next_scan:
+                            self.scan_requested.clear()
+                            self._scan()
+                            next_scan = time.monotonic() + 1
+                        self._collect_descendant_history()
+                        self._deliver()
+                        self._deliver_update_notice()
+                    elif self.scan_requested.is_set() or time.monotonic() >= next_scan:
                         self.scan_requested.clear()
-                        self._scan()
+                        for root in scoped:
+                            self._rejoin_only(root)
+                        # The requested root has been restored or left held.
+                        # Continue as the normal delivery thread.
+                        with self.lock:
+                            self.scoped_roots = None
                         next_scan = time.monotonic() + 1
-                    self._collect_descendant_history()
-                    self._deliver()
-                    self._deliver_update_notice()
                     backoff.reset_if_stable(connected_at)
                     self.stop.wait(.25)
             except Exception as error:
@@ -848,17 +1065,35 @@ class NativeCodexDelivery:
                     reported_error = kind
             finally:
                 self.healthy.clear()
-                if self.context_events:
-                    for root in tuple(self.joined_roots):
-                        self.context_events(root, 'unavailable')
-                client.close()
+                exc_type = sys.exc_info()[0]
+                # Exception is caught below and the thread reconnects.
+                # BaseException leaves this thread while shutdown is not set.
+                thread_exiting = (
+                    exc_type is not None
+                    and not issubclass(exc_type, Exception)
+                    and not self.stop.is_set()
+                )
                 with self.lock:
-                    for collector in self.collectors.values():
-                        collector.mark_partial('session_interrupted')
-                        collector.close()
-                    self.collectors.clear()
-                    self.joined_roots.clear()
-                    self.pending_descendants.clear()
+                    scoped_roots = getattr(self, 'scoped_roots', None)
+                    scoped = None if scoped_roots is None else tuple(scoped_roots)
+                if thread_exiting:
+                    client.close()
+                    self._park_held_collectors()
+                elif self.stop.is_set() or scoped is None:
+                    client.close()
+                    self._close_joined_collectors()
+                else:
+                    if self.context_events:
+                        for root in scoped:
+                            if root in self.joined_roots:
+                                self.context_events(root, 'unavailable')
+                    client.close()
+                    with self.lock:
+                        for root in scoped:
+                            collector = self.collectors.pop(root, None)
+                            self.joined_roots.discard(root)
+                            if collector is not None:
+                                self.detached[root] = collector
                 self.tools_changed()
             if backoff.wait(self.stop):
                 break

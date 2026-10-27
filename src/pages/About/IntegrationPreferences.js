@@ -102,11 +102,13 @@ function IntegrationPreferences (props) {
   // T-all-2314: every AI tool starts selected
   const [installClients, setInstallClients] = useState(INSTALL_CLIENTS.map((client) => client.key));
   const [tokenAudit, setTokenAudit] = useState(false);
+  const [tokenCollector, setTokenCollector] = useState(false);
   const [workClaims, setWorkClaims] = useState(false);
   const env = getUclusionEnvironment();
   const installBaseUrl = config.ui_base_url;
   const installArgs = buildInstallArgs(
-    marketId, useGroupId, env, installClients, installScope, tokenAudit, workClaims
+    marketId, useGroupId, env, installClients, installScope, tokenAudit, tokenCollector,
+    workClaims
   );
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   let markets = [];
@@ -261,7 +263,8 @@ function IntegrationPreferences (props) {
               )}
               <InstallSelector scope={installScope} setScope={setInstallScope} clients={installClients}
                                setClients={setInstallClients} tokenAudit={tokenAudit}
-                               setTokenAudit={setTokenAudit} workClaims={workClaims}
+                               setTokenAudit={setTokenAudit} tokenCollector={tokenCollector}
+                               setTokenCollector={setTokenCollector} workClaims={workClaims}
                                setWorkClaims={setWorkClaims} />
               <Typography variant="h6" style={{paddingTop: '1.5rem', paddingBottom: '0.5rem'}}>
                 Step 3. Copy and run the install command

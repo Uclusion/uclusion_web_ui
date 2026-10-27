@@ -770,6 +770,7 @@ class NativeDescendantHistoryTests(unittest.TestCase):
         self.delivery.identity = 'owner'
         self.delivery.joined_roots.clear()
         self.delivery.token_audit = True
+        self.delivery.token_collector = True
         root = {'id': 'root', 'path': str(Path(self.home.name) / 'root.jsonl'),
                 '_uclusion_versions': ['1+owner'], 'turns': [{'items': [{
                     'type': 'subAgentActivity', 'agentThreadId': 'child'}]}]}

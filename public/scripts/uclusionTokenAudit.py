@@ -6211,12 +6211,14 @@ class TokenAuditProxy:
         ready_file=None,
         ready_owner=None,
         collector_ready=None,
+        publish_notes=True,
     ):
         self.store = AuditStore(environment, workspace_id)
         self.source = source
         self.client = client
         self.port = int(port)
         self.publish = publish
+        self.publish_notes = publish_notes
         self.ready_file = ready_file
         self.ready_owner = ready_owner
         self.collector_ready = collector_ready
@@ -6260,12 +6262,14 @@ class TokenAuditProxy:
             self.store.prune_retained()
         except Exception:
             pass
-        self.thread = threading.Thread(
-            target=self._publish_loop,
-            name="uclusion-token-audit-publisher",
-            daemon=True,
-        )
-        self.thread.start()
+        self.thread = None
+        if publish_notes:
+            self.thread = threading.Thread(
+                target=self._publish_loop,
+                name="uclusion-token-audit-publisher",
+                daemon=True,
+            )
+            self.thread.start()
 
     def tools_ready(self):
         """Whether marker tools can currently produce an accountable run."""

@@ -562,6 +562,9 @@ def run_runtime_installer(context, workspace_id, view_id, proposal):
         '--replace-setup',
         '--setup-receipt', context.receipt_path,
         '--token-audit' if token_audit else '--no-token-audit',
+        # The approved setup choice is still one switch. It enables notes and
+        # the passive collector together until the proposal can name them apart.
+        '--token-collector' if token_audit else '--no-token-collector',
         '--work-claims' if work_claims else '--no-work-claims',
     ]
     if context.scope == 'project':

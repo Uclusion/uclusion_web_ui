@@ -1038,7 +1038,8 @@ def token_audit_default_port(workspace_id):
 
 
 def write_uclusion_config(workspace_id, view_id, config_path, script_version=None,
-                           token_audit_enabled=None, work_claims_enabled=None):
+                           token_audit_enabled=None, work_claims_enabled=None,
+                           token_collector_enabled=None):
     """Write or refresh the workspace config, preserving user customizations.
 
     Merging (rather than rewriting) matters because ``uclusion update`` reruns
@@ -1049,9 +1050,12 @@ def write_uclusion_config(workspace_id, view_id, config_path, script_version=Non
     this config so stale project installs are detectable (T-all-2410).
 
     ``token_audit_enabled`` is deliberately tri-state. Explicit True/False
-    updates the preference selected by the user; None preserves an existing
-    preference and defaults a new install to off. The returned copy is used to
-    configure client-specific collection without rereading the file.
+    updates per-job token usage notes; None preserves an existing preference
+    and defaults a new install to off. ``token_collector_enabled`` is the same
+    tri-state contract for passive collector instrumentation. A config written
+    before that split stored only ``enabled``; the first merge copies that
+    value into ``collector`` and later note changes leave it alone. The
+    returned copy is used to configure clients without rereading the file.
 
     ``work_claims_enabled`` follows the same tri-state contract for the opt-in
     work claim lock; the merged boolean is returned alongside the token-audit
@@ -1121,10 +1125,30 @@ def write_uclusion_config(workspace_id, view_id, config_path, script_version=Non
         token_audit = {'enabled': token_audit_value}
     else:
         token_audit = {}
+    previous_notes = (
+        token_audit.get('enabled')
+        if isinstance(token_audit.get('enabled'), bool) else None
+    )
+    previous_collector = (
+        token_audit.get('collector')
+        if isinstance(token_audit.get('collector'), bool) else None
+    )
+    if isinstance(token_audit_value, bool):
+        # A bare boolean was the combined notes-and-collector switch.
+        previous_notes = token_audit_value
+        previous_collector = None
     if token_audit_enabled is not None:
         token_audit['enabled'] = bool(token_audit_enabled)
     elif not isinstance(token_audit.get('enabled'), bool):
         token_audit['enabled'] = False
+    if token_collector_enabled is not None:
+        token_audit['collector'] = bool(token_collector_enabled)
+    elif isinstance(previous_collector, bool):
+        token_audit['collector'] = previous_collector
+    elif isinstance(previous_notes, bool):
+        token_audit['collector'] = previous_notes
+    else:
+        token_audit['collector'] = False
     port = token_audit.get('port')
     if not isinstance(port, int) or isinstance(port, bool) or not 1024 <= port <= 65535:
         token_audit['port'] = token_audit_default_port(workspace_id)
@@ -1165,11 +1189,35 @@ def workspace_config_merge_path(env, project_dir=None):
     return target
 
 
+def token_audit_notes_enabled(token_audit):
+    """Whether per-job token usage notes are on for a tokenAudit value."""
+    if isinstance(token_audit, dict):
+        return token_audit.get('enabled') is True
+    return token_audit is True
+
+
+def token_audit_collector_enabled(token_audit):
+    """Whether passive collector instrumentation is on.
+
+    An explicit ``collector`` boolean wins. Configs written before the split
+    used ``enabled`` for both notes and instrumentation.
+    """
+    if isinstance(token_audit, bool):
+        return token_audit
+    if not isinstance(token_audit, dict):
+        return False
+    collector = token_audit.get('collector')
+    if isinstance(collector, bool):
+        return collector
+    return token_audit.get('enabled') is True
+
+
 def _config_token_audit_enabled(config):
-    value = config.get('tokenAudit')
-    if isinstance(value, dict):
-        return value.get('enabled') is True
-    return value is True
+    return token_audit_notes_enabled(config.get('tokenAudit'))
+
+
+def _config_token_collector_enabled(config):
+    return token_audit_collector_enabled(config.get('tokenAudit'))
 
 
 def _config_work_claims_enabled(config):
@@ -1178,6 +1226,7 @@ def _config_work_claims_enabled(config):
 
 def existing_install_feature_changes(
     config, token_audit_enabled, work_claims_enabled,
+    token_collector_enabled=None,
 ):
     """Return feature flips this install would apply to an existing config.
 
@@ -1192,7 +1241,15 @@ def existing_install_feature_changes(
         wanted = bool(token_audit_enabled)
         if wanted != current:
             changes.append(
-                'token audit from '
+                'token usage notes from '
+                f"{'on' if current else 'off'} to {'on' if wanted else 'off'}"
+            )
+    if token_collector_enabled is not None:
+        current = _config_token_collector_enabled(config)
+        wanted = bool(token_collector_enabled)
+        if wanted != current:
+            changes.append(
+                'passive token collector from '
                 f"{'on' if current else 'off'} to {'on' if wanted else 'off'}"
             )
     if work_claims_enabled is not None:
@@ -1208,8 +1265,9 @@ def existing_install_feature_changes(
 
 def confirm_existing_feature_changes(
     force, env, project_dir, token_audit_enabled, work_claims_enabled,
+    token_collector_enabled=None,
 ):
-    """Ask before flipping token audit or work claims on an existing install."""
+    """Ask before flipping notes, collection, or work claims on an existing install."""
     if force:
         return True
     path = workspace_config_merge_path(env, project_dir)
@@ -1224,6 +1282,7 @@ def confirm_existing_feature_changes(
         raise RuntimeError(f'{path} top-level value must be a JSON object')
     changes = existing_install_feature_changes(
         config, token_audit_enabled, work_claims_enabled,
+        token_collector_enabled,
     )
     if not changes:
         return True
@@ -1418,9 +1477,11 @@ def runtime_mcp_descriptor(workspace_id, env, token_audit=None,
         proxy_args.append(env)
     if token_audit_client == 'codex':
         proxy_args.append('--codex-native')
-    if token_audit and token_audit.get('enabled'):
+    if token_audit_notes_enabled(token_audit):
+        proxy_args.append('--token-audit')
+    if token_audit_collector_enabled(token_audit):
         proxy_args.extend([
-            '--token-audit',
+            '--token-collector',
             '--token-audit-port', str(token_audit['port']),
         ])
         source = ('codex' if token_audit_client == 'codex'
@@ -5067,7 +5128,7 @@ def configure_claude_token_audit(settings_path, enabled, environment,
     Claude auditing is unavailable instead of pretending telemetry is usable.
     """
     print(
-        f"📊 {'Configuring' if enabled else 'Disabling'} Claude token audit "
+        f"📊 {'Configuring' if enabled else 'Disabling'} passive token collector "
         f"in {settings_path}"
     )
     logical_path = os.path.abspath(os.path.expanduser(settings_path))
@@ -5134,9 +5195,10 @@ def configure_claude_token_audit(settings_path, enabled, environment,
         available = False
         print(
             "  ⚠️  Claude settings contain disableAllHooks=true. "
-            "Uclusion token audit needs hooks to bind usage to jobs and "
-            "buckets, so Claude token audit was not enabled. Remove that "
-            "setting (or set it to false) and reinstall to enable auditing."
+            "Uclusion's passive token collector needs hooks to bind usage to "
+            "jobs and buckets, so the Claude token collector was not enabled. "
+            "Remove that setting (or set it to false) and reinstall to enable "
+            "collection."
         )
     else:
         available = True
@@ -5217,11 +5279,11 @@ def configure_claude_token_audit(settings_path, enabled, environment,
             logical_path, updated, existing, target_path, signature
         )
     if enabled and not available:
-        print(f"  ℹ️  Left Claude token audit disabled in {settings_path}")
+        print(f"  ℹ️  Left the Claude token collector disabled in {settings_path}")
     else:
         print(
             f"  ✅ {'Configured ' + source if enabled else 'Removed Uclusion-owned'} "
-            f"token-audit settings in {settings_path}"
+            f"token-collector settings in {settings_path}"
         )
     result = {'source': source, 'managedEnv': next_owned}
     if not available:
@@ -7160,9 +7222,24 @@ def build_parser():
         '--no-token-audit',
         dest='token_audit',
         action='store_false',
-        help='Disable token usage notes and remove Uclusion-owned client settings.',
+        help='Disable per-job token usage notes.',
     )
     parser.set_defaults(token_audit=None)
+    token_collector_group = parser.add_mutually_exclusive_group()
+    token_collector_group.add_argument(
+        '--token-collector',
+        dest='token_collector',
+        action='store_true',
+        help='Enable passive token collector instrumentation for supported AI clients.',
+    )
+    token_collector_group.add_argument(
+        '--no-token-collector',
+        dest='token_collector',
+        action='store_false',
+        help='Disable passive token collector instrumentation and remove '
+             'Uclusion-owned client settings.',
+    )
+    parser.set_defaults(token_collector=None)
     work_claims_group = parser.add_mutually_exclusive_group()
     work_claims_group.add_argument(
         '--work-claims',
@@ -7217,8 +7294,9 @@ def build_parser():
     parser.add_argument(
         '--force',
         action='store_true',
-        help='Change token audit or work claims on an existing install without '
-             'prompting. A plain upgrade still does not prompt.',
+        help='Change token usage notes, passive token collection, or work '
+             'claims on an existing install without prompting. A plain upgrade '
+             'still does not prompt.',
     )
     parser.add_argument(
         '--script-version',
@@ -7399,7 +7477,8 @@ def replace_setup_registration(
 def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                    script_version=None, token_audit_enabled=None,
                    work_claims_enabled=None, replace_setup=False,
-                   setup_receipt_path=None, response_stats=None):
+                   setup_receipt_path=None, response_stats=None,
+                   token_collector_enabled=None):
     """Configure Uclusion in the user's home directory (the default).
 
     Without ``clients`` every detected client is offered interactively. With
@@ -7425,7 +7504,7 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
     config_path = os.path.join(UCLUSION_HOME, CONFIG_FILES[mcp_env or 'production'])
     token_audit, work_claims = write_uclusion_config(
         workspace_id, view_id, config_path, script_version, token_audit_enabled,
-        work_claims_enabled
+        work_claims_enabled, token_collector_enabled=token_collector_enabled,
     )
     if clients:
         persist_workflow_install_state(
@@ -7468,7 +7547,7 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
         add_claude_permissions(CLAUDE_SETTINGS_PATH)
         result = configure_claude_token_audit(
             CLAUDE_SETTINGS_PATH,
-            token_audit['enabled'],
+            token_audit_collector_enabled(token_audit),
             mcp_env or 'production',
             workspace_id,
             token_audit['port'],
@@ -7487,7 +7566,10 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
             else:
                 token_audit.pop('claudeManagedEnv', None)
             if result.get('available') is False:
-                claude_registration_audit = None
+                # Hooks are required for passive collection. Notes can still
+                # be exposed without that instrumentation.
+                claude_registration_audit = dict(token_audit)
+                claude_registration_audit['collector'] = False
         else:
             raise RuntimeError(
                 f'failed to configure Claude settings at '
@@ -7496,10 +7578,10 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
     elif (
         clients
         and not replace_setup
-        and token_audit_enabled is False
+        and token_collector_enabled is False
         and os.path.exists(CLAUDE_SETTINGS_PATH)
     ):
-        # An explicit global disable cleans up a prior Claude selection even
+        # An explicit collector disable cleans up a prior Claude selection even
         # when this reinstall currently selects only Codex.
         result = configure_claude_token_audit(
             CLAUDE_SETTINGS_PATH, False, mcp_env or 'production', workspace_id,
@@ -7643,6 +7725,7 @@ def install_project_level(
     replace_setup=False,
     setup_receipt_path=None,
     response_stats=None,
+    token_collector_enabled=None,
 ):
     """Configure Uclusion inside ``project_dir`` instead of the home directory.
 
@@ -7678,7 +7761,7 @@ def install_project_level(
     config_path = os.path.join(project_dir, CONFIG_FILES[mcp_env or 'production'])
     token_audit, work_claims = write_uclusion_config(
         workspace_id, view_id, config_path, script_version, token_audit_enabled,
-        work_claims_enabled
+        work_claims_enabled, token_collector_enabled=token_collector_enabled,
     )
     if clients:
         persist_workflow_install_state(
@@ -7702,7 +7785,7 @@ def install_project_level(
         add_claude_permissions(claude_settings_path)
         result = configure_claude_token_audit(
             claude_settings_path,
-            token_audit['enabled'],
+            token_audit_collector_enabled(token_audit),
             mcp_env or 'production',
             workspace_id,
             token_audit['port'],
@@ -7721,7 +7804,8 @@ def install_project_level(
             else:
                 token_audit.pop('claudeManagedEnv', None)
             if result.get('available') is False:
-                claude_registration_audit = None
+                claude_registration_audit = dict(token_audit)
+                claude_registration_audit['collector'] = False
         else:
             raise RuntimeError(
                 f'failed to configure Claude settings at '
@@ -7738,7 +7822,7 @@ def install_project_level(
     elif (
         clients
         and not replace_setup
-        and token_audit_enabled is False
+        and token_collector_enabled is False
         and os.path.exists(claude_settings_path)
     ):
         result = configure_claude_token_audit(
@@ -7894,6 +7978,7 @@ def main():
             args.replace_setup,
             args.setup_receipt is not None,
             args.token_audit is not None,
+            args.token_collector is not None,
             args.work_claims is not None,
             # A demo may record its evaluator's response sizes; only a path
             # turns that on, so --no-response-stats has nothing to undo.
@@ -8007,6 +8092,7 @@ def main():
             confirm_dir,
             args.token_audit,
             args.work_claims,
+            args.token_collector,
         ):
             print('⏭  Existing install was left unchanged.')
             return 0
@@ -8058,6 +8144,7 @@ def main():
                 response_stats=(
                     None if bootstrap_mode == 'demo' else args.response_stats
                 ),
+                token_collector_enabled=args.token_collector,
             )
         else:
             install_project_level(
@@ -8073,6 +8160,7 @@ def main():
                 args.replace_setup,
                 args.setup_receipt,
                 response_stats=args.response_stats,
+                token_collector_enabled=args.token_collector,
             )
     except subprocess.CalledProcessError as err:
         print(f"❌ Command failed: {err}")

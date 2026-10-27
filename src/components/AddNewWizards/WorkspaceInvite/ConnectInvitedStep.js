@@ -19,6 +19,7 @@ function ConnectInvitedStep(props) {
   const installScope = formData.installScope || 'global';
   const installClients = formData.installClients || INSTALL_CLIENTS.map((client) => client.key);
   const tokenAudit = formData.tokenAudit || false;
+  const tokenCollector = formData.tokenCollector || false;
   const workClaims = formData.workClaims || false;
 
   function onGenerate() {
@@ -48,6 +49,8 @@ function ConnectInvitedStep(props) {
                        setClients={(clients) => updateFormData({ installClients: clients })}
                        tokenAudit={tokenAudit}
                        setTokenAudit={(audit) => updateFormData({ tokenAudit: audit })}
+                       tokenCollector={tokenCollector}
+                       setTokenCollector={(collector) => updateFormData({ tokenCollector: collector })}
                        workClaims={workClaims}
                        setWorkClaims={(claims) => updateFormData({ workClaims: claims })} />
       <div className={classes.borderBottom}/>

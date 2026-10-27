@@ -207,7 +207,10 @@ def parse_args(argv=None):
         help='Append content-free response byte measurements to a private JSONL file.',
     )
     parser.add_argument('--response-stats-hook', metavar='PATH', help=argparse.SUPPRESS)
-    parser.add_argument('--token-audit', action='store_true')
+    parser.add_argument('--token-audit', action='store_true',
+                        help='Expose per-job token usage notes.')
+    parser.add_argument('--token-collector', action='store_true',
+                        help='Run passive token collector instrumentation.')
     parser.add_argument('--token-audit-port', type=token_audit_port)
     parser.add_argument(
         '--token-audit-source', choices=('codex', 'otel', 'transcript')
@@ -235,10 +238,21 @@ def parse_args(argv=None):
         os.environ[DEMO_EVIDENCE_ROLE_ENV] = args.demo_evidence_role
     if args.home:
         os.environ['UCLUSION_HOME'] = args.home
-    if args.token_audit:
+    collector_settings = any((
+        args.token_audit_port is not None,
+        args.token_audit_source is not None,
+        args.token_audit_client is not None,
+        args.token_audit_ready_file is not None,
+        args.token_audit_owner is not None,
+    ))
+    # Registrations written before the split passed collector settings with
+    # --token-audit alone. Keep those processes collecting and posting notes.
+    if args.token_audit and collector_settings and not args.token_collector:
+        args.token_collector = True
+    if args.token_collector:
         if args.token_audit_port is None or args.token_audit_source is None:
             parser.error(
-                '--token-audit requires --token-audit-port and '
+                '--token-collector requires --token-audit-port and '
                 '--token-audit-source'
             )
         expected_client = (
@@ -259,20 +273,14 @@ def parse_args(argv=None):
                 )
         elif args.token_audit_ready_file or args.token_audit_owner:
             parser.error(
-                'token-audit readiness settings apply only to Codex'
+                'token-collector readiness settings apply only to Codex'
             )
-    elif any((
-        args.token_audit_port is not None,
-        args.token_audit_source is not None,
-        args.token_audit_client is not None,
-        args.token_audit_ready_file is not None,
-        args.token_audit_owner is not None,
-    )):
-        parser.error('token-audit settings require --token-audit')
+    elif collector_settings:
+        parser.error('token-collector settings require --token-collector')
     if (args.codex_home or args.deliver_existing_pokes) and not args.codex_native:
         parser.error('Codex delivery settings require --codex-native')
-    if args.codex_native and args.token_audit and args.token_audit_source != 'codex':
-        parser.error('Native Codex token audit requires --token-audit-source codex')
+    if args.codex_native and args.token_collector and args.token_audit_source != 'codex':
+        parser.error('Native Codex token collector requires --token-audit-source codex')
     return args
 
 
@@ -1808,13 +1816,15 @@ def main():
             from uclusionCodexNative import NativeCodexDelivery
 
             def tools_changed():
-                if args.token_audit and native_initialized.is_set() and not stop_event.is_set():
+                if (args.token_audit and args.token_collector
+                        and native_initialized.is_set() and not stop_event.is_set()):
                     write_message({'jsonrpc': '2.0', 'method': 'notifications/tools/list_changed'})
 
             native_delivery = NativeCodexDelivery(
                 environment, market_id, codex_home=args.codex_home,
                 replay=args.deliver_existing_pokes,
-                token_audit=args.token_audit, tools_changed=tools_changed,
+                token_audit=args.token_audit, token_collector=args.token_collector,
+                tools_changed=tools_changed,
                 context_events=response_stats.context_event if args.response_stats else None,
             )
         work_claims = WorkClaimsManager(token_holder.get) if args.work_claims else None
@@ -1829,7 +1839,7 @@ def main():
         serving = True
 
         post_url = 'https://investibles.' + api_url + '/mcp'
-        if args.token_audit:
+        if args.token_collector:
             try:
                 from uclusionTokenAudit import TokenAuditProxy
                 token_audit_runtime = TokenAuditProxy(
@@ -1844,16 +1854,21 @@ def main():
                     ready_file=args.token_audit_ready_file,
                     ready_owner=args.token_audit_owner,
                     collector_ready=native_delivery.tools_ready if native_delivery else None,
+                    publish_notes=args.token_audit,
                 )
             except Exception as error:
                 # Token accounting is opt-in diagnostics; it must not make the
                 # user's Uclusion MCP connection unavailable. Avoid exception
                 # text because import/runtime errors can contain local paths.
                 sys.stderr.write(
-                    'Uclusion token audit is unavailable '
+                    'Uclusion token collector is unavailable '
                     f'({error.__class__.__name__}).\n'
                 )
-        def token_audit_available():
+        def token_notes_available():
+            if not args.token_audit:
+                return False
+            if not args.token_collector:
+                return True
             if token_audit_runtime is None:
                 return False
             try:
@@ -1918,8 +1933,11 @@ def main():
                 and isinstance(params, dict)
                 and params.get('name') in TOKEN_AUDIT_TOOLS
             )
-            if audit_tool_call and (not token_audit_available() or (
-                    native_delivery is not None and not native_delivery.ensure_collector(msg))):
+            collector_unready = False
+            if (audit_tool_call and args.token_collector
+                    and native_delivery is not None):
+                collector_unready = not native_delivery.ensure_collector(msg)
+            if audit_tool_call and (not token_notes_available() or collector_unready):
                 if not is_notification:
                     write_jsonrpc_error(
                         request_id=request_id,
@@ -1953,12 +1971,12 @@ def main():
                 if native_delivery and msg.get('method') == 'tools/list':
                     observer = native_delivery.observe_catalog
                 if 'text/event-stream' in content_type:
-                    handle_sse_response(resp, token_audit_available(),
+                    handle_sse_response(resp, token_notes_available(),
                                         work_claims is not None,
                                         request_id=request_id, stats=response_stats,
                                         response_observer=observer)
                 else:
-                    handle_json_response(resp, token_audit_available(),
+                    handle_json_response(resp, token_notes_available(),
                                          work_claims is not None,
                                          request_id=request_id, stats=response_stats,
                                          response_observer=observer)

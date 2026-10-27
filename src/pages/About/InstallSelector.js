@@ -61,7 +61,7 @@ export const INSTALL_CLIENTS = [
 
 function InstallSelector(props) {
   const { scope, setScope, clients, setClients, tokenAudit, setTokenAudit,
-    workClaims, setWorkClaims } = props;
+    tokenCollector, setTokenCollector, workClaims, setWorkClaims } = props;
   const classes = useStyles();
 
   function toggleClient(key) {
@@ -113,6 +113,17 @@ function InstallSelector(props) {
         </div>
       </div>
       <div className={classes.row}>
+        <div className={classes.label}>Passive collector</div>
+        <div className={optionClass(!tokenCollector)} onClick={() => setTokenCollector(false)}
+             id='installTokenCollectorOff'>
+          Off
+        </div>
+        <div className={optionClass(tokenCollector)} onClick={() => setTokenCollector(true)}
+             id='installTokenCollectorOn'>
+          On
+        </div>
+      </div>
+      <div className={classes.row}>
         <div className={classes.label}>Work claim lock</div>
         <div className={optionClass(!workClaims)} onClick={() => setWorkClaims(false)}
              id='installWorkClaimsOff'>
@@ -134,6 +145,8 @@ InstallSelector.propTypes = {
   setClients: PropTypes.func.isRequired,
   tokenAudit: PropTypes.bool.isRequired,
   setTokenAudit: PropTypes.func.isRequired,
+  tokenCollector: PropTypes.bool.isRequired,
+  setTokenCollector: PropTypes.func.isRequired,
   workClaims: PropTypes.bool.isRequired,
   setWorkClaims: PropTypes.func.isRequired,
 };

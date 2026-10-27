@@ -1143,7 +1143,7 @@ class TokenAuditInstallerTests(unittest.TestCase):
             str(call.args[0]) for call in output.call_args_list if call.args
         )
         self.assertIn('disableAllHooks=true', warning)
-        self.assertIn('Claude token audit was not enabled', warning)
+        self.assertIn('Claude token collector was not enabled', warning)
 
     def test_disabled_hooks_omits_audit_args_from_claude_registration(self):
         unavailable = {
@@ -1169,7 +1169,9 @@ class TokenAuditInstallerTests(unittest.TestCase):
                 clients={'claude'}, token_audit_enabled=True,
             )
 
-        self.assertIsNone(register.call_args.kwargs['token_audit'])
+        registration = register.call_args.kwargs['token_audit']
+        self.assertTrue(registration['enabled'])
+        self.assertFalse(registration['collector'])
 
     def test_claude_settings_failure_is_operational_failure(self):
         with tempfile.TemporaryDirectory() as project_dir, \
@@ -1210,6 +1212,15 @@ class TokenAuditInstallerTests(unittest.TestCase):
         self.assertFalse(
             INSTALL.build_parser().parse_args(base + ['--no-token-audit']).token_audit
         )
+        self.assertIsNone(INSTALL.build_parser().parse_args(base).token_collector)
+        self.assertTrue(
+            INSTALL.build_parser().parse_args(base + ['--token-collector']).token_collector
+        )
+        self.assertFalse(
+            INSTALL.build_parser().parse_args(
+                base + ['--token-audit', '--no-token-collector']
+            ).token_collector
+        )
         self.assertFalse(INSTALL.build_parser().parse_args(base).force)
         self.assertTrue(
             INSTALL.build_parser().parse_args(base + ['--force']).force
@@ -1234,8 +1245,10 @@ class TokenAuditInstallerTests(unittest.TestCase):
             )
 
         self.assertFalse(initial['enabled'])
+        self.assertFalse(initial['collector'])
         self.assertIsInstance(initial['port'], int)
         self.assertTrue(enabled['enabled'])
+        self.assertFalse(enabled['collector'])
         self.assertEqual(enabled['port'], initial['port'])
         self.assertTrue(preserved['enabled'])
         self.assertFalse(disabled['enabled'])
@@ -1285,7 +1298,7 @@ class TokenAuditInstallerTests(unittest.TestCase):
                 ))
             prompt.assert_called_once()
             question = prompt.call_args.args[0]
-            self.assertIn('token audit from on to off', question)
+            self.assertIn('token usage notes from on to off', question)
             self.assertNotIn('work claims', question)
             self.assertIs(prompt.call_args.kwargs['default'], False)
 
@@ -1301,7 +1314,7 @@ class TokenAuditInstallerTests(unittest.TestCase):
                     False, 'stage', temp_dir, False, False,
                 ))
             question = prompt.call_args.args[0]
-            self.assertIn('token audit from on to off', question)
+            self.assertIn('token usage notes from on to off', question)
             self.assertIn('work claims from on to off', question)
 
     def test_legacy_config_counts_as_the_existing_stage_install(self):
@@ -1319,7 +1332,7 @@ class TokenAuditInstallerTests(unittest.TestCase):
                     False, 'stage', temp_dir, True, False,
                 ))
             question = prompt.call_args.args[0]
-            self.assertIn('token audit from off to on', question)
+            self.assertIn('token usage notes from off to on', question)
 
     def test_declining_a_feature_change_leaves_the_existing_install(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -1345,6 +1358,37 @@ class TokenAuditInstallerTests(unittest.TestCase):
             configure.assert_not_called()
             with open(config_path, encoding='utf-8') as config:
                 self.assertTrue(INSTALL.json.load(config)['tokenAudit']['enabled'])
+
+    def test_notes_and_collector_register_as_separate_proxy_flags(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config_path = os.path.join(temp_dir, 'uclusion.json')
+            legacy = {'tokenAudit': True, 'custom': 'keep'}
+            with open(config_path, 'w', encoding='utf-8') as config:
+                INSTALL.json.dump(legacy, config)
+            migrated, _claims = INSTALL.write_uclusion_config(
+                'workspace-1', None, config_path, token_audit_enabled=False,
+            )
+            self.assertFalse(migrated['enabled'])
+            self.assertTrue(migrated['collector'])
+
+            notes_only, _claims = INSTALL.write_uclusion_config(
+                'workspace-1', None, config_path, token_collector_enabled=False,
+            )
+            self.assertFalse(notes_only['enabled'])
+            self.assertFalse(notes_only['collector'])
+
+            mcp_path = os.path.join(temp_dir, '.mcp.json')
+            INSTALL.register_mcp_json(
+                mcp_path, 'Claude Code', 'workspace-1', 'stage',
+                require_existing=False,
+                token_audit={'enabled': True, 'collector': False, 'port': 23456},
+                token_audit_client='claude',
+            )
+            with open(mcp_path, encoding='utf-8') as mcp_file:
+                args = INSTALL.json.load(mcp_file)['mcpServers']['uclusion']['args']
+        self.assertIn('--token-audit', args)
+        self.assertNotIn('--token-collector', args)
+        self.assertNotIn('--token-audit-port', args)
 
     def test_enabled_claude_registration_receives_audit_arguments(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -1372,6 +1416,7 @@ class TokenAuditInstallerTests(unittest.TestCase):
                 'workspace-1',
                 'stage',
                 '--token-audit',
+                '--token-collector',
                 '--token-audit-port', '23456',
                 '--token-audit-source', 'otel',
                 '--token-audit-client', 'claude',

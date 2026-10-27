@@ -4642,7 +4642,18 @@ class ProxyContractTests(TokenAuditTestCase):
             "--token-audit-source", "otel", "--token-audit-client", "claude",
         ])
         self.assertIsNone(parsed.environment)
+        self.assertTrue(parsed.token_audit)
+        self.assertTrue(parsed.token_collector)
         self.assertEqual("claude", parsed.token_audit_client)
+        notes_only = proxy.parse_args(["workspace-1", "--token-audit"])
+        self.assertTrue(notes_only.token_audit)
+        self.assertFalse(notes_only.token_collector)
+        collector_only = proxy.parse_args([
+            "workspace-1", "--token-collector", "--token-audit-port", "23456",
+            "--token-audit-source", "otel", "--token-audit-client", "claude",
+        ])
+        self.assertFalse(collector_only.token_audit)
+        self.assertTrue(collector_only.token_collector)
         codex = proxy.parse_args([
             "workspace-1", "stage", "--token-audit",
             "--token-audit-port", "23456", "--token-audit-source", "codex",

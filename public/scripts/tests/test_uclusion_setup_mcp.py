@@ -1308,6 +1308,7 @@ class SetupMCPTests(unittest.TestCase):
         )
         self.assertIn('--project', command)
         self.assertIn('--token-audit', command)
+        self.assertIn('--token-collector', command)
         self.assertIn('--no-work-claims', command)
         self.assertEqual(run.call_args.kwargs['cwd'], self.temp_dir.name)
         self.assertIs(run.call_args.kwargs['stdout'], subprocess.DEVNULL)

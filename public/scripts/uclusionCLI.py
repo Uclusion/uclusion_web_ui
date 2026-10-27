@@ -3204,6 +3204,19 @@ def check_wait_update_notice(environment):
         return None
 
 
+def config_token_collector_enabled(source):
+    """Read passive collector instrumentation, including pre-split configs."""
+    token_audit = source.get('tokenAudit') if isinstance(source, dict) else None
+    if isinstance(token_audit, bool):
+        return token_audit
+    if isinstance(token_audit, dict):
+        collector = token_audit.get('collector')
+        if isinstance(collector, bool):
+            return collector
+        return token_audit.get('enabled') is True
+    return False
+
+
 def run_installer(
     installer_path,
     env,
@@ -3217,6 +3230,7 @@ def run_installer(
     work_claims_enabled=None,
     project_dir=None,
     response_stats=None,
+    token_collector_enabled=None,
 ):
     """Run the downloaded installer non-interactively for one install scope.
 
@@ -3242,6 +3256,11 @@ def run_installer(
         else:
             token_audit_enabled = bool(token_audit)
     command.append('--token-audit' if token_audit_enabled else '--no-token-audit')
+    if token_collector_enabled is None:
+        token_collector_enabled = config_token_collector_enabled(source)
+    command.append(
+        '--token-collector' if token_collector_enabled else '--no-token-collector'
+    )
     if work_claims_enabled is None:
         work_claims_enabled = bool(source.get('workClaims') is True) if source else False
     command.append('--work-claims' if work_claims_enabled else '--no-work-claims')
@@ -3464,7 +3483,8 @@ def cmd_update(args):
                                  script_version=script_version,
                                  token_audit_enabled=args.token_audit,
                                  work_claims_enabled=getattr(args, 'work_claims', None),
-                                 response_stats=response_stats):
+                                 response_stats=response_stats,
+                                 token_collector_enabled=getattr(args, 'token_collector', None)):
                 return 1
             ran_global = True
         if has_project_install:
@@ -3475,7 +3495,8 @@ def cmd_update(args):
                                  token_audit_enabled=args.token_audit,
                                  work_claims_enabled=getattr(args, 'work_claims', None),
                                  project_dir=project_dir,
-                                 response_stats=response_stats):
+                                 response_stats=response_stats,
+                                 token_collector_enabled=getattr(args, 'token_collector', None)):
                 return 1
 
     print("🎉 Update complete. Restart your AI client sessions (or reconnect the "
@@ -4226,6 +4247,22 @@ def build_parser():
         help='Disable per-job token usage notes while updating global surfaces '
              'and the closest containing project install.',
     )
+    token_collector_group = update_parser.add_mutually_exclusive_group()
+    token_collector_group.add_argument(
+        '--token-collector',
+        dest='token_collector',
+        action='store_true',
+        help='Enable passive token collector instrumentation while updating '
+             'global surfaces and the closest containing project install.',
+    )
+    token_collector_group.add_argument(
+        '--no-token-collector',
+        dest='token_collector',
+        action='store_false',
+        help='Disable passive token collector instrumentation and remove '
+             'Uclusion-owned client settings while updating global surfaces '
+             'and the closest containing project install.',
+    )
     update_work_claims_group = update_parser.add_mutually_exclusive_group()
     update_work_claims_group.add_argument(
         '--work-claims',
@@ -4241,7 +4278,9 @@ def build_parser():
         help='Disable the work claim lock while updating global surfaces '
              'and the closest containing project install.',
     )
-    update_parser.set_defaults(func=cmd_update, token_audit=None, work_claims=None)
+    update_parser.set_defaults(
+        func=cmd_update, token_audit=None, work_claims=None, token_collector=None,
+    )
     response_stats_group = update_parser.add_mutually_exclusive_group()
     response_stats_group.add_argument(
         '--response-stats', type=response_stats_path, metavar='PATH',

@@ -595,6 +595,13 @@ class UpdateReleaseConsistencyTests(unittest.TestCase):
                 parser.parse_args(['update', '--help'])
         self.assertIn('--token-audit', help_output.getvalue())
         self.assertIn('--no-token-audit', help_output.getvalue())
+        self.assertIn('--token-collector', help_output.getvalue())
+        self.assertIn('--no-token-collector', help_output.getvalue())
+        split = parser.parse_args([
+            'update', '--token-audit', '--no-token-collector'
+        ])
+        self.assertTrue(split.token_audit)
+        self.assertFalse(split.token_collector)
         with mock.patch('sys.stderr', io.StringIO()):
             with self.assertRaises(SystemExit):
                 parser.parse_args([
@@ -673,6 +680,7 @@ class UpdateReleaseConsistencyTests(unittest.TestCase):
                 '--script-version',
                 'release-123',
                 '--no-token-audit',
+                '--no-token-collector',
                 '--no-work-claims',
                 '--clients',
                 'codex',
@@ -724,7 +732,9 @@ class UpdateReleaseConsistencyTests(unittest.TestCase):
 
         self.assertTrue(result)
         self.assertIn('--token-audit', run.call_args.args[0])
+        self.assertIn('--token-collector', run.call_args.args[0])
         self.assertNotIn('--no-token-audit', run.call_args.args[0])
+        self.assertNotIn('--no-token-collector', run.call_args.args[0])
 
     def test_run_installer_explicit_token_audit_choice_overrides_config(self):
         completed = SimpleNamespace(returncode=0)

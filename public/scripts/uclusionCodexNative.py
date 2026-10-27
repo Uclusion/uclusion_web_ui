@@ -423,7 +423,7 @@ class NativeCodexDelivery:
     def __init__(self, environment, workspace_id, codex_home=None, replay=False,
                  token_audit=False, tools_changed=lambda: None,
                  notice_source=update_notice_source, context_events=None,
-                 socket_path=None):
+                 socket_path=None, token_collector=False):
         self.codex_home = os.path.abspath(os.path.expanduser(
             codex_home or os.environ.get('CODEX_HOME') or '~/.codex'))
         os.environ['CODEX_HOME'] = self.codex_home
@@ -450,6 +450,7 @@ class NativeCodexDelivery:
         self.pending_descendants = set()
         self.reconciliation_errors = {}
         self.token_audit = token_audit
+        self.token_collector = token_collector
         self.context_events = context_events
         self.tools_changed = tools_changed
         self.stop = threading.Event()
@@ -465,7 +466,7 @@ class NativeCodexDelivery:
         if isinstance(info, dict):
             version = str(info.get('version', '1'))
             info['version'] = version + ('.' if '+' in version else '+') + self.identity + '.' + self.scope_marker
-        if self.token_audit and 'result' in response:
+        if self.token_audit and self.token_collector and 'result' in response:
             response['result'].setdefault('capabilities', {}).setdefault('tools', {})['listChanged'] = True
 
     def observe_catalog(self, response):
@@ -527,12 +528,13 @@ class NativeCodexDelivery:
             self.roots[root] = thread
         owned = any(version_has_marker(version, self.identity)
                     for version in thread['_uclusion_versions'])
-        if owned and (self.token_audit or self.context_events) and thread.get('path'):
+        collector_enabled = getattr(self, 'token_collector', False)
+        if owned and (collector_enabled or self.context_events) and thread.get('path'):
             with self.lock:
                 if root in self.joined_roots:
                     return
             collector = None
-            if self.token_audit:
+            if collector_enabled:
                 from uclusionTokenAudit import CodexTokenAudit
                 collector = CodexTokenAudit(self.environment, self.workspace_id,
                                            client_version=thread.get('cliVersion'))
@@ -592,7 +594,7 @@ class NativeCodexDelivery:
                  if any(version_has_marker(version, self.identity) for version in thread['_uclusion_versions'])}
         candidates = []
         cursor = None
-        while self.token_audit:
+        while getattr(self, 'token_collector', False):
             page = self.client.request('thread/loaded/list', {'cursor': cursor})
             candidates.extend(page['data'])
             cursor = page.get('nextCursor')

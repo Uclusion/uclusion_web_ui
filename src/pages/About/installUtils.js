@@ -14,9 +14,10 @@ export function getUclusionEnvironment() {
 }
 
 export function buildInstallArgs(marketId, viewId, environment, clients, scope, tokenAudit,
-  workClaims) {
+  tokenCollector, workClaims) {
   return `${marketId} ${viewId}${environment === 'production' ? '' : ` ${environment}`}` +
     ` --clients ${clients.join(',')}${scope === 'project' ? ' --project' : ''}` +
     ` ${tokenAudit ? '--token-audit' : '--no-token-audit'}` +
+    ` ${tokenCollector ? '--token-collector' : '--no-token-collector'}` +
     ` ${workClaims ? '--work-claims' : '--no-work-claims'}`;
 }

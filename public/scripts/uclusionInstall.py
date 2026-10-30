@@ -160,12 +160,12 @@ SCRIPT_FILES = (
 # deployment gate validates this table before publishing, so a sequential S3
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
-    'uclusionCLI.py': '39b08580749413f824bc3ee979797af6c2460d09c230b5947105b030a0262486',
-    'uclusionMCPProxy.py': 'bfaf4be18791c48435340158d53f8e9f9bfb78b7869a1c18d24e523991676874',
+    'uclusionCLI.py': '3d8df6021c3daa8a7451c887bda835ff3b153bd869af0565727736bfb87f4ae4',
+    'uclusionMCPProxy.py': '2eee5444ac3c70e54971058614486f909d575d018bc6604fd88ee1582c5044d2',
     'uclusionSetupMCP.py': 'c4740e2c6a5e17e594cb7010e740d494a0e3a90cab237402e32e61061979bd22',
     'uclusionCodexNative.py': 'f036f0fec3692a3f6e9e8f4873cebb4cf4ee921fdb2e36cff398ebcaed496d46',
     'uclusionUpdateNotices.py': 'a9d6ed9e082bce28ac8340d242ad34d2f180a35de6821ce72c0684503e84b7e8',
-    'uclusionTokenAudit.py': '2fc24cdb8c6210b613e7931cfe0e45fa628d1c9f01267880c7d436e785ae642f',
+    'uclusionTokenAudit.py': '1dd569ac0b47b8153ef2873c367889ea8d6aabc403b7b598c1015459fd7bc1dc',
     'uclusionTokenBudget.py': '936891478e05b74af69e754571bb684cd1771ffb5db4e7cfbae79c9a5d6b6195',
 }
 USER_HOME = os.path.expanduser('~')
@@ -1037,6 +1037,50 @@ def token_audit_default_port(workspace_id):
     return TOKEN_AUDIT_DEFAULT_PORT_BASE + offset
 
 
+def apply_token_audit_choices(config, workspace_id, token_audit_enabled=None,
+                              token_collector_enabled=None):
+    """Return the tokenAudit object after one notes or collector choice.
+
+    An omitted choice keeps the saved value. A pre-split boolean still means
+    both notes and the collector until one of them is chosen on its own.
+    """
+    token_audit_value = config.get('tokenAudit') if isinstance(config, dict) else None
+    if isinstance(token_audit_value, dict):
+        token_audit = dict(token_audit_value)
+    elif isinstance(token_audit_value, bool):
+        token_audit = {'enabled': token_audit_value}
+    else:
+        token_audit = {}
+    previous_notes = (
+        token_audit.get('enabled')
+        if isinstance(token_audit.get('enabled'), bool) else None
+    )
+    previous_collector = (
+        token_audit.get('collector')
+        if isinstance(token_audit.get('collector'), bool) else None
+    )
+    if isinstance(token_audit_value, bool):
+        # A bare boolean was the combined notes-and-collector switch.
+        previous_notes = token_audit_value
+        previous_collector = None
+    if token_audit_enabled is not None:
+        token_audit['enabled'] = bool(token_audit_enabled)
+    elif not isinstance(token_audit.get('enabled'), bool):
+        token_audit['enabled'] = False
+    if token_collector_enabled is not None:
+        token_audit['collector'] = bool(token_collector_enabled)
+    elif isinstance(previous_collector, bool):
+        token_audit['collector'] = previous_collector
+    elif isinstance(previous_notes, bool):
+        token_audit['collector'] = previous_notes
+    else:
+        token_audit['collector'] = False
+    port = token_audit.get('port')
+    if not isinstance(port, int) or isinstance(port, bool) or not 1024 <= port <= 65535:
+        token_audit['port'] = token_audit_default_port(workspace_id)
+    return token_audit
+
+
 def write_uclusion_config(workspace_id, view_id, config_path, script_version=None,
                            token_audit_enabled=None, work_claims_enabled=None,
                            token_collector_enabled=None):
@@ -1118,40 +1162,9 @@ def write_uclusion_config(workspace_id, view_id, config_path, script_version=Non
         config['scriptReinstallVersion'] = script_version
     else:
         config.pop('scriptReinstallVersion', None)
-    token_audit_value = config.get('tokenAudit')
-    if isinstance(token_audit_value, dict):
-        token_audit = token_audit_value
-    elif isinstance(token_audit_value, bool):
-        token_audit = {'enabled': token_audit_value}
-    else:
-        token_audit = {}
-    previous_notes = (
-        token_audit.get('enabled')
-        if isinstance(token_audit.get('enabled'), bool) else None
+    token_audit = apply_token_audit_choices(
+        config, workspace_id, token_audit_enabled, token_collector_enabled,
     )
-    previous_collector = (
-        token_audit.get('collector')
-        if isinstance(token_audit.get('collector'), bool) else None
-    )
-    if isinstance(token_audit_value, bool):
-        # A bare boolean was the combined notes-and-collector switch.
-        previous_notes = token_audit_value
-        previous_collector = None
-    if token_audit_enabled is not None:
-        token_audit['enabled'] = bool(token_audit_enabled)
-    elif not isinstance(token_audit.get('enabled'), bool):
-        token_audit['enabled'] = False
-    if token_collector_enabled is not None:
-        token_audit['collector'] = bool(token_collector_enabled)
-    elif isinstance(previous_collector, bool):
-        token_audit['collector'] = previous_collector
-    elif isinstance(previous_notes, bool):
-        token_audit['collector'] = previous_notes
-    else:
-        token_audit['collector'] = False
-    port = token_audit.get('port')
-    if not isinstance(port, int) or isinstance(port, bool) or not 1024 <= port <= 65535:
-        token_audit['port'] = token_audit_default_port(workspace_id)
     config['tokenAudit'] = token_audit
     if work_claims_enabled is not None:
         config['workClaims'] = bool(work_claims_enabled)
@@ -1222,6 +1235,140 @@ def _config_token_collector_enabled(config):
 
 def _config_work_claims_enabled(config):
     return config.get('workClaims') is True
+
+
+SAVED_FEATURES = ('token_audit', 'token_collector', 'work_claims')
+
+
+def saved_feature_values(config):
+    """The three saved on/off choices, including pre-split configs."""
+    if not isinstance(config, dict):
+        return None
+    return {
+        'token_audit': token_audit_notes_enabled(config.get('tokenAudit')),
+        'token_collector': token_audit_collector_enabled(config.get('tokenAudit')),
+        'work_claims': _config_work_claims_enabled(config),
+    }
+
+
+def update_saved_feature(config_path, feature, enabled):
+    """Update one saved feature and leave the script release stamp alone."""
+    if feature not in SAVED_FEATURES:
+        raise ValueError(f'unknown feature {feature}')
+    logical_path = os.path.abspath(os.path.expanduser(config_path))
+    target_path = _config_write_target(logical_path)
+    existing, signature = _read_text_snapshot(target_path)
+    if signature is None:
+        raise RuntimeError(f'{config_path} is not an installed Uclusion config')
+    try:
+        config = json.loads(existing)
+    except json.JSONDecodeError as err:
+        raise RuntimeError(f'{config_path} is not valid JSON: {err}') from err
+    if not isinstance(config, dict):
+        raise RuntimeError(f'{config_path} top-level value must be a JSON object')
+    workspace_id = config.get('workspaceId')
+    if not isinstance(workspace_id, str) or not workspace_id:
+        raise RuntimeError(f'{config_path} has no workspaceId')
+    wanted = bool(enabled)
+    current = saved_feature_values(config)[feature]
+    if current == wanted:
+        return config
+    release = config.get('scriptReinstallVersion')
+    if feature == 'work_claims':
+        config['workClaims'] = wanted
+    else:
+        config['tokenAudit'] = apply_token_audit_choices(
+            config,
+            workspace_id,
+            token_audit_enabled=wanted if feature == 'token_audit' else None,
+            token_collector_enabled=wanted if feature == 'token_collector' else None,
+        )
+    if 'scriptReinstallVersion' in config or release is not None:
+        if release is None:
+            config.pop('scriptReinstallVersion', None)
+        else:
+            config['scriptReinstallVersion'] = release
+    updated = json.dumps(config, indent=2) + '\n'
+    with config_file_lock(logical_path):
+        atomic_write_text(
+            logical_path, updated, existing, target_path, signature,
+        )
+    return config
+
+
+def reapply_saved_feature_surfaces(env, config_path, clients, project_dir=None):
+    """Refresh the client settings a saved feature already uses.
+
+    This does not download an installer or replace the versioned script
+    directory. Cursor never receives the token collector. A response-stats
+    path is not written into the saved Codex installation.
+    """
+    with open(config_path, encoding='utf-8') as source:
+        config = json.load(source)
+    if not isinstance(config, dict):
+        raise RuntimeError(f'{config_path} top-level value must be a JSON object')
+    workspace_id = config.get('workspaceId')
+    if not isinstance(workspace_id, str) or not workspace_id:
+        raise RuntimeError(f'{config_path} has no workspaceId')
+    environment = env or 'production'
+    mcp_env = None if environment == 'production' else environment
+    work_claims = _config_work_claims_enabled(config)
+    selected = {client for client in clients if client in SUPPORTED_CLIENTS}
+    if project_dir is None:
+        claude_settings = CLAUDE_SETTINGS_PATH
+        claude_mcp = CLAUDE_JSON_PATH
+        cursor_mcp = CURSOR_MCP_PATH
+        codex_config = CODEX_CONFIG_PATH
+    else:
+        claude_settings = os.path.join(project_dir, '.claude', 'settings.local.json')
+        claude_mcp = os.path.join(project_dir, '.mcp.json')
+        cursor_mcp = os.path.join(project_dir, '.cursor', 'mcp.json')
+        codex_config = os.path.join(project_dir, '.codex', 'config.toml')
+    if 'claude' in selected and os.path.exists(claude_mcp):
+        registration_audit = apply_token_audit_choices(config, workspace_id)
+        result = None
+        if (os.path.exists(claude_settings)
+                or token_audit_collector_enabled(registration_audit)):
+            result = configure_claude_token_audit(
+                claude_settings,
+                token_audit_collector_enabled(registration_audit),
+                environment,
+                workspace_id,
+                registration_audit['port'],
+                registration_audit.get('claudeManagedEnv'),
+            )
+        if result is not None:
+            update_token_audit_client_config(
+                config_path, result.get('source'), result.get('managedEnv') or {},
+            )
+            with open(config_path, encoding='utf-8') as source:
+                config = json.load(source)
+            registration_audit = apply_token_audit_choices(config, workspace_id)
+            if result.get('available') is False:
+                registration_audit = dict(registration_audit)
+                registration_audit['collector'] = False
+        register_mcp_json(
+            claude_mcp, 'Claude Code', workspace_id, mcp_env,
+            require_existing=True,
+            token_audit=registration_audit,
+            token_audit_client='claude',
+            work_claims=work_claims,
+            response_stats=None,
+        )
+    if 'cursor' in selected:
+        register_mcp_json(
+            cursor_mcp, 'Cursor', workspace_id, mcp_env,
+            require_existing=True, work_claims=work_claims,
+        )
+    if 'codex' in selected and os.path.isfile(codex_config):
+        update_codex_integration_config(
+            workspace_id, mcp_env, force=True,
+            work_claims=work_claims,
+            token_audit=apply_token_audit_choices(config, workspace_id),
+            response_stats=None,
+            config_path=codex_config,
+        )
+    return True
 
 
 def existing_install_feature_changes(

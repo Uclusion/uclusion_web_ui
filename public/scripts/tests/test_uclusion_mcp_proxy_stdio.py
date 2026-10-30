@@ -177,6 +177,105 @@ class ResponseStatsTests(unittest.TestCase):
     def rows(self, path=None):
         return [json.loads(line) for line in (path or self.path).read_text().splitlines()]
 
+    def test_collector_records_bytes_and_repeat_fingerprints_without_a_file(self):
+        import uclusionTokenAudit as audit
+        recorded = []
+        recorder = proxy.ResponseStats(None)
+        recorder.bind_collector(recorded.append)
+        self.addCleanup(recorder.close)
+        request = {
+            'method': 'tools/call',
+            'params': {
+                'name': 'get_job',
+                '_meta': {'threadId': 'private-thread'},
+                'arguments': {'short_code_id': 'R-example-1', 'thread_only': True},
+            },
+        }
+        for _repeat in range(2):
+            recorder.set_request(request)
+            with redirect_stdout(io.StringIO()):
+                proxy.write_message(READ_RESULT, stats=recorder)
+        self.assertEqual([], list(self.directory.iterdir()))
+        self.assertIsNone(recorded[0]['repeat_of'])
+        self.assertEqual(recorded[0]['read_number'], recorded[1]['repeat_of'])
+        self.assertTrue(recorded[0]['content_sha256'])
+        self.assertEqual(recorded[0]['content_sha256'], recorded[1]['content_sha256'])
+        self.assertGreater(recorded[0]['jsonrpc_utf8_bytes'], 0)
+        self.assertGreater(recorded[0]['text_utf8_bytes'], 0)
+        self.assertNotIn(READ_RESULT['result']['content'][0]['text'], json.dumps(recorded))
+
+        database = self.directory / 'audit.sqlite3'
+        with mock.patch.dict(os.environ, {
+            'UCLUSION_TOKEN_AUDIT_DB': str(database),
+            'UCLUSION_TOKEN_AUDIT_SALT': str(self.directory / 'audit.salt'),
+        }):
+            store = audit.AuditStore('stage', 'workspace-1')
+            counts = {
+                'input_tokens': 11, 'cached_input_tokens': 2, 'cache_write_tokens': 0,
+                'output_tokens': 3, 'reasoning_output_tokens': 1,
+                'cache_read_tokens': 4, 'cache_creation_tokens': 0,
+                'normalized_total_tokens': 14, 'provider_total_tokens': 20,
+            }
+            for client in ('claude', 'codex'):
+                self.assertTrue(store.record_usage(
+                    client, 'session', 'event-1', counts, 'otel',
+                ))
+            def usage_row(client):
+                connection = store.connect()
+                try:
+                    return dict(connection.execute(
+                        "SELECT input_tokens, cached_input_tokens, cache_write_tokens, "
+                        "output_tokens, reasoning_output_tokens, cache_read_tokens, "
+                        "cache_creation_tokens, provider_total_tokens, normalized_total_tokens "
+                        "FROM token_audit_usage WHERE client=?",
+                        (client,),
+                    ).fetchone())
+                finally:
+                    connection.close()
+
+            before = {client: usage_row(client) for client in ('claude', 'codex')}
+            for client in ('claude', 'codex'):
+                self.assertTrue(store.record_response_measurement(client, recorded[0]))
+                self.assertTrue(store.record_response_measurement(client, recorded[1]))
+            self.assertFalse(store.record_response_measurement('cursor', recorded[0]))
+            self.assertEqual([], store.response_measurements('cursor'))
+            for client in ('claude', 'codex'):
+                rows = store.response_measurements(client)
+                self.assertEqual(recorded[0]['jsonrpc_utf8_bytes'], rows[0]['jsonrpc_utf8_bytes'])
+                self.assertEqual(recorded[0]['text_utf8_bytes'], rows[0]['text_utf8_bytes'])
+                self.assertEqual(recorded[0]['content_sha256'], rows[0]['content_sha256'])
+                self.assertIsNone(rows[0]['repeat_of'])
+                self.assertEqual(recorded[1]['repeat_of'], rows[1]['repeat_of'])
+                self.assertEqual(recorded[0]['content_sha256'], rows[1]['content_sha256'])
+                after = usage_row(client)
+                self.assertEqual(before[client], after)
+                self.assertEqual(20, after['provider_total_tokens'])
+                self.assertEqual(11, after['input_tokens'])
+
+    def test_failed_collector_write_still_returns_the_mcp_response(self):
+        recorder = proxy.ResponseStats(None)
+        recorder.bind_collector(mock.Mock(side_effect=OSError('private path or body')))
+        self.addCleanup(recorder.close)
+        recorder.set_request({'method': 'tools/list'})
+        stdout = io.StringIO()
+        with redirect_stdout(stdout), redirect_stderr(io.StringIO()):
+            proxy.write_message(JSONRPC_RESULT, stats=recorder)
+            proxy.write_message(JSONRPC_RESULT, stats=recorder)
+        self.assertEqual(
+            [JSONRPC_RESULT, JSONRPC_RESULT],
+            [json.loads(line) for line in stdout.getvalue().splitlines()],
+        )
+        self.assertEqual([], list(self.directory.iterdir()))
+
+    def test_a_statistics_file_still_receives_rows_when_the_collector_is_bound(self):
+        recorded = []
+        recorder = self.recorder()
+        recorder.bind_collector(recorded.append)
+        with redirect_stdout(io.StringIO()):
+            proxy.write_message(JSONRPC_RESULT, stats=recorder)
+        self.assertEqual(1, len(self.rows()))
+        self.assertEqual(self.rows()[0]['jsonrpc_utf8_bytes'], recorded[0]['jsonrpc_utf8_bytes'])
+
     def test_flag_and_disabled_output_without_file_creation(self):
         for argv in (
             ['workspace', '--response-stats', str(self.path)],

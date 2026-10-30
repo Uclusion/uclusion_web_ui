@@ -932,6 +932,23 @@ class AuditStore:
                 END
                 """
             )
+            connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS token_audit_response_measurements (
+                    environment TEXT NOT NULL,
+                    workspace_id TEXT NOT NULL,
+                    client TEXT NOT NULL,
+                    event_key TEXT NOT NULL,
+                    jsonrpc_utf8_bytes INTEGER NOT NULL,
+                    text_utf8_bytes INTEGER NOT NULL,
+                    content_sha256 TEXT,
+                    repeat_of INTEGER,
+                    read_number INTEGER,
+                    created_at REAL NOT NULL,
+                    PRIMARY KEY (environment, workspace_id, client, event_key)
+                )
+                """
+            )
             connection.commit()
         except Exception:
             connection.rollback()
@@ -2938,6 +2955,79 @@ class AuditStore:
         if rebuild_outbox:
             self.prepare_due_outbox()
         return cursor.rowcount == 1
+
+    def record_response_measurement(self, client, row):
+        """Store response byte counts and repeat fingerprints beside token totals.
+
+        Claude and Codex collector rows only. Provider token counters are not
+        written or changed here.
+        """
+        if client not in ("claude", "codex") or not isinstance(row, dict):
+            return False
+        jsonrpc_bytes = row.get("jsonrpc_utf8_bytes")
+        text_bytes = row.get("text_utf8_bytes")
+        if type(jsonrpc_bytes) is not int or isinstance(jsonrpc_bytes, bool) or jsonrpc_bytes < 0:
+            return False
+        if type(text_bytes) is not int or isinstance(text_bytes, bool) or text_bytes < 0:
+            return False
+        content_sha = row.get("content_sha256")
+        if not isinstance(content_sha, str) or not content_sha:
+            content_sha = None
+        repeat_of = row.get("repeat_of")
+        if type(repeat_of) is not int or isinstance(repeat_of, bool) or repeat_of < 1:
+            repeat_of = None
+        read_number = row.get("read_number")
+        if type(read_number) is not int or isinstance(read_number, bool) or read_number < 1:
+            read_number = None
+        identity = json.dumps({
+            "jsonrpc_utf8_bytes": jsonrpc_bytes,
+            "text_utf8_bytes": text_bytes,
+            "content_sha256": content_sha,
+            "repeat_of": repeat_of,
+            "read_number": read_number,
+            "nonce": time.time_ns(),
+        }, sort_keys=True)
+        event_key = self.fingerprint("response-measurement", client + "\0" + identity)
+        if not event_key:
+            return False
+        with closing(self.connect()) as connection, connection:
+            connection.execute("BEGIN IMMEDIATE")
+            connection.execute(
+                """
+                INSERT INTO token_audit_response_measurements (
+                    environment, workspace_id, client, event_key,
+                    jsonrpc_utf8_bytes, text_utf8_bytes, content_sha256,
+                    repeat_of, read_number, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    self.environment,
+                    self.workspace_id,
+                    client,
+                    event_key,
+                    jsonrpc_bytes,
+                    text_bytes,
+                    content_sha,
+                    repeat_of,
+                    read_number,
+                    time.time(),
+                ),
+            )
+        return True
+
+    def response_measurements(self, client):
+        with closing(self.connect()) as connection:
+            rows = connection.execute(
+                """
+                SELECT jsonrpc_utf8_bytes, text_utf8_bytes, content_sha256,
+                    repeat_of, read_number
+                FROM token_audit_response_measurements
+                WHERE environment=? AND workspace_id=? AND client=?
+                ORDER BY created_at, event_key
+                """,
+                (self.environment, self.workspace_id, client),
+            ).fetchall()
+        return [dict(row) for row in rows]
 
     def signal_complete(self, client, session_fp, failed=False, grace=0.0):
         with closing(self.connect()) as connection, connection:

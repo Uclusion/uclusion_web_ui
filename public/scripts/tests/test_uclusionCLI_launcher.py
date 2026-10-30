@@ -977,5 +977,87 @@ class UpdateReleaseConsistencyTests(unittest.TestCase):
                 self.assertTrue(project_call.kwargs['skip_scripts'])
 
 
+class SavedFeatureCommandTests(unittest.TestCase):
+    def test_read_leaves_files_unchanged_and_change_skips_reinstall(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            home = root / 'home'
+            project = root / 'project'
+            (home / '.uclusion').mkdir(parents=True)
+            (project / '.git').mkdir(parents=True)
+            version_dir = home / '.local' / 'uclusion-cli' / 'release-1' / 'bin'
+            version_dir.mkdir(parents=True)
+            script = version_dir / 'uclusion.py'
+            script.write_text('print("installed")\n', encoding='utf-8')
+            script_bytes = script.read_bytes()
+            global_config = {
+                'workspaceId': 'workspace-1',
+                'scriptReinstallVersion': 'release-1',
+                'sourcesList': ['./src'],
+                'tokenAudit': {'enabled': False, 'collector': False, 'port': 23456},
+                'workClaims': False,
+            }
+            project_config = {
+                'workspaceId': 'workspace-1',
+                'scriptReinstallVersion': 'release-1',
+                'tokenAudit': {'enabled': True, 'collector': False, 'port': 23456},
+                'workClaims': True,
+            }
+            global_path = home / '.uclusion' / 'stage_uclusion.json'
+            project_path = project / 'stage_uclusion.json'
+            global_path.write_text(json.dumps(global_config, indent=2) + '\n', encoding='utf-8')
+            project_path.write_text(json.dumps(project_config, indent=2) + '\n', encoding='utf-8')
+            global_before = global_path.read_bytes()
+            project_before = project_path.read_bytes()
+            with mock.patch.dict(os.environ, {'UCLUSION_HOME': str(home)}), \
+                    mock.patch.object(cli.os, 'getcwd', return_value=str(project)), \
+                    mock.patch.object(cli, 'detect_global_clients', return_value=set()), \
+                    mock.patch.object(cli, '_detect_project_clients_at', return_value=set()), \
+                    mock.patch.object(installer, 'install_scripts') as scripts, \
+                    mock.patch.object(cli.urllib.request, 'urlopen') as download, \
+                    mock.patch.object(installer.urllib.request, 'urlopen') as installer_download:
+                read_output = io.StringIO()
+                with mock.patch('sys.stdout', read_output):
+                    self.assertEqual(0, cli.cmd_features(cli.parse_args(['-e', 'stage', 'features'])))
+                self.assertEqual(global_before, global_path.read_bytes())
+                self.assertEqual(project_before, project_path.read_bytes())
+                self.assertEqual(script_bytes, script.read_bytes())
+                read_text = read_output.getvalue()
+                global_text, project_text = read_text.split('Project', 1)
+                self.assertIn('Per-job token usage notes: off', global_text)
+                self.assertIn('Passive collector: off', global_text)
+                self.assertIn('Work claim lock: off', global_text)
+                self.assertIn('Per-job token usage notes: on', project_text)
+                self.assertIn('Work claim lock: on', project_text)
+                self.assertNotIn('Restart the AI client', read_text)
+
+                change_output = io.StringIO()
+                with mock.patch('sys.stdout', change_output):
+                    self.assertEqual(0, cli.cmd_features(cli.parse_args(
+                        ['-e', 'stage', 'features', '--token-collector']
+                    )))
+                scripts.assert_not_called()
+                download.assert_not_called()
+                installer_download.assert_not_called()
+                self.assertEqual(script_bytes, script.read_bytes())
+                updated_global = json.loads(global_path.read_text(encoding='utf-8'))
+                updated_project = json.loads(project_path.read_text(encoding='utf-8'))
+                self.assertTrue(updated_global['tokenAudit']['collector'])
+                self.assertFalse(updated_global['tokenAudit']['enabled'])
+                self.assertFalse(updated_global['workClaims'])
+                self.assertEqual(['./src'], updated_global['sourcesList'])
+                self.assertEqual('release-1', updated_global['scriptReinstallVersion'])
+                self.assertTrue(updated_project['tokenAudit']['collector'])
+                self.assertTrue(updated_project['tokenAudit']['enabled'])
+                self.assertTrue(updated_project['workClaims'])
+                self.assertEqual('release-1', updated_project['scriptReinstallVersion'])
+                self.assertIn('Restart the AI client', change_output.getvalue())
+                self.assertIn('keeps its current connection', change_output.getvalue())
+
+    def test_feature_flags_change_only_one_setting(self):
+        with mock.patch.object(cli.sys, 'stderr'), self.assertRaises(SystemExit):
+            cli.parse_args(['features', '--token-audit', '--work-claims'])
+
+
 if __name__ == '__main__':
     unittest.main()

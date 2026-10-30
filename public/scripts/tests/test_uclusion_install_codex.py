@@ -947,6 +947,18 @@ class ResponseStatsInstallerTests(unittest.TestCase):
                                 cursor = INSTALL.json.load(config)
                             self.assertNotIn('--response-stats',
                                              cursor['mcpServers']['uclusion']['args'])
+                            self.assertNotIn('--token-collector',
+                                             cursor['mcpServers']['uclusion']['args'])
+                            self.assertNotIn('--token-audit',
+                                             cursor['mcpServers']['uclusion']['args'])
+                            with open(os.path.join(directory, 'settings.json'),
+                                      encoding='utf-8') as settings_file:
+                                settings_text = settings_file.read()
+                            if expected is None:
+                                self.assertNotIn('--response-stats-hook', settings_text)
+                            else:
+                                self.assertIn('--response-stats-hook', settings_text)
+                                self.assertIn(expected, settings_text)
                             with open(os.path.join(
                                 directory, INSTALL.CONFIG_FILES['stage'],
                             ), encoding='utf-8') as config:
@@ -956,6 +968,68 @@ class ResponseStatsInstallerTests(unittest.TestCase):
                             self.assertNotIn('jsonl', workspace_config)
                     self.assertFalse(os.path.exists(previous_stats))
                     self.assertFalse(os.path.exists(selected_stats))
+
+    def test_feature_reapply_keeps_cursor_clear_and_codex_free_of_a_stats_path(self):
+        with tempfile.TemporaryDirectory() as directory:
+            config_path = os.path.join(directory, 'stage_uclusion.json')
+            claude_mcp = os.path.join(directory, '.claude.json')
+            claude_settings = os.path.join(directory, 'settings.json')
+            cursor_mcp = os.path.join(directory, 'cursor-mcp.json')
+            codex_config = os.path.join(directory, 'config.toml')
+            stats_path = os.path.join(directory, 'sizes.jsonl')
+            with open(config_path, 'w', encoding='utf-8') as handle:
+                INSTALL.json.dump({
+                    'workspaceId': 'workspace-1',
+                    'scriptReinstallVersion': 'release-1',
+                    'tokenAudit': {
+                        'enabled': True, 'collector': True, 'port': 23456,
+                    },
+                    'workClaims': True,
+                }, handle)
+            INSTALL.register_mcp_json(
+                claude_mcp, 'Claude Code', 'workspace-1', 'stage', False,
+                token_audit={'enabled': False, 'collector': False, 'port': 23456},
+                token_audit_client='claude', response_stats=stats_path,
+            )
+            INSTALL.register_mcp_json(
+                cursor_mcp, 'Cursor', 'workspace-1', 'stage', False,
+            )
+            with open(codex_config, 'w', encoding='utf-8') as handle:
+                handle.write(INSTALL.build_codex_mcp_block('workspace-1', 'stage'))
+            with mock.patch.multiple(
+                INSTALL,
+                CLAUDE_JSON_PATH=claude_mcp,
+                CLAUDE_SETTINGS_PATH=claude_settings,
+                CURSOR_MCP_PATH=cursor_mcp,
+                CODEX_CONFIG_PATH=codex_config,
+            ), mock.patch.object(INSTALL, 'install_scripts') as scripts, \
+                    mock.patch.object(INSTALL.urllib.request, 'urlopen') as download:
+                INSTALL.reapply_saved_feature_surfaces(
+                    'stage', config_path, {'claude', 'cursor', 'codex'},
+                )
+            scripts.assert_not_called()
+            download.assert_not_called()
+            with open(config_path, encoding='utf-8') as handle:
+                saved = INSTALL.json.load(handle)
+            self.assertEqual('release-1', saved['scriptReinstallVersion'])
+            with open(claude_mcp, encoding='utf-8') as handle:
+                claude_args = INSTALL.json.load(handle)['mcpServers']['uclusion']['args']
+            self.assertEqual(stats_path, claude_args[claude_args.index('--response-stats') + 1])
+            self.assertIn('--token-collector', claude_args)
+            with open(claude_settings, encoding='utf-8') as handle:
+                settings_text = handle.read()
+            self.assertIn('--response-stats-hook', settings_text)
+            self.assertIn(stats_path, settings_text)
+            with open(cursor_mcp, encoding='utf-8') as handle:
+                cursor_args = INSTALL.json.load(handle)['mcpServers']['uclusion']['args']
+            self.assertNotIn('--token-collector', cursor_args)
+            self.assertNotIn('--token-audit', cursor_args)
+            self.assertIn('--work-claims', cursor_args)
+            with open(codex_config, encoding='utf-8') as handle:
+                codex_text = handle.read()
+            self.assertNotIn('--response-stats', codex_text)
+            self.assertIn('--token-collector', codex_text)
+            self.assertFalse(os.path.exists(stats_path))
 
     def test_codex_updates_preserve_enable_and_disable_recording_in_each_scope(self):
         for scope in ('global', 'project'):

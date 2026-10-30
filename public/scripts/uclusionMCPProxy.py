@@ -960,6 +960,7 @@ class ResponseStats:
         self._invocations = set()
         self._observed = set()
         self._lock = threading.RLock()
+        self._collector = None
         if path is None:
             if strict:
                 raise ValueError('Statistics require an explicit file path')
@@ -997,8 +998,55 @@ class ResponseStats:
         except Exception:
             pass
 
+    def bind_collector(self, callback):
+        """Keep response measurements when no statistics file is configured."""
+        self._collector = callback
+
+    def _publish_collector(self, row):
+        callback = self._collector
+        if callback is None or 'jsonrpc_utf8_bytes' not in row:
+            return
+        try:
+            callback(row)
+        except Exception:
+            self._collector = None
+            try:
+                sys.stderr.write('Uclusion response statistics disabled.\n')
+            except Exception:
+                pass
+
+    def _append_without_file(self, row, *, strict=False):
+        try:
+            with self._lock:
+                if row.get('invocation_sha256') in self._invocations:
+                    return
+                if row.get('event') == 'measurement_reset':
+                    row['cutoff_utc'] = self._utc_now()
+                if row.get('content_sha256'):
+                    key = (
+                        row['context'], row['tool'],
+                        json.dumps(row['read_selector'], sort_keys=True),
+                        row['content_sha256'],
+                    )
+                    row['context_coverage'] = (
+                        'observed' if row['context'] in self._observed else 'unknown'
+                    )
+                    row['repeat_of'] = self._seen.get(key)
+                    row['read_number'] = self._row_number + 1
+                self._apply_row(row)
+            self._publish_collector(row)
+            return row
+        except Exception:
+            if strict:
+                raise
+            self._collector = None
+            try:
+                sys.stderr.write('Uclusion response statistics disabled.\n')
+            except Exception:
+                pass
+
     def set_request(self, message):
-        if self._fd is None:
+        if self._fd is None and self._collector is None:
             return
         params = message.get('params')
         params = params if isinstance(params, dict) else {}
@@ -1153,7 +1201,9 @@ class ResponseStats:
 
     def _append(self, row, *, strict=False):
         if self._fd is None:
-            return
+            if self._collector is None:
+                return
+            return self._append_without_file(row, strict=strict)
         try:
             with self._file_lock():
                 self._sync_rows()
@@ -1171,6 +1221,7 @@ class ResponseStats:
                     raise OSError('Incomplete statistics write')
                 self._apply_row(row)
                 self._offset += len(encoded)
+            self._publish_collector(row)
             return row
         except Exception:
             if strict:
@@ -1235,7 +1286,7 @@ class ResponseStats:
         }
 
     def context_event(self, root, reason, client='codex'):
-        if self._fd is None or not isinstance(root, str) or not root:
+        if (self._fd is None and self._collector is None) or not isinstance(root, str) or not root:
             return
         self._append({
             'event': 'context_reset', 'reason': reason,
@@ -1285,7 +1336,7 @@ class ResponseStats:
                 self._append({'event': 'read', **fields})
 
     def record(self, message, emitted):
-        if self._fd is None:
+        if self._fd is None and self._collector is None:
             return
         try:
             result = message.get('result')
@@ -1825,7 +1876,9 @@ def main():
                 replay=args.deliver_existing_pokes,
                 token_audit=args.token_audit, token_collector=args.token_collector,
                 tools_changed=tools_changed,
-                context_events=response_stats.context_event if args.response_stats else None,
+                context_events=response_stats.context_event if (
+                    args.response_stats or args.token_collector
+                ) else None,
             )
         work_claims = WorkClaimsManager(token_holder.get) if args.work_claims else None
         listener = threading.Thread(
@@ -1864,6 +1917,15 @@ def main():
                     'Uclusion token collector is unavailable '
                     f'({error.__class__.__name__}).\n'
                 )
+        if (token_audit_runtime is not None
+                and args.token_audit_client in ('claude', 'codex')):
+            collector_client = args.token_audit_client
+            collector_store = token_audit_runtime.store
+
+            def publish_measurement(row, _store=collector_store, _client=collector_client):
+                _store.record_response_measurement(_client, row)
+
+            response_stats.bind_collector(publish_measurement)
         def token_notes_available():
             if not args.token_audit:
                 return False

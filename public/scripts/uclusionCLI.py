@@ -3347,6 +3347,98 @@ def resolve_update_release(
     return releases.pop()
 
 
+FEATURE_LABELS = (
+    ('token_audit', 'Per-job token usage notes'),
+    ('token_collector', 'Passive collector'),
+    ('work_claims', 'Work claim lock'),
+)
+
+
+def _feature_scopes(env):
+    _api_url, json_name, _credentials_path = get_env_paths(env)
+    global_path = os.path.join(uclusion_home_root(), '.uclusion', json_name)
+    project_path = get_project_config_path(env)
+    project_dir = os.path.dirname(project_path) if project_path else None
+    return (
+        ('Global', global_path if os.path.isfile(global_path) else None, None),
+        ('Project', project_path, project_dir),
+    )
+
+
+def _feature_clients(config, project_dir):
+    detected = set(
+        detect_global_clients() if project_dir is None
+        else _detect_project_clients_at(project_dir)
+    )
+    named = config.get('workflowClients') if isinstance(config, dict) else None
+    if isinstance(named, list):
+        detected.update(
+            client for client in named if client in ('claude', 'cursor', 'codex')
+        )
+    return detected
+
+
+def _format_feature_scope(label, config_path, project_dir, values):
+    if label == 'Project' and project_dir:
+        heading = f'{label} ({project_dir})'
+    else:
+        heading = label
+    if values is None:
+        return heading + '\nNo install found.'
+    lines = [heading]
+    for key, title in FEATURE_LABELS:
+        lines.append(f"{title}: {'on' if values[key] else 'off'}")
+    return '\n'.join(lines)
+
+
+def _load_feature_values(config_path):
+    if config_path is None:
+        return None
+    config = load_config_at(config_path)
+    if config is None:
+        return None
+    from uclusionInstall import saved_feature_values
+    return saved_feature_values(config)
+
+
+def cmd_features(args):
+    """Show or change the three saved feature settings without reinstalling."""
+    env = args.env or 'production'
+    scopes = _feature_scopes(env)
+    if args.feature is None:
+        print('\n\n'.join(
+            _format_feature_scope(label, path, project_dir, _load_feature_values(path))
+            for label, path, project_dir in scopes
+        ))
+        return 0
+    feature, enabled = args.feature
+    installed = [scope for scope in scopes if scope[1] is not None]
+    if not installed:
+        print('No Uclusion install found.')
+        return 1
+    from uclusionInstall import reapply_saved_feature_surfaces, update_saved_feature
+    for label, path, project_dir in installed:
+        try:
+            update_saved_feature(path, feature, enabled)
+            config = load_config_at(path)
+            reapply_saved_feature_surfaces(
+                env, path, _feature_clients(config, project_dir),
+                project_dir=project_dir,
+            )
+        except Exception as error:
+            print(f'Could not change the {label.lower()} install: {error}')
+            return 1
+    print('\n\n'.join(
+        _format_feature_scope(label, path, project_dir, _load_feature_values(path))
+        for label, path, project_dir in scopes
+    ))
+    print(
+        'Restart the AI client or reconnect Uclusion so this change loads. '
+        'A running client keeps its current connection until then.'
+    )
+    return 0
+
+
 def cmd_update(args):
     """Update the scripts and every installed Uclusion surface (T-all-2409).
 
@@ -4064,6 +4156,44 @@ def build_parser():
         help='Append a fresh measurement window to --response-stats PATH, preserving all history.',
     )
     usage_parser.set_defaults(func=cmd_usage)
+
+    features_parser = subparsers.add_parser(
+        'features',
+        help='Show or change token usage notes, the passive collector, and the '
+             'work claim lock without reinstalling.',
+    )
+    feature_choices = features_parser.add_mutually_exclusive_group()
+    feature_choices.add_argument(
+        '--token-audit', dest='feature', action='store_const',
+        const=('token_audit', True),
+        help='Turn on per-job token usage notes for the global install and the closest project install.',
+    )
+    feature_choices.add_argument(
+        '--no-token-audit', dest='feature', action='store_const',
+        const=('token_audit', False),
+        help='Turn off per-job token usage notes for the global install and the closest project install.',
+    )
+    feature_choices.add_argument(
+        '--token-collector', dest='feature', action='store_const',
+        const=('token_collector', True),
+        help='Turn on the passive collector for the global install and the closest project install.',
+    )
+    feature_choices.add_argument(
+        '--no-token-collector', dest='feature', action='store_const',
+        const=('token_collector', False),
+        help='Turn off the passive collector for the global install and the closest project install.',
+    )
+    feature_choices.add_argument(
+        '--work-claims', dest='feature', action='store_const',
+        const=('work_claims', True),
+        help='Turn on the work claim lock for the global install and the closest project install.',
+    )
+    feature_choices.add_argument(
+        '--no-work-claims', dest='feature', action='store_const',
+        const=('work_claims', False),
+        help='Turn off the work claim lock for the global install and the closest project install.',
+    )
+    features_parser.set_defaults(func=cmd_features, feature=None)
 
     demo_parser = subparsers.add_parser(
         'demo',

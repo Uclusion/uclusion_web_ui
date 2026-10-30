@@ -5,6 +5,8 @@
 
 Keep one retained job or bug, except a helper-confirmed review split. Human selection, a live Start while idle or a confirmed claim activates it. Bare Start is an event even in chat. Silently discard idle continuations. While assigned, accept delivered events only for known members; use the parent after `of` for compound membership. Briefly name and defer unrelated or unknown delivered codes without lookup. A deferred Start never activates later. Explicit human switching changes the assignment; information requests about another target preserve both workers' ownership. Multiple idle agents need human selection, not inbox election.
 
+When a delivered live Start activates a job, bug, task, or similar new assignment, the final message of that turn is one line naming that code as taken on (`Taken on <code>.`). Send it after owned rearm and do not follow it with a tool call. Do not send it for Added, Updated, Responded, rearm, replay, or a Start that is only deferred.
+
 Keep role/helper identities, canonical scopes and known members, original unanswered requests, relevant evidence identities/versions, concise outcomes, confirmed/unfinished receipts and presentation flags. Preserve these through compaction. Reading, Pokes, rearm and ordinary turn endings do not switch or release work.
 
 ## Audit and held claims

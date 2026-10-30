@@ -27,7 +27,7 @@ For a bounded specialty request, select the role for the requested work, start o
 
 If an unanswered redirect recurs with the same original request, target, evidence identities/versions, role and returned outcome, stop that chain at its first recurrence. Report the original request, target and stalled handoffs as the unresolved delegation failure. Preserve the assignment, active workers and receipts; the answer remains with its owner. New human input or changed evidence may resume it. An unchanged Poke, rearm or turn end does not. Continue independent authorized work.
 
-Continue authorized mechanical handoffs while work remains. Use interruptible delivery waits while helpers run; a timeout leaves them active. Act on their actual blocker/handoff or explicit human pause. Preserve confirmed actions after later failures and forward only unfinished work for recovery.
+Continue authorized mechanical handoffs while work remains. When helpers are running and no useful authorized independent work remains, use the longest interruptible event wait permitted by the current tool, client and runtime instructions. Set that timeout explicitly when available instead of accepting a shorter default. Wake for helper updates/completion, human input and Pokes; a timeout leaves helpers active and is never a shutdown deadline. Act on their actual blocker/handoff or explicit human pause. Preserve confirmed actions after later failures and forward only unfinished work for recovery.
 
 ## Present results and apply release
 

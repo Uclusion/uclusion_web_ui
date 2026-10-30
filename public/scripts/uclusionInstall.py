@@ -357,7 +357,7 @@ WORKFLOW_ASSET_SHA256 = {
     'cursor_stub': 'f7f8e50d284760d50e092dbb91c3b26ce2d80fc2f5f599742baab020283a4b3f',
     'skill': '3c150e0928ef135b76659323d9bd3a609e7d3c97691b678a0c73162b9a32a034',
     'claude_delivery_reference': '1eb48584a8020306beca763d79de4fd947314b1862820d71157711b02eb5be1a',
-    'cursor_delivery_reference': 'bbca73ab5b9de8ddf23b036017434d0f7afc230763101cf836b5ac224e900534',
+    'cursor_delivery_reference': '38eb91d1deaa0bb87ea2c27a2d1e6e347387ac7318c29ed9ba2f495d93fcb729',
     'approval_reference': 'c373e39e36ff8920656003536f4b1e458da87b0337badf745c7052066a39ff7b',
     'single_comment_reference': '778dc5c71f7dd09f55f7f4eb58a5cbfbcadc1ec88371780f95ca262ae325cee0',
     'export_search_reference': '5b725b40aaa77918ac06f62bca22a9464e30ebe8441fb64438d07a54b4fb7019',
@@ -383,7 +383,7 @@ WORKFLOW_ASSET_SHA256 = {
     'design_skill': '2ae3d24180ba2eb960cee067f5c4af67312f25259580fee1ee6b51221f329bfb',
     'design_openai_metadata': '9add4a9e0a25cc1897056e3caa020923a712016fc0ac2fbe8ad441c8df22122e',
     'demo_brief': 'b68f6501270c63456c19053d1b5af296350288754239c7f9d6074a3a5497789f',
-    'token_manifest': '0f7fc3d61dd7d28b9e74ab93c76849233e43b7567019286caa708cd7ca05320a',
+    'token_manifest': '5ab245b25f35887ac7770be16a64e52414cf63e664bfc795cccf999fb47d71fc',
     'discovery_routing_reference': '41a82c2fa1435fc9f6faefa30dd775f499cbc9afcb18d68187c26471d5528bcb',
 }
 CLIENT_STUB_ASSET = {

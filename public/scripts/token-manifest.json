@@ -747,6 +747,15 @@
     "openai": 155
    }
   },
+  "38eb91d1deaa0bb87ea2c27a2d1e6e347387ac7318c29ed9ba2f495d93fcb729": {
+   "bytes": 1617,
+   "kind": "skill",
+   "name": "skills/uclusion/references/cursor-delivery.md",
+   "tokens": {
+    "claude": 561,
+    "openai": 328
+   }
+  },
   "396e42570088eec23142f0c795a0fafd87eec3188f03b70bcdba8cdd65947678": {
    "bytes": 7095,
    "kind": "skill",

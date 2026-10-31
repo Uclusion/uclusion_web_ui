@@ -4898,6 +4898,7 @@ class CodexTokenAudit:
         self.effort = None
         self._descendants = queue.Queue()
         self._live_turns = set()
+        self._primary_resume = None
         self._thread_metadata = {}
         self._lock = threading.RLock()
         self._ready_lease = CodexCollectorLease(ready_file, ready_owner)
@@ -4911,18 +4912,19 @@ class CodexTokenAudit:
     def revoke_ready(self):
         self._ready_lease.close()
 
-    def set_primary_thread(self, thread):
+    def set_primary_thread(self, thread, *, seed_active_turn=True):
         if not isinstance(thread, dict):
             return
         thread_id = thread.get("id") or thread.get("threadId")
         if not isinstance(thread_id, str) or not thread_id:
             return
         session_fp = self.store.fingerprint("codex-thread", thread_id)
-        active_turn_id = thread.get("activeTurnId")
+        active_turn_id = thread.get("activeTurnId") if seed_active_turn else None
         with self._lock:
             previous_session_fp = self.primary_session_fp
             self.primary_thread_id = thread_id
             self.primary_session_fp = session_fp
+            self._primary_resume = None
             self.client_version = _safe_label(
                 thread.get("cliVersion")
                 or thread.get("clientVersion")
@@ -5006,6 +5008,36 @@ class CodexTokenAudit:
             self.store.mark_partial(
                 self.client, session_fp, "session_interrupted"
             )
+
+    def begin_primary_resume(self):
+        """Suspend root snapshot eligibility while resume replays history."""
+        with self._lock:
+            root = self.primary_thread_id
+            self._live_turns = {pair for pair in self._live_turns if pair[0] != root}
+            self._primary_resume = token = object()
+        self.mark_partial("session_interrupted")
+        return token
+
+    def finish_primary_resume(self, thread, token):
+        """Recover only the current turn from authoritative post-resume history."""
+        with self._lock:
+            if self._primary_resume is not token:
+                # A live turn boundary arrived during readback. Its state wins
+                # over the possibly stale snapshot (including completion).
+                return
+            self._primary_resume = None
+            if not isinstance(thread, dict) or thread.get("id") != self.primary_thread_id:
+                return
+            status = thread.get("status")
+            turns = thread.get("turns")
+            if not isinstance(status, dict) or status.get("type") != "active":
+                return
+            if not isinstance(turns, list) or not turns:
+                return
+            turn = turns[-1]
+            if (isinstance(turn, dict) and turn.get("status") == "inProgress"
+                    and isinstance(turn.get("id"), str) and turn["id"]):
+                self._live_turns.add((self.primary_thread_id, turn["id"]))
 
     def _thread(self, params):
         thread_id = params.get("threadId") if isinstance(params, dict) else None
@@ -5214,6 +5246,8 @@ class CodexTokenAudit:
             if isinstance(turn_id, str) and turn_id:
                 with self._lock:
                     self._live_turns.add((thread_id, turn_id))
+                    if thread_id == self.primary_thread_id:
+                        self._primary_resume = None
             return
 
         if method == "rawResponse/completed":
@@ -5353,6 +5387,9 @@ class CodexTokenAudit:
             ) or "completed").lower()
             with self._lock:
                 is_primary = thread_id == self.primary_thread_id
+                self._live_turns.discard((thread_id, turn_id))
+                if is_primary:
+                    self._primary_resume = None
             self.store.register_session_log(
                 self.client, session_fp, find_codex_rollout(thread_id))
             if is_primary:
@@ -5362,8 +5399,6 @@ class CodexTokenAudit:
                     session_fp,
                     failed=status in {"failed", "cancelled", "interrupted"},
                 )
-            with self._lock:
-                self._live_turns.discard((thread_id, turn_id))
 
     def drain_descendant_thread_ids(self):
         result = []

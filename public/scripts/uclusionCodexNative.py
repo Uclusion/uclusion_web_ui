@@ -612,6 +612,7 @@ class NativeCodexDelivery:
             self.context_events(root, 'unavailable')
 
     def _restore_collector(self, root, collector):
+        resume_token = collector.begin_primary_resume()
         try:
             self.client.request('thread/resume', {'threadId': root, 'excludeTurns': True})
         except Exception:
@@ -633,7 +634,19 @@ class NativeCodexDelivery:
                 failures.pop(root, None)
         if self.context_events:
             self.context_events(root, 'connected')
+        self._recover_root_history(root, collector, resume_token)
         return True
+
+    def _recover_root_history(self, root, collector, resume_token):
+        # Resume's persisted snapshot must pass before live-turn recovery.
+        # Full history also recovers child identities without resuming them.
+        try:
+            history = self.client.request('thread/read', {
+                'threadId': root, 'includeTurns': True})['thread']
+            collector.finish_primary_resume(history, resume_token)
+            collector.observe_thread_history(history)
+        except NativeRequestError:
+            collector.mark_partial('incomplete_descendant_coverage')
 
     def _register(self, thread):
         root = thread['id']
@@ -657,7 +670,8 @@ class NativeCodexDelivery:
                 from uclusionTokenAudit import CodexTokenAudit
                 collector = CodexTokenAudit(self.environment, self.workspace_id,
                                            client_version=thread.get('cliVersion'))
-                collector.set_primary_thread(thread)
+                collector.set_primary_thread(thread, seed_active_turn=False)
+                resume_token = collector.begin_primary_resume()
                 if getattr(self, 'served_catalog', None) is not None:
                     self._record_catalog(collector, self.served_catalog)
                 collector.store.register_session_log(
@@ -677,14 +691,7 @@ class NativeCodexDelivery:
                     collector.close()
                 raise
             if collector:
-                # A reconnect need not replay child-creation notifications.
-                # Recover identities from history without rejoining children.
-                try:
-                    history = self.client.request('thread/read', {
-                        'threadId': root, 'includeTurns': True})['thread']
-                    collector.observe_thread_history(history)
-                except NativeRequestError:
-                    collector.mark_partial('incomplete_descendant_coverage')
+                self._recover_root_history(root, collector, resume_token)
 
     def ensure_collector(self, request):
         meta = request.get('params', {}).get('_meta', {})

@@ -736,6 +736,124 @@ class NativeDescendantHistoryTests(unittest.TestCase):
         return {'id': identity, 'parentThreadId': parent, 'path': str(path),
                 'status': {'type': 'notLoaded'}, **fields}
 
+    def prepare_root_attachment(self):
+        self.delivery.roots = {}
+        self.delivery.identity = 'owner'
+        self.delivery.joined_roots.clear()
+        self.delivery.token_collector = True
+        self.delivery.environment, self.delivery.workspace_id = 'stage', 'workspace'
+        self.root = {'id': 'root', 'path': str(Path(self.home.name) / 'root.jsonl'),
+                     '_uclusion_versions': ['1+owner'], 'activeTurnId': 'active'}
+        self.history = {'id': 'root', 'status': {'type': 'active'},
+                        'turns': [{'id': 'active', 'status': 'inProgress', 'items': []}]}
+        self.resume_events = []
+        self.readback_events = []
+
+        def request(method, params):
+            self.methods.append((method, dict(params)))
+            self.assertEqual('root', params['threadId'])
+            if method == 'thread/resume':
+                for event in self.resume_events:
+                    self.delivery._observe(event)
+                return {'thread': self.history}
+            self.assertEqual('thread/read', method)
+            self.assertTrue(params['includeTurns'])
+            for event in self.readback_events:
+                self.delivery._observe(event)
+            return {'thread': self.history}
+
+        self.delivery.client = SimpleNamespace(request=request)
+
+    def attach_root(self):
+        with patch.object(self.audit, 'CodexTokenAudit', return_value=self.collector):
+            self.delivery._register(self.root)
+
+    def root_usage(self, turn='active', amount=20):
+        counts = {'inputTokens': amount, 'cachedInputTokens': 0,
+                  'outputTokens': 5, 'totalTokens': amount + 5}
+        return {'method': 'thread/tokenUsage/updated', 'params': {
+            'threadId': 'root', 'turnId': turn,
+            'tokenUsage': {'last': counts, 'total': counts}}}
+
+    def usage_count(self):
+        with self.collector.store.connect() as db:
+            return db.execute('SELECT COUNT(*) FROM token_audit_usage').fetchone()[0]
+
+    def test_root_attachment_excludes_same_turn_replay_then_records_fresh_usage_once(self):
+        self.prepare_root_attachment()
+        self.resume_events = [self.root_usage()]
+        self.attach_root()
+        self.assertEqual(0, self.usage_count())
+        for _ in range(2):
+            self.delivery._observe(self.root_usage(amount=30))
+        self.assertEqual(1, self.usage_count())
+        with self.collector.store.connect() as db:
+            row = db.execute('SELECT partial_reason FROM token_audit_sessions WHERE session_fp=?',
+                             (self.collector.primary_session_fp,)).fetchone()
+            self.assertEqual('session_interrupted', row['partial_reason'])
+        self.delivery._observe({'method': 'turn/completed', 'params': {
+            'threadId': 'root', 'turn': {'id': 'active', 'status': 'completed'}}})
+        self.delivery._observe(self.root_usage(amount=40))
+        self.assertEqual(1, self.usage_count())
+
+    def test_root_attachment_recovers_without_discovery_active_turn(self):
+        self.prepare_root_attachment()
+        self.root.pop('activeTurnId')
+        self.attach_root()
+        self.delivery._observe(self.root_usage())
+        self.assertEqual(1, self.usage_count())
+
+    def test_root_attachment_reconnect_excludes_replay_and_keeps_live_helper(self):
+        self.prepare_root_attachment()
+        self.collector.observe_descendant(self.child())
+        for thread in ('root', 'child'):
+            self.delivery._observe({'method': 'turn/started', 'params': {
+                'threadId': thread, 'turn': {'id': 'active'}}})
+        self.delivery.detached = {'root': self.delivery.collectors.pop('root')}
+        helper_usage = self.root_usage()
+        helper_usage['params']['threadId'] = 'child'
+        self.resume_events = [self.root_usage(), helper_usage]
+        self.attach_root()
+        self.assertEqual(1, self.usage_count())
+        self.delivery._observe(self.root_usage(amount=30))
+        self.assertEqual(2, self.usage_count())
+        self.assertIs(self.collector, self.delivery.collectors['root'])
+        self.assertEqual(['root'], [params['threadId'] for method, params in self.methods
+                                   if method == 'thread/resume'])
+
+    def test_root_attachment_idle_history_never_enables_old_turn(self):
+        self.prepare_root_attachment()
+        self.history['status']['type'] = 'idle'
+        self.attach_root()
+        self.delivery._observe(self.root_usage())
+        self.assertEqual(0, self.usage_count())
+
+    def test_root_attachment_does_not_select_earlier_in_progress_history(self):
+        self.prepare_root_attachment()
+        self.history['turns'].append({'id': 'latest', 'status': 'completed', 'items': []})
+        self.attach_root()
+        self.delivery._observe(self.root_usage())
+        self.delivery._observe(self.root_usage(turn='latest'))
+        self.assertEqual(0, self.usage_count())
+
+    def test_root_attachment_completion_during_readback_beats_stale_active_history(self):
+        self.prepare_root_attachment()
+        self.readback_events = [{'method': 'turn/completed', 'params': {
+            'threadId': 'root', 'turn': {'id': 'active', 'status': 'completed'}}}]
+        self.attach_root()
+        self.delivery._observe(self.root_usage())
+        self.assertEqual(0, self.usage_count())
+
+    def test_root_attachment_new_turn_during_readback_beats_stale_active_history(self):
+        self.prepare_root_attachment()
+        self.readback_events = [{'method': 'turn/started', 'params': {
+            'threadId': 'root', 'turn': {'id': 'new-turn'}}}]
+        self.attach_root()
+        self.delivery._observe(self.root_usage())
+        self.assertEqual(0, self.usage_count())
+        self.delivery._observe(self.root_usage(turn='new-turn'))
+        self.assertEqual(1, self.usage_count())
+
     def test_archived_history_survives_duplicate_discovery_without_resume(self):
         child = self.child()
         self.threads['child'] = child

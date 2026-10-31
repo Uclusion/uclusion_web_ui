@@ -163,9 +163,9 @@ SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCLI.py': '3d8df6021c3daa8a7451c887bda835ff3b153bd869af0565727736bfb87f4ae4',
     'uclusionMCPProxy.py': '2eee5444ac3c70e54971058614486f909d575d018bc6604fd88ee1582c5044d2',
     'uclusionSetupMCP.py': 'c4740e2c6a5e17e594cb7010e740d494a0e3a90cab237402e32e61061979bd22',
-    'uclusionCodexNative.py': 'f036f0fec3692a3f6e9e8f4873cebb4cf4ee921fdb2e36cff398ebcaed496d46',
+    'uclusionCodexNative.py': '92a000adb52db86dc662114f916b379b89d1b5ec31114aad33972ce1b1d45d27',
     'uclusionUpdateNotices.py': 'a9d6ed9e082bce28ac8340d242ad34d2f180a35de6821ce72c0684503e84b7e8',
-    'uclusionTokenAudit.py': '1dd569ac0b47b8153ef2873c367889ea8d6aabc403b7b598c1015459fd7bc1dc',
+    'uclusionTokenAudit.py': 'dfd31d35a9133f3f6f41f6abf27727515bccbbbad4e8c566207df542d50e3066',
     'uclusionTokenBudget.py': '936891478e05b74af69e754571bb684cd1771ffb5db4e7cfbae79c9a5d6b6195',
 }
 USER_HOME = os.path.expanduser('~')

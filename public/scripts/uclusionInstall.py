@@ -351,11 +351,11 @@ WORKFLOW_ASSET_PATHS = {
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
     'completion_actions_reference': '5caaf9c9f5c5e9aa061db039473e8b96ec1d3f7ab2d08ee182d6f509be9d7cc5',
-    'coordinator_lifecycle_reference': '7a85d41fc10bf4413cdc21a1058610e089e4667ea157491a2cdb54c358db1b40',
+    'coordinator_lifecycle_reference': '8c4acf75e384b30c2a90b406627e02073f122e7becc1605f12b62739ea0fcde4',
     'claude_stub': '46505310801e92ec7d4b8242963b9236436209ebc97706bee615d3fa879cc60e',
     'codex_stub': 'd9bfce4455b0676a582cd03a38ba173d4c0c7767191785e58a17e74404eff6d0',
     'cursor_stub': 'f7f8e50d284760d50e092dbb91c3b26ce2d80fc2f5f599742baab020283a4b3f',
-    'skill': '3c150e0928ef135b76659323d9bd3a609e7d3c97691b678a0c73162b9a32a034',
+    'skill': 'bb3aa3532cd3ce7c5e197a2facf75ef9a240e44137594ab7fda0130f34053c69',
     'claude_delivery_reference': '1eb48584a8020306beca763d79de4fd947314b1862820d71157711b02eb5be1a',
     'cursor_delivery_reference': '38eb91d1deaa0bb87ea2c27a2d1e6e347387ac7318c29ed9ba2f495d93fcb729',
     'approval_reference': 'c373e39e36ff8920656003536f4b1e458da87b0337badf745c7052066a39ff7b',
@@ -366,7 +366,7 @@ WORKFLOW_ASSET_SHA256 = {
     'audit_reference': '967463ae956ee2e6f1f2f1d9f7b5d30457f573823356c94c84989f4a4b602e2c',
     'claims_reference': 'df03abea45bedc953366436c6b0799935641f5236e6876b5dfca1c337c9c2baa',
     'backlog_maintenance_reference': 'd98182ea4fe8fa05483d76839168ee037004ac4418d7fe73f531c8123f3685d4',
-    'capsule_dispatch_reference': 'a9f251f1a05118e8b93010e9282df598b6e24de78cfb70eb2be755366416a6cb',
+    'capsule_dispatch_reference': '18bc94252491544a0c6386976aae84d3a49600ed18936d058f8199f0fa230f4f',
     'delivery_common_reference': 'f80b4b2553716dcb6c52b73471ccd1b2ceafdb2af49bc8d3cf5af1a6792e79b2',
     'durable_records_reference': '04fbc73443db7cfb80fff472145d1ec31849276f3457dd5e1693600eda2cedf8',
     'history_search_reference': 'ae6634ed2f0f956635420fa37bc690711976dea7dbb8dd50678e35dd7675a55a',
@@ -380,10 +380,10 @@ WORKFLOW_ASSET_SHA256 = {
     'discovery_helper_reference': '5e453c1027a6b3a7bb951245ff302b0bf53a311dd53621d8305144639c9990e6',
     'standalone_helper_reference': '83b77d34889715af2f9e4b9e35a803a07298a6fad4c4a78b9fe870f5448c8735',
     'openai_metadata': '0948fb0e2e8d0800019e0a244cfdec54ff420a8af6f20683aca1486d194ab202',
-    'design_skill': '2ae3d24180ba2eb960cee067f5c4af67312f25259580fee1ee6b51221f329bfb',
-    'design_openai_metadata': '9add4a9e0a25cc1897056e3caa020923a712016fc0ac2fbe8ad441c8df22122e',
+    'design_skill': 'dfe0173ee713e4ac011a7ab5353e18c290880ee514fdbed36a214450a82a75a3',
+    'design_openai_metadata': '6bee6ddf6749f76e6ab11ff1cfb97e418f60ce97d93cda5bd5e24c1fd6e0d151',
     'demo_brief': 'b68f6501270c63456c19053d1b5af296350288754239c7f9d6074a3a5497789f',
-    'token_manifest': 'a9dd8f4150b3e3412475c1cee73eaac1c690995128d6f2089b065abb92147d1a',
+    'token_manifest': 'bfadb9812ba2ecf2613168f3ae34b0d2ba3d3895936c9069f26684f82fd2938f',
     'discovery_routing_reference': '41a82c2fa1435fc9f6faefa30dd775f499cbc9afcb18d68187c26471d5528bcb',
 }
 CLIENT_STUB_ASSET = {

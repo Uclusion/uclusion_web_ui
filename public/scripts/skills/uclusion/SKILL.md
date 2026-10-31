@@ -20,7 +20,7 @@ Use incoming and returned identities for routing. A named stage event supplies t
 | --- | --- |
 | Explicit manual job-stage instruction or the question helper's qualified transition request | `references/operation-helper.md` |
 | Pending assistance, Requires Input, Approvable, question/option/vote handling or job approval | `references/question-helper.md` |
-| Known current-capsule update, requested contract work or independent capsule cold review | Selected sibling `../uclusion-design/SKILL.md` |
+| Known current-capsule update or requested contract work | Selected sibling `../uclusion-design/SKILL.md` |
 | Doable work or a bounded implementation request | `references/implementation-helper.md` |
 | Bounded investigation or independent code review | `references/investigation-helper.md` |
 | Reviewable work, returned implementation, human-review publication/recovery or current-review feedback | `references/implementation-helper.md` |

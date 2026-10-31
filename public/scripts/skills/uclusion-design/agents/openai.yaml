@@ -1,6 +1,6 @@
 interface:
   display_name: "Uclusion Design"
-  short_description: "Author or review Uclusion design contracts"
-  default_prompt: "Use $uclusion-design for the assigned contract authoring or independent review work."
+  short_description: "Author and reconcile Uclusion design contracts"
+  default_prompt: "Use $uclusion-design for the assigned contract authoring or reconciliation work."
 policy:
   allow_implicit_invocation: true

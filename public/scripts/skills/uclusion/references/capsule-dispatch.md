@@ -1,7 +1,7 @@
 <!-- uclusion-skill-reference:v1 -->
 # Capsule publication and incorporation
 
-The capsule author uses this procedure to publish a reviewed contract or reconcile an observed current-capsule update. Requesting roles supply their scoped need and available target, question, option, version and receipt identities through the coordinator, then consume the confirmed outcome.
+The capsule author uses this procedure to publish a contract or reconcile an observed current-capsule update. Requesting roles supply their scoped need and available target, question, option, version and receipt identities through the coordinator, then consume the confirmed outcome.
 
 ## Publish the selected contract
 

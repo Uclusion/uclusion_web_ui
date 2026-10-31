@@ -621,6 +621,15 @@
     "openai": 1280
    }
   },
+  "30844fb00cf34e1ef0ae57f0a99486ff4ffdbe83b040a10cb194b6fc2c7f945d": {
+   "bytes": 6923,
+   "kind": "skill",
+   "name": "skills/uclusion/references/implementation-helper.md",
+   "tokens": {
+    "claude": 2077,
+    "openai": 1158
+   }
+  },
   "312604bc39bc7c0ab259493ab30399c10658d0c0a4b892ddfc3e41aece7bc85c": {
    "bytes": 5077,
    "kind": "skill",
@@ -1890,6 +1899,15 @@
     "openai": 754
    }
   },
+  "7a85d41fc10bf4413cdc21a1058610e089e4667ea157491a2cdb54c358db1b40": {
+   "bytes": 7571,
+   "kind": "skill",
+   "name": "skills/uclusion/references/coordinator-lifecycle.md",
+   "tokens": {
+    "claude": 2294,
+    "openai": 1354
+   }
+  },
   "7ad93d47412b989cd3328b112a4e3f38cddf6a93c9501962c53ba60c2cabfdd8": {
    "bytes": 2067,
    "kind": "skill",
@@ -2617,6 +2635,15 @@
    "tokens": {
     "claude": 2620,
     "openai": 1630
+   }
+  },
+  "a9f251f1a05118e8b93010e9282df598b6e24de78cfb70eb2be755366416a6cb": {
+   "bytes": 5032,
+   "kind": "skill",
+   "name": "skills/uclusion/references/capsule-dispatch.md",
+   "tokens": {
+    "claude": 1537,
+    "openai": 881
    }
   },
   "aad8c4aaf9f4e684c04c65452d98f1a5cb4fd259d80d8de79eed2e7d1569933f": {

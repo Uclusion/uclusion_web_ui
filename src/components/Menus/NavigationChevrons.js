@@ -256,6 +256,9 @@ export default function NavigationChevrons(props) {
   }
 
   function doNextNavigation() {
+    // B-all-715: reach the destination before changing any notification.
+    navigate(history, nextUrl.useUrl || nextUrl.url, false, false,
+      nextUrl.notification ? { notification: nextUrl.notification } : undefined);
     if (nextUrl.kind === 'message') {
       // Record the streak origin only. Intermediate highlighted hops are not Back targets, and a
       // notification cleared while you stood on it is not one either (T-all-2492).
@@ -265,15 +268,13 @@ export default function NavigationChevrons(props) {
         && !isRemovedNotificationUrl(currentOriginUrl)) {
         messagesDispatch(addNavigation(currentOriginUrl, allExistingUrls));
       }
-    } else {
-      messagesDispatch(addNavigation(currentNavUrl, allExistingUrls));
-      messagesDispatch(addNavigation(nextUrl.url, allExistingUrls));
+      if (nextUrl.message) {
+        dehighlightMessage(nextUrl.message, messagesDispatch);
+      }
+      return;
     }
-    if (nextUrl.message) {
-      dehighlightMessage(nextUrl.message, messagesDispatch);
-    }
-    navigate(history, nextUrl.useUrl || nextUrl.url, false, false,
-      nextUrl.notification ? { notification: nextUrl.notification } : undefined);
+    messagesDispatch(addNavigation(currentNavUrl, allExistingUrls));
+    messagesDispatch(addNavigation(nextUrl.url, allExistingUrls));
   }
 
   useLayoutEffect(() => {

@@ -1,12 +1,12 @@
 ---
 name: uclusion-design
-description: Author and reconcile Uclusion design contracts through publication.
+description: Own same-contract requirements questions and Uclusion design contracts through settlement.
 ---
 <!-- uclusion-design-skill:v1 -->
 <!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->
 # Uclusion Design
 
-Follow the selected capsule assignment. The author owns the contract, publication and reconciliation. The coordinator carries bounded requests and results; each role interprets its own evidence and authority.
+Follow the selected canonical contract assignment. Own its requirements questions, answer qualification, delegated choices, required replies/votes, contract authoring, publication and settlement as one retained role. Keep this ownership through answers, recoverable waits and publication recovery. The coordinator carries bounded requests and results; each role interprets its own evidence and authority.
 
 Read linked procedures completely when their actions below apply. Reuse current held bodies; reload changed, incomplete or lost instructions. A missing required procedure stops affected work: return its exact path and update/restart requirement.
 
@@ -18,7 +18,11 @@ Fetch the selected target and relevant incoming records with `get_job`, using `i
 
 Establish the actual job, capsule owner, complete current body, advertised R-code and actual version. A cohesive job uses its own capsule; an independent top-level task uses its own without job fallback; grouped work uses its top-level parent's. Verification-produced work retains its originating contract and a named delta. Comments supply context. An explicit capsule/version pin must match; available version hints alone are not pins, and reads return current state. Reconcile missing, conflicting or forwarded changed evidence before the next affected decision, preserving newer confirmed state. Correct straightforward errors; present material unresolved disagreement to the human with the decision and consequences.
 
-Use the original request, verbatim human instructions and supplied identities to locate evidence. For job question/suggestion evidence and actions, use [job-assistance](../uclusion/references/job-assistance.md) for qualification and role ownership: clear non-AI, non-advisory answers or Approvable For votes qualify; Human Resolve delegates choice and leaves versioned handling pending. The question owner completes required replies/votes. Retain the question/option text, selected outcome, exact identities, handled rendered version, pending state and intended targets; validate them before publication. Return no-change settlement to the question owner. A newer qualifying answer that conflicts with the current body requires the changed contract to be established before affected work resumes, even if no repository edit was needed.
+Use the original request, verbatim human instructions and supplied identities to locate evidence. Accept requirements questions only after confirming they concern this same canonical contract; a shared job alone is insufficient. Return unrelated information/status requests, standalone questions and business-value approval to their question owner, preserving any retained contract work. Implementation retains requirements discovery/batching, contract consumption and incorporation acknowledgement. Manual stage actions retain their operation owner.
+
+For accepted questions, use [job-assistance](../uclusion/references/job-assistance.md) as their question owner: qualify clear non-AI, non-advisory answers or Approvable For votes; Human Resolve delegates choice and leaves versioned handling pending. Complete required replies/votes before settlement and never write inside a resolved question. Retain the question/option text, selected outcome, exact identities, handled rendered version, pending state and every intended target. Settle a genuine no-change answer immediately with its handled `expected_question_version` and `included_in_capsule:false`, without forcing a rewrite. A newer qualifying answer that conflicts with the current body requires reconciliation before affected work resumes, even if no repository edit is needed.
+
+Author and publish changes to this contract yourself under [capsule publication and incorporation](../uclusion/references/capsule-dispatch.md). If another canonical scope needs its own author, request that bounded publication through the coordinator while retaining this question. Confirm every intended target before acknowledging incorporation; preserve handled and returned settlement versions separately. Keep unfinished handling visible and retain successful publications through later acknowledgement or note failures; reconcile changed evidence and retry only unfinished operations.
 
 Before permitted Uclusion writes, use [durable-records](../uclusion/references/durable-records.md) for threading, authorship and receipts. File material missing facts, unsettled choices or permissions before affected composition using `ask_question` under [question-tools](../uclusion/references/question-tools.md). Unknown observations need an open question; real discrete choices may have options. Source inspection does not establish unobserved runtime behavior. Preserve independent human permissions and approved type, quantity and scope for any investigation or verification performed. Return needed work outside this role to the caller with the target, requested outcome and available evidence/receipt identities.
 

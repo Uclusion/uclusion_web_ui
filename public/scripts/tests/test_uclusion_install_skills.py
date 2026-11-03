@@ -149,8 +149,10 @@ class SkillPackageContractTests(unittest.TestCase):
         # Product docs use wildcard forms (for example J-*).  A concrete code
         # would accidentally couple every installation to the workspace where
         # the package was authored.
+        # Tool descriptions name the placeholder example workspace, such as
+        # Q-example-1_O-1, which couples to no real workspace.
         concrete_code = re.compile(
-            r'\b(?:J|T|B|Q|S|O|I|R|C)-[A-Za-z0-9][A-Za-z0-9_-]*-\d+\b'
+            r'\b(?:J|T|B|Q|S|O|I|R|C)-(?!example-)[A-Za-z0-9][A-Za-z0-9_-]*-\d+\b'
         )
         package_files = []
         for root, _dirs, names in os.walk(SKILL_SOURCE_DIR):
@@ -770,6 +772,127 @@ class SkillAndStubInstallerTests(unittest.TestCase):
             self.assertTrue(os.path.isdir(skill_dir))
             self.assertTrue(os.path.isdir(backup))
             self.assertTrue(os.path.isfile(transaction_path))
+
+
+class SingleSkillRoleTests(unittest.TestCase):
+    """One Uclusion skill whose helpers load their role by name."""
+
+    ROLE_NAME = re.compile(r'\| `([a-z-]+)`(?: for [^|]*)? \|$', re.MULTILINE)
+
+    def setUp(self):
+        self.bundle = source_bundle()
+        self.fetch_bundle = mock.Mock(return_value=self.bundle)
+
+    def install(self, skill_dir, resident_path, client):
+        return INSTALL.install_skill_and_stub(
+            self.fetch_bundle, skill_dir, resident_path, client, client.title(),
+            assume_yes=True,
+        )
+
+    def routed_roles(self):
+        roles = set(self.ROLE_NAME.findall(read_text(SKILL_SOURCE_PATH)))
+        routing = read_text(os.path.join(SKILL_SOURCE_DIR, 'references', 'discovery-routing.md'))
+        roles.update(re.findall(r'(?:fresh|Retain one) `([a-z-]+)` helper', routing))
+        return roles
+
+    def test_bundle_ships_one_skill_and_no_design_package(self):
+        self.assertNotIn('design_skill', INSTALL.WORKFLOW_ASSET_PATHS)
+        self.assertFalse(any(
+            path.startswith(f'skills/{INSTALL.RETIRED_DESIGN_SKILL_NAME}/')
+            for path in INSTALL.WORKFLOW_ASSET_PATHS.values()
+        ))
+        self.assertFalse(os.path.exists(os.path.join(SCRIPT_DIR, 'skills', INSTALL.RETIRED_DESIGN_SKILL_NAME)))
+        with self.assertRaises(ValueError):
+            INSTALL._skill_package_definition(INSTALL.RETIRED_DESIGN_SKILL_NAME)
+
+    def test_every_routed_role_is_found_by_its_name(self):
+        roles = self.routed_roles()
+        self.assertTrue({'implementation', 'question', 'operation', 'investigation', 'standalone',
+                         'discovery', 'export-search', 'backlog-maintenance', 'design'} <= roles, roles)
+        packaged = {relative.replace(os.sep, '/') for _key, relative in INSTALL.SKILL_PACKAGE_ASSETS}
+        with tempfile.TemporaryDirectory() as temp_dir:
+            skill_dir = os.path.join(temp_dir, '.claude', 'skills', 'uclusion')
+            self.install(skill_dir, os.path.join(temp_dir, 'CLAUDE.md'), 'claude')
+            for role in sorted(roles):
+                with self.subTest(role=role):
+                    relative = f'roles/{role}.md'
+                    self.assertIn(relative, packaged)
+                    body = read_text(os.path.join(skill_dir, 'roles', f'{role}.md'))
+                    self.assertTrue(body.startswith(INSTALL.SKILL_REFERENCE_MARKER))
+                    self.assertTrue(body.rstrip().endswith(INSTALL.SKILL_REFERENCE_END_MARKER))
+                    tools = re.findall(r'^Tools: (.+)$', body, re.MULTILINE)
+                    if tools:
+                        # Whole-list clients read the role's generated tool file.
+                        self.assertIn(f'roles/{role}-tools.md', packaged)
+                        self.assertIn(f'[roles/{role}-tools.md]({role}-tools.md)', body)
+                        listed = read_text(os.path.join(skill_dir, 'roles', f'{role}-tools.md'))
+                        for name in re.findall(r'`([a-z_]+)`', tools[0]):
+                            self.assertIn(f'## `{name}`', listed)
+
+    def test_install_removes_a_marked_design_skill_for_every_client(self):
+        cases = (
+            ('claude', os.path.join('.claude', 'skills'), 'CLAUDE.md'),
+            ('cursor', os.path.join('.cursor', 'skills'), os.path.join('.cursor', 'rules', 'uclusion.mdc')),
+            ('codex', os.path.join('.agents', 'skills'), 'AGENTS.md'),
+        )
+        for client, skills_root, resident in cases:
+            with self.subTest(client=client), tempfile.TemporaryDirectory() as temp_dir:
+                skills = os.path.join(temp_dir, skills_root)
+                design_dir = os.path.join(skills, INSTALL.RETIRED_DESIGN_SKILL_NAME)
+                write_text(os.path.join(design_dir, 'SKILL.md'),
+                           f'---\nname: uclusion-design\n---\n{INSTALL.RETIRED_DESIGN_SKILL_MARKER}\n'
+                           f'Old design role\n{INSTALL.RETIRED_DESIGN_SKILL_END_MARKER}\n')
+                write_text(os.path.join(design_dir, 'agents', 'openai.yaml'), 'interface: {}\n')
+                skill_dir = os.path.join(skills, 'uclusion')
+                self.assertTrue(self.install(skill_dir, os.path.join(temp_dir, resident), client))
+                self.assertFalse(os.path.lexists(design_dir))
+                self.assertTrue(os.path.isfile(os.path.join(skill_dir, 'roles', 'design.md')))
+
+    def test_install_leaves_an_unmarked_design_folder_untouched(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            skills = os.path.join(temp_dir, '.claude', 'skills')
+            design_dir = os.path.join(skills, INSTALL.RETIRED_DESIGN_SKILL_NAME)
+            mine = '---\nname: uclusion-design\n---\nSomeone else\'s skill of the same name.\n'
+            write_text(os.path.join(design_dir, 'SKILL.md'), mine)
+            self.assertTrue(self.install(os.path.join(skills, 'uclusion'),
+                                         os.path.join(temp_dir, 'CLAUDE.md'), 'claude'))
+            self.assertEqual(mine, read_text(os.path.join(design_dir, 'SKILL.md')))
+            self.assertEqual(('kept', design_dir),
+                             INSTALL.remove_retired_design_skill(os.path.join(skills, 'uclusion')))
+
+    def test_interrupted_design_install_leftovers_go_with_it(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            skills = os.path.join(temp_dir, '.codex-skills')
+            design_dir = os.path.join(skills, INSTALL.RETIRED_DESIGN_SKILL_NAME)
+            marked = f'{INSTALL.RETIRED_DESIGN_SKILL_MARKER}\nx\n{INSTALL.RETIRED_DESIGN_SKILL_END_MARKER}\n'
+            write_text(os.path.join(design_dir, 'SKILL.md'), marked)
+            write_text(os.path.join(design_dir + INSTALL.WORKFLOW_STAGING_SUFFIX, 'SKILL.md'), marked)
+            write_text(design_dir + INSTALL.WORKFLOW_TRANSACTION_SUFFIX, INSTALL.json.dumps(
+                {'owner': INSTALL.WORKFLOW_TRANSACTION_OWNER, 'skillDir': design_dir}))
+            self.assertEqual(('removed', design_dir),
+                             INSTALL.remove_retired_design_skill(os.path.join(skills, 'uclusion'), report=False))
+            for path in (design_dir, design_dir + INSTALL.WORKFLOW_STAGING_SUFFIX,
+                         design_dir + INSTALL.WORKFLOW_TRANSACTION_SUFFIX):
+                self.assertFalse(os.path.lexists(path), path)
+
+    def test_each_client_registration_declares_its_description_type(self):
+        self.assertEqual({'claude': 'on-demand', 'codex': 'whole-list', 'cursor': 'whole-list'},
+                         INSTALL.TOOL_DESCRIPTION_TYPES)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            for client, label, audit_client in (('claude', 'Claude Code', 'claude'),
+                                                ('cursor', 'Cursor', None)):
+                with self.subTest(client=client):
+                    path = os.path.join(temp_dir, client + '.json')
+                    INSTALL.register_mcp_json(path, label, 'workspace-1', 'stage', require_existing=False,
+                                              token_audit_client=audit_client)
+                    args = INSTALL.json.loads(read_text(path))['mcpServers']['uclusion']['args']
+                    index = args.index('--tool-descriptions')
+                    self.assertEqual(INSTALL.TOOL_DESCRIPTION_TYPES[client], args[index + 1])
+            block = INSTALL.build_codex_mcp_block('workspace-1', 'stage')
+            self.assertIn('"--tool-descriptions",', block)
+            self.assertIn('"whole-list",', block)
+        with self.assertRaises(ValueError):
+            INSTALL.runtime_mcp_descriptor('workspace-1', 'stage', tool_descriptions='everything')
 
 
 class NativeSkillRoutingTests(unittest.TestCase):

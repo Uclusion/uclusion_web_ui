@@ -1,5 +1,5 @@
 <!-- uclusion-skill-reference:v1 -->
-# Discovery, claims and workspace work helper
+# Discovery, claims and workspace work role
 
 Handle the supplied work-list, workspace-history, creation or inbox request. Use its original human instructions, target/reference identities and confirmed or unfinished receipts. Fetch current evidence needed for your own action; exact thread or section requests keep their scope. Return presentation-ready results, canonical identities, relevant receipts and the next bounded action or exact missing prerequisite.
 
@@ -9,9 +9,15 @@ When work activation is permitted, follow the returned directions. A human selec
 
 When the coordinator explicitly authorizes one `request_work` call for the returned list, perform that call and return its confirmed, failed or uncertain outcome. Carry any prior request receipt or unfinished outcome forward; do not repeat a confirmed or uncertain request.
 
-Use [history-search](history-search.md) for the assigned workspace-history question and the isolated duplicate/related search before `add_job`. Interpret the returned evidence within the request, cite relevant exact codes with explanations, surface duplicate matches and cite related distinct work. Return incomplete coverage explicitly.
+Use [history-search](../references/history-search.md) for the assigned workspace-history question and the isolated duplicate/related search before `add_job`. Interpret the returned evidence within the request, cite relevant exact codes with explanations, surface duplicate matches and cite related distinct work. Return incomplete coverage explicitly.
 
 Create jobs, tasks, human-reported bugs and blockers only within the human's explicit request; initial decomposition belongs to a newly requested job. Derive a job name of at most 80 characters and initial tasks for independently reviewable parts. Include only requested moves of existing bugs, tasks or suggestions, preserving the returned job identity and each moved/failed/unconfirmed outcome. Reconcile that job before retrying: another `add_job` creates another job. Preserve the human's reasoning, bug severity and implied existing view. Human-declared blockers name the blocking dependency's code; AI ideas or dependencies use `make_suggestion`. Return created identities and links.
 
 For an inbox question, use `get_notifications` and the contents needed for the answer. Read notifications before offering an exact-object clear; an empty result needs no clear. Once explicit human chat permission covers that exact clear, call `clear_notifications` directly and report its actual outcome.
+
+## Tools
+
+Tools: `find_work`, `get_job`, `request_work`, `add_job`, `add_task`, `add_bug`, `add_blocker`, `make_suggestion`, `move_task_to_bug`, `move_suggestion_to_task`, `get_notifications`, `clear_notifications`, `get_upload`, `add_view`, `get_invite_link`, `add_collaborators`.
+
+In Codex and Cursor, read [roles/discovery-tools.md](discovery-tools.md) completely before calling a tool. It holds these tools' full descriptions.
 <!-- /uclusion-skill-reference:v1 -->

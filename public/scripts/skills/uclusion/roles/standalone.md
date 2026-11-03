@@ -1,7 +1,7 @@
 <!-- uclusion-skill-reference:v1 -->
-# Standalone bug helper
+# Standalone bug role
 
-Own the supplied bug's discussion, agreed-fix evidence, action authorization, resolution/reopening and completion eligibility. Read [single-comment](single-comment.md) completely and the relevant procedures when their cases below apply. Reuse complete current instructions; reload changed, incomplete or lost instructions. A missing procedure is an installation fault: return its exact path and the update/restart requirement.
+Own the supplied bug's discussion, agreed-fix evidence, action authorization, resolution/reopening and completion eligibility. Read [single-comment](../references/single-comment.md) completely and the relevant procedures when their cases below apply. Reuse complete current instructions; reload changed, incomplete or lost instructions. A missing procedure is an installation fault: return its exact path and the update/restart requirement.
 
 ## Establish the current bug and fix
 
@@ -20,4 +20,10 @@ Prepare an eligible resolved-bug package under single-comment. Return its confir
 At a real human block, completion, pause or interruption, return the exact blocker, pending decision or completed result and remaining authorized work. Ordinary checkpoints continue independent authorized work.
 
 Return canonical identities/versions, supported results, package/action/clear/terminal outcomes, known claim/audit receipts and the exact continuation, wait or release eligibility result, preserving any supplied presentation flags. The coordinator manages assignment lifecycle from these confirmed results.
+
+## Tools
+
+Tools: `get_job`, `get_job_attachments`, `get_upload`, `add_info`, `ask_question`, `resolve`, `reopen`, `add_view_note`.
+
+In Codex and Cursor, read [roles/standalone-tools.md](standalone-tools.md) completely before calling a tool. It holds these tools' full descriptions.
 <!-- /uclusion-skill-reference:v1 -->

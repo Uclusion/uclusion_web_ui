@@ -168,8 +168,7 @@ class EvidenceTests(unittest.TestCase):
             skill_root = (self.root / 'plugin/skills' if client == 'claude'
                           else self.root / '.agents/skills')
             skill_root.mkdir(parents=True)
-            for package in ('uclusion', install.DESIGN_SKILL_NAME):
-                (skill_root / package).symlink_to(SCRIPTS / 'skills' / package)
+            (skill_root / 'uclusion').symlink_to(SCRIPTS / 'skills' / 'uclusion')
             with (mock.patch.object(install, '__file__', str(scripts / 'uclusionDemoSupervisor.py')),
                   mock.patch.object(install, 'demo_bootstrap_path', return_value=str(bootstrap)),
                   mock.patch.object(install, 'demo_brief_path', return_value=str(brief)),

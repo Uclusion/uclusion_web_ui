@@ -9,12 +9,15 @@ import ReadOnlyQuillEditor from '../../TextEditors/ReadOnlyQuillEditor';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { getMessageId } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import { formatBacklogWindowClause } from './formatBacklogWindowClause';
 
 function BacklogReportStep(props) {
   const { message } = props;
   const intl = useIntl();
   const classes = wizardStyles();
   const [, messagesDispatch] = useContext(NotificationsContext);
+  // formatDate with no options is the viewer's numeric calendar date.
+  const reportText = formatBacklogWindowClause(message.text, (date) => intl.formatDate(date));
 
   function myOnFinish() {
     // Not an UNREAD type so the row must be force deleted to leave the inbox. Only this user's row goes.
@@ -32,7 +35,7 @@ function BacklogReportStep(props) {
         {intl.formatMessage({ id: 'BacklogMaintenanceExplanation' })}
       </Typography>
       {/* The backend stores the report already converted to HTML, with each short code a link */}
-      <ReadOnlyQuillEditor value={message.text} id={`backlogReport${getMessageId(message)}`} />
+      <ReadOnlyQuillEditor value={reportText} id={`backlogReport${getMessageId(message)}`} />
       <div style={{marginBottom: '1rem'}}/>
       <WizardStepButtons
         {...props}

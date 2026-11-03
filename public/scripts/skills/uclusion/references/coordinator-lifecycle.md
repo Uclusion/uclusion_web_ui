@@ -15,7 +15,7 @@ Use the [retention and release section](claims.md#retention-and-release) for hel
 
 ## Start and continue helpers
 
-Start a new helper with fresh context (`fork_turns:"none"` in Codex), its selected absolute complete role path, target, original request, verbatim human instructions, available reference/version and repository/source locators, and confirmed/unfinished receipts. Keep coordinator/bootstrap history and session/queue flags here. The helper obtains its own evidence and authority.
+Start a new helper with fresh context (`fork_turns:"none"` in Codex), its role name, the selected package folder and client, target, original request, verbatim human instructions, available reference/version and repository/source locators, and confirmed/unfinished receipts. Keep coordinator/bootstrap history and session/queue flags here. The helper obtains its own evidence and authority.
 
 For a permitted human-attributed write using `for_human:true`, supply the affected canonical target and its `is_my_lane` classification: true when that work belongs to the retained assignment, false otherwise. If membership is unknown, obtain the missing canonical membership from the helper before classifying it. Supply the classification for each affected target, including a nested human vote when applicable; forward a changed classification before affected writes. Keep the retained assignment itself here.
 

@@ -2,7 +2,7 @@
 <!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->
 # Uclusion bootstrap for Claude Code
 
-Helpers follow only their selected complete role and bounded assignment, including instruction-source work; capsule helpers use their selected design package. The rest applies only to dispatchers.
+Helpers follow only their selected role file and bounded assignment, including instruction-source work. The rest applies only to dispatchers.
 
 Use the closest project bootstrap's adjacent `.claude/skills/uclusion/SKILL.md` over personal/user packages; otherwise use `/uclusion`. Keep that exact package and resident client/environment together.
 

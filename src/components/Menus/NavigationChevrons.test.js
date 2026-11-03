@@ -13,6 +13,7 @@ import { SearchResultsContext } from '../../contexts/SearchResultsContext/Search
 import { LeaderContext } from '../../contexts/LeaderContext/LeaderContext';
 import { SyncedMessagesContext } from '../../contexts/SyncedMessagesContext/SyncedMessagesContext';
 import { navigate } from '../../utils/marketIdPathFunctions';
+import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import NavigationChevrons from './NavigationChevrons';
 import { handleRichTextLinkClick } from '../../utils/windowUtils';
 
@@ -97,7 +98,7 @@ jest.mock('../../contexts/MarketsContext/marketsContextHelper', () => ({
   getMarket: (state, id) => state.marketDetails?.find((market) => market.id === id)
 }));
 jest.mock('../../contexts/NotificationsContext/notificationsContextHelper', () => ({
-  dehighlightMessage: () => undefined,
+  dehighlightMessage: jest.fn(),
   getInboxTarget: () => '/inbox',
   getMessageId: (message) => message.type_object_id,
   getNotificationSyncState: (messages) => ({
@@ -469,6 +470,29 @@ describe('NavigationChevrons', () => {
     expect(container.querySelector('#backNavigation').disabled).toBe(false);
     act(() => container.querySelector('#backNavigation').click());
     expect(navigate).toHaveBeenLastCalledWith(history, '/inbox');
+  });
+
+  it('navigates to the next message before changing notifications', () => {
+    const commentsState = { 'market-a': [
+      { id: 'second', version: 2, comment_type: 'REPORT', investible_id: 'job-a' }
+    ] };
+    const message = {
+      type: 'UNREAD_COMMENT', type_object_id: 'UNREAD_COMMENT_second',
+      comment_id: 'second', market_id: 'market-a',
+      comment_list: ['second'], comment_version: 2,
+      is_highlighted: true, updated_at: 2
+    };
+    const order = [];
+    const messagesDispatch = jest.fn(() => { order.push('dispatch'); });
+    navigate.mockImplementation(() => { order.push('navigate'); });
+    dehighlightMessage.mockImplementation(() => { order.push('dehighlight'); });
+    useLocation.mockReturnValue({ pathname: '/dialog/market-a/job-a', search: '', hash: '' });
+    act(() => root.render(navigationChevronsTree({
+      commentsState, messages: [message], syncedMessages: [message],
+      navigations: [], messagesDispatch
+    })));
+    act(() => container.querySelector('#nextNavigation').click());
+    expect(order).toEqual(['navigate', 'dispatch', 'dehighlight']);
   });
 
 });

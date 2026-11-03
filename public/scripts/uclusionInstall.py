@@ -33,7 +33,7 @@ Without ``--clients`` the installer asks whether to configure Uclusion globally
   (``.mcp.json`` for Claude Code, ``.cursor/mcp.json`` for Cursor), and the
   workflow docs
   (``CLAUDE.md``, ``.cursor/rules/uclusion.mdc``, ``AGENTS.md``) plus each
-  client's native ``skills/uclusion`` and ``skills/uclusion-design`` packages.
+  client's native ``skills/uclusion`` package.
   Claude and Cursor use their client directories; Codex uses the cross-agent
   ``.agents/skills`` path.
   Codex's native MCP table is persisted in ``.codex/config.toml`` alongside
@@ -160,8 +160,8 @@ SCRIPT_FILES = (
 # deployment gate validates this table before publishing, so a sequential S3
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
-    'uclusionCLI.py': '3d8df6021c3daa8a7451c887bda835ff3b153bd869af0565727736bfb87f4ae4',
-    'uclusionMCPProxy.py': '2eee5444ac3c70e54971058614486f909d575d018bc6604fd88ee1582c5044d2',
+    'uclusionCLI.py': 'b076c2c7ef8494d55f6019c0f90a33043f2014e8be631a0dc693611bc5caef42',
+    'uclusionMCPProxy.py': '9a50a4ea8ccc97828374e1129bc7e8774066d2670b99e54d3084f0f5bbef4d7c',
     'uclusionSetupMCP.py': 'c4740e2c6a5e17e594cb7010e740d494a0e3a90cab237402e32e61061979bd22',
     'uclusionCodexNative.py': '92a000adb52db86dc662114f916b379b89d1b5ec31114aad33972ce1b1d45d27',
     'uclusionUpdateNotices.py': 'a9d6ed9e082bce28ac8340d242ad34d2f180a35de6821ce72c0684503e84b7e8',
@@ -301,9 +301,13 @@ SKILL_MARKER = '<!-- uclusion-skill:v1 -->'
 SKILL_END_MARKER = '<!-- /uclusion-skill:v1 -->'
 SKILL_REFERENCE_MARKER = '<!-- uclusion-skill-reference:v1 -->'
 SKILL_REFERENCE_END_MARKER = '<!-- /uclusion-skill-reference:v1 -->'
-DESIGN_SKILL_NAME = 'uclusion-design'
-DESIGN_SKILL_MARKER = '<!-- uclusion-design-skill:v1 -->'
-DESIGN_SKILL_END_MARKER = '<!-- /uclusion-design-skill:v1 -->'
+# Releases before the role refactor installed a separate design skill beside
+# the Uclusion skill. Its role now ships inside the Uclusion skill, so an
+# install or update removes a sibling that carries these marks and leaves any
+# unmarked folder of the same name alone.
+RETIRED_DESIGN_SKILL_NAME = 'uclusion-design'
+RETIRED_DESIGN_SKILL_MARKER = '<!-- uclusion-design-skill:v1 -->'
+RETIRED_DESIGN_SKILL_END_MARKER = '<!-- /uclusion-design-skill:v1 -->'
 WORKFLOW_ENV_PLACEHOLDER = '{{UCLUSION_CLI}}'
 WORKFLOW_ASSET_PATHS = {
     'claude_stub': 'CLAUDE.template.md',
@@ -315,30 +319,40 @@ WORKFLOW_ASSET_PATHS = {
     'approval_reference': 'skills/uclusion/references/approval.md',
     'single_comment_reference': 'skills/uclusion/references/single-comment.md',
     'coordinator_lifecycle_reference': 'skills/uclusion/references/coordinator-lifecycle.md',
-    'export_search_reference': 'skills/uclusion/references/export-search.md',
     'review_reference': 'skills/uclusion/references/review.md',
     'completion_reference': 'skills/uclusion/references/completion.md',
     'completion_actions_reference': 'skills/uclusion/references/completion-actions.md',
     'audit_reference': 'skills/uclusion/references/audit.md',
     'claims_reference': 'skills/uclusion/references/claims.md',
-    'backlog_maintenance_reference': 'skills/uclusion/references/backlog-maintenance.md',
     'capsule_dispatch_reference': 'skills/uclusion/references/capsule-dispatch.md',
     'delivery_common_reference': 'skills/uclusion/references/delivery-common.md',
     'durable_records_reference': 'skills/uclusion/references/durable-records.md',
     'history_search_reference': 'skills/uclusion/references/history-search.md',
-    'implementation_helper_reference': 'skills/uclusion/references/implementation-helper.md',
-    'investigation_helper_reference': 'skills/uclusion/references/investigation-helper.md',
     'job_assistance_reference': 'skills/uclusion/references/job-assistance.md',
     'question_tools_reference': 'skills/uclusion/references/question-tools.md',
     'work_discovery_reference': 'skills/uclusion/references/work-discovery.md',
     'discovery_routing_reference': 'skills/uclusion/references/discovery-routing.md',
-    'question_helper_reference': 'skills/uclusion/references/question-helper.md',
-    'operation_helper_reference': 'skills/uclusion/references/operation-helper.md',
-    'discovery_helper_reference': 'skills/uclusion/references/discovery-helper.md',
-    'standalone_helper_reference': 'skills/uclusion/references/standalone-helper.md',
     'openai_metadata': 'skills/uclusion/agents/openai.yaml',
-    'design_skill': 'skills/uclusion-design/SKILL.md',
-    'design_openai_metadata': 'skills/uclusion-design/agents/openai.yaml',
+    # Each helper opens roles/<role>.md by its role name.
+    'implementation_role': 'skills/uclusion/roles/implementation.md',
+    'question_role': 'skills/uclusion/roles/question.md',
+    'operation_role': 'skills/uclusion/roles/operation.md',
+    'investigation_role': 'skills/uclusion/roles/investigation.md',
+    'standalone_role': 'skills/uclusion/roles/standalone.md',
+    'discovery_role': 'skills/uclusion/roles/discovery.md',
+    'export_search_role': 'skills/uclusion/roles/export-search.md',
+    'backlog_maintenance_role': 'skills/uclusion/roles/backlog-maintenance.md',
+    'design_role': 'skills/uclusion/roles/design.md',
+    # Generated by generateRoleToolFiles.py from the MCP tool catalog.
+    'coordinator_tools': 'skills/uclusion/roles/coordinator-tools.md',
+    'implementation_tools': 'skills/uclusion/roles/implementation-tools.md',
+    'question_tools': 'skills/uclusion/roles/question-tools.md',
+    'operation_tools': 'skills/uclusion/roles/operation-tools.md',
+    'investigation_tools': 'skills/uclusion/roles/investigation-tools.md',
+    'standalone_tools': 'skills/uclusion/roles/standalone-tools.md',
+    'discovery_tools': 'skills/uclusion/roles/discovery-tools.md',
+    'backlog_maintenance_tools': 'skills/uclusion/roles/backlog-maintenance-tools.md',
+    'design_tools': 'skills/uclusion/roles/design-tools.md',
     # The owner's directions travel with the workflow rather than being
     # fetched: a session's grant holds the demo's tools and its CLI, and
     # nothing in that can retrieve a URL.
@@ -350,41 +364,49 @@ WORKFLOW_ASSET_PATHS = {
 # These digests bind the installer to one coherent workflow release. A host
 # serving a partially-deployed asset set fails before any client mutation.
 WORKFLOW_ASSET_SHA256 = {
-    'completion_actions_reference': '5caaf9c9f5c5e9aa061db039473e8b96ec1d3f7ab2d08ee182d6f509be9d7cc5',
-    'coordinator_lifecycle_reference': '8c4acf75e384b30c2a90b406627e02073f122e7becc1605f12b62739ea0fcde4',
-    'claude_stub': '46505310801e92ec7d4b8242963b9236436209ebc97706bee615d3fa879cc60e',
-    'codex_stub': 'd9bfce4455b0676a582cd03a38ba173d4c0c7767191785e58a17e74404eff6d0',
-    'cursor_stub': 'f7f8e50d284760d50e092dbb91c3b26ce2d80fc2f5f599742baab020283a4b3f',
-    'skill': '1809efbc29bb3bc4ac775e6a40b81e4b2efe5c34b5934d96c7544553f141a5ce',
+    'completion_actions_reference': '9f7fc605b298b86769051f4ba5d2e57ef68f2a8752a2bd69f04a435e7296d468',
+    'coordinator_lifecycle_reference': '689f2b4e522cbbaa5d52120971a76bba87d97174e127cd01ef3660da61e86617',
+    'claude_stub': 'e0d7ebaba3eb929377641a099f7d8d2020471d3ef23f12f50615357232f97e88',
+    'codex_stub': '713b8a5ebdffeef757f940b8fbc243da9ee704bbed59493d5c730a6a1400aee3',
+    'cursor_stub': 'da81cd135e039c1c7cae8ecb0cecd81c4dca5fe5c97d7fcdbaf21b51031eba5a',
+    'skill': '4184c2eb9ae2aa73a4ec4ab8fbc7ecef57d94c1f0a9552d2016fba9a6bd87c5b',
     'claude_delivery_reference': '1eb48584a8020306beca763d79de4fd947314b1862820d71157711b02eb5be1a',
     'cursor_delivery_reference': '38eb91d1deaa0bb87ea2c27a2d1e6e347387ac7318c29ed9ba2f495d93fcb729',
-    'approval_reference': 'c373e39e36ff8920656003536f4b1e458da87b0337badf745c7052066a39ff7b',
-    'single_comment_reference': '778dc5c71f7dd09f55f7f4eb58a5cbfbcadc1ec88371780f95ca262ae325cee0',
-    'export_search_reference': '5b725b40aaa77918ac06f62bca22a9464e30ebe8441fb64438d07a54b4fb7019',
-    'review_reference': 'ecf4108d03f539a67521475ec1b8a1d9576d7bca599a436df43799b60c0a8204',
-    'completion_reference': '153039b70057508e16ffe3f8cc2b7dd275f38e32378956e313bb4d195e5ea344',
-    'audit_reference': '967463ae956ee2e6f1f2f1d9f7b5d30457f573823356c94c84989f4a4b602e2c',
+    'approval_reference': '73ba7669ae924c942c14788d5291522c5eb88ed488617411dc5128f15649c19f',
+    'single_comment_reference': 'fad3db5171b1a48406ea4eb952ad6fef14564e42cc5d9d91ec2a84d20b8af6fe',
+    'review_reference': '41f460b75c244328bfd8f790ad2cd201d5dfde6081eb9c28e5cd69bdb1b2c79b',
+    'completion_reference': 'b87af2a72af5936e435b0c4e059e697b640cb2c5048b1f54c12b607baab92da7',
+    'audit_reference': 'a7ab95f32f4b2918c6b5784ce6effbc69bce66cdca12bb3cc6ac67d5ed69dcad',
     'claims_reference': 'df03abea45bedc953366436c6b0799935641f5236e6876b5dfca1c337c9c2baa',
-    'backlog_maintenance_reference': 'd98182ea4fe8fa05483d76839168ee037004ac4418d7fe73f531c8123f3685d4',
-    'capsule_dispatch_reference': '18bc94252491544a0c6386976aae84d3a49600ed18936d058f8199f0fa230f4f',
+    'capsule_dispatch_reference': '5a24853f299be5f4d2488bc106d91e708420f9c5de35c5b8b5d9cd9d7b5446d2',
     'delivery_common_reference': 'f80b4b2553716dcb6c52b73471ccd1b2ceafdb2af49bc8d3cf5af1a6792e79b2',
-    'durable_records_reference': '04fbc73443db7cfb80fff472145d1ec31849276f3457dd5e1693600eda2cedf8',
+    'durable_records_reference': 'bfe18bb8ac87c4d68ba4970fc27ccc85c4821b7f4b102c3dcc8b814b47c461c1',
     'history_search_reference': 'ae6634ed2f0f956635420fa37bc690711976dea7dbb8dd50678e35dd7675a55a',
-    'implementation_helper_reference': '30844fb00cf34e1ef0ae57f0a99486ff4ffdbe83b040a10cb194b6fc2c7f945d',
-    'investigation_helper_reference': '36e821a0a52a54a59a281a1cab25d7228536f12f807ff83b0a066e8e43392f40',
-    'job_assistance_reference': 'cb379db62901461d1a22d795b853ef29aa54e25966f00a572db7c02f2f41cfac',
-    'question_tools_reference': '933428a90566411b2b1892d5d4646578b34997ba75995b230c8405b71c29c400',
+    'job_assistance_reference': '4a1b72702d8b441e2b5d8d80135809ccd2cec2a58914c1d9d2eb25585aa6f290',
+    'question_tools_reference': '261744ab0dcd2c414ae027a89116517546d6d4ecd25be417f9567346a7070c53',
     'work_discovery_reference': '423bd01c65472412dc01282c190252e90a75518b737fa8d2492fcc03a3c11305',
-    'question_helper_reference': '384bb4fad4b8c98c210431487df04c1b5a6f436015f475f1bf2eb8ab5b44383a',
-    'operation_helper_reference': '410a5831c8e8470af7e8d1a5b144f1a442eb19c77ff9199496c269d1d9a1bf49',
-    'discovery_helper_reference': '5e453c1027a6b3a7bb951245ff302b0bf53a311dd53621d8305144639c9990e6',
-    'standalone_helper_reference': '83b77d34889715af2f9e4b9e35a803a07298a6fad4c4a78b9fe870f5448c8735',
     'openai_metadata': '0948fb0e2e8d0800019e0a244cfdec54ff420a8af6f20683aca1486d194ab202',
-    'design_skill': '33e8faec46c3c992145aafe4851d74187d68e91c81a065a8f1ea4c8420499d71',
-    'design_openai_metadata': '163d81e8eedace7ca27cd0b8227d7f0a284d009ecc2b3614ca5cd85502aa720a',
     'demo_brief': 'b68f6501270c63456c19053d1b5af296350288754239c7f9d6074a3a5497789f',
-    'token_manifest': 'bfadb9812ba2ecf2613168f3ae34b0d2ba3d3895936c9069f26684f82fd2938f',
-    'discovery_routing_reference': '41a82c2fa1435fc9f6faefa30dd775f499cbc9afcb18d68187c26471d5528bcb',
+    'token_manifest': '42ca52849d465de32b3bbdbd3b226127c2c8d4e83fd2d34716a2de20806b579b',
+    'implementation_role': '19f7ce76fa74a25823720c5d9d2179ff9d069bf72a4cf4b0c072625ab6ea4d6f',
+    'question_role': '35ffa51fc33b243ea6c32a3aa4b9f5e4dfc084d4f63d9dd137b75dfa2e8126de',
+    'operation_role': '3e527bef42bd5ff6d73c8b45ff99e1c831188f006b0c354abdb7106acf2be572',
+    'investigation_role': '5edf79ceb297d011603128b97c741501d60b42f6632543d2629d4482254cbc12',
+    'standalone_role': '735440c5bb8f926461ec3fa25ec468c7c2e2a0cfaa5f8bea3f911471e2e1acda',
+    'discovery_role': '7f204c68ab17e6d9cf825581f8bb4bbd3b1aade10b64924ad4e39d5ff1a891f9',
+    'export_search_role': '53f9235fba4680773171376ef82c9625bc60ffb1d1148c1f25db0bd35fd3d94a',
+    'backlog_maintenance_role': '59bd846fc9756b9728d0771e2a7941b17d1c6c4d5374638f54848d5c13fc66fa',
+    'design_role': 'dec0935e56de1d8ae9598749737a04bf38b8cd05f78fe839352dfd164a57331c',
+    'coordinator_tools': '59d945a7721b576d3046ccf532c461b68f4758b03e721b5019fb5a3c065542cc',
+    'implementation_tools': '89c8cad0b8f103ca8c7a3ef7c97e03c9fb675d6690b02459fe2e017efb0cd09d',
+    'question_tools': 'a17d46b1ac1b88b14a62309a929cb3fd2182da88c0f944ede081d0c81cb71d73',
+    'operation_tools': 'afe06a0b7c696f2922dc223e49e8811f6c756100a23a618f9bd6da9a2229cf14',
+    'investigation_tools': '67cb852fa22a7c8250b1e6186acf1c214f21798cbe2160aba9aa6589d431d6f4',
+    'standalone_tools': '6d48127e182b0f4bb8a5025c0cd54b8b5b62223b19221c9b636743514ff511f6',
+    'discovery_tools': '7d4342924b647ff720df6b9736db79ec73f4dd443c9656702f3ef0096d9aad43',
+    'backlog_maintenance_tools': 'ae4dac3ce06c91992368a057392f8ee100299a3691c744b93c483fc54e4c58cb',
+    'design_tools': '749aac7a34fc3243713836d9f7790b2b2bd476ac9574a73ae917e99084d18ceb',
+    'discovery_routing_reference': 'b0d186cf584dde98daf3fa7883538f5cc5f799e788a4b2a0b78a393b28ae26d6',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',
@@ -397,27 +419,37 @@ SKILL_PACKAGE_ASSETS = (
     ('approval_reference', os.path.join('references', 'approval.md')),
     ('single_comment_reference', os.path.join('references', 'single-comment.md')),
     ('coordinator_lifecycle_reference', os.path.join('references', 'coordinator-lifecycle.md')),
-    ('export_search_reference', os.path.join('references', 'export-search.md')),
     ('review_reference', os.path.join('references', 'review.md')),
     ('completion_reference', os.path.join('references', 'completion.md')),
     ('completion_actions_reference', os.path.join('references', 'completion-actions.md')),
     ('audit_reference', os.path.join('references', 'audit.md')),
     ('claims_reference', os.path.join('references', 'claims.md')),
-    ('backlog_maintenance_reference', os.path.join('references', 'backlog-maintenance.md')),
     ('capsule_dispatch_reference', os.path.join('references', 'capsule-dispatch.md')),
     ('delivery_common_reference', os.path.join('references', 'delivery-common.md')),
     ('durable_records_reference', os.path.join('references', 'durable-records.md')),
     ('history_search_reference', os.path.join('references', 'history-search.md')),
-    ('implementation_helper_reference', os.path.join('references', 'implementation-helper.md')),
-    ('investigation_helper_reference', os.path.join('references', 'investigation-helper.md')),
     ('job_assistance_reference', os.path.join('references', 'job-assistance.md')),
     ('question_tools_reference', os.path.join('references', 'question-tools.md')),
     ('work_discovery_reference', os.path.join('references', 'work-discovery.md')),
     ('discovery_routing_reference', os.path.join('references', 'discovery-routing.md')),
-    ('question_helper_reference', os.path.join('references', 'question-helper.md')),
-    ('operation_helper_reference', os.path.join('references', 'operation-helper.md')),
-    ('discovery_helper_reference', os.path.join('references', 'discovery-helper.md')),
-    ('standalone_helper_reference', os.path.join('references', 'standalone-helper.md')),
+    ('implementation_role', os.path.join('roles', 'implementation.md')),
+    ('question_role', os.path.join('roles', 'question.md')),
+    ('operation_role', os.path.join('roles', 'operation.md')),
+    ('investigation_role', os.path.join('roles', 'investigation.md')),
+    ('standalone_role', os.path.join('roles', 'standalone.md')),
+    ('discovery_role', os.path.join('roles', 'discovery.md')),
+    ('export_search_role', os.path.join('roles', 'export-search.md')),
+    ('backlog_maintenance_role', os.path.join('roles', 'backlog-maintenance.md')),
+    ('design_role', os.path.join('roles', 'design.md')),
+    ('coordinator_tools', os.path.join('roles', 'coordinator-tools.md')),
+    ('implementation_tools', os.path.join('roles', 'implementation-tools.md')),
+    ('question_tools', os.path.join('roles', 'question-tools.md')),
+    ('operation_tools', os.path.join('roles', 'operation-tools.md')),
+    ('investigation_tools', os.path.join('roles', 'investigation-tools.md')),
+    ('standalone_tools', os.path.join('roles', 'standalone-tools.md')),
+    ('discovery_tools', os.path.join('roles', 'discovery-tools.md')),
+    ('backlog_maintenance_tools', os.path.join('roles', 'backlog-maintenance-tools.md')),
+    ('design_tools', os.path.join('roles', 'design-tools.md')),
     ('openai_metadata', os.path.join('agents', 'openai.yaml')),
     # Publish the entrypoint last so an interrupted refresh never exposes a
     # new SKILL.md before all files it routes to are durable.
@@ -446,10 +478,15 @@ RETIRED_SKILL_REFERENCE_PATHS = (
     os.path.join('references', 'uploads.md'),
     os.path.join('references', 'codex-delivery.md'),
     os.path.join('references', 'standing-instructions.md'),
-)
-DESIGN_SKILL_PACKAGE_ASSETS = (
-    ('design_openai_metadata', os.path.join('agents', 'openai.yaml')),
-    ('design_skill', 'SKILL.md'),
+    # Helper bodies moved to roles/<role>.md.
+    os.path.join('references', 'implementation-helper.md'),
+    os.path.join('references', 'question-helper.md'),
+    os.path.join('references', 'operation-helper.md'),
+    os.path.join('references', 'investigation-helper.md'),
+    os.path.join('references', 'standalone-helper.md'),
+    os.path.join('references', 'discovery-helper.md'),
+    os.path.join('references', 'export-search.md'),
+    os.path.join('references', 'backlog-maintenance.md'),
 )
 
 
@@ -1614,14 +1651,30 @@ def launch_runtime_proxy(arguments):
     return 0
 
 
+# Each agent's registration declares how it reads tool descriptions. Claude
+# Code loads tool definitions on demand, so it receives every description and
+# the tool guidance they carry. Codex and Cursor load the whole tool list at
+# session start, so they receive names and fields only and read their role's
+# generated tool file instead.
+TOOL_DESCRIPTION_TYPES = {
+    'claude': 'on-demand',
+    'codex': 'whole-list',
+    'cursor': 'whole-list',
+}
+
+
 def runtime_mcp_descriptor(workspace_id, env, token_audit=None,
                            token_audit_client=None, work_claims=False,
                            setup_receipt_path=None, setup_view_id=None,
-                           response_stats=None):
+                           response_stats=None, tool_descriptions=None):
     """Describe the existing credential-backed runtime MCP command."""
     proxy_args = [MCP_PROXY_SYMLINK_PATH, workspace_id]
     if env is not None:
         proxy_args.append(env)
+    if tool_descriptions is not None:
+        if tool_descriptions not in TOOL_DESCRIPTION_TYPES.values():
+            raise ValueError(f'unsupported tool description type: {tool_descriptions}')
+        proxy_args.extend(['--tool-descriptions', tool_descriptions])
     if token_audit_client == 'codex':
         proxy_args.append('--codex-native')
     if token_audit_notes_enabled(token_audit):
@@ -1773,11 +1826,10 @@ def install_demo_plugin(fetch_bundle):
     with open(os.path.join(manifest_dir, 'plugin.json'), 'w',
               encoding='utf-8') as handle:
         json.dump(manifest, handle, indent=2)
-    for package in ('uclusion', DESIGN_SKILL_NAME):
-        package_dir = os.path.join(root, 'skills', package)
-        ensure_dir(package_dir)
-        for asset_key, relative_path in _skill_package_definition(package)[0]:
-            _write_staged_asset(package_dir, relative_path, bundle[asset_key])
+    package_dir = os.path.join(root, 'skills', 'uclusion')
+    ensure_dir(package_dir)
+    for asset_key, relative_path in SKILL_PACKAGE_ASSETS:
+        _write_staged_asset(package_dir, relative_path, bundle[asset_key])
     stub = bundle[CLIENT_STUB_ASSET['claude']]
     cli_command = workflow_cli_command(environment)
     if cli_command is not None:
@@ -1824,13 +1876,12 @@ def install_demo_codex_workflow(fetch_bundle):
     command = demo_codex_cli_args(environment)
     cli = ' '.join(shlex.quote(part) for part in command)
     home = uclusion_home_root()
-    for package in ('uclusion', DESIGN_SKILL_NAME):
-        for asset_key, relative_path in _skill_package_definition(package)[0]:
-            _write_staged_asset(
-                home,
-                os.path.join('.agents', 'skills', package, relative_path),
-                bundle[asset_key],
-            )
+    for asset_key, relative_path in SKILL_PACKAGE_ASSETS:
+        _write_staged_asset(
+            home,
+            os.path.join('.agents', 'skills', 'uclusion', relative_path),
+            bundle[asset_key],
+        )
     # The evaluator's bootstrap is the ordinary stub; the owner's role has its
     # own file (Q-Marketing-252).
     _write_staged_asset(
@@ -1959,6 +2010,7 @@ def demo_codex_session_args(environment, workspace_id, evidence_dir=None,
         workspace_id, None if environment == 'production' else environment,
         token_audit_client='codex' if native else None,
         response_stats=response_stats,
+        tool_descriptions=TOOL_DESCRIPTION_TYPES['codex'],
     )
     proxy_args = list(descriptor['args'])
     if evidence_dir:
@@ -2425,10 +2477,9 @@ def snapshot_demo_evidence(run_dir, client):
         sources.append(('inputs/owner-instructions.md', demo_codex_owner_instructions_path()))
     skills_root = (os.path.join(uclusion_home_root(), '.agents', 'skills')
                    if client == 'codex' else os.path.join(demo_plugin_path(), 'skills'))
-    for package in ('uclusion', DESIGN_SKILL_NAME):
-        for _key, relative in _skill_package_definition(package)[0]:
-            sources.append((os.path.join('inputs', 'skills', package, relative),
-                            os.path.join(skills_root, package, relative)))
+    for _key, relative in SKILL_PACKAGE_ASSETS:
+        sources.append((os.path.join('inputs', 'skills', 'uclusion', relative),
+                        os.path.join(skills_root, 'uclusion', relative)))
     script_root = os.path.dirname(os.path.realpath(__file__))
     for source, installed, link in SCRIPT_FILES:
         candidates = [os.path.join(script_root, name) for name in (installed, source, link)]
@@ -3790,22 +3841,20 @@ def _remove_demo_stub(resident_path):
 
 
 def _demo_client_paths(client):
-    """The resident stub and the two skill directories for ``client``."""
+    """The resident stub and the skill directory for ``client``."""
     if client == 'codex':
-        return (
-            CODEX_AGENTS_MD_PATH,
-            (
-                CODEX_SKILL_DIR,
-                os.path.join(os.path.dirname(CODEX_SKILL_DIR), DESIGN_SKILL_NAME),
-            ),
-        )
-    return (
-        CLAUDE_MD_PATH,
-        (
-            CLAUDE_SKILL_DIR,
-            os.path.join(CLAUDE_CONFIG_HOME, 'skills', DESIGN_SKILL_NAME),
-        ),
-    )
+        return CODEX_AGENTS_MD_PATH, CODEX_SKILL_DIR
+    return CLAUDE_MD_PATH, CLAUDE_SKILL_DIR
+
+
+def _remove_demo_retired_design_skill(skill_dir):
+    """An earlier demo's design skill goes with the rest of its traces."""
+    state, design_dir = remove_retired_design_skill(skill_dir, report=False)
+    if state == 'absent':
+        return 'absent', f'no {design_dir}'
+    if state == 'kept':
+        return 'kept', f'{design_dir}, which is not a Uclusion-managed skill'
+    return 'removed', design_dir
 
 
 def _remove_demo_skill(skill_dir, package):
@@ -3846,7 +3895,7 @@ def remove_demo_client_traces(env=None):
     """
     outcomes = []
     for client in demo_installed_clients(env):
-        resident_path, skill_dirs = _demo_client_paths(client)
+        resident_path, skill_dir = _demo_client_paths(client)
         isolated_workflow = (
             client == 'claude' and os.path.isdir(demo_plugin_path())
         ) or (
@@ -3894,8 +3943,8 @@ def remove_demo_client_traces(env=None):
             outcomes.append(_remove_demo_allow_rule())
             _remove_demo_config_lock(CLAUDE_SETTINGS_PATH)
         outcomes.append(_remove_demo_stub(resident_path))
-        outcomes.append(_remove_demo_skill(skill_dirs[0], 'uclusion'))
-        outcomes.append(_remove_demo_skill(skill_dirs[1], DESIGN_SKILL_NAME))
+        outcomes.append(_remove_demo_skill(skill_dir, 'uclusion'))
+        outcomes.append(_remove_demo_retired_design_skill(skill_dir))
         registration_path, _label, _is_codex = _setup_registration_target(
             client, None
         )
@@ -4877,12 +4926,17 @@ def register_mcp_json(path, label, workspace_id, env, require_existing,
     normal_registration = descriptor is None
     normal_claude = normal_registration and token_audit_client == 'claude'
     if descriptor is None:
+        # Claude Code and Cursor are the JSON clients; only Claude Code
+        # registrations name their token-audit client.
         descriptor = runtime_mcp_descriptor(
             workspace_id,
             env,
             token_audit,
             token_audit_client,
             work_claims,
+            tool_descriptions=TOOL_DESCRIPTION_TYPES[
+                'claude' if token_audit_client == 'claude' else 'cursor'
+            ],
         )
     descriptor = _validate_mcp_descriptor(descriptor)
 
@@ -5573,6 +5627,7 @@ def build_codex_mcp_block(workspace_id=None, env=None, work_claims=False,
             workspace_id, env, work_claims=work_claims,
             token_audit=token_audit, token_audit_client='codex',
             response_stats=response_stats,
+            tool_descriptions=TOOL_DESCRIPTION_TYPES['codex'],
         )
     descriptor = _validate_mcp_descriptor(descriptor)
     lines = [
@@ -6068,6 +6123,7 @@ def mutate_codex_config(
                         workspace_id, env, work_claims=work_claims,
                         token_audit=token_audit, token_audit_client='codex',
                         response_stats=response_stats,
+                        tool_descriptions=TOOL_DESCRIPTION_TYPES['codex'],
                     )
                     if previous_args and '--deliver-existing-pokes' in previous_args:
                         descriptor['args'].append('--deliver-existing-pokes')
@@ -6281,7 +6337,7 @@ def prompt_install_scope():
 
 
 def validate_workflow_bundle(bundle):
-    """Validate every resident stub and both portable skills as one unit."""
+    """Validate every resident stub and the portable skill as one unit."""
     if not isinstance(bundle, dict) or set(bundle) != set(WORKFLOW_ASSET_PATHS):
         raise RuntimeError('workflow bundle has an unexpected asset set')
     for key, content in bundle.items():
@@ -6315,33 +6371,23 @@ def validate_workflow_bundle(bundle):
         if len(content.encode('utf-8')) > 4096:
             raise RuntimeError(f'workflow asset {key} exceeds 4 KiB')
 
-    for key, name, marker, end_marker in (
-        ('skill', 'uclusion', SKILL_MARKER, SKILL_END_MARKER),
-        (
-            'design_skill', DESIGN_SKILL_NAME,
-            DESIGN_SKILL_MARKER, DESIGN_SKILL_END_MARKER,
-        ),
+    skill = bundle['skill']
+    if (
+        not skill.startswith('---\n')
+        or '\nname: uclusion\n' not in skill
+        or '\ndescription:' not in skill
+        or skill.count(SKILL_MARKER) != 1
+        or skill.count(SKILL_END_MARKER) != 1
+        or skill.find(SKILL_MARKER) > skill.find(SKILL_END_MARKER)
+        or not skill.rstrip().endswith(SKILL_END_MARKER)
     ):
-        skill = bundle[key]
-        if (
-            not skill.startswith('---\n')
-            or f'\nname: {name}\n' not in skill
-            or '\ndescription:' not in skill
-            or skill.count(marker) != 1
-            or skill.count(end_marker) != 1
-            or skill.find(marker) > skill.find(end_marker)
-            or not skill.rstrip().endswith(end_marker)
-        ):
-            raise RuntimeError(
-                f'workflow asset {key} has invalid frontmatter or markers'
-            )
-        if key == 'design_skill' and len(skill.splitlines()) > 500:
-            raise RuntimeError(
-                f'workflow asset {key} exceeds the 500-line entrypoint budget'
-            )
+        raise RuntimeError(
+            'workflow asset skill has invalid frontmatter or markers'
+        )
 
+    # Shared procedures and role files are both reference units.
     for key, relative_path in SKILL_PACKAGE_ASSETS:
-        if os.path.dirname(relative_path) != 'references':
+        if os.path.dirname(relative_path) not in ('references', 'roles'):
             continue
         reference = bundle[key]
         if (
@@ -6360,16 +6406,6 @@ def validate_workflow_bundle(bundle):
         or 'allow_implicit_invocation: true' not in metadata
     ):
         raise RuntimeError('agents/openai.yaml has invalid Uclusion metadata')
-
-    design_metadata = bundle['design_openai_metadata']
-    if (
-        'display_name: "Uclusion Design"' not in design_metadata
-        or '$uclusion-design' not in design_metadata
-        or 'allow_implicit_invocation: true' not in design_metadata
-    ):
-        raise RuntimeError(
-            'agents/openai.yaml has invalid Uclusion Design metadata'
-        )
 
 
 def make_workflow_bundle_fetcher(env):
@@ -6469,13 +6505,70 @@ def _validate_regular_tree(root):
 def _skill_package_definition(package):
     if package == 'uclusion':
         return SKILL_PACKAGE_ASSETS, SKILL_MARKER, SKILL_END_MARKER
-    if package == DESIGN_SKILL_NAME:
-        return (
-            DESIGN_SKILL_PACKAGE_ASSETS,
-            DESIGN_SKILL_MARKER,
-            DESIGN_SKILL_END_MARKER,
-        )
     raise ValueError(f'unsupported Uclusion skill package: {package}')
+
+
+def _is_retired_design_skill(design_dir):
+    """True only for a regular design-skill folder carrying Uclusion's marks."""
+    try:
+        _validate_regular_tree(design_dir)
+    except (OSError, RuntimeError):
+        return False
+    skill_path = os.path.join(design_dir, 'SKILL.md')
+    if not os.path.isfile(skill_path) or os.path.islink(skill_path):
+        return False
+    try:
+        content, _signature = _read_text_snapshot(skill_path)
+    except (OSError, UnicodeDecodeError):
+        return False
+    return (
+        content.count(RETIRED_DESIGN_SKILL_MARKER) == 1
+        and content.count(RETIRED_DESIGN_SKILL_END_MARKER) == 1
+        and content.find(RETIRED_DESIGN_SKILL_MARKER)
+        < content.find(RETIRED_DESIGN_SKILL_END_MARKER)
+    )
+
+
+def remove_retired_design_skill(skill_dir, report=True):
+    """Remove the marked design skill beside ``skill_dir``.
+
+    Returns ``('removed', path)``, ``('absent', path)`` or ``('kept', path)``
+    for a same-named folder without Uclusion's marks, which is left alone.
+    Leftovers of an interrupted design-skill install are removed with it.
+    """
+    design_dir = os.path.join(
+        os.path.dirname(os.path.abspath(os.path.expanduser(skill_dir))),
+        RETIRED_DESIGN_SKILL_NAME,
+    )
+    _, staging_dir, backup_dir, transaction_path = (
+        _skill_transaction_paths(design_dir)
+    )
+    owned_leftovers = False
+    if os.path.isfile(transaction_path) and not os.path.islink(transaction_path):
+        try:
+            record = json.loads(_read_text_snapshot(transaction_path)[0])
+            owned_leftovers = (
+                isinstance(record, dict)
+                and record.get('owner') == WORKFLOW_TRANSACTION_OWNER
+                and record.get('skillDir') == design_dir
+            )
+        except (OSError, UnicodeDecodeError, ValueError):
+            owned_leftovers = False
+    if owned_leftovers:
+        # The sibling transaction record authenticates these private paths.
+        for leftover in (staging_dir, backup_dir):
+            if os.path.isdir(leftover) and not os.path.islink(leftover):
+                _remove_installer_tree(leftover)
+        os.remove(transaction_path)
+    if not os.path.lexists(design_dir):
+        return ('removed' if owned_leftovers else 'absent'), design_dir
+    if not _is_retired_design_skill(design_dir):
+        return 'kept', design_dir
+    _remove_installer_tree(design_dir)
+    _fsync_directory(os.path.dirname(design_dir))
+    if report:
+        print(f"  🧹 Removed retired skill {design_dir}")
+    return 'removed', design_dir
 
 
 def _validate_owned_skill(skill_dir, package='uclusion'):
@@ -6977,27 +7070,22 @@ def install_skill_and_stub(
     assume_yes=False,
     require_dir=None,
 ):
-    """Install both native skills, then shrink the resident instructions.
+    """Install the native skill, then shrink the resident instructions.
 
     The complete bundle is fetched and validated before the first write. The
-    two managed packages are staged before either is published. Both directory
-    swaps and the resident write form one recoverable release transaction.
-    Existing unmarked packages, links, special files, and resident Cursor rules
-    are user-owned collisions.
+    package swap and the resident write form one recoverable release
+    transaction. Once it commits, a design skill an earlier release installed
+    beside it is removed when it carries Uclusion's marks. Existing unmarked
+    packages, links, special files, and resident Cursor rules are user-owned
+    collisions.
     """
     if client not in CLIENT_STUB_ASSET:
         raise ValueError(f'unsupported workflow client: {client}')
     if require_dir is not None and not os.path.isdir(require_dir):
         print(f"ℹ️  No {require_dir} found; skipping {client_label} workflow.")
         return False
-    design_skill_dir = os.path.join(
-        os.path.dirname(os.path.abspath(os.path.expanduser(skill_dir))),
-        DESIGN_SKILL_NAME,
-    )
     with install_lock():
         _recover_skill_transaction(skill_dir)
-        _recover_skill_transaction(design_skill_dir, DESIGN_SKILL_NAME)
-        _validate_owned_skill(design_skill_dir, DESIGN_SKILL_NAME)
         _validate_owned_skill(skill_dir)
         resident_target = _config_write_target(resident_path)
         existing, resident_signature = _read_text_snapshot(resident_target)
@@ -7050,43 +7138,17 @@ def install_skill_and_stub(
         resident_after_digest = hashlib.sha256(
             resident_content.encode('utf-8')
         ).hexdigest()
-        design_transaction = _begin_skill_transaction(
-            design_skill_dir,
+        core_transaction = _begin_skill_transaction(
+            skill_dir,
             bundle,
             resident_target,
             resident_before_digest,
             resident_after_digest,
             resident_signature,
-            DESIGN_SKILL_NAME,
         )
-        try:
-            core_transaction = _begin_skill_transaction(
-                skill_dir,
-                bundle,
-                resident_target,
-                resident_before_digest,
-                resident_after_digest,
-                resident_signature,
-            )
-        except Exception:
-            _rollback_skill_transaction(
-                design_skill_dir, package=DESIGN_SKILL_NAME
-            )
-            raise
-
-        normalized_design_dir, design_staging, design_backup = (
-            design_transaction[:3]
-        )
-        design_had_existing = design_transaction[4]
         normalized_skill_dir, staging_dir, backup_dir = core_transaction[:3]
         had_existing = core_transaction[4]
         try:
-            _swap_staged_skill(
-                normalized_design_dir,
-                design_staging,
-                design_backup,
-                design_had_existing,
-            )
             _swap_staged_skill(
                 normalized_skill_dir, staging_dir, backup_dir, had_existing
             )
@@ -7100,32 +7162,24 @@ def install_skill_and_stub(
         except Exception:
             # atomic_write_text never raises after its os.replace commit. Any
             # caught error therefore leaves the resident uncommitted, so the
-            # packages must be restored even if an editor concurrently changed
+            # package must be restored even if an editor concurrently changed
             # unrelated resident text to a third journal hash.
             try:
                 _rollback_skill_transaction(normalized_skill_dir)
             except Exception as rollback_error:
                 raise RuntimeError(
-                    'failed to restore the prior core Uclusion skill; the '
-                    'matching design skill was retained for safe recovery'
-                ) from rollback_error
-            try:
-                _rollback_skill_transaction(
-                    normalized_design_dir, package=DESIGN_SKILL_NAME
-                )
-            except Exception as rollback_error:
-                raise RuntimeError(
-                    'restored the prior core Uclusion skill but could not '
-                    'restore its design sibling'
+                    'failed to restore the prior Uclusion skill'
                 ) from rollback_error
             raise
         _commit_skill_transaction(normalized_skill_dir)
-        _commit_skill_transaction(normalized_design_dir)
+        # The prior skill routed to its design sibling, so the sibling goes
+        # only once the skill that carries the design role is committed.
+        try:
+            remove_retired_design_skill(normalized_skill_dir)
+        except (OSError, RuntimeError) as err:
+            print(f"  ⚠️  Could not remove the retired uclusion-design skill: {err}")
 
-    print(
-        f"  ✅ Installed Uclusion skills for {client_label} at "
-        f"{skill_dir} and {design_skill_dir}"
-    )
+    print(f"  ✅ Installed the Uclusion skill for {client_label} at {skill_dir}")
     action_past_tense = {
         'refresh': 'Refreshed',
         'append': 'Appended',
@@ -7602,6 +7656,7 @@ def replace_setup_registration(
         work_claims=work_claims,
         setup_receipt_path=receipt_path,
         setup_view_id=view_id,
+        tool_descriptions=TOOL_DESCRIPTION_TYPES[client],
     )
     path, label, is_codex = _setup_registration_target(client, project_dir)
     if is_codex:

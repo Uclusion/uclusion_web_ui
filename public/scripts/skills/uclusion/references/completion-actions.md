@@ -11,7 +11,7 @@ Qualify the actual permission for each selected action. `clear_notifications` ad
 
 ## Execute the remaining work
 
-Determine remaining commit/push work from actual Git state and prior confirmed outcomes. Act only on the selected reviewed scope, in package order. Stop at the first failed action or missing required permission, retain successful outcomes and identify the remaining work. Nothing remaining is a successful no-op. Clear a fixed authorized scope directly, one call per code.
+Determine remaining commit/push work from actual Git state and prior confirmed outcomes. Act only on the selected reviewed scope, in package order. Stop at the first failed action or missing required permission, retain successful outcomes and identify the remaining work. Nothing remaining is a successful no-op. Clear a fixed authorized scope directly.
 
 ## Commit identities
 
@@ -21,7 +21,7 @@ Operation composes each selected commit message, beginning with the completed ta
 
 Write one terminal record per attempt on the human reply it answers, or on the package root for a chat instruction. Identify the instruction and the completed, declined, failed and remaining work as applicable, including any missing permission.
 
-When prior actions succeeded and clearing is authorized, pass the record in the last `clear_notifications` call, including when there is nothing to clear. The tool posts it silently before clearing; a failed record prevents that clear. Otherwise record with `add_info`, silently when clearing was selected. Treat the returned action and record outcomes separately.
+When prior actions succeeded and clearing is authorized, the last `clear_notifications` call carries the record. Otherwise record with `add_info`, silently when clearing was selected. Treat the returned action and record outcomes separately.
 
 Reconcile an uncertain record on its exact thread before writing one only if absent. A retry acts only on unfinished work and writes one new attempt record. Confirmed earlier action/record receipts remain valid after a later failure.
 

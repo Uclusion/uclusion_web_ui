@@ -933,6 +933,7 @@ class ResponseStatsInstallerTests(unittest.TestCase):
                             server = updated['mcpServers']['uclusion']
                             expected_args = INSTALL.runtime_mcp_descriptor(
                                 'workspace-1', 'stage', token_audit_client='claude',
+                                tool_descriptions='on-demand',
                             )['args']
                             if expected is not None:
                                 expected_args += ['--response-stats', expected]

@@ -77,7 +77,9 @@ class CodexDemoSetupTests(unittest.TestCase):
         }
 
     def inventory(self):
-        descriptor = INSTALL.runtime_mcp_descriptor('demo-workspace', 'stage')
+        descriptor = INSTALL.runtime_mcp_descriptor(
+            'demo-workspace', 'stage', tool_descriptions='whole-list',
+        )
         return [
             {'name': 'uclusion', 'enabled': True, 'transport': descriptor},
             {'name': 'Other.Server', 'enabled': False},
@@ -101,6 +103,7 @@ class CodexDemoSetupTests(unittest.TestCase):
         descriptor = INSTALL.runtime_mcp_descriptor(
             'demo-workspace', 'stage', token_audit_client='codex',
             response_stats='/tmp/evaluator-stats.jsonl',
+            tool_descriptions='whole-list',
         )
         descriptor['args'].extend([
             '--demo-evidence', str(self.home / 'evidence'),
@@ -170,12 +173,12 @@ class CodexDemoSetupTests(unittest.TestCase):
         global_workflow.assert_not_called()
         for path, content in native_files.items():
             self.assertEqual(content, path.read_text())
-        for package in ('uclusion', INSTALL.DESIGN_SKILL_NAME):
-            for key, relative in INSTALL._skill_package_definition(package)[0]:
-                self.assertEqual(
-                    self.bundle[key],
-                    (self.home / '.agents' / 'skills' / package / relative).read_text(),
-                )
+        for key, relative in INSTALL.SKILL_PACKAGE_ASSETS:
+            self.assertEqual(
+                self.bundle[key],
+                (self.home / '.agents' / 'skills' / 'uclusion' / relative).read_text(),
+            )
+        self.assertFalse((self.home / '.agents' / 'skills' / INSTALL.RETIRED_DESIGN_SKILL_NAME).exists())
         bootstrap = (self.config / 'bootstrap.md').read_text()
         self.assertNotIn(INSTALL.WORKFLOW_ENV_PLACEHOLDER, bootstrap)
         self.assertIn(str(self.bin / 'uclusion'), bootstrap)
@@ -306,11 +309,16 @@ class CodexDemoSetupTests(unittest.TestCase):
         (self.native / 'config.toml').write_text(native_config)
         (self.native / 'AGENTS.md').write_text('Native notes\n' + self.bundle['codex_stub'])
         native_skills = Path(INSTALL.CODEX_SKILL_DIR).parent
-        for package in ('uclusion', INSTALL.DESIGN_SKILL_NAME):
-            for key, relative in INSTALL._skill_package_definition(package)[0]:
-                path = native_skills / package / relative
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_text(self.bundle[key])
+        for key, relative in INSTALL.SKILL_PACKAGE_ASSETS:
+            path = native_skills / 'uclusion' / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(self.bundle[key])
+        # An earlier demo also installed the design skill, now retired.
+        legacy_design = native_skills / INSTALL.RETIRED_DESIGN_SKILL_NAME / 'SKILL.md'
+        legacy_design.parent.mkdir(parents=True)
+        legacy_design.write_text(
+            INSTALL.RETIRED_DESIGN_SKILL_MARKER + '\nDesign\n' + INSTALL.RETIRED_DESIGN_SKILL_END_MARKER + '\n'
+        )
         INSTALL.install_demo_codex_workflow(self.fetch)
         self.assertEqual(native_config, (self.native / 'config.toml').read_text())
         with mock.patch.object(INSTALL, 'demo_installed_clients', return_value=['codex']):
@@ -322,7 +330,7 @@ class CodexDemoSetupTests(unittest.TestCase):
         )
         self.assertEqual('Native notes', (self.native / 'AGENTS.md').read_text().strip())
         self.assertFalse((native_skills / 'uclusion').exists())
-        self.assertFalse((native_skills / INSTALL.DESIGN_SKILL_NAME).exists())
+        self.assertFalse((native_skills / INSTALL.RETIRED_DESIGN_SKILL_NAME).exists())
 
     def test_effective_config_read_starts_no_thread_and_closes_the_server(self):
         script = self.root / 'fake_app_server.py'

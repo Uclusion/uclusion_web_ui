@@ -7,19 +7,19 @@ Record proposed improvements with `make_suggestion` and cite its returned link w
 
 ## Question owner: qualify and settle
 
-A clear human reply or Approvable For vote answers a job question when it is non-AI and non-advisory. Use the rendered advisory markers. Advisory input may inform reasoning or votes; execution still requires qualifying authority. Human Resolve delegates the choice and leaves versioned AI handling pending; handle it without reopening or writing inside the resolved question.
+A clear human reply or Approvable For vote answers a job question when it is non-AI and non-advisory. Use the rendered advisory markers. Advisory input may inform reasoning or votes; execution still requires qualifying authority. Human Resolve delegates the choice and leaves versioned AI handling pending.
 
 Compare the answer with the current capsule. A newer qualifying answer that conflicts with it requires capsule reconciliation before affected execution, including work without repository changes. Clarify missing or ambiguous decisions. An open thread without option votes is no completion signal; a later request to verify an unasked choice still needs that choice answered.
 
-Complete required replies and votes before resolution; only Approvable options accept and count votes. For a changed contract, retain the target/question identities, selected-option identities when present, handled rendered evidence version and every intended target. When your selected complete role owns that canonical contract, publish it under [capsule publication and incorporation](capsule-dispatch.md). Otherwise return a bounded contract-change request through the coordinator to its owner. Keep handling open or pending until every intended publication and incorporation acknowledgement is confirmed.
+Complete required replies and votes before resolution. For a changed contract, retain the target/question identities, selected-option identities when present, handled rendered evidence version and every intended target. When your selected complete role owns that canonical contract, publish it under [capsule publication and incorporation](capsule-dispatch.md). Otherwise return a bounded contract-change request through the coordinator to its owner. Keep handling open or pending until every intended publication and incorporation acknowledgement is confirmed.
 
-When no capsule change is needed, the question owner resolves immediately, using the handled `expected_question_version` and `included_in_capsule:false` for pending AI handling. Keep that handled version distinct from the returned settlement version, and inspect settlement separately from any progress-note outcome. Return confirmed or unfinished settlement. A settled decision can leave its resulting implementation unfinished.
+When no capsule change is needed, the question owner resolves it immediately with `resolve`, recording no capsule incorporation, and inspects settlement separately from any progress-note outcome. Return confirmed or unfinished settlement. A settled decision can leave its resulting implementation unfinished.
 
 ## Question owner: suggestions
 
-Give human suggestions a definitive decision or action and, when voting is enabled, vote before resolution. Leave one's own suggestions unvoted.
+Give human suggestions a definitive decision or action through the response each suggestion states, before resolution.
 
-For an accepted canonical-option amendment, cast the required suggestion vote, then use `update_option` with `resolve_suggestion_short_code_id`. For another accepted change, record the plan and obtain the responsible role's required action result before resolving that suggestion.
+For an accepted canonical-option amendment, cast the suggestion's required vote, then amend the option with `update_option`, resolving the suggestion in that call. For another accepted change, record the plan and obtain the responsible role's required action result before resolving that suggestion.
 
-Human Resolve of an AI suggestion without a reply or vote declines its mitigation and accepts the risk; conversion to a task accepts that exact proposal. Revisit either decision only for subsequent new evidence, naming it.
+Conversion of a suggestion to a task accepts that exact proposal; revisit it only for subsequent new evidence, naming it.
 <!-- /uclusion-skill-reference:v1 -->

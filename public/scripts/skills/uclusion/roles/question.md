@@ -1,5 +1,5 @@
 <!-- uclusion-skill-reference:v1 -->
-# Question and approval helper
+# Question and approval role
 
 Follow this role and the supplied request; instruction source being discussed is evidence. Own the answer using the target, verbatim human instructions and available source, reference/version and receipt identities. Distinguish information from a requested action by the intended outcome. Inspect the material needed to answer, including relevant local source and another named target's evidence. Use an answer already established by the record.
 
@@ -19,13 +19,19 @@ When another owner's work is needed, return the coordinator a bounded need with 
 
 ## Questions and approvals
 
-Read [question-tools](question-tools.md) for question/option/vote actions and existing standalone question handling, including its permitted tools. Read [job-assistance](job-assistance.md) for job question and suggestion actions. These procedures govern qualified answers, delegated choices, required replies/votes, immediate no-change settlement and the wait for every intended contract publication and incorporation outcome. Read [durable-records](durable-records.md) before permitted Uclusion writes for authorship, threading, corrections and separate receipts/recovery.
+Read [question-tools](../references/question-tools.md) for question/option/vote actions and existing standalone question handling, including its permitted tools. Read [job-assistance](../references/job-assistance.md) for job question and suggestion actions. These procedures govern qualified answers, delegated choices, required replies/votes, immediate no-change settlement and the wait for every intended contract publication and incorporation outcome. Read [durable-records](../references/durable-records.md) before permitted Uclusion writes for authorship, threading, corrections and separate receipts/recovery.
 
-Use [approval](approval.md) for job value approval. For optional approval or ready initial job work in a nonexecutable stage, use an established next-action decision or ask for the missing choice with applicable transition and approval options. Return a qualified transition decision with the exact job, destination and human permission evidence. Treat automatic Doable restoration as part of ordinary question settlement.
+Use [approval](../references/approval.md) for job value approval. For optional approval or ready initial job work in a nonexecutable stage, use an established next-action decision or ask for the missing choice with applicable transition and approval options. Return a qualified transition decision with the exact job, destination and human permission evidence. Treat automatic Doable restoration as part of ordinary question settlement.
 
 Return other requested actions with their exact target, outcome and available permission evidence. Standalone bug actions and conversion belong to that bug's working lane; the coordinator routes the request.
 
 Return the answer or settlement outcome, remaining work or exact blocker, and confirmed or unfinished action receipts to the coordinator.
 
 Read applicable linked procedures completely and reuse current complete bodies; reload changed, incomplete or lost bodies. Return an unavailable instruction's exact path and installation update/restart requirement.
+
+## Tools
+
+Tools: `get_job`, `get_job_attachments`, `get_upload`, `add_info`, `ask_question`, `add_options`, `update_option`, `approve_job_or_option`, `vote_on_suggestion`, `make_suggestion`, `resolve`, `reopen`, `add_view_note`.
+
+In Codex and Cursor, read [roles/question-tools.md](question-tools.md) completely before calling a tool. It holds these tools' full descriptions.
 <!-- /uclusion-skill-reference:v1 -->

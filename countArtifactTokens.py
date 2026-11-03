@@ -16,6 +16,14 @@ Usage:
     ANTHROPIC_API_KEY=... OPENAI_API_KEY=... python3 countArtifactTokens.py \\
         --environment stage --sample-export ~/.uclusion/export/<workspace>.md
 
+Both tool catalogs are counted: the full one on-demand clients receive and the
+names-and-fields one whole-list clients receive. ``--tools-from-source`` reads
+them from the investible API source offline instead of the environment, for a
+release whose tool definitions are not deployed yet. ``--merge`` keeps every
+entry already in the manifest and adds only the missing ones, so historical
+counts survive; it reuses the existing bytes-per-token ratios unless a sample
+export is given.
+
 Afterwards refresh the ``token_manifest`` entry in WORKFLOW_ASSET_SHA256 and run
 ``python3 checkWorkflowAssetPins.py public/scripts``.
 """
@@ -161,8 +169,7 @@ def shipped_artifacts(installer, token_audit, scripts_dir):
             digest = hashlib.sha256(text.encode('utf-8')).hexdigest()
             artifacts.setdefault(digest, {'kind': kind, 'name': name, 'text': text})
 
-    for key, relative_path in (*installer.SKILL_PACKAGE_ASSETS,
-                               *installer.DESIGN_SKILL_PACKAGE_ASSETS):
+    for key, relative_path in installer.SKILL_PACKAGE_ASSETS:
         if not relative_path.endswith('.md'):
             continue
         text = read(key)
@@ -196,8 +203,27 @@ def shipped_artifacts(installer, token_audit, scripts_dir):
     return artifacts
 
 
+TOOL_DESCRIPTION_VARIANTS = (None, 'whole-list')
+
+
+def source_tool_definitions(scripts_dir, api_dir, common_dir):
+    """Both catalogs from the investible API source, run offline, plus claim_work."""
+    proxy = load_module(os.path.join(scripts_dir, 'uclusionMCPProxy.py'),
+                        'count_tokens_proxy')
+    generator = load_module(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                         'generateRoleToolFiles.py'),
+                            'count_tokens_role_tools')
+    generator.load_catalog(api_dir, common_dir)
+    mcp_serve = sys.modules['handlers.mcp_serve']
+    tools = []
+    for variant in TOOL_DESCRIPTION_VARIANTS:
+        tools.extend(mcp_serve.handle_list_tools(variant)['tools'])
+    tools.append(proxy.WORK_CLAIM_TOOL)
+    return tools
+
+
 def fetch_tool_definitions(scripts_dir, environment, workspace_id):
-    """The unfiltered tools/list, plus the proxy's own claim_work tool."""
+    """Both served tools/list catalogs, plus the proxy's own claim_work tool."""
     proxy = load_module(os.path.join(scripts_dir, 'uclusionMCPProxy.py'),
                         'count_tokens_proxy')
     api_url = {
@@ -221,11 +247,16 @@ def fetch_tool_definitions(scripts_dir, environment, workspace_id):
         'Authorization': token,
     }
     body = json.dumps({'jsonrpc': '2.0', 'id': 1, 'method': 'tools/list'})
-    response = proxy.post_to_mcp(
-        'https://investibles.' + api_url + '/mcp', headers, body
-    )
-    message = proxy.read_mcp_response(response)
-    tools = list((message or {}).get('result', {}).get('tools') or [])
+    tools = []
+    for variant in TOOL_DESCRIPTION_VARIANTS:
+        variant_headers = dict(headers)
+        if variant is not None:
+            variant_headers[proxy.TOOL_DESCRIPTIONS_HEADER] = variant
+        response = proxy.post_to_mcp(
+            'https://investibles.' + api_url + '/mcp', variant_headers, body
+        )
+        message = proxy.read_mcp_response(response)
+        tools.extend((message or {}).get('result', {}).get('tools') or [])
     tools.append(proxy.WORK_CLAIM_TOOL)
     return tools
 
@@ -250,12 +281,23 @@ def main(argv=None):
     parser.add_argument('--workspace-id', default=None,
                         help='Workspace to authenticate with. Defaults to the '
                              'environment config\'s workspace.')
-    parser.add_argument('--sample-export', required=True,
-                        help='A workspace export used to measure bytes per token.')
+    parser.add_argument('--sample-export', default=None,
+                        help='A workspace export used to measure bytes per token. '
+                             'Required unless --merge reuses the existing ratios.')
+    parser.add_argument('--tools-from-source', action='store_true',
+                        help='Count tool definitions from the investible API source offline.')
+    parser.add_argument('--api', default=os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                      '..', 'uclusion_investible_api'))
+    parser.add_argument('--common', default=os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                         '..', 'uclusion_common'))
+    parser.add_argument('--merge', action='store_true',
+                        help='Keep existing manifest entries and add only missing ones.')
     parser.add_argument('--claude-model', default='claude-opus-5-5')
     parser.add_argument('--openai-model', default='gpt-5.5')
     parser.add_argument('--output', default=None)
     args = parser.parse_args(argv)
+    if args.sample_export is None and not args.merge:
+        parser.error('--sample-export is required unless --merge reuses the existing ratios')
 
     scripts_dir = os.path.abspath(args.scripts)
     installer = load_module(os.path.join(scripts_dir, 'uclusionInstall.py'),
@@ -263,7 +305,7 @@ def main(argv=None):
     token_audit = load_module(os.path.join(scripts_dir, 'uclusionTokenAudit.py'),
                               'count_tokens_audit')
     workspace_id = args.workspace_id
-    if workspace_id is None:
+    if workspace_id is None and not args.tools_from_source:
         config_name = installer.CONFIG_FILES[args.environment]
         with open(os.path.join(installer.UCLUSION_HOME, config_name),
                   encoding='utf-8') as handle:
@@ -279,6 +321,7 @@ def main(argv=None):
         OpenAICounter(os.environ['OPENAI_API_KEY'], args.openai_model),
     )
 
+    output = args.output or os.path.join(scripts_dir, 'token-manifest.json')
     manifest = {
         'schema_version': 1,
         'method': 'provider_count_endpoints_v1',
@@ -287,9 +330,18 @@ def main(argv=None):
         'artifacts': {},
         'tools': {},
     }
+    if args.merge:
+        with open(os.path.join(scripts_dir, 'token-manifest.json'), encoding='utf-8') as handle:
+            existing = json.load(handle)
+        if existing.get('models') != manifest['models']:
+            sys.stderr.write(f"--merge needs the manifest's models {existing.get('models')}.\n")
+            return 2
+        manifest = existing
     for digest, artifact in sorted(
         shipped_artifacts(installer, token_audit, scripts_dir).items()
     ):
+        if digest in manifest['artifacts']:
+            continue
         manifest['artifacts'][digest] = {
             'kind': artifact['kind'],
             'name': artifact['name'],
@@ -300,11 +352,16 @@ def main(argv=None):
             },
         }
         print(f"  {artifact['name']}: {manifest['artifacts'][digest]['tokens']}")
-    for tool in fetch_tool_definitions(scripts_dir, args.environment, workspace_id):
+    tools = (source_tool_definitions(scripts_dir, args.api, args.common)
+             if args.tools_from_source
+             else fetch_tool_definitions(scripts_dir, args.environment, workspace_id))
+    for tool in tools:
         name = tool.get('name')
         description = tool.get('description')
         schema = tool.get('inputSchema') or {}
         key = token_audit.tool_definition_key(name, description, schema)
+        if key in manifest['tools']:
+            continue
         manifest['tools'][key] = {
             'name': name,
             'tokens': {
@@ -320,16 +377,16 @@ def main(argv=None):
         if unavailable:
             manifest['tools'][key]['unavailable'] = unavailable
         print(f"  tool {name}: {manifest['tools'][key]['tokens']}")
-    chunks = sample_chunks(os.path.expanduser(args.sample_export))
-    sample_bytes = sum(len(chunk.encode('utf-8')) for chunk in chunks)
-    for counter in counters:
-        tokens = sum(counter.text(chunk) for chunk in chunks)
-        manifest['bytes_per_token'][counter.family] = round(
-            sample_bytes / max(tokens, 1), 3
-        )
+    if args.sample_export is not None:
+        chunks = sample_chunks(os.path.expanduser(args.sample_export))
+        sample_bytes = sum(len(chunk.encode('utf-8')) for chunk in chunks)
+        for counter in counters:
+            tokens = sum(counter.text(chunk) for chunk in chunks)
+            manifest['bytes_per_token'][counter.family] = round(
+                sample_bytes / max(tokens, 1), 3
+            )
     print(f"  bytes per token: {manifest['bytes_per_token']}")
 
-    output = args.output or os.path.join(scripts_dir, 'token-manifest.json')
     with open(output, 'w', encoding='utf-8') as handle:
         json.dump(manifest, handle, indent=1, sort_keys=True)
         handle.write('\n')

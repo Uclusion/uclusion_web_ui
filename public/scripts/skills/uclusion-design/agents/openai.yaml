@@ -1,6 +1,0 @@
-interface:
-  display_name: "Uclusion Design"
-  short_description: "Own requirements questions and their Uclusion contract"
-  default_prompt: "Use $uclusion-design for the assigned same-contract requirements questions, authoring and settlement."
-policy:
-  allow_implicit_invocation: true

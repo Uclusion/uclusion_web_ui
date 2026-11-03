@@ -11,7 +11,7 @@ List the actual available actions in this order:
 
 Omit commit/push when no repository work applies. Explain what `all` selects. Other actions retain their independent permissions, and an actual notification clear additionally needs explicit chat permission for that exact scope.
 
-For a job, pass the narrative to `ask_for_review` as `report` and this package as `completion_package`, which the tool appends last. A newly created review can be named as “this review”; its saved receipt supplies the canonical thread identity. For a bug fixed in this session, publish with `add_info` on its resolved bug thread when the standalone owner confirms the resolution trigger.
+For a job, publish the narrative and this package together with `ask_for_review`, which appends the package last. A newly created review can be named as “this review”; its saved receipt supplies the canonical thread identity. For a bug fixed in this session, publish with `add_info` on its resolved bug thread when the standalone owner confirms the resolution trigger.
 
 End with a short invitation on the package thread: “Reply `all`, or tell me in your own words what you want.” If a non-AI, non-advisory human response to the applicable package has already arrived, forward its exact identity/message to operation instead of repeating the invitation. Operation owns selection interpretation, authorization and execution.
 

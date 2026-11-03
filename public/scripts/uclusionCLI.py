@@ -1672,7 +1672,7 @@ def cmd_sync(args):
 
 
 def workflow_content_id(package):
-    """Identify current core/reference bytes independently of install location."""
+    """Identify current core/reference/role bytes independently of install location."""
     package = os.path.abspath(os.path.expanduser(package))
     references = os.path.join(package, 'references')
     if not os.path.isdir(references):
@@ -1682,9 +1682,15 @@ def workflow_content_id(package):
     def unreadable(error):
         raise error
 
-    for directory, _subdirectories, filenames in os.walk(references, onerror=unreadable):
-        paths.extend(os.path.join(directory, name) for name in filenames
-                     if name.endswith('.md'))
+    # Role files are core content too; packages before the role refactor have none.
+    roots = [references]
+    roles = os.path.join(package, 'roles')
+    if os.path.isdir(roles):
+        roots.append(roles)
+    for root in roots:
+        for directory, _subdirectories, filenames in os.walk(root, onerror=unreadable):
+            paths.extend(os.path.join(directory, name) for name in filenames
+                         if name.endswith('.md'))
     entries = []
     for path in sorted(paths):
         with open(path, 'rb') as handle:

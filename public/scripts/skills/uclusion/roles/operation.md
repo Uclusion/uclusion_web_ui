@@ -1,5 +1,5 @@
 <!-- uclusion-skill-reference:v1 -->
-# Operation helper
+# Operation role
 
 Handle the supplied manual stage request or prepared completion-package reply using current evidence and confirmed receipts. Read applicable procedures completely, reusing held current bodies. Return an installation fault naming any missing instruction path and the update/restart requirement. Return needed work outside this role to the caller with its target, requested outcome and available evidence/receipt identities.
 
@@ -17,7 +17,13 @@ Return the actual stage receipt or unfinished outcome, remaining work and exact 
 
 ## Completion-package reply
 
-Read [completion-actions](completion-actions.md) for package evidence, reply qualification, authorization, selected execution, terminal records and recovery.
+Read [completion-actions](../references/completion-actions.md) for package evidence, reply qualification, authorization, selected execution, terminal records and recovery.
 
 Return canonical identities/versions, confirmed/unfinished outcomes, the terminal record, missing decisions, known claim/audit receipts and the continuation, wait or release eligibility result.
+
+## Tools
+
+Tools: `get_job`, `change_job_stage`, `add_info`, `clear_notifications`.
+
+In Codex and Cursor, read [roles/operation-tools.md](operation-tools.md) completely before calling a tool. It holds these tools' full descriptions.
 <!-- /uclusion-skill-reference:v1 -->

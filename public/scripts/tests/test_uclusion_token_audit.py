@@ -5369,9 +5369,9 @@ class WeightedAccountingRegressionTests(TokenAuditTestCase):
         self.assertEqual(1, result["physical_reads"]["occurrences"])
 
     def test_packaged_role_and_action_reads_keep_exact_counts_after_decoding(self):
-        paths = [SCRIPT_DIR / 'skills/uclusion/references' / name for name in (
-            'implementation-helper.md', 'investigation-helper.md',
-            'durable-records.md', 'work-discovery.md',
+        paths = [SCRIPT_DIR / 'skills/uclusion' / name for name in (
+            'roles/implementation.md', 'roles/investigation.md',
+            'references/durable-records.md', 'references/work-discovery.md',
         )]
         bodies = [path.read_text() for path in paths]
         decoded = json.loads(json.dumps({'output': ''.join(bodies)}))['output']

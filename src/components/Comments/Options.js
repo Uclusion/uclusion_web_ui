@@ -72,8 +72,9 @@ function Options(props) {
     (useCompression ? undefined : firstConsidered?.investible?.id);
   const selectedInvestible = inlineInvestibles.find((inv) => inv.investible.id === selectedInvestibleId);
   const proposedStage = getProposedOptionsStage(marketStagesState, anInlineMarket.id);
-  const selectedStageTab = selectedInvestible ?
-    (getMarketInfo(selectedInvestible, anInlineMarket.id).stage === proposedStage.id ? 1 : 0) : undefined;
+  const selectedStageTab = selectedInvestible
+    ? (proposedStage && getMarketInfo(selectedInvestible, anInlineMarket.id)?.stage === proposedStage.id ? 1 : 0)
+    : undefined;
   const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, anInlineMarket.id,
     {tabIndex: 0, selectedInvestibleIdTabZero: selectedStageTab === 0 ? selectedInvestibleId : undefined,
       selectedInvestibleIdTabOne: selectedStageTab === 1 ? selectedInvestibleId : undefined,

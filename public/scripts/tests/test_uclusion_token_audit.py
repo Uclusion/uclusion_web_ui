@@ -5370,7 +5370,7 @@ class WeightedAccountingRegressionTests(TokenAuditTestCase):
 
     def test_packaged_role_and_action_reads_keep_exact_counts_after_decoding(self):
         paths = [SCRIPT_DIR / 'skills/uclusion' / name for name in (
-            'roles/implementation.md', 'roles/investigation.md',
+            'roles/implementation.md', 'roles/operation.md',
             'references/durable-records.md', 'references/work-discovery.md',
         )]
         bodies = [path.read_text() for path in paths]

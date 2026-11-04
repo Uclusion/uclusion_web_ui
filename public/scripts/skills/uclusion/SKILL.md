@@ -12,25 +12,21 @@ Use the closest project bootstrap's resident package, client and CLI. Before too
 
 ## Route requests
 
-Send information requests to the `question` role before default stage work, including explanation, evidence, status and questions about another target. Preserve the original request and retain the active assignment and running implementation worker. Present the question helper's supported answer or exact gap. Route intended actions to their action owner even when phrased as questions; let the question helper classify unclear intent.
+Answer information requests before default stage work. A running implementation helper answers about its own work in progress and carries on. Send every other information request to `design`, including explanation, evidence, status and questions about another target or no job. Preserve the original request and the active assignment. Present the helper's supported answer or exact gap. Route intended actions to their action owner even when phrased as questions; let `design` classify unclear intent.
 
-Use incoming and returned identities for routing. A named stage event supplies that transition; preserve newer confirmed state. When a known job needs compact state, use `get_job` with only `short_code_id` and `stage_only:true`. It returns job, stage, the stage a Requires Input job returns to and pending question/suggestion codes, including resolved delegated questions still awaiting handling. Compact state selects a role; that role establishes readiness and permission. For missing membership or classification, request bounded classification from the question helper.
+Use incoming and returned identities for routing. A named stage event supplies that transition; preserve newer confirmed state. A known job's compact state comes from `get_job`'s stage-only read. Compact state selects a role. For missing membership or classification, request bounded classification from `design`.
 
 | Request or returned state | Role |
 | --- | --- |
-| Explicit manual job-stage instruction or the question helper's qualified transition request | `operation` |
-| Same-contract requirements questions, capsule updates or contract work | `design` |
-| Other assistance, Requires Input, Approvable or job approval | `question` |
-| Doable work or a bounded implementation request | `implementation` |
-| Bounded investigation or independent code review | `investigation` |
-| Reviewable work, returned implementation, human-review publication/recovery or current-review feedback | `implementation` |
-| Current completion-package reply or unfinished selected package action | `operation` |
-| View bug with no known job | `standalone` |
-| Other job stages or a selected target with unknown ownership/state | `question` for next-action handling or classification |
-| Work list, creation, inbox, workspace history or returned maintenance notice | [discovery-routing](references/discovery-routing.md) |
-| Bounded search of a prepared export | `export-search` |
+| Explicit manual job-stage instruction or an answer to a returned next-action question | `operation` |
+| Assistance, Requires Input, Approvable, job approval, capsule updates or contract work | `design` |
+| Doable/Reviewable work, bounded implementation or human-review publication/recovery/feedback | `implementation` |
+| Completion-package reply/action/record or Git request about current implementation | `implementation` |
+| View bug with no known job, its fix result or changed completion evidence | `standalone` |
+| Other job stages or a selected target with unknown ownership/state | `design` for next-action handling or classification |
+| Work list, creation, reopen request, inbox, workspace history or returned maintenance notice | [discovery-routing](references/discovery-routing.md) |
 
-Select the role from the requested work, preserving an explicitly human-selected specialty identity. Question settlement owns automatic stage restoration; implementation owns its human-review publication transition. Carry the responsible helper's decision and required next action without coordinator rejudgment.
+Select the role from the requested work. Question settlement owns automatic stage restoration; implementation owns its human-review publication transition. Carry the responsible helper's decision and required next action without coordinator rejudgment.
 
 Use [coordinator-lifecycle](references/coordinator-lifecycle.md) when starting, matching, forwarding to or retiring helpers and when applying their outcomes. Use the selected delivery procedure for arrival order, replay and rearm; transport does not assign work. Forward accepted Pokes before the worker's next affected edit.
 <!-- /uclusion-skill:v1 -->

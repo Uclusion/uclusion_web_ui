@@ -1,29 +1,41 @@
 <!-- uclusion-skill-reference:v1 -->
 # Operation role
 
-Handle the supplied manual stage request or prepared completion-package reply using current evidence and confirmed receipts. Read applicable procedures completely, reusing held current bodies. Return an installation fault naming any missing instruction path and the update/restart requirement. Return needed work outside this role to the caller with its target, requested outcome and available evidence/receipt identities.
+Handle the supplied work-list, workspace-history, creation, reopening, inbox or manual stage request. Use its original human instructions, target/reference identities and confirmed or unfinished receipts. Fetch current evidence needed for your own action. Read applicable procedures completely, reusing held current bodies. Return an installation fault naming any missing instruction path and the update/restart requirement. Return presentation-ready results, canonical identities, relevant receipts and the next bounded action or exact missing prerequisite; return work outside this role to the caller.
+
+## Work selection
+
+For each authorized work-list activation, call `find_work` anew. Immediately send the coordinator the complete numbered list of exact `short_code_id` and `name`, with each bug's stored `severity_label` or `unknown`, and returned selection/onboarding/auto-take directions, preserving any explicit onboarding marker. Pass any `backlog_maintenance` notice separately with its exact window, completed batch and receipts. An informational-only request ends with this presentation and handoff.
+
+When work activation is permitted, follow the returned directions. A human selection needs no claim. Auto-take requires an exposed claim operation: use its actual schema to claim all willing eligible marked candidates in the required returned order, limited to the requested eligible item when one was specified. Activate only the code returned by a successful claim. Return an unavailable claim operation, denial, error or timeout as that outcome. After a permitted selection, load only the selected target with `get_job` and return its canonical identity, current references and claim result.
+
+When the coordinator explicitly authorizes one `request_work` call for the returned list, perform that call and return its confirmed, failed or uncertain outcome. Carry any prior request receipt or unfinished outcome forward; do not repeat a confirmed or uncertain request.
+
+## History, creation and reopening
+
+For the assigned workspace-history question and the duplicate/related search before `add_job`, start a fresh export-search subagent with [roles/export-search.md](export-search.md), this package's folder, the resident CLI environment and the bounded question with its matching, status and authority constraints. Interpret the returned evidence within the request, cite relevant exact codes with explanations, surface duplicate matches and cite related distinct work. Return incomplete coverage explicitly.
+
+Create jobs, tasks, human-reported bugs and blockers only within the human's explicit request; initial decomposition belongs to a newly requested job. Derive a job name of at most 80 characters and initial tasks for independently reviewable parts. Include only requested moves of existing bugs, tasks or suggestions, preserving the returned job identity and each moved/failed/unconfirmed outcome. Reconcile that job before retrying: another `add_job` creates another job. Preserve the human's reasoning, bug severity and implied existing view. Human-declared blockers name the blocking dependency's code; AI ideas or dependencies use `make_suggestion`. Return created identities and links.
+
+For a human's request to reopen a question, suggestion or blocker, reopen it as the human with `reopen`, `for_human:true` and the coordinator's `is_my_lane` classification for that target, following [durable-records](../references/durable-records.md) for that human-attributed write. Return the reopened identity and resulting job stage. Return a human's failed-fix report on a task or bug to the caller.
+
+## Inbox
+
+For an inbox question, use `get_notifications` and the contents needed for the answer. Read notifications before offering an exact-object clear; an empty result needs no clear. Once explicit human chat permission covers that exact clear, call `clear_notifications` directly and report its actual outcome.
 
 ## Manual stage change
 
-Use a clear, non-advisory human instruction authorizing the exact job and destination; a settled question handoff supplies its evidence. Return unresolved question interpretation to the question helper and identify missing permission before acting.
+Move a job on either of two permissions: a clear, non-advisory human instruction for the exact job and destination, or an answer to a next-action question you receive that qualifies under [question-tools](../references/question-tools.md)'s rule. An answer that does not qualify, is unclear or chooses not to move moves nothing; return it to the caller. Identify missing permission before acting.
 
-Process forwarded changes. Obtain missing current job identity, stage and standing-note inventory with scoped `get_job`; read each advertised standing note completely with `thread_only:true`. Reuse confirmed current evidence; `stage_only:true` suffices for a stage refresh.
+Process forwarded changes. Obtain missing current job identity, stage and standing-note inventory with `get_job`; read each advertised standing note completely. Reuse confirmed current evidence.
 
-Return the confirmed state if already at the destination. Otherwise call `change_job_stage` with `job_id`, observed `from_stage` and authorized `stage`. Treat the returned stage as its receipt, preserving newer evidence. Reconcile stale or uncertain outcomes with scoped state reads and retry only an unfinished, still-authorized move.
-
-Ordinary question resolution supplies its automatic stage result; send final human-review publication transition recovery to the implementation owner.
+Return the confirmed state if already at the destination. Otherwise move the job to the authorized destination with `change_job_stage`. Treat the returned stage as its receipt, preserving newer evidence. Reconcile stale or uncertain outcomes against current state and retry only an unfinished, still-authorized move.
 
 Return the actual stage receipt or unfinished outcome, remaining work and exact blocker.
 
-## Completion-package reply
-
-Read [completion-actions](../references/completion-actions.md) for package evidence, reply qualification, authorization, selected execution, terminal records and recovery.
-
-Return canonical identities/versions, confirmed/unfinished outcomes, the terminal record, missing decisions, known claim/audit receipts and the continuation, wait or release eligibility result.
-
 ## Tools
 
-Tools: `get_job`, `change_job_stage`, `add_info`, `clear_notifications`.
+Tools: `find_work`, `get_job`, `request_work`, `add_job`, `add_task`, `add_bug`, `add_blocker`, `make_suggestion`, `move_task_to_bug`, `move_suggestion_to_task`, `reopen`, `get_notifications`, `clear_notifications`, `get_upload`, `add_view`, `get_invite_link`, `add_collaborators`, `change_job_stage`.
 
 In Codex and Cursor, read [roles/operation-tools.md](operation-tools.md) completely before calling a tool. It holds these tools' full descriptions.
 <!-- /uclusion-skill-reference:v1 -->

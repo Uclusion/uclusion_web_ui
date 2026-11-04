@@ -793,6 +793,12 @@ class SingleSkillRoleTests(unittest.TestCase):
         roles = set(self.ROLE_NAME.findall(read_text(SKILL_SOURCE_PATH)))
         routing = read_text(os.path.join(SKILL_SOURCE_DIR, 'references', 'discovery-routing.md'))
         roles.update(re.findall(r'(?:fresh|Retain one) `([a-z-]+)` helper', routing))
+        # Roles that another role starts itself, such as export search.
+        roles_dir = os.path.join(SKILL_SOURCE_DIR, 'roles')
+        for name in os.listdir(roles_dir):
+            if name.endswith('.md') and not name.endswith('-tools.md'):
+                linked = re.findall(r'\[roles/([a-z-]+)\.md\]', read_text(os.path.join(roles_dir, name)))
+                roles.update(role for role in linked if not role.endswith('-tools'))
         return roles
 
     def test_bundle_ships_one_skill_and_no_design_package(self):
@@ -807,12 +813,21 @@ class SingleSkillRoleTests(unittest.TestCase):
 
     def test_every_routed_role_is_found_by_its_name(self):
         roles = self.routed_roles()
-        self.assertTrue({'implementation', 'question', 'operation', 'investigation', 'standalone',
-                         'discovery', 'export-search', 'backlog-maintenance', 'design'} <= roles, roles)
+        self.assertEqual({'implementation', 'operation', 'standalone',
+                          'export-search', 'backlog-maintenance', 'design'}, roles)
         packaged = {relative.replace(os.sep, '/') for _key, relative in INSTALL.SKILL_PACKAGE_ASSETS}
         with tempfile.TemporaryDirectory() as temp_dir:
             skill_dir = os.path.join(temp_dir, '.claude', 'skills', 'uclusion')
             self.install(skill_dir, os.path.join(temp_dir, 'CLAUDE.md'), 'claude')
+            # Consolidated responsibilities leave no separate roles for these duties.
+            for relative in ('roles/question.md', 'roles/question-tools.md',
+                             'roles/investigation.md', 'roles/investigation-tools.md',
+                             'roles/discovery.md', 'roles/discovery-tools.md'):
+                self.assertNotIn(relative, packaged)
+                self.assertFalse(os.path.exists(os.path.join(skill_dir, *relative.split('/'))))
+            installed = {name[:-len('.md')] for name in os.listdir(os.path.join(skill_dir, 'roles'))
+                         if name.endswith('.md') and not name.endswith('-tools.md')}
+            self.assertEqual(roles, installed)
             for role in sorted(roles):
                 with self.subTest(role=role):
                     relative = f'roles/{role}.md'
@@ -828,6 +843,31 @@ class SingleSkillRoleTests(unittest.TestCase):
                         listed = read_text(os.path.join(skill_dir, 'roles', f'{role}-tools.md'))
                         for name in re.findall(r'`([a-z_]+)`', tools[0]):
                             self.assertIn(f'## `{name}`', listed)
+
+    def test_install_retires_the_moved_files(self):
+        packaged = {path.replace(os.sep, '/') for _key, path in INSTALL.SKILL_PACKAGE_ASSETS}
+        for path in ('references/history-search.md', 'references/job-assistance.md',
+                     'references/approval.md', 'references/review.md',
+                     'references/completion-actions.md', 'roles/discovery.md',
+                     'roles/discovery-tools.md'):
+            with self.subTest(path=path), tempfile.TemporaryDirectory() as temp_dir:
+                relative = os.path.join(*path.split('/'))
+                self.assertIn(relative, INSTALL.RETIRED_SKILL_REFERENCE_PATHS)
+                self.assertNotIn(path, packaged)
+                skill_dir = os.path.join(temp_dir, '.claude', 'skills', 'uclusion')
+                resident_path = os.path.join(temp_dir, 'CLAUDE.md')
+                self.install(skill_dir, resident_path, 'claude')
+                retired_path = os.path.join(skill_dir, relative)
+                write_text(retired_path, f'{INSTALL.SKILL_REFERENCE_MARKER}\nOld {path}\n'
+                                         f'{INSTALL.SKILL_REFERENCE_END_MARKER}\n')
+                self.install(skill_dir, resident_path, 'claude')
+                self.assertFalse(os.path.exists(retired_path))
+        with tempfile.TemporaryDirectory() as temp_dir:
+            skill_dir = os.path.join(temp_dir, '.claude', 'skills', 'uclusion')
+            self.install(skill_dir, os.path.join(temp_dir, 'CLAUDE.md'), 'claude')
+            # The export-search role now prepares the export itself.
+            self.assertIn('`uclusion -e <environment> export`',
+                          read_text(os.path.join(skill_dir, 'roles', 'export-search.md')))
 
     def test_install_removes_a_marked_design_skill_for_every_client(self):
         cases = (

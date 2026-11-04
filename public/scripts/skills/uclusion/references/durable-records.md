@@ -19,13 +19,13 @@ Correct an active AI-authored ordinary note, reply or option Info in place with 
 
 A confirmed receipt establishes its produced state; retain its canonical identity/link, version and actual outcome. Inspect publication, action, settlement and note results separately. Later failure leaves earlier successes intact. Read lost, uncertain or changed evidence in its exact scope, then retry only unfinished operations. A held confirmed write needs no confirmation read.
 
-## Reopening failed fixes
+## Reopening
 
-Autonomously reopen only bugs or tasks whose fix demonstrably still fails, explaining the failure in a reply. A human failure report requests reopening: use `for_human:true` with the coordinator's classification for that target as above. Own failed verification omits `for_human`. Resume the reopened work under its lane and stage, preserving prior package results.
+Reopen any resolved item when evidence shows it needs reopening, explaining that evidence in a reply, as for a bug or task whose fix still fails. Implementation and standalone reopen their own bugs and tasks; design reopens questions, suggestions and blockers on its own findings. A human failure report requests reopening: use `for_human:true` with the coordinator's classification for that target as above. An agent's own finding omits `for_human`. Resume the reopened work under its lane and stage, preserving prior package results.
 
 ## Work creation
 
-Native job/task/bug/blocker creation requires the human's explicit request, with initial decomposition of a newly requested job and the implementation-owned review split of an unrelated finished task as their existing exceptions. AI ideas or dependencies use suggestions. Requested creation and its duplicate search belong to discovery; implementation owns its review task split. Preserve returned creation and move outcomes separately: another `add_job` call creates another job.
+Native job/task/bug/blocker creation requires the human's explicit request, with initial decomposition of a newly requested job and the implementation-owned review split of an unrelated finished task as their existing exceptions. AI ideas or dependencies use suggestions. Requested creation and its duplicate search belong to operation; implementation owns its review task split. Preserve returned creation and move outcomes separately: another `add_job` call creates another job.
 
 ## Shared general lessons
 

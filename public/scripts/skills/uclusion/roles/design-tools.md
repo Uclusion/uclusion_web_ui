@@ -6,14 +6,14 @@ The full description of each tool this role uses. A whole-list connection lists 
 
 ## `get_job`
 
-Returns Markdown for a job or the named comment thread by default, with current capsule R-codes/versions and standing-note inventory. Whole-scope reads load the selected target's current capsule body and nondeleted comments, including resolved replies, or active ordinary job/task note threads when that capsule is absent. Default whole-job reads, including initial_read, omit token-usage audit records; explicit audit threads and notes sections can retrieve them. initial_read retains the enclosing whole-job scope. Explicit sections and threads retain their requested scope. Only the capsule body is the implementation contract. Other resolved discussions, including those inside options, require an explicit read. Grouped tasks use their top-level capsule. Read an R-code with thread_only for its current stored body/version; no historical-version retrieval.
+Returns Markdown for a job or the named comment thread by default, with current capsule R-codes/versions and standing-note inventory. Whole-scope reads load the selected target's current capsule body and nondeleted comments, including resolved replies, or active ordinary job/task note threads when that capsule is absent. Default whole-job reads, including initial_read, omit token-usage audit records; explicit audit threads and notes sections can retrieve them. initial_read retains the enclosing whole-job scope. Explicit sections and threads retain their requested scope. Only the capsule body is the implementation contract. Records from an advisory human render under the 'From advisory human:' author header. Other resolved discussions, including those inside options, require an explicit read. Grouped tasks use their top-level capsule. Read an R-code, such as a capsule or standing note, with thread_only for its current stored body/version; no historical-version retrieval. A newly added item can briefly return not found; treat that as a pending read to retry later, not as a deletion.
 
-- `short_code_id`: The short code of a job or comment. A qualified code inside a question, such as Q-example-1_O-1, returns just that option or record, with its votes or replies.
+- `short_code_id`: The short code of a job or comment, exactly as you received it. Qualify a code local to a question, such as O-1, with that question's code. A qualified code inside a question, such as Q-example-1_O-1, returns just that option or record, with its votes or replies.
 - `initial_read`: Use for the initial whole-scope read. Loads the selected target's complete current capsule and its nondeleted comments, or active ordinary job/task note threads when absent: job capsule for a job, own capsule for an independent task without job fallback, parent capsule for a grouped child. Other capsules stay references. Explicit sections and threads retain their requested scope. Standing notes and other resolved discussions still require explicit reads.
 - `include_all_resolved`: True includes full resolved threads and ordinary notes, with supporting replies, options and votes. By default other resolved discussions, including those inside options, are omitted; selected capsule comments include resolved replies, and active ordinary job/task notes load on whole-scope reads when the selected capsule is absent.
 - `sections`: Render only selected sections; for planning jobs, description is included only when selected and, without initial_read, description alone omits comment bodies. Selecting notes includes ordinary notes. Selecting resolved includes full resolved discussions with supporting replies, options and votes, but does not opt into ordinary job-note bodies. Header, stage, capsule references and standing inventory remain.
 - `thread_only`: Optional: return the requested comment thread, retaining job stage and context references. A code inside a thread, such as a reply a Poke names, returns just that item and the replies below it; the thread's own code returns the whole thread.
-- `stage_only`: Optional: return only the enclosing job's code, current stage, the stage a Requires Input job returns to, and open questions and suggestions. Use it when you need the stage after your last operation. Do not combine it with other options.
+- `stage_only`: Optional: return only the enclosing job's code, current stage, the stage a Requires Input job returns to, and pending questions and suggestions, including resolved delegated questions still awaiting AI handling. Use it when you need the stage after your last operation. Pass only short_code_id with it; do not combine it with other options.
 
 ## `get_job_attachments`
 
@@ -122,6 +122,15 @@ Resolves a comment like a question or task or for a job moves it into Tasks Comp
 - `expected_question_version`: Version of the question evidence handled. Required to consume pending AI handling.
 - `included_in_capsule`: True only after all required capsule targets are confirmed. Omit or use false for immediate settlement without a capsule change.
 - `tz`: Required with progress_note. The timezone of the human user invoking this tool.
+
+## `reopen`
+
+Reopens a resolved bug, task, question, suggestion or blocker, as reopening does in Uclusion, and reports it open again. A job changes stage with change_job_stage instead. With for_human the reopen is the person's, so the job moves as it would for them.
+
+- `short_code_id`: The short code of the resolved comment.
+- `parent_question_short_code_id`: Parent question code, required for an unqualified short_code_id inside an option; unnecessary for qualified codes such as Q-example-1_O-1.
+- `for_human`: True authors this record as the connected human.
+- `is_my_lane`: True when the affected work belongs to the agent's current assignment.
 
 ## `set_design_capsule`
 

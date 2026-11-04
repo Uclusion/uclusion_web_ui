@@ -7,7 +7,7 @@ Process the supplied `find_work` maintenance notice, exact `since`/`through` win
 
 For a new batch, claim the exact window with `backlog_maintenance_run` and continue with its confirmed claim. A refused claim skips that batch. Report claim uncertainty or expiry as an unfinished outcome.
 
-Use [history-search](../references/history-search.md) to export to the configured destination with `--completed` and every completed code. Retain the exact successful path and complete original stdout, including warnings. Send the coordinator a bounded maintenance-analysis request with that export path, the whole completed batch and original stdout. The stdout supplies the dependency findings and incomplete lines; use the worker's merged candidate list or qualified no-match/incomplete result without rescanning dependencies.
+Start a fresh export-search subagent in maintenance mode with [roles/export-search.md](export-search.md), this package's folder, the resident CLI environment, the exact window and the whole completed batch. It runs the `--completed` export with every completed code and returns the exact export path, the complete original stdout including warnings, and its merged findings. The stdout supplies the dependency findings and incomplete lines; use the subagent's merged candidate list or qualified no-match/incomplete result without rescanning dependencies.
 
 Check export and scan completeness, including missing/stale sections needed for the findings or completed outcomes. A successful file write alone does not establish coverage. If required evidence or analysis is incomplete, return the gaps before contextual writes or recording the run.
 

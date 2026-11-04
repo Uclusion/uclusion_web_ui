@@ -1490,6 +1490,7 @@ class TokenAuditInstallerTests(unittest.TestCase):
                 INSTALL.MCP_PROXY_SYMLINK_PATH,
                 'workspace-1',
                 'stage',
+                '--tool-descriptions', 'on-demand',
                 '--token-audit',
                 '--token-collector',
                 '--token-audit-port', '23456',

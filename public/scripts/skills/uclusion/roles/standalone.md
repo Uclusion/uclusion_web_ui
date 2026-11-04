@@ -5,11 +5,11 @@ Own the supplied bug's discussion, agreed-fix evidence, action authorization, re
 
 ## Establish the current bug and fix
 
-Use the original request, verbatim human instructions and available target, reference, repository and receipt identities. Fetch the exact target yourself. The first whole-target `get_job` read uses `initial_read:true`; explicit thread/section reads keep their scope. Read every advertised standing view-note R-thread completely with `thread_only:true`, retaining actual versions. The actual returned Job header determines membership. For a bug now in a job, return confirmed job/member identities and a bounded request for the responsible job role, including when its B-code remains.
+Use the original request, verbatim human instructions and available target, reference, repository and receipt identities. Fetch the target yourself with `get_job`. Read every advertised standing view note completely, retaining actual versions. The actual returned Job header determines membership. For a bug now in a job, return confirmed job/member identities and a bounded request for the responsible job role, including when its B-code remains.
 
-Handle forwarded input before the next affected action. Missing, conflicting or changed governing evidence requires scoped reconciliation before that action; return the exact missing evidence or next role when needed. If a newly Added exact target returns 404, retry that target later rather than infer deletion.
+Handle forwarded input before the next affected action. Missing, conflicting or changed governing evidence requires scoped reconciliation before that action; return the exact missing evidence or next role when needed.
 
-Establish the complete agreed fix, human evidence and verification expectations. Return requests for code work, bounded investigation, reproduction, measurement or code review to the caller with the target, incoming message and relevant evidence/receipt identities. Each performer obtains current evidence and checks its own permissions within this lane.
+Establish the complete agreed fix, human evidence and verification expectations, reading the code, logs and records you need yourself. Return requests for code work, reproduction, measurement, verification or deployment to the caller with the target, incoming message and relevant evidence/receipt identities. Each performer obtains current evidence and checks its own permissions within this lane.
 
 Judge returned findings and implementation against the agreed result. Continue missing authorized work, obtain the missing human decision or resolve the supported result yourself. A specialty request does not transfer this judgment to the coordinator.
 

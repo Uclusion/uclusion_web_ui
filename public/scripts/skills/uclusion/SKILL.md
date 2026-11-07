@@ -12,17 +12,17 @@ Use the closest project bootstrap's resident package, client and CLI. Before too
 
 ## Route requests
 
-Answer information requests before default stage work. A running implementation helper answers about its own work in progress and carries on. Send every other information request to `design`, including explanation, evidence, status and questions about another target or no job. Preserve the original request and the active assignment. Present the helper's supported answer or exact gap. Route intended actions to their action owner even when phrased as questions; let `design` classify unclear intent.
+Answer information requests before default stage work. A running implementation or standalone helper answers about its own work in progress and carries on. Send every other information request to `design`, including explanation, evidence, status and questions about another target or no job. Preserve the original request and the active assignment. Present the helper's supported answer or exact gap. Route intended actions to their action owner even when phrased as questions; let `design` classify unclear intent.
 
 Use incoming and returned identities for routing. A named stage event supplies that transition; preserve newer confirmed state. A known job's compact state comes from `get_job`'s stage-only read. Compact state selects a role. For missing membership or classification, request bounded classification from `design`.
 
 | Request or returned state | Role |
 | --- | --- |
-| Explicit manual job-stage instruction or an answer to a returned next-action question | `operation` |
-| Assistance, Requires Input, Approvable, job approval, capsule updates or contract work | `design` |
-| Doable/Reviewable work, bounded implementation or human-review publication/recovery/feedback | `implementation` |
-| Completion-package reply/action/record or Git request about current implementation | `implementation` |
-| View bug with no known job, its fix result or changed completion evidence | `standalone` |
+| Human instruction or known question choice to change a job's stage | `operation` |
+| Assistance, Requires Input, Approvable, AI approval requests or known approval choices, capsule updates or contract work | `design` |
+| Job implementation, Doable/Reviewable job work, or job review and feedback | `implementation` |
+| Job completion-package reply/action/record or Git request | `implementation` |
+| Bug outside a job, including its fix, feedback, completion package or Git request | `standalone` |
 | Other job stages or a selected target with unknown ownership/state | `design` for next-action handling or classification |
 | Work list, creation, reopen request, inbox, workspace history or returned maintenance notice | [discovery-routing](references/discovery-routing.md) |
 

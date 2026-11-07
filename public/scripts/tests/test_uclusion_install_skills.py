@@ -109,10 +109,12 @@ class SkillPackageContractTests(unittest.TestCase):
             for name in names if name.endswith('.md')
         }
         self.assertEqual(
-            shipped_markdown,
+            shipped_markdown - {'README.md'},
             {path for path in packaged_paths if path.endswith('.md')},
             'Every action and helper body must ship in ordinary and demo installs',
         )
+        self.assertNotIn('README.md', packaged_paths,
+                         'The maintainer README is not an installed agent instruction')
         for relative_path in references:
             self.assertNotIn('..', relative_path.split('/'))
             target = os.path.join(SKILL_SOURCE_DIR, *relative_path.split('/'))
@@ -848,7 +850,7 @@ class SingleSkillRoleTests(unittest.TestCase):
         packaged = {path.replace(os.sep, '/') for _key, path in INSTALL.SKILL_PACKAGE_ASSETS}
         for path in ('references/history-search.md', 'references/job-assistance.md',
                      'references/approval.md', 'references/review.md',
-                     'references/completion-actions.md', 'roles/discovery.md',
+                     'references/completion-actions.md', 'references/single-comment.md', 'roles/discovery.md',
                      'roles/discovery-tools.md'):
             with self.subTest(path=path), tempfile.TemporaryDirectory() as temp_dir:
                 relative = os.path.join(*path.split('/'))

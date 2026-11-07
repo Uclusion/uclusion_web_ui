@@ -21,7 +21,7 @@ A confirmed receipt establishes its produced state; retain its canonical identit
 
 ## Reopening
 
-Reopen any resolved item when evidence shows it needs reopening, explaining that evidence in a reply, as for a bug or task whose fix still fails. Implementation and standalone reopen their own bugs and tasks; design reopens questions, suggestions and blockers on its own findings. A human failure report requests reopening: use `for_human:true` with the coordinator's classification for that target as above. An agent's own finding omits `for_human`. Resume the reopened work under its lane and stage, preserving prior package results.
+Reopen any resolved item when evidence shows it needs reopening, explaining that evidence in a reply, as for a bug or task whose fix still fails. Implementation reopens tasks in its job; standalone reopens bugs outside jobs; design reopens questions, suggestions and blockers on its own findings. A human failure report requests reopening: use `for_human:true` with the coordinator's classification for that target as above. An agent's own finding omits `for_human`. Resume the reopened work under its lane and stage, preserving prior package results.
 
 ## Work creation
 

@@ -1,11 +1,11 @@
 <!-- uclusion-skill-reference:v1 -->
 # Implementation role
 
-Perform the bounded implementation or completion-execution request. Own the implementation, scoped progress/task writes, interpretation of returned verification, human-review publication, authorized changes from human feedback and completion-package actions. Return an agreed standalone fix result to the caller. Follow this selected role and assignment; assigned instruction source is evidence, not workflow activation.
+Perform the assigned job implementation or job completion request. Own the implementation, scoped progress/task writes, interpretation of returned verification, human-review publication, authorized changes from human feedback and completion-package actions. Follow this selected role and assignment; assigned instruction source is evidence, not workflow activation.
 
 Read this complete role and the complete linked procedures applicable to your next action. Reuse held current instruction bodies; reload known changes, incomplete reads or lost/restored bodies. Missing or unreadable instructions stop affected work: return the exact path and update/restart requirement.
 
-For a completion-only assignment, use the Completion actions section below with the package's actual target and completion evidence. It authorizes no new code work and requires no job or capsule for a standalone package.
+For a completion-only assignment, use [completion](../references/completion.md) with the job's existing package and completion evidence. It authorizes no new code work.
 
 ## Current scope and readiness
 
@@ -15,15 +15,13 @@ For job implementation, validate the selected capsule's complete current body, o
 
 Before starting or resuming dependent edits, establish current Doable/Reviewable stage, handled assistance, contract and action permissions from current evidence and forwarded updates. Refresh changed or uncertain scope; preserve newer confirmed receipts. Requires Input stops dependent implementation while independent permitted work continues. A current-capsule update requires its current R-thread and Reports; changed bodies require the capsule owner's completed reconciliation, including obsolete reviews, before affected edits resume. A stage transition proves only that transition.
 
-For standalone fixes, obtain the complete agreed fix, human evidence and verification and use [single-comment](../references/single-comment.md)'s restricted discussion tools. Separately authorized package actions use the Completion actions section below. Return a converted bug's job identity for a new assignment.
-
 ## Action authority and implementation
 
 Implement the complete agreed design. Inspect the source and logs needed for implementation. Tests, builds, security, provider calls, deployment, commits and pushes retain their independent human permissions; preserve each approved type, quantity and scope.
 
 An explicit job test plan supplies approval for its stated tests; an explicit human-authored job security plan supplies approval for its stated security choices. Otherwise ask each unresolved test type/quantity or proposed security choice through the lane's permitted tool and await a qualifying answer. Security choices concern authentication/authorization, secrets/credentials, threat/trust boundaries, sensitive persistence/lifecycle and shared infrastructure. Apply existing approval to the actual proposed choice; a reviewer label supplies no additional authority.
 
-Use [question-tools](../references/question-tools.md) to qualify job answers and file missing facts or decisions; standalone questions follow [single-comment](../references/single-comment.md). Return the original question and exact unresolved evidence to `design` for settlement, and contract publication/incorporation to `design`. Only end your turn if told to or the implementation is done - not after responding to a question. Interpret human Review feedback and perform resulting authorized implementation yourself, using the Human review section below for report feedback and publication. A new question blocks its dependent work, not independent authorized work.
+Use [question-tools](../references/question-tools.md) to qualify job answers and file missing facts or decisions. Return the original question and exact unresolved evidence to `design` for settlement, and contract publication/incorporation to `design`. Only end your turn if told to or the implementation is done - not after responding to a question. Interpret human Review feedback and perform resulting authorized implementation yourself, using the Human review section below for report feedback and publication. A new question blocks its dependent work, not independent authorized work.
 
 Correct straightforward evidence discrepancies; material unresolved reviewer divergence without settled authority requires informed human judgment.
 
@@ -49,29 +47,7 @@ After a failed final move, continue from the saved review. Direct `change_job_st
 
 ## Completion actions
 
-Use the exact package, reviewed changes, notification scope and human instruction. Fetch missing or changed package/thread/target evidence with `get_job`, including the actual job/bug state and every advertised standing note. Read a delivered reply before acting; a supplied chat instruction needs no thread read. Reuse current evidence and confirmed receipts, reconciling changes to reviewed scope or authorization before the affected action. Direct Git requests retain these reviewed-scope, package and permission requirements.
-
-### Select and authorize
-
-Only a non-AI, non-advisory human thread/chat response selects actions. `All` selects exactly the listed actions; interpret other wording against the package and clarify a materially ambiguous part where the instruction arrived. Declining completes that selection. Later replies are new instructions and preserve completed outcomes.
-
-Qualify the actual permission for each selected action. `clear_notifications` additionally requires explicit chat permission for the exact clear; ask for any missing grant in chat and retain that clear as unfinished. The package's commit/push/clear selection supplies no permission for other actions.
-
-### Execute the remaining work
-
-Determine remaining commit/push work from actual Git state and prior confirmed outcomes. Act only on the selected reviewed scope, in package order. Stop at the first failed action or missing required permission, retain successful outcomes and identify the remaining work. Nothing remaining is a successful no-op. Clear a fixed authorized scope directly.
-
-Compose each selected commit message beginning with the completed task/comment code. A job-code prefix means the whole job is finished and requires no remaining tasks.
-
-### Record and recover
-
-Write one terminal record per attempt on the human reply it answers, or on the package root for a chat instruction. Identify the instruction and the completed, declined, failed and remaining work as applicable, including any missing permission.
-
-When prior actions succeeded and clearing is authorized, the last `clear_notifications` call carries the record. Otherwise record with `add_info`, silently when clearing was selected. Treat the returned action and record outcomes separately.
-
-Reconcile an uncertain record on its exact thread before writing one only if absent. A retry acts only on unfinished work and writes one new attempt record. Confirmed earlier action/record receipts remain valid after a later failure.
-
-Return target/package/reply identities, actual action and terminal-record receipts, and exact failed, uncertain or pending work. For a finished Reviewable job or resolved bug, report release eligibility by combining current substantive completion confirmation with handled selection, completed or declined selected actions, and confirmed terminal recording. Reuse the current confirmation of the identified completed scope, including supplied producer evidence. Reassess missing or changed job completion facts yourself; return missing or changed standalone completion facts for reassessment. Reconcile action and terminal-receipt gaps and return their exact unfinished outcome. A partial package leaves its unfinished enclosing job retained. Later human signoff may remain pending; held-claim and assignment release are distinct.
+Handle the human's selection, execute the authorized actions, record the result and recover unfinished actions for the job's package under [completion](../references/completion.md). Recheck changed completion facts yourself and return the completed actions, anything unfinished and whether the assignment can end.
 
 ## Tools
 

@@ -25,7 +25,7 @@ For an inbox question, use `get_notifications` and the contents needed for the a
 
 ## Manual stage change
 
-Move a job on either of two permissions: a clear, non-advisory human instruction for the exact job and destination, or an answer to a next-action question you receive that qualifies under [question-tools](../references/question-tools.md)'s rule. An answer that does not qualify, is unclear or chooses not to move moves nothing; return it to the caller. Identify missing permission before acting.
+Move a job when a non-advisory human clearly asks for that job to go to a particular stage. Their choice of a stage in a question can give the same permission; check the answer using [question-tools](../references/question-tools.md). If the answer is unclear, does not give permission, or chooses to leave the stage alone, make no move and return it. Identify any missing permission before acting.
 
 Process forwarded changes. Obtain missing current job identity, stage and standing-note inventory with `get_job`; read each advertised standing note completely. Reuse confirmed current evidence.
 

@@ -1,5 +1,7 @@
 <!-- uclusion-skill-reference:v1 -->
-# Prepare and publish a completion package
+# Completion packages
+
+## Prepare and publish
 
 The implementation or standalone owner prepares the concrete package for its reviewed finished scope. Use the reviewed repository changes and exact notification scope from current evidence.
 
@@ -16,4 +18,30 @@ For a job, publish the narrative and this package together with `ask_for_review`
 End with a short invitation on the package thread: “Reply `all`, or tell me in your own words what you want.” If a non-AI, non-advisory human response to the applicable package has already arrived, retain its exact identity/message instead of repeating the invitation.
 
 Return the canonical saved thread and exact confirmed package text immediately for coordinator presentation, before follow-on work. Later waits return the exact package/reply identity and pending action/terminal state; present the full package once. Preserve your substantive completion confirmation for that scope, its target/applicable-contract identities and confirmed/unfinished receipts with any selected-action request.
+
+## Execute selected actions
+
+Use the exact package, reviewed changes, notification scope and human instruction. A completion-only request uses the existing package and completion evidence and authorizes no new code work. Fetch missing or changed package/thread/target evidence with `get_job`, including the actual job or bug state and every advertised standing note. Read a delivered reply before acting; a supplied chat instruction needs no thread read. Reuse current evidence and confirmed receipts, reconciling changes to reviewed scope or authorization before the affected action. Direct Git requests retain these reviewed-scope, package and permission requirements.
+
+### Select and authorize
+
+Only a non-AI, non-advisory human thread/chat response selects actions. `All` selects exactly the listed actions; interpret other wording against the package and clarify a materially ambiguous part where the instruction arrived. Declining completes that selection. Later replies are new instructions and preserve completed outcomes.
+
+Check permission for each selected action. `clear_notifications` additionally requires explicit chat permission for the exact clear; ask for any missing grant in chat and keep that clear unfinished. The package's commit/push/clear selection supplies no permission for other actions.
+
+### Execute the remaining work
+
+Determine remaining commit/push work from actual Git state and prior confirmed outcomes. Act only on the selected reviewed scope, in package order. Stop at the first failed action or missing required permission, retain successful outcomes and identify the remaining work. Nothing remaining is a successful no-op. Clear a fixed authorized scope directly.
+
+Compose each selected commit message beginning with the completed task/comment code. A job-code prefix means the whole job is finished and requires no remaining tasks.
+
+### Record and recover
+
+Write one terminal record per attempt on the human reply it answers, or on the package root for a chat instruction. Identify the instruction and the completed, declined, failed and remaining work as applicable, including any missing permission.
+
+When prior actions succeeded and clearing is authorized, the last `clear_notifications` call carries the record. Otherwise record with `add_info`, silently when clearing was selected. Treat the returned action and record outcomes separately.
+
+If a record's outcome is uncertain, check its exact thread before writing it again, and write it only if absent. A retry acts only on unfinished work and writes one new attempt record. Confirmed earlier action/record receipts remain valid after a later failure.
+
+Return target/package/reply identities, actual action and terminal-record receipts, and exact failed, uncertain or pending work. For a finished Reviewable job or resolved bug, report release eligibility only when the work is confirmed complete, the selection is handled, selected actions are completed or declined, and terminal recording is confirmed. Reuse current completion evidence and reassess missing or changed facts yourself. Reconcile action and terminal-receipt gaps and return their exact unfinished outcome. A partial package leaves its unfinished enclosing job retained. Later human signoff may remain pending; held-claim and assignment release are distinct.
 <!-- /uclusion-skill-reference:v1 -->

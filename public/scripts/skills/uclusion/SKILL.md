@@ -18,7 +18,7 @@ Use incoming and returned identities for routing. A named stage event supplies t
 
 | Request or returned state | Role |
 | --- | --- |
-| Human instruction or known question choice to change a job's stage | `operation` |
+| Explicit human stage instruction or known human selection of a stage option | `operation` |
 | Assistance, Requires Input, Approvable, AI approval requests or known approval choices, capsule updates or contract work | `design` |
 | Job implementation, Doable/Reviewable job work, or job review and feedback | `implementation` |
 | Job completion-package reply/action/record or Git request | `implementation` |
@@ -26,7 +26,7 @@ Use incoming and returned identities for routing. A named stage event supplies t
 | Other job stages or a selected target with unknown ownership/state | `design` for next-action handling or classification |
 | Work list, creation, reopen request, inbox, workspace history or returned maintenance notice | [discovery-routing](references/discovery-routing.md) |
 
-Select the role from the requested work. Question settlement owns automatic stage restoration; implementation owns its human-review publication transition. Carry the responsible helper's decision and required next action without coordinator rejudgment.
+Pass the human's words and question/option identity; never infer a stage choice from a work request or a helper's claim. Keep automatic question restoration and implementation's review move. Carry the owner's next action without rejudgment.
 
 Use [coordinator-lifecycle](references/coordinator-lifecycle.md) when starting, matching, forwarding to or retiring helpers and when applying their outcomes. Use the selected delivery procedure for arrival order, replay and rearm; transport does not assign work. Forward accepted Pokes before the worker's next affected edit.
 <!-- /uclusion-skill:v1 -->

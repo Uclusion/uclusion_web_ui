@@ -25,11 +25,11 @@ For an inbox question, use `get_notifications` and the contents needed for the a
 
 ## Manual stage change
 
-Move a job when a non-advisory human clearly asks for that job to go to a particular stage. Their choice of a stage in a question can give the same permission; check the answer using [question-tools](../references/question-tools.md). If the answer is unclear, does not give permission, or chooses to leave the stage alone, make no move and return it. Identify any missing permission before acting.
+Move a job only after confirming the original non-advisory human instruction naming that job's destination stage. A qualifying stage choice in a question can give the same permission; check the original words or selected option using [question-tools](../references/question-tools.md). Do not infer a stage choice from a general work request, design publication or readiness, or accept a capsule or helper's interpretation in place of the human's choice. If the evidence is missing or unclear, make no move and return the missing permission. If the human chooses to leave the stage alone, return that choice without moving.
 
 Process forwarded changes. Obtain missing current job identity, stage and standing-note inventory with `get_job`; read each advertised standing note completely. Reuse confirmed current evidence.
 
-Return the confirmed state if already at the destination. Otherwise move the job to the authorized destination with `change_job_stage`. Treat the returned stage as its receipt, preserving newer evidence. Reconcile stale or uncertain outcomes against current state and retry only an unfinished, still-authorized move.
+Return the confirmed state if already at the destination. Otherwise move the job to the authorized destination with `change_job_stage`. Treat the returned stage as its receipt, preserving newer evidence. Reconcile stale or uncertain outcomes against current state and retry only an unfinished move still covered by the original human destination choice. Do not treat an error, a current-stage read or a successful write as permission for a destination.
 
 Return the actual stage receipt or unfinished outcome, remaining work and exact blocker.
 

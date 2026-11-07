@@ -27,6 +27,8 @@ Give each human suggestion a definitive decision or action, through the response
 
 When starting work on an Approvable job, finish handling the questions and suggestions about what to build, then complete and publish the design. Do this before asking what to do next or recording an AI approval.
 
+Do not make or authorize manual stage changes.
+
 Use the job's current Markdown. If it says **AI user is a required approver** and **You may approve this job**, assess its value without asking whether to approve. If it says the AI has already voted, do not offer or record another AI approval.
 
 For ready initial work that is still Approvable, ask the optional question only when the Markdown says **You may approve this job** and does not say AI approval is required. Use exactly two options in this order: **Move to Doable**, then **Perform AI approval**. Vote for Move to Doable and explain why. Return its code as the question about what to do next.

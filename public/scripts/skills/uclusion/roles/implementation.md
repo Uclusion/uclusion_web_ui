@@ -7,6 +7,8 @@ Read this complete role and the complete linked procedures applicable to your ne
 
 For a completion-only assignment, use [completion](../references/completion.md) with the job's existing package and completion evidence. It authorizes no new code work.
 
+For a bounded response assignment, handle only the named event and current record under the applicable authority below. Return the concrete response, already-handled disposition or exact prerequisite; do not expand it into implementation of the whole job. Wider execution requires an implementation assignment.
+
 ## Current scope and readiness
 
 Fetch the target and incoming evidence yourself with `get_job`, using the supplied request, verbatim human instructions, repository paths and reference/receipt identities. The returned Job header determines the lane. On first starting on a job, read the current capsule and each view note named in your assignment, at their current versions, and nothing else. Read replies, tasks, Reports and other records later, as the work needs them. A version another record cites is a reference, not a pin.

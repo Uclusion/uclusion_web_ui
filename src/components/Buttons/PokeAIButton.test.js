@@ -131,7 +131,7 @@ describe('getPokeAIMessage', () => {
       container.querySelector('button').click();
     });
 
-    expect(pokeAI).toHaveBeenCalledWith('market-id', 'Start T-all-2395');
+    expect(pokeAI).toHaveBeenCalledWith('market-id', 'Start T-all-2395', { short_code_id: 'T-all-2395' });
     expect(setOperationRunning).toHaveBeenNthCalledWith(1, 'pokeAIComment');
     expect(setOperationRunning).toHaveBeenLastCalledWith(false);
     await act(async () => root.unmount());
@@ -158,7 +158,7 @@ describe('getPokeAIMessage', () => {
 
     expect(pokeAI).toHaveBeenCalledWith(
       'parent-planning-market',
-      'Start C-2 of Q-all-500'
+      'Start C-2 of Q-all-500', { short_code_id: 'Q-all-500_C-2' }
     );
     expect(setOperationRunning).toHaveBeenNthCalledWith(1, 'pokeAIOptionReply');
     expect(setOperationRunning).toHaveBeenLastCalledWith(false);

@@ -91,6 +91,14 @@ describe('sendPokeAI', () => {
     );
   });
 
+  it('carries a structured target separately from the displayed command', async () => {
+    getMarketToken.mockResolvedValue('market-token');
+    const sendMessage = jest.fn();
+    await sendPokeAI(sendMessage, () => ({ readyState: ReadyState.OPEN }), 'market-id',
+      'Start C-2 of Q-Demo-3', { short_code_id: 'Q-Demo-3_C-2' });
+    expect(JSON.parse(sendMessage.mock.calls[0][0]).target).toEqual({ short_code_id: 'Q-Demo-3_C-2' });
+  });
+
   it.each([
     ['closed', () => ({ readyState: ReadyState.CLOSED })],
     ['absent', () => null],

@@ -143,11 +143,15 @@ WORK_CLAIM_TOOL = {
         'or bug short codes so idle agents do not start the same work. Claim '
         'before starting auto-take work, passing every candidate you would '
         'start in preference order via short_code_ids; the result names the one '
-        'code you now hold, and you start that item. A denied claim means '
+        'canonical work you now hold. In native Codex, only the independent '
+        'conversation adopting the work calls this tool; its native agent ID '
+        'is shared with set_agent_subscription. Register that matching '
+        'subscription after a confirmed grant and before starting. A denied claim means '
         'every listed item is already held by other agents and grants no '
         'ownership. Release the held code at lane handoff. Human-guided '
         'selections do not require a claim. An error result means the lock '
-        'service is unreachable and auto-take work must not start.'
+        'outcome is unconfirmed and auto-take work must not start. Retry the '
+        'same candidates in the same conversation to reconcile an uncertain grant.'
     ),
     'inputSchema': {
         'type': 'object',
@@ -369,6 +373,12 @@ def ensure_inbox_schema(connection):
                 '''
             )
             connection.execute('DROP TABLE poke_messages_v1')
+        if 'routing' not in {row[1] for row in connection.execute('PRAGMA table_info(poke_messages)')}:
+            connection.execute('ALTER TABLE poke_messages ADD COLUMN routing TEXT')
+        connection.execute('''CREATE TABLE IF NOT EXISTS codex_native_agents (
+            environment TEXT NOT NULL, workspace_id TEXT NOT NULL, root TEXT NOT NULL,
+            agent_id TEXT NOT NULL UNIQUE, created_at REAL NOT NULL,
+            PRIMARY KEY(environment, workspace_id, root))''')
         connection.execute(
             '''
             CREATE INDEX IF NOT EXISTS poke_messages_pending
@@ -430,10 +440,11 @@ def enqueue_prompt(environment, workspace_id, payload):
         cursor = connection.execute(
             '''
             INSERT OR IGNORE INTO poke_messages
-                (message_id, environment, workspace_id, message, received_at)
-            VALUES (?, ?, ?, ?, ?)
+                (message_id, environment, workspace_id, message, received_at, routing)
+            VALUES (?, ?, ?, ?, ?, ?)
             ''',
-            (message_id, environment, workspace_id, message, now)
+            (message_id, environment, workspace_id, message, now,
+             json.dumps(payload['routing']) if 'routing' in payload else None)
         )
     return cursor.rowcount == 1
 
@@ -604,9 +615,9 @@ class WorkClaimsManager:
         self._lock = threading.Lock()
         self._send_lock = threading.Lock()
         self._connection = None
-        self._held = set()
+        self._held = {}
+        self._recovering = set()
         self._pending = {}
-        self._subscribe_snapshot = ()
 
     def send_text(self, connection, text):
         with self._send_lock:
@@ -625,30 +636,63 @@ class WorkClaimsManager:
         for entry in pending:
             entry['event'].set()
 
-    def owned_short_codes_for_subscribe(self):
+    def owned_claims_for_subscribe(self):
         with self._lock:
-            self._subscribe_snapshot = tuple(sorted(self._held))
-            return list(self._subscribe_snapshot)
+            self._recovering = set(self._held)
+            return self._recovery_payload()
+
+    def _recovery_payload(self):
+        # Called under _lock. Every retry covers all outstanding identities,
+        # so a response cannot falsely lose another root omitted by the retry.
+        legacy = [code for agent, code in self._recovering if agent is None]
+        native = [{'agent_id': agent, 'work': self._held[(agent, code)]}
+                  for agent, code in self._recovering if agent is not None]
+        return {**({'owned_short_code_ids': legacy} if legacy else {}),
+                **({'owned_claims': native} if native else {})}
 
     def handle_event(self, payload):
         if payload.get('event_type') == 'rebind_result':
-            recovered = set(payload.get('short_code_ids') or [])
+            native = 'claims' in payload
             with self._lock:
-                lost = set(self._subscribe_snapshot) - recovered
-                self._held -= lost
+                recovered = ({(item['agent_id'], item['work']['short_code_id'])
+                              for item in payload.get('claims', [])
+                              if self._held.get((item['agent_id'], item['work']['short_code_id'])) == item['work']}
+                             if native else {(None, code) for code in payload.get('short_code_ids', [])})
+                expected = {key for key in self._recovering if (key[0] is not None) == native}
+                lost = expected - recovered
+                for key in lost:
+                    self._held.pop(key, None)
+                self._recovering -= expected
             if lost:
-                sys.stderr.write(
-                    'Work claims lost during reconnect: '
-                    + ', '.join(sorted(lost)) + '\n'
-                )
+                sys.stderr.write('Work claims lost during reconnect: '
+                                 + ', '.join(f'{agent or "legacy"}:{code}' for agent, code in sorted(lost)) + '\n')
             return
         with self._lock:
             entry = self._pending.get(payload.get('message_id'))
-        if entry is not None:
+            if entry is None:
+                return
+            agent_id = entry['agent_id']
+            work = payload.get('work')
+            valid = (not payload.get('uncertain') and (not agent_id or (payload.get('agent_id') == agent_id
+                     and (not payload.get('claimed') or (isinstance(work, dict)
+                          and work.get('short_code_id') == payload.get('short_code_id')
+                          and work.get('kind') in ('job', 'bug') and work.get('id')))
+                     and (entry['operation'] != 'release' or work == entry['work']))))
+            if not valid:
+                entry['event'].set()
+                return
+            # Record the grant before waking the request thread: a reconnect
+            # immediately after this receipt must include it in recovery.
+            if entry['operation'] == 'claim' and payload.get('claimed'):
+                granted = payload.get('short_code_id')
+                if granted:
+                    self._held[(agent_id, granted)] = work
+            elif entry['operation'] == 'release':
+                self._held.pop((agent_id, entry['short_code_id']), None)
             entry['result'] = payload
             entry['event'].set()
 
-    def request(self, operation, short_code_id=None, short_code_ids=None):
+    def request(self, operation, short_code_id=None, short_code_ids=None, agent_id=None):
         """Run one claim or release round trip.
 
         A claim may carry an ordered preference list; the result's
@@ -658,12 +702,31 @@ class WorkClaimsManager:
                  unreachable
         """
         message_id = str(uuid4())
-        entry = {'event': threading.Event(), 'result': None}
+        entry = {'event': threading.Event(), 'result': None, 'agent_id': agent_id,
+                 'operation': operation, 'short_code_id': short_code_id}
         with self._lock:
             connection = self._connection
+            recovery = [key for key in self._recovering if key[0] == agent_id]
+            recovery_payload = self._recovery_payload()
+            held_work = self._held.get((agent_id, short_code_id))
+            entry['work'] = held_work
+            if operation == 'release' and agent_id and held_work is None:
+                return {'agent_id': agent_id, 'claimed': False, 'released': False,
+                        'short_code_id': short_code_id, 'work': None}
             self._pending[message_id] = entry
         try:
             if connection is None:
+                return None
+            if recovery:
+                # A healthy websocket can outlive a lost rebind receipt. Retry
+                # the exact held identities; automatic work stays unfinished
+                # until handle_event confirms which grants survived.
+                try:
+                    self.send_text(connection, json.dumps({'action': 'subscribe',
+                        'identity': self._token_provider(), 'is_ai': True, **recovery_payload},
+                        separators=(',', ':')))
+                except Exception:
+                    pass
                 return None
             body = {
                 'action': 'claim_work',
@@ -671,6 +734,10 @@ class WorkClaimsManager:
                 'operation': operation,
                 'message_id': message_id
             }
+            if agent_id:
+                body['agent_id'] = agent_id
+                if held_work is not None:
+                    body['work'] = held_work
             if short_code_ids is not None:
                 body['short_code_ids'] = list(short_code_ids)
             if short_code_id is not None:
@@ -680,17 +747,12 @@ class WorkClaimsManager:
             except Exception:
                 return None
             entry['event'].wait(self.REQUEST_TIMEOUT_SECONDS)
-            result = entry['result']
-            if result is None:
-                return None
             with self._lock:
-                if operation == 'claim' and result.get('claimed'):
-                    granted = result.get('short_code_id')
-                    if granted:
-                        self._held.add(granted)
-                elif operation == 'release' and short_code_id is not None:
-                    self._held.discard(short_code_id)
-            return result
+                # The old receipt proves the old lease only. A new connection
+                # must recover it before that automatic adoption is confirmed.
+                if agent_id and self._connection is not connection:
+                    return None
+                return entry['result']
         finally:
             with self._lock:
                 self._pending.pop(message_id, None)
@@ -810,11 +872,7 @@ def listen_for_pokes(websocket_url, token_holder, environment, workspace_id, sto
                 'is_ai': True
             }
             if work_claims is not None:
-                owned_short_code_ids = work_claims.owned_short_codes_for_subscribe()
-                if owned_short_code_ids:
-                    # Re-binds claims that survived the disconnect to this
-                    # connection; the rebind_result event reports which did.
-                    subscribe_body['owned_short_code_ids'] = owned_short_code_ids
+                subscribe_body.update(work_claims.owned_claims_for_subscribe())
             websocket.send_text(json.dumps(subscribe_body, separators=(',', ':')))
             if work_claims is not None:
                 work_claims.attach_connection(websocket)
@@ -1527,7 +1585,7 @@ def handle_sse_response(resp, token_audit_enabled=False, work_claims_enabled=Fal
         write_non_object_mcp_error(request_id, stats=stats)
 
 
-def handle_claim_tool_call(work_claims, request_id, params, stats=None):
+def handle_claim_tool_call(work_claims, request_id, params, stats=None, agent_id=None):
     """Service the local claim tool without involving the MCP backend."""
     arguments = params.get('arguments')
     arguments = arguments if isinstance(arguments, dict) else {}
@@ -1556,11 +1614,12 @@ def handle_claim_tool_call(work_claims, request_id, params, stats=None):
         operation,
         short_code_id=short_code_id if valid_single else None,
         short_code_ids=short_code_ids if valid_list else None,
+        **({'agent_id': agent_id} if agent_id else {}),
     )
     if result is None:
         text = json.dumps({
-            'error': 'The work claim service is unreachable; no claim was '
-                     'granted, so do not start auto-take work.'
+            'error': 'The work claim outcome is unconfirmed; do not start auto-take work. '
+                     'Retry with the same conversation and candidates to reconcile it.'
         })
         write_message({'jsonrpc': '2.0', 'id': request_id,
                        'result': {'content': [{'type': 'text', 'text': text}],
@@ -1570,11 +1629,22 @@ def handle_claim_tool_call(work_claims, request_id, params, stats=None):
         'operation': operation,
         'short_code_id': result.get('short_code_id') if operation == 'claim'
         else short_code_id,
-        'claimed': bool(result.get('claimed'))
+        'claimed': bool(result.get('claimed')),
+        **({key: result.get(key) for key in ('agent_id', 'work', 'released')} if agent_id else {})
     })
     write_message({'jsonrpc': '2.0', 'id': request_id,
                    'result': {'content': [{'type': 'text', 'text': text}],
                               'isError': False}}, stats=stats)
+
+
+def bind_agent_subscription(request, native_delivery):
+    """Bind transport identity locally before any backend membership write."""
+    if native_delivery is None:
+        raise ValueError('Agent subscriptions require the native Codex integration')
+    agent_id = native_delivery.subscription_agent(request)
+    params = request['params']
+    return {**request, 'params': {**params, '_meta': {
+        **(params.get('_meta') or {}), 'uclusionAgentId': agent_id}}}
 
 
 def read_mcp_response(resp):
@@ -1984,6 +2054,15 @@ def main():
                 tools_changed()
 
             params = msg.get('params')
+            if (msg.get('method') == 'tools/call' and isinstance(params, dict)
+                    and params.get('name') == 'set_agent_subscription'):
+                try:
+                    msg = bind_agent_subscription(msg, native_delivery)
+                    line = json.dumps(msg)
+                except (ValueError, ConnectionError, TimeoutError) as error:
+                    if not is_notification:
+                        write_jsonrpc_error(request_id, -32002, str(error), stats=response_stats)
+                    continue
             claim_tool_call = (
                 msg.get('method') == 'tools/call'
                 and isinstance(params, dict)
@@ -2002,7 +2081,14 @@ def main():
                         stats=response_stats,
                     )
                     continue
-                handle_claim_tool_call(work_claims, request_id, params, stats=response_stats)
+                agent_id = None
+                if native_delivery is not None:
+                    try:
+                        agent_id = native_delivery.subscription_agent(msg)
+                    except (ValueError, ConnectionError, TimeoutError) as error:
+                        write_jsonrpc_error(request_id, -32002, str(error), stats=response_stats)
+                        continue
+                handle_claim_tool_call(work_claims, request_id, params, stats=response_stats, agent_id=agent_id)
                 continue
             audit_tool_call = (
                 msg.get('method') == 'tools/call'

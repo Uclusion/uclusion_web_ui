@@ -24,6 +24,7 @@ from uclusionUpdateNotices import UpdateNoticeStore
 class NativeQueue:
     def __init__(self):
         self.admissions = []
+        self.inputs = []
         self.fail_before_send = False
         self.lose_receipt = False
         self.reject = False
@@ -74,6 +75,7 @@ class NativeQueue:
                 raise TimeoutError('interrupted before submission')
             client_id = params['clientUserMessageId']
             self.admissions.append((root, client_id, params['input'][0]['text']))
+            self.inputs.append((method, root, params['input']))
             if method == 'turn/steer':
                 self.steered.append((root, params['expectedTurnId'], client_id))
             if self.lose_receipt:
@@ -267,7 +269,7 @@ class NativeInboxTests(unittest.TestCase):
         inbox.state('root', 'sending')
         inbox.release()
         restarted = NativeInbox('stage', 'workspace')
-        self.assertEqual(restarted.next(), (*pending[:3], 'sending', None, 'root'))
+        self.assertEqual(restarted.next(), (*pending[:3], 'sending', None, 'root', pending[6]))
         restarted.acknowledge('root', pending[0])
         self.assertIsNone(restarted.next())
 

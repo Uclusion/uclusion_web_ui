@@ -193,6 +193,12 @@ def ensure_inbox_schema(connection):
                 '''
             )
             connection.execute('DROP TABLE poke_messages_v1')
+        if 'routing' not in {row[1] for row in connection.execute('PRAGMA table_info(poke_messages)')}:
+            connection.execute('ALTER TABLE poke_messages ADD COLUMN routing TEXT')
+        connection.execute('''CREATE TABLE IF NOT EXISTS codex_native_agents (
+            environment TEXT NOT NULL, workspace_id TEXT NOT NULL, root TEXT NOT NULL,
+            agent_id TEXT NOT NULL UNIQUE, created_at REAL NOT NULL,
+            PRIMARY KEY(environment, workspace_id, root))''')
         connection.execute(
             '''
             CREATE INDEX IF NOT EXISTS poke_messages_pending

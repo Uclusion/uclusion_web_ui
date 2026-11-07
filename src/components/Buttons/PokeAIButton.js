@@ -76,7 +76,10 @@ function PokeAIButton(props) {
   function handlePoke(event) {
     preventDefaultAndProp(event);
     setOperationRunning(operationId);
-    return Promise.resolve(pokeAI(marketId, message))
+    const code = decodeTicketCode(ticketCode);
+    const shortCode = parentTicketCode && /^[A-Z]-\d+$/.test(code)
+      ? `${decodeTicketCode(parentTicketCode)}_${code}` : code;
+    return Promise.resolve(pokeAI(marketId, message, { short_code_id: shortCode }))
       .then(() => {
         // T-all-2345: the request-work wizard clears its notification once work is handed over
         if (onPoked) {

@@ -103,7 +103,7 @@ function subscribe(sendMessage) {
   }).catch((error) => console.error('Error subscribing', error));
 }
 
-export function sendPokeAI(sendMessage, getWebSocket, marketId, message) {
+export function sendPokeAI(sendMessage, getWebSocket, marketId, message, target) {
   return getMarketToken(marketId).then((marketToken) => {
     if (getWebSocket()?.readyState !== ReadyState.OPEN) {
       throw new Error('WebSocket is not connected');
@@ -112,6 +112,7 @@ export function sendPokeAI(sendMessage, getWebSocket, marketId, message) {
       action: 'poke_ai',
       identity: marketToken,
       message,
+      ...(target ? { target } : {}),
     }), false);
   });
 }
@@ -227,7 +228,7 @@ function WebSocketProvider(props) {
     online
   );
   const pokeAI = useCallback(
-    (marketId, message) => sendPokeAI(sendMessage, getWebSocket, marketId, message),
+    (marketId, message, target) => sendPokeAI(sendMessage, getWebSocket, marketId, message, target),
     [getWebSocket, sendMessage]
   );
 

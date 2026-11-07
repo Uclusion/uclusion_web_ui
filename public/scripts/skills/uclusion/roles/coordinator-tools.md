@@ -15,6 +15,13 @@ Returns Markdown for a job or the named comment thread by default, with current 
 - `thread_only`: Optional: return the requested comment thread, retaining job stage and context references. A code inside a thread, such as a reply a Poke names, returns just that item and the replies below it; the thread's own code returns the whole thread.
 - `stage_only`: Optional: return only the enclosing job's code, current stage, the stage a Requires Input job returns to, and pending questions and suggestions, including resolved delegated questions still awaiting AI handling. Use it when you need the stage after your last operation. Pass only short_code_id with it; do not combine it with other options.
 
+## `set_agent_subscription`
+
+Subscribe or unsubscribe this native Codex conversation to a job or standalone bug. Call when adopting work and when the assignment actually ends or switches. Keep subscriptions while waiting, blocked or in review. Reads, audit markers, helpers and Poke receipt do not change membership. The installed native proxy supplies caller identity; never supply an agent ID. Tasks and nested discussion codes resolve to their canonical job or bug. Returns the normalized work, agent ID and actual subscribed state. A failed call leaves adoption or release unfinished and retryable.
+
+- `short_code_id`: Job, bug or child code; qualify inline codes with their question.
+- `work_id`: Only when releasing a former standalone bug after it moved into a job: its previously returned work.id.
+
 ## `start_job_audit`
 
 Marks the start of token auditing for an enclosing job. Call once when beginning a job lane. A task, question, or other globally resolvable child code is canonicalized to its J- job. The installed collector binds the returned audit_run_id to the provider session; do not invent provider usage here. Returns canonical_job_id, audit_run_id, state active and bucket planning. Keep that run and reuse it across roles, tasks and turns rather than starting another.

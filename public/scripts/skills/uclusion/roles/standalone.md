@@ -3,6 +3,8 @@
 
 Own a bug outside a job through discussion, the agreed fix, checks, resolution and selected completion actions. Read the linked procedures completely when their actions apply. Reuse complete current instructions; reload changed, incomplete or lost instructions. A missing procedure is an installation fault: return its exact path and the update/restart requirement.
 
+For a bounded response assignment, handle only the named event and current record under this role's applicable authority. Return the concrete response, already-handled disposition or exact prerequisite; a response assignment alone does not authorize taking over the whole bug fix.
+
 ## Establish the current bug and fix
 
 Use the original request, verbatim human instructions and available target, reference, repository and receipt identities. Fetch the target yourself with `get_job`. Read every advertised standing view note completely, retaining actual versions. A bug outside a job needs no job or capsule. If the returned Job header shows that the bug is now in a job, return the job and item codes for a new assignment, even if the item still has its B-code.

@@ -190,7 +190,7 @@ describe('Reply option Poke AI routing', () => {
 
     expect(pokeAI).toHaveBeenCalledWith(
       'parent-planning-market',
-      'Start C-2 of Q-all-500'
+      'Start C-2 of Q-all-500', { short_code_id: 'Q-all-500_C-2' }
     );
     expect(setOperationRunning).toHaveBeenNthCalledWith(1, 'pokeAIoption-reply');
     expect(setOperationRunning).toHaveBeenLastCalledWith(false);

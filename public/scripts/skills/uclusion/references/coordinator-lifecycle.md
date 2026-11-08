@@ -23,11 +23,11 @@ For a verified non-Start event, handle it even while idle or while another prima
 
 Keep the primary worker, assignment, audit, claim and subscription intact. This event-specific helper does not adopt or implement an unrelated whole job, restore a former subscription or claim, or authorize a manual stage change or release. A later unsubscribe does not erase responsibility for the emitted event. Finish the bounded response and continue the primary assignment; broader execution needs the appropriate assignment.
 
-## Audit and held claims
+## Audit and release
 
-Use [audit](audit.md) to start and maintain the retained job's run, order phase markers and end it at the assignment's actual handoff. Determine the phase and handoff from the requested work and responsible roles' concrete outcomes; preserve one run and its marker receipts across helpers.
+Read [audit.md](audit.md).
 
-Use the [retention and release section](claims.md#retention-and-release) for held-claim disposition. Keep acquisition with the discovery activation. Apply retention/release to actual assignment handoffs and package outcomes, preserving separate confirmed/unfinished receipts.
+Read [claims.md](claims.md).
 
 ## Start and continue helpers
 
@@ -41,7 +41,7 @@ Reuse the same role and helper-confirmed canonical task or cohesive scope within
 
 Answers, task resolution, intermediate role handoffs, assistance waits, stage changes and recoverable compaction preserve same-scope reuse. Keep the job implementor or standalone bug owner through its fix, review, feedback, completion selection, execution and recovery, including returns from assistance. Start a helper for completion actions only when no applicable retained owner exists, using the role for the actual job or bug and its current package and receipts. Forward changes before affected action and follow the owner's required next action, continuation, wait and presentation result. Retire helpers on explicit unrelated switching or confirmed assignment release. Replace an unavailable helper, unrecoverable context or changed session/workspace/package with a fresh bounded helper carrying the retained locators and receipts; retire the old instance.
 
-Each new maintenance batch starts fresh. Use [discovery-routing](discovery-routing.md) for operation's work-list and bounded workspace-request lifetimes.
+Read [discovery-routing.md](discovery-routing.md).
 
 If an unanswered redirect recurs with the same original request, target, evidence identities/versions, role and returned outcome, stop that chain at its first recurrence. Report the original request, target and stalled handoffs as the unresolved delegation failure. Preserve the assignment, active workers and receipts; the answer remains with its owner. New human input or changed evidence may resume it. An unchanged Poke, rearm or turn end does not. Continue independent authorized work.
 
@@ -51,9 +51,7 @@ Continue authorized mechanical handoffs while work remains. Combine unchanged ro
 
 Present an owner's exact confirmed package text and canonical thread immediately, once. During later package waits, present one line naming that thread and the pending reply, action or terminal record. Continue other retained authorized work. Preserve the package, reviewed scope, substantive completion confirmation, exact selection and confirmed/unfinished receipts with each completion continuation, including when replacing an unavailable helper.
 
-Apply the job or bug owner's explicit release result to the matching scope. For a finished Reviewable job or resolved bug with a package, that result combines substantive completion confirmation, handled selection, completed/declined actions and confirmed terminal recording. Keep unfinished enclosing work after a partial package. Claim release and audit end remain separate from assignment release. Preserve confirmed release through compaction; an old open AI review does not reacquire work.
-
-At the first wait or completed package of a retained human-guided assignment, use [work-discovery](work-discovery.md) for the once-per-session work hint. The coordinator owns its shown flag; the hint starts no discovery.
+Read [work-discovery.md](work-discovery.md).
 
 A fresh-chat boundary is a responsible role's confirmed resolution of a standalone view bug or question when next work is unrelated or unknown, or confirmed release of a finished job after package actions and terminal recording. Determine next work from the coordinator's assignment and queue. When no retained assignment, queued/ongoing work, related next work or package wait remains, show the client's normal fresh-chat command once for that boundary before follow-on discovery. This advice preserves current context and asks for no answer; later human signoff may remain pending. Preserve this boundary flag separately from the session work-hint flag.
 <!-- /uclusion-skill-reference:v1 -->

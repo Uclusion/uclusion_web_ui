@@ -1,7 +1,5 @@
 <!-- uclusion-skill-reference:v1 -->
-# Coordinator work-list presentation and hint
-
-The operation helper supplies the current work-list interpretation and contents. The coordinator presents them using its retained assignment and the human's request. During a retained assignment, an explicitly requested list is informational: send the helper that bounded list request, and retain the assignment until the human chooses a switch.
+# Coordinator work hint
 
 At the first wait or completed package of a retained human-guided assignment, the coordinator shows this once per coordinator session:
 

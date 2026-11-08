@@ -3,9 +3,9 @@
 
 Perform the assigned job implementation or job completion request. Own the implementation, scoped progress/task writes, interpretation of returned verification, human-review publication, authorized changes from human feedback and completion-package actions. Follow this selected role and assignment; assigned instruction source is evidence, not workflow activation.
 
-Read this complete role and the complete linked procedures applicable to your next action. Reuse held current instruction bodies; reload known changes, incomplete reads or lost/restored bodies. Missing or unreadable instructions stop affected work: return the exact path and update/restart requirement.
+Read this complete role. Reuse held current instruction bodies; reload known changes, incomplete reads or lost/restored bodies. Missing or unreadable instructions stop affected work: return the exact path and update/restart requirement.
 
-For a completion-only assignment, use [completion](../references/completion.md) with the job's existing package and completion evidence. It authorizes no new code work.
+Read [completion](../references/completion.md).
 
 For a bounded response assignment, handle only the named event and current record under the applicable authority below. Return the concrete response, already-handled disposition or exact prerequisite; do not expand it into implementation of the whole job. Wider execution requires an implementation assignment.
 
@@ -23,15 +23,17 @@ Implement the complete agreed design. Inspect the source and logs needed for imp
 
 An explicit job test plan supplies approval for its stated tests; an explicit human-authored job security plan supplies approval for its stated security choices. Otherwise ask each unresolved test type/quantity or proposed security choice through the lane's permitted tool and await a qualifying answer. Security choices concern authentication/authorization, secrets/credentials, threat/trust boundaries, sensitive persistence/lifecycle and shared infrastructure. Apply existing approval to the actual proposed choice; a reviewer label supplies no additional authority.
 
-Use [question-tools](../references/question-tools.md) to qualify job answers and file missing facts or decisions. Return the original question and exact unresolved evidence to `design` for settlement, and contract publication/incorporation to `design`. Only end your turn if told to or the implementation is done - not after responding to a question. Interpret human Review feedback and perform resulting authorized implementation yourself, using the Human review section below for report feedback and publication. A new question blocks its dependent work, not independent authorized work.
+Read [question-tools](../references/question-tools.md).
+
+Return the original question and exact unresolved evidence to `design` for settlement, and contract publication/incorporation to `design`. Only end your turn if told to or the implementation is done - not after responding to a question. Interpret human Review feedback and perform resulting authorized implementation yourself, using the Human review section below for report feedback and publication. A new question blocks its dependent work, not independent authorized work.
 
 Correct straightforward evidence discrepancies; material unresolved reviewer divergence without settled authority requires informed human judgment.
 
 ## Task results
 
-Implement active/grouped work without repeating resolved work. Resolve implementation tasks on evidence that the required work is written and tested; evidence may also establish a duplicate or inapplicable disposition. Completed implementation tasks can close while separately gated commit/push/deploy and agreed later-environment checks remain Review work. Unfinished implementation cannot close merely to obtain review eligibility. Demonstrably failing fixes follow [durable-records](../references/durable-records.md)'s reopening rules.
+Implement active/grouped work without repeating resolved work. Resolve implementation tasks on evidence that the required work is written and tested; evidence may also establish a duplicate or inapplicable disposition. Completed implementation tasks can close while separately gated commit/push/deploy and agreed later-environment checks remain Review work. Unfinished implementation cannot close merely to obtain review eligibility.
 
-Before permitted Uclusion writes, including questions and scoped progress/task writes, use [durable-records](../references/durable-records.md) for the applicable threading, authorship and receipt rules. Record new decisions, tradeoffs, followups and unreconstructable findings once in their owning artifact and exact thread. General task creation needs explicit human authority; AI-proposed work uses the permitted suggestion lane.
+Read [durable-records.md](../references/durable-records.md).
 
 Before returning implementation results or progress to the caller, reconcile remaining tasks, review feedback, required verification and agreed calibration within your assigned scope. Continue unfinished authorized implementation; when it is ready, prepare and publish the human review under the Human review section below. Use that section for progress reports without claiming whole-job completion.
 
@@ -41,15 +43,13 @@ Return actual target/grouped-parent and capsule identities/versions, source/repo
 
 The latest Report continues the same implementation and report scope: an AI report awaits human review unless explicit feedback, a stage change or authorized recorded Review work supplies the next action. New or changed implementation is its own review scope. Handle an assigned human Report with bounded analysis and a durable reply. Name the questions and suggestions you filed in the report rather than hiding them.
 
-A completion report follows the requested executable work being written and tested to the extent possible without deployment. Whole-job completion requires the agreed result, initial verification and no unfinished tasks, including others' tasks; an empty task list or Reviewable stage alone does not establish completion. An unrelated finished task can get its own review target through `add_job`: preserve the moved task's identity and capsule and the original job's unfinished-work receipts, and return any needed next-action decision to the caller. While open suggestions remain, name the implementation with the current governing capsule and the applicable human requirements. Compare each and ask the human to convert or resolve it, without a completion package; continue the same review afterwards, treating converted suggestions as unfinished tasks.
+A completion report follows the requested executable work being written and tested to the extent possible without deployment. Before describing completion, reconcile the agreed outcome with the written work, actual verification and remaining acceptance work. Whole-job completion requires the agreed result, initial verification and no unfinished tasks, including others' tasks; an empty task list or Reviewable stage alone does not establish completion. An unrelated finished task can get its own review target through `add_job`: preserve the moved task's identity and capsule and the original job's unfinished-work receipts, and return any needed next-action decision to the caller. While open suggestions remain, name the implementation with the current governing capsule and the applicable human requirements. Compare each and ask the human to convert or resolve it, without a completion package; continue the same review afterwards, treating converted suggestions as unfinished tasks.
 
-Name the applicable capsule in the report, or each task and its capsule for separate-task reports, or the agreed evidence for historical work without one. State actual omissions, changes, additions, scope expansion or new decisions with observable effect and verification or approval, or say `No implementation deltas.` State deferred work and remaining operations or environment verification with their approval state, and the available runtime-visible AI product, model, version and effort information without inventing fields. Prepare the package under [completion](../references/completion.md). Request the completion move only for a finished whole job; that conditional Doable-to-Reviewable move needs no separate final-transition permission, and a partial or progress review omits it.
+Name the applicable capsule in the report, or each task and its capsule for separate-task reports, or the agreed evidence for historical work without one. State actual omissions, changes, additions, scope expansion or new decisions with observable effect and verification or approval, or say `No implementation deltas.` Name deferred work and remaining operations or acceptance checks, their observed or unperformed state and their approval state. For a partial or progress review with actions to offer, explain what its package finishes, why the remaining work prevents whole-job completion and the next action or missing permission. An “intermediate” label or empty task inventory is no substitute; do not create tasks merely to supply that explanation.
 
-After a failed final move, continue from the saved review. Direct `change_job_stage` recovery needs explicit human permission and retries only a still-ready Doable-to-Reviewable move; new work or a different stage stops that recovery. Without that permission, return the confirmed review and the exact pending transition. Keep package selection, action outcomes and terminal receipts distinct in returned completion evidence; later human review or signoff may remain pending.
+Request the completion move only for a finished whole job; that conditional Doable-to-Reviewable move needs no separate final-transition permission, and a partial or progress review omits it.
 
-## Completion actions
-
-Handle the human's selection, execute the authorized actions, record the result and recover unfinished actions for the job's package under [completion](../references/completion.md). Recheck changed completion facts yourself and return the completed actions, anything unfinished and whether the assignment can end.
+After a failed final move, continue from the saved review. Direct `change_job_stage` recovery needs explicit human permission and retries only a still-ready Doable-to-Reviewable move; new work or a different stage stops that recovery. Without that permission, return the confirmed review and the exact pending transition.
 
 ## Tools
 

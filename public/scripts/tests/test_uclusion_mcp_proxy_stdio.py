@@ -45,6 +45,9 @@ class _LineResponse:
     def __iter__(self):
         return iter(self._lines)
 
+    def close(self):
+        pass
+
 
 class McpProxyStdioTests(unittest.TestCase):
     def test_only_configured_audit_phases_reach_the_server(self):

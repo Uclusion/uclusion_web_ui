@@ -1,6 +1,7 @@
 import base64
 import argparse
 import hashlib
+import http.client
 import os
 import sys
 import json
@@ -1021,6 +1022,44 @@ def post_to_mcp_refreshing_token(url, headers, body, token_provider, timeout=30)
         )
 
 
+def system_sleep_bounds():
+    """Bound cumulative system sleep without mistaking clock changes for sleep."""
+    try:
+        if sys.platform == 'linux':
+            awake_clock, elapsed_clock = time.CLOCK_MONOTONIC, time.CLOCK_BOOTTIME
+        elif sys.platform == 'darwin':
+            awake_clock, elapsed_clock = time.CLOCK_UPTIME_RAW, time.CLOCK_MONOTONIC_RAW
+        else:
+            return None
+        # Bracket the suspend-aware sample so a scheduling pause between the
+        # reads cannot create evidence of sleep that did not actually happen.
+        before = time.clock_gettime(awake_clock)
+        elapsed = time.clock_gettime(elapsed_clock)
+        after = time.clock_gettime(awake_clock)
+        return elapsed - after, elapsed - before
+    except (AttributeError, OSError, ValueError):
+        # Unsupported clocks must not interfere with the request itself.
+        return None
+
+
+def mcp_transport_failure(error, sleep_before):
+    message = 'Error posting to MCP server'
+    data = {'error': str(error)}
+    if sleep_before is not None and isinstance(error, (OSError, http.client.HTTPException)):
+        sleep_after = system_sleep_bounds()
+        if sleep_after is not None:
+            suspended = sleep_after[0] - sleep_before[1]
+            if suspended >= 1:
+                message = (
+                    'This MCP request spanned local system sleep and no complete response was received. '
+                    'A timeout can appear after wake. The server may already have completed '
+                    'the request; check its outcome before retrying.'
+                )
+                data.update(local_interruption='system_sleep', outcome='unconfirmed',
+                            suspended_seconds=round(suspended, 1))
+    return message, data
+
+
 class ResponseStats:
     """Optional, failure-isolated measurements for the sequential MCP loop."""
 
@@ -1612,6 +1651,16 @@ def handle_sse_response(resp, token_audit_enabled=False, work_claims_enabled=Fal
             response_observer(payload)
         write_message(payload, stats=stats)
         wrote = True
+        if ('id' in payload and payload['id'] == request_id
+                and ('result' in payload or 'error' in payload)):
+            # The matching reply completes this request. Waiting for EOF can
+            # turn a later sleep or disconnect into a second, false failure.
+            try:
+                resp.close()
+            except OSError:
+                # Cleanup cannot revoke the response already delivered.
+                pass
+            return
     if not wrote:
         write_non_object_mcp_error(request_id, stats=stats)
 
@@ -2167,6 +2216,7 @@ def main():
                     )
                 continue
 
+            sleep_before = system_sleep_bounds()
             try:
                 resp, refreshed_token = post_to_mcp_refreshing_token(
                     post_url,
@@ -2217,16 +2267,17 @@ def main():
                 else:
                     sys.stderr.write(f"HTTP {e.code} from MCP server: {body}\n")
             except Exception as e:
+                message, data = mcp_transport_failure(e, sleep_before)
                 if not is_notification:
                     write_jsonrpc_error(
                         request_id=request_id,
                         code=-32001,
-                        message="Error posting to MCP server",
-                        data={"error": str(e)},
+                        message=message,
+                        data=data,
                         stats=response_stats,
                     )
                 else:
-                    sys.stderr.write(f"Error posting to MCP server: {e}\n")
+                    sys.stderr.write(f"{message}: {e}\n")
 
     except Exception as e:
         sys.stderr.write(f"Proxy setup failed: {e}\n")

@@ -1265,6 +1265,7 @@ const messages = defineMessages({
   BacklogMaintenanceTitle: 'Review AI backlog findings?',
   BacklogMaintenanceIntro: 'Completed work may change open work',
   BacklogMaintenanceExplanation: 'The AI compared work completed since its last check with open jobs, bugs and blockers. It changed none of them. Open a linked item to act on it.',
+  BacklogMaintenanceWindow: 'Completed work from {since} through {through}',
   messagePresent: 'Go to notification for this job',
   messagePresentComment: 'Click to go to notification',
   messagePresentCommentChoice: 'Click to go to or clear notification',

@@ -13,13 +13,19 @@ Check export and scan completeness, including missing/stale sections needed for 
 
 ## Contextual findings and run record
 
-Send the complete numbered findings to the coordinator. The first exact code in each finding identifies its recipient; later evidence/blocker codes are supporting references. Each contextual finding retains its complete reasons, evidence and proposed human actions.
+Keep the complete numbered contextual findings separate from the human report. The first exact code in each finding identifies its recipient; later evidence/blocker codes are supporting references. Each contextual finding retains its complete reasons, evidence, proposed human actions and exact run context.
 
 Use only the synced export to reconcile equivalent findings for the same target and completed outcome and to choose each destination: the current capsule R-code for its owning job or independent task, a grouped task's parent capsule, ordinary job/task notes when that applicable capsule is absent, and direct bug replies.
 
 Write each absent contextual finding silently with `add_info`. Inspect each write and retain confirmed results. After failure or uncertainty, reconcile against the synced export and retry only absent findings; uncertainty leaves the run unrecorded. Confine candidate mutations to these contextual findings, leaving their proposed actions for subsequent human requests.
 
-Once every required contextual write has succeeded or an equivalent finding for the same target and completed outcome exists in the synced export, record the run with `backlog_maintenance_run` and the aggregate Markdown report. With no findings, send the explicit no-candidate result and record without a report. Preserve confirmed and unfinished outcomes separately.
+Prepare one compact Markdown list for both the inbox and the agent-window report. Each entry links the affected job, task or bug by readable name and actual code, followed by one or two short sentences explaining why completed work may affect it. Include a task's parent job as context. Combine reasons for the same target while preserving materially distinct affected tasks and meaningful uncertainty.
+
+Identify the work and its parent from the export records. A converted task may retain an S-code; a capsule R-code names the destination for detail, so link its owning work in the human list. An unidentified target leaves the analysis incomplete.
+
+The human report contains only that list. Omit dates, maintenance windows, scan counts, paths, hashes, claim/write receipts, capsule versions, evidence inventories, category headings and repeated qualifications. The backend carries the window separately for the UI to format. Keep the full analysis and proposed actions in the contextual findings.
+
+Once every required contextual write has succeeded or an equivalent finding for the same target and completed outcome exists in the synced export, record the run with `backlog_maintenance_run` and that compact list as its report. Return the same list for human presentation, with contextual findings, receipts and unfinished status separately. With no findings, send the explicit no-candidate result and record without a report. Preserve confirmed and unfinished outcomes separately.
 
 ## Tools
 

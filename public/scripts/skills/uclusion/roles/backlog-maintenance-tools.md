@@ -6,7 +6,7 @@ The full description of each tool this role uses. A whole-list connection lists 
 
 ## `backlog_maintenance_run`
 
-Claims or records the run that find_work's backlog_maintenance key asks for. claim takes the key's exact since and through and returns a claim_id and expires_at; a refused claim means another run has that batch, so skip it. record takes that claim_id after every required silent per-candidate contextual add_info write has succeeded or equivalent findings for the same target and completed outcome were found in the synced export. With findings, pass the aggregate report Markdown, which reaches the workspace's people as one linked inbox item. With no findings, record without a report; no inbox item is created. An uncertain or failed record leaves the run unrecorded.
+Claims or records the run that find_work's backlog_maintenance key asks for. claim takes the key's exact since and through and returns a claim_id and expires_at; a refused claim means another run has that batch, so skip it. record takes that claim_id after every required silent per-candidate contextual add_info write has succeeded or equivalent findings for the same target and completed outcome were found in the synced export. With findings, pass report Markdown containing only a linked list of affected work and short plain-language reasons, without dates or analysis details. The server supplies the claimed window separately for UI date formatting. The list reaches the workspace's people as one linked inbox item. With no findings, record without a report; no inbox item is created. An uncertain or failed record leaves the run unrecorded.
 
 ## `get_job`
 

@@ -342,6 +342,15 @@
     "openai": 600
    }
   },
+  "1399f0b2a140abed4e0054cf11c60446882e787d91e644f9c71447cf5306932d": {
+   "bytes": 7215,
+   "kind": "skill",
+   "name": "skills/uclusion/roles/backlog-maintenance-tools.md",
+   "tokens": {
+    "claude": 2203,
+    "openai": 1429
+   }
+  },
   "14a06bcce043e694bc4408ba9be8e81801c90bae99d3ca0e2c5b13140a097fd9": {
    "bytes": 1689,
    "kind": "bootstrap",
@@ -2646,6 +2655,15 @@
     "openai": 846
    }
   },
+  "8dbd166aefd39722e0ecd760c691f861b241e1b91a2aaa76c1b04fd7718fe5a3": {
+   "bytes": 4292,
+   "kind": "skill",
+   "name": "skills/uclusion/roles/backlog-maintenance.md",
+   "tokens": {
+    "claude": 1335,
+    "openai": 788
+   }
+  },
   "8e600c36c549abe29d8c722329df72d348a32ad5e0994977572fbd71ccceb830": {
    "bytes": 3617,
    "kind": "skill",
@@ -4913,6 +4931,13 @@
    "tokens": {
     "claude": 308,
     "openai": 132
+   }
+  },
+  "0460172dfd0ca9e14f0e06cd90889e93d972df63d35e472c086fbe640f4ee87d": {
+   "name": "backlog_maintenance_run",
+   "tokens": {
+    "claude": 395,
+    "openai": 206
    }
   },
   "084a631a8eacad88cde79eeaa40fe75f29bbb7e52062e7ce1321b37af9a4a7df": {

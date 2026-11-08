@@ -16,8 +16,11 @@ function BacklogReportStep(props) {
   const intl = useIntl();
   const classes = wizardStyles();
   const [, messagesDispatch] = useContext(NotificationsContext);
-  // formatDate with no options is the viewer's numeric calendar date.
-  const reportText = formatBacklogWindowClause(message.text, (date) => intl.formatDate(date));
+  const since = Date.parse(message.since);
+  const through = Date.parse(message.through);
+  const hasWindow = Number.isFinite(since) && Number.isFinite(through);
+  const reportText = hasWindow ? message.text :
+    formatBacklogWindowClause(message.text, (date) => intl.formatDate(date));
 
   function myOnFinish() {
     // Not an UNREAD type so the row must be force deleted to leave the inbox. Only this user's row goes.
@@ -34,6 +37,13 @@ function BacklogReportStep(props) {
       <Typography className={classes.introSubText} variant="subtitle1">
         {intl.formatMessage({ id: 'BacklogMaintenanceExplanation' })}
       </Typography>
+      {hasWindow && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          {intl.formatMessage({ id: 'BacklogMaintenanceWindow' }, {
+            since: intl.formatDate(since), through: intl.formatDate(through)
+          })}
+        </Typography>
+      )}
       {/* The backend stores the report already converted to HTML, with each short code a link */}
       <ReadOnlyQuillEditor value={reportText} id={`backlogReport${getMessageId(message)}`} />
       <div style={{marginBottom: '1rem'}}/>

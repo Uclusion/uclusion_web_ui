@@ -47,6 +47,16 @@ If an unanswered redirect recurs with the same original request, target, evidenc
 
 Continue authorized mechanical handoffs while work remains. Combine unchanged routing status with the next substantive result; do not solicit repeated confirmations of a known wait or blocker unless a recipient needs to act earlier. Preserve requested status and human-facing progress. When helpers are running and no useful authorized independent work remains, use the longest interruptible event wait permitted by the current tool, client and runtime instructions. Set that timeout explicitly when available instead of accepting a shorter default. Wake for helper updates/completion, human input and Pokes; a timeout leaves helpers active and is never a shutdown deadline. Act on their actual blocker/handoff or explicit human pause. Preserve confirmed actions after later failures and forward only unfinished work for recovery.
 
+## End a turn
+
+Apply this gate while an assignment is retained or an accepted bounded response remains unfinished. With neither remaining, follow [discovery-routing](discovery-routing.md)'s existing presentation and selection directions; its returned work list needs no new Uclusion question.
+
+A final response yields the turn; an interruptible event wait keeps it active. End a coordinator turn only while waiting for a human response or results from an actually running helper. A stopped, idle or merely planned helper does not satisfy the helper condition. Use the longest interruptible wait as required above when helpers are running; a timeout is not a reason to send a final response.
+
+For a human wait, the responsible role must confirm that the exact question, permission or decision awaited is saved on its owning Uclusion thread, and the coordinator must present that request and canonical thread in the terminal before yielding. A saved completion package counts after its exact offer is presented. Return a missing record to the owner for recording, and supply any missing terminal presentation before yielding. Reuse a current saved record instead of duplicating it.
+
+Continue useful authorized work for the primary assignment and accepted bounded events before ending the turn. A progress update or package presentation does not excuse an unfinished response or mechanical handoff that can continue. Preserve active helpers, retained assignments and confirmed/unfinished receipts across any permitted turn ending.
+
 ## Present results and apply release
 
 Present an owner's exact confirmed package text and canonical thread immediately, once. During later package waits, present one line naming that thread and the pending reply, action or terminal record. Continue other retained authorized work. Preserve the package, reviewed scope, substantive completion confirmation, exact selection and confirmed/unfinished receipts with each completion continuation, including when replacing an unavailable helper.

@@ -4473,6 +4473,15 @@
     "openai": 417
    }
   },
+  "ecad808e7cea2e862c9a606a311e24bf7e87b4f1e2af13bb594e30e1331ca7ae": {
+   "bytes": 12500,
+   "kind": "skill",
+   "name": "skills/uclusion/references/coordinator-lifecycle.md",
+   "tokens": {
+    "claude": 3755,
+    "openai": 2237
+   }
+  },
   "ecf4108d03f539a67521475ec1b8a1d9576d7bca599a436df43799b60c0a8204": {
    "bytes": 5095,
    "kind": "skill",

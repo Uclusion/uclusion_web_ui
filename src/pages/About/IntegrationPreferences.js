@@ -21,7 +21,7 @@ import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGr
 import _ from 'lodash';
 import CopyCommand from './CopyCommand';
 import InstallSelector, { INSTALL_CLIENTS } from './InstallSelector';
-import { buildInstallArgs, getUclusionEnvironment } from './installUtils';
+import { buildInstallArgs, DEFAULT_TOKEN_AUDIT_BUCKETS, getUclusionEnvironment } from './installUtils';
 import StartWorkingInstructions from './StartWorkingInstructions';
 
 const useStyles = makeStyles((theme) => ({
@@ -102,13 +102,14 @@ function IntegrationPreferences (props) {
   // T-all-2314: every AI tool starts selected
   const [installClients, setInstallClients] = useState(INSTALL_CLIENTS.map((client) => client.key));
   const [tokenAudit, setTokenAudit] = useState(false);
+  const [tokenAuditBuckets, setTokenAuditBuckets] = useState(DEFAULT_TOKEN_AUDIT_BUCKETS);
   const [tokenCollector, setTokenCollector] = useState(false);
   const [workClaims, setWorkClaims] = useState(false);
   const env = getUclusionEnvironment();
   const installBaseUrl = config.ui_base_url;
   const installArgs = buildInstallArgs(
     marketId, useGroupId, env, installClients, installScope, tokenAudit, tokenCollector,
-    workClaims
+    workClaims, tokenAuditBuckets
   );
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   let markets = [];
@@ -264,6 +265,7 @@ function IntegrationPreferences (props) {
               <InstallSelector scope={installScope} setScope={setInstallScope} clients={installClients}
                                setClients={setInstallClients} tokenAudit={tokenAudit}
                                setTokenAudit={setTokenAudit} tokenCollector={tokenCollector}
+                               tokenAuditBuckets={tokenAuditBuckets} setTokenAuditBuckets={setTokenAuditBuckets}
                                setTokenCollector={setTokenCollector} workClaims={workClaims}
                                setWorkClaims={setWorkClaims} />
               <Typography variant="h6" style={{paddingTop: '1.5rem', paddingBottom: '0.5rem'}}>
@@ -274,18 +276,18 @@ function IntegrationPreferences (props) {
                   Run this from your project's root directory. It configures the directory it runs in.
                 </Typography>
               )}
-              <CopyCommand
+              {installArgs && <CopyCommand
                 command={`curl -fsSL ${installBaseUrl}/scripts/install.sh | bash -s -- ${installArgs}`}
-              />
+              />}
               <div style={{display: 'flex', alignItems: 'center', margin: '0.75rem 0',
                 color: isDark ? 'rgba(255,255,255,0.6)' : '#6a737d'}}>
                 <div style={{flex: 1, height: '1px', backgroundColor: isDark ? 'rgba(255,255,255,0.2)' : '#e1e4e8'}} />
                 <Typography variant="caption" style={{padding: '0 0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em'}}>or</Typography>
                 <div style={{flex: 1, height: '1px', backgroundColor: isDark ? 'rgba(255,255,255,0.2)' : '#e1e4e8'}} />
               </div>
-              <CopyCommand
+              {installArgs && <CopyCommand
                 command={`wget -qO- ${installBaseUrl}/scripts/install.sh | bash -s -- ${installArgs}`}
-              />
+              />}
               <Typography variant="h6" style={{paddingTop: '1.5rem', paddingBottom: '0.5rem'}}>
                 Step 4. Start working inside your AI tool
               </Typography>

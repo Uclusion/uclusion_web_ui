@@ -7,7 +7,7 @@ The coordinator owns the assigned job's audit run and ordered phase markers. For
 
 If no run is held, start one with `start_job_audit` on assigned-job activation and reuse the held run across roles, tasks and ordinary turns.
 
-When the work kind changes, mark the boundary with `set_job_audit_phase` and carry its confirmed receipt into handoffs. Label the actual work, including a testing bucket before authorized tests/builds, and reuse labels for repeated work.
+When the work kind changes, use the configured bucket choices advertised by `set_job_audit_phase`. Send a phase marker only when a choice reasonably matches the actual work and differs from the current bucket; reuse its exact label and carry the confirmed receipt into handoffs. Do not invent labels or force a match. If no configured bucket fits, continue the authorized work without a phase marker or token note. Tests/builds use a matching configured bucket only when authorized. Defaults are planning, research, implementation, testing and review; planning is required for startup. The human can edit the other defaults or add buckets during installation or with the resident CLI's `features --token-audit-buckets 'planning,implementation,testing,review'`, then reconnect the client.
 
 ## Handoffs and receipts
 

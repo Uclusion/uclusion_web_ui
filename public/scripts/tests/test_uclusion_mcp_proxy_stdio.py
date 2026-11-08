@@ -47,6 +47,41 @@ class _LineResponse:
 
 
 class McpProxyStdioTests(unittest.TestCase):
+    def test_only_configured_audit_phases_reach_the_server(self):
+        def phase(request_id, bucket):
+            return {'jsonrpc': '2.0', 'id': request_id, 'method': 'tools/call', 'params': {
+                'name': 'set_job_audit_phase', 'arguments': {
+                    'job_id': 'J-all-1', 'audit_run_id': 'run-1',
+                    'marker_sequence': 1, 'bucket': bucket,
+                },
+            }}
+        invalid = phase(1, 'instruction source review')
+        valid = phase(2, 'testing')
+        incoming = io.StringIO(json.dumps(invalid) + '\n' + json.dumps(valid) + '\n')
+        outgoing = io.StringIO()
+        response = _BodyResponse(json.dumps({'jsonrpc': '2.0', 'id': 2, 'result': {'content': []}}))
+        response.headers = {'Content-Type': 'application/json'}
+        arguments = proxy.parse_args([
+            'workspace-1', 'stage', '--token-audit', '--token-audit-buckets', 'planning,testing',
+        ])
+        with mock.patch.object(proxy.sys, 'stdin'), mock.patch.object(proxy.sys, 'stdout'), \
+                mock.patch.object(proxy.os, 'fdopen', side_effect=[incoming, outgoing]), \
+                mock.patch.object(proxy, 'parse_args', return_value=arguments), \
+                mock.patch.object(proxy, 'prune_token_audit_storage'), \
+                mock.patch.object(proxy, 'prune_inbox'), \
+                mock.patch.object(proxy, 'get_credentials', return_value={}), \
+                mock.patch.object(proxy, 'login', return_value={'uclusion_token': 'test-token'}), \
+                mock.patch.object(proxy.threading, 'Thread'), \
+                mock.patch.object(proxy, 'record_demo_input'), \
+                mock.patch.object(proxy, 'post_to_mcp_refreshing_token', return_value=(response, None)) as post:
+            proxy.main()
+        post.assert_called_once()
+        self.assertEqual(valid, json.loads(post.call_args.args[2]))
+        replies = [json.loads(line) for line in outgoing.getvalue().splitlines()]
+        self.assertEqual(-32602, replies[0]['error']['code'])
+        self.assertEqual(1, replies[0]['id'])
+        self.assertEqual(2, replies[1]['id'])
+
     def test_write_message_drops_a_root_json_string(self):
         stdout = io.StringIO()
         stderr = io.StringIO()

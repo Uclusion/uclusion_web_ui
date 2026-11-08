@@ -4589,7 +4589,8 @@ class ProxyContractTests(TokenAuditTestCase):
                 (proxy.handle_json_response, json.dumps(response).encode()),
                 (proxy.handle_sse_response, ('data: ' + json.dumps(response) + '\n\n').encode())):
             with self.subTest(handler=handler.__name__), mock.patch.object(proxy, 'write_message') as write:
-                handler(io.BytesIO(body), token_audit_enabled=True)
+                handler(io.BytesIO(body), token_audit_enabled=True,
+                        token_audit_buckets=['planning', 'design review', 'testing'])
                 visible = write.call_args.args[0]['result']['tools']
                 self.assertEqual([tool['name'] for tool in response['result']['tools']],
                                  [tool['name'] for tool in visible])
@@ -4597,6 +4598,9 @@ class ProxyContractTests(TokenAuditTestCase):
                 self.assertEqual(['job_id', 'audit_run_id', 'bucket'],
                                  visible[1]['inputSchema']['required'])
                 self.assertIn('marker_sequence', visible[1]['inputSchema']['properties'])
+                bucket = visible[1]['inputSchema']['properties']['bucket']
+                self.assertEqual(['planning', 'design review', 'testing'], bucket['enum'])
+                self.assertIn('If none matches, do not call this tool.', bucket['description'])
                 self.assertNotIn('finalization', json.dumps(visible))
         self.assertIn('finalization', phase_schema['properties'])
         self.assertIn('not', phase_schema)

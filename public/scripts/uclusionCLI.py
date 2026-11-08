@@ -3268,6 +3268,10 @@ def run_installer(
         else:
             token_audit_enabled = bool(token_audit)
     command.append('--token-audit' if token_audit_enabled else '--no-token-audit')
+    saved_audit = source.get('tokenAudit')
+    if isinstance(saved_audit, dict) and 'buckets' in saved_audit:
+        from uclusionInstall import token_audit_buckets
+        command.extend(['--token-audit-buckets', ','.join(token_audit_buckets(saved_audit))])
     if token_collector_enabled is None:
         token_collector_enabled = config_token_collector_enabled(source)
     command.append(
@@ -3400,6 +3404,7 @@ def _format_feature_scope(label, config_path, project_dir, values):
     lines = [heading]
     for key, title in FEATURE_LABELS:
         lines.append(f"{title}: {'on' if values[key] else 'off'}")
+    lines.append('Token usage buckets: ' + ', '.join(values['token_audit_buckets']))
     return '\n'.join(lines)
 
 
@@ -3414,7 +3419,7 @@ def _load_feature_values(config_path):
 
 
 def cmd_features(args):
-    """Show or change the three saved feature settings without reinstalling."""
+    """Show or change saved feature settings without reinstalling."""
     env = args.env or 'production'
     scopes = _feature_scopes(env)
     if args.feature is None:
@@ -3423,7 +3428,7 @@ def cmd_features(args):
             for label, path, project_dir in scopes
         ))
         return 0
-    feature, enabled = args.feature
+    feature, value = args.feature
     installed = [scope for scope in scopes if scope[1] is not None]
     if not installed:
         print('No Uclusion install found.')
@@ -3431,7 +3436,7 @@ def cmd_features(args):
     from uclusionInstall import reapply_saved_feature_surfaces, update_saved_feature
     for label, path, project_dir in installed:
         try:
-            update_saved_feature(path, feature, enabled)
+            update_saved_feature(path, feature, value)
             config = load_config_at(path)
             reapply_saved_feature_surfaces(
                 env, path, _feature_clients(config, project_dir),
@@ -4184,6 +4189,12 @@ def build_parser():
         '--no-token-audit', dest='feature', action='store_const',
         const=('token_audit', False),
         help='Turn off per-job token usage notes for the global install and the closest project install.',
+    )
+    from uclusionInstall import parse_token_audit_buckets
+    feature_choices.add_argument(
+        '--token-audit-buckets', dest='feature', metavar='BUCKETS',
+        type=lambda value: ('token_audit_buckets', parse_token_audit_buckets(value)),
+        help='Replace the comma-separated token usage buckets in the global and closest project installs.',
     )
     feature_choices.add_argument(
         '--token-collector', dest='feature', action='store_const',

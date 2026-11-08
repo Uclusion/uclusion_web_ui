@@ -81,6 +81,15 @@
     "openai": 287
    }
   },
+  "0631f7b06dac9c78e29ceae87bf97ad904eedffe29fa83d0adf3e30b41b18693": {
+   "bytes": 7408,
+   "kind": "skill",
+   "name": "skills/uclusion/roles/coordinator-tools.md",
+   "tokens": {
+    "claude": 2340,
+    "openai": 1464
+   }
+  },
   "0726a2ecf7444f53869639a9d323c610ed09581056a8e53a21bec3f5eeaf9576": {
    "bytes": 1740,
    "kind": "bootstrap",
@@ -4437,6 +4446,15 @@
     "openai": 341
    }
   },
+  "ec84f4cfe7597c4560b26bba1d55f6ae5924d34f7afbca725982d85bb696de2b": {
+   "bytes": 2187,
+   "kind": "skill",
+   "name": "skills/uclusion/references/audit.md",
+   "tokens": {
+    "claude": 711,
+    "openai": 417
+   }
+  },
   "ecf4108d03f539a67521475ec1b8a1d9576d7bca599a436df43799b60c0a8204": {
    "bytes": 5095,
    "kind": "skill",
@@ -5513,6 +5531,13 @@
    "tokens": {
     "claude": 311,
     "openai": 164
+   }
+  },
+  "c17d98d7cc160225d1bd2df0619d32e8efa6bd1767b9f91752b38fc098f61514": {
+   "name": "set_job_audit_phase",
+   "tokens": {
+    "claude": 3040,
+    "openai": 1481
    }
   },
   "c251b24f3db25d0988335317298c933eed57fe4b18e9f0b3c0ae420762d6588e": {

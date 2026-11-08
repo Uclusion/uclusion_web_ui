@@ -10,19 +10,21 @@ import { NAME_MAX_LENGTH } from '../../TextFields/NameField';
 import { OnboardingState } from '../../../contexts/AccountContext/accountUserContextHelper';
 import InstallSelector, { INSTALL_CLIENTS } from '../../../pages/About/InstallSelector';
 import { getSecret } from '../../../api/users';
+import { DEFAULT_TOKEN_AUDIT_BUCKETS, tokenAuditBucketsError } from '../../../pages/About/installUtils';
 
 // J-all-400: Connect AI creates the workspace with a single person view (Q-all-429) - the AI
 // asks about view setup and collaborators after connecting, so the UI does not ask here
 function ConnectAIStep(props) {
   const { updateFormData = () => {}, formData = {}, createWorkspace } = props;
   const value = formData.name || '';
-  const validForm = !_.isEmpty(value);
   const classes = useContext(WizardStylesContext);
   const [userState] = useContext(AccountContext);
   const isDemoOn = userState?.user?.onboarding_state === OnboardingState.DemoCreated;
   const installScope = formData.installScope || 'global';
   const installClients = formData.installClients || INSTALL_CLIENTS.map((client) => client.key);
   const tokenAudit = formData.tokenAudit || false;
+  const tokenAuditBuckets = formData.tokenAuditBuckets ?? DEFAULT_TOKEN_AUDIT_BUCKETS;
+  const validForm = !_.isEmpty(value) && (!tokenAudit || !tokenAuditBucketsError(tokenAuditBuckets));
   const tokenCollector = formData.tokenCollector || false;
   const workClaims = formData.workClaims || false;
 
@@ -86,6 +88,8 @@ function ConnectAIStep(props) {
                            setClients={(clients) => updateFormData({ installClients: clients })}
                            tokenAudit={tokenAudit}
                            setTokenAudit={(audit) => updateFormData({ tokenAudit: audit })}
+                           tokenAuditBuckets={tokenAuditBuckets}
+                           setTokenAuditBuckets={(buckets) => updateFormData({ tokenAuditBuckets: buckets })}
                            tokenCollector={tokenCollector}
                            setTokenCollector={(collector) => updateFormData({ tokenCollector: collector })}
                            workClaims={workClaims}

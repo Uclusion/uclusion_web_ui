@@ -225,6 +225,12 @@ def parse_args(argv=None):
     parser.add_argument('--response-stats-hook', metavar='PATH', help=argparse.SUPPRESS)
     parser.add_argument('--token-audit', action='store_true',
                         help='Expose per-job token usage notes.')
+    from uclusionInstall import parse_token_audit_buckets, DEFAULT_TOKEN_AUDIT_BUCKETS
+    parser.add_argument(
+        '--token-audit-buckets', type=parse_token_audit_buckets,
+        default=list(DEFAULT_TOKEN_AUDIT_BUCKETS),
+        help='Comma-separated token usage buckets selected at installation.',
+    )
     parser.add_argument('--token-collector', action='store_true',
                         help='Run passive token collector instrumentation.')
     parser.add_argument('--token-audit-port', type=token_audit_port)
@@ -1505,7 +1511,7 @@ def write_jsonrpc_error(request_id, code, message, data=None, stats=None):
     write_message({"jsonrpc": "2.0", "id": request_id, "error": err}, stats=stats)
 
 
-def filter_token_audit_tools(message, enabled):
+def filter_token_audit_tools(message, enabled, buckets=None):
     """Expose agent markers without the collector's finalization schema."""
     if not isinstance(message, dict):
         return message
@@ -1530,10 +1536,33 @@ def filter_token_audit_tools(message, enabled):
                     schema.pop('allOf', None)
                     schema.pop('not', None)
                 tool = {**tool, 'inputSchema': schema}
+            if name == 'set_job_audit_phase' and isinstance(schema, dict):
+                from uclusionInstall import DEFAULT_TOKEN_AUDIT_BUCKETS
+                names = list(DEFAULT_TOKEN_AUDIT_BUCKETS if buckets is None else buckets)
+                properties = schema.get('properties', {})
+                schema = {**schema, 'properties': {**properties, 'bucket': {
+                    **properties.get('bucket', {}),
+                    'enum': names,
+                    'description': 'Choose a configured bucket only when it reasonably '
+                                   'matches the work. If none matches, do not call this tool.',
+                }}}
+                tool = {**tool, 'inputSchema': schema}
         filtered.append(tool)
     if filtered == result['tools']:
         return message
     return {**message, 'result': {**result, 'tools': filtered}}
+
+
+def validate_token_audit_phase(params, buckets):
+    if params.get('name') != 'set_job_audit_phase':
+        return
+    arguments = params.get('arguments')
+    bucket = arguments.get('bucket') if isinstance(arguments, dict) else None
+    if bucket not in buckets:
+        raise ValueError(
+            'Choose a configured token usage bucket only when it reasonably matches '
+            'the work; otherwise skip the phase note. Configured buckets: ' + ', '.join(buckets)
+        )
 
 
 def inject_work_claim_tool(message, enabled):
@@ -1551,13 +1580,14 @@ def inject_work_claim_tool(message, enabled):
 
 
 def handle_json_response(resp, token_audit_enabled=False, work_claims_enabled=False,
-                         request_id=None, stats=None, response_observer=None):
+                         request_id=None, stats=None, response_observer=None,
+                         token_audit_buckets=None):
     payload = load_mcp_stdio_object(resp.read().decode('utf-8'))
     if payload is None:
         write_non_object_mcp_error(request_id, stats=stats)
         return
     payload = inject_work_claim_tool(filter_token_audit_tools(
-        payload, token_audit_enabled
+        payload, token_audit_enabled, token_audit_buckets
     ), work_claims_enabled)
     if response_observer is not None:
         response_observer(payload)
@@ -1565,7 +1595,8 @@ def handle_json_response(resp, token_audit_enabled=False, work_claims_enabled=Fa
 
 
 def handle_sse_response(resp, token_audit_enabled=False, work_claims_enabled=False,
-                        request_id=None, stats=None, response_observer=None):
+                        request_id=None, stats=None, response_observer=None,
+                        token_audit_buckets=None):
     wrote = False
     for raw_line in resp:
         line = raw_line.decode('utf-8').rstrip('\r\n')
@@ -1575,7 +1606,7 @@ def handle_sse_response(resp, token_audit_enabled=False, work_claims_enabled=Fal
         if payload is None:
             continue
         payload = inject_work_claim_tool(filter_token_audit_tools(
-            payload, token_audit_enabled
+            payload, token_audit_enabled, token_audit_buckets
         ), work_claims_enabled)
         if response_observer is not None:
             response_observer(payload)
@@ -2095,6 +2126,13 @@ def main():
                 and isinstance(params, dict)
                 and params.get('name') in TOKEN_AUDIT_TOOLS
             )
+            if audit_tool_call and args.token_audit:
+                try:
+                    validate_token_audit_phase(params, args.token_audit_buckets)
+                except ValueError as error:
+                    if not is_notification:
+                        write_jsonrpc_error(request_id, -32602, str(error), stats=response_stats)
+                    continue
             collector_unready = False
             if (audit_tool_call and args.token_audit and args.token_collector
                     and native_delivery is not None):
@@ -2156,12 +2194,14 @@ def main():
                     handle_sse_response(resp, token_notes_available(),
                                         work_claims is not None,
                                         request_id=request_id, stats=response_stats,
-                                        response_observer=observer)
+                                        response_observer=observer,
+                                        token_audit_buckets=args.token_audit_buckets)
                 else:
                     handle_json_response(resp, token_notes_available(),
                                          work_claims is not None,
                                          request_id=request_id, stats=response_stats,
-                                         response_observer=observer)
+                                         response_observer=observer,
+                                         token_audit_buckets=args.token_audit_buckets)
 
             except urllib.request.HTTPError as e:
                 body = e.read().decode('utf-8', errors='replace')

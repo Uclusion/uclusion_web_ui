@@ -722,7 +722,8 @@ class UpdateReleaseConsistencyTests(unittest.TestCase):
                 'stage',
                 {
                     'workspaceId': 'workspace-1',
-                    'tokenAudit': {'enabled': True, 'port': 23456},
+                    'tokenAudit': {'enabled': True, 'port': 23456,
+                                   'buckets': ['planning', 'design review', 'testing']},
                 },
                 None,
                 {'claude'},
@@ -735,6 +736,8 @@ class UpdateReleaseConsistencyTests(unittest.TestCase):
         self.assertIn('--token-collector', run.call_args.args[0])
         self.assertNotIn('--no-token-audit', run.call_args.args[0])
         self.assertNotIn('--no-token-collector', run.call_args.args[0])
+        command = run.call_args.args[0]
+        self.assertEqual('planning,design review,testing', command[command.index('--token-audit-buckets') + 1])
 
     def test_run_installer_explicit_token_audit_choice_overrides_config(self):
         completed = SimpleNamespace(returncode=0)
@@ -978,6 +981,30 @@ class UpdateReleaseConsistencyTests(unittest.TestCase):
 
 
 class SavedFeatureCommandTests(unittest.TestCase):
+    def test_bucket_edit_preserves_features_and_refreshes_existing_registrations(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'stage_uclusion.json'
+            config = {
+                'workspaceId': 'workspace-1', 'scriptReinstallVersion': 'release-1',
+                'tokenAudit': {'enabled': True, 'collector': False, 'port': 23456},
+                'workClaims': True, 'sourcesList': ['./src'], 'workflowClients': ['codex'],
+            }
+            path.write_text(json.dumps(config), encoding='utf-8')
+            with mock.patch.object(cli, '_feature_scopes', return_value=(('Global', str(path), None),)), \
+                    mock.patch.object(cli, '_feature_clients', return_value={'codex'}), \
+                    mock.patch.object(installer, 'reapply_saved_feature_surfaces') as reapply, \
+                    mock.patch.object(installer, 'install_scripts') as install, \
+                    mock.patch('sys.stdout', new_callable=io.StringIO) as output:
+                self.assertEqual(0, cli.cmd_features(cli.parse_args([
+                    '-e', 'stage', 'features', '--token-audit-buckets', 'planning,design review,testing,writing',
+                ])))
+            expected = {**config, 'tokenAudit': {**config['tokenAudit'],
+                        'buckets': ['planning', 'design review', 'testing', 'writing']}}
+            self.assertEqual(expected, json.loads(path.read_text(encoding='utf-8')))
+            reapply.assert_called_once_with('stage', str(path), {'codex'}, project_dir=None)
+            install.assert_not_called()
+            self.assertIn('Token usage buckets: planning, design review, testing, writing', output.getvalue())
+
     def test_read_leaves_files_unchanged_and_change_skips_reinstall(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

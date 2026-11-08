@@ -160,8 +160,8 @@ SCRIPT_FILES = (
 # deployment gate validates this table before publishing, so a sequential S3
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
-    'uclusionCLI.py': '41b3d21552edac10e76463827dff1999cb71b70d928dba0f89576cc33e13a54e',
-    'uclusionMCPProxy.py': '44118bd22f85022743dcb8aab236b146bf1837cbdd345f9c4737ce42445d3259',
+    'uclusionCLI.py': '9c1ed2243c653bc4a94c5552ed68fbd067a3abf123432df38670180a35311a09',
+    'uclusionMCPProxy.py': 'c90a715f3bbba6b818fdc3005623c2edbde2d69e84f3e4dd619c84610f895b91',
     'uclusionSetupMCP.py': 'c4740e2c6a5e17e594cb7010e740d494a0e3a90cab237402e32e61061979bd22',
     'uclusionCodexNative.py': '9f3ee5229607229236a7d4bd41f43fabbfe4021b2ec275534ed339d5d21f488b',
     'uclusionUpdateNotices.py': 'a9d6ed9e082bce28ac8340d242ad34d2f180a35de6821ce72c0684503e84b7e8',
@@ -360,7 +360,7 @@ WORKFLOW_ASSET_SHA256 = {
     'cursor_delivery_reference': 'de75fd21cdef3a35128d06df37ad3030563303665f5e4311e52b51366be7c279',
     'coordinator_lifecycle_reference': 'e7078d868b1f24d712a60eb70d5d97cc4ccc4cf934d53187627463e26aff0033',
     'completion_reference': '0e25c38a08afdb02cc6b9f1fc003b18cafb19c434b664166bd30655ec219faa7',
-    'audit_reference': 'a7ab95f32f4b2918c6b5784ce6effbc69bce66cdca12bb3cc6ac67d5ed69dcad',
+    'audit_reference': 'ec84f4cfe7597c4560b26bba1d55f6ae5924d34f7afbca725982d85bb696de2b',
     'claims_reference': 'a9b28885b3f2272003e96482c85a28640d6d63b253154701a51c65166bb1f8db',
     'capsule_dispatch_reference': '5032df89e3ebbf4aa80e3c7a4fb6945cd17288a3c8b7d4c4070116f1411d411a',
     'delivery_common_reference': '5554742089c029cf4ed08e6b0da0b1dea46a2137642a0c78d5b96c2ab88cf8e9',
@@ -375,14 +375,14 @@ WORKFLOW_ASSET_SHA256 = {
     'export_search_role': 'f81867d5fa42412493a7df71e372f51777ada13c2d9fe50b080dba222abf7b3b',
     'backlog_maintenance_role': '5a3e04268c282106fce0094f46a51d3e128c11dd21a275067107cbae76838091',
     'design_role': 'a634c3dfe37210ab667637f1db07880577dce2363f88314752fe8ea0cca67f2a',
-    'coordinator_tools': '9c28847dfc4b3340a12433c08e3fc25923595f721b92000e7c958e6a95e0d26b',
+    'coordinator_tools': '0631f7b06dac9c78e29ceae87bf97ad904eedffe29fa83d0adf3e30b41b18693',
     'implementation_tools': '30962900d4925b76fa648af8fe3392babe12071a962f1e7cf9f14e8663713611',
     'operation_tools': '4677a186f5d73d274183b36ab5ab47d042f77c062c455d7de6b5eae4ac026376',
     'standalone_tools': '0c6cdeec146b0b891f0b19dfc65904169a34c5cbf40ccea19774d48f8ddbdf6b',
     'backlog_maintenance_tools': '57f7fb8e21099bbeff125a054e5c911e45f4fb2634cd4dd191f8d3a43b9a8642',
     'design_tools': '0e58f542dcb35d231b3bc674acf24569ffca6ee179a01dae3616f7f8af140254',
     'demo_brief': 'b68f6501270c63456c19053d1b5af296350288754239c7f9d6074a3a5497789f',
-    'token_manifest': '2dd00121e0366c6a48cb4342a4ff12b5d66763c4f9f071b7c84411f1710edc31',
+    'token_manifest': '0cdb2bee5de1c82590065ad7518d0c53aff32835a0e2cf1c0e108a1087845b2b',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',
@@ -1053,8 +1053,42 @@ def token_audit_default_port(workspace_id):
     return TOKEN_AUDIT_DEFAULT_PORT_BASE + offset
 
 
+DEFAULT_TOKEN_AUDIT_BUCKETS = (
+    'planning', 'research', 'implementation', 'testing', 'review',
+)
+
+
+def validate_token_audit_buckets(buckets):
+    if (not isinstance(buckets, list) or not buckets
+            or any(not isinstance(bucket, str) or bucket != bucket.strip()
+                   or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._:/+@ -]{0,79}', bucket)
+                   for bucket in buckets)):
+        raise ValueError('Each token usage bucket needs 1-80 letters, numbers, spaces, or ._:/+@-.')
+    if len(set(buckets)) != len(buckets):
+        raise ValueError('Token usage bucket names must be unique.')
+    if 'planning' not in buckets:
+        raise ValueError('Keep planning, the initial audit bucket.')
+    if len(buckets) > 32:
+        raise ValueError('Use up to 32 token usage buckets.')
+    return list(buckets)
+
+
+def parse_token_audit_buckets(value):
+    try:
+        return validate_token_audit_buckets([bucket.strip() for bucket in value.split(',')])
+    except ValueError as error:
+        raise argparse.ArgumentTypeError(str(error)) from error
+
+
+def token_audit_buckets(token_audit):
+    buckets = token_audit.get('buckets') if isinstance(token_audit, dict) else None
+    return validate_token_audit_buckets(
+        list(DEFAULT_TOKEN_AUDIT_BUCKETS) if buckets is None else buckets
+    )
+
+
 def apply_token_audit_choices(config, workspace_id, token_audit_enabled=None,
-                              token_collector_enabled=None):
+                              token_collector_enabled=None, buckets=None):
     """Return the tokenAudit object after one notes or collector choice.
 
     An omitted choice keeps the saved value. A pre-split boolean still means
@@ -1094,12 +1128,14 @@ def apply_token_audit_choices(config, workspace_id, token_audit_enabled=None,
     port = token_audit.get('port')
     if not isinstance(port, int) or isinstance(port, bool) or not 1024 <= port <= 65535:
         token_audit['port'] = token_audit_default_port(workspace_id)
+    token_audit['buckets'] = (token_audit_buckets(token_audit) if buckets is None
+                             else validate_token_audit_buckets(buckets))
     return token_audit
 
 
 def write_uclusion_config(workspace_id, view_id, config_path, script_version=None,
                            token_audit_enabled=None, work_claims_enabled=None,
-                           token_collector_enabled=None):
+                           token_collector_enabled=None, token_audit_bucket_names=None):
     """Write or refresh the workspace config, preserving user customizations.
 
     Merging (rather than rewriting) matters because ``uclusion update`` reruns
@@ -1180,6 +1216,7 @@ def write_uclusion_config(workspace_id, view_id, config_path, script_version=Non
         config.pop('scriptReinstallVersion', None)
     token_audit = apply_token_audit_choices(
         config, workspace_id, token_audit_enabled, token_collector_enabled,
+        token_audit_bucket_names,
     )
     config['tokenAudit'] = token_audit
     if work_claims_enabled is not None:
@@ -1253,21 +1290,22 @@ def _config_work_claims_enabled(config):
     return config.get('workClaims') is True
 
 
-SAVED_FEATURES = ('token_audit', 'token_collector', 'work_claims')
+SAVED_FEATURES = ('token_audit', 'token_collector', 'work_claims', 'token_audit_buckets')
 
 
 def saved_feature_values(config):
-    """The three saved on/off choices, including pre-split configs."""
+    """Saved feature choices, including pre-split configs."""
     if not isinstance(config, dict):
         return None
     return {
         'token_audit': token_audit_notes_enabled(config.get('tokenAudit')),
         'token_collector': token_audit_collector_enabled(config.get('tokenAudit')),
         'work_claims': _config_work_claims_enabled(config),
+        'token_audit_buckets': token_audit_buckets(config.get('tokenAudit')),
     }
 
 
-def update_saved_feature(config_path, feature, enabled):
+def update_saved_feature(config_path, feature, value):
     """Update one saved feature and leave the script release stamp alone."""
     if feature not in SAVED_FEATURES:
         raise ValueError(f'unknown feature {feature}')
@@ -1285,7 +1323,8 @@ def update_saved_feature(config_path, feature, enabled):
     workspace_id = config.get('workspaceId')
     if not isinstance(workspace_id, str) or not workspace_id:
         raise RuntimeError(f'{config_path} has no workspaceId')
-    wanted = bool(enabled)
+    wanted = (validate_token_audit_buckets(value)
+              if feature == 'token_audit_buckets' else bool(value))
     current = saved_feature_values(config)[feature]
     if current == wanted:
         return config
@@ -1298,6 +1337,7 @@ def update_saved_feature(config_path, feature, enabled):
             workspace_id,
             token_audit_enabled=wanted if feature == 'token_audit' else None,
             token_collector_enabled=wanted if feature == 'token_collector' else None,
+            buckets=wanted if feature == 'token_audit_buckets' else None,
         )
     if 'scriptReinstallVersion' in config or release is not None:
         if release is None:
@@ -1389,7 +1429,7 @@ def reapply_saved_feature_surfaces(env, config_path, clients, project_dir=None):
 
 def existing_install_feature_changes(
     config, token_audit_enabled, work_claims_enabled,
-    token_collector_enabled=None,
+    token_collector_enabled=None, token_audit_bucket_names=None,
 ):
     """Return feature flips this install would apply to an existing config.
 
@@ -1399,6 +1439,9 @@ def existing_install_feature_changes(
     if config is None:
         return ()
     changes = []
+    if (token_audit_bucket_names is not None
+            and token_audit_bucket_names != token_audit_buckets(config.get('tokenAudit'))):
+        changes.append('token usage buckets to ' + ', '.join(token_audit_bucket_names))
     if token_audit_enabled is not None:
         current = _config_token_audit_enabled(config)
         wanted = bool(token_audit_enabled)
@@ -1428,7 +1471,7 @@ def existing_install_feature_changes(
 
 def confirm_existing_feature_changes(
     force, env, project_dir, token_audit_enabled, work_claims_enabled,
-    token_collector_enabled=None,
+    token_collector_enabled=None, token_audit_bucket_names=None,
 ):
     """Ask before flipping notes, collection, or work claims on an existing install."""
     if force:
@@ -1446,6 +1489,7 @@ def confirm_existing_feature_changes(
     changes = existing_install_feature_changes(
         config, token_audit_enabled, work_claims_enabled,
         token_collector_enabled,
+        token_audit_bucket_names,
     )
     if not changes:
         return True
@@ -1658,6 +1702,7 @@ def runtime_mcp_descriptor(workspace_id, env, token_audit=None,
         proxy_args.append('--codex-native')
     if token_audit_notes_enabled(token_audit):
         proxy_args.append('--token-audit')
+        proxy_args.extend(['--token-audit-buckets', ','.join(token_audit_buckets(token_audit))])
     if token_audit_collector_enabled(token_audit):
         proxy_args.extend([
             '--token-collector',
@@ -7405,6 +7450,11 @@ def build_parser():
         help='Disable per-job token usage notes.',
     )
     parser.set_defaults(token_audit=None)
+    parser.add_argument(
+        '--token-audit-buckets', type=parse_token_audit_buckets, metavar='BUCKETS',
+        help='Comma-separated token usage buckets. Omitted keeps saved buckets, '
+             'or defaults to ' + ', '.join(DEFAULT_TOKEN_AUDIT_BUCKETS) + '.',
+    )
     token_collector_group = parser.add_mutually_exclusive_group()
     token_collector_group.add_argument(
         '--token-collector',
@@ -7659,7 +7709,7 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                    script_version=None, token_audit_enabled=None,
                    work_claims_enabled=None, replace_setup=False,
                    setup_receipt_path=None, response_stats=None,
-                   token_collector_enabled=None):
+                   token_collector_enabled=None, token_audit_bucket_names=None):
     """Configure Uclusion in the user's home directory (the default).
 
     Without ``clients`` every detected client is offered interactively. With
@@ -7686,6 +7736,7 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
     token_audit, work_claims = write_uclusion_config(
         workspace_id, view_id, config_path, script_version, token_audit_enabled,
         work_claims_enabled, token_collector_enabled=token_collector_enabled,
+        token_audit_bucket_names=token_audit_bucket_names,
     )
     if clients:
         persist_workflow_install_state(
@@ -7907,6 +7958,7 @@ def install_project_level(
     setup_receipt_path=None,
     response_stats=None,
     token_collector_enabled=None,
+    token_audit_bucket_names=None,
 ):
     """Configure Uclusion inside ``project_dir`` instead of the home directory.
 
@@ -7943,6 +7995,7 @@ def install_project_level(
     token_audit, work_claims = write_uclusion_config(
         workspace_id, view_id, config_path, script_version, token_audit_enabled,
         work_claims_enabled, token_collector_enabled=token_collector_enabled,
+        token_audit_bucket_names=token_audit_bucket_names,
     )
     if clients:
         persist_workflow_install_state(
@@ -8159,6 +8212,7 @@ def main():
             args.replace_setup,
             args.setup_receipt is not None,
             args.token_audit is not None,
+            args.token_audit_buckets is not None,
             args.token_collector is not None,
             args.work_claims is not None,
             # A demo may record its evaluator's response sizes; only a path
@@ -8274,6 +8328,7 @@ def main():
             args.token_audit,
             args.work_claims,
             args.token_collector,
+            args.token_audit_buckets,
         ):
             print('⏭  Existing install was left unchanged.')
             return 0
@@ -8326,6 +8381,7 @@ def main():
                     None if bootstrap_mode == 'demo' else args.response_stats
                 ),
                 token_collector_enabled=args.token_collector,
+                token_audit_bucket_names=args.token_audit_buckets,
             )
         else:
             install_project_level(
@@ -8342,6 +8398,7 @@ def main():
                 args.setup_receipt,
                 response_stats=args.response_stats,
                 token_collector_enabled=args.token_collector,
+                token_audit_bucket_names=args.token_audit_buckets,
             )
     except subprocess.CalledProcessError as err:
         print(f"❌ Command failed: {err}")

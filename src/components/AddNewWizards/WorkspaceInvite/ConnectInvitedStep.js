@@ -8,6 +8,7 @@ import InstallSelector, { INSTALL_CLIENTS } from '../../../pages/About/InstallSe
 import { getSecret } from '../../../api/users';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { DEFAULT_TOKEN_AUDIT_BUCKETS, tokenAuditBucketsError } from '../../../pages/About/installUtils';
 
 // C-all-1505: an invited user's onboarding is AI first too, so offer the connect commands
 // for the workspace they just joined before the navigation tour
@@ -19,6 +20,7 @@ function ConnectInvitedStep(props) {
   const installScope = formData.installScope || 'global';
   const installClients = formData.installClients || INSTALL_CLIENTS.map((client) => client.key);
   const tokenAudit = formData.tokenAudit || false;
+  const tokenAuditBuckets = formData.tokenAuditBuckets ?? DEFAULT_TOKEN_AUDIT_BUCKETS;
   const tokenCollector = formData.tokenCollector || false;
   const workClaims = formData.workClaims || false;
 
@@ -49,6 +51,8 @@ function ConnectInvitedStep(props) {
                        setClients={(clients) => updateFormData({ installClients: clients })}
                        tokenAudit={tokenAudit}
                        setTokenAudit={(audit) => updateFormData({ tokenAudit: audit })}
+                       tokenAuditBuckets={tokenAuditBuckets}
+                       setTokenAuditBuckets={(buckets) => updateFormData({ tokenAuditBuckets: buckets })}
                        tokenCollector={tokenCollector}
                        setTokenCollector={(collector) => updateFormData({ tokenCollector: collector })}
                        workClaims={workClaims}
@@ -58,6 +62,7 @@ function ConnectInvitedStep(props) {
         {...props}
         nextLabel='generateAIConnect'
         onNext={onGenerate}
+        validForm={!tokenAudit || !tokenAuditBucketsError(tokenAuditBuckets)}
         showTerminate
         terminateLabel='skipAIOnly'
         onTerminate={() => nextStep(2)}

@@ -1332,6 +1332,44 @@ class TokenAuditInstallerTests(unittest.TestCase):
         self.assertTrue(preserved_claims)
         self.assertFalse(disabled_claims)
 
+    def test_bucket_choices_survive_update_and_reach_both_audit_clients(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = os.path.join(temp_dir, 'stage_uclusion.json')
+            initial, _ = INSTALL.write_uclusion_config('workspace-1', None, path)
+            self.assertEqual(list(INSTALL.DEFAULT_TOKEN_AUDIT_BUCKETS), initial['buckets'])
+            selected = INSTALL.build_parser().parse_args([
+                'stage', 'workspace-1', 'view-1', '--token-audit',
+                '--token-audit-buckets', 'planning, design review, testing, documentation',
+            ])
+            wanted = ['planning', 'design review', 'testing', 'documentation']
+            INSTALL.write_uclusion_config(
+                'workspace-1', None, path, token_audit_enabled=selected.token_audit,
+                token_audit_bucket_names=selected.token_audit_buckets,
+            )
+            saved, _ = INSTALL.write_uclusion_config('workspace-1', None, path)
+            self.assertEqual(wanted, saved['buckets'])
+            for client in ('claude', 'codex'):
+                descriptor = INSTALL.runtime_mcp_descriptor(
+                    'workspace-1', 'stage', token_audit=saved, token_audit_client=client,
+                )
+                arguments = descriptor['args']
+                self.assertEqual(','.join(wanted), arguments[arguments.index('--token-audit-buckets') + 1])
+
+    def test_legacy_audit_preferences_get_defaults_without_changing_switches(self):
+        for original in (True, False, {'enabled': True, 'collector': False}):
+            with self.subTest(original=original):
+                saved = INSTALL.apply_token_audit_choices({'tokenAudit': original}, 'workspace-1')
+                self.assertEqual(list(INSTALL.DEFAULT_TOKEN_AUDIT_BUCKETS), saved['buckets'])
+                self.assertEqual(INSTALL.token_audit_notes_enabled(original), saved['enabled'])
+                self.assertEqual(INSTALL.token_audit_collector_enabled(original), saved['collector'])
+
+    def test_bucket_validation_rejects_empty_duplicate_and_unsafe_names(self):
+        for value in ('', 'testing,', 'testing, testing', 'design review,testing', 'x' * 81, "test';echo unsafe"):
+            with self.subTest(value=value), mock.patch('sys.stderr'), self.assertRaises(SystemExit):
+                INSTALL.build_parser().parse_args([
+                    'stage', 'workspace-1', 'view-1', '--token-audit-buckets', value,
+                ])
+
     def _write_feature_config(self, directory, env, token_audit, work_claims):
         path = os.path.join(directory, INSTALL.CONFIG_FILES[env])
         INSTALL.write_uclusion_config(
@@ -1492,6 +1530,7 @@ class TokenAuditInstallerTests(unittest.TestCase):
                 'stage',
                 '--tool-descriptions', 'on-demand',
                 '--token-audit',
+                '--token-audit-buckets', 'planning,research,implementation,testing,review',
                 '--token-collector',
                 '--token-audit-port', '23456',
                 '--token-audit-source', 'otel',

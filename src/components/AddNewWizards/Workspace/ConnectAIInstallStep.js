@@ -29,7 +29,7 @@ function ConnectAIInstallStep(props) {
   const installBaseUrl = config.ui_base_url;
   // The new workspace's default view has the same id as the workspace
   const installArgs = buildInstallArgs(marketId, marketId, env, installClients, installScope,
-    tokenAudit, tokenCollector, workClaims);
+    tokenAudit, tokenCollector, workClaims, formData.tokenAuditBuckets);
 
   return (
     <WizardStepContainer
@@ -55,9 +55,9 @@ function ConnectAIInstallStep(props) {
           Run this from your project's root directory. It configures the directory it runs in.
         </Typography>
       )}
-      <CopyCommand
+      {installArgs && <CopyCommand
         command={`curl -fsSL ${installBaseUrl}/scripts/install.sh | bash -s -- ${installArgs}`}
-      />
+      />}
       <Typography variant="h6" style={{paddingTop: '1.5rem', paddingBottom: '0.5rem'}}>
         Step 3. Start working inside your AI tool
       </Typography>

@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles, TextField } from '@material-ui/core';
 import _ from 'lodash';
+import { tokenAuditBucketsError } from './installUtils';
 
 // T-all-2296: PyTorch-style option matrix - each choice becomes an argument on the install
 // command instead of the installer asking questions interactively.
@@ -61,8 +62,10 @@ export const INSTALL_CLIENTS = [
 
 function InstallSelector(props) {
   const { scope, setScope, clients, setClients, tokenAudit, setTokenAudit,
-    tokenCollector, setTokenCollector, workClaims, setWorkClaims } = props;
+    tokenAuditBuckets, setTokenAuditBuckets, tokenCollector, setTokenCollector,
+    workClaims, setWorkClaims } = props;
   const classes = useStyles();
+  const bucketsError = tokenAudit ? tokenAuditBucketsError(tokenAuditBuckets) : '';
 
   function toggleClient(key) {
     if (clients.includes(key)) {
@@ -112,6 +115,20 @@ function InstallSelector(props) {
           On
         </div>
       </div>
+      {tokenAudit && (
+        <TextField
+          id='installTokenAuditBuckets'
+          label='Token usage buckets'
+          value={tokenAuditBuckets}
+          onChange={(event) => setTokenAuditBuckets(event.target.value)}
+          error={Boolean(bucketsError)}
+          helperText={bucketsError || 'Separate buckets with commas. Keep planning for startup; rename the other defaults or add your own.'}
+          fullWidth
+          multiline
+          variant='outlined'
+          margin='normal'
+        />
+      )}
       <div className={classes.row}>
         <div className={classes.label}>Passive collector</div>
         <div className={optionClass(!tokenCollector)} onClick={() => setTokenCollector(false)}
@@ -145,6 +162,8 @@ InstallSelector.propTypes = {
   setClients: PropTypes.func.isRequired,
   tokenAudit: PropTypes.bool.isRequired,
   setTokenAudit: PropTypes.func.isRequired,
+  tokenAuditBuckets: PropTypes.string.isRequired,
+  setTokenAuditBuckets: PropTypes.func.isRequired,
   tokenCollector: PropTypes.bool.isRequired,
   setTokenCollector: PropTypes.func.isRequired,
   workClaims: PropTypes.bool.isRequired,

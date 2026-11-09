@@ -2448,6 +2448,15 @@
     "openai": 309
    }
   },
+  "8096a28f8e9cfd9edad25014fe77d56b7090dd529eb922cd137caec41966b9dc": {
+   "bytes": 12582,
+   "kind": "skill",
+   "name": "skills/uclusion/references/coordinator-lifecycle.md",
+   "tokens": {
+    "claude": 3781,
+    "openai": 2255
+   }
+  },
   "8182767cf0dca53dab37eea664d22fc9ff58ecf15429633f332573bbc7a8b4b7": {
    "bytes": 1476,
    "kind": "skill",
@@ -3166,6 +3175,15 @@
    "tokens": {
     "claude": 1000,
     "openai": 631
+   }
+  },
+  "a7657e0325c9a27dd21b29096472ccc87a5a3fc9c8155f0d4d1bb359f8cd73b0": {
+   "bytes": 9000,
+   "kind": "skill",
+   "name": "skills/uclusion/roles/design.md",
+   "tokens": {
+    "claude": 2616,
+    "openai": 1659
    }
   },
   "a7ab95f32f4b2918c6b5784ce6effbc69bce66cdca12bb3cc6ac67d5ed69dcad": {

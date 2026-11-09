@@ -358,7 +358,7 @@ WORKFLOW_ASSET_SHA256 = {
     'skill': 'e68c1e65ef745afb8f35cdbbfab15a5fae0297c06c7df1bec32665f7e6162ded',
     'claude_delivery_reference': '1eb48584a8020306beca763d79de4fd947314b1862820d71157711b02eb5be1a',
     'cursor_delivery_reference': 'de75fd21cdef3a35128d06df37ad3030563303665f5e4311e52b51366be7c279',
-    'coordinator_lifecycle_reference': 'ecad808e7cea2e862c9a606a311e24bf7e87b4f1e2af13bb594e30e1331ca7ae',
+    'coordinator_lifecycle_reference': '8096a28f8e9cfd9edad25014fe77d56b7090dd529eb922cd137caec41966b9dc',
     'completion_reference': '0e25c38a08afdb02cc6b9f1fc003b18cafb19c434b664166bd30655ec219faa7',
     'audit_reference': 'ec84f4cfe7597c4560b26bba1d55f6ae5924d34f7afbca725982d85bb696de2b',
     'claims_reference': 'a9b28885b3f2272003e96482c85a28640d6d63b253154701a51c65166bb1f8db',
@@ -374,7 +374,7 @@ WORKFLOW_ASSET_SHA256 = {
     'standalone_role': 'c319b5adb910b1c35a08dfb3e7ea9d3307ed1aaa16c472d4dac56e86280659f1',
     'export_search_role': 'f81867d5fa42412493a7df71e372f51777ada13c2d9fe50b080dba222abf7b3b',
     'backlog_maintenance_role': '8dbd166aefd39722e0ecd760c691f861b241e1b91a2aaa76c1b04fd7718fe5a3',
-    'design_role': '2e8fff55f3fe6056e4fea1b60f2ec1169c0752c9aae5a9b23c83c1e28f3c4056',
+    'design_role': 'a7657e0325c9a27dd21b29096472ccc87a5a3fc9c8155f0d4d1bb359f8cd73b0',
     'coordinator_tools': '0631f7b06dac9c78e29ceae87bf97ad904eedffe29fa83d0adf3e30b41b18693',
     'implementation_tools': '30962900d4925b76fa648af8fe3392babe12071a962f1e7cf9f14e8663713611',
     'operation_tools': '4677a186f5d73d274183b36ab5ab47d042f77c062c455d7de6b5eae4ac026376',
@@ -382,7 +382,7 @@ WORKFLOW_ASSET_SHA256 = {
     'backlog_maintenance_tools': '1399f0b2a140abed4e0054cf11c60446882e787d91e644f9c71447cf5306932d',
     'design_tools': '0e58f542dcb35d231b3bc674acf24569ffca6ee179a01dae3616f7f8af140254',
     'demo_brief': 'b68f6501270c63456c19053d1b5af296350288754239c7f9d6074a3a5497789f',
-    'token_manifest': '288077f302a0fe3844d09d0566e05489bc133e58919df294dc9e67d6a3440718',
+    'token_manifest': 'a2f7d262b8fc17d1e9599864091f67cdeccb84341fc52120360ea62399ed66da',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',

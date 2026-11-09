@@ -4,10 +4,6 @@ import PropTypes from 'prop-types'
 import Inbox from './Inbox'
 import React, { useContext, useMemo, useReducer, useRef } from 'react'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
-import {
-  getNotHiddenMarketDetailsForUser,
-  marketTokenLoaded
-} from '../../../contexts/MarketsContext/marketsContextHelper'
 import { useHistory } from 'react-router'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { getMessages } from './InboxContext';
@@ -23,14 +19,17 @@ import { decomposeMarketPath } from '../../../utils/marketIdPathFunctions';
 import _ from 'lodash';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
-import { useInitialSyncComplete } from '../../../api/useInitialSyncComplete';
+import { SyncedMessagesContext, SyncedMessagesStatusContext } from '../../../contexts/SyncedMessagesContext/SyncedMessagesContext';
+import LoadingDisplay from '../../../components/LoadingDisplay';
+import { Button } from '@material-ui/core';
+import Alert from '@material-ui/lab/Alert';
+import { refreshNotifications } from '../../../api/versionedFetchUtils';
 
 function InboxFull(props) {
   const { hidden, isInbox } = props;
-  // B-all-570: dormant until the sync layer says the initial sync converged - the token
-  // gate below opens while data is still chunking, and the isKeptInMemory Screen this
-  // renders would otherwise run its full body on every arriving market's tick
-  const initialSyncComplete = useInitialSyncComplete('inboxFull');
+  // Keep the expensive inbox derivations dormant until its messages and their data are ready.
+  const { stillLoading: loading } = useContext(SyncedMessagesContext);
+  const { messagesSyncing, refreshError } = useContext(SyncedMessagesStatusContext);
   const intl = useIntl();
   const history = useHistory();
   const { location } = history;
@@ -39,12 +38,12 @@ function InboxFull(props) {
   // While hidden the inbox output is invisible, so don't let route changes force recomputes -
   // when it unhides the real path is present and everything derives fresh (J-all-394)
   const workItemId = hidden ? undefined : workItemIdRaw;
-  const [marketsState, , tokensHash] = useContext(MarketsContext);
+  const [marketsState] = useContext(MarketsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
-  const [messagesState, , notificationsInitialized] = useContext(NotificationsContext);
+  const [messagesState] = useContext(NotificationsContext);
   const [groupsState] = useContext(MarketGroupsContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [searchResults] = useContext(SearchResultsContext);
@@ -58,7 +57,7 @@ function InboxFull(props) {
   // serves the last visible result while hidden; unhiding derives fresh.
   const frozenWhileHiddenRef = useRef({ messagesFull: [], outbox: [], messagesHash: {} });
   const messagesFull = useMemo(() => {
-    if (hidden || !initialSyncComplete) {
+    if (hidden || loading) {
       return frozenWhileHiddenRef.current.messagesFull;
     }
     const messagesMapped = (messagesUnsafe || []).map((message) => {
@@ -69,39 +68,28 @@ function InboxFull(props) {
     });
     frozenWhileHiddenRef.current.messagesFull = computed;
     return computed;
-  }, [hidden, initialSyncComplete, messagesUnsafe]);
+  }, [hidden, loading, messagesUnsafe]);
   const allOutBoxMessagesOrdered = useMemo(() => {
-    if (hidden || !initialSyncComplete) {
+    if (hidden || loading) {
       return frozenWhileHiddenRef.current.outbox;
     }
     const computed = getOutboxMessages({messagesState, marketsState,
       marketPresencesState, investiblesState, marketStagesState, commentsState, groupPresencesState, intl});
     frozenWhileHiddenRef.current.outbox = computed;
     return computed;
-  }, [hidden, initialSyncComplete, messagesState, marketsState, marketPresencesState, investiblesState,
+  }, [hidden, loading, messagesState, marketsState, marketPresencesState, investiblesState,
       marketStagesState, commentsState, groupPresencesState, intl]);
   const messagesHash = useMemo(() => {
-    if (hidden || !initialSyncComplete) {
+    if (hidden || loading) {
       return frozenWhileHiddenRef.current.messagesHash;
     }
     const computed = getMessages(allOutBoxMessagesOrdered, messagesFull,
       searchResults, workItemId, groupsState);
     frozenWhileHiddenRef.current.messagesHash = computed;
     return computed;
-  }, [hidden, initialSyncComplete, allOutBoxMessagesOrdered, messagesFull, searchResults, workItemId, groupsState]);
+  }, [hidden, loading, allOutBoxMessagesOrdered, messagesFull, searchResults, workItemId, groupsState]);
   const [inboxState, inboxDispatch] = useReducer(getReducer(),
     {page: 1, expansionState: {}, pageState: {}, defaultPage: 1});
-  const myNotHiddenMarketsState = initialSyncComplete ?
-    getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState) : {};
-  let loading = !initialSyncComplete || marketsState.initializing || !notificationsInitialized;
-  if (!loading && myNotHiddenMarketsState.marketDetails) {
-    myNotHiddenMarketsState.marketDetails.forEach((market) => {
-      if (!marketTokenLoaded(market.id, tokensHash)) {
-        // Cannot allow Quill to try to display a picture without a market token
-        loading = true;
-      }
-    });
-  }
   if (loading) {
     return (
       <Screen
@@ -127,6 +115,14 @@ function InboxFull(props) {
       showBanner
       outBoxMessages={allOutBoxMessagesOrdered}
     >
+      {refreshError && (
+        <Alert severity="error" action={<Button color="inherit" onClick={() => refreshNotifications()}>
+          {intl.formatMessage({ id: 'messagesRetry' })}
+        </Button>}>
+          {intl.formatMessage({ id: 'messagesRefreshFailed' })}
+        </Alert>
+      )}
+      {messagesSyncing && <LoadingDisplay size={24} noMargin showMessage messageId="messagesSyncing" />}
       <Inbox inboxState={inboxState} inboxDispatch={inboxDispatch} workItemId={workItemId} messagesHash={messagesHash}
              messagesFull={messagesFull} hidden={hidden} tabIndex={isInbox ? 0 : 1}
       />

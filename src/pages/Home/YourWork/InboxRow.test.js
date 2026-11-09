@@ -102,6 +102,8 @@ jest.mock('../../../contexts/MarketPresencesContext/marketPresencesHelper', () =
 }));
 jest.mock('../../../api/users', () => ({ deleteOrDehilightMessages: jest.fn() }));
 jest.mock('react-intl', () => ({
+  ...jest.requireActual('react-intl'),
+  injectIntl: (Component) => Component,
   useIntl: () => ({
     formatDate: () => 'date',
     formatMessage: ({ id }) => id

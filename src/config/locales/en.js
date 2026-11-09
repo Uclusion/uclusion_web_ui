@@ -567,6 +567,9 @@ const messages = defineMessages({
   commentIconSuggestChangesLabel: 'Suggest changes',
   manualSync: 'Manual sync',
   manualSyncExplanation: 'Sync all workspaces with the server',
+  messagesSyncing: 'Messages are still syncing. Ready messages can be opened below.',
+  messagesRefreshFailed: 'Unable to refresh messages. Your saved messages are shown below.',
+  messagesRetry: 'Try again',
 
   // Comments
   commentReplyDefault: 'Your reply...',

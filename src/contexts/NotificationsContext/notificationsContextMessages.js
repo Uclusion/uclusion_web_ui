@@ -21,18 +21,47 @@ export const MODIFY_NOTIFICATIONS_CHANNEL = 'delete_notifications';
 export const STAGE_CHANGE_EVENT = 'stage_change_event';
 
 
-function beginListening(dispatch, setInitialized) {
+function beginListening(dispatch, setRefreshState) {
+  let pendingRefresh;
+  function refreshMessages(refreshLifecycle, onlyIfIdle) {
+    if (pendingRefresh && pendingRefresh.lifecycle === refreshLifecycle) {
+      // An initial read can share the current request. A later version release must get a
+      // trailing read: the in-flight response may have captured an older message list.
+      pendingRefresh.queued ||= !onlyIfIdle;
+      return;
+    }
+    const request = { lifecycle: refreshLifecycle };
+    pendingRefresh = request;
+    setRefreshState({ refreshing: true });
+    getMessages().then((messages) => {
+      if (pendingRefresh !== request || !isRefreshLifecycleCurrent(refreshLifecycle)) {
+        return;
+      }
+      dispatch(updateMessages(messages));
+      // Publish each completed snapshot even under continuous traffic. The trailing read
+      // keeps the sync indicator active without starving usable messages on a slow link.
+      setRefreshState({ refreshed: true, refreshError: false });
+    }).catch(() => {
+      if (pendingRefresh === request && isRefreshLifecycleCurrent(refreshLifecycle)) {
+        setRefreshState({ refreshError: true });
+        console.warn('Error getting messages');
+      }
+    }).finally(() => {
+      if (pendingRefresh === request) {
+        pendingRefresh = undefined;
+        if (request.queued && isRefreshLifecycleCurrent(refreshLifecycle)) {
+          refreshMessages(refreshLifecycle);
+        } else {
+          setRefreshState({ refreshing: false });
+        }
+      }
+    });
+  }
   registerListener(NOTIFICATIONS_HUB_CHANNEL, 'notificationsStart', (data) => {
-    const { payload: { event, notifications, refreshLifecycle } } = data;
+    const { payload: { event, notifications, refreshLifecycle, onlyIfIdle } } = data;
     switch (event) {
       case VERSIONS_EVENT:
-        getMessages().then((messages) => {
-          if (!isRefreshLifecycleCurrent(refreshLifecycle)) {
-            return;
-          }
-          setInitialized(true);
-          dispatch(updateMessages(messages));
-        }).catch(() => console.warn('Error getting messages'));
+        refreshMessages(refreshLifecycle, onlyIfIdle);
         break;
       case ADD_EVENT:
         dispatch(updateMessages(notifications));

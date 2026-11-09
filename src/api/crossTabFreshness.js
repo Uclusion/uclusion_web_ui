@@ -285,10 +285,17 @@ export async function requestFreshness(request={}) {
   if (canUseLocalLeaderRefresh(tab)) {
     return localLeaderRefresh(request);
   }
-  const isNotificationHeartbeat = request.reason === 'notificationDependencies' && request.heartbeat;
+  const isNotificationDependency = request.reason === 'notificationDependencies';
   const isExplicit = isExplicitFreshnessReason(request.reason);
-  if (request.reason !== 'push' && request.reason !== 'missingDataPoll' && !isNotificationHeartbeat) {
-    await reloadAllFromDisk(isExplicit)
+  // This request describes dependencies of the reporting tab's current message snapshot.
+  // Reloading all contexts here can replace that fresh snapshot with the leader's older
+  // cached list and retire its missing dependencies before the leader has fetched them.
+  if (request.reason !== 'push' && request.reason !== 'missingDataPoll' &&
+      !(isNotificationDependency && request.heartbeat)) {
+    const reload = isNotificationDependency
+      ? reloadFromDisk(namespaceValues.filter((namespace) => namespace !== FRESHNESS_NAMESPACES.NOTIFICATIONS))
+      : reloadAllFromDisk(isExplicit);
+    await reload
       .catch((error) => console.warn('Unable to reload follower state before refresh', error));
   }
   if (canUseLocalLeaderRefresh(tab)) {

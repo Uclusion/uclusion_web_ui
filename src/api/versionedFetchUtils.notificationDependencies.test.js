@@ -9,6 +9,7 @@ import { pushMessage } from '../utils/MessageBusUtils';
 import { installEditingPause } from '../utils/editingPause';
 import { useInitialSyncComplete } from './useInitialSyncComplete';
 import { FRESHNESS_NAMESPACES, registerNamespaceReloader, reloadFromDisk } from './crossTabFreshness';
+import { MAX_HOLD_MS, QUIET_WINDOW_MS } from './syncAccumulator';
 import {
   refreshVersionsForNotificationDependencies,
   refreshVersionsFromPush,
@@ -324,6 +325,132 @@ it('keeps initial readiness pending through canceled fetches and queued releases
     delete mockCommentsState[mockMarketId];
     mockInitialSyncStatus = undefined;
     jest.clearAllMocks();
+  }
+});
+
+it.each([false, true])('bounds publication of downloaded data while another cycle waits (cancel=%s)', async (cancel) => {
+  jest.useFakeTimers();
+  jest.isolateModules(() => {
+    mockInitialSyncStatus = jest.requireActual('./syncStatus');
+  });
+  const flushWork = () => new Promise(jest.requireActual('timers').setImmediate);
+  const comment = { id: mockCommentId, version: 1, comment_type: 'QUESTION' };
+  const audits = [{ id: mockMarketId, active: true,
+    signature: { object_type: 'comment', object_id_one: mockCommentId, version: 1 } }];
+  let finishComments;
+  let finishNextDiscovery;
+  getChangedIds.mockResolvedValueOnce(audits)
+    .mockImplementationOnce(() => new Promise((resolve) => { finishNextDiscovery = resolve; }));
+  getVersions.mockResolvedValue([{ market_id: mockMarketId, signatures: [{
+    type: 'comment', object_versions: [{ object_id_one: mockCommentId, version: 1 }]
+  }] }]);
+  getMarketClient.mockResolvedValue({ id: 'client' });
+  fetchComments.mockImplementationOnce(() => new Promise((resolve) => { finishComments = resolve; }));
+  const commentsDispatch = jest.fn(() => { mockCommentsState[mockMarketId] = [comment]; });
+  const dispatchers = { commentsDispatch, diffDispatch: jest.fn(), index: {}, ticketsDispatch: jest.fn() };
+  try {
+    const initialRefresh = refreshVersionsNow(dispatchers);
+    await flushWork();
+    await refreshVersionsNow(dispatchers);
+    finishComments([comment]);
+    await flushWork();
+
+    // The first response is complete, while the queued discovery remains on the network.
+    jest.advanceTimersByTime(QUIET_WINDOW_MS);
+    await flushWork();
+    expect(commentsDispatch).not.toHaveBeenCalled();
+    if (cancel) {
+      stopRefreshRunner();
+    }
+    jest.advanceTimersByTime(MAX_HOLD_MS - QUIET_WINDOW_MS - 1);
+    await flushWork();
+    expect(commentsDispatch).not.toHaveBeenCalled();
+    jest.advanceTimersByTime(1);
+    await flushWork();
+
+    expect(commentsDispatch).toHaveBeenCalledTimes(cancel ? 0 : 1);
+    expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(false);
+    finishNextDiscovery(audits);
+    await initialRefresh;
+    expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(!cancel);
+    expect(commentsDispatch).toHaveBeenCalledTimes(cancel ? 0 : 1);
+  } finally {
+    stopRefreshRunner();
+    delete mockCommentsState[mockMarketId];
+    mockInitialSyncStatus = undefined;
+    jest.clearAllMocks();
+    jest.useRealTimers();
+  }
+});
+
+it('batches active inline and ordinary data before waiting for archived inline workspaces', async () => {
+  jest.useFakeTimers();
+  jest.isolateModules(() => {
+    mockInitialSyncStatus = jest.requireActual('./syncStatus');
+  });
+  const flushWork = () => new Promise(jest.requireActual('timers').setImmediate);
+  const comment = { id: mockCommentId, version: 1, comment_type: 'QUESTION' };
+  const inlineMarketId = 'active-inline-market';
+  const inlineComment = { id: 'inline-comment', version: 1, comment_type: 'QUESTION' };
+  getChangedIds.mockResolvedValue([
+    { id: 'archived-inline-market', inline: true, active: false,
+      signature: { object_type: 'market', object_id_one: 'archived-inline-market', version: 1 } },
+    { id: mockMarketId, active: true,
+      signature: { object_type: 'comment', object_id_one: mockCommentId, version: 1 } },
+    { id: inlineMarketId, inline: true, active: true,
+      signature: { object_type: 'comment', object_id_one: inlineComment.id, version: 1 } },
+    { id: 'archived-market', active: false,
+      signature: { object_type: 'market', object_id_one: 'archived-market', version: 1 } }
+  ]);
+  let finishArchive;
+  getVersions.mockImplementation((marketIds) => {
+    if (marketIds.includes('archived-inline-market')) {
+      return new Promise((resolve) => { finishArchive = resolve; });
+    }
+    if (marketIds.includes('archived-market')) {
+      return Promise.resolve([]);
+    }
+    return Promise.resolve(marketIds.map((marketId) => ({ market_id: marketId, signatures: [{
+      type: 'comment', object_versions: [{
+        object_id_one: marketId === inlineMarketId ? inlineComment.id : mockCommentId, version: 1
+      }]
+    }] })));
+  });
+  getMarketClient.mockResolvedValue({ id: 'client' });
+  fetchComments.mockImplementation((ids) => Promise.resolve(ids.map(({ id }) =>
+    id === inlineComment.id ? inlineComment : comment)));
+  const commentsDispatch = jest.fn(({ commentDetails }) => { Object.assign(mockCommentsState, commentDetails); });
+  try {
+    const refresh = refreshVersionsNow({ commentsDispatch, diffDispatch: jest.fn(), index: {}, ticketsDispatch: jest.fn() });
+    await flushWork();
+    expect(getVersions).toHaveBeenNthCalledWith(1, [inlineMarketId], true);
+    expect(getVersions).toHaveBeenNthCalledWith(2, [mockMarketId], false);
+    expect(getVersions).toHaveBeenNthCalledWith(3, ['archived-inline-market'], true);
+    expect(getVersions).toHaveBeenCalledTimes(3);
+    expect(commentsDispatch).not.toHaveBeenCalled();
+
+    jest.advanceTimersByTime(QUIET_WINDOW_MS);
+    await flushWork();
+    expect(commentsDispatch).not.toHaveBeenCalled();
+    jest.advanceTimersByTime(MAX_HOLD_MS - QUIET_WINDOW_MS);
+    await flushWork();
+
+    expect(commentsDispatch).toHaveBeenCalledTimes(1);
+    expect(mockCommentsState[mockMarketId]).toEqual([comment]);
+    expect(mockCommentsState[inlineMarketId]).toEqual([inlineComment]);
+    expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(false);
+    finishArchive([]);
+    expect(await refresh).toBe(4);
+    expect(getVersions).toHaveBeenNthCalledWith(4, ['archived-market'], false);
+    expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(true);
+    expect(commentsDispatch).toHaveBeenCalledTimes(1);
+  } finally {
+    stopRefreshRunner();
+    delete mockCommentsState[mockMarketId];
+    delete mockCommentsState[inlineMarketId];
+    mockInitialSyncStatus = undefined;
+    jest.clearAllMocks();
+    jest.useRealTimers();
   }
 });
 

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef } from 'react';
 import _ from 'lodash';
-import { NotificationsContext } from '../NotificationsContext/NotificationsContext';
-import { getNotificationSyncState } from '../NotificationsContext/notificationsContextHelper';
+import { NotificationsContext, NotificationsRefreshContext } from '../NotificationsContext/NotificationsContext';
+import { getNotificationSyncState, isInInbox } from '../NotificationsContext/notificationsContextHelper';
 import { MarketsContext } from '../MarketsContext/MarketsContext';
 import { MarketPresencesContext } from '../MarketPresencesContext/MarketPresencesContext';
 import { CommentsContext } from '../CommentsContext/CommentsContext';
@@ -13,12 +13,14 @@ import {
   marketTokenLoaded
 } from '../MarketsContext/marketsContextHelper';
 import { useInitialSyncComplete } from '../../api/useInitialSyncComplete';
+import { refreshNotifications } from '../../api/versionedFetchUtils';
 
 const NOTIFICATION_DEPENDENCY_HEARTBEAT_MS = 60000;
 
 const EMPTY_SYNC_STATE = { syncedMessages: [], dependencies: [] };
 
 export const SyncedMessagesContext = createContext({ ...EMPTY_SYNC_STATE, stillLoading: true });
+export const SyncedMessagesStatusContext = createContext({ messagesSyncing: false, refreshError: false });
 
 /**
  * J-all-440: one authoritative pass over messageIsSynced for the whole app.
@@ -36,6 +38,8 @@ export const SyncedMessagesContext = createContext({ ...EMPTY_SYNC_STATE, stillL
 export function SyncedMessagesProvider(props) {
   const { children } = props;
   const [messagesState, , notificationsInitialized] = useContext(NotificationsContext);
+  const notificationRefresh = useContext(NotificationsRefreshContext);
+  const { refreshed: notificationsRefreshed, refreshing, refreshError } = notificationRefresh;
   const [marketsState, , tokensHash] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
@@ -49,15 +53,28 @@ export function SyncedMessagesProvider(props) {
   const initialSyncComplete = useInitialSyncComplete('syncedMessages');
   const myNotHiddenMarketsState = !initialSyncComplete ? {} :
     getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
-  const stillLoading = !initialSyncComplete || !notificationsInitialized || marketsState.initializing ||
+  const waitingForData = !initialSyncComplete || !notificationsInitialized || marketsState.initializing ||
     !_.isEmpty((myNotHiddenMarketsState.marketDetails || []).find((market) =>
       !marketTokenLoaded(market.id, tokensHash)));
 
-  const notificationSyncState = useMemo(() => stillLoading ? EMPTY_SYNC_STATE :
+  // A disk snapshot can be from a previous mobile session. Fetch this tab's initial message
+  // list as soon as its data is usable, including when another tab owns the version refresh.
+  useEffect(() => {
+    if (!waitingForData && !notificationsRefreshed) {
+      refreshNotifications({ onlyIfIdle: true });
+    }
+  }, [waitingForData, notificationsRefreshed, leaderState?.isLeader]);
+
+  const notificationSyncState = useMemo(() => waitingForData ? EMPTY_SYNC_STATE :
     getNotificationSyncState(messages, marketsState, marketPresencesState, commentsState,
       investiblesState, groupsState), [commentsState, groupsState, investiblesState,
-    marketPresencesState, marketsState, messages, stillLoading]);
+    marketPresencesState, marketsState, messages, waitingForData]);
   const { dependencies: notificationDependencies } = notificationSyncState;
+  const stillLoading = waitingForData || (!notificationsRefreshed && !refreshError);
+  // Keep a visible sync indicator until every row is usable. A missing object can outlive the
+  // bounded retry budget, so it must not prevent opening or clearing the rest of the inbox.
+  const messagesSyncing = !waitingForData &&
+    (refreshing || notificationSyncState.syncedMessages.length !== (messages || []).filter(isInInbox).length);
 
   // Recovery lives here rather than in NavigationChevrons so a notification whose data has not
   // landed is chased whether or not that component is mounted.
@@ -66,7 +83,7 @@ export function SyncedMessagesProvider(props) {
   const notificationDependencySnapshot = `${leaderState?.isLeader}|${JSON.stringify(notificationDependencies)}`;
   const requestedNotificationSnapshotRef = useRef(undefined);
   useEffect(() => {
-    if (stillLoading || requestedNotificationSnapshotRef.current === notificationDependencySnapshot) {
+    if (waitingForData || requestedNotificationSnapshotRef.current === notificationDependencySnapshot) {
       return;
     }
     requestedNotificationSnapshotRef.current = notificationDependencySnapshot;
@@ -77,10 +94,10 @@ export function SyncedMessagesProvider(props) {
         }
         console.warn('Error refreshing unsynced notification dependencies');
       });
-  }, [notificationDependencies, notificationDependencySnapshot, requestFreshness, stillLoading]);
+  }, [notificationDependencies, notificationDependencySnapshot, requestFreshness, waitingForData]);
 
   useEffect(() => {
-    if (stillLoading || _.isEmpty(notificationDependencies)) {
+    if (waitingForData || _.isEmpty(notificationDependencies)) {
       return;
     }
     const heartbeat = setInterval(() => {
@@ -89,14 +106,17 @@ export function SyncedMessagesProvider(props) {
         .catch(() => console.warn('Error renewing unsynced notification dependencies'));
     }, NOTIFICATION_DEPENDENCY_HEARTBEAT_MS);
     return () => clearInterval(heartbeat);
-  }, [notificationDependencies, requestFreshness, stillLoading]);
+  }, [notificationDependencies, requestFreshness, waitingForData]);
 
   const value = useMemo(() => ({ ...notificationSyncState, stillLoading }),
     [notificationSyncState, stillLoading]);
+  const status = useMemo(() => ({ messagesSyncing, refreshError }), [messagesSyncing, refreshError]);
 
   return (
     <SyncedMessagesContext.Provider value={value}>
-      {children}
+      <SyncedMessagesStatusContext.Provider value={status}>
+        {children}
+      </SyncedMessagesStatusContext.Provider>
     </SyncedMessagesContext.Provider>
   );
 }

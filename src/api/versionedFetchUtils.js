@@ -153,9 +153,10 @@ function doRelease() {
   }
   const firstAccruedMs = getFirstAccruedMs();
   const capExpired = firstAccruedMs !== undefined && Date.now() - firstAccruedMs >= maxHoldMs();
-  // A cycle running means the storm is not quiet, so let its completion re-arm the timer.
-  // The maximum hold overrides that - it exists precisely to fire mid-storm.
+  // An admitted cycle is not a quiet window. Wait for it to finish or for the maximum
+  // hold, which exists precisely to publish already-fetched data during ongoing work.
   if (refreshInProgress && !capExpired) {
+    scheduleRelease();
     return;
   }
   releasePending = false;
@@ -187,13 +188,30 @@ function scheduleRelease() {
   if (releaseTimer) {
     clearTimeout(releaseTimer);
   }
-  const delay = msUntilRelease(Date.now(), lastCycleEndMs, getFirstAccruedMs(),
-    quietWindowMs(), maxHoldMs());
+  const firstAccruedMs = getFirstAccruedMs();
+  // During an admitted cycle only the maximum hold can release data. A quiet-window timer
+  // that fires mid-cycle must hand off to this deadline instead of leaving the data held.
+  if (refreshInProgress && firstAccruedMs === undefined) {
+    releaseTimer = undefined;
+    return;
+  }
+  const delay = refreshInProgress
+    ? Math.max(0, firstAccruedMs + maxHoldMs() - Date.now())
+    : msUntilRelease(Date.now(), lastCycleEndMs, firstAccruedMs, quietWindowMs(), maxHoldMs());
   releaseTimer = setTimeout(() => {
     releaseTimer = undefined;
     doRelease();
   }, delay);
 }
+
+function accrueForRelease(marketsStruct) {
+  accrueMarketsStruct(marketsStruct);
+  if (hasAccrued()) {
+    releasePending = true;
+    scheduleRelease();
+  }
+}
+
 const matchErrorHandlingVersionRefresh = (dispatchers=undefined, releaseImmediately=false,
   allowWhileEditing=false) => {
   // A dead link burns 30s abort + retry per call and chains queued refreshes behind the
@@ -276,6 +294,8 @@ const matchErrorHandlingVersionRefresh = (dispatchers=undefined, releaseImmediat
           deferRefreshWhileEditing(dispatchersForQueued, releaseQueuedImmediately);
           // Finish this admitted cycle even though its successor now waits for editing.
         } else {
+          // Queueing more work must not bypass the maximum hold for data already fetched.
+          scheduleRelease();
           return matchErrorHandlingVersionRefresh(dispatchersForQueued, releaseQueuedImmediately,
             allowQueuedWhileEditing);
         }
@@ -749,10 +769,10 @@ export async function refreshVersionsForNotificationDependencies(dependencies=[]
   return dirtyMarketCount;
 }
 
-export function refreshNotifications () {
+export function refreshNotifications ({ onlyIfIdle=false } = {}) {
   if (!isSignedOut()) {
     // check if new notifications
-    pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: VERSIONS_EVENT, refreshLifecycle });
+    pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: VERSIONS_EVENT, refreshLifecycle, onlyIfIdle });
   }
 }
 
@@ -942,6 +962,7 @@ async function doVersionRefresh(dispatchers, refreshIsCurrent) {
   const backgroundList = [];
   const bannedList = [];
   const inlineList = [];
+  const archivedInlineList = [];
   const bannedPromises = [];
   const forcedMarketIds = new Set();
   pruneExpiredNotificationChecks();
@@ -963,8 +984,10 @@ async function doVersionRefresh(dispatchers, refreshIsCurrent) {
       bannedPromises.push(tokenStorageManager.deleteToken(TOKEN_TYPE_MARKET, id, refreshIsCurrent));
     } else if (forcedMarketIds.has(id) || !checkSignatureInStorage(id, signature, storageStates, true)) {
       forcedMarketIds.delete(id);
-      if (inline) {
+      if (inline && active) {
         inlineList.push(id);
+      } else if (inline) {
+        archivedInlineList.push(id);
       } else if (active) {
         foregroundList.push(id);
       } else {
@@ -988,7 +1011,7 @@ async function doVersionRefresh(dispatchers, refreshIsCurrent) {
     return 0;
   }
   // Starting operation in progress just presents as a bug to the user because freezes all buttons so just log
-  console.info('Beginning inline versions update');
+  console.info('Beginning active inline versions update');
   console.info(inlineList);
   // TODO: this is evil. We're using the inlineMarketsStruct as an _output_ parameter that gets mutated
   const inlineMarketsStruct = {};
@@ -997,7 +1020,7 @@ async function doVersionRefresh(dispatchers, refreshIsCurrent) {
   if (!refreshIsCurrent()) {
     return 0;
   }
-  accrueMarketsStruct(inlineMarketsStruct);
+  accrueForRelease(inlineMarketsStruct);
   const foregroundMarketsStruct = {};
   console.info('Beginning foreground versions update');
   console.info(foregroundList);
@@ -1007,9 +1030,20 @@ async function doVersionRefresh(dispatchers, refreshIsCurrent) {
   if (!refreshIsCurrent()) {
     return 0;
   }
-  accrueMarketsStruct(foregroundMarketsStruct);
-  const backgroundMarketsStruct = {};
+  accrueForRelease(foregroundMarketsStruct);
   console.info('Finished foreground update');
+  // Resolving an inline market's parent archives the child. Keep those children
+  // behind all active work, while retaining inline batching and concurrency.
+  const archivedInlineMarketsStruct = {};
+  console.info('Beginning archived inline versions update');
+  console.info(archivedInlineList);
+  await timeSpanAsync('updateMarkets:archivedInline', () => updateMarkets(archivedInlineList,
+    archivedInlineMarketsStruct, MAX_CONCURRENT_API_CALLS, storageStates, true, refreshIsCurrent));
+  if (!refreshIsCurrent()) {
+    return 0;
+  }
+  accrueForRelease(archivedInlineMarketsStruct);
+  const backgroundMarketsStruct = {};
   console.info('Beginning background versions update');
   console.info(backgroundList);
   await timeSpanAsync('updateMarkets:background', () => updateMarkets(backgroundList,
@@ -1017,11 +1051,11 @@ async function doVersionRefresh(dispatchers, refreshIsCurrent) {
   if (!refreshIsCurrent()) {
     return 0;
   }
-  accrueMarketsStruct(backgroundMarketsStruct);
+  accrueForRelease(backgroundMarketsStruct);
   console.info('Ending versions update');
   // How many markets were dirty - lets push-triggered callers detect a refresh that
   // raced the async version indicator write and found nothing (T-all-2252).
-  return inlineList.length + foregroundList.length + backgroundList.length;
+  return inlineList.length + foregroundList.length + archivedInlineList.length + backgroundList.length;
 }
 
 /**

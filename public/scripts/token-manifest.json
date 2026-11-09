@@ -783,6 +783,15 @@
     "openai": 2197
    }
   },
+  "2e8fff55f3fe6056e4fea1b60f2ec1169c0752c9aae5a9b23c83c1e28f3c4056": {
+   "bytes": 8819,
+   "kind": "skill",
+   "name": "skills/uclusion/roles/design.md",
+   "tokens": {
+    "claude": 2570,
+    "openai": 1625
+   }
+  },
   "2eefb8fec3354df90f3b6f88c7038e4d53c306b6c88edddbf6507d87b4740a3a": {
    "bytes": 1148,
    "kind": "skill",

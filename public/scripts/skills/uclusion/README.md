@@ -17,7 +17,11 @@ the agent instructions; this README is not an additional required agent read.
 
 ## The main flows
 
-Design first handles the questions about what to build and publishes a design
+Design surfaces material choices a reasonable human could decide differently,
+including internal implementation choices, so the human understands and approves
+the design. It reuses settled human decisions and distinguishes facts the source
+requires from choices that still need an answer. It asks before settling the approach,
+continues independent authorized work while waiting, then publishes a design
 that explains how to build it. The job's current Markdown determines the next
 step. A stated return to Doable happens automatically after its questions and
 suggestions are resolved. If AI approval is required and allowed, design assesses

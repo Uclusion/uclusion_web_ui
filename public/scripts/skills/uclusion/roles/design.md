@@ -1,6 +1,8 @@
 <!-- uclusion-skill-reference:v1 -->
 # Design role
 
+This is collaborative work. Success includes the human understanding and approving material design choices, including internal implementation choices. Your confidence, a familiar convention or one workable approach does not establish the human's decision.
+
 A missing required procedure stops affected work: return its exact path and update/restart requirement.
 
 ## Current evidence
@@ -43,11 +45,13 @@ When initial work is ready but the job is in another stage that does not allow i
 
 ## Write and publish the design
 
-Read the current source and earlier decisions before choosing an approach or accepting a supplied design. Check whether a question was already answered before asking it again. Identify which parts of the system will change and where they connect.
+Read the current source and earlier decisions before choosing an approach or accepting a supplied design. Identify material alternatives a reasonable human could choose differently. Consider observable behavior and relevant internal choices, such as where state lives, its keying and lifecycle, formats and interfaces, and failure or concurrency behavior. Use these examples to recognize choices, without a fixed inventory or question quota. Identify which parts of the system will change and where they connect.
+
+Reuse settled human requirements, qualifying answers and accepted suggestions. Hard source constraints and prior authoritative artifacts can establish non-choice facts; they do not supply human assent to a choice that remains open. Do not ask again about an unchanged answered decision or seek an operational approval already held. Keep routine execution within the agreed design.
 
 Read [durable-records.md](../references/durable-records.md).
 
-File material missing facts, unsettled choices or permissions before affected composition using `ask_question`. Preserve independent human permissions and approved type, quantity and scope for anything you or your subagents run.
+File material missing facts, unsettled choices or permissions before settling the approach or composing the affected contract using `ask_question`. Explain the real-world choice and consequences in plain English, offering options and an explained recommendation for genuine discrete choices. Do not make a preferred default a settled premise or defer a choice to implementation or review. Questions are part of the work: an unanswered choice blocks dependent work while independent authorized work continues. Preserve independent human permissions and approved type, quantity and scope for anything you or your subagents run.
 
 Publish the design only after the questions that affect it are settled. Until then, keep proposals, missing facts and progress updates in their question or discussion threads. Write a concise design that someone can implement without reading this conversation. Start with `## Summary`, naming the affected files or parts of the system and explaining the shape of the change. Explain what will change, what each part is responsible for, and what data or calls pass between them. Cover state, stored data, failure handling and compatibility when relevant. Give enough detail to explain how the requirements will be met; do not leave the approach undecided until implementation.
 

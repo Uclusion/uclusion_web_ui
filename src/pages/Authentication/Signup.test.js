@@ -22,6 +22,21 @@ jest.mock('react-router', () => ({
   }),
 }));
 
+// Stands in for Turnstile: issues a token on mount and a fresh one after each reset.
+jest.mock('../../components/HumanCheck/HumanCheck', () => {
+  const React = require('react');
+  return React.forwardRef(function MockHumanCheck({ onToken }, ref) {
+    React.useImperativeHandle(ref, () => ({
+      reset() {
+        onToken('test-human-check-token');
+        return true;
+      },
+    }));
+    React.useEffect(() => onToken('test-human-check-token'), [onToken]);
+    return null;
+  });
+});
+
 jest.mock('react-social-login-buttons', () => {
   const React = require('react');
   return {

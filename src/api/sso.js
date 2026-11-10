@@ -22,23 +22,28 @@ export function getMarketInfoForToken(marketToken) {
   return SSO_CLIENT.getMarketInfoForToken(marketToken);
 }
 
-export function resendVerification(email, redirect, testObject) {
+// The SSO server answers 403 when the "I am human" check refused the request
+function humanCheckAwareMessageKey(error, messageKey) {
+  return error?.status === 403 ? 'errorHumanCheckFailed' : messageKey;
+}
+
+export function resendVerification(email, redirect, testObject, humanCheckToken) {
   const signupTestObject = resolveSignupTestObject(
     testObject,
     getSignupMarketSubType()
   );
-  return SSO_CLIENT.resendVerification(email, redirect, signupTestObject)
-    .catch((error) => toastErrorAndThrow(error, 'errorResendFailed'));
+  return SSO_CLIENT.resendVerification(email, redirect, signupTestObject, humanCheckToken)
+    .catch((error) => toastErrorAndThrow(error, humanCheckAwareMessageKey(error, 'errorResendFailed')));
 }
 
 /**
  * Signs the user up to the system
- * @param signupData an object contain { name, email, password, phone} where phone is optional
+ * @param signupData an object contain { name, email, password, phone, human_check_token } where phone is optional
  * @param redirect
  */
 export function signUp(signupData, redirect) {
   return SSO_CLIENT.userSignup(signupData, redirect)
-    .catch((error) => toastErrorAndThrow(error, 'errorSignupFailed'));
+    .catch((error) => toastErrorAndThrow(error, humanCheckAwareMessageKey(error, 'errorSignupFailed')));
 }
 
 export function verifyEmail(code) {

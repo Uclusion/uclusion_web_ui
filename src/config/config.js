@@ -28,6 +28,7 @@ const config = {
     email: process.env.REACT_APP_UCLUSION_SUPPORT_EMAIL
   },
   logRocketInstance: process.env.REACT_APP_LOGROCKET_INSTANCE,
+  turnstileSiteKey: process.env.REACT_APP_TURNSTILE_SITE_KEY,
   termsOfUseLink: 'https://documentation.uclusion.com/terms-of-use',
   helpLink: 'https://documentation.uclusion.com',
 };

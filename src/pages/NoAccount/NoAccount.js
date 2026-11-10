@@ -8,6 +8,8 @@ import { makeStyles } from '@material-ui/core/styles'
 import { resendVerification } from '../../api/sso'
 import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton'
 import { Auth } from 'aws-amplify'
+import HumanCheck from '../../components/HumanCheck/HumanCheck'
+import { useHumanCheck } from '../../components/HumanCheck/useHumanCheck'
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -31,6 +33,7 @@ function NoAccount(props) {
   const { email, authState } = props;
   const intl = useIntl();
   const classes = useStyles();
+  const resendCheck = useHumanCheck();
 
   useEffect(() => {
     if (authState === 'signedIn') {
@@ -40,19 +43,24 @@ function NoAccount(props) {
   }, [authState]);
 
   function onResend() {
-    return resendVerification(email);
+    return resendVerification(email, undefined, undefined, resendCheck.token)
+      .finally(() => resendCheck.reset());
   }
 
   function getResendButton() {
     return (
-      <ApiBlockingButton
-        fullWidth
-        variant="contained"
-        className={classes.submit}
-        onClick={onResend}
-      >
-        {intl.formatMessage({ id: 'signupResendCodeButton' })}
-      </ApiBlockingButton>
+      <>
+        <HumanCheck {...resendCheck.humanCheckProps}/>
+        <ApiBlockingButton
+          fullWidth
+          variant="contained"
+          className={classes.submit}
+          onClick={onResend}
+          disabled={!resendCheck.ready}
+        >
+          {intl.formatMessage({ id: 'signupResendCodeButton' })}
+        </ApiBlockingButton>
+      </>
     );
   }
 

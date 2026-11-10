@@ -33,6 +33,8 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import { Visibility, VisibilityOff } from '@material-ui/icons';
 import { withSignupTestObject } from '../../utils/signupMarketUtils';
+import HumanCheck from '../../components/HumanCheck/HumanCheck';
+import { useHumanCheck } from '../../components/HumanCheck/useHumanCheck';
 
 const SIGNUP_EMAIL_MAX_LENGTH = 128;
 
@@ -196,6 +198,8 @@ function Signup(props) {
   const [showPassWord2, setShowPassWord2] = useState(false);
   const intl = useIntl();
   const [myMarket, setMyMarket] = useState(undefined);
+  const signupCheck = useHumanCheck();
+  const resendCheck = useHumanCheck();
   const SIGNUP_LOGO = 'Uclusion_Logo_White_Micro.png';
   const LOGO_COLOR = '#3F6B72';
   const doRetry = errorDescription?.includes('Already');
@@ -265,11 +269,11 @@ function Signup(props) {
     const { email } = userState;
     setCallActive(true);
     const redirect = getRedirect();
-    return resendVerification(email, redirect).then((result) => {
+    return resendVerification(email, redirect, undefined, resendCheck.token).then((result) => {
       const { response } = result;
       setPostSignUp(response);
       setCallActive(false);
-    });
+    }).finally(() => resendCheck.reset());
   }
 
   function onSignUp(form) {
@@ -277,12 +281,14 @@ function Signup(props) {
     setCallActive(true);
     // the backend will fail unless only the keys it's need are passed, so extract them
     const { name, email, password } = userState;
-    const signupData = withSignupTestObject({ name, email, password, code }, marketSubType);
+    const humanCheckToken = signupCheck.token ? { human_check_token: signupCheck.token } : {};
+    const signupData = withSignupTestObject({ name, email, password, code, ...humanCheckToken }, marketSubType);
     let redirect = getRedirect();
     if (redirect !== '/') {
       setRedirect(redirect);
     }
     return signUp(signupData, redirect).then((result) => {
+      signupCheck.reset();
       const { response, user } = result;
       if (response === 'ACCOUNT_CREATED') {
         const { email } = user;
@@ -294,20 +300,25 @@ function Signup(props) {
       }
     }).catch(() => {
       // signUp has already reported the error; restore the form so it can be corrected and retried.
+      signupCheck.reset();
       setCallActive(false);
     });
   }
 
   function getResendButton() {
     return (
-      <ApiBlockingButton
-        fullWidth
-        variant="contained"
-        className={classes.submit}
-        onClick={onResend}
-      >
-        {intl.formatMessage({ id: 'signupResendCodeButton' })}
-      </ApiBlockingButton>
+      <>
+        <HumanCheck {...resendCheck.humanCheckProps}/>
+        <ApiBlockingButton
+          fullWidth
+          variant="contained"
+          className={classes.submit}
+          onClick={onResend}
+          disabled={!resendCheck.ready}
+        >
+          {intl.formatMessage({ id: 'signupResendCodeButton' })}
+        </ApiBlockingButton>
+      </>
     );
   }
 
@@ -630,6 +641,7 @@ function Signup(props) {
                   </Grid>
                 )}
               </Grid>
+              <HumanCheck {...signupCheck.humanCheckProps}/>
               <SpinningButton
                 spinning={callActive}
                 fullWidth
@@ -637,7 +649,7 @@ function Signup(props) {
                 className={classes.submit}
                 type="submit"
                 id="signupButton"
-                disabled={formInvalid}
+                disabled={formInvalid || !signupCheck.ready}
                 doSpin={false}
               >
                 {intl.formatMessage({ id: 'signupSignupLabel' })}

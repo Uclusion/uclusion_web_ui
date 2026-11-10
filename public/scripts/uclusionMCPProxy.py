@@ -1717,10 +1717,14 @@ def handle_claim_tool_call(work_claims, request_id, params, stats=None, agent_id
                               'isError': False}}, stats=stats)
 
 
-def bind_agent_subscription(request, native_delivery):
+def bind_agent_subscription(request, native_delivery, environment='production'):
     """Bind transport identity locally before any backend membership write."""
     if native_delivery is None:
-        raise ValueError('Agent subscriptions require the native Codex integration')
+        # Claude Code and Cursor subscribe through the CLI with their delivery consumer.
+        command = 'uclusion ' + ('' if environment == 'production' else f'-e {environment} ') + 'subscribe'
+        raise ValueError('This MCP tool subscribes only native Codex conversations. From the root '
+                         f'session, run `{command} <short code>` instead; Cursor adds '
+                         '`--consumer <consumer>` from its listener.')
     agent_id = native_delivery.subscription_agent(request)
     params = request['params']
     return {**request, 'params': {**params, '_meta': {
@@ -2137,7 +2141,7 @@ def main():
             if (msg.get('method') == 'tools/call' and isinstance(params, dict)
                     and params.get('name') == 'set_agent_subscription'):
                 try:
-                    msg = bind_agent_subscription(msg, native_delivery)
+                    msg = bind_agent_subscription(msg, native_delivery, environment)
                     line = json.dumps(msg)
                 except (ValueError, ConnectionError, TimeoutError) as error:
                     if not is_notification:

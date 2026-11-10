@@ -7,5 +7,7 @@ Before every typed turn, including first, return and unrelated requests, use thi
 
 Start/Added/Updated/Responded, update-notice and `Uclusion listener rearm ` stdout begin the next turn here. Handle lines in arrival order. The rearm line is control output: on duration exit, use its consumer with `listen --max-seconds 1500 --consumer <consumer>`, retaining between-listener Pokes. An exit without that line supplies no automatic rearm instruction; preserve confirmed takeover and reconcile the exact exit/error before replacement.
 
+After adopting a job or standalone bug, unless this chat declined delivery, run the resident CLI's `subscribe <short code>`, adding `--consumer <consumer>` when this chat's listener launch or latest rearm line names one. Retry a failure before dependent work. Nothing releases it.
+
 The CLI normally starts a new named consumer at arm time. Its timed launch records the cursor and stops other timed listeners; unlimited listeners remain. Keep a plain exit in this chat-owned listener, without an external harness or inbox-draining stop hooks. Complete owned rearm/relaunch before final chat.
 <!-- /uclusion-skill-reference:v1 -->

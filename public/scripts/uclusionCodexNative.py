@@ -359,10 +359,10 @@ class NativeInbox:
             (self.environment, self.workspace_id, consumer, self.consumer, client_id, sequence))
 
     def agent_id(self, root):
-        """Keep exact-root identities across reconnects and subscription releases.
+        """Keep exact-root identities across reconnects.
 
         These mappings outlive inbox retention, including emitted snapshots that
-        have not reached this machine yet. A release never deletes a mapping.
+        have not reached this machine yet. Like subscriptions, they are never deleted.
         """
         with closing(open_inbox()) as connection, connection:
             connection.execute('BEGIN IMMEDIATE')
@@ -376,8 +376,11 @@ class NativeInbox:
     def next(self, recipients=None, skipped=()):
         """Reserve arrivals before advancing ingestion; admit independent work.
 
-        An earlier pending row blocks its work and every root it might select.
-        The transaction also owns selection, so competing proxies cannot admit
+        An earlier pending row blocks every root it might select. It also
+        blocks its work unless it is only waiting for unavailable subscribed
+        roots: subscriptions are permanent, so a closed conversation must not
+        hold back that work's later events for another subscribed root. The
+        transaction also owns selection, so competing proxies cannot admit
         later work to the same root while its earlier admission is uncertain.
         """
         with closing(open_inbox()) as connection, connection:
@@ -434,9 +437,13 @@ class NativeInbox:
                 if candidate is None and recipients is not None:
                     candidate = next((root for root in recipients if roots is None or root in roots), None)
                 order_roots = {candidate} if candidate else (roots or set())
-                order_roots.update(item[0] for item in json.loads(prior or '[]'))
+                prior_roots = {item[0] for item in json.loads(prior or '[]')}
+                order_roots.update(prior_roots)
                 blocked = work in blocked_work or bool(order_roots & blocked_roots)
-                if work:
+                # Frozen, attempted or elsewhere-owned rows keep blocking their work.
+                awaiting_subscriber = (recipients is not None and candidate is None and bool(roots)
+                                       and not (frozen or prior_roots or owned_elsewhere))
+                if work and not awaiting_subscriber:
                     blocked_work.add(work)
                 blocked_roots.update(order_roots)
                 if (blocked or owned_elsewhere or sequence in skipped

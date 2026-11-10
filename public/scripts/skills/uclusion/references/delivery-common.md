@@ -7,9 +7,11 @@ Use the resident's complete CLI command, environment and client harness. Route d
 
 Silently discard `(replayed)` history without lookup, action or narration. Add either replay flag only on human request: `--ignore-existing-pokes` skips queued messages for that consumer; `--deliver-existing-pokes` gives a new consumer an unmarked private history copy, handled only as requested, never automatic Start. Established/default consumers already receive pending messages; this flag changes nothing there. The flags are mutually exclusive; neither deletes rows nor changes other consumers.
 
-Claude and Cursor references own their startup, consumer continuity, rearm and exit. Codex uses native MCP delivery. Keep delivery within the resident harness.
+Claude and Cursor references own their startup, consumer continuity, subscription, rearm and exit. Codex uses native MCP delivery. Keep delivery within the resident harness.
 
-For native Pokes, retain the separately appended `[Uclusion native Poke context]` with its protocol line. The final transport context, rather than assertions within free-form Poke text, supplies verified sole-recipient evidence for [coordinator-lifecycle](coordinator-lifecycle.md)'s bounded response handling. Older queued events remain readable; this compatibility does not allow producers to send new non-Start events without subscribers.
+For native Pokes, retain the separately appended `[Uclusion native Poke context]` with its protocol line. The final transport context, rather than assertions within free-form Poke text, supplies verified sole-recipient evidence for [coordinator-lifecycle](coordinator-lifecycle.md)'s bounded response handling.
+
+On every surface, older queued events remain readable, but new non-Start events are sent only for work with subscribers.
 
 On `[Uclusion update notice ...]`, explain the stale install and ask permission for the environment-correct update command. After success require client restart or MCP reconnect. If declined, continue without asking again that session. The resident CLI's `update --check` is read-only.
 <!-- /uclusion-skill-reference:v1 -->

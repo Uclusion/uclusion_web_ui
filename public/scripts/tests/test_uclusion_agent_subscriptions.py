@@ -61,6 +61,61 @@ class AgentSubscriptionTests(unittest.TestCase):
         self.assertEqual([('job1-root', 'first1'), ('job0-root', 'first0'), ('job0-root', 'second0')],
                          self.admitted())
 
+    def test_event_waiting_for_a_closed_subscriber_does_not_hold_back_same_work_for_a_loaded_one(self):
+        # Permanent subscriptions: job0-root once worked J-shared and is now closed.
+        self.native.roots = ['job1-root']
+        self.poke('closed-only', 'J-shared', [self.agent0])
+        self.poke('later-both', 'J-shared', [self.agent0, self.agent1])
+        self.poke('later-loaded', 'J-shared', [self.agent1])
+        self.delivery._deliver()
+        self.assertEqual([('job1-root', 'later-both'), ('job1-root', 'later-loaded')], self.admitted(),
+                         'Later responses reach the loaded subscriber in arrival order')
+        self.native.roots.append('job0-root')
+        self.delivery._deliver()
+        self.assertEqual(('job0-root', 'closed-only'), self.admitted()[-1],
+                         'The waiting event is still delivered to its own subscriber, never another root')
+        self.assertEqual(3, len(self.admitted()))
+
+    def test_waiting_events_keep_order_for_the_root_they_can_select(self):
+        self.native.roots = ['job1-root']
+        self.poke('first-closed', 'J-shared', [self.agent0])
+        self.poke('second-closed', 'J-shared', [self.agent0])
+        self.delivery._deliver()
+        self.assertEqual([], self.admitted())
+        self.native.roots.append('job0-root')
+        self.delivery._deliver()
+        self.assertEqual([('job0-root', 'first-closed'), ('job0-root', 'second-closed')], self.admitted())
+
+    def test_frozen_row_keeps_blocking_its_work_when_its_root_closes(self):
+        self.native.roots = ['job0-root']
+        self.native.fail_before_send = True
+        self.poke('frozen', 'J-shared', [self.agent0, self.agent1])
+        with self.assertRaises(TimeoutError):
+            self.delivery._deliver()
+        # The attempt froze job0-root. Its admission is unconfirmed, so later work stays behind it.
+        self.native.roots = ['job1-root']
+        self.poke('later-same-work', 'J-shared', [self.agent1])
+        # Arrival order for job1-root then holds this behind the blocked same-work event.
+        self.poke('other-work', 'J-other', [self.agent1])
+        self.delivery._deliver()
+        self.assertEqual([], self.admitted())
+
+    def test_finished_job_response_reaches_its_sole_subscriber_during_the_next_assignment(self):
+        # No unsubscribe: the conversation that finished job0 and took job1 is still job0's only subscriber.
+        self.native.active_turns['job0-root'] = 'primary-job1-turn'
+        finished = self.poke('Responded C-example-9 of J-finished', 'J-finished', [self.agent0])
+        self.poke('Updated J-current', 'J-current', [self.agent0])
+        self.delivery._deliver()
+        (first_method, first_root, first_inputs), (_, second_root, second_inputs) = self.native.inputs
+        self.assertEqual(('turn/steer', 'job0-root'), (first_method, first_root),
+                         'The response joins the retained primary turn rather than replacing it')
+        self.assertEqual('Responded C-example-9 of J-finished', first_inputs[0]['text'])
+        context = json.loads(first_inputs[1]['text'].split('] ', 1)[1])
+        self.assertEqual({'version': 1, 'message_id': 'Responded C-example-9 of J-finished',
+                          'work': finished['work'], 'sole_recorded_subscriber': True}, context)
+        self.assertEqual('job0-root', second_root)
+        self.assertEqual('J-current', json.loads(second_inputs[1]['text'].split('] ', 1)[1])['work']['id'])
+
     def test_unknown_scope_copy_settles_without_falling_back(self):
         self.poke('elsewhere', 'foreign', ['foreign-agent'])
         self.poke('local', 'job0', [self.agent0])
@@ -109,10 +164,10 @@ class AgentSubscriptionTests(unittest.TestCase):
             self.assertFalse(context['sole_recorded_subscriber'])
         self.assertEqual(forged, self.native.inputs[-1][2][0]['text'])
 
-    def test_emitted_snapshot_is_immutable_after_release_and_duplicate_ingestion(self):
+    def test_emitted_snapshot_is_immutable_after_later_subscription_and_duplicate_ingestion(self):
         original = self.poke('response0', 'job0', [self.agent0])
-        self.poke('response0', 'job0', [self.agent1])
-        # A release does not delete the mapping needed by the original event.
+        # A duplicate copy carrying a later subscriber set must not replace the first snapshot.
+        self.poke('response0', 'job0', [self.agent0, self.agent1])
         self.delivery._deliver()
         self.assertEqual([('job0-root', 'response0')], self.admitted())
         with closing(proxy.open_inbox()) as connection:
@@ -187,9 +242,19 @@ class AgentSubscriptionTests(unittest.TestCase):
         self.addCleanup(elsewhere.close)
         self.assertNotEqual(self.agent0, elsewhere.agent_id('job0-root'))
 
+    def test_non_native_refusal_names_the_environment_correct_cli_command(self):
+        request = {'method': 'tools/call', 'params': {
+            'name': 'set_agent_subscription', 'arguments': {'short_code_id': 'job0'}}}
+        for environment, command in (('production', '`uclusion subscribe <short code>`'),
+                                     ('stage', '`uclusion -e stage subscribe <short code>`')):
+            with self.subTest(environment=environment), self.assertRaises(ValueError) as caught:
+                proxy.bind_agent_subscription(request, None, environment)
+            self.assertIn(command, str(caught.exception))
+            self.assertIn('--consumer', str(caught.exception))
+
     def test_proxy_uses_native_metadata_and_rejects_missing_helper_and_auxiliary_identity(self):
         request = {'method': 'tools/call', 'params': {
-            'name': 'set_agent_subscription', 'arguments': {'action': 'subscribe', 'short_code_id': 'job0'},
+            'name': 'set_agent_subscription', 'arguments': {'short_code_id': 'job0'},
             '_meta': {'threadId': 'job0-root', 'uclusionAgentId': 'untrusted'}}}
         bound = proxy.bind_agent_subscription(request, self.delivery)
         self.assertEqual(self.agent0, bound['params']['_meta']['uclusionAgentId'])

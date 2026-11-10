@@ -17,10 +17,9 @@ Returns Markdown for a job or the named comment thread by default, with current 
 
 ## `set_agent_subscription`
 
-Subscribe or unsubscribe this native Codex conversation to a job or standalone bug. Call when adopting work and when the assignment actually ends or switches. Keep subscriptions while waiting, blocked or in review. Reads, audit markers, helpers and Poke receipt do not change membership. The installed native proxy supplies caller identity; never supply an agent ID. Tasks and nested discussion codes resolve to their canonical job or bug. Returns the normalized work, agent ID and actual subscribed state. A failed call leaves adoption or release unfinished and retryable.
+Subscribe this native Codex conversation to a job or standalone bug when adopting it. Subscriptions are permanent: assignment end, switching, review, claim release and a bug moving into a job never remove one. Reads, audit markers, helpers and Poke receipt do not subscribe. The installed native proxy supplies caller identity; never supply an agent ID. Tasks and nested discussion codes resolve to their canonical job or bug. Returns the normalized work, agent ID and actual subscribed state. A failed call leaves adoption unfinished and retryable.
 
 - `short_code_id`: Job, bug or child code; qualify inline codes with their question.
-- `work_id`: Only when releasing a former standalone bug after it moved into a job: its previously returned work.id.
 
 ## `start_job_audit`
 

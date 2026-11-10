@@ -92,6 +92,20 @@ def resolve_consumer(explicit_consumer, is_listener):
     if is_listener:
         return generate_session_consumer()
     return DEFAULT_CONSUMER
+
+
+# Fixed for all time: changing it would give every consumer a new agent ID.
+CONSUMER_AGENT_NAMESPACE = uuid.uuid5(uuid.NAMESPACE_URL, 'https://www.uclusion.com/agent-subscription-consumer')
+
+
+def consumer_agent_id(environment, workspace_id, consumer):
+    """The work-subscription agent ID for one delivery consumer.
+
+    Name-based, so every process for the same environment, workspace and
+    consumer derives the same ID without local state.
+    """
+    return str(uuid.uuid5(CONSUMER_AGENT_NAMESPACE,
+                          json.dumps([environment, workspace_id, consumer], separators=(',', ':'))))
 UCLUSION_MCP_PROXY_SYMLINK = os.path.join(
     uclusion_home_root(), '.local', 'bin', 'uclusionMCPProxy.py'
 )
@@ -726,7 +740,7 @@ def read_mcp_response(response):
     return json.loads(body) if body.strip() else None
 
 
-def call_mcp_tool(credentials, tool_name, arguments):
+def call_mcp_tool(credentials, tool_name, arguments, meta=None):
     """Call one authenticated MCP tool and return its exact CallToolResult."""
     request_id = 'uclusion-cli-' + uuid.uuid4().hex
     request = {
@@ -738,6 +752,8 @@ def call_mcp_tool(credentials, tool_name, arguments):
             'arguments': arguments,
         },
     }
+    if meta is not None:
+        request['params']['_meta'] = meta
     url = 'https://investibles.' + credentials['api_url'] + '/mcp'
     req = urllib.request.Request(
         url,
@@ -3646,6 +3662,40 @@ def cmd_mcp(args):
     return 1 if result.get('isError') else 0
 
 
+def cmd_subscribe(args):
+    """Subscribe this delivery consumer's conversation to a job or standalone bug.
+
+    Claude Code and Cursor sessions have no native caller identity, so the
+    agent ID is derived from the same consumer name their wait or listen
+    uses. Subscriptions are permanent; nothing here releases one.
+    """
+    consumer = resolve_consumer(args.consumer, is_listener=False)
+    # Keep stdout for the receipt, including when setup fails before the call.
+    with redirect_stdout(sys.stderr):
+        initialized = initialize(args.env)
+    if initialized is None:
+        return 1
+    credentials, _config, _stages = initialized
+    agent_id = consumer_agent_id(args.env or 'production', credentials['workspace_id'], consumer)
+    try:
+        # action stays explicit for backends that still require it.
+        result = call_mcp_tool(credentials, 'set_agent_subscription',
+                               {'short_code_id': args.short_code_id, 'action': 'subscribe'},
+                               meta={'uclusionAgentId': agent_id})
+    except MCPCallError as error:
+        print(f'Error: {error}', file=sys.stderr)
+        return 1
+    receipt = result.get('structuredContent')
+    if result.get('isError') or not isinstance(receipt, dict):
+        print('Error: ' + (render_mcp_result(result) or 'the subscription returned no receipt'), file=sys.stderr)
+        return 1
+    print(json.dumps({'consumer': consumer, **receipt}, sort_keys=True))
+    if receipt.get('agent_id') != agent_id or receipt.get('subscribed') is not True:
+        print(f'Error: {consumer} is not confirmed as subscribed', file=sys.stderr)
+        return 1
+    return 0
+
+
 def validate_options(arguments, required):
     options = arguments.get('options')
     count = len(options) if isinstance(options, list) else 0
@@ -4372,6 +4422,24 @@ def build_parser():
              'the flag changes nothing there.',
     )
     listen_parser.set_defaults(func=cmd_listen)
+
+    subscribe_parser = subparsers.add_parser(
+        'subscribe',
+        help='Subscribe this session to a job or standalone bug so responses to that work reach it. '
+             'Subscriptions are permanent.',
+    )
+    subscribe_parser.add_argument(
+        'short_code_id',
+        help='Job, bug or child code; qualify inline codes with their question.',
+    )
+    subscribe_parser.add_argument(
+        '--consumer',
+        default=None,
+        help='Delivery consumer this session\'s wait or listen uses. Defaults the same way they do: '
+             f'the {CONSUMER_ENV_VAR} environment variable, else the Claude Code session cursor, '
+             f'else "{DEFAULT_CONSUMER}".',
+    )
+    subscribe_parser.set_defaults(func=cmd_subscribe)
 
     update_parser = subparsers.add_parser(
         'update',

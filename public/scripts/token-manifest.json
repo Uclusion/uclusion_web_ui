@@ -1152,6 +1152,15 @@
     "openai": 745
    }
   },
+  "422763204da6a18382043e26f53c4ffa774b0d99d67bacc246665ebee2436289": {
+   "bytes": 1868,
+   "kind": "skill",
+   "name": "skills/uclusion/references/cursor-delivery.md",
+   "tokens": {
+    "claude": 648,
+    "openai": 381
+   }
+  },
   "422f035e39ad2bb12ee0daaa8421ae187cc3ffc01f44ccddc6ba5cd5884a8a3b": {
    "bytes": 2895,
    "kind": "bootstrap",
@@ -1818,6 +1827,15 @@
     "openai": 4622
    }
   },
+  "62bf252dec3d5251dd489404bfed75957ced1fe5dd90b550db0af81e00b04cf7": {
+   "bytes": 12343,
+   "kind": "skill",
+   "name": "skills/uclusion/references/coordinator-lifecycle.md",
+   "tokens": {
+    "claude": 3732,
+    "openai": 2217
+   }
+  },
   "62c9a1141e71eed159f026d073faccb13dd1c502a6ed2c0ee9b0aaed246bd90a": {
    "bytes": 6686,
    "kind": "skill",
@@ -1987,6 +2005,15 @@
    "tokens": {
     "claude": 645,
     "openai": 376
+   }
+  },
+  "693ef2308eede29d0c54b3050c67d94a3641e06c30dcecb604fe357c43301364": {
+   "bytes": 7267,
+   "kind": "skill",
+   "name": "skills/uclusion/roles/coordinator-tools.md",
+   "tokens": {
+    "claude": 2296,
+    "openai": 1439
    }
   },
   "69f989f91768cd4f48be7a76f227a79c29eb9929fd15c376035ae93512dbc92d": {
@@ -2754,6 +2781,15 @@
     "openai": 1163
    }
   },
+  "954bd57326ea477236dbb2f21c79cc67145cc8fb4ca60d86436d0445ba8a7178": {
+   "bytes": 2421,
+   "kind": "skill",
+   "name": "skills/uclusion/references/delivery-common.md",
+   "tokens": {
+    "claude": 779,
+    "openai": 458
+   }
+  },
   "95e8728333ceb4657fad547e59d7d2342c874446e79d9657ed839ddc8ec9031a": {
    "bytes": 14560,
    "kind": "skill",
@@ -3346,6 +3382,15 @@
    "tokens": {
     "claude": 461,
     "openai": 279
+   }
+  },
+  "aeb706c010893adda8d484e9644002c42a2333b16a529a47427896fee3d4d995": {
+   "bytes": 1113,
+   "kind": "skill",
+   "name": "skills/uclusion/references/claude-delivery.md",
+   "tokens": {
+    "claude": 372,
+    "openai": 223
    }
   },
   "aece2baeb7d4b43411b2c710fd43272879c4872937ddaf386e8a5034effa938c": {
@@ -5500,6 +5545,13 @@
     "openai": 31
    }
   },
+  "a6426b226ae03420a003090629f7dd8d4e7d9a3d551ef213761935240a8a443e": {
+   "name": "set_agent_subscription",
+   "tokens": {
+    "claude": 130,
+    "openai": 42
+   }
+  },
   "ab25145e702d37614c40073e616344ccccb3ad793fecbe27db74cbeb0ead8cf5": {
    "name": "add_blocker",
    "tokens": {
@@ -5620,6 +5672,13 @@
    "tokens": {
     "claude": 399,
     "openai": 214
+   }
+  },
+  "c6044adf068edcf0709f434e8409e747c3db27a69c33a3e36d89d99ebd8040cb": {
+   "name": "set_agent_subscription",
+   "tokens": {
+    "claude": 342,
+    "openai": 160
    }
   },
   "c6ad21ecade5a6362d404437aea9ed1714ddfce880a8b37e351219ea8419d846": {

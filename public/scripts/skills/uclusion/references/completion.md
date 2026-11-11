@@ -29,7 +29,7 @@ Use the exact package, reviewed changes, notification scope and human instructio
 
 Only a non-AI, non-advisory human thread/chat response selects actions. `All` selects exactly the listed actions; interpret other wording against the package and clarify a materially ambiguous part where the instruction arrived. Declining completes that selection. Later replies are new instructions and preserve completed outcomes.
 
-The human's reply to the package is the permission for each action it selects. `all` selects exactly the listed commit, push, and notification clear. Do not ask again in chat or in a status note. The package's commit/push/clear selection supplies no permission for other actions.
+The human's reply to the package is the permission for each action it selects. `all` selects exactly the listed commit, push, and notification clear. Perform that clear in the same completion. Do not stop after commit and push and leave the clear for a later grant, and do not ask again in chat or in a status note. An unfinished clear does not delay find work. The package's commit/push/clear selection supplies no permission for other actions.
 
 ### Execute the remaining work
 

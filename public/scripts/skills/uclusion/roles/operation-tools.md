@@ -100,7 +100,7 @@ Returns the human user's notifications for this workspace as markdown, most urge
 
 ## `clear_notifications`
 
-Clears the human user's notifications about one object (unread ones are removed, persistent ones lose their highlight). Only call after the human has explicitly granted permission in chat for this specific clear. After finishing work on an object, ask as you ask before committing; never clear unprompted. Clear one object per call. A completion package passes its terminal record in record on its last clear, even when there is nothing to clear: it is posted silently first, and nothing is cleared if it cannot be posted.
+Clears the human user's notifications about one object (unread ones are removed, persistent ones lose their highlight). Call it only after the human's reply to the completion package selects this clear. That package is how commit, push, and this clear are requested; do not ask in a separate chat or status message instead. Never clear unprompted. Clear one object per call. A completion package passes its terminal record in record on its last clear, even when there is nothing to clear: it is posted silently first, and nothing is cleared if it cannot be posted.
 
 - `short_code_id`: The short code of the job or comment whose notifications should be cleared.
 - `record`: Optional completion-package terminal record, created as add_info would create it but silent.

@@ -19,7 +19,7 @@ Before starting or resuming dependent edits, establish current Doable/Reviewable
 
 ## Action authority and implementation
 
-Implement the complete agreed design. Inspect the source and logs needed for implementation. Tests, builds, security, provider calls, deployment, commits and pushes retain their independent human permissions; preserve each approved type, quantity and scope.
+Implement the complete agreed design. Inspect the source and logs needed for implementation. Tests, builds, security, provider calls, and deployment retain their independent human permissions; preserve each approved type, quantity and scope. Request commit and push only by publishing the completion package. Do not ask in chat or in a status note whether commit is allowed instead. `all` selects exactly the listed actions.
 
 An explicit job test plan supplies approval for its stated tests; an explicit human-authored job security plan supplies approval for its stated security choices. Otherwise ask each unresolved test type/quantity or proposed security choice through the lane's permitted tool and await a qualifying answer. Security choices concern authentication/authorization, secrets/credentials, threat/trust boundaries, sensitive persistence/lifecycle and shared infrastructure. Apply existing approval to the actual proposed choice; a reviewer label supplies no additional authority.
 

@@ -11,7 +11,7 @@ the agent instructions; this README is not an additional required agent read.
 | [Design](roles/design.md) | Answers information requests, handles questions and suggestions, writes the implementation design, and assesses AI approval. It does not make manual stage changes or implement code. |
 | [Implementation](roles/implementation.md) | Implements job work, runs approved checks, reports results, and carries out the job's approved completion actions. It stays with the work through review and completion. |
 | [Operation](roles/operation.md) | Finds work, answers questions about workspace history, and handles requested creation, moves, inbox work and manual stage changes. Reopens questions, suggestions and blockers on request. It does not assess AI approval or settle questions. |
-| [Standalone](roles/standalone.md) | Owns a bug outside a job through discussion, fixing, approved checks, resolution and completion actions. It keeps the work through feedback and recovery. |
+| [Standalone](roles/standalone.md) | Owns a bug outside a job through discussion, fixing, approved checks, the completion package, and resolution after the human responds and any selected commit succeeds. It keeps the work through feedback and recovery. |
 | [Export search](roles/export-search.md) | Prepares and searches a workspace export, then returns findings and sources. It does not change Uclusion records. |
 | [Backlog maintenance](roles/backlog-maintenance.md) | Checks how completed work affects open work and records findings. Proposed changes to that work remain for the human to choose. |
 
@@ -40,8 +40,13 @@ unclear requests.
 Implementation uses the agreed design, writes the change, checks it and presents
 the result for review. It also handles the human's later selection of completion
 actions. Finishing the code does not grant permission to commit, push or deploy.
-For a bug outside a job, standalone performs the fix and checks, resolves the
-bug, and handles its completion actions. A conversion into an actual job changes
+The completion package is how commit, push, and the notification clear are
+requested. A separate chat or status question is not that request. `all`
+selects exactly the listed actions. For a bug outside a job, standalone
+performs the fix and checks, publishes the completion package while the bug is
+open, and resolves only after the human responds and any selected commit of
+repository changes has succeeded. Push and notification clearing come after
+that resolution. A conversion into an actual job changes
 that ownership. An unrelated finished task already in a job is a different case:
 implementation may move it into a separate job for review.
 

@@ -5,7 +5,7 @@
 
 Prepare the concrete package for your reviewed finished scope, including available actions for partial work. Use the reviewed repository changes and exact notification scope from current evidence. Include a concise explanation of what this package finishes. For partial work, name what remains, why it prevents whole-job completion and the next action or missing permission. Keep detailed findings in the review narrative.
 
-For a standalone bug, prepare a new package only after observing the bug change from open to resolved for a fix made in this session; your own resolution counts. Reuse an existing package on continuation. Loading an already-resolved bug, or another update while it stays resolved, does not create a new package. A reopened bug can get a new package after a new fix is completed in the session.
+For a standalone bug, publish the package while the bug is still open, after the fix is written and checked in this session. Do not resolve the bug before a human responds to that package, and do not resolve it in order to publish the package. When the fix includes repository changes, leave the bug open until the selected commit has succeeded. A declined, missing or failed commit leaves the bug open; do not push those changes or clear that bug's notifications until that commit has succeeded. When the fix has no repository changes, resolve only after the human responds to the package. After that response, and after the required commit when there is one, resolve with `resolve` and its progress note before any selected push or notification clear. Reuse an existing package on continuation. Loading an already-resolved bug, or another update while it stays resolved, does not create a new package. A reopened bug can get a new package after a new fix is ready in the session, while the bug is open.
 
 List the actual available actions in this order:
 
@@ -13,9 +13,9 @@ List the actual available actions in this order:
 2. Push only those commits.
 3. Clear the exact finished whole job, otherwise its review and identified resolved tasks; for a standalone bug, the exact bug/replies scope.
 
-Omit commit/push when no repository work applies. Explain that `all` selects exactly the listed actions and scope. Other actions retain their independent permissions, and an actual notification clear additionally needs explicit chat permission for that exact scope.
+Omit commit/push when no repository work applies. This package is how commit, push, and the notification clear are requested. Publish it. Do not ask in chat, in a status note, or in any other message whether those actions are allowed instead. Explain that `all` selects exactly the listed actions and scope. A separate question asking whether commit is allowed is not the request. The human's reply to the package is the grant for the actions it selects. Other actions retain their independent permissions.
 
-Include the available runtime-visible AI product, model, version and effort information in the review or bug completion note without inventing fields. For a job, publish the narrative and this package together with `ask_for_review`, which appends the package last. A newly created review can be named as “this review”; its saved receipt supplies the canonical thread identity. For a bug fixed in this session, publish with `add_info` on its resolved bug thread.
+Include the available runtime-visible AI product, model, version and effort information in the review or bug completion note without inventing fields. For a job, publish the narrative and this package together with `ask_for_review`, which appends the package last. A newly created review can be named as “this review”; its saved receipt supplies the canonical thread identity. For a bug fixed in this session, publish with `add_info` on its open bug thread.
 
 End an unanswered offer on the package thread with: “Reply `all`, or tell me in your own words what you want.” If a non-AI, non-advisory human response to the applicable package has already arrived, retain its exact identity/message and execute its authorized remainder under the procedure below instead of requesting the same decision again.
 
@@ -29,13 +29,13 @@ Use the exact package, reviewed changes, notification scope and human instructio
 
 Only a non-AI, non-advisory human thread/chat response selects actions. `All` selects exactly the listed actions; interpret other wording against the package and clarify a materially ambiguous part where the instruction arrived. Declining completes that selection. Later replies are new instructions and preserve completed outcomes.
 
-Check permission for each selected action. `clear_notifications` additionally requires explicit chat permission for the exact clear; ask for any missing grant in chat and keep that clear unfinished. The package's commit/push/clear selection supplies no permission for other actions.
+The human's reply to the package is the permission for each action it selects. `all` selects exactly the listed commit, push, and notification clear. Do not ask again in chat or in a status note. The package's commit/push/clear selection supplies no permission for other actions.
 
 ### Execute the remaining work
 
-Determine remaining commit/push work from actual Git state and prior confirmed outcomes. Act only on the selected reviewed scope, in package order. Stop at the first failed action or missing required permission, retain successful outcomes and identify the remaining work. Nothing remaining is a successful no-op. Clear a fixed authorized scope directly.
+Determine remaining commit/push work from actual Git state and prior confirmed outcomes. Act only on the selected reviewed scope, in package order. For a standalone bug, `resolve` is the exception: call it with its progress note only after the human response and, when the reviewed fix includes repository changes, only after the selected commit of those changes has succeeded, and before any selected push or notification clear. A declined, missing or failed commit leaves the bug open; do not push those changes or clear that bug's notifications until that commit has succeeded. Stop at the first failed action or missing required permission, retain successful outcomes and identify the remaining work. Nothing remaining is a successful no-op. Clear a fixed authorized scope directly.
 
-Compose each selected commit message beginning with the completed task/comment code. A job-code prefix means the whole job is finished and requires no remaining tasks.
+Compose each selected commit message beginning with the task, bug or comment code. A job-code prefix means the whole job is finished and requires no remaining tasks.
 
 ### Record and recover
 

@@ -160,7 +160,7 @@ SCRIPT_FILES = (
 # deployment gate validates this table before publishing, so a sequential S3
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
-    'uclusionCLI.py': '544635ebdf398cc206acfa1180ff03ab9e8c47dc405013628af39d67942c5958',
+    'uclusionCLI.py': '5c2ca874964e3806e09fdf78769429b677f3fbe7085fb0df6ed5ec3953bc4ec4',
     'uclusionMCPProxy.py': '86c5262fd2e15feb0109239e67cf36aff4a5845ba18a9ce688ccf792dac20948',
     'uclusionSetupMCP.py': 'c4740e2c6a5e17e594cb7010e740d494a0e3a90cab237402e32e61061979bd22',
     'uclusionCodexNative.py': '3246fa72071ca9c213de3ebbedc07bc8b70241cf2c9beec355d2a64140231881',
@@ -377,12 +377,12 @@ WORKFLOW_ASSET_SHA256 = {
     'design_role': 'a7657e0325c9a27dd21b29096472ccc87a5a3fc9c8155f0d4d1bb359f8cd73b0',
     'coordinator_tools': '693ef2308eede29d0c54b3050c67d94a3641e06c30dcecb604fe357c43301364',
     'implementation_tools': '30962900d4925b76fa648af8fe3392babe12071a962f1e7cf9f14e8663713611',
-    'operation_tools': '4677a186f5d73d274183b36ab5ab47d042f77c062c455d7de6b5eae4ac026376',
+    'operation_tools': '0d34c4e22cfb31ac44952fd80b0c4528cc150d815f0e9ab138ec73f86fb33aa5',
     'standalone_tools': '0c6cdeec146b0b891f0b19dfc65904169a34c5cbf40ccea19774d48f8ddbdf6b',
     'backlog_maintenance_tools': '1399f0b2a140abed4e0054cf11c60446882e787d91e644f9c71447cf5306932d',
     'design_tools': '0e58f542dcb35d231b3bc674acf24569ffca6ee179a01dae3616f7f8af140254',
     'demo_brief': 'b68f6501270c63456c19053d1b5af296350288754239c7f9d6074a3a5497789f',
-    'token_manifest': '34117e183d35914469878795a51637f56c1577b193752582c08de2edada2c60e',
+    'token_manifest': 'c3ca0884f8cb12d02d0229127fe159fe4c7f0c161f819aa6ff9baa9cd27a1aa5',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',

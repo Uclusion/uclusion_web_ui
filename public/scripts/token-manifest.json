@@ -216,6 +216,15 @@
     "openai": 4675
    }
   },
+  "0d34c4e22cfb31ac44952fd80b0c4528cc150d815f0e9ab138ec73f86fb33aa5": {
+   "bytes": 16212,
+   "kind": "skill",
+   "name": "skills/uclusion/roles/operation-tools.md",
+   "tokens": {
+    "claude": 5096,
+    "openai": 3379
+   }
+  },
   "0d8c2c0f16e784b7266cc4cc63e0ad12fc960ec262b0d9179311cd716905f09d": {
    "bytes": 5518,
    "kind": "skill",
@@ -5343,6 +5352,13 @@
     "openai": 85
    }
   },
+  "6708adbb418c8a0fbc462827b8d7c6bcf32db507b98226757585f509f1b1a352": {
+   "name": "add_task",
+   "tokens": {
+    "claude": 401,
+    "openai": 230
+   }
+  },
   "67a1e22dad9557c9f3aee58d014679374ff48937005bf31234067ac2d8d47773": {
    "name": "get_upload",
    "tokens": {
@@ -5658,6 +5674,13 @@
    "tokens": {
     "claude": 425,
     "openai": 202
+   }
+  },
+  "c2662650112ee35d2f1ef82ede1de229c648fe7ac3831c991e79425513410177": {
+   "name": "add_task",
+   "tokens": {
+    "claude": 109,
+    "openai": 40
    }
   },
   "c45ff20603b28d88732e1b5151b31435ec682e512885d2932b273f79729dcfdc": {

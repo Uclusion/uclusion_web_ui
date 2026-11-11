@@ -37,10 +37,11 @@ Creates a job showing as created by the human user in Uclusion. Only use when as
 
 ## `add_task`
 
-Creates a task on a job showing as created by the human user in Uclusion. Only use when the human explicitly asks for the task; when the AI has its own idea for work use make_suggestion instead. Returns the short code of the task.
+Creates a task on a job showing as created by the human user in Uclusion. Only use when the human explicitly asks for the task; when the AI has its own idea for work use make_suggestion instead. Pass bug_short_code_id instead of task to move that existing standalone bug into the provided job as a task, preserving its short code, thread and author. An already job-owned item is not moved. Returns the created task's short code, or the bug's move outcome when a bug is moved. Bug replies move asynchronously.
 
-- `job_id`: The short code of the job the task belongs to.
-- `task`: The markdown body of the task.
+- `job_id`: The short code of the job the task belongs to, or that receives the moved bug.
+- `task`: The markdown body of the task. Omit it when bug_short_code_id moves an existing bug into this job. Do not pass it together with bug_short_code_id.
+- `bug_short_code_id`: Optional existing standalone bug short code to move into this job as a task. Pass it instead of task. An already job-owned item is not moved.
 
 ## `add_bug`
 

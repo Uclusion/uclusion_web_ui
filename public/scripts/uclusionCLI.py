@@ -3774,6 +3774,18 @@ def validate_review(arguments):
         raise CLIArgumentError('implementation_complete requires completion_package')
 
 
+def validate_add_task(arguments):
+    has_task = 'task' in arguments
+    has_bug = 'bug_short_code_id' in arguments
+    if has_bug and not str(arguments['bug_short_code_id']).strip():
+        raise CLIArgumentError('bug_short_code_id must be a nonblank short code')
+    if has_task == has_bug:
+        raise CLIArgumentError(
+            'pass task or bug_short_code_id, not both' if has_task
+            else 'missing required argument(s): task or bug_short_code_id'
+        )
+
+
 def validate_view_note(arguments):
     if 'view_short_code_id' in arguments and 'update_note_short_code_id' in arguments:
         raise CLIArgumentError(
@@ -4619,19 +4631,27 @@ def build_parser():
         ('name', 'description'),
     )
 
-    add_task_parser = subparsers.add_parser('add_task', help='Create a human-authored task.')
+    add_task_parser = subparsers.add_parser(
+        'add_task', help='Create a human-authored task, or move a standalone bug into a job.'
+    )
     add_task_parser.add_argument('legacy_job_id', nargs='?', help='Compatibility job short code.')
     add_task_parser.add_argument('legacy_task', nargs='?', help='Compatibility task Markdown.')
     add_task_parser.add_argument('--job-id', help='Job short code.')
     add_task_parser.add_argument('--task', help='Task Markdown.')
+    add_task_parser.add_argument(
+        '--bug-short-code-id',
+        help='Existing standalone bug to move into the job. Use instead of --task.',
+    )
     configure_mcp_parser(
         add_task_parser,
         'add_task',
         (
             mcp_field('job_id', 'job_id', 'legacy_job_id'),
             mcp_field('task', 'task', 'legacy_task'),
+            mcp_field('bug_short_code_id', 'bug_short_code_id'),
         ),
-        ('job_id', 'task'),
+        ('job_id',),
+        validator=validate_add_task,
     )
 
     request_work_parser = subparsers.add_parser(

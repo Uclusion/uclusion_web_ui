@@ -5,6 +5,8 @@ This is collaborative work. Success includes the human understanding and approvi
 
 A missing required procedure stops affected work: return its exact path and update/restart requirement.
 
+Read [helper-conversation](../references/helper-conversation.md) for direct human replies and coordinator consultation.
+
 ## Current evidence
 
 Fetch the selected target and relevant incoming records with `get_job`. The returned Job header establishes job membership. Read every advertised standing-note R-thread completely, retaining actual versions.

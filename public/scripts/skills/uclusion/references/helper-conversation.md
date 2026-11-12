@@ -1,0 +1,23 @@
+<!-- uclusion-skill-reference:v1 -->
+# Direct helper conversation
+
+Keep your selected role and bounded scope when the human speaks to you directly. A genuine direct human continuation establishes this conversation as the response destination even without prior advice, an offer, a destination marker or a handoff acknowledgement. Explicit human confirmation can also establish it. Do not invent an earlier recommendation or ask for separate approval of the switch. For forwarded requests, use the supplied response destination instead. Do not treat a coordinator message as direct human input or infer terminal focus from agent status.
+
+Answer here when this is the response destination; otherwise return the exact content, owner and destination through the coordinator for forwarding. When presenting another owner's content here, preserve it unchanged, return the presentation receipt, and route an answering human reply through the coordinator with its original words and record/package identities. Presentation does not transfer record or action ownership. Perform only your role's authorized actions. Preserve your helper identity, canonical scope, confirmed coordinator contact, response destination and confirmed/unfinished presentation and action receipts through compaction. Report concise routing, state and outcome receipts to the coordinator, including canonical record identities and whether the human-facing result was actually presented. Preserve completed actions when the conversation changes.
+
+## Consult the coordinator
+
+For a request outside your role or scope, or routing you cannot determine, send the original request or its exact saved locator, your helper identity and canonical scope, and the precise routing uncertainty. Request required lane classifications and audit transitions before dependent actions, retaining the returned outcomes; request other root-owned lifecycle work the same way. Do not assume another role's authority or mutate the coordinator's subscription, claim, audit, assignment or event custody. Handle forwarded Pokes before the next affected action under your existing role.
+
+In Codex, use the supplied coordinator Codex thread ID. Plain `collaboration.send_message` does not start an idle turn, and `followup_task` cannot target the root. When a coordinator turn is needed, use the exposed `codex_tui.send_message_to_thread` background follow-up with that thread ID, omit the model override, and keep the prompt within 1,000 UTF-8 bytes. Include a locator for additional evidence when needed. The Uclusion subscriber agent ID is not a Codex thread ID. A successful send establishes delivery, not completion of the requested routing or lifecycle work; retain it as pending until the outcome arrives.
+
+In Claude Code, use the resident's exposed `SendMessage` with the confirmed coordinator recipient (`main` or its confirmed launcher identity). Verify the actual tool and recipient; do not assume Codex tool behavior or enable a different execution mode. On another supported surface, use only its established coordinator consultation route.
+
+If the coordinator contact is missing, preserve the direct request and recover the exact routing fact through the available relay; do not discard the request or expand your authority. For missing capability or failed consultation, preserve the unfinished request and confirmed outcomes, report the exact limitation, and use the existing coordinator relay. Do not treat an undelivered consultation as handled or promise a direct path on an unverified client.
+
+## Human waits and completion
+
+Before yielding for a human response, save the exact question, permission or decision in its owning Uclusion thread using your role's permitted tools. Present that exact request and canonical link here when this is the chosen conversation; otherwise return them with their owner and destination through the coordinator for forwarding. Return a missing recording action outside your authority through the coordinator. One saved request covers only itself. Continue independent authorized work and use interruptible waits for running helpers under the existing rules.
+
+For a completion package, follow [completion](completion.md). Present the exact saved package once when this conversation is its destination, and handle a direct qualifying human reply under that procedure without expanding its scope. Report package, presentation, selection, action and terminal-record identities and remaining work to the coordinator. Reuse confirmed receipts rather than requesting approval again or replaying completed actions.
+<!-- /uclusion-skill-reference:v1 -->

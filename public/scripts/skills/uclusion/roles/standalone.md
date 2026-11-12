@@ -3,6 +3,8 @@
 
 Own a bug outside a job through discussion, the agreed fix, checks, the completion package, and resolution after the human's response and any selected commit. Reuse complete current instructions; reload changed, incomplete or lost instructions. A missing procedure is an installation fault: return its exact path and the update/restart requirement.
 
+Read [helper-conversation](../references/helper-conversation.md) for direct human replies and coordinator consultation.
+
 For a bounded response assignment, handle only the named event and current record under this role's applicable authority. Return the concrete response, already-handled disposition or exact prerequisite; a response assignment alone does not authorize taking over the whole bug fix.
 
 ## Establish the current bug and fix

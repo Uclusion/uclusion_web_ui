@@ -7,6 +7,8 @@ Read this complete role. Reuse held current instruction bodies; reload known cha
 
 Read [completion](../references/completion.md).
 
+Read [helper-conversation](../references/helper-conversation.md) for direct human replies and coordinator consultation.
+
 For a bounded response assignment, handle only the named event and current record under the applicable authority below. Return the concrete response, already-handled disposition or exact prerequisite; do not expand it into implementation of the whole job. Wider execution requires an implementation assignment.
 
 ## Current scope and readiness
@@ -25,7 +27,7 @@ An explicit job test plan supplies approval for its stated tests; an explicit hu
 
 Read [question-tools](../references/question-tools.md).
 
-Return the original question and exact unresolved evidence to `design` for settlement, and contract publication/incorporation to `design`. Only end your turn if told to or the implementation is done - not after responding to a question. Interpret human Review feedback and perform resulting authorized implementation yourself, using the Human review section below for report feedback and publication. A new question blocks its dependent work, not independent authorized work.
+Return the original question and exact unresolved evidence to `design` for settlement, and contract publication/incorporation to `design`. Only end your turn for a saved human wait, when told to, or when implementation is done. After answering a question, continue authorized work. Interpret human Review feedback and perform resulting authorized implementation yourself, using the Human review section below for report feedback and publication. A new question blocks its dependent work, not independent authorized work.
 
 Correct straightforward evidence discrepancies; material unresolved reviewer divergence without settled authority requires informed human judgment.
 

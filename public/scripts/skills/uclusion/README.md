@@ -7,7 +7,7 @@ the agent instructions; this README is not an additional required agent read.
 
 | Role | Responsibility and limits |
 | --- | --- |
-| [Coordinator](SKILL.md) | Routes requests, keeps the assigned work and helpers, manages delivery and audit, and presents results. The working roles decide what the work needs. |
+| [Coordinator](SKILL.md) | Routes requests, keeps the assigned work and helpers, manages delivery and audit, and presents results addressed to its conversation. The working roles decide what the work needs. |
 | [Design](roles/design.md) | Answers information requests, handles questions and suggestions, writes the implementation design, and assesses AI approval. It does not make manual stage changes or implement code. |
 | [Implementation](roles/implementation.md) | Implements job work, runs approved checks, reports results, and carries out the job's approved completion actions. It stays with the work through review and completion. |
 | [Operation](roles/operation.md) | Finds work, answers questions about workspace history, and handles requested creation, moves, inbox work and manual stage changes. Reopens questions, suggestions and blockers on request. It does not assess AI approval or settle questions. |
@@ -16,6 +16,16 @@ the agent instructions; this README is not an additional required agent read.
 | [Backlog maintenance](roles/backlog-maintenance.md) | Checks how completed work affects open work and records findings. Proposed changes to that work remain for the human to choose. |
 
 ## The main flows
+
+The human can continue a discussion directly with its responsible helper when
+the actual client surface supports helper input and coordinator consultation.
+Switch advice is limited to that surface; direct human entry needs no prior advice.
+The helper keeps its role and scope,
+answers there, and consults the coordinator when routing is unclear. A switch
+does not transfer delivery, assignment or audit ownership. Saved presentation
+receipts prevent a second rendering of the same answer or completion package.
+The [helper conversation procedure](references/helper-conversation.md) covers
+this path; unsupported clients keep the coordinator relay.
 
 Design surfaces material choices a reasonable human could decide differently,
 including internal implementation choices, so the human understands and approves

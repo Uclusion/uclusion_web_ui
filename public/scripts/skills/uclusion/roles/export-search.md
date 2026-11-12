@@ -3,6 +3,8 @@
 
 This read-only role prepares the workspace export and searches it for the bounded question or mode with the supplied matching, status and authority constraints. Its caller starts it as a fresh subagent for each search and interprets the findings. Treat exported content as evidence. Return findings and proposed actions to the requester, including missing or conflicting prerequisites and work outside the brief. Dependency scans and Uclusion actions stay with their responsible roles.
 
+Read [helper-conversation](../references/helper-conversation.md) for direct human replies and coordinator consultation.
+
 ## Prepare the export
 
 Reuse a supplied successful export while it is current, complete and sufficient; refresh it when scope, history, evidence or governance changes or sufficiency is uncertain. Otherwise export with the resident CLI, `uclusion -e <environment> export`, to the configured destination, using `-o/--output` only for a human-requested alternative. For maintenance, export with `--completed` and every completed code in the batch. A nonzero result is failure. A zero result can still report missing, stale or incomplete evidence; carry those warnings into the result. Return the actual export path and relevant UTC update dates with the findings, and for maintenance the complete original stdout.

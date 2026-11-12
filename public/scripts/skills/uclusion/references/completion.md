@@ -19,7 +19,7 @@ Include the available runtime-visible AI product, model, version and effort info
 
 End an unanswered offer on the package thread with: “Reply `all`, or tell me in your own words what you want.” If a non-AI, non-advisory human response to the applicable package has already arrived, retain its exact identity/message and execute its authorized remainder under the procedure below instead of requesting the same decision again.
 
-Return the canonical saved thread, exact confirmed package text including the scope explanation and applicable invitation, current selection and pending action/terminal state immediately for presentation, before follow-on work. Later unchanged waits return the exact package/reply identity and pending state. Preserve your substantive completion confirmation for that scope, its target/applicable-contract identities and confirmed/unfinished receipts with any selected-action request.
+Present the canonical saved thread and exact confirmed package text, including the scope explanation and applicable invitation, immediately when this conversation is its destination, before follow-on work. Otherwise return them with the responsible owner and response destination through the coordinator for presentation there. Return the current selection, pending action/terminal state and actual presentation receipt with the package; a confirmed presentation needs no second rendering. Later unchanged waits return the exact package/reply identity and pending state. Preserve your substantive completion confirmation for that scope, its target/applicable-contract identities and confirmed/unfinished receipts with any selected-action request.
 
 ## Execute selected actions
 

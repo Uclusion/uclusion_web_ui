@@ -3,6 +3,8 @@
 
 Process the supplied `find_work` maintenance notice, exact `since`/`through` window, completed batch and existing receipts. Own the batch analysis, contextual findings and run record. Reuse confirmed claim, contextual-write and run-record receipts; continue only unfinished steps. Return the result, confirmed receipts and any unfinished step to the coordinator.
 
+Read [helper-conversation](../references/helper-conversation.md) for direct human replies and coordinator consultation.
+
 ## Batch run
 
 For a new batch, claim the exact window with `backlog_maintenance_run` and continue with its confirmed claim. A refused claim skips that batch. Report claim uncertainty or expiry as an unfinished outcome.

@@ -49,6 +49,25 @@ class AgentSubscriptionTests(unittest.TestCase):
         self.delivery._deliver()
         self.assertEqual([('job0-root', 'response0'), ('job1-root', 'response1')], self.admitted())
 
+    def test_start_ignores_loaded_unavailable_and_unmapped_subscribers(self):
+        cases = [('loaded', ['job1-root', 'job0-root'], self.agent0),
+                 ('unavailable', ['job1-root'], self.agent0),
+                 ('unmapped', ['job1-root'], 'foreign-agent')]
+        for index, (case, roots, subscriber) in enumerate(cases):
+            with self.subTest(subscriber=case):
+                self.native.roots = roots
+                message = f'Start J-example-{index}'
+                routing = self.poke(message, f'J-example-{index}', [subscriber])
+                self.delivery._deliver()
+                self.assertEqual([('job1-root', message)],
+                                 [admission for admission in self.admitted() if admission[1] == message])
+                _, root, inputs = self.native.inputs[-1]
+                self.assertEqual('job1-root', root)
+                self.assertEqual(message, inputs[0]['text'])
+                context = json.loads(inputs[1]['text'].split('] ', 1)[1])
+                self.assertEqual({'version': 1, 'message_id': message, 'work': routing['work'],
+                                  'sole_recorded_subscriber': False}, context)
+
     def test_unavailable_subscriber_does_not_block_other_work_or_receive_out_of_order(self):
         self.native.roots = ['job1-root']
         self.poke('first0', 'job0', [self.agent0])

@@ -411,6 +411,8 @@ class NativeInbox:
             for row in rows:
                 sequence, message, _, _, _, frozen, owner, pid, encoded, selected, prior, message_id = row
                 owned_elsewhere = owner not in (None, self.owner) and self.pid_is_alive(pid)
+                is_start = ((message == 'Start' or message.startswith('Start '))
+                            and '\n' not in message and '\r' not in message)
                 work = None
                 roots = None
                 routing = None
@@ -422,7 +424,7 @@ class NativeInbox:
                         continue
                     work = (routing['work']['kind'], routing['work']['id'])
                     subscribers = routing['subscriber_agent_ids']
-                    if subscribers:
+                    if subscribers and not is_start:
                         roots = {agents[agent] for agent in subscribers if agent in agents}
                         if not roots and not frozen:
                             connection.execute("""UPDATE codex_native_pending SET state = 'accepted'
@@ -455,8 +457,6 @@ class NativeInbox:
                     SET owner_instance = ?, owner_pid = ?, selected_root = ?
                     WHERE environment = ? AND workspace_id = ? AND stream = ? AND sequence = ?""",
                     (self.owner, os.getpid(), candidate, *self.scope(), sequence))
-                is_start = ((message == 'Start' or message.startswith('Start '))
-                            and '\n' not in message and '\r' not in message)
                 delivery_context = {
                     'version': 1, 'message_id': message_id,
                     'work': routing['work'] if routing else None,

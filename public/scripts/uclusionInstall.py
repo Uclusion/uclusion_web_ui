@@ -60,6 +60,7 @@ import importlib.util
 import json
 import os
 import getpass
+import queue
 import re
 import secrets
 import selectors
@@ -70,6 +71,7 @@ import stat
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import urllib.parse
 import urllib.error
@@ -296,6 +298,10 @@ _UNCHECKED_MCP_DESCRIPTOR = object()
 # obsolete Uclusion-owned block without disturbing anybody else's hooks.
 LEGACY_CODEX_HOOKS_MARKER = '# uclusion-codex-bridge-hooks:v1'
 LEGACY_CODEX_HOOKS_END_MARKER = '# /uclusion-codex-bridge-hooks:v1'
+CODEX_HANDOFF_MARKER = '# uclusion-codex-handoff-permission:v1'
+CODEX_HANDOFF_END_MARKER = '# /uclusion-codex-handoff-permission:v1'
+CODEX_HANDOFF_TOOL = 'mcp__codex_tui__send_message_to_thread'
+CODEX_HANDOFF_MATCHER = '^' + CODEX_HANDOFF_TOOL + '$'
 
 SKILL_MARKER = '<!-- uclusion-skill:v1 -->'
 SKILL_END_MARKER = '<!-- /uclusion-skill:v1 -->'
@@ -1955,51 +1961,60 @@ def install_demo_codex_workflow(fetch_bundle, work_claims=False):
     return True
 
 
-def _read_demo_codex_config(codex, arguments, environment):
-    """Read effective settings through Codex without starting a model thread."""
+@contextmanager
+def codex_config_session(codex, arguments, environment, cwd):
+    """Use Codex's configuration API without starting a model thread."""
     process = subprocess.Popen(
         [codex, *arguments, 'app-server'],
         stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL, env=environment, cwd=uclusion_home_root(),
+        stderr=subprocess.DEVNULL, env=environment, cwd=cwd,
     )
-    selector = selectors.DefaultSelector()
-    selector.register(process.stdout, selectors.EVENT_READ)
-    pending = bytearray()
-    deadline = time.monotonic() + 20
+    replies = queue.Queue()
 
-    def request(method, params, request_id):
+    def read_replies():
+        try:
+            for line in process.stdout:
+                replies.put(line)
+        finally:
+            replies.put(None)
+
+    reader = threading.Thread(target=read_replies, daemon=True)
+    reader.start()
+    next_id = 0
+
+    def request(method, params):
+        nonlocal next_id
+        next_id += 1
+        request_id = next_id
+        deadline = time.monotonic() + 20
         payload = {'id': request_id, 'method': method, 'params': params}
         process.stdin.write((json.dumps(payload) + '\n').encode('utf-8'))
         process.stdin.flush()
         while time.monotonic() < deadline:
-            if not selector.select(min(0.25, max(0, deadline - time.monotonic()))):
-                continue
-            chunk = os.read(process.stdout.fileno(), 65536)
-            if not chunk:
-                raise RuntimeError('Codex exited while reading demo settings')
-            pending.extend(chunk)
-            while b'\n' in pending:
-                line, _, remainder = pending.partition(b'\n')
-                pending[:] = remainder
-                message = json.loads(line)
-                if message.get('id') == request_id:
-                    if ('error' in message
-                            or not isinstance(message.get('result'), dict)):
-                        raise RuntimeError('Codex could not read its demo settings')
-                    return message['result']
-        raise RuntimeError('Codex timed out while reading demo settings')
+            try:
+                line = replies.get(timeout=max(0, deadline - time.monotonic()))
+            except queue.Empty:
+                break
+            if line is None:
+                raise RuntimeError(f'Codex exited during {method}')
+            message = json.loads(line)
+            if message.get('id') == request_id:
+                if ('error' in message
+                        or not isinstance(message.get('result'), dict)):
+                    raise RuntimeError(f'Codex could not complete {method}: '
+                                       + str(message.get('error', 'invalid response')))
+                return message['result']
+        raise RuntimeError(f'Codex timed out during {method}')
 
     try:
         request('initialize', {
-            'clientInfo': {'name': 'uclusion-demo-config', 'version': '1'},
-        }, 1)
+            'clientInfo': {'name': 'uclusion-config', 'version': '1'},
+            'capabilities': {'experimentalApi': True},
+        })
         process.stdin.write(b'{"method":"initialized"}\n')
         process.stdin.flush()
-        return request('config/read', {
-            'cwd': uclusion_home_root(), 'includeLayers': False,
-        }, 2)['config']
+        yield request
     finally:
-        selector.close()
         if process.poll() is None:
             process.terminate()
         try:
@@ -2008,7 +2023,16 @@ def _read_demo_codex_config(codex, arguments, environment):
             process.kill()
             process.wait(timeout=3)
         process.stdin.close()
+        reader.join(timeout=1)
         process.stdout.close()
+
+
+def _read_demo_codex_config(codex, arguments, environment):
+    """Read effective settings through Codex without starting a model thread."""
+    with codex_config_session(codex, arguments, environment, uclusion_home_root()) as request:
+        return request('config/read', {
+            'cwd': uclusion_home_root(), 'includeLayers': False,
+        })['config']
 
 
 def demo_codex_session_args(environment, workspace_id, evidence_dir=None,
@@ -5697,6 +5721,121 @@ def build_codex_mcp_block(workspace_id=None, env=None, work_claims=False,
     return '\n'.join(lines) + '\n'
 
 
+def codex_handoff_command():
+    """Approve only the workflow's named permission request, even if misrouted."""
+    decision = {'hookSpecificOutput': {'hookEventName': 'PermissionRequest',
+                                      'decision': {'behavior': 'allow'}}}
+    code = ('import json,sys; event=json.load(sys.stdin); '
+            'print(json.dumps(' + repr(decision) + ') if '
+            'event.get("hook_event_name")=="PermissionRequest" and '
+            'event.get("tool_name")==' + repr(CODEX_HANDOFF_TOOL) + ' else "{}")')
+    command = [sys.executable, '-I', '-c', code]
+    # Codex's default Windows hook runner uses COMSPEC /C; Unix uses $SHELL -lc.
+    return subprocess.list2cmdline(command) if os.name == 'nt' else shlex.join(command)
+
+
+def build_codex_handoff_block(command):
+    return '\n'.join([
+        CODEX_HANDOFF_MARKER,
+        '[[hooks.PermissionRequest]]',
+        'matcher = ' + _toml_basic_string(CODEX_HANDOFF_MATCHER),
+        '[[hooks.PermissionRequest.hooks]]',
+        'type = "command"',
+        'command = ' + _toml_basic_string(command),
+        'timeout = 10',
+        CODEX_HANDOFF_END_MARKER,
+        '',
+    ])
+
+
+def separate_codex_handoff_tables(text):
+    """Codex's TOML writer can place new tables before a trailing end comment."""
+    starts = _owned_marker_matches(text, CODEX_HANDOFF_MARKER)
+    ends = _owned_marker_matches(text, CODEX_HANDOFF_END_MARKER)
+    if len(starts) != 1 or len(ends) != 1 or starts[0].end() >= ends[0].start():
+        return text  # The ordinary owned-block validation diagnoses malformed markers.
+    headers = [header for header in _codex_headers(text)
+               if starts[0].end() < header.start() < ends[0].start()]
+    if len(headers) <= 2:
+        return text
+    boundary = headers[2].start()
+    return (text[:boundary].rstrip('\n') + '\n' + CODEX_HANDOFF_END_MARKER + '\n\n'
+            + text[boundary:ends[0].start()] + text[ends[0].end():])
+
+
+def configure_codex_handoff(config_path=None, cwd=None):
+    """Install and trust only Uclusion's exact-tool hook using Codex's own hash."""
+    config_path = os.path.abspath(config_path or CODEX_CONFIG_PATH)
+    cwd = os.path.abspath(cwd or uclusion_home_root())
+    codex = shutil.which('codex')
+    if not codex:
+        raise RuntimeError('Codex handoff permission is unfinished: install Codex and rerun Uclusion install')
+    command = codex_handoff_command()
+    with codex_config_lock(config_path):
+        target = _config_write_target(config_path)
+        existing, signature = _read_text_snapshot(target)
+        updated, _ = replace_owned_block(separate_codex_handoff_tables(existing), CODEX_HANDOFF_MARKER,
+                                          CODEX_HANDOFF_END_MARKER,
+                                          build_codex_handoff_block(command),
+                                          'handoff permission', config_path)
+        validate_codex_config(updated)
+        if updated != existing:
+            atomic_write_text(config_path, updated, existing, target, signature)
+
+        environment = {**os.environ, 'CODEX_HOME': CODEX_HOME}
+        with codex_config_session(codex, [], environment, cwd) as request:
+            config = request('config/read', {'cwd': cwd, 'includeLayers': False})['config']
+            requirements = request('configRequirements/read', {}).get('requirements') or {}
+            if requirements.get('allowManagedHooksOnly'):
+                raise RuntimeError('Managed Codex policy permits only managed hooks; handoff permission is unfinished')
+            features = config.get('features') or {}
+            if features.get('hooks', features.get('codex_hooks')) is False:
+                raise RuntimeError('Codex hooks are explicitly disabled; handoff permission is unfinished')
+
+            def owned_hook():
+                result = request('hooks/list', {'cwds': [cwd]})
+                entries = [entry for entry in result.get('data', []) if entry.get('cwd') == cwd]
+                if len(entries) != 1 or entries[0].get('errors'):
+                    raise RuntimeError('Codex handoff hook inventory is unavailable; installation is unfinished')
+                matches = [hook for hook in entries[0].get('hooks', [])
+                           if isinstance(hook.get('sourcePath'), str)
+                           and os.path.realpath(hook['sourcePath']) == target
+                           and hook.get('eventName') == 'permissionRequest'
+                           and hook.get('matcher') == CODEX_HANDOFF_MATCHER
+                           and hook.get('handlerType') == 'command'
+                           and hook.get('command') == command
+                           and hook.get('async') is False
+                           and hook.get('isManaged') is False]
+                if len(matches) != 1:
+                    raise RuntimeError('Codex did not load the Uclusion handoff hook; '
+                                       'check project trust and managed hook restrictions, then rerun install')
+                return matches[0]
+
+            hook = owned_hook()
+            if not hook.get('enabled'):
+                raise RuntimeError('The Uclusion handoff hook is disabled; installation is unfinished')
+            if not hook.get('key') or not hook.get('currentHash'):
+                raise RuntimeError('Codex did not identify the handoff hook hash; installation is unfinished')
+            if hook.get('trustStatus') != 'trusted':
+                request('config/batchWrite', {
+                    'edits': [{'keyPath': 'hooks.state', 'value': {
+                        hook['key']: {'trusted_hash': hook['currentHash']}}, 'mergeStrategy': 'upsert'}],
+                    'filePath': None, 'expectedVersion': None, 'reloadUserConfig': True,
+                })
+                confirmed = owned_hook()
+                if (not confirmed.get('enabled') or confirmed.get('trustStatus') != 'trusted'
+                        or confirmed.get('currentHash') != hook['currentHash']):
+                    raise RuntimeError('Codex handoff hook trust is unconfirmed; installation is unfinished')
+        # Keep trust and any other tables inserted by Codex outside our owned block.
+        current, signature = _read_text_snapshot(target)
+        separated = separate_codex_handoff_tables(current)
+        if separated != current:
+            validate_codex_config(separated)
+            atomic_write_text(config_path, separated, current, target, signature)
+    print('  ✅ Configured Codex permission for Uclusion helper handoffs.')
+    print('  🔄 Restart Codex to apply the handoff permission to existing conversations.')
+
+
 @contextmanager
 def config_file_lock(path):
     """Serialize one config file's read/modify/replace cycle."""
@@ -7983,6 +8122,8 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                             work_claims=work_claims, token_audit=token_audit,
                             response_stats=response_stats,
                         )
+                    if installed:
+                        configure_codex_handoff()
             except Exception as err:
                 workflow_results['codex'] = False
                 workflow_errors.append(('codex', err))
@@ -8192,6 +8333,11 @@ def install_project_level(
                     config_path=os.path.join(project_dir, '.codex', 'config.toml'),
                 )
                 remove_legacy_codex_hooks_config(force=not interactive)
+            if installed:
+                configure_codex_handoff(
+                    config_path=os.path.join(project_dir, '.codex', 'config.toml'),
+                    cwd=project_dir,
+                )
         except Exception as err:
             workflow_results['codex'] = False
             workflow_errors.append(('codex', err))

@@ -941,6 +941,11 @@ class SingleSkillRoleTests(unittest.TestCase):
 
 
 class NativeSkillRoutingTests(unittest.TestCase):
+    def setUp(self):
+        handoff = mock.patch.object(INSTALL, 'configure_codex_handoff')
+        self.handoff = handoff.start()
+        self.addCleanup(handoff.stop)
+
     def common_install_patches(self, work_claims=False):
         return (
             mock.patch.object(INSTALL, 'write_uclusion_config', return_value=({
@@ -981,6 +986,7 @@ class NativeSkillRoutingTests(unittest.TestCase):
             )
 
         home = os.path.expanduser('~')
+        self.handoff.assert_called_once_with()
         routed = {
             call.args[3]: (call.args[1], call.args[2])
             for call in install.call_args_list
@@ -1140,6 +1146,24 @@ class WorkClaimsReferenceTests(unittest.TestCase):
 
 
 class InstallerWorkflowStateTests(unittest.TestCase):
+    def test_codex_handoff_failure_keeps_install_pending(self):
+        with tempfile.TemporaryDirectory() as project:
+            config_path = os.path.join(project, 'stage_uclusion.json')
+            write_text(config_path, '{"workspaceId":"workspace",'
+                       '"workflowReinstallVersion":"release-old"}\n')
+            with mock.patch.object(INSTALL, 'SCRIPT_INSTALL_PREFIX', os.path.join(project, 'locks')), \
+                    mock.patch.object(INSTALL, 'install_skill_and_stub', return_value=True), \
+                    mock.patch.object(INSTALL, 'update_codex_integration_config'), \
+                    mock.patch.object(INSTALL, 'remove_legacy_codex_hooks_config'), \
+                    mock.patch.object(INSTALL, 'configure_codex_handoff',
+                                      side_effect=RuntimeError('hook trust unavailable')):
+                with self.assertRaisesRegex(RuntimeError, 'hook trust unavailable'):
+                    INSTALL.install_project_level('workspace', 'view', 'stage', mock.Mock(),
+                                                  project, clients={'codex'}, script_version='release-new')
+            config = INSTALL.json.loads(read_text(config_path))
+            self.assertEqual('release-old', config['workflowReinstallVersion'])
+            self.assertEqual(['codex'], config['workflowInstallPending'])
+
     def installer_patches(self):
         return (
             mock.patch.object(INSTALL, 'register_mcp_json'),
@@ -1230,6 +1254,8 @@ class InstallerWorkflowStateTests(unittest.TestCase):
             ), mock.patch.object(INSTALL, 'remove_cursor_poke_drain_hook'), \
                     mock.patch.object(
                         INSTALL, 'remove_legacy_codex_hooks_config'
+                    ), mock.patch.object(
+                        INSTALL, 'configure_codex_handoff'
                     ):
                 INSTALL.install_project_level(
                     'workspace', 'view', 'stage', mock.Mock(), project_dir,
@@ -1409,6 +1435,8 @@ class CodexInstructionSelectionTests(unittest.TestCase):
                         INSTALL, 'update_codex_integration_config'
                     ), mock.patch.object(
                         INSTALL, 'remove_legacy_codex_hooks_config'
+                    ), mock.patch.object(
+                        INSTALL, 'configure_codex_handoff'
                     ):
                 INSTALL.install_global(
                     'workspace', 'view', 'stage', mock.Mock(),

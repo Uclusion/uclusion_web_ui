@@ -1664,6 +1664,8 @@ class SetupInstallerRegistrationTests(unittest.TestCase):
                     }
                     target_project = project_dir if scope == 'project' else None
                     with mock.patch.multiple(INSTALL, **paths), mock.patch.object(
+                        INSTALL, 'configure_codex_handoff'
+                    ), mock.patch.object(
                         INSTALL, 'install_skill_and_stub', return_value=True
                     ), mock.patch.object(
                         INSTALL,

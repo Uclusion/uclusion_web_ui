@@ -210,7 +210,7 @@ class NativeInboxTests(unittest.TestCase):
         self.environment.start()
         self.addCleanup(self.environment.stop)
 
-    def poke(self, message_id, text='Start a test job', workspace='workspace'):
+    def poke(self, message_id, text='Updated a test job', workspace='workspace'):
         proxy.enqueue_prompt('stage', workspace, {'message_id': message_id, 'message': text})
 
     def delivery(self, client, *roots):
@@ -269,7 +269,7 @@ class NativeInboxTests(unittest.TestCase):
         inbox.state('root', 'sending')
         inbox.release()
         restarted = NativeInbox('stage', 'workspace')
-        self.assertEqual(restarted.next(), (*pending[:3], 'sending', None, 'root', pending[6]))
+        self.assertEqual(restarted.next(), (*pending[:3], 'sending', None, 'root', *pending[6:]))
         restarted.acknowledge('root', pending[0])
         self.assertIsNone(restarted.next())
 
@@ -371,7 +371,8 @@ class NativeInboxTests(unittest.TestCase):
             args = cli.parse_args(['-e', 'stage', 'codex-recipients'])
             self.assertEqual(0, args.func(args))
         result = json.loads(output.getvalue())
-        self.assertEqual('latest', result['selected']['id'])
+        self.assertEqual(['latest', 'older'], [root['id'] for root in result['start_recipients']])
+        self.assertEqual('latest', result['latest_recipient']['id'])
         self.assertEqual(2, result['candidate_count'])
         self.assertEqual('older', result['outstanding_receipt_reconciliation'][0]['root'])
         self.assertEqual(pending[2], result['outstanding_receipt_reconciliation'][0]['client_id'])

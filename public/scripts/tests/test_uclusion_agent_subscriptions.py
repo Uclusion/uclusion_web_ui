@@ -49,24 +49,203 @@ class AgentSubscriptionTests(unittest.TestCase):
         self.delivery._deliver()
         self.assertEqual([('job0-root', 'response0'), ('job1-root', 'response1')], self.admitted())
 
-    def test_start_ignores_loaded_unavailable_and_unmapped_subscribers(self):
+    def test_start_broadcasts_to_active_and_idle_roots_regardless_of_subscribers(self):
         cases = [('loaded', ['job1-root', 'job0-root'], self.agent0),
-                 ('unavailable', ['job1-root'], self.agent0),
-                 ('unmapped', ['job1-root'], 'foreign-agent')]
+                 ('unavailable', ['job1-root', 'another-root'], self.agent0),
+                 ('unmapped', ['job1-root', 'another-root'], 'foreign-agent'),
+                 ('empty', ['another-root', 'job1-root'], None)]
+        self.native.active_turns['job1-root'] = 'busy-turn'
         for index, (case, roots, subscriber) in enumerate(cases):
             with self.subTest(subscriber=case):
                 self.native.roots = roots
                 message = f'Start J-example-{index}'
-                routing = self.poke(message, f'J-example-{index}', [subscriber])
+                routing = self.poke(message, f'J-example-{index}', [subscriber] if subscriber else [])
                 self.delivery._deliver()
-                self.assertEqual([('job1-root', message)],
-                                 [admission for admission in self.admitted() if admission[1] == message])
-                _, root, inputs = self.native.inputs[-1]
-                self.assertEqual('job1-root', root)
-                self.assertEqual(message, inputs[0]['text'])
-                context = json.loads(inputs[1]['text'].split('] ', 1)[1])
-                self.assertEqual({'version': 1, 'message_id': message, 'work': routing['work'],
-                                  'sole_recorded_subscriber': False}, context)
+                self.assertCountEqual([(root, message) for root in roots],
+                                      [admission for admission in self.admitted() if admission[1] == message])
+                for method, root, inputs in self.native.inputs[-len(roots):]:
+                    self.assertEqual('turn/steer' if root == 'job1-root' else 'thread/queue/add', method)
+                    self.assertEqual(message, inputs[0]['text'])
+                    context = json.loads(inputs[1]['text'].split('] ', 1)[1])
+                    self.assertEqual({'version': 1, 'message_id': message, 'work': routing['work'],
+                                      'sole_recorded_subscriber': False}, context)
+
+    def test_competing_proxies_broadcast_once_per_root_with_distinct_admission_ids(self):
+        other = NativeCodexDelivery.__new__(NativeCodexDelivery)
+        other.inbox = NativeInbox('stage', 'workspace')
+        other.client = self.native
+        other.scope_marker = self.delivery.scope_marker
+        other.reconciliation_errors = {}
+        self.addCleanup(other.inbox.close)
+        self.poke('Start J-example-1', 'J-example-1', [self.agent0])
+        barrier = threading.Barrier(2)
+
+        def deliver(worker):
+            barrier.wait(timeout=3)
+            worker._deliver()
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as workers:
+            list(workers.map(deliver, (self.delivery, other)))
+        self.poke('Start J-example-1', 'J-example-1', [self.agent1])
+        self.native.roots.reverse()
+        self.delivery._deliver()
+        other._deliver()
+        self.assertCountEqual([('job1-root', 'Start J-example-1'), ('job0-root', 'Start J-example-1')],
+                              self.admitted())
+        self.assertEqual(2, len({client_id for _, client_id, _ in self.native.admissions}))
+
+    def test_uncertain_start_copy_preserves_root_order_without_blocking_other_roots(self):
+        self.native.lose_receipt = True
+        self.poke('Start J-example-1', 'J-shared', [self.agent0])
+        self.delivery._deliver()
+        request = self.native.request
+
+        def unavailable(method, params):
+            if method == 'thread/queue/list' and params['threadId'] == 'job1-root':
+                raise NativeRequestError('temporarily unavailable')
+            return request(method, params)
+
+        self.native.request = unavailable
+        self.poke('Start J-example-2', 'J-shared', [])
+        self.poke('response0', 'J-shared', [self.agent0])
+        with redirect_stderr(io.StringIO()):
+            self.delivery._deliver()
+        self.assertEqual([('job1-root', 'Start J-example-1'), ('job0-root', 'Start J-example-1'),
+                          ('job0-root', 'Start J-example-2'), ('job0-root', 'response0')], self.admitted())
+        self.native.request = request
+        self.delivery.inbox.close()
+        self.delivery.inbox = NativeInbox('stage', 'workspace')
+        self.addCleanup(self.delivery.inbox.close)
+        self.native.roots.reverse()
+        self.delivery._deliver()
+        self.assertEqual(('job1-root', 'Start J-example-2'), self.admitted()[-1])
+        self.assertEqual(5, len(self.admitted()), 'Reconciliation must not resend the admitted first copy')
+
+    def test_repeated_start_submission_timeout_does_not_starve_other_roots(self):
+        request = self.native.request
+        attempts = []
+
+        def timeout(method, params):
+            if method in ('thread/queue/add', 'turn/steer') and params['threadId'] == 'job1-root':
+                attempts.append(params['clientUserMessageId'])
+                raise TimeoutError('submission outcome unknown')
+            return request(method, params)
+
+        self.native.request = timeout
+        self.poke('Start J-example-1', 'J-shared', [])
+        with patch('uclusionCodexNative.time.time', return_value=100) as clock:
+            self.delivery._deliver()
+            self.poke('Start J-example-2', 'J-shared', [])
+            for timestamp in (120, 140):
+                clock.return_value = timestamp
+                self.delivery._deliver()
+            self.assertEqual([('job0-root', 'Start J-example-1'), ('job0-root', 'Start J-example-2')],
+                             self.admitted())
+            self.assertEqual(3, len(attempts))
+            self.assertEqual(1, len(set(attempts)), 'Retries retain the first root admission identity')
+            self.native.request = request
+            clock.return_value = 160
+            self.delivery._deliver()
+        self.assertEqual([('job1-root', 'Start J-example-1'), ('job1-root', 'Start J-example-2')],
+                         self.admitted()[-2:])
+
+    def test_start_snapshot_waits_for_eligibility_and_does_not_add_late_roots(self):
+        self.native.roots = []
+        self.poke('Start J-example-1', 'J-example-1', [])
+        self.delivery._deliver()
+        self.assertEqual([], self.admitted())
+        self.native.roots = ['job1-root', 'job0-root']
+        self.delivery._deliver()
+        self.native.roots.append('late-root')
+        self.delivery._deliver()
+        self.assertCountEqual([('job1-root', 'Start J-example-1'), ('job0-root', 'Start J-example-1')],
+                              self.admitted())
+
+    def test_start_broadcast_excludes_helpers_unloaded_and_wrong_scope_conversations(self):
+        request = self.native.request
+        excluded = ['inactive-helper', 'active-helper', 'unloaded', 'auxiliary', 'foreign']
+        self.native.roots.extend(excluded)
+
+        def eligibility(method, params):
+            if method == 'thread/loaded/list':
+                return {'data': [root for root in self.native.roots if root != 'unloaded']}
+            root = params.get('threadId')
+            if method == 'thread/read' and root in excluded:
+                return {'thread': {'id': root, 'threadSource': 'user',
+                                  'parentThreadId': 'job0-root' if root.endswith('helper') else None,
+                                  'canAcceptDirectInput': root != 'auxiliary',
+                                  'status': {'type': 'active' if root == 'active-helper' else 'idle'}}}
+            if method == 'mcpServerStatus/list' and root == 'foreign':
+                return {'data': [{'runtimeStatus': 'connected', 'serverInfo': {
+                    'version': '1+' + native_scope('production', 'other-workspace')}}]}
+            return request(method, params)
+
+        self.native.request = eligibility
+        self.poke('Start J-example-1', 'J-example-1', [])
+        self.delivery._deliver()
+        self.assertCountEqual([('job1-root', 'Start J-example-1'), ('job0-root', 'Start J-example-1')],
+                              self.admitted())
+
+    def test_attempted_legacy_start_keeps_its_existing_root_without_broadcast_replay(self):
+        self.poke('Start J-example-1', 'J-example-1', [])
+        pending = self.delivery.inbox.next()
+        self.delivery.inbox.state('job0-root', 'sending')
+        self.delivery.inbox.release()
+        self.native.admissions.append(('job0-root', pending[2], pending[1]))
+        self.delivery._deliver()
+        self.assertEqual([('job0-root', 'Start J-example-1')], self.admitted())
+
+    def test_private_replay_start_keeps_single_recipient_behavior(self):
+        self.poke('Start J-example-1', 'J-example-1', [])
+        self.delivery.inbox.close()
+        self.delivery.inbox = NativeInbox('stage', 'workspace', replay=True)
+        self.addCleanup(self.delivery.inbox.close)
+        self.delivery._deliver()
+        self.delivery._deliver()
+        self.assertEqual([('job1-root', 'Start J-example-1')], self.admitted())
+
+    def test_connection_scan_failure_preserves_start_across_restart_without_partial_broadcast(self):
+        request = self.native.request
+        self.native.start = lambda: None
+        self.native.close = lambda: None
+        self.native.closed = threading.Event()
+        self.delivery.codex_home = 'unused-native-fixture'
+        self.delivery.socket_path = None
+        self.delivery.tools_changed = lambda: None
+        self.delivery.lock = threading.RLock()
+        self.delivery.stop = threading.Event()
+        self.delivery.scan_requested = threading.Event()
+        self.delivery.context_events = None
+        self.delivery.collectors = {}
+        self.delivery.joined_roots = set()
+        self.delivery.pending_descendants = set()
+        for index, (scoped, during_scan) in enumerate(((None, False), (['job1-root'], False), (None, True))):
+            with self.subTest(scoped=scoped, during_scan=during_scan):
+                message = f'Start J-example-{index}'
+
+                def fail_scan(method, params):
+                    if method == 'thread/read' and params['threadId'] == 'job0-root':
+                        if during_scan:
+                            self.poke(message, 'J-example-1', [])
+                        raise NativeRequestError('eligibility unavailable')
+                    return request(method, params)
+
+                if not during_scan:
+                    self.poke(message, 'J-example-1', [])
+                self.native.request = fail_scan
+                self.delivery.scoped_roots = scoped
+                with patch('uclusionCodexNative.NativeClient', return_value=self.native), \
+                        patch('uclusionCodexNative.ReconnectBackoff.wait', return_value=True), \
+                        redirect_stderr(io.StringIO()):
+                    self.delivery._run_connections()
+                self.assertFalse(any(text == message for _, text in self.admitted()))
+                self.delivery.inbox.close()
+                self.delivery.inbox = NativeInbox('stage', 'workspace')
+                self.addCleanup(self.delivery.inbox.close)
+                self.native.request = request
+                self.delivery._deliver()
+                self.assertCountEqual([('job1-root', message), ('job0-root', message)],
+                                      [(root, text) for root, text in self.admitted() if text == message])
 
     def test_unavailable_subscriber_does_not_block_other_work_or_receive_out_of_order(self):
         self.native.roots = ['job1-root']
@@ -177,7 +356,7 @@ class AgentSubscriptionTests(unittest.TestCase):
             else:
                 self.poke(message, 'job0', subscribers)
         self.delivery._deliver()
-        self.assertEqual(len(cases), len(self.native.inputs))
+        self.assertEqual(len(cases) + 1, len(self.native.inputs))
         for _, _, inputs in self.native.inputs:
             context = json.loads(inputs[-1]['text'].split('] ', 1)[1])
             self.assertFalse(context['sole_recorded_subscriber'])
@@ -238,7 +417,7 @@ class AgentSubscriptionTests(unittest.TestCase):
                                (json.dumps([['job1-root', 'prior-id', 'prior-turn']]),))
         self.delivery.inbox.release()
         self.poke('later', 'different-job', [self.agent1])
-        self.assertIsNone(self.delivery.inbox.next(self.native.roots, {first[0]}))
+        self.assertIsNone(self.delivery.inbox.next(self.native.roots, {first[2]}))
 
     def test_ingestion_reserves_all_arrivals_and_restart_preserves_envelopes(self):
         self.poke('first', 'job0', [self.agent0])

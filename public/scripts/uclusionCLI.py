@@ -4171,7 +4171,7 @@ def build_parser():
     subparsers = parser.add_subparsers(dest='command', metavar='COMMAND', required=True)
 
     recipients_parser = subparsers.add_parser(
-        'codex-recipients', help='Inspect eligible native Codex recipients and the latest selected conversation.')
+        'codex-recipients', help='Inspect eligible Codex Start broadcast recipients and non-Start recency order.')
     recipients_parser.set_defaults(func=cmd_codex_recipients)
 
     sync_parser = subparsers.add_parser(

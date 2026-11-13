@@ -26,6 +26,11 @@ from uclusionUpdateNotices import UpdateNoticeStore
 POKE_RETRY_DELAYS_SECONDS = (1, 2, 4, 5)
 
 
+def is_start_poke(message):
+    return ((message == 'Start' or message.startswith('Start '))
+            and '\n' not in message and '\r' not in message)
+
+
 def native_scope(environment, workspace_id):
     identity = json.dumps([environment, workspace_id], separators=(',', ':')).encode('utf-8')
     digest = hashlib.sha256(b'uclusion.codex.native.scope.v1\0' + identity).hexdigest()
@@ -373,6 +378,56 @@ class NativeInbox:
                 WHERE environment = ? AND workspace_id = ? AND root = ?""",
                 (*self.scope()[:2], root)).fetchone()[0]
 
+    def _reserve_arrivals(self, connection):
+        events = connection.execute("""SELECT sequence FROM poke_messages
+            WHERE environment = ? AND workspace_id = ? AND consumed_at IS NULL
+            AND sequence > (SELECT last_sequence FROM poke_consumers
+                WHERE environment = ? AND workspace_id = ? AND consumer = ?)
+            ORDER BY sequence""", (*self.scope()[:2], *self.scope())).fetchall()
+        for (sequence,) in events:
+            self._insert(connection, sequence)
+        if events:
+            connection.execute("""UPDATE poke_consumers SET last_sequence = ?, updated_at = ?
+                WHERE environment = ? AND workspace_id = ? AND consumer = ?""",
+                (events[-1][0], time.time(), *self.scope()))
+
+    def reserve(self):
+        """Keep arrivals durable before a native eligibility read can fail."""
+        with closing(open_inbox()) as connection, connection:
+            connection.execute('BEGIN IMMEDIATE')
+            self._reserve_arrivals(connection)
+
+    def _expand_starts(self, connection, recipients):
+        """Reserve one immutable admission per eligible root, atomically."""
+        if not recipients or ':replay:' in self.consumer:
+            return
+        rows = connection.execute("""SELECT p.consumer, p.sequence, m.message, p.routing,
+                p.owner_instance, p.owner_pid, p.prior_admissions
+            FROM codex_native_pending p JOIN poke_messages m ON m.sequence = p.sequence
+            WHERE p.environment = ? AND p.workspace_id = ? AND p.stream = ?
+            AND p.state = 'pending' AND p.root IS NULL AND p.attempt_count = 0""",
+            self.scope()).fetchall()
+        for consumer, sequence, message, encoded, owner, pid, prior in rows:
+            if (not is_start_poke(message) or json.loads(prior or '[]')
+                    or (owner not in (None, self.owner) and self.pid_is_alive(pid))):
+                continue
+            if encoded is not None:
+                routing = json.loads(encoded)
+                if not isinstance(routing, dict) or routing.get('version') != 1:
+                    continue
+            for root in recipients:
+                admission = self.consumer + ':start:' + str(sequence) + ':' + root
+                client_id = str(uuid.uuid5(uuid.NAMESPACE_URL,
+                                          json.dumps((*self.scope(), sequence, root))))
+                connection.execute("""INSERT OR IGNORE INTO codex_native_pending
+                    (environment, workspace_id, consumer, stream, sequence, client_id, state, routing, root)
+                    VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?)""",
+                    (*self.scope()[:2], admission, self.consumer, sequence, client_id, encoded, root))
+            connection.execute("""UPDATE codex_native_pending SET state = 'accepted',
+                owner_instance = NULL, owner_pid = NULL, selected_root = NULL
+                WHERE environment = ? AND workspace_id = ? AND consumer = ?""",
+                (*self.scope()[:2], consumer))
+
     def next(self, recipients=None, skipped=()):
         """Reserve arrivals before advancing ingestion; admit independent work.
 
@@ -380,39 +435,31 @@ class NativeInbox:
         blocks its work unless it is only waiting for unavailable subscribed
         roots: subscriptions are permanent, so a closed conversation must not
         hold back that work's later events for another subscribed root. The
-        transaction also owns selection, so competing proxies cannot admit
-        later work to the same root while its earlier admission is uncertain.
+        transaction also owns broadcast expansion and selection, so competing
+        proxies cannot admit later work to the same root while its earlier
+        admission is uncertain. Broadcast copies block only their own root.
         """
         with closing(open_inbox()) as connection, connection:
             connection.execute('BEGIN IMMEDIATE')
             connection.execute("""DELETE FROM codex_native_pending WHERE environment = ?
                 AND workspace_id = ? AND stream = ? AND sequence NOT IN (SELECT sequence FROM poke_messages)""",
                 self.scope())
-            events = connection.execute("""SELECT sequence FROM poke_messages
-                WHERE environment = ? AND workspace_id = ? AND consumed_at IS NULL
-                AND sequence > (SELECT last_sequence FROM poke_consumers
-                    WHERE environment = ? AND workspace_id = ? AND consumer = ?)
-                ORDER BY sequence""", (*self.scope()[:2], *self.scope())).fetchall()
-            for (sequence,) in events:
-                self._insert(connection, sequence)
-            if events:
-                connection.execute("""UPDATE poke_consumers SET last_sequence = ?, updated_at = ?
-                    WHERE environment = ? AND workspace_id = ? AND consumer = ?""",
-                    (events[-1][0], time.time(), *self.scope()))
+            self._reserve_arrivals(connection)
+            self._expand_starts(connection, recipients)
             rows = connection.execute("""SELECT p.sequence, m.message, p.client_id, p.state,
                     p.steered_turn_id, p.root, p.owner_instance, p.owner_pid, p.routing, p.selected_root,
-                    p.prior_admissions, m.message_id
+                    p.prior_admissions, m.message_id, p.consumer
                 FROM codex_native_pending p JOIN poke_messages m ON m.sequence = p.sequence
                 WHERE p.environment = ? AND p.workspace_id = ? AND p.stream = ? AND p.state != 'accepted'
-                ORDER BY p.sequence""", self.scope()).fetchall()
+                ORDER BY p.sequence, p.rowid""", self.scope()).fetchall()
             agents = dict(connection.execute("""SELECT agent_id, root FROM codex_native_agents
                 WHERE environment = ? AND workspace_id = ?""", self.scope()[:2]))
             blocked_roots, blocked_work = set(), set()
             for row in rows:
-                sequence, message, _, _, _, frozen, owner, pid, encoded, selected, prior, message_id = row
+                sequence, message, client_id, _, _, frozen, owner, pid, encoded, selected, prior, message_id, consumer = row
                 owned_elsewhere = owner not in (None, self.owner) and self.pid_is_alive(pid)
-                is_start = ((message == 'Start' or message.startswith('Start '))
-                            and '\n' not in message and '\r' not in message)
+                is_start = is_start_poke(message)
+                broadcast = consumer.startswith(self.consumer + ':start:')
                 work = None
                 roots = None
                 routing = None
@@ -428,8 +475,8 @@ class NativeInbox:
                         roots = {agents[agent] for agent in subscribers if agent in agents}
                         if not roots and not frozen:
                             connection.execute("""UPDATE codex_native_pending SET state = 'accepted'
-                                WHERE environment = ? AND workspace_id = ? AND stream = ? AND sequence = ?""",
-                                (*self.scope(), sequence))
+                                WHERE environment = ? AND workspace_id = ? AND consumer = ?""",
+                                (*self.scope()[:2], consumer))
                             continue
                 if frozen:
                     roots = {frozen}
@@ -445,25 +492,25 @@ class NativeInbox:
                 # Frozen, attempted or elsewhere-owned rows keep blocking their work.
                 awaiting_subscriber = (recipients is not None and candidate is None and bool(roots)
                                        and not (frozen or prior_roots or owned_elsewhere))
-                if work and not awaiting_subscriber:
+                if work and not awaiting_subscriber and not broadcast:
                     blocked_work.add(work)
                 blocked_roots.update(order_roots)
-                if (blocked or owned_elsewhere or sequence in skipped
+                if (blocked or owned_elsewhere or client_id in skipped
                         or (recipients is not None and candidate is None)):
                     if recipients is None:
                         return None
                     continue
                 connection.execute("""UPDATE codex_native_pending
                     SET owner_instance = ?, owner_pid = ?, selected_root = ?
-                    WHERE environment = ? AND workspace_id = ? AND stream = ? AND sequence = ?""",
-                    (self.owner, os.getpid(), candidate, *self.scope(), sequence))
+                    WHERE environment = ? AND workspace_id = ? AND consumer = ?""",
+                    (self.owner, os.getpid(), candidate, *self.scope()[:2], consumer))
                 delivery_context = {
                     'version': 1, 'message_id': message_id,
                     'work': routing['work'] if routing else None,
                     'sole_recorded_subscriber': bool(not is_start and len(subscribers) == 1
                                                      and agents.get(subscribers[0]) == candidate),
                 }
-                return (*row[:5], candidate, delivery_context)
+                return (*row[:5], candidate, delivery_context, broadcast)
             return None
 
     def release(self):
@@ -953,20 +1000,26 @@ class NativeCodexDelivery:
                 self.pending_descendants.discard(child)
 
     def _deliver(self):
+        self.inbox.reserve()
         recipients = [thread['id'] for thread in native_recipients(self.client, self.scope_marker)]
         skipped = set()
         while True:
             pending = self.inbox.next(recipients, skipped)
             if pending is None:
                 return
-            skipped.add(pending[0])
+            skipped.add(pending[2])
             try:
                 self._deliver_owned(pending)
+            except TimeoutError:
+                if not pending[7]:
+                    raise
+                # Its sending state retains the uncertain receipt. Continue
+                # sibling copies instead of reconnecting before they run.
             finally:
                 self.inbox.release()
 
     def _deliver_owned(self, pending):
-        sequence, text, client_id, state, steered_turn_id, root, delivery_context = pending
+        sequence, text, client_id, state, steered_turn_id, root, delivery_context, _ = pending
         prior = self.inbox.prior_admissions()
         reconciliation = ([(root, client_id, steered_turn_id)] if state == 'sending' else []) + prior
         uncertain = False
@@ -1134,6 +1187,7 @@ class NativeCodexDelivery:
                 self.tools_changed()
                 next_scan = 0
                 while not self.stop.is_set() and not client.closed.is_set():
+                    self.inbox.reserve()
                     with self.lock:
                         scoped_roots = getattr(self, 'scoped_roots', None)
                         scoped = None if scoped_roots is None else tuple(scoped_roots)
@@ -1158,6 +1212,12 @@ class NativeCodexDelivery:
                     self.stop.wait(.25)
             except Exception as error:
                 kind = type(error).__name__
+                if not self.stop.is_set():
+                    try:
+                        # A Poke may have arrived during the failed native read.
+                        self.inbox.reserve()
+                    except Exception as reservation_error:
+                        kind += '; Poke reservation failed: ' + type(reservation_error).__name__
                 if kind != reported_error and not self.stop.is_set():
                     sys.stderr.write(f'Uclusion native Codex connection is unavailable ({kind}); reconnecting.\n')
                     reported_error = kind
@@ -1237,5 +1297,6 @@ def inspect_native_recipients(environment, workspace_id, codex_home):
                                             'state': 'checking_prior_admission', 'steered_turn_id': prior_turn})
     return {'environment': environment, 'workspace_id': workspace_id,
             'candidate_count': len(identities), 'candidates': identities,
-            'selected': identities[0] if identities else None,
+            'start_recipients': identities,
+            'latest_recipient': identities[0] if identities else None,
             'outstanding_receipt_reconciliation': outstanding}

@@ -752,6 +752,7 @@ class CodexIntegrationConfigTests(unittest.TestCase):
             'codex',
             'Codex (project)',
             assume_yes=True,
+                work_claims=False,
         )
 
 
@@ -1003,6 +1004,9 @@ class ResponseStatsInstallerTests(unittest.TestCase):
                 CLAUDE_SETTINGS_PATH=claude_settings,
                 CURSOR_MCP_PATH=cursor_mcp,
                 CODEX_CONFIG_PATH=codex_config,
+                CLAUDE_SKILL_DIR=os.path.join(directory, 'claude-skill'),
+                CURSOR_SKILL_DIR=os.path.join(directory, 'cursor-skill'),
+                CODEX_SKILL_DIR=os.path.join(directory, 'codex-skill'),
             ), mock.patch.object(INSTALL, 'install_scripts') as scripts, \
                     mock.patch.object(INSTALL.urllib.request, 'urlopen') as download:
                 INSTALL.reapply_saved_feature_surfaces(

@@ -69,6 +69,12 @@ table for which role receives a request. Keep shared procedures in
 [references/](references/), and link to them from the roles that use them.
 A role file should describe its own actions, not repeat another role's job.
 
+The installer renders [claims.md](references/claims.md) from the saved claims
+setting and refreshes it on feature changes. Disabled installs say only that
+claims are not enabled; enabled installs link to the optional
+[claim procedure](references/claims-enabled.md). Keep assignment rules that
+apply in both states in the coordinator lifecycle.
+
 Tool arguments and response handling belong in the tool descriptions in
 `uclusion_investible_api/handlers/mcp_serve.py`. Run
 `generateRoleToolFiles.py` from the web UI repository to generate the

@@ -175,7 +175,8 @@ class CodexDemoSetupTests(unittest.TestCase):
             self.assertEqual(content, path.read_text())
         for key, relative in INSTALL.SKILL_PACKAGE_ASSETS:
             self.assertEqual(
-                self.bundle[key],
+                INSTALL.render_work_claims_reference(self.bundle[key], False)
+                if key == 'claims_reference' else self.bundle[key],
                 (self.home / '.agents' / 'skills' / 'uclusion' / relative).read_text(),
             )
         self.assertFalse((self.home / '.agents' / 'skills' / INSTALL.RETIRED_DESIGN_SKILL_NAME).exists())

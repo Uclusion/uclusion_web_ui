@@ -309,6 +309,11 @@ RETIRED_DESIGN_SKILL_NAME = 'uclusion-design'
 RETIRED_DESIGN_SKILL_MARKER = '<!-- uclusion-design-skill:v1 -->'
 RETIRED_DESIGN_SKILL_END_MARKER = '<!-- /uclusion-design-skill:v1 -->'
 WORKFLOW_ENV_PLACEHOLDER = '{{UCLUSION_CLI}}'
+WORKFLOW_CLAIMS_PLACEHOLDER = '{{UCLUSION_WORK_CLAIMS}}'
+WORKFLOW_CLAIMS_STATUS = {
+    False: 'Claims are not enabled.',
+    True: 'Claims are enabled. Read [claims-enabled.md](claims-enabled.md).',
+}
 WORKFLOW_ASSET_PATHS = {
     'claude_stub': 'CLAUDE.template.md',
     'codex_stub': 'AGENTS.template.md',
@@ -321,6 +326,7 @@ WORKFLOW_ASSET_PATHS = {
     'completion_reference': 'skills/uclusion/references/completion.md',
     'audit_reference': 'skills/uclusion/references/audit.md',
     'claims_reference': 'skills/uclusion/references/claims.md',
+    'claims_enabled_reference': 'skills/uclusion/references/claims-enabled.md',
     'capsule_dispatch_reference': 'skills/uclusion/references/capsule-dispatch.md',
     'delivery_common_reference': 'skills/uclusion/references/delivery-common.md',
     'durable_records_reference': 'skills/uclusion/references/durable-records.md',
@@ -359,11 +365,12 @@ WORKFLOW_ASSET_SHA256 = {
     'skill': '4b2fa01ca9cb69cb223b4ac69e9790cb0da1507dd452be5db291b465968f7d32',
     'claude_delivery_reference': 'aeb706c010893adda8d484e9644002c42a2333b16a529a47427896fee3d4d995',
     'cursor_delivery_reference': '284d6a9b926d4423a1aeb54d776cf81452f27da8241ff5c075c888441aa361c4',
-    'coordinator_lifecycle_reference': 'ab91a7c02d40019014616d69d3aaf46f92ad559f6657823ddd2ca58b491d83c7',
+    'coordinator_lifecycle_reference': '6be085467c91659eff0322b6a468637bd7872aab3751d6fcce6506866d0ce1a5',
     'helper_conversation_reference': 'b4644b1698f5cf6d67776ee307060eded30b0632d0d19c937445dcddcf44b2a6',
     'completion_reference': 'eac72eaeace29d407a3a24c67845d548c082469e4d152199de7fba0541a2f6dc',
     'audit_reference': 'ec84f4cfe7597c4560b26bba1d55f6ae5924d34f7afbca725982d85bb696de2b',
-    'claims_reference': 'a9b28885b3f2272003e96482c85a28640d6d63b253154701a51c65166bb1f8db',
+    'claims_reference': 'f482e0458cb3ef3367b84092ae318e6d2c1deba685fafd17e14682e6f5c389f5',
+    'claims_enabled_reference': 'addba45a9299cf582597b37dc0660f2d7f3a0300399f0afa42cf63c9c1e9e2f5',
     'capsule_dispatch_reference': '5032df89e3ebbf4aa80e3c7a4fb6945cd17288a3c8b7d4c4070116f1411d411a',
     'delivery_common_reference': '954bd57326ea477236dbb2f21c79cc67145cc8fb4ca60d86436d0445ba8a7178',
     'durable_records_reference': '797dbf5956ff5c14438fe91bf15559119c86278bcdeeddc5f222363b07d21ca9',
@@ -384,7 +391,7 @@ WORKFLOW_ASSET_SHA256 = {
     'backlog_maintenance_tools': '1399f0b2a140abed4e0054cf11c60446882e787d91e644f9c71447cf5306932d',
     'design_tools': '0e58f542dcb35d231b3bc674acf24569ffca6ee179a01dae3616f7f8af140254',
     'demo_brief': 'b68f6501270c63456c19053d1b5af296350288754239c7f9d6074a3a5497789f',
-    'token_manifest': '1baaf5dbf848d963f3f8c9be676025571c684699aa3746481f3f5899596eb98f',
+    'token_manifest': 'a39eab1efa0fd25671800e2b852ae75a1fefdadafd7e91df092a4ea1c9f0430d',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',
@@ -399,6 +406,7 @@ SKILL_PACKAGE_ASSETS = (
     ('completion_reference', os.path.join('references', 'completion.md')),
     ('audit_reference', os.path.join('references', 'audit.md')),
     ('claims_reference', os.path.join('references', 'claims.md')),
+    ('claims_enabled_reference', os.path.join('references', 'claims-enabled.md')),
     ('capsule_dispatch_reference', os.path.join('references', 'capsule-dispatch.md')),
     ('delivery_common_reference', os.path.join('references', 'delivery-common.md')),
     ('durable_records_reference', os.path.join('references', 'durable-records.md')),
@@ -1378,11 +1386,24 @@ def reapply_saved_feature_surfaces(env, config_path, clients, project_dir=None):
         claude_mcp = CLAUDE_JSON_PATH
         cursor_mcp = CURSOR_MCP_PATH
         codex_config = CODEX_CONFIG_PATH
+        skill_dirs = {
+            'claude': CLAUDE_SKILL_DIR,
+            'cursor': CURSOR_SKILL_DIR,
+            'codex': CODEX_SKILL_DIR,
+        }
     else:
         claude_settings = os.path.join(project_dir, '.claude', 'settings.local.json')
         claude_mcp = os.path.join(project_dir, '.mcp.json')
         cursor_mcp = os.path.join(project_dir, '.cursor', 'mcp.json')
         codex_config = os.path.join(project_dir, '.codex', 'config.toml')
+        skill_dirs = {
+            client: os.path.join(project_dir, directory, 'skills', 'uclusion')
+            for client, directory in (
+                ('claude', '.claude'), ('cursor', '.cursor'), ('codex', '.agents')
+            )
+        }
+    for client in selected:
+        refresh_work_claims_reference(skill_dirs[client], work_claims)
     if 'claude' in selected and os.path.exists(claude_mcp):
         registration_audit = apply_token_audit_choices(config, workspace_id)
         result = None
@@ -1820,7 +1841,7 @@ def demo_codex_owner_instructions_path():
     return os.path.join(UCLUSION_HOME, 'owner-instructions.md')
 
 
-def install_demo_plugin(fetch_bundle):
+def install_demo_plugin(fetch_bundle, work_claims=False):
     """Write the workflow into the demo's own directory instead of the person's.
 
     A demo session loads its skills with --plugin-dir and its bootstrap with
@@ -1828,15 +1849,15 @@ def install_demo_plugin(fetch_bundle):
     configuration. Verified against a background session started this way,
     which reported a skill that exists only in this directory.
 
-    The skill packages are written byte-for-byte as an ordinary install writes
-    them; only the stub takes the CLI substitution, exactly as
-    install_skill_and_stub does.
+    The skill package uses the same feature rendering as an ordinary install;
+    the stub takes the same CLI substitution as install_skill_and_stub.
     """
     bundle = fetch_bundle()
     if bundle is None:
         raise RuntimeError('the Uclusion workflow bundle is unavailable')
     validate_workflow_bundle(bundle)
     install_token_manifest(bundle)
+    bundle = render_workflow_features(bundle, work_claims)
     environment = getattr(fetch_bundle, '__dict__', {}).get(
         'workflow_environment'
     )
@@ -1894,11 +1915,12 @@ def demo_codex_cli_args(environment):
     return command
 
 
-def install_demo_codex_workflow(fetch_bundle):
+def install_demo_codex_workflow(fetch_bundle, work_claims=False):
     """Install Codex's skills, bootstrap and additive rules only in the demo."""
     bundle = fetch_bundle()
     validate_workflow_bundle(bundle)
     install_token_manifest(bundle)
+    bundle = render_workflow_features(bundle, work_claims)
     environment = getattr(fetch_bundle, 'workflow_environment', 'production')
     command = demo_codex_cli_args(environment)
     cli = ' '.join(shlex.quote(part) for part in command)
@@ -6426,6 +6448,9 @@ def validate_workflow_bundle(bundle):
                 f'workflow asset {key} has invalid reference markers'
             )
 
+    if bundle['claims_reference'].count(WORKFLOW_CLAIMS_PLACEHOLDER) != 1:
+        raise RuntimeError('claims reference lacks its feature placeholder')
+
     metadata = bundle['openai_metadata']
     if (
         'display_name: "Uclusion"' not in metadata
@@ -7088,6 +7113,35 @@ def install_token_manifest(bundle):
     os.replace(temporary, path)
 
 
+def render_work_claims_reference(content, enabled):
+    """Render the template or refresh a previously rendered feature state."""
+    for state in (WORKFLOW_CLAIMS_PLACEHOLDER, *WORKFLOW_CLAIMS_STATUS.values()):
+        if content.count(state) == 1:
+            return content.replace(state, WORKFLOW_CLAIMS_STATUS[enabled])
+    raise RuntimeError('work claims instructions need a Uclusion workflow update')
+
+
+def render_workflow_features(bundle, work_claims):
+    return {**bundle, 'claims_reference': render_work_claims_reference(
+        bundle['claims_reference'], work_claims,
+    )}
+
+
+def refresh_work_claims_reference(skill_dir, enabled):
+    """Keep an installed feature page current without a workflow download."""
+    with install_lock():
+        _recover_skill_transaction(skill_dir)
+        if not _validate_owned_skill(skill_dir):
+            return
+        path = os.path.join(skill_dir, 'references', 'claims.md')
+        existing, signature = _read_text_snapshot(path)
+        if signature is None:
+            raise RuntimeError('work claims instructions need a Uclusion workflow update')
+        content = render_work_claims_reference(existing, enabled)
+        if content != existing:
+            atomic_write_text(path, content, existing, path, signature)
+
+
 def install_skill_and_stub(
     fetch_bundle,
     skill_dir,
@@ -7096,6 +7150,7 @@ def install_skill_and_stub(
     client_label,
     assume_yes=False,
     require_dir=None,
+    work_claims=False,
 ):
     """Install the native skill, then shrink the resident instructions.
 
@@ -7145,6 +7200,7 @@ def install_skill_and_stub(
             raise RuntimeError('the Uclusion workflow bundle is unavailable')
         validate_workflow_bundle(bundle)
         install_token_manifest(bundle)
+        bundle = render_workflow_features(bundle, work_claims)
 
         environment = getattr(fetch_bundle, '__dict__', {}).get(
             'workflow_environment'
@@ -7862,7 +7918,7 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
             try:
                 if uclusion_home_root() == demo_home_path():
                     workflow_results['claude'] = install_demo_plugin(
-                        fetch_bundle
+                        fetch_bundle, work_claims=work_claims,
                     )
                 else:
                     workflow_results['claude'] = install_skill_and_stub(
@@ -7872,6 +7928,7 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                         'claude',
                         'Claude Code',
                         assume_yes=not interactive,
+                        work_claims=work_claims,
                     )
             except Exception as err:
                 workflow_results['claude'] = False
@@ -7888,6 +7945,7 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                     'cursor',
                     'Cursor',
                     assume_yes=not interactive,
+                    work_claims=work_claims,
                 )
                 workflow_results['cursor'] = installed
                 if installed:
@@ -7902,7 +7960,7 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
             try:
                 if uclusion_home_root() == demo_home_path():
                     workflow_results['codex'] = install_demo_codex_workflow(
-                        fetch_bundle
+                        fetch_bundle, work_claims=work_claims,
                     )
                 else:
                     codex_resident_path = effective_codex_instruction_path(
@@ -7916,6 +7974,7 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                         'Codex',
                         assume_yes=not interactive,
                         require_dir=CODEX_HOME if interactive else None,
+                        work_claims=work_claims,
                     )
                     workflow_results['codex'] = installed
                     if installed and not replace_setup:
@@ -8086,6 +8145,7 @@ def install_project_level(
                 'claude',
                 'Claude Code (project)',
                 assume_yes=not interactive,
+                work_claims=work_claims,
             )
         except Exception as err:
             workflow_results['claude'] = False
@@ -8099,6 +8159,7 @@ def install_project_level(
                 'cursor',
                 'Cursor (project)',
                 assume_yes=not interactive,
+                work_claims=work_claims,
             )
             workflow_results['cursor'] = installed
             if installed:
@@ -8120,6 +8181,7 @@ def install_project_level(
                 'codex',
                 'Codex (project)',
                 assume_yes=not interactive,
+                work_claims=work_claims,
             )
             workflow_results['codex'] = installed
             if installed and not replace_setup:

@@ -173,6 +173,12 @@ def shipped_artifacts(installer, token_audit, scripts_dir):
         if not relative_path.endswith('.md'):
             continue
         text = read(key)
+        if key == 'claims_reference':
+            for enabled in (False, True):
+                add('skill', installer.WORKFLOW_ASSET_PATHS[key]
+                    + f', claims {"enabled" if enabled else "disabled"}',
+                    installer.render_work_claims_reference(text, enabled))
+            continue
         add('skill', installer.WORKFLOW_ASSET_PATHS[key], text)
         # Claude Code's Skill tool presents a skill without its frontmatter.
         add('skill', installer.WORKFLOW_ASSET_PATHS[key] + ', frontmatter removed',

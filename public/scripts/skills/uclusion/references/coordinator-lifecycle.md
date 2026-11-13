@@ -9,11 +9,11 @@ Keep role/helper identities, canonical scopes and known members, original unansw
 
 Subscribe when adopting a job or standalone bug, whether a human selected it or it was adopted automatically. Native Codex calls `set_agent_subscription` with the selected work's short code; the native proxy supplies identity, so do not invent or pass an agent ID. Claude Code and Cursor run the subscribe command their delivery reference names. Retain the returned canonical work and agent identity with the assignment. A failed subscription leaves adoption visibly unfinished; retry before dependent work. Start can reach a conversation before it subscribes; subscribing on adoption is what keeps the work's other Pokes arriving. Subscriptions are permanent: nothing releases them. Previously queued legacy events retain their delivery compatibility.
 
-For native Codex, automatic selection must first have a confirmed native claim, then a confirmed subscription identifying the same canonical work and agent. A denied or uncertain claim creates no subscription and starts no substantive work. If registration fails after a grant, retain that exact claim and report unfinished adoption; retry registration with the same identity, or release the claim if adoption is abandoned. Human selection subscribes without requiring a claim. Reconcile an uncertain grant or lost lease before automatic work begins. The root owns these identity-bound mutations; helpers never supply a parent identity or mutate membership. Claude Code and Cursor keep their existing claim step for automatic selection, then subscribe.
+Read [claims.md](claims.md).
 
-Assignment release or explicit switching handles only any remaining claim and the audit end; it never unsubscribes. On a confirmed bug-to-job move, subscribe to the returned job before continuing; the former bug keeps its subscription. A Poke for work this conversation no longer holds does not restore that assignment. Reads, helper research and Poke receipt never subscribe.
+On a confirmed bug-to-job move, subscribe to the returned job before continuing; the former bug keeps its subscription. A Poke for work this conversation no longer holds does not restore that assignment. Reads, helper research and Poke receipt never subscribe.
 
-When the continuing native assignment requires a claim after a bug moves into a job, first confirm the canonical job's claim and matching subscription. Denial or uncertainty leaves the handoff unfinished. Preserve the former bug's grant identity for separate claim cleanup; release its original canonical claim key rather than re-resolving the moved code. An empty Poke subscriber snapshot does not prove unclaimed work or authorize outside-lane adoption; retain the existing deferral rule.
+An empty Poke subscriber snapshot does not prove unclaimed work or authorize outside-lane adoption; retain the existing deferral rule.
 
 ## Handle a verified sole-responder event
 
@@ -27,7 +27,9 @@ Keep the primary worker, assignment, audit, claim and subscription intact. This 
 
 Read [audit.md](audit.md).
 
-Read [claims.md](claims.md).
+The job or bug owner combines its current confirmation that the work is complete with handled package selection, completed or declined selected actions and confirmed terminal recording to report release eligibility for a finished Reviewable job or resolved bug. Missing or changed completion facts require reassessment; action and terminal-receipt gaps leave execution unfinished.
+
+Apply the responsible role's qualified continue, wait or release eligibility result to the matching retained assignment, separately from any claim receipt. A claim release alone supplies no assignment-release result. A partial package leaves the unfinished enclosing job retained. Pending work or package outcomes keep the assignment retained even when a claim has been released or a release attempt recorded. An ordinary answer, task resolution, intermediate handoff or audit receipt alone does not release the assignment. Preserve confirmed assignment release through compaction; an old open AI review does not reacquire work.
 
 ## Start and continue helpers
 

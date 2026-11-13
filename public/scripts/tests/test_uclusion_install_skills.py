@@ -69,7 +69,10 @@ def installed_skill_files(bundle):
     for key, source_path in INSTALL.WORKFLOW_ASSET_PATHS.items():
         normalized = source_path.replace(os.sep, '/')
         if normalized.startswith(prefix):
-            result[normalized[len(prefix):]] = bundle[key]
+            result[normalized[len(prefix):]] = (
+                INSTALL.render_work_claims_reference(bundle[key], False)
+                if key == 'claims_reference' else bundle[key]
+            )
     return result
 
 
@@ -938,12 +941,12 @@ class SingleSkillRoleTests(unittest.TestCase):
 
 
 class NativeSkillRoutingTests(unittest.TestCase):
-    def common_install_patches(self):
+    def common_install_patches(self, work_claims=False):
         return (
             mock.patch.object(INSTALL, 'write_uclusion_config', return_value=({
                 'enabled': False,
                 'port': 23456,
-            }, False)),
+            }, work_claims)),
             mock.patch.object(INSTALL, 'register_mcp_json'),
             mock.patch.object(INSTALL, 'update_codex_integration_config'),
             mock.patch.object(INSTALL, 'remove_legacy_codex_hooks_config'),
@@ -1000,6 +1003,29 @@ class NativeSkillRoutingTests(unittest.TestCase):
             routed,
         )
 
+    def test_saved_claim_setting_reaches_every_global_and_project_client(self):
+        from contextlib import ExitStack
+
+        for project in (False, True):
+            for enabled in (False, True):
+                with self.subTest(project=project, claims=enabled), \
+                        tempfile.TemporaryDirectory() as directory, ExitStack() as stack:
+                    patches = [stack.enter_context(patch)
+                               for patch in self.common_install_patches(enabled)]
+                    arguments = ('workspace', 'view', 'stage', mock.Mock())
+                    if project:
+                        INSTALL.install_project_level(
+                            *arguments, directory, clients={'claude', 'cursor', 'codex'},
+                        )
+                    else:
+                        INSTALL.install_global(
+                            *arguments, clients={'claude', 'cursor', 'codex'},
+                        )
+                    self.assertEqual({'claude', 'cursor', 'codex'},
+                                     {call.args[3] for call in patches[7].call_args_list})
+                    for call in patches[7].call_args_list:
+                        self.assertIs(enabled, call.kwargs['work_claims'])
+
     def test_project_install_routes_each_client_to_its_native_skill_path(self):
         patches = self.common_install_patches()
         with tempfile.TemporaryDirectory() as project_dir:
@@ -1041,6 +1067,76 @@ class NativeSkillRoutingTests(unittest.TestCase):
                 },
                 routed,
             )
+
+
+class WorkClaimsReferenceTests(unittest.TestCase):
+    def test_demo_installers_render_the_selected_claim_state(self):
+        bundle = source_bundle()
+        with tempfile.TemporaryDirectory() as directory, mock.patch.multiple(
+            INSTALL, UCLUSION_HOME=os.path.join(directory, '.uclusion'),
+        ), mock.patch.object(INSTALL, 'uclusion_home_root', return_value=directory):
+            for enabled in (False, True):
+                INSTALL.install_demo_plugin(lambda: bundle, work_claims=enabled)
+                self.assert_claim_state(
+                    os.path.join(INSTALL.demo_plugin_path(), 'skills', 'uclusion'), enabled,
+                )
+                INSTALL.install_demo_codex_workflow(lambda: bundle, work_claims=enabled)
+                self.assert_claim_state(
+                    os.path.join(directory, '.agents', 'skills', 'uclusion'), enabled,
+                )
+
+    def test_install_and_feature_changes_keep_each_scope_current_without_downloads(self):
+        bundle = source_bundle()
+        for project in (False, True):
+            with self.subTest(project=project), tempfile.TemporaryDirectory() as directory:
+                skill_dirs = {
+                    client: os.path.join(directory, folder, 'skills', 'uclusion')
+                    for client, folder in (
+                        ('claude', '.claude'), ('cursor', '.cursor'), ('codex', '.agents')
+                    )
+                }
+                config_path = os.path.join(directory, 'stage_uclusion.json')
+                with mock.patch.multiple(
+                    INSTALL,
+                    UCLUSION_HOME=os.path.join(directory, '.uclusion'),
+                    CLAUDE_SKILL_DIR=skill_dirs['claude'],
+                    CURSOR_SKILL_DIR=skill_dirs['cursor'],
+                    CODEX_SKILL_DIR=skill_dirs['codex'],
+                    CLAUDE_JSON_PATH=os.path.join(directory, '.claude.json'),
+                    CODEX_CONFIG_PATH=os.path.join(directory, '.codex', 'config.toml'),
+                ), mock.patch.object(INSTALL, 'register_mcp_json'), \
+                        mock.patch.object(INSTALL.urllib.request, 'urlopen') as download:
+                    for enabled in (False, True):
+                        for client, skill_dir in skill_dirs.items():
+                            INSTALL.install_skill_and_stub(
+                                lambda: bundle, skill_dir,
+                                os.path.join(directory, client + '.md'), client, client,
+                                assume_yes=True, work_claims=enabled,
+                            )
+                            self.assert_claim_state(skill_dir, enabled)
+                    for enabled in (False, True, False):
+                        write_text(config_path, INSTALL.json.dumps({
+                            'workspaceId': 'workspace', 'workClaims': enabled,
+                        }))
+                        INSTALL.reapply_saved_feature_surfaces(
+                            'stage', config_path, set(skill_dirs),
+                            project_dir=directory if project else None,
+                        )
+                        for skill_dir in skill_dirs.values():
+                            self.assert_claim_state(skill_dir, enabled)
+                    download.assert_not_called()
+        # Rendering one client's choice must not alter the shared release bundle.
+        self.assertEqual(source_bundle(), bundle)
+
+    def assert_claim_state(self, skill_dir, enabled):
+        content = read_text(os.path.join(skill_dir, 'references', 'claims.md'))
+        self.assertNotIn(INSTALL.WORKFLOW_CLAIMS_PLACEHOLDER, content)
+        self.assertIn('Claims are enabled.' if enabled else 'Claims are not enabled.', content)
+        self.assertEqual(enabled, 'claims-enabled.md' in content)
+        if enabled:
+            self.assertTrue(os.path.isfile(os.path.join(
+                skill_dir, 'references', 'claims-enabled.md',
+            )))
 
 
 class InstallerWorkflowStateTests(unittest.TestCase):

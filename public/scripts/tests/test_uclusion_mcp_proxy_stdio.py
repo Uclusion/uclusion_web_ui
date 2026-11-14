@@ -162,6 +162,38 @@ class McpProxyStdioTests(unittest.TestCase):
 
 
 class ProxyStartupFailureTests(unittest.TestCase):
+    def test_eof_and_input_failure_close_background_runtimes(self):
+        import uclusionCodexNative as native
+        import uclusionTokenAudit as audit
+        arguments = proxy.parse_args([
+            'workspace', 'stage', '--codex-native', '--token-collector',
+            '--token-audit-port', '35109', '--token-audit-source', 'codex',
+            '--token-audit-client', 'codex',
+        ])
+        for failure in (None, OSError('input failed')):
+            with self.subTest(failure=failure), \
+                    mock.patch.object(proxy.sys, 'stdin'), mock.patch.object(proxy.sys, 'stdout'), \
+                    mock.patch.object(proxy.os, 'fdopen', side_effect=[
+                        mock.Mock(readline=mock.Mock(return_value='', side_effect=failure)), io.StringIO()]), \
+                    mock.patch.object(proxy, 'parse_args', return_value=arguments), \
+                    mock.patch.object(proxy, 'prune_token_audit_storage'), \
+                    mock.patch.object(proxy, 'prune_inbox'), \
+                    mock.patch.object(proxy, 'get_credentials', return_value={}), \
+                    mock.patch.object(proxy, 'login', return_value={'uclusion_token': 'fixture'}), \
+                    mock.patch.object(proxy.threading, 'Thread') as thread, \
+                    mock.patch.object(proxy, 'record_demo_input'), \
+                    mock.patch.object(native, 'NativeCodexDelivery') as delivery, \
+                    mock.patch.object(audit, 'TokenAuditProxy') as collector, \
+                    redirect_stderr(io.StringIO()):
+                if failure is None:
+                    proxy.main()
+                else:
+                    with self.assertRaises(SystemExit):
+                        proxy.main()
+                self.assertTrue(thread.call_args.kwargs['args'][4].is_set())
+                delivery.return_value.close.assert_called_once()
+                collector.return_value.close.assert_called_once()
+
     def test_missing_credentials_answers_initialize(self):
         initialize = {
             'jsonrpc': '2.0',

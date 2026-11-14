@@ -242,6 +242,13 @@ class NativeInboxTests(unittest.TestCase):
         self.poke('new', 'During startup')
         self.assertEqual(inbox.next()[1], 'During startup')
 
+    def test_empty_inbox_does_not_query_native_recipients(self):
+        delivery = self.delivery(NativeQueue(), 'root')
+        with patch.object(delivery.client, 'request', wraps=delivery.client.request) as request:
+            for _ in range(8):
+                delivery._deliver()
+        request.assert_not_called()
+
     def test_fresh_start_skips_unreserved_history_and_preserves_explicit_pending(self):
         original = NativeInbox('stage', 'workspace')
         self.poke('pending', 'Explicit pending')
@@ -746,7 +753,8 @@ class NativeDescendantHistoryTests(unittest.TestCase):
         self.delivery.token_collector = True
         self.delivery.environment, self.delivery.workspace_id = 'stage', 'workspace'
         self.root = {'id': 'root', 'path': str(Path(self.home.name) / 'root.jsonl'),
-                     '_uclusion_versions': ['1+owner'], 'activeTurnId': 'active'}
+                     '_uclusion_versions': ['1+owner'], 'activeTurnId': 'active',
+                     'status': {'type': 'active'}}
         self.history = {'id': 'root', 'status': {'type': 'active'},
                         'turns': [{'id': 'active', 'status': 'inProgress', 'items': []}]}
         self.resume_events = []
@@ -759,6 +767,8 @@ class NativeDescendantHistoryTests(unittest.TestCase):
                 for event in self.resume_events:
                     self.delivery._observe(event)
                 return {'thread': self.history}
+            if method == 'thread/unsubscribe':
+                return {'status': 'unsubscribed'}
             self.assertEqual('thread/read', method)
             self.assertTrue(params['includeTurns'])
             for event in self.readback_events:
@@ -805,6 +815,82 @@ class NativeDescendantHistoryTests(unittest.TestCase):
         self.attach_root()
         self.delivery._observe(self.root_usage())
         self.assertEqual(1, self.usage_count())
+
+    def test_idle_observer_releases_runtime_without_rejoining_until_activity(self):
+        self.prepare_root_attachment()
+        self.attach_root()
+        self.root['status'] = {'type': 'idle'}
+        for _ in range(3):
+            self.attach_root()
+        subscriptions = [(method, params['threadId']) for method, params in self.methods
+                         if method in {'thread/resume', 'thread/unsubscribe'}]
+        self.assertEqual([('thread/resume', 'root'), ('thread/unsubscribe', 'root')], subscriptions)
+        self.assertNotIn('root', self.delivery.joined_roots)
+        self.root['status'] = {'type': 'active'}
+        self.attach_root()
+        self.assertIs(self.collector, self.delivery.collectors['root'])
+        self.assertIn('root', self.delivery.joined_roots)
+
+    def test_open_audit_retains_next_turn_usage_before_another_discovery_scan(self):
+        self.prepare_root_attachment()
+        self.attach_root()
+        run_id = str(uuid.uuid4())
+        self.collector.store.start_run('codex', 'openai', 'native',
+                                      self.collector.primary_session_fp, run_id, 'fixture-job')
+        self.root['status'] = {'type': 'idle'}
+        self.attach_root()
+        self.assertNotIn('thread/unsubscribe', [method for method, _ in self.methods])
+        self.delivery._observe({'method': 'turn/started', 'params': {
+            'threadId': 'root', 'turn': {'id': 'next-turn'}}})
+        self.delivery._observe(self.root_usage(turn='next-turn'))
+        with self.collector.store.connect() as db:
+            row = db.execute('SELECT audit_run_id FROM token_audit_usage').fetchone()
+        self.assertEqual(run_id, row['audit_run_id'])
+
+    def test_open_audit_releases_obsolete_binding_and_recovers_when_binding_returns(self):
+        self.prepare_root_attachment()
+        self.attach_root()
+        run_id = str(uuid.uuid4())
+        self.collector.store.start_run('codex', 'openai', 'native',
+                                      self.collector.primary_session_fp, run_id, 'fixture-job')
+        self.delivery.scope_marker = 'fixture-scope'
+        with patch('uclusionCodexNative.native_recipients', return_value=[]):
+            self.delivery._rejoin_only('root')
+        self.assertIn(('thread/unsubscribe', {'threadId': 'root'}), self.methods)
+        self.assertNotIn('root', self.delivery.joined_roots)
+        run = self.collector.store.session_run('codex', self.collector.primary_session_fp)
+        self.assertEqual(run_id, run['audit_run_id'])
+        self.root['status'] = {'type': 'idle'}
+        self.attach_root()
+        self.assertIn('root', self.delivery.joined_roots)
+        self.assertIs(self.collector, self.delivery.collectors['root'])
+
+    def test_shutdown_finalizes_a_closing_audit_retained_after_binding_loss(self):
+        self.prepare_root_attachment()
+        self.attach_root()
+        run_id = str(uuid.uuid4())
+        self.collector.store.start_run('codex', 'openai', 'native',
+                                      self.collector.primary_session_fp, run_id, 'fixture-job')
+        self.collector.store.request_end(run_id, 'completed')
+        self.delivery._keep_detached('root', {'check': 'identity_marker', 'passed': False})
+        self.delivery.stop = threading.Event()
+        self.delivery.client = None
+        self.delivery.thread = SimpleNamespace(join=lambda timeout: None)
+        self.delivery.inbox = NativeInbox('stage', 'workspace')
+        self.delivery.notices = UpdateNoticeStore(proxy.open_inbox)
+        self.delivery.notice_config = SimpleNamespace(
+            environment='stage', workspace_id='workspace', instance='fixture')
+        self.delivery.close()
+        run = self.collector.store.session_run('codex', self.collector.primary_session_fp)
+        self.assertEqual('queued', run['state'])
+        self.assertEqual({}, self.delivery.detached)
+
+    def test_initially_idle_root_is_never_resumed_for_telemetry(self):
+        self.prepare_root_attachment()
+        self.root['status'] = {'type': 'idle'}
+        self.attach_root()
+        self.assertEqual([], self.methods)
+        self.assertNotIn('root', self.delivery.joined_roots)
 
     def test_root_attachment_reconnect_excludes_replay_and_keeps_live_helper(self):
         self.prepare_root_attachment()
@@ -893,7 +979,7 @@ class NativeDescendantHistoryTests(unittest.TestCase):
         self.delivery.token_audit = True
         self.delivery.token_collector = True
         root = {'id': 'root', 'path': str(Path(self.home.name) / 'root.jsonl'),
-                '_uclusion_versions': ['1+owner'], 'turns': [{'items': [{
+                '_uclusion_versions': ['1+owner'], 'status': {'type': 'active'}, 'turns': [{'items': [{
                     'type': 'subAgentActivity', 'agentThreadId': 'child'}]}]}
         child = self.child(turns=[{'items': [{'type': 'collabAgentToolCall',
                                             'receiverThreadIds': ['grandchild']}]}])

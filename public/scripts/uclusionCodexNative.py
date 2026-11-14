@@ -24,6 +24,7 @@ from uclusionMCPProxy import (ReconnectBackoff, WebSocketConnection, get_inbox_p
 from uclusionUpdateNotices import UpdateNoticeStore
 
 POKE_RETRY_DELAYS_SECONDS = (1, 2, 4, 5)
+NATIVE_SCAN_INTERVAL_SECONDS = 5
 
 
 def is_start_poke(message):
@@ -392,10 +393,14 @@ class NativeInbox:
                 (events[-1][0], time.time(), *self.scope()))
 
     def reserve(self):
-        """Keep arrivals durable before a native eligibility read can fail."""
+        """Keep arrivals durable and report whether delivery needs native reads."""
         with closing(open_inbox()) as connection, connection:
             connection.execute('BEGIN IMMEDIATE')
             self._reserve_arrivals(connection)
+            return connection.execute('''SELECT 1 FROM codex_native_pending p
+                JOIN poke_messages m ON m.sequence = p.sequence
+                WHERE p.environment = ? AND p.workspace_id = ? AND p.stream = ?
+                AND p.state != 'accepted' LIMIT 1''', self.scope()).fetchone() is not None
 
     def _expand_starts(self, connection, recipients):
         """Reserve one immutable admission per eligible root, atomically."""
@@ -689,7 +694,8 @@ class NativeCodexDelivery:
                     with self.lock:
                         self.pending_descendants.add(item['agentThreadId'])
                     self.scan_requested.set()
-        if message.get('method') in {'thread/started', 'thread/closed', 'mcpServer/startupStatus/updated'}:
+        if message.get('method') in {'thread/started', 'thread/closed', 'thread/status/changed',
+                                    'mcpServer/startupStatus/updated'}:
             self.scan_requested.set()
 
     def _predicate_for(self, root, recipients, eligibility):
@@ -715,11 +721,14 @@ class NativeCodexDelivery:
         saved = dict(predicate)
         saved['root'] = root
         with self.lock:
+            was_joined = root in self.joined_roots
+        if was_joined:
+            self.client.request('thread/unsubscribe', {'threadId': root})
+        with self.lock:
             if not hasattr(self, 'detached'):
                 self.detached = {}
             if not hasattr(self, 'eligibility_failures'):
                 self.eligibility_failures = {}
-            was_joined = root in self.joined_roots
             collector = self.collectors.pop(root, None)
             tracked = was_joined or collector is not None or root in self.detached
             if not tracked and not force:
@@ -775,6 +784,26 @@ class NativeCodexDelivery:
         owned = any(version_has_marker(version, self.identity)
                     for version in thread['_uclusion_versions'])
         if not owned:
+            return
+        status = (thread.get('status') or {}).get('type')
+        if status != 'active':
+            # A telemetry subscription must not keep its own MCP host loaded
+            # forever. An open audit still needs uninterrupted notifications:
+            # status-change discovery can miss an entire short next turn.
+            # Otherwise let Codex's normal idle lifetime apply. Loaded idle
+            # roots remain eligible for queued Pokes.
+            with self.lock:
+                joined = root in self.joined_roots
+                collector = self.collectors.get(root) or self.detached.get(root)
+            if collector is not None:
+                run = collector.store.session_run(collector.client, collector.primary_session_fp)
+                if run is not None and run['state'] in {'active', 'closing'}:
+                    if not joined:
+                        self._restore_collector(root, collector)
+                    return
+            if joined:
+                self._keep_detached(root, {'check': 'active_turn', 'passed': False,
+                                           'status': status})
             return
         with self.lock:
             if root in self.joined_roots:
@@ -890,10 +919,8 @@ class NativeCodexDelivery:
             return
         with self.lock:
             collector = self.detached.get(root) or self.collectors.get(root)
-            joined = collector is not None and root in self.joined_roots and self.collectors.get(root) is collector
-        if collector is None or joined:
-            return
-        self._restore_collector(root, collector)
+        if collector is not None:
+            self._register(owned_thread)
 
     def _scan(self):
         eligibility = {}
@@ -1000,7 +1027,8 @@ class NativeCodexDelivery:
                 self.pending_descendants.discard(child)
 
     def _deliver(self):
-        self.inbox.reserve()
+        if not self.inbox.reserve():
+            return
         recipients = [thread['id'] for thread in native_recipients(self.client, self.scope_marker)]
         skipped = set()
         while True:
@@ -1187,7 +1215,6 @@ class NativeCodexDelivery:
                 self.tools_changed()
                 next_scan = 0
                 while not self.stop.is_set() and not client.closed.is_set():
-                    self.inbox.reserve()
                     with self.lock:
                         scoped_roots = getattr(self, 'scoped_roots', None)
                         scoped = None if scoped_roots is None else tuple(scoped_roots)
@@ -1195,7 +1222,7 @@ class NativeCodexDelivery:
                         if self.scan_requested.is_set() or time.monotonic() >= next_scan:
                             self.scan_requested.clear()
                             self._scan()
-                            next_scan = time.monotonic() + 1
+                            next_scan = time.monotonic() + NATIVE_SCAN_INTERVAL_SECONDS
                         self._collect_descendant_history()
                         self._deliver()
                         self._deliver_update_notice()
@@ -1207,7 +1234,7 @@ class NativeCodexDelivery:
                         # Continue as the normal delivery thread.
                         with self.lock:
                             self.scoped_roots = None
-                        next_scan = time.monotonic() + 1
+                        next_scan = time.monotonic() + NATIVE_SCAN_INTERVAL_SECONDS
                     backoff.reset_if_stable(connected_at)
                     self.stop.wait(.25)
             except Exception as error:
@@ -1261,6 +1288,11 @@ class NativeCodexDelivery:
         if self.client is not None:
             self.client.close()
         self.thread.join(timeout=3)
+        for collector in self._held_collectors():
+            collector.close()
+        with self.lock:
+            self.collectors.clear()
+            self.detached.clear()
         self.inbox.close()
         self.notices.release_update_notice_leader(self.notice_config, os.getpid())
 

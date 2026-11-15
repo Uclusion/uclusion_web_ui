@@ -16,10 +16,9 @@ Usage:
     ANTHROPIC_API_KEY=... OPENAI_API_KEY=... python3 countArtifactTokens.py \\
         --environment stage --sample-export ~/.uclusion/export/<workspace>.md
 
-Both tool catalogs are counted: the full one on-demand clients receive and the
-names-and-fields one whole-list clients receive. ``--tools-from-source`` reads
-them from the investible API source offline instead of the environment, for a
-release whose tool definitions are not deployed yet. ``--merge`` keeps every
+The complete tool catalog is counted for every client. ``--tools-from-source``
+reads it from the investible API source offline instead of the environment,
+for a release whose tool definitions are not deployed yet. ``--merge`` keeps every
 entry already in the manifest and adds only the missing ones, so historical
 counts survive; it reuses the existing bytes-per-token ratios unless a sample
 export is given.
@@ -35,6 +34,7 @@ import json
 import os
 import sys
 import time
+import types
 import urllib.error
 import urllib.request
 
@@ -209,27 +209,33 @@ def shipped_artifacts(installer, token_audit, scripts_dir):
     return artifacts
 
 
-TOOL_DESCRIPTION_VARIANTS = (None, 'whole-list')
+# The investible API reads these at import time; none of them is used offline.
+OFFLINE_ENVIRONMENT = {
+    'logLevel': 'INFO', 'EMAIL_TOPIC_ARN': 'offline', 'VERIFICATION_CODE_SECRET_KEY': 'offline',
+    'VERIFICATION_CODE_SIGNING_ALGORITHM': 'HS256', 'marketsServicePrefix': 'offline-',
+    'usersServicePrefix': 'offline-', 'asyncServicePrefix': 'offline-', 'AWS_DEFAULT_REGION': 'us-west-2',
+    'AWS_ACCESS_KEY_ID': 'offline', 'AWS_SECRET_ACCESS_KEY': 'offline',
+    'GLOBAL_CAPABILITY_SECRET_KEY': 'offline', 'CAPABILITY_SIGNING_ALGORITHM': 'HS256',
+    'UPLOAD_BUCKET_NAME': 'offline',
+}
 
 
 def source_tool_definitions(scripts_dir, api_dir, common_dir):
-    """Both catalogs from the investible API source, run offline, plus claim_work."""
+    """The advertised catalog from the API source, run offline, plus claim_work."""
+    for key, value in OFFLINE_ENVIRONMENT.items():
+        os.environ.setdefault(key, value)
+    sys.path[:0] = [os.path.abspath(common_dir), os.path.abspath(api_dir)]
+    handler = types.ModuleType('ucommon.handlers.abstract_request_handler')
+    handler.handle_request = lambda *args, **kwargs: None
+    sys.modules.setdefault('ucommon.handlers.abstract_request_handler', handler)
+    mcp_serve = importlib.import_module('handlers.mcp_serve')
     proxy = load_module(os.path.join(scripts_dir, 'uclusionMCPProxy.py'),
                         'count_tokens_proxy')
-    generator = load_module(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                         'generateRoleToolFiles.py'),
-                            'count_tokens_role_tools')
-    generator.load_catalog(api_dir, common_dir)
-    mcp_serve = sys.modules['handlers.mcp_serve']
-    tools = []
-    for variant in TOOL_DESCRIPTION_VARIANTS:
-        tools.extend(mcp_serve.handle_list_tools(variant)['tools'])
-    tools.append(proxy.WORK_CLAIM_TOOL)
-    return tools
+    return mcp_serve.handle_list_tools()['tools'] + [proxy.WORK_CLAIM_TOOL]
 
 
 def fetch_tool_definitions(scripts_dir, environment, workspace_id):
-    """Both served tools/list catalogs, plus the proxy's own claim_work tool."""
+    """The served tools/list catalog, plus the proxy's own claim_work tool."""
     proxy = load_module(os.path.join(scripts_dir, 'uclusionMCPProxy.py'),
                         'count_tokens_proxy')
     api_url = {
@@ -253,18 +259,12 @@ def fetch_tool_definitions(scripts_dir, environment, workspace_id):
         'Authorization': token,
     }
     body = json.dumps({'jsonrpc': '2.0', 'id': 1, 'method': 'tools/list'})
-    tools = []
-    for variant in TOOL_DESCRIPTION_VARIANTS:
-        variant_headers = dict(headers)
-        if variant is not None:
-            variant_headers[proxy.TOOL_DESCRIPTIONS_HEADER] = variant
-        response = proxy.post_to_mcp(
-            'https://investibles.' + api_url + '/mcp', variant_headers, body
-        )
-        message = proxy.read_mcp_response(response)
-        tools.extend((message or {}).get('result', {}).get('tools') or [])
-    tools.append(proxy.WORK_CLAIM_TOOL)
-    return tools
+    response = proxy.post_to_mcp(
+        'https://investibles.' + api_url + '/mcp', headers, body
+    )
+    message = proxy.read_mcp_response(response)
+    tools = (message or {}).get('result', {}).get('tools') or []
+    return tools + [proxy.WORK_CLAIM_TOOL]
 
 
 def sample_chunks(path):

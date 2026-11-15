@@ -840,21 +840,16 @@ class SingleSkillRoleTests(unittest.TestCase):
                     body = read_text(os.path.join(skill_dir, 'roles', f'{role}.md'))
                     self.assertTrue(body.startswith(INSTALL.SKILL_REFERENCE_MARKER))
                     self.assertTrue(body.rstrip().endswith(INSTALL.SKILL_REFERENCE_END_MARKER))
-                    tools = re.findall(r'^Tools: (.+)$', body, re.MULTILINE)
-                    if tools:
-                        # Whole-list clients read the role's generated tool file.
-                        self.assertIn(f'roles/{role}-tools.md', packaged)
-                        self.assertIn(f'[roles/{role}-tools.md]({role}-tools.md)', body)
-                        listed = read_text(os.path.join(skill_dir, 'roles', f'{role}-tools.md'))
-                        for name in re.findall(r'`([a-z_]+)`', tools[0]):
-                            self.assertIn(f'## `{name}`', listed)
 
     def test_install_retires_the_moved_files(self):
         packaged = {path.replace(os.sep, '/') for _key, path in INSTALL.SKILL_PACKAGE_ASSETS}
         for path in ('references/history-search.md', 'references/job-assistance.md',
                      'references/approval.md', 'references/review.md',
                      'references/completion-actions.md', 'references/single-comment.md', 'roles/discovery.md',
-                     'roles/discovery-tools.md'):
+                     'roles/discovery-tools.md', 'roles/coordinator-tools.md',
+                     'roles/implementation-tools.md', 'roles/operation-tools.md',
+                     'roles/standalone-tools.md', 'roles/backlog-maintenance-tools.md',
+                     'roles/design-tools.md'):
             with self.subTest(path=path), tempfile.TemporaryDirectory() as temp_dir:
                 relative = os.path.join(*path.split('/'))
                 self.assertIn(relative, INSTALL.RETIRED_SKILL_REFERENCE_PATHS)
@@ -920,9 +915,7 @@ class SingleSkillRoleTests(unittest.TestCase):
                          design_dir + INSTALL.WORKFLOW_TRANSACTION_SUFFIX):
                 self.assertFalse(os.path.lexists(path), path)
 
-    def test_each_client_registration_declares_its_description_type(self):
-        self.assertEqual({'claude': 'on-demand', 'codex': 'whole-list', 'cursor': 'whole-list'},
-                         INSTALL.TOOL_DESCRIPTION_TYPES)
+    def test_only_claude_registration_requests_tool_deferral(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             for client, label, audit_client in (('claude', 'Claude Code', 'claude'),
                                                 ('cursor', 'Cursor', None)):
@@ -930,14 +923,29 @@ class SingleSkillRoleTests(unittest.TestCase):
                     path = os.path.join(temp_dir, client + '.json')
                     INSTALL.register_mcp_json(path, label, 'workspace-1', 'stage', require_existing=False,
                                               token_audit_client=audit_client)
-                    args = INSTALL.json.loads(read_text(path))['mcpServers']['uclusion']['args']
-                    index = args.index('--tool-descriptions')
-                    self.assertEqual(INSTALL.TOOL_DESCRIPTION_TYPES[client], args[index + 1])
+                    server = INSTALL.json.loads(read_text(path))['mcpServers']['uclusion']
+                    self.assertNotIn('--tool-descriptions', server['args'])
+                    if client == 'claude':
+                        self.assertIs(server['alwaysLoad'], False)
+                    else:
+                        self.assertNotIn('alwaysLoad', server)
             block = INSTALL.build_codex_mcp_block('workspace-1', 'stage')
-            self.assertIn('"--tool-descriptions",', block)
-            self.assertIn('"whole-list",', block)
+            self.assertNotIn('--tool-descriptions', block)
+            self.assertNotIn('alwaysLoad', block)
+            self.assertIn('--codex-native', block)
+
+    def test_descriptor_validation_keeps_client_config_boundaries(self):
+        descriptor = {'command': 'python3', 'args': ['proxy.py']}
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = os.path.join(temp_dir, '.mcp.json')
+            for value in ('false', 0, None):
+                with self.subTest(alwaysLoad=value), self.assertRaises(ValueError):
+                    INSTALL.register_mcp_json(
+                        path, 'Claude Code', None, None, require_existing=False,
+                        descriptor={**descriptor, 'alwaysLoad': value},
+                    )
         with self.assertRaises(ValueError):
-            INSTALL.runtime_mcp_descriptor('workspace-1', 'stage', tool_descriptions='everything')
+            INSTALL.build_codex_mcp_block(descriptor={**descriptor, 'alwaysLoad': False})
 
 
 class NativeSkillRoutingTests(unittest.TestCase):

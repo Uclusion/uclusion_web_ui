@@ -194,12 +194,6 @@ def token_audit_port(value):
     return port
 
 
-# The registration's declared description type travels with every request.
-# An install from before the declaration sends nothing and keeps the full list.
-TOOL_DESCRIPTION_TYPES = ('on-demand', 'whole-list')
-TOOL_DESCRIPTIONS_HEADER = 'X-Uclusion-Tool-Descriptions'
-
-
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(
         description='Proxy a local MCP client to Uclusion.'
@@ -210,10 +204,10 @@ def parse_args(argv=None):
     )
     parser.add_argument('--work-claims', action='store_true')
     parser.add_argument(
-        '--tool-descriptions', choices=TOOL_DESCRIPTION_TYPES,
-        help='How this agent reads tool descriptions, sent to the server with '
-             'each request: on-demand agents receive full descriptions and '
-             'whole-list agents receive names and fields only.',
+        # Saved registrations may still pass this retired option. Tool
+        # descriptions are now complete for every client.
+        '--tool-descriptions', choices=('on-demand', 'whole-list'),
+        help=argparse.SUPPRESS,
     )
     parser.add_argument('--demo-evidence', metavar='DIRECTORY')
     parser.add_argument(
@@ -2118,8 +2112,6 @@ def main():
                 'Accept': 'application/json, text/event-stream',
                 'Authorization': token,
             }
-            if args.tool_descriptions:
-                headers[TOOL_DESCRIPTIONS_HEADER] = args.tool_descriptions
             if session_id:
                 headers['Mcp-Session-Id'] = session_id
 

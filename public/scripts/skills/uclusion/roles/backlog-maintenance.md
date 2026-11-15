@@ -32,6 +32,4 @@ Once every required contextual write has succeeded or an equivalent finding for 
 ## Tools
 
 Tools: `backlog_maintenance_run`, `get_job`, `add_info`.
-
-In Codex and Cursor, read [roles/backlog-maintenance-tools.md](backlog-maintenance-tools.md) completely before calling a tool. It holds these tools' full descriptions.
 <!-- /uclusion-skill-reference:v1 -->

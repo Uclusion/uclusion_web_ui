@@ -1942,12 +1942,12 @@ class SetupInstallerRegistrationTests(unittest.TestCase):
                             runtime_script,
                             'workspace-1',
                             'stage',
-                            # Each client's registration declares how it reads
-                            # tool descriptions.
-                            '--tool-descriptions',
-                            'on-demand' if client == 'claude' else 'whole-list',
                         ] + (['--codex-native'] if client == 'codex' else []),
                     )
+                    if client == 'claude':
+                        self.assertIs(runtime_descriptor['alwaysLoad'], False)
+                    else:
+                        self.assertNotIn('alwaysLoad', runtime_descriptor)
                     self.assertNotIn(setup_script, runtime_descriptor['args'])
                     self.assertEqual(
                         stat.S_IMODE(os.stat(selected_path).st_mode), 0o600

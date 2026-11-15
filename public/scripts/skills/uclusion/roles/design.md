@@ -68,6 +68,4 @@ When saving new context, use `add_info` on the current capsule R-thread, or ordi
 ## Tools
 
 Tools: `get_job`, `get_job_attachments`, `get_upload`, `add_info`, `ask_question`, `add_options`, `update_option`, `approve_job_or_option`, `vote_on_suggestion`, `make_suggestion`, `resolve`, `reopen`, `set_design_capsule`, `add_view_note`.
-
-In Codex and Cursor, read [roles/design-tools.md](design-tools.md) completely before calling a tool. It holds these tools' full descriptions.
 <!-- /uclusion-skill-reference:v1 -->

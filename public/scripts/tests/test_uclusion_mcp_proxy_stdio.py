@@ -50,6 +50,43 @@ class _LineResponse:
 
 
 class McpProxyStdioTests(unittest.TestCase):
+    def test_legacy_description_options_preserve_the_complete_catalog(self):
+        request = {'jsonrpc': '2.0', 'id': 7, 'method': 'tools/list'}
+        result = {'jsonrpc': '2.0', 'id': 7, 'result': {'tools': [{
+            'name': 'get_job', 'description': 'Read a job.',
+            'inputSchema': {'type': 'object', 'properties': {
+                'short_code_id': {'type': 'string', 'description': 'The job code.'},
+            }},
+        }]}}
+        for legacy in ([], ['--tool-descriptions', 'on-demand'],
+                       ['--tool-descriptions', 'whole-list']):
+            incoming = io.StringIO(json.dumps(request) + '\n')
+            outgoing = io.StringIO()
+            response = _BodyResponse(json.dumps(result))
+            response.headers = {'Content-Type': 'application/json'}
+            arguments = proxy.parse_args(['workspace-1', 'stage'] + legacy)
+            with self.subTest(legacy=legacy), \
+                    mock.patch.object(proxy.sys, 'stdin'), mock.patch.object(proxy.sys, 'stdout'), \
+                    mock.patch.object(proxy.os, 'fdopen', side_effect=[incoming, outgoing]), \
+                    mock.patch.object(proxy, 'parse_args', return_value=arguments), \
+                    mock.patch.object(proxy, 'prune_token_audit_storage'), \
+                    mock.patch.object(proxy, 'prune_inbox'), \
+                    mock.patch.object(proxy, 'get_credentials', return_value={}), \
+                    mock.patch.object(proxy, 'login', return_value={'uclusion_token': 'test-token'}), \
+                    mock.patch.object(proxy.threading, 'Thread'), \
+                    mock.patch.object(proxy, 'record_demo_input'), \
+                    mock.patch.object(proxy, 'post_to_mcp_refreshing_token',
+                                      return_value=(response, None)) as post:
+                proxy.main()
+            post.assert_called_once()
+            self.assertNotIn('x-uclusion-tool-descriptions',
+                             {name.lower() for name in post.call_args.args[1]})
+            self.assertEqual(result, json.loads(outgoing.getvalue()))
+        help_output = io.StringIO()
+        with redirect_stdout(help_output), self.assertRaises(SystemExit):
+            proxy.parse_args(['--help'])
+        self.assertNotIn('--tool-descriptions', help_output.getvalue())
+
     def test_only_configured_audit_phases_reach_the_server(self):
         def phase(request_id, bucket):
             return {'jsonrpc': '2.0', 'id': request_id, 'method': 'tools/call', 'params': {

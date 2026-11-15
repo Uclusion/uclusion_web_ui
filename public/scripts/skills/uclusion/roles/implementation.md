@@ -56,6 +56,4 @@ After a failed final move, continue from the saved review. Direct `change_job_st
 ## Tools
 
 Tools: `get_job`, `get_job_attachments`, `get_upload`, `add_info`, `ask_question`, `add_options`, `approve_job_or_option`, `make_suggestion`, `resolve`, `reopen`, `ask_for_review`, `add_job`, `change_job_stage`, `add_view_note`, `clear_notifications`.
-
-In Codex and Cursor, read [roles/implementation-tools.md](implementation-tools.md) completely before calling a tool. It holds these tools' full descriptions.
 <!-- /uclusion-skill-reference:v1 -->

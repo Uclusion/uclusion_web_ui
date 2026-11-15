@@ -78,7 +78,7 @@ class CodexDemoSetupTests(unittest.TestCase):
 
     def inventory(self):
         descriptor = INSTALL.runtime_mcp_descriptor(
-            'demo-workspace', 'stage', tool_descriptions='whole-list',
+            'demo-workspace', 'stage',
         )
         return [
             {'name': 'uclusion', 'enabled': True, 'transport': descriptor},
@@ -103,7 +103,6 @@ class CodexDemoSetupTests(unittest.TestCase):
         descriptor = INSTALL.runtime_mcp_descriptor(
             'demo-workspace', 'stage', token_audit_client='codex',
             response_stats='/tmp/evaluator-stats.jsonl',
-            tool_descriptions='whole-list',
         )
         descriptor['args'].extend([
             '--demo-evidence', str(self.home / 'evidence'),

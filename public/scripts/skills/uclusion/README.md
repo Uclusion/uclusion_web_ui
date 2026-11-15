@@ -76,9 +76,11 @@ claims are not enabled; enabled installs link to the optional
 apply in both states in the coordinator lifecycle.
 
 Tool arguments and response handling belong in the tool descriptions in
-`uclusion_investible_api/handlers/mcp_serve.py`. Run
-`generateRoleToolFiles.py` from the web UI repository to generate the
-`roles/*-tools.md` guides; do not edit those guides by hand.
+`uclusion_investible_api/handlers/mcp_serve.py`. MCP discovery returns those
+complete descriptions for every client. Claude registrations set
+`alwaysLoad: false` so the client can load tools on demand; clients that do
+not support deferral still receive complete guidance. Keep tool descriptions
+in the catalog instead of duplicating them in skill references.
 
 When changing a responsibility, check the role, routing table and the relevant
 flow here together. Keep headings accurate and explain actions in the order

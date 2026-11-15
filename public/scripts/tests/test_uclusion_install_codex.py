@@ -937,7 +937,6 @@ class ResponseStatsInstallerTests(unittest.TestCase):
                             server = updated['mcpServers']['uclusion']
                             expected_args = INSTALL.runtime_mcp_descriptor(
                                 'workspace-1', 'stage', token_audit_client='claude',
-                                tool_descriptions='on-demand',
                             )['args']
                             if expected is not None:
                                 expected_args += ['--response-stats', expected]
@@ -1131,6 +1130,8 @@ class ResponseStatsInstallerTests(unittest.TestCase):
             with open(path, encoding='utf-8') as config:
                 first = INSTALL.json.load(config)
             self.assertNotIn('--response-stats', first['mcpServers']['uclusion']['args'])
+            self.assertIs(first['mcpServers']['uclusion']['alwaysLoad'], False)
+            first['mcpServers']['uclusion']['alwaysLoad'] = True
             stats_path = os.path.join(directory, 'sizes.jsonl')
             first['mcpServers']['uclusion']['args'].append('--response-stats=' + stats_path)
             with open(path, 'w', encoding='utf-8') as config:
@@ -1143,11 +1144,13 @@ class ResponseStatsInstallerTests(unittest.TestCase):
                 updated = INSTALL.json.load(config)
             self.assertEqual(updated['mcpServers']['uclusion']['args'][-2:],
                              ['--response-stats', stats_path])
+            self.assertIs(updated['mcpServers']['uclusion']['alwaysLoad'], False)
 
     def test_explicit_setup_descriptor_keeps_exact_match_contract(self):
         with tempfile.TemporaryDirectory() as directory:
             path = os.path.join(directory, '.mcp.json')
-            descriptor = {'command': 'python3', 'args': ['setup-proxy', 'stage']}
+            descriptor = {'command': 'python3', 'args': ['setup-proxy', 'stage'],
+                          'alwaysLoad': False}
             INSTALL.register_mcp_json(
                 path, 'Claude Code', None, None, False,
                 token_audit_client='claude', descriptor=descriptor,
@@ -1156,18 +1159,20 @@ class ResponseStatsInstallerTests(unittest.TestCase):
             with open(path, encoding='utf-8') as config:
                 registered = INSTALL.json.load(config)
             self.assertEqual(registered['mcpServers']['uclusion'], descriptor)
-            registered['mcpServers']['uclusion']['env'] = {'KEEP_ME': 'yes'}
-            with open(path, 'w', encoding='utf-8') as config:
-                INSTALL.json.dump(registered, config)
-            with self.assertRaisesRegex(RuntimeError, 'setup MCP descriptor changed'):
-                INSTALL.register_mcp_json(
-                    path, 'Claude Code', 'workspace-1', 'stage', False,
-                    token_audit_client='claude',
-                    descriptor=INSTALL.runtime_mcp_descriptor('workspace-1', 'stage'),
-                    expected_descriptor=descriptor,
-                )
-            with open(path, encoding='utf-8') as config:
-                self.assertEqual(INSTALL.json.load(config), registered)
+            for change in ({'env': {'KEEP_ME': 'yes'}}, {'alwaysLoad': True}):
+                with self.subTest(change=change):
+                    registered['mcpServers']['uclusion'] = {**descriptor, **change}
+                    with open(path, 'w', encoding='utf-8') as config:
+                        INSTALL.json.dump(registered, config)
+                    with self.assertRaisesRegex(RuntimeError, 'setup MCP descriptor changed'):
+                        INSTALL.register_mcp_json(
+                            path, 'Claude Code', 'workspace-1', 'stage', False,
+                            token_audit_client='claude',
+                            descriptor=INSTALL.runtime_mcp_descriptor('workspace-1', 'stage'),
+                            expected_descriptor=descriptor,
+                        )
+                    with open(path, encoding='utf-8') as config:
+                        self.assertEqual(INSTALL.json.load(config), registered)
 
 
 class TokenAuditInstallerTests(unittest.TestCase):
@@ -1535,7 +1540,6 @@ class TokenAuditInstallerTests(unittest.TestCase):
                 INSTALL.MCP_PROXY_SYMLINK_PATH,
                 'workspace-1',
                 'stage',
-                '--tool-descriptions', 'on-demand',
                 '--token-audit',
                 '--token-audit-buckets', 'planning,research,implementation,testing,review',
                 '--token-collector',

@@ -42,6 +42,4 @@ Do not resolve the bug before a human has responded to its completion package. W
 ## Tools
 
 Tools: `get_job`, `get_job_attachments`, `get_upload`, `add_info`, `ask_question`, `resolve`, `reopen`, `add_view_note`, `clear_notifications`.
-
-In Codex and Cursor, read [roles/standalone-tools.md](standalone-tools.md) completely before calling a tool. It holds these tools' full descriptions.
 <!-- /uclusion-skill-reference:v1 -->

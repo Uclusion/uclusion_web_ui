@@ -42,6 +42,4 @@ Return the actual stage receipt or unfinished outcome, remaining work and exact 
 ## Tools
 
 Tools: `find_work`, `get_job`, `request_work`, `add_job`, `add_task`, `add_bug`, `add_blocker`, `make_suggestion`, `move_task_to_bug`, `move_suggestion_to_task`, `reopen`, `get_notifications`, `clear_notifications`, `get_upload`, `add_view`, `get_invite_link`, `add_collaborators`, `change_job_stage`.
-
-In Codex and Cursor, read [roles/operation-tools.md](operation-tools.md) completely before calling a tool. It holds these tools' full descriptions.
 <!-- /uclusion-skill-reference:v1 -->

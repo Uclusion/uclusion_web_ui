@@ -12,7 +12,7 @@ Use the closest project bootstrap's resident package, client and CLI.
 
 Read [delivery-common](references/delivery-common.md).
 
-For Claude, read [claude-delivery](references/claude-delivery.md); for Cursor, read [cursor-delivery](references/cursor-delivery.md). Codex uses native MCP. Coordinator tools: `get_job`, `set_agent_subscription`, `start_job_audit`, `set_job_audit_phase`, `end_job_audit`, plus any claim operation the connection exposes. In Codex and Cursor, read [roles/coordinator-tools.md](roles/coordinator-tools.md) completely before calling a tool. Without a resident, handle human-started work without inventing delivery setup. Reuse complete current reads; reload changed, incomplete or lost/restored bodies. Missing instructions require the resident CLI's update with permission, then restart/reconnect before affected work.
+For Claude, read [claude-delivery](references/claude-delivery.md); for Cursor, read [cursor-delivery](references/cursor-delivery.md). Codex uses native MCP. Coordinator tools: `get_job`, `set_agent_subscription`, `start_job_audit`, `set_job_audit_phase`, `end_job_audit`, plus any claim operation the connection exposes. Without a resident, handle human-started work without inventing delivery setup. Reuse complete current reads; reload changed, incomplete or lost/restored bodies. Missing instructions require the resident CLI's update with permission, then restart/reconnect before affected work.
 
 ## Route requests
 

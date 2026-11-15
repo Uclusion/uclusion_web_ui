@@ -319,7 +319,7 @@ class DemoHomeTests(unittest.TestCase):
         self.addCleanup(patcher.stop)
         shared = {'mcpServers': {INSTALL.MCP_SERVER_KEY: {
             'command': 'python3', 'args': ['proxy.py', 'workspace', 'stage'],
-            'type': 'stdio',
+            'type': 'stdio', 'alwaysLoad': False,
         }}}
         Path(INSTALL.demo_mcp_config_path()).write_text(json.dumps(shared))
         path = INSTALL.write_demo_evaluator_mcp_config('/tmp/eval.jsonl')
@@ -331,6 +331,7 @@ class DemoHomeTests(unittest.TestCase):
             server['args'],
         )
         self.assertEqual('stdio', server['type'])
+        self.assertIs(server['alwaysLoad'], False)
         self.assertEqual(shared, json.loads(
             Path(INSTALL.demo_mcp_config_path()).read_text()
         ))

@@ -365,7 +365,7 @@ WORKFLOW_ASSET_SHA256 = {
     'claude_delivery_reference': 'aeb706c010893adda8d484e9644002c42a2333b16a529a47427896fee3d4d995',
     'cursor_delivery_reference': '284d6a9b926d4423a1aeb54d776cf81452f27da8241ff5c075c888441aa361c4',
     'coordinator_lifecycle_reference': '6be085467c91659eff0322b6a468637bd7872aab3751d6fcce6506866d0ce1a5',
-    'helper_conversation_reference': 'b4644b1698f5cf6d67776ee307060eded30b0632d0d19c937445dcddcf44b2a6',
+    'helper_conversation_reference': '48127eb4669c69317b3b6ebbf72c177b8569625b76e5ae27c1eb1cc1b687d4b4',
     'completion_reference': 'eac72eaeace29d407a3a24c67845d548c082469e4d152199de7fba0541a2f6dc',
     'audit_reference': 'ec84f4cfe7597c4560b26bba1d55f6ae5924d34f7afbca725982d85bb696de2b',
     'claims_reference': 'f482e0458cb3ef3367b84092ae318e6d2c1deba685fafd17e14682e6f5c389f5',
@@ -384,7 +384,7 @@ WORKFLOW_ASSET_SHA256 = {
     'backlog_maintenance_role': '4771e6d742a14a607ba3b0450481d9cf0147af88e5558f1a533bb86993aab241',
     'design_role': '649565554969928ff716311d723ec9dc5284c46aed282ccdbaacef7fd33914e1',
     'demo_brief': 'b68f6501270c63456c19053d1b5af296350288754239c7f9d6074a3a5497789f',
-    'token_manifest': '6860f43b366a463167d56ca2121b260bbcf5d021821b6d3433a12f9e8169f086',
+    'token_manifest': '5b5f37d86dc2bb5e6fec5bd03c10f28fdd3c33d2aa8749b5b8f6b4431b67180f',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',

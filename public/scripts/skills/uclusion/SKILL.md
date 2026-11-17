@@ -18,18 +18,19 @@ For Claude, read [claude-delivery](references/claude-delivery.md); for Cursor, r
 
 Read [coordinator-lifecycle](references/coordinator-lifecycle.md).
 
-Answer information requests before default stage work. A running implementation or standalone helper answers about its own work in progress and carries on. Send every other information request to `design`, including explanation, evidence, status and questions about another target or no job. Preserve the original request and the active assignment. Use the lifecycle's conversation handoff for direct helper discussion; otherwise present the helper's supported answer or exact gap. Route intended actions to their action owner even when phrased as questions; let `design` classify unclear intent.
+Answer information requests before default stage work. A running implementation or standalone helper answers about its own work in progress and carries on. Send every other information request to `design`, including explanation, evidence, status and questions about another target or no job. Preserve the original request and the active assignment. Use the lifecycle's conversation handoff for direct helper discussion; otherwise present the helper's supported answer or exact gap. Route intended actions to their action owner even when phrased as questions; let `design` classify unclear intent. Preserve explicit owners. When current instructions do not clearly assign an owner for any kind of update request, route it to `operation` instead of inferring an implementor.
 
 Use incoming and returned identities for routing. A named stage event supplies that transition; preserve newer confirmed state. A known job's compact state comes from `get_job`'s stage-only read. Compact state selects a role. For missing membership or classification, request bounded classification from `design`.
 
 | Request or returned state | Route |
 | --- | --- |
+| Update request with no clear owner under current instructions, including CLI maintenance | `operation` |
 | Explicit human stage instruction or known human selection of a stage option | `operation` |
 | Assistance, Requires Input, Approvable, AI approval requests or known approval choices, capsule updates or contract work | `design` |
 | Job implementation, Doable/Reviewable job work, or job review and feedback | `implementation` |
 | Job completion-package reply/action/record or Git request | `implementation` |
 | Bug outside a job, including its fix, feedback, completion package or Git request | `standalone` |
-| Other job stages or a selected target with unknown ownership/state | `design` for next-action handling or classification |
+| Other job stages or other selected targets with unknown ownership/state | `design` for next-action handling or classification |
 | Work list, creation, reopen request, inbox, workspace history or returned maintenance notice | Read [discovery-routing](references/discovery-routing.md). |
 
 Pass the human's words and question/option identity; never infer a stage choice from a work request or a helper's claim. Keep automatic question restoration and implementation's review move. Carry the owner's next action without rejudgment.

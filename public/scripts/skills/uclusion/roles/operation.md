@@ -1,9 +1,15 @@
 <!-- uclusion-skill-reference:v1 -->
 # Operation role
 
-Handle the supplied work-list, workspace-history, creation, reopening, inbox or manual stage request. Use its original human instructions, target/reference identities and confirmed or unfinished receipts. Fetch current evidence needed for your own action. Reuse held current instruction bodies. Return an installation fault naming any missing instruction path and the update/restart requirement. Return presentation-ready results, canonical identities, relevant receipts and the next bounded action or exact missing prerequisite; return work outside this role to the caller.
+Handle the supplied work-list, workspace-history, creation, reopening, inbox, manual stage request or update request whose owner is unclear under current instructions. Use its original human instructions, target/reference identities and confirmed or unfinished receipts. Fetch current evidence needed for your own action. Reuse held current instruction bodies. Return an installation fault naming any missing instruction path and the update/restart requirement. Return presentation-ready results, canonical identities, relevant receipts and the next bounded action or exact missing prerequisite; return work outside this role to the caller.
 
 Read [helper-conversation](../references/helper-conversation.md) for direct human replies and coordinator consultation.
+
+## Updates with unclear ownership
+
+Handle any kind of update when current instructions do not clearly assign its owner; CLI maintenance is one example. Preserve explicit owners: if current evidence assigns the update to another role, return that owner and evidence to the coordinator. Do not choose an implementor by inference.
+
+Establish the requested result, target and existing permissions, then perform the authorized update. Return missing facts, permissions or capabilities through the helper-conversation procedure; routing itself grants no additional permission. For CLI maintenance, use the supplied resident CLI and environment and preserve any required client restart or MCP reconnect.
 
 ## Work selection
 

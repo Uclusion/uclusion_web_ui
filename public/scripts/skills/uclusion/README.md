@@ -10,7 +10,7 @@ the agent instructions; this README is not an additional required agent read.
 | [Coordinator](SKILL.md) | Routes requests, keeps the assigned work and helpers, manages delivery and audit, and presents results addressed to its conversation. The working roles decide what the work needs. |
 | [Design](roles/design.md) | Answers information requests, handles questions and suggestions, writes the implementation design, and assesses AI approval. It does not make manual stage changes or implement code. |
 | [Implementation](roles/implementation.md) | Implements job work, runs approved checks, reports results, and carries out the job's approved completion actions. It stays with the work through review and completion. |
-| [Operation](roles/operation.md) | Finds work, answers questions about workspace history, and handles requested creation, moves, inbox work and manual stage changes. Reopens questions, suggestions and blockers on request. It does not assess AI approval or settle questions. |
+| [Operation](roles/operation.md) | Finds work, answers questions about workspace history, and handles requested creation, moves, inbox work and manual stage changes. Handles any update whose owner current instructions leave unclear. Reopens questions, suggestions and blockers on request. It does not assess AI approval or settle questions. |
 | [Standalone](roles/standalone.md) | Owns a bug outside a job through discussion, fixing, approved checks, the completion package, and resolution after the human responds and any selected commit succeeds. It keeps the work through feedback and recovery. |
 | [Export search](roles/export-search.md) | Prepares and searches a workspace export, then returns findings and sources. It does not change Uclusion records. |
 | [Backlog maintenance](roles/backlog-maintenance.md) | Checks how completed work affects open work and records findings. Proposed changes to that work remain for the human to choose. |
@@ -44,8 +44,11 @@ A manual stage change needs an explicit human instruction naming the destination
 or choosing a stage option. A request to do, fix or continue work, or a published
 design, supplies no such choice. Operation checks the original human instruction
 even when a helper or capsule claims permission. A stage choice goes directly to
-operation; an approval choice goes directly to design. Design also clarifies
-unclear requests.
+operation; an approval choice goes directly to design. Design clarifies unclear
+intent. When the request is an update but current instructions leave its owner
+unclear, operation handles it instead of inferring an implementor. This applies
+to any kind of update, including CLI maintenance, and preserves explicit owners
+and existing permission requirements.
 
 Implementation uses the agreed design, writes the change, checks it and presents
 the result for review. It also handles the human's later selection of completion

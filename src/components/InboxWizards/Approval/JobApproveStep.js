@@ -95,7 +95,7 @@ function JobApproveStep(props) {
       investibleId,
       groupId,
       newQuantity: parseInt(approveQuantity),
-      currentQuantity: yourVote && !wasDeleted ? yourVote.quantity : 0,
+      currentQuantity: wasDeleted ? 0 : (yourVote?.quantity ?? 0),
       newReasonText: tokensRemoved,
       reasonNeedsUpdate,
       uploadedFiles: filteredUploads,

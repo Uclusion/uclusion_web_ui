@@ -28,6 +28,7 @@ import {
   removeMessagesForCommentId
 } from '../../../utils/messageUtils';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { getThreadIds, getThreads } from '../../../utils/commentFunctions';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 import DismissableText from '../../../components/Notifications/DismissableText';
@@ -342,6 +343,22 @@ function MarketTodos(props) {
       });
   }
 
+  function clearBugNotifications(threadIds, notifications) {
+    const individualMessages = [];
+    notifications.forEach((message) => {
+      if (message.type === UNASSIGNED_TYPE && message.comment_list) {
+        // Critical bugs share a client-side rollup; clear only this thread's original entries.
+        _.intersection(message.highlighted_list, threadIds).forEach((commentId) => {
+          messagesDispatch(dehighlightCriticalMessage(message.type_object_id, `${UNASSIGNED_TYPE}_${commentId}`));
+        });
+      } else {
+        individualMessages.push(message);
+      }
+    });
+    return deleteOrDehilightMessages(individualMessages, messagesDispatch, true, false, true)
+      .finally(() => setOperationRunning(false));
+  }
+
   function getRows() {
     if (_.isEmpty(data)) {
       return <div className={classes.grow} key={`todos${tabIndex}empty`}/>
@@ -351,6 +368,9 @@ function MarketTodos(props) {
       const { id, body, updated_at: updatedAt, notification_type: notificationType, resolved } = comment;
       const replies = commentsForCurrentTab.filter(aComment => aComment.root_comment_id === id &&
         aComment.id !== id) || [];
+      const threadIds = [id, ...replies.map((reply) => reply.id)];
+      const bugInboxMessages = findMessagesForCommentIds(threadIds,
+        messagesState.messages).filter((message) => message.market_id === marketId && isInInbox(message));
       const expansionPanel = <div id={`c${id}`} key={`c${id}key`} style={{marginBottom: '1rem'}}>
         <Comment
           marketId={marketId}
@@ -373,6 +393,8 @@ function MarketTodos(props) {
                      expansionOpen={!!expansionState[id]} determinateDispatch={determinateDispatch}
                      bugListDispatch={bugDispatch} notificationType={notificationType}
                      isResolved={!!resolved}
+                     hasNotifications={!_.isEmpty(bugInboxMessages)}
+                     onClearNotifications={() => clearBugNotifications(threadIds, bugInboxMessages)}
                      activeInvestibles={activeInvestibles}/>
       );
     });

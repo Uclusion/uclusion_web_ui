@@ -3,7 +3,7 @@ import cx from 'clsx';
 import styled from 'styled-components';
 import { Box, IconButton, Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
 import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments';
-import { DARK_TEXT_BACKGROUND_COLOR } from '../Buttons/ButtonConstants';
+import { DARK_ACTION_BUTTON_COLOR, DARK_TEXT_BACKGROUND_COLOR } from '../Buttons/ButtonConstants';
 import Checkbox from '@material-ui/icons/CheckBox';
 import CheckBoxOutlineBlank from '@material-ui/icons/CheckBoxOutlineBlank';
 import { useSizedIconButtonStyles } from '@mui-treasury/styles/iconButton/sized';
@@ -22,6 +22,8 @@ import _ from 'lodash';
 import TooltipIconButton from '../Buttons/TooltipIconButton';
 import { useHistory } from 'react-router';
 import BugMenu from './BugMenu';
+import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
+import DeleteSweepIcon from '@material-ui/icons/DeleteSweep';
 
 const Div = styled("div")`
   height: 40px;
@@ -146,7 +148,9 @@ function BugListItem(props) {
     activeInvestibles,
     maxWidth,
     isResolved = false,
-    commentType
+    commentType,
+    onClearNotifications,
+    hasNotifications
   } = props;
   const [anchorEl, setAnchorEl] = useState(null);
   const [mouseX, setMouseX] = useState();
@@ -287,6 +291,21 @@ function BugListItem(props) {
                 </Tooltip>: React.Fragment}
                 {isNew ? (<TitleB style={{ color: theme.palette.type === 'dark' ? 'white' : 'black',
                   minWidth: maxWidth ? 0 : undefined }}>{displayTitle}</TitleB>) : titleWithHelp}
+                {onClearNotifications && (
+                  <Box flexShrink={0}>
+                    <SpinningIconLabelButton
+                      id={`inboxClearBug${id}`}
+                      icon={DeleteSweepIcon}
+                      iconColor={isDarkMode && !smallFont ? DARK_ACTION_BUTTON_COLOR : undefined}
+                      iconOnly
+                      useDark={isDarkMode && !smallFont}
+                      toolTipId="bugRowClearNotifications"
+                      aria-label={intl.formatMessage({ id: 'bugRowClearNotifications' })}
+                      disabled={!hasNotifications}
+                      onClick={onClearNotifications}
+                    />
+                  </Box>
+                )}
                 {mobileLayout || !date ? React.Fragment : 
                 (isNew ? (<DateLabelBNotHovered style={{ color: theme.palette.type === 'dark' ? 'white' : 'black' }}>{date}</DateLabelBNotHovered>) :
                   (<DateLabelNotHovered>{date}</DateLabelNotHovered>))}
@@ -333,7 +352,9 @@ BugListItem.propTypes = {
   id: PropTypes.string.isRequired,
   read: PropTypes.bool,
   title: PropTypes.node,
-  date: PropTypes.string
+  date: PropTypes.string,
+  onClearNotifications: PropTypes.func,
+  hasNotifications: PropTypes.bool
 };
 
 export default BugListItem;

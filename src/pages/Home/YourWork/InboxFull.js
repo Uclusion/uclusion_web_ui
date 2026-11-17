@@ -20,7 +20,6 @@ import _ from 'lodash';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { SyncedMessagesContext, SyncedMessagesStatusContext } from '../../../contexts/SyncedMessagesContext/SyncedMessagesContext';
-import LoadingDisplay from '../../../components/LoadingDisplay';
 import { Button } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
 import { refreshNotifications } from '../../../api/versionedFetchUtils';
@@ -29,7 +28,7 @@ function InboxFull(props) {
   const { hidden, isInbox } = props;
   // Keep the expensive inbox derivations dormant until its messages and their data are ready.
   const { stillLoading: loading } = useContext(SyncedMessagesContext);
-  const { messagesSyncing, refreshError } = useContext(SyncedMessagesStatusContext);
+  const { refreshError } = useContext(SyncedMessagesStatusContext);
   const intl = useIntl();
   const history = useHistory();
   const { location } = history;
@@ -122,7 +121,6 @@ function InboxFull(props) {
           {intl.formatMessage({ id: 'messagesRefreshFailed' })}
         </Alert>
       )}
-      {messagesSyncing && <LoadingDisplay size={24} noMargin showMessage messageId="messagesSyncing" />}
       <Inbox inboxState={inboxState} inboxDispatch={inboxDispatch} workItemId={workItemId} messagesHash={messagesHash}
              messagesFull={messagesFull} hidden={hidden} tabIndex={isInbox ? 0 : 1}
       />

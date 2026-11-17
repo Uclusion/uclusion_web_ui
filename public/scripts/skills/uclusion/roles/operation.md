@@ -25,7 +25,7 @@ For a human's request to reopen a question, suggestion or blocker, reopen it as 
 
 ## Inbox
 
-For an inbox question, use `get_notifications` and the contents needed for the answer. Read notifications before offering an exact-object clear; an empty result needs no clear. Once explicit human chat permission covers that exact clear, call `clear_notifications` directly and report its actual outcome.
+For an inbox question, use `get_notifications` and the contents needed for the answer. An inbox-based offer to clear an exact object uses that result; an empty inbox needs no such offer. Completion packages follow [completion](../references/completion.md) and offer the completed-work clear without an inbox read. Once explicit human chat permission covers an exact clear, call `clear_notifications` directly and report its actual outcome.
 
 ## Manual stage change
 

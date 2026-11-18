@@ -172,10 +172,10 @@ class CodexDemoSetupTests(unittest.TestCase):
         global_workflow.assert_not_called()
         for path, content in native_files.items():
             self.assertEqual(content, path.read_text())
+        rendered_bundle = INSTALL.render_workflow_features(self.bundle, False)
         for key, relative in INSTALL.SKILL_PACKAGE_ASSETS:
             self.assertEqual(
-                INSTALL.render_work_claims_reference(self.bundle[key], False)
-                if key == 'claims_reference' else self.bundle[key],
+                rendered_bundle[key],
                 (self.home / '.agents' / 'skills' / 'uclusion' / relative).read_text(),
             )
         self.assertFalse((self.home / '.agents' / 'skills' / INSTALL.RETIRED_DESIGN_SKILL_NAME).exists())

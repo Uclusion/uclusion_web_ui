@@ -7,6 +7,7 @@ instructions and the portable skill without depending on a live AI client.
 
 import importlib.util
 import hashlib
+from itertools import product
 import os
 import re
 import shutil
@@ -64,15 +65,13 @@ def source_bundle():
 
 def installed_skill_files(bundle):
     """Map package-relative paths to expected contents, excluding stubs."""
+    bundle = INSTALL.render_workflow_features(bundle, False)
     result = {}
     prefix = 'skills/uclusion/'
     for key, source_path in INSTALL.WORKFLOW_ASSET_PATHS.items():
         normalized = source_path.replace(os.sep, '/')
         if normalized.startswith(prefix):
-            result[normalized[len(prefix):]] = (
-                INSTALL.render_work_claims_reference(bundle[key], False)
-                if key == 'claims_reference' else bundle[key]
-            )
+            result[normalized[len(prefix):]] = bundle[key]
     return result
 
 
@@ -954,10 +953,12 @@ class NativeSkillRoutingTests(unittest.TestCase):
         self.handoff = handoff.start()
         self.addCleanup(handoff.stop)
 
-    def common_install_patches(self, work_claims=False):
+    def common_install_patches(self, work_claims=False, token_audit=False,
+                               token_collector=False):
         return (
             mock.patch.object(INSTALL, 'write_uclusion_config', return_value=({
-                'enabled': False,
+                'enabled': token_audit,
+                'collector': token_collector,
                 'port': 23456,
             }, work_claims)),
             mock.patch.object(INSTALL, 'register_mcp_json'),
@@ -1017,15 +1018,16 @@ class NativeSkillRoutingTests(unittest.TestCase):
             routed,
         )
 
-    def test_saved_claim_setting_reaches_every_global_and_project_client(self):
+    def test_saved_features_reach_every_global_and_project_client(self):
         from contextlib import ExitStack
 
         for project in (False, True):
-            for enabled in (False, True):
-                with self.subTest(project=project, claims=enabled), \
+            for claims, audit, collector in product((False, True), repeat=3):
+                with self.subTest(project=project, claims=claims, audit=audit,
+                                  collector=collector), \
                         tempfile.TemporaryDirectory() as directory, ExitStack() as stack:
                     patches = [stack.enter_context(patch)
-                               for patch in self.common_install_patches(enabled)]
+                               for patch in self.common_install_patches(claims, audit, collector)]
                     arguments = ('workspace', 'view', 'stage', mock.Mock())
                     if project:
                         INSTALL.install_project_level(
@@ -1038,7 +1040,30 @@ class NativeSkillRoutingTests(unittest.TestCase):
                     self.assertEqual({'claude', 'cursor', 'codex'},
                                      {call.args[3] for call in patches[7].call_args_list})
                     for call in patches[7].call_args_list:
-                        self.assertIs(enabled, call.kwargs['work_claims'])
+                        self.assertIs(claims, call.kwargs['work_claims'])
+                        self.assertIs(audit, call.kwargs['token_audit'])
+
+    def test_saved_features_reach_both_demo_clients(self):
+        from contextlib import ExitStack
+
+        for claims, audit, collector in product((False, True), repeat=3):
+            with self.subTest(claims=claims, audit=audit, collector=collector), \
+                    tempfile.TemporaryDirectory() as directory, ExitStack() as stack:
+                for patch in self.common_install_patches(claims, audit, collector):
+                    stack.enter_context(patch)
+                stack.enter_context(mock.patch.object(INSTALL, 'uclusion_home_root',
+                                                      return_value=directory))
+                stack.enter_context(mock.patch.object(INSTALL, 'demo_home_path',
+                                                      return_value=directory))
+                installers = [stack.enter_context(mock.patch.object(INSTALL, name))
+                              for name in ('install_demo_plugin', 'install_demo_codex_workflow')]
+                fetch_bundle = mock.Mock()
+                INSTALL.install_global(
+                    'workspace', 'view', 'stage', fetch_bundle, clients={'claude', 'codex'},
+                )
+                for install in installers:
+                    install.assert_called_once_with(fetch_bundle, work_claims=claims,
+                                                    token_audit=audit)
 
     def test_project_install_routes_each_client_to_its_native_skill_path(self):
         patches = self.common_install_patches()
@@ -1083,21 +1108,105 @@ class NativeSkillRoutingTests(unittest.TestCase):
             )
 
 
-class WorkClaimsReferenceTests(unittest.TestCase):
-    def test_demo_installers_render_the_selected_claim_state(self):
+class FeatureReferenceTests(unittest.TestCase):
+    def test_demo_installers_render_the_selected_feature_states(self):
         bundle = source_bundle()
         with tempfile.TemporaryDirectory() as directory, mock.patch.multiple(
             INSTALL, UCLUSION_HOME=os.path.join(directory, '.uclusion'),
         ), mock.patch.object(INSTALL, 'uclusion_home_root', return_value=directory):
-            for enabled in (False, True):
-                INSTALL.install_demo_plugin(lambda: bundle, work_claims=enabled)
-                self.assert_claim_state(
-                    os.path.join(INSTALL.demo_plugin_path(), 'skills', 'uclusion'), enabled,
+            for claims, audit in product((False, True), repeat=2):
+                INSTALL.install_demo_plugin(lambda: bundle, work_claims=claims, token_audit=audit)
+                self.assert_feature_states(
+                    os.path.join(INSTALL.demo_plugin_path(), 'skills', 'uclusion'), claims, audit,
                 )
-                INSTALL.install_demo_codex_workflow(lambda: bundle, work_claims=enabled)
-                self.assert_claim_state(
-                    os.path.join(directory, '.agents', 'skills', 'uclusion'), enabled,
+                INSTALL.install_demo_codex_workflow(lambda: bundle, work_claims=claims,
+                                                   token_audit=audit)
+                self.assert_feature_states(
+                    os.path.join(directory, '.agents', 'skills', 'uclusion'), claims, audit,
                 )
+
+    def test_demo_feature_refresh_preserves_ordinary_installations(self):
+        bundle = source_bundle()
+        with tempfile.TemporaryDirectory() as directory:
+            demo = os.path.join(directory, 'demo')
+            native = os.path.join(directory, 'native')
+            ordinary_skills = {
+                client: os.path.join(native, client, 'skills', 'uclusion')
+                for client in INSTALL.SUPPORTED_CLIENTS
+            }
+            with mock.patch.multiple(
+                INSTALL,
+                UCLUSION_HOME=os.path.join(demo, '.uclusion'),
+                CLAUDE_SKILL_DIR=ordinary_skills['claude'],
+                CURSOR_SKILL_DIR=ordinary_skills['cursor'],
+                CODEX_SKILL_DIR=ordinary_skills['codex'],
+                CLAUDE_JSON_PATH=os.path.join(native, '.claude.json'),
+                CLAUDE_SETTINGS_PATH=os.path.join(native, '.claude', 'settings.json'),
+                CODEX_CONFIG_PATH=os.path.join(native, '.codex', 'config.toml'),
+            ), mock.patch.object(INSTALL, 'uclusion_home_root', return_value=demo), \
+                    mock.patch.object(INSTALL, 'demo_home_path', return_value=demo), \
+                    mock.patch.object(INSTALL, 'configure_claude_token_audit',
+                                      return_value=None) as hooks:
+                for path in (INSTALL.CLAUDE_JSON_PATH, INSTALL.CLAUDE_SETTINGS_PATH,
+                             INSTALL.CODEX_CONFIG_PATH):
+                    write_text(path, 'Keep ordinary settings\n')
+                for client, skill_dir in ordinary_skills.items():
+                    INSTALL.install_skill_and_stub(
+                        lambda: bundle, skill_dir, os.path.join(native, client + '.md'),
+                        client, client, assume_yes=True, work_claims=True, token_audit=True,
+                    )
+                INSTALL.install_demo_plugin(lambda: bundle, work_claims=True, token_audit=True)
+                INSTALL.install_demo_codex_workflow(lambda: bundle, work_claims=True,
+                                                   token_audit=True)
+                write_text(INSTALL.demo_mcp_config_path(), '{}\n')
+                evidence = os.path.join(demo, 'evidence')
+                response_stats = os.path.join(demo, 'response-stats.jsonl')
+                descriptor = INSTALL.runtime_mcp_descriptor(
+                    'workspace', 'stage', token_audit_client='codex',
+                    token_audit={'enabled': True, 'collector': True, 'port': 23456},
+                    work_claims=True, response_stats=response_stats,
+                )
+                descriptor['args'].extend([
+                    '--demo-evidence=' + evidence, '--demo-evidence-role', 'evaluator',
+                    '--deliver-existing-pokes',
+                ])
+                codex_config = os.path.join(demo, '.codex', 'config.toml')
+                write_text(codex_config, 'model = "keep-model"\n' +
+                           INSTALL.build_codex_mcp_block(descriptor=descriptor))
+                config_path = os.path.join(INSTALL.UCLUSION_HOME, 'stage_uclusion.json')
+                for enabled in (False, True, False):
+                    write_text(config_path, INSTALL.json.dumps({
+                        'workspaceId': 'workspace', 'workClaims': enabled,
+                        'tokenAudit': {'enabled': enabled, 'collector': True},
+                    }))
+                    INSTALL.reapply_saved_feature_surfaces(
+                        'stage', config_path, INSTALL.SUPPORTED_CLIENTS,
+                    )
+                    for skill_dir in (
+                        os.path.join(INSTALL.demo_plugin_path(), 'skills', 'uclusion'),
+                        os.path.join(demo, '.agents', 'skills', 'uclusion'),
+                    ):
+                        self.assert_feature_states(skill_dir, enabled, enabled)
+                    for skill_dir in ordinary_skills.values():
+                        self.assert_feature_states(skill_dir, True, True)
+                    codex_settings = INSTALL.tomllib.loads(read_text(codex_config))
+                    codex_args = codex_settings['mcp_servers']['uclusion']['args']
+                    claude_args = INSTALL.json.loads(read_text(INSTALL.demo_mcp_config_path()))[
+                        'mcpServers']['uclusion']['args']
+                    for args in (codex_args, claude_args):
+                        self.assertEqual(enabled, '--token-audit' in args)
+                        self.assertEqual(enabled, '--work-claims' in args)
+                    self.assertEqual('keep-model', codex_settings['model'])
+                    self.assertEqual(evidence, codex_args[codex_args.index('--demo-evidence') + 1])
+                    self.assertEqual('evaluator', codex_args[
+                        codex_args.index('--demo-evidence-role') + 1])
+                    self.assertEqual(response_stats, codex_args[
+                        codex_args.index('--response-stats') + 1])
+                    self.assertIn('--deliver-existing-pokes', codex_args)
+                hooks.assert_not_called()
+                for path in (INSTALL.CLAUDE_JSON_PATH, INSTALL.CLAUDE_SETTINGS_PATH,
+                             INSTALL.CODEX_CONFIG_PATH):
+                    self.assertEqual('Keep ordinary settings\n', read_text(path))
 
     def test_install_and_feature_changes_keep_each_scope_current_without_downloads(self):
         bundle = source_bundle()
@@ -1120,37 +1229,57 @@ class WorkClaimsReferenceTests(unittest.TestCase):
                     CODEX_CONFIG_PATH=os.path.join(directory, '.codex', 'config.toml'),
                 ), mock.patch.object(INSTALL, 'register_mcp_json'), \
                         mock.patch.object(INSTALL.urllib.request, 'urlopen') as download:
-                    for enabled in (False, True):
+                    for claims, audit in product((False, True), repeat=2):
                         for client, skill_dir in skill_dirs.items():
                             INSTALL.install_skill_and_stub(
                                 lambda: bundle, skill_dir,
                                 os.path.join(directory, client + '.md'), client, client,
-                                assume_yes=True, work_claims=enabled,
+                                assume_yes=True, work_claims=claims, token_audit=audit,
                             )
-                            self.assert_claim_state(skill_dir, enabled)
-                    for enabled in (False, True, False):
+                            self.assert_feature_states(skill_dir, claims, audit)
+                    for claims, audit, collector in product((False, True), repeat=3):
                         write_text(config_path, INSTALL.json.dumps({
-                            'workspaceId': 'workspace', 'workClaims': enabled,
+                            'workspaceId': 'workspace', 'workClaims': claims,
+                            'tokenAudit': {'enabled': audit, 'collector': collector},
                         }))
                         INSTALL.reapply_saved_feature_surfaces(
                             'stage', config_path, set(skill_dirs),
                             project_dir=directory if project else None,
                         )
                         for skill_dir in skill_dirs.values():
-                            self.assert_claim_state(skill_dir, enabled)
+                            self.assert_feature_states(skill_dir, claims, audit)
                     download.assert_not_called()
         # Rendering one client's choice must not alter the shared release bundle.
         self.assertEqual(source_bundle(), bundle)
 
-    def assert_claim_state(self, skill_dir, enabled):
-        content = read_text(os.path.join(skill_dir, 'references', 'claims.md'))
-        self.assertNotIn(INSTALL.WORKFLOW_CLAIMS_PLACEHOLDER, content)
-        self.assertIn('Claims are enabled.' if enabled else 'Claims are not enabled.', content)
-        self.assertEqual(enabled, 'claims-enabled.md' in content)
-        if enabled:
-            self.assertTrue(os.path.isfile(os.path.join(
-                skill_dir, 'references', 'claims-enabled.md',
-            )))
+    def assert_feature_states(self, skill_dir, claims, audit):
+        for name, enabled, label, operation in (
+            ('audit', audit, 'Job audit is', 'start_job_audit'),
+            ('claims', claims, 'Claims are', '## Automatic selection'),
+        ):
+            content = read_text(os.path.join(skill_dir, 'references', name + '.md'))
+            self.assertNotIn('{{UCLUSION_', content)
+            self.assertIn(label + (' enabled.' if enabled else ' not enabled.'), content)
+            self.assertEqual(enabled, name + '-enabled.md' in content)
+            self.assertNotIn(operation, content)
+            procedure = read_text(os.path.join(skill_dir, 'references', name + '-enabled.md'))
+            self.assertEqual(read_text(os.path.join(SKILL_SOURCE_DIR, 'references',
+                                                  name + '-enabled.md')), procedure)
+            self.assertIn(operation, procedure)
+
+    def test_feature_refresh_requires_update_for_an_unrecognized_audit_page(self):
+        with tempfile.TemporaryDirectory() as directory, mock.patch.object(
+            INSTALL, 'UCLUSION_HOME', os.path.join(directory, '.uclusion'),
+        ):
+            skill_dir = os.path.join(directory, 'skill')
+            INSTALL.install_skill_and_stub(
+                source_bundle, skill_dir, os.path.join(directory, 'AGENTS.md'),
+                'codex', 'Codex', assume_yes=True,
+            )
+            write_text(os.path.join(skill_dir, 'references', 'audit.md'),
+                       source_bundle()['audit_enabled_reference'])
+            with self.assertRaisesRegex(RuntimeError, 'need a Uclusion workflow update'):
+                INSTALL.refresh_workflow_features(skill_dir, False, False)
 
 
 class InstallerWorkflowStateTests(unittest.TestCase):

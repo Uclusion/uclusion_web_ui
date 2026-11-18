@@ -17,6 +17,11 @@ the agent instructions; this README is not an additional required agent read.
 
 ## The main flows
 
+Each helper receives only one assigned job or bug at a time. The coordinator
+can manage several helpers across different work, including implementation
+and a review response. Independent tasks in the same job can have separate
+helpers. Adding authorized work for one helper does not cancel another's work.
+
 The human can continue a discussion directly with its responsible helper when
 the actual client surface supports helper input and coordinator consultation.
 Switch advice is limited to that surface; direct human entry needs no prior advice.
@@ -65,18 +70,76 @@ implementation may move it into a separate job for review.
 
 Both owners use the shared [completion procedure](references/completion.md).
 
+A finished job can stop occupying an assignment while its completion offer is
+unanswered or notification cleanup remains unfinished. Its owner keeps the
+package and action records for later replies, and the coordinator gives
+occasional reminders without delaying other work. Unfinished implementation
+and partial jobs still need their existing owners. Automatic work discovery
+resumes when no assigned work remains; an explicit human request for other
+work remains available while helpers are working.
+
 ## Where to change a rule
 
 Change a role file for what that role does. Change the coordinator's routing
 table for which role receives a request. Keep shared procedures in
 [references/](references/), and link to them from the roles that use them.
 A role file should describe its own actions, not repeat another role's job.
+Review every sentence from the intended reader's available context. Keep its
+purpose, actor, action and trigger clear without relying on an unread role or
+procedure. Nearby context is sufficient; do not repeat actors mechanically.
+Test behavior, package integrity and reachable references rather than requiring
+particular instruction sentences.
 
-The installer renders [claims.md](references/claims.md) from the saved claims
-setting and refreshes it on feature changes. Disabled installs say only that
-claims are not enabled; enabled installs link to the optional
-[claim procedure](references/claims-enabled.md). Keep assignment rules that
-apply in both states in the coordinator lifecycle.
+The coordinator always reads the entrypoint, delivery contract and compact
+[lifecycle](references/coordinator-lifecycle.md). Detailed coordinator rules
+load completely at their action boundaries:
+
+| Boundary | Procedure |
+| --- | --- |
+| Adoption, a bug-to-job move or unfinished subscription | [Adoption](references/coordinator-adoption.md) |
+| Delivered Poke or its unfinished handling | [Events](references/coordinator-events.md) |
+| Direct-helper offer, destination change or consultation | [Conversation](references/coordinator-conversation.md) |
+| Human wait, package follow-up, assignment end or fresh-chat advice | [Completion](references/coordinator-completion.md) |
+| Authorized discovery, creation, reopen, inbox or history request | [Discovery routing](references/discovery-routing.md) |
+
+The existing events procedure owns all Poke processing, including replay and
+native-context checks, owner matching, forwarding, ignored codes and recovery.
+The core keeps only its recognition and complete-read trigger. Pending completion
+owners remain valid routing matches after their assignments end. A coordinator
+with no Poke or unfinished Poke response does not read this procedure.
+Client listener startup, configuration and restart stay in the selected delivery
+reference so delivery can work before the first Poke. CLI history flags belong
+there too; they are not part of the native Codex coordinator's shared core.
+
+Audit detail loads for an enabled exposed job-audit capability, or directly for
+recovery of a held run. The coordinator also reads the claim procedure directly
+when recovering or deciding whether to retain or release a held claim, even if
+claims are now disabled. With either feature disabled and no state held for it,
+the coordinator does not read that feature's operational procedure. The work
+hint loads at the first applicable human wait or completed package. Discovery has no
+back-link requiring the lifecycle again. Links do not recursively activate
+other reads. Reuse current complete bodies and reread missing, incomplete or
+changed bodies; retain the package/client and active operation across compaction.
+Keep each read gate to the trigger and context needed to reach that read. Put
+ordering, deferral, recovery and subsequent actions in the target procedure;
+do not repeat them after the read at the callsite. Each action discovers only
+its needed tool definitions, with names first and full schemas for selected
+calls. Helpers continue to open their own roles.
+
+Design reads the [Approvable job procedure](references/design-approvable.md)
+only when working on a job in that stage. Keep its approval decisions and
+ordering in that procedure; the role contains only the conditional read.
+
+The installer renders [claims.md](references/claims.md) and
+[audit.md](references/audit.md) from their saved feature settings and refreshes
+them on feature changes. Disabled installs say only that the feature is not
+enabled; enabled installs link to the optional
+[claim procedure](references/claims-enabled.md) or
+[audit procedure](references/audit-enabled.md). Both complete procedures stay
+installed. Job audit uses `tokenAudit.enabled`; the passive collector alone
+does not enable audit instructions. Ordinary, global, project and demo installs
+use the same rendering. Keep assignment rules that apply in both states in the
+coordinator lifecycle.
 
 Tool arguments and response handling belong in the tool descriptions in
 `uclusion_investible_api/handlers/mcp_serve.py`. MCP discovery returns those

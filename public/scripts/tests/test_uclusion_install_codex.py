@@ -87,8 +87,7 @@ class WorkflowProtocolContractTests(unittest.TestCase):
                             ignore=shutil.ignore_patterns('__pycache__'))
             path = scripts_dir / INSTALL.WORKFLOW_ASSET_PATHS['skill']
             old_text = path.read_text(encoding='utf-8')
-            new_text = old_text.replace('Keep delivery, target identity',
-                                        'Keep ordered delivery, target identity', 1)
+            new_text = old_text + '\n'
             self._write_pinned_asset(scripts_dir, 'skill', new_text)
             manifest_path = scripts_dir / INSTALL.WORKFLOW_ASSET_PATHS['token_manifest']
             manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
@@ -99,6 +98,7 @@ class WorkflowProtocolContractTests(unittest.TestCase):
                               new_text.split('---\n', 2)[2])):
                 old_digest = hashlib.sha256(old.encode('utf-8')).hexdigest()
                 new_digest = hashlib.sha256(new.encode('utf-8')).hexdigest()
+                self.assertNotEqual(old_digest, new_digest)
                 entry = manifest['artifacts'].pop(old_digest)
                 entry['bytes'] = len(new.encode('utf-8'))
                 manifest['artifacts'][new_digest] = entry
@@ -755,7 +755,8 @@ class CodexIntegrationConfigTests(unittest.TestCase):
             'codex',
             'Codex (project)',
             assume_yes=True,
-                work_claims=False,
+            work_claims=False,
+            token_audit=False,
         )
 
 

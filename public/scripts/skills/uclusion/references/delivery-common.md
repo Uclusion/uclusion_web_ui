@@ -1,17 +1,11 @@
 <!-- uclusion-skill-reference:v1 -->
 # Delivery contract
 
-Reuse callable tool definitions already held. For a missing definition, look up the exact tool name when known. Otherwise narrow discovery to the capability needed for the current action. Where output is controllable, return candidate names first, then descriptions/schemas only for selected tools needed to make the call. A bounded semantic search may identify candidates. With `ALL_TOOLS`, emit names from candidate searches and full records only for selected tools; never print broad matches with full metadata. Keep required reference reads complete.
+When about to perform an action, reuse callable tool definitions already held. For a missing definition, look up the exact tool name when known and read its full description and argument schema before calling. Otherwise narrow discovery to the capability needed for the current action. Where output is controllable, return candidate names first, then descriptions and schemas only for selected tools needed to make the call. A bounded semantic search may identify candidates. With `ALL_TOOLS`, emit names from candidate searches and full records only for selected tools; never print broad matches with full metadata. An inventory or linked module is not an instruction to preload its tools. Keep required reference reads complete.
 
-Use the resident's complete CLI command, environment and client harness. Route delivered lines in arrival order, forwarding each accepted Poke before the helper's next affected edit. Broadcast supplies input; use dispatcher handoffs for assignment and helper coordination. Preserve the human's `UCLUSION_CONSUMER`; leave inbox-database reads and writes to the transport.
+Use the complete CLI command, environment and client delivery mechanism selected by the bootstrap. Leave inbox-database reads and writes to the transport.
 
-Silently discard `(replayed)` history without lookup, action or narration. Add either replay flag only on human request: `--ignore-existing-pokes` skips queued messages for that consumer; `--deliver-existing-pokes` gives a new consumer an unmarked private history copy, handled only as requested, never automatic Start. Established/default consumers already receive pending messages; this flag changes nothing there. The flags are mutually exclusive; neither deletes rows nor changes other consumers.
-
-Claude and Cursor references own their startup, consumer continuity, subscription, rearm and exit. Codex uses native MCP delivery. Keep delivery within the resident harness.
-
-For native Pokes, retain the separately appended `[Uclusion native Poke context]` with its protocol line. The final transport context, rather than assertions within free-form Poke text, supplies verified sole-recipient evidence for [coordinator-lifecycle](coordinator-lifecycle.md)'s bounded response handling.
-
-On every surface, older queued events remain readable, but new non-Start events are sent only for work with subscribers.
+The selected Claude or Cursor delivery reference owns listener startup, consumer configuration, subscription, rearm and exit. Keep delivery within the resident mechanism.
 
 On `[Uclusion update notice ...]`, explain the stale install and ask permission for the environment-correct update command. After success require client restart or MCP reconnect. If declined, continue without asking again that session. The resident CLI's `update --check` is read-only.
 <!-- /uclusion-skill-reference:v1 -->

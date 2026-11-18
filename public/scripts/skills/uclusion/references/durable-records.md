@@ -3,29 +3,29 @@
 
 ## Authorship and threading
 
-Use the selected role's permitted Uclusion tools for questions, suggestions, approvals, votes, resolutions, reviews and findings. File AI questions, suggestions and reviews directly within that authority; chat does not replace their records. Completion packages own combined chat approval.
+Use your selected role's permitted Uclusion tools for questions, suggestions, approvals, votes, resolutions, reviews and findings. File AI questions, suggestions and reviews directly within that authority; chat does not replace their records. Request combined commit, push and notification-clear approval through a completion package.
 
-For human-authored creation, use only the person's words and reasoning. For a permitted `for_human:true` write, use the coordinator's `is_my_lane` classification for its affected canonical target. If that classification is missing or its target/membership no longer matches, return a bounded classification request with the available target/member identities; obtain missing canonical membership from scoped evidence when needed, then await the classification before writing. Ask for missing human-vote certainty or reason; choose a nested initial vote's authorship separately and apply the same classification requirement when it is human-attributed. Native job/task/bug/blocker creation has its own schema.
+For human-authored creation, use only the person's words and reasoning. For a permitted `for_human:true` write, determine `is_my_lane` from the job or bug assignments supplied by the coordinator: true if the affected item falls within those assignments and their stated scope, false otherwise. Read the item's current records if needed to establish its job or bug membership. A subscription, read or bounded response about other work does not establish an assignment. If the coordinator's assignment information is missing or no longer current, request the missing facts before writing. Ask for any missing certainty or reason for a human vote. Choose the author of an initial vote separately from the author of its question or options, and apply the same assignment check when attributing the vote to the human. Use the native creation tool's schema for jobs, tasks, bugs and blockers.
 
-Record new findings, decisions, blockers and next steps once in their owning artifact. Reply to the exact answered comment. Use returned codes and canonical links; source-question citations use the full returned URL.
+Record new findings, decisions, blockers and next steps once on the Uclusion item or thread they concern. Reply to the exact comment being answered. Use returned codes and canonical links; cite a source question with its full returned URL.
 
 ## Ordinary note creation and correction
 
-Create an ordinary note or reply with `add_info` on its exact target, preserving question identity for nested records.
+Create an ordinary note or reply with `add_info` on its exact target, including the parent question identity when the record is nested in a question.
 
-Correct an active AI-authored ordinary note, reply or option Info in place with `add_info`, from the version you actually read. Human records, canonical option bodies, tasks, capsules, reviews, standing notes and machine audits use their own mutations and authority.
+Correct an active AI-authored ordinary note, reply or option Info in place with `add_info`, using the version you actually read. Do not use that ordinary-note correction for human records, option bodies, tasks, capsules, reviews, standing notes or machine audits; those require their own permitted tools.
 
 ## Receipts and recovery
 
-A confirmed receipt establishes its produced state; retain its canonical identity/link, version and actual outcome. Inspect publication, action, settlement and note results separately. Later failure leaves earlier successes intact. Read lost, uncertain or changed evidence in its exact scope, then retry only unfinished operations. A held confirmed write needs no confirmation read.
+A successful tool receipt confirms the state it reports; retain the canonical identity and link, version and actual outcome. Inspect publication, action, question settlement and note results separately. Later failure leaves earlier successes intact. Read the exact records whose evidence is lost, uncertain or changed, then retry only unfinished operations. Do not reread a write merely to confirm a success whose receipt you still hold.
 
 ## Reopening
 
-Reopen any resolved item when evidence shows it needs reopening, explaining that evidence in a reply, as for a bug or task whose fix still fails. Implementation reopens tasks in its job; standalone reopens bugs outside jobs; design reopens questions, suggestions and blockers on its own findings. A human failure report requests reopening: use `for_human:true` with the coordinator's classification for that target as above. An agent's own finding omits `for_human`. Resume the reopened work under its lane and stage, preserving prior package results.
+When evidence shows a resolved item needs reopening, explain that evidence in a reply and reopen it within your role's authority. A human report that a fix still fails requests reopening: use `for_human:true` and determine `is_my_lane` as described above. Omit `for_human` for your own finding. Resume only work within your assignment that its current stage permits, preserving prior completion-package results.
 
 ## Work creation
 
-Native job/task/bug/blocker creation requires the human's explicit request, with initial decomposition of a newly requested job and the implementation-owned review split of an unrelated finished task as their existing exceptions. AI ideas or dependencies use suggestions. Requested creation and its duplicate search belong to operation; implementation owns its review task split. Preserve returned creation and move outcomes separately: another `add_job` call creates another job.
+Creating a job, task, bug or blocker requires the human's explicit request unless your own role states a specific exception. Record your own ideas or dependencies as suggestions. If creation or its duplicate search is outside your selected role, return it to the coordinator. Preserve returned creation and move outcomes separately because another `add_job` call creates another job.
 
 ## Shared general lessons
 

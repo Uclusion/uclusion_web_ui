@@ -1,0 +1,17 @@
+<!-- uclusion-skill-reference:v1 -->
+# Direct helper conversations
+
+When discussion would otherwise be relayed, recommend switching only after establishing direct input to the existing helper and a usable coordinator consultation route on the actual client surface. Identify the helper and its bounded scope. Give no switch advice when either capability is absent or unverified, and keep the relay.
+
+- Codex CLI: enter `/subagents` and select the helper, using the exposed coordinator background-follow-up route.
+- Claude Code: when the actual interface supports follow-ups in a helper transcript and exposed `SendMessage` reaches the confirmed coordinator recipient (`main` or its confirmed launcher identity), select the helper in the agent panel with Up/Down and Enter. Use `/tasks` for a recently completed helper. Transcript viewing alone or `/btw` does not establish this capability; no team conversion or settings change is required.
+- Cursor: give no switch advice for ordinary Task subagents in the CLI/editor. Only for an actual Cursor Project agent in the Agents Window with an established coordinator consultation route, advise opening that agent's chat from the Project. Do not infer this support for ordinary subagents or move work into a Project to obtain it.
+
+Recognize a genuine direct human continuation reported by a helper even without prior advice, an offer, a destination marker or a handoff acknowledgement; it establishes that conversation as the destination without a separate opt-in. Explicit human confirmation can also establish the destination. Until then, keep the existing response destination. An offer, agent status or a running tool does not establish which conversation the human is using. Do not repeat the recommendation while the same offer is pending.
+
+Carry the responsible owner and explicit response destination on every forwarded request. New human input here makes this conversation the destination for that request. If the destination is another helper, forward the owner's exact content there for presentation and return the presentation receipt to the owner. Route an answering human reply back to its owner with the original words and the reply and package identities. Reuse confirmed presentations of answers, questions or packages; a report of routing or state does not request another presentation. If the switch or consultation capability is missing or fails, retain the unfinished request and confirmed outcomes, report the exact limitation and relay through this coordinator.
+
+Handle a helper consultation as a bounded routing request, preserving its original human wording or saved record location, canonical scope and helper identity. Reply to or continue the responsible helper with the collaboration tools and the response destination. Keep responsibility for subscriptions, claims, audits, assignments and delivered events in this coordinator conversation; moving the discussion transfers none of them. Use returned receipts to perform only the coordinator actions still unfinished.
+
+Before verifying or using a consultation route, discover only its needed definition: `codex_tui.send_message_to_thread` for the Codex background follow-up, or the exposed `SendMessage` for Claude Code. Reuse held definitions. Use the core helper continuation tools to forward requests and presentation receipts; discover no Uclusion action tools merely for a conversation change.
+<!-- /uclusion-skill-reference:v1 -->

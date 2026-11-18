@@ -315,10 +315,21 @@ RETIRED_DESIGN_SKILL_NAME = 'uclusion-design'
 RETIRED_DESIGN_SKILL_MARKER = '<!-- uclusion-design-skill:v1 -->'
 RETIRED_DESIGN_SKILL_END_MARKER = '<!-- /uclusion-design-skill:v1 -->'
 WORKFLOW_ENV_PLACEHOLDER = '{{UCLUSION_CLI}}'
-WORKFLOW_CLAIMS_PLACEHOLDER = '{{UCLUSION_WORK_CLAIMS}}'
-WORKFLOW_CLAIMS_STATUS = {
-    False: 'Claims are not enabled.',
-    True: 'Claims are enabled. Read [claims-enabled.md](claims-enabled.md).',
+WORKFLOW_FEATURE_REFERENCES = {
+    'claims_reference': {
+        'placeholder': '{{UCLUSION_WORK_CLAIMS}}',
+        'status': {
+            False: 'Claims are not enabled.',
+            True: 'Claims are enabled. Read [claims-enabled.md](claims-enabled.md).',
+        },
+    },
+    'audit_reference': {
+        'placeholder': '{{UCLUSION_TOKEN_AUDIT}}',
+        'status': {
+            False: 'Job audit is not enabled.',
+            True: 'Job audit is enabled. Read [audit-enabled.md](audit-enabled.md).',
+        },
+    },
 }
 WORKFLOW_ASSET_PATHS = {
     'claude_stub': 'CLAUDE.template.md',
@@ -328,12 +339,18 @@ WORKFLOW_ASSET_PATHS = {
     'claude_delivery_reference': 'skills/uclusion/references/claude-delivery.md',
     'cursor_delivery_reference': 'skills/uclusion/references/cursor-delivery.md',
     'coordinator_lifecycle_reference': 'skills/uclusion/references/coordinator-lifecycle.md',
+    'coordinator_adoption_reference': 'skills/uclusion/references/coordinator-adoption.md',
+    'coordinator_events_reference': 'skills/uclusion/references/coordinator-events.md',
+    'coordinator_conversation_reference': 'skills/uclusion/references/coordinator-conversation.md',
+    'coordinator_completion_reference': 'skills/uclusion/references/coordinator-completion.md',
     'helper_conversation_reference': 'skills/uclusion/references/helper-conversation.md',
     'completion_reference': 'skills/uclusion/references/completion.md',
     'audit_reference': 'skills/uclusion/references/audit.md',
+    'audit_enabled_reference': 'skills/uclusion/references/audit-enabled.md',
     'claims_reference': 'skills/uclusion/references/claims.md',
     'claims_enabled_reference': 'skills/uclusion/references/claims-enabled.md',
     'capsule_dispatch_reference': 'skills/uclusion/references/capsule-dispatch.md',
+    'design_approvable_reference': 'skills/uclusion/references/design-approvable.md',
     'delivery_common_reference': 'skills/uclusion/references/delivery-common.md',
     'durable_records_reference': 'skills/uclusion/references/durable-records.md',
     'question_tools_reference': 'skills/uclusion/references/question-tools.md',
@@ -361,30 +378,36 @@ WORKFLOW_ASSET_SHA256 = {
     'claude_stub': 'e0d7ebaba3eb929377641a099f7d8d2020471d3ef23f12f50615357232f97e88',
     'codex_stub': '713b8a5ebdffeef757f940b8fbc243da9ee704bbed59493d5c730a6a1400aee3',
     'cursor_stub': 'da81cd135e039c1c7cae8ecb0cecd81c4dca5fe5c97d7fcdbaf21b51031eba5a',
-    'skill': 'd05f30ad71980d477a63a474575b900d1a59e5a85f0be7b65126300a4318d80f',
-    'claude_delivery_reference': 'aeb706c010893adda8d484e9644002c42a2333b16a529a47427896fee3d4d995',
-    'cursor_delivery_reference': '284d6a9b926d4423a1aeb54d776cf81452f27da8241ff5c075c888441aa361c4',
-    'coordinator_lifecycle_reference': '6be085467c91659eff0322b6a468637bd7872aab3751d6fcce6506866d0ce1a5',
-    'helper_conversation_reference': '48127eb4669c69317b3b6ebbf72c177b8569625b76e5ae27c1eb1cc1b687d4b4',
-    'completion_reference': 'f9364c44876033c2716206fbb6bd1b229728937acf3d97b5ce313cf0e2b723a8',
-    'audit_reference': 'ec84f4cfe7597c4560b26bba1d55f6ae5924d34f7afbca725982d85bb696de2b',
+    'skill': 'f6c75316fc522c36146b88c904891fc1cd12e04904a6628e7c24a237a3dbbbf9',
+    'claude_delivery_reference': 'be03282ace9a8dc43d4d2cc6a9b3401a2827a432e1b0bf1e39e2289ab8fb1c78',
+    'cursor_delivery_reference': '2ca29f118df715774d1b7df222061fd0fd78f6136d5a43a37c84d95b64444c4d',
+    'coordinator_lifecycle_reference': 'f05bc6d43e66204ea90509a8e3ca592d8d4e052d3d6b58121db8e030b8f25060',
+    'coordinator_adoption_reference': '3d03d89a08895824c6650998909508e4f8eae177e298f8b13d27e9d5f3686225',
+    'coordinator_events_reference': 'df3bd402446ca9f8a48bf8e0b29cc85e50c69dfdb1939ae3490bd5ac1b94a968',
+    'coordinator_conversation_reference': '9609076bc27039dc17f1847e1ee4465acb3d29856bb10d6b1b6c58d03ce6eb86',
+    'coordinator_completion_reference': 'abbfb32c703ca8d38bebcf94dc9b4eaf65ffd0204b2489319205b3a63846c4c0',
+    'helper_conversation_reference': 'dc24504d262bbc15e3a79f44cc7cbaec64aa0918e3a68e7da67fea4d9c72a56f',
+    'completion_reference': '24ec52495c2b54782798142bd3fc0dffd671dd7a6773166285406544edecd4b6',
+    'audit_reference': 'e93d157b3ac5ffefb699fca5256d8b2aa8fd2eae6eea8b499104c4c649eeccda',
+    'audit_enabled_reference': '8358831b3f77d21ab48769c75ea72fea8dc477657f5432977c4bca1816adcc0d',
     'claims_reference': 'f482e0458cb3ef3367b84092ae318e6d2c1deba685fafd17e14682e6f5c389f5',
-    'claims_enabled_reference': 'addba45a9299cf582597b37dc0660f2d7f3a0300399f0afa42cf63c9c1e9e2f5',
-    'capsule_dispatch_reference': '5032df89e3ebbf4aa80e3c7a4fb6945cd17288a3c8b7d4c4070116f1411d411a',
-    'delivery_common_reference': '954bd57326ea477236dbb2f21c79cc67145cc8fb4ca60d86436d0445ba8a7178',
-    'durable_records_reference': '797dbf5956ff5c14438fe91bf15559119c86278bcdeeddc5f222363b07d21ca9',
-    'question_tools_reference': 'd1fb6ad2b22b4db8b33f33f68070beb836c6da8bc54ce2d0f792e2a0cded11f9',
-    'work_discovery_reference': '55b11fdf447a03d6b5411d561521153c29be5ff36b544b7425599c81c1fe04d7',
-    'discovery_routing_reference': '84eefd4ad735e67b54829c0c8ad9708363ce13089f856be6ffbb30c3b25ed60a',
+    'claims_enabled_reference': '24afcc6fa1622c20ac6618d05af91a89ae1cfc12dee75505f6aa893f9502e004',
+    'capsule_dispatch_reference': 'f8588938923bef4134fe29c312fe83718d4a09c8e79cf65a21731a280b9d1775',
+    'design_approvable_reference': '398b1df8b649422dcd1a4eea516c39ef0128d8de3a5185d72721b1ff7079bc8c',
+    'delivery_common_reference': 'b3f54e221287b6ca4b9cea454faba45cbc7f89379e3eafa57da41a5d3f8c6f67',
+    'durable_records_reference': 'ec31e25973f29e88e204790a2d907a772292eedfda824075e256b83b68fed486',
+    'question_tools_reference': 'a61259018e436ccab4364abf8e6d2d7b6cd78871cc655a968710f29f8785f9f2',
+    'work_discovery_reference': '06e6d0f4e9d03eadadadd0afc48e429569ed2f9c7449f83b65bd01b7e7ad305b',
+    'discovery_routing_reference': '6adf908f1722a8ed3601244fb5a4250b467842c733be30e7229d47fcff5a4678',
     'openai_metadata': '0948fb0e2e8d0800019e0a244cfdec54ff420a8af6f20683aca1486d194ab202',
-    'implementation_role': '7127901fbc607661b02fdabb88308c250db9fe1022f8881ddaa368491bf3711c',
-    'operation_role': '702228acab15f8794f61cacc1641de39e60fa7f05cfabc4bc2056daf0b46cb1e',
-    'standalone_role': '634beabade42c7e0ddf9bea94a6d13fcc6837bf1fe3fa5fa7268b897bdb50ad8',
-    'export_search_role': 'b91a6d887e502586149a0a2b206f83b12bdbbe6c9aedc3a388cd2aff259c5155',
-    'backlog_maintenance_role': '4771e6d742a14a607ba3b0450481d9cf0147af88e5558f1a533bb86993aab241',
-    'design_role': '649565554969928ff716311d723ec9dc5284c46aed282ccdbaacef7fd33914e1',
+    'implementation_role': '0820fb1950be2c2d333fc5abe0a2a62ae2c268bb25f69223e575865c9a8a586b',
+    'operation_role': '8ce7fd0909754e7218d2661a9635f338619c0549f52a5c663d6bc91579707262',
+    'standalone_role': '24d8ae570a5907705af755791af245fb43e09b45e2873f77ead587a8dbb522ab',
+    'export_search_role': '1719db839a4ad5f37e3c9a3b4095514f48aaf95060436a94ca3824bfda800bdf',
+    'backlog_maintenance_role': '0a514fd9e0c32eec47aeb34c5d242cc1e738d4ac81e13cd22d3d14155f9dfef9',
+    'design_role': '6e2a705d9d1fe093f33e055b21b146b3f519ab788fb780c155b57c9fe20021a3',
     'demo_brief': 'b68f6501270c63456c19053d1b5af296350288754239c7f9d6074a3a5497789f',
-    'token_manifest': '9998e686ffd7239c8d2496fb7579e0af873fcdb6276ad1111f1f952f00e03cb4',
+    'token_manifest': '7ab7dbf59314ade26f71aa5e64c6047d4032b50e752349e60764b4d5c1a1adbb',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',
@@ -395,12 +418,18 @@ SKILL_PACKAGE_ASSETS = (
     ('claude_delivery_reference', os.path.join('references', 'claude-delivery.md')),
     ('cursor_delivery_reference', os.path.join('references', 'cursor-delivery.md')),
     ('coordinator_lifecycle_reference', os.path.join('references', 'coordinator-lifecycle.md')),
+    ('coordinator_adoption_reference', os.path.join('references', 'coordinator-adoption.md')),
+    ('coordinator_events_reference', os.path.join('references', 'coordinator-events.md')),
+    ('coordinator_conversation_reference', os.path.join('references', 'coordinator-conversation.md')),
+    ('coordinator_completion_reference', os.path.join('references', 'coordinator-completion.md')),
     ('helper_conversation_reference', os.path.join('references', 'helper-conversation.md')),
     ('completion_reference', os.path.join('references', 'completion.md')),
     ('audit_reference', os.path.join('references', 'audit.md')),
+    ('audit_enabled_reference', os.path.join('references', 'audit-enabled.md')),
     ('claims_reference', os.path.join('references', 'claims.md')),
     ('claims_enabled_reference', os.path.join('references', 'claims-enabled.md')),
     ('capsule_dispatch_reference', os.path.join('references', 'capsule-dispatch.md')),
+    ('design_approvable_reference', os.path.join('references', 'design-approvable.md')),
     ('delivery_common_reference', os.path.join('references', 'delivery-common.md')),
     ('durable_records_reference', os.path.join('references', 'durable-records.md')),
     ('question_tools_reference', os.path.join('references', 'question-tools.md')),
@@ -460,7 +489,7 @@ RETIRED_SKILL_REFERENCE_PATHS = (
     os.path.join('references', 'history-search.md'),
     # Job question rules moved into roles/design.md and references/question-tools.md.
     os.path.join('references', 'job-assistance.md'),
-    # Job approval rules moved into roles/design.md.
+    # Job approval rules moved into references/design-approvable.md.
     os.path.join('references', 'approval.md'),
     # The human-review procedure moved into roles/implementation.md.
     os.path.join('references', 'review.md'),
@@ -1375,7 +1404,16 @@ def reapply_saved_feature_surfaces(env, config_path, clients, project_dir=None):
     mcp_env = None if environment == 'production' else environment
     work_claims = _config_work_claims_enabled(config)
     selected = {client for client in clients if client in SUPPORTED_CLIENTS}
-    if project_dir is None:
+    demo = project_dir is None and uclusion_home_root() == demo_home_path()
+    if demo:
+        selected &= DEMO_CLIENTS
+        claude_mcp = demo_mcp_config_path()
+        codex_config = os.path.join(uclusion_home_root(), '.codex', 'config.toml')
+        skill_dirs = {
+            'claude': os.path.join(demo_plugin_path(), 'skills', 'uclusion'),
+            'codex': os.path.join(uclusion_home_root(), '.agents', 'skills', 'uclusion'),
+        }
+    elif project_dir is None:
         claude_settings = CLAUDE_SETTINGS_PATH
         claude_mcp = CLAUDE_JSON_PATH
         cursor_mcp = CURSOR_MCP_PATH
@@ -1397,12 +1435,14 @@ def reapply_saved_feature_surfaces(env, config_path, clients, project_dir=None):
             )
         }
     for client in selected:
-        refresh_work_claims_reference(skill_dirs[client], work_claims)
+        refresh_workflow_features(
+            skill_dirs[client], work_claims, _config_token_audit_enabled(config),
+        )
     if 'claude' in selected and os.path.exists(claude_mcp):
         registration_audit = apply_token_audit_choices(config, workspace_id)
         result = None
-        if (os.path.exists(claude_settings)
-                or token_audit_collector_enabled(registration_audit)):
+        if not demo and (os.path.exists(claude_settings)
+                         or token_audit_collector_enabled(registration_audit)):
             result = configure_claude_token_audit(
                 claude_settings,
                 token_audit_collector_enabled(registration_audit),
@@ -1817,7 +1857,7 @@ def demo_codex_owner_instructions_path():
     return os.path.join(UCLUSION_HOME, 'owner-instructions.md')
 
 
-def install_demo_plugin(fetch_bundle, work_claims=False):
+def install_demo_plugin(fetch_bundle, work_claims=False, token_audit=False):
     """Write the workflow into the demo's own directory instead of the person's.
 
     A demo session loads its skills with --plugin-dir and its bootstrap with
@@ -1833,7 +1873,7 @@ def install_demo_plugin(fetch_bundle, work_claims=False):
         raise RuntimeError('the Uclusion workflow bundle is unavailable')
     validate_workflow_bundle(bundle)
     install_token_manifest(bundle)
-    bundle = render_workflow_features(bundle, work_claims)
+    bundle = render_workflow_features(bundle, work_claims, token_audit)
     environment = getattr(fetch_bundle, '__dict__', {}).get(
         'workflow_environment'
     )
@@ -1891,12 +1931,12 @@ def demo_codex_cli_args(environment):
     return command
 
 
-def install_demo_codex_workflow(fetch_bundle, work_claims=False):
+def install_demo_codex_workflow(fetch_bundle, work_claims=False, token_audit=False):
     """Install Codex's skills, bootstrap and additive rules only in the demo."""
     bundle = fetch_bundle()
     validate_workflow_bundle(bundle)
     install_token_manifest(bundle)
-    bundle = render_workflow_features(bundle, work_claims)
+    bundle = render_workflow_features(bundle, work_claims, token_audit)
     environment = getattr(fetch_bundle, 'workflow_environment', 'production')
     command = demo_codex_cli_args(environment)
     cli = ' '.join(shlex.quote(part) for part in command)
@@ -4924,15 +4964,15 @@ def _assert_json_namespace_unambiguous(path):
         _mcp_server_key(servers)
 
 
-def _response_stats_from_args(args):
-    """Read the existing recording choice, including the equals form."""
+def _argument_value(args, name):
+    """Read an existing value option, including the equals form."""
     result = None
     if isinstance(args, list):
         for index, arg in enumerate(args):
-            if (arg == '--response-stats' and index + 1 < len(args)
+            if (arg == name and index + 1 < len(args)
                     and isinstance(args[index + 1], str)):
                 result = args[index + 1]
-            elif isinstance(arg, str) and arg.startswith('--response-stats='):
+            elif isinstance(arg, str) and arg.startswith(name + '='):
                 result = arg.split('=', 1)[1]
     return result
 
@@ -4995,7 +5035,7 @@ def register_mcp_json(path, label, workspace_id, env, require_existing,
 
     if normal_claude:
         if response_stats is None:
-            response_stats = _response_stats_from_args(previous.get('args'))
+            response_stats = _argument_value(previous.get('args'), '--response-stats')
         if response_stats:
             descriptor['args'].extend(['--response-stats', response_stats])
     if normal_registration:
@@ -6274,8 +6314,10 @@ def mutate_codex_config(
                             'Preserving Codex response statistics requires Python 3.11 '
                             'or an explicit --response-stats/--no-response-stats choice'
                         )
+                    if tomllib is None and '--demo-evidence' in owned:
+                        raise RuntimeError('Preserving Codex demo evidence requires Python 3.11')
                     if response_stats is None:
-                        response_stats = _response_stats_from_args(previous_args)
+                        response_stats = _argument_value(previous_args, '--response-stats')
                     descriptor = runtime_mcp_descriptor(
                         workspace_id, env, work_claims=work_claims,
                         token_audit=token_audit, token_audit_client='codex',
@@ -6283,6 +6325,10 @@ def mutate_codex_config(
                     )
                     if previous_args and '--deliver-existing-pokes' in previous_args:
                         descriptor['args'].append('--deliver-existing-pokes')
+                    for option in ('--demo-evidence', '--demo-evidence-role'):
+                        value = _argument_value(previous_args, option)
+                        if value is not None:
+                            descriptor['args'].extend([option, value])
                 block = (build_codex_mcp_block(descriptor=descriptor) if not owned
                          else _refresh_codex_transport(_migrate_codex_namespace(owned), descriptor))
                 updated, mcp_refreshed = replace_owned_block(
@@ -6555,8 +6601,9 @@ def validate_workflow_bundle(bundle):
                 f'workflow asset {key} has invalid reference markers'
             )
 
-    if bundle['claims_reference'].count(WORKFLOW_CLAIMS_PLACEHOLDER) != 1:
-        raise RuntimeError('claims reference lacks its feature placeholder')
+    for key, feature in WORKFLOW_FEATURE_REFERENCES.items():
+        if bundle[key].count(feature['placeholder']) != 1:
+            raise RuntimeError(f'{key} lacks its feature placeholder')
 
     metadata = bundle['openai_metadata']
     if (
@@ -7220,33 +7267,41 @@ def install_token_manifest(bundle):
     os.replace(temporary, path)
 
 
-def render_work_claims_reference(content, enabled):
+def render_feature_reference(content, key, enabled):
     """Render the template or refresh a previously rendered feature state."""
-    for state in (WORKFLOW_CLAIMS_PLACEHOLDER, *WORKFLOW_CLAIMS_STATUS.values()):
+    feature = WORKFLOW_FEATURE_REFERENCES[key]
+    for state in (feature['placeholder'], *feature['status'].values()):
         if content.count(state) == 1:
-            return content.replace(state, WORKFLOW_CLAIMS_STATUS[enabled])
-    raise RuntimeError('work claims instructions need a Uclusion workflow update')
+            return content.replace(state, feature['status'][enabled])
+    raise RuntimeError(f'{key} instructions need a Uclusion workflow update')
 
 
-def render_workflow_features(bundle, work_claims):
-    return {**bundle, 'claims_reference': render_work_claims_reference(
-        bundle['claims_reference'], work_claims,
-    )}
+def render_workflow_features(bundle, work_claims, token_audit=False):
+    rendered = dict(bundle)
+    for key, enabled in (
+        ('claims_reference', work_claims), ('audit_reference', token_audit),
+    ):
+        rendered[key] = render_feature_reference(bundle[key], key, enabled)
+    return rendered
 
 
-def refresh_work_claims_reference(skill_dir, enabled):
-    """Keep an installed feature page current without a workflow download."""
+def refresh_workflow_features(skill_dir, work_claims, token_audit):
+    """Keep installed feature pages current without a workflow download."""
     with install_lock():
         _recover_skill_transaction(skill_dir)
         if not _validate_owned_skill(skill_dir):
             return
-        path = os.path.join(skill_dir, 'references', 'claims.md')
-        existing, signature = _read_text_snapshot(path)
-        if signature is None:
-            raise RuntimeError('work claims instructions need a Uclusion workflow update')
-        content = render_work_claims_reference(existing, enabled)
-        if content != existing:
-            atomic_write_text(path, content, existing, path, signature)
+        for key, enabled in (
+            ('claims_reference', work_claims), ('audit_reference', token_audit),
+        ):
+            relative_path = WORKFLOW_ASSET_PATHS[key].removeprefix('skills/uclusion/')
+            path = os.path.join(skill_dir, relative_path)
+            existing, signature = _read_text_snapshot(path)
+            if signature is None:
+                raise RuntimeError(f'{key} instructions need a Uclusion workflow update')
+            content = render_feature_reference(existing, key, enabled)
+            if content != existing:
+                atomic_write_text(path, content, existing, path, signature)
 
 
 def install_skill_and_stub(
@@ -7258,6 +7313,7 @@ def install_skill_and_stub(
     assume_yes=False,
     require_dir=None,
     work_claims=False,
+    token_audit=False,
 ):
     """Install the native skill, then shrink the resident instructions.
 
@@ -7307,7 +7363,7 @@ def install_skill_and_stub(
             raise RuntimeError('the Uclusion workflow bundle is unavailable')
         validate_workflow_bundle(bundle)
         install_token_manifest(bundle)
-        bundle = render_workflow_features(bundle, work_claims)
+        bundle = render_workflow_features(bundle, work_claims, token_audit)
 
         environment = getattr(fetch_bundle, '__dict__', {}).get(
             'workflow_environment'
@@ -8025,6 +8081,7 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                 if uclusion_home_root() == demo_home_path():
                     workflow_results['claude'] = install_demo_plugin(
                         fetch_bundle, work_claims=work_claims,
+                        token_audit=token_audit_notes_enabled(token_audit),
                     )
                 else:
                     workflow_results['claude'] = install_skill_and_stub(
@@ -8035,6 +8092,7 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                         'Claude Code',
                         assume_yes=not interactive,
                         work_claims=work_claims,
+                        token_audit=token_audit_notes_enabled(token_audit),
                     )
             except Exception as err:
                 workflow_results['claude'] = False
@@ -8052,6 +8110,7 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                     'Cursor',
                     assume_yes=not interactive,
                     work_claims=work_claims,
+                    token_audit=token_audit_notes_enabled(token_audit),
                 )
                 workflow_results['cursor'] = installed
                 if installed:
@@ -8067,6 +8126,7 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                 if uclusion_home_root() == demo_home_path():
                     workflow_results['codex'] = install_demo_codex_workflow(
                         fetch_bundle, work_claims=work_claims,
+                        token_audit=token_audit_notes_enabled(token_audit),
                     )
                 else:
                     codex_resident_path = effective_codex_instruction_path(
@@ -8081,6 +8141,7 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                         assume_yes=not interactive,
                         require_dir=CODEX_HOME if interactive else None,
                         work_claims=work_claims,
+                        token_audit=token_audit_notes_enabled(token_audit),
                     )
                     workflow_results['codex'] = installed
                     if installed and not replace_setup:
@@ -8254,6 +8315,7 @@ def install_project_level(
                 'Claude Code (project)',
                 assume_yes=not interactive,
                 work_claims=work_claims,
+                token_audit=token_audit_notes_enabled(token_audit),
             )
         except Exception as err:
             workflow_results['claude'] = False
@@ -8268,6 +8330,7 @@ def install_project_level(
                 'Cursor (project)',
                 assume_yes=not interactive,
                 work_claims=work_claims,
+                token_audit=token_audit_notes_enabled(token_audit),
             )
             workflow_results['cursor'] = installed
             if installed:
@@ -8290,6 +8353,7 @@ def install_project_level(
                 'Codex (project)',
                 assume_yes=not interactive,
                 work_claims=work_claims,
+                token_audit=token_audit_notes_enabled(token_audit),
             )
             workflow_results['codex'] = installed
             if installed and not replace_setup:

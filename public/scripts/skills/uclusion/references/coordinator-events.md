@@ -11,11 +11,11 @@ Native delivery appends a separate `[Uclusion native Poke context]` input after 
 
 ## Select the existing owner or accept a Start
 
-A non-replayed Start received while no work is assigned selects work to adopt. While work is assigned, a Start can continue matching current work but cannot switch to unrelated work. A Start that is not accepted does not become a queued future assignment.
+A non-replayed Start received while no work is assigned selects work to adopt. While work is assigned, a Start can continue matching current work but cannot switch to unrelated work. A Start that is not accepted does not become a queued future assignment. Interpret Start here as work selection or continuation; it supplies no approval of a design proposal or other substantive choice.
 
 For other Pokes, identify known work from the named code or the parent code after `of` in compound lines. The parent identifies the work; helper reuse still requires a matching role and scope. Check retained completion-package ownership as well, even after the job or bug assignment has ended. A new reply code under work with a pending package is not unknown merely because the reply itself has not been read. Give its saved owner the named reply and package identities for a bounded read to confirm membership before handling it. If several owners could match, request bounded classification from `design` with those identities.
 
-When no existing owner matches, a verified native non-Start event still requires a bounded response, including while no work is assigned or other helpers are working. Send the complete Poke to `design`. Otherwise ignore unknown delivered codes and non-Start Pokes with no current assignment or pending owner; do not look up unrelated work to create an assignment.
+When no existing owner matches, a verified native non-Start event still requires a bounded response, including while no work is assigned or other helpers are working. Route it to `design` for bounded classification and response using the handoff below. Otherwise ignore unknown delivered codes and non-Start Pokes with no current assignment or pending owner; do not look up unrelated work to create an assignment.
 
 When an accepted event names a stage transition, apply that transition only to its work and preserve any newer confirmed state. Receiving a Poke does not itself subscribe, restore an ended assignment or restore a former claim.
 
@@ -23,7 +23,9 @@ For a matched completion-package response or its unfinished handling, read [coor
 
 ## Forward and finish the response
 
-Send the original Poke to the helper handling that work. If you already have the human’s message for that Poke, include it. Require a concrete response, confirmation that the event was already handled or superseded, or the exact missing prerequisite, with confirmation of any required reply in the event's Uclusion thread. Preserve the role's normal action permissions. Keep an accepted but unfinished response with its owner for continuation; do not turn it into an ignored event or restart an unchanged stalled delegation chain.
+Consume the activation and delivery metadata here, then give the responsible helper a bounded work request under the lifecycle's handoff rules. Include the named record, canonical work, supplied message or reply identity and evidence version, relevant changes, and confirmed or unfinished response receipts. Preserve the human's substantive message verbatim when held, including any requirements attached to an activation; otherwise supply its exact record location for the helper's own read. Keep raw protocol lines and native context in this conversation, separate from the helper's evidence and instructions.
+
+Require a concrete response, confirmation that the event was already handled or superseded, or the exact missing prerequisite, with confirmation of any required reply in the named Uclusion thread. Preserve the role's normal action permissions. Keep an accepted but unfinished response with its owner for continuation; do not turn it into an ignored event or restart an unchanged stalled delegation chain.
 
 Keep all other helpers' assignments and their associated audits, claims and subscriptions intact. A bounded response does not adopt or implement an unrelated whole job, authorize a manual stage change, or end another assignment. Finish it and continue other authorized work; broader implementation needs its own assignment.
 

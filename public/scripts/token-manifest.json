@@ -18,6 +18,15 @@
     "openai": 6961
    }
   },
+  "01919a430260310d2d5363a8af36841c0e7e88a0237f33680c6e287c97569e13": {
+   "bytes": 8882,
+   "kind": "skill",
+   "name": "skills/uclusion/roles/design.md",
+   "tokens": {
+    "claude": 2562,
+    "openai": 1616
+   }
+  },
   "02c3bcc3c6370b87790d4c7c0a16ef07cdf5c9a0e50c318112a87405ae34d735": {
    "bytes": 9301,
    "kind": "skill",
@@ -1339,6 +1348,15 @@
    "tokens": {
     "claude": 1170,
     "openai": 745
+   }
+  },
+  "41e46e4f0dec19a150a95e265616795098844c36ccbb9da6eff4d4ad53f832dc": {
+   "bytes": 8037,
+   "kind": "skill",
+   "name": "skills/uclusion/references/coordinator-lifecycle.md",
+   "tokens": {
+    "claude": 2427,
+    "openai": 1486
    }
   },
   "422763204da6a18382043e26f53c4ffa774b0d99d67bacc246665ebee2436289": {
@@ -4129,6 +4147,15 @@
    "tokens": {
     "claude": 1361,
     "openai": 809
+   }
+  },
+  "bb43b0c9c605999fa11bb0c8effd9c34661889c7baa2c1b7b2f15561755cf1f3": {
+   "bytes": 4933,
+   "kind": "skill",
+   "name": "skills/uclusion/references/coordinator-events.md",
+   "tokens": {
+    "claude": 1461,
+    "openai": 902
    }
   },
   "bbca73ab5b9de8ddf23b036017434d0f7afc230763101cf836b5ac224e900534": {

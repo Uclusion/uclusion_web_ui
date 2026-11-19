@@ -37,7 +37,9 @@ including internal implementation choices, so the human understands and approves
 the design. It reuses settled human decisions and distinguishes facts the source
 requires from choices that still need an answer. It asks before settling the approach,
 continues independent authorized work while waiting, then publishes a design
-that explains how to build it. The job's current Markdown determines the next
+that explains how to build it. It works through central behavior and content with
+concrete examples or outputs so an abstract outline cannot conceal unsettled choices.
+The job's current Markdown determines the next
 step. A stated return to Doable happens automatically after its questions and
 suggestions are resolved. If AI approval is required and allowed, design assesses
 the job without asking whether to approve. For a ready Approvable job that permits
@@ -104,6 +106,11 @@ load completely at their action boundaries:
 
 The existing events procedure owns all Poke processing, including replay and
 native-context checks, owner matching, forwarding, ignored codes and recovery.
+The coordinator consumes activation and transport metadata before handing off
+bounded work. Helpers receive the human's substantive words, record identities
+and receipts, then read their own evidence. Initial assignments and later events
+use the same boundary; routing and record status do not become human approval or
+instructions to omit the helper's questions or permission checks.
 The core keeps only its recognition and complete-read trigger. Pending completion
 owners remain valid routing matches after their assignments end. A coordinator
 with no Poke or unfinished Poke response does not read this procedure.

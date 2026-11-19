@@ -1,4 +1,11 @@
 #!/usr/bin/python3
+import sys
+import uclusionDiagnostics as diagnostics
+
+if __name__ == '__main__':
+    diagnostics.start(sys.argv[1:])
+    diagnostics.event('startup_imports')
+
 import argparse
 import bisect
 import calendar
@@ -14,7 +21,6 @@ import signal
 import socket
 import sqlite3
 import subprocess
-import sys
 import tempfile
 import time
 import urllib.request
@@ -735,6 +741,8 @@ def read_mcp_response(response):
                 payload = line[6:].strip()
                 if payload and payload != '[DONE]':
                     message = json.loads(payload)
+                    diagnostics.event('sse_message', has_result=isinstance(message, dict) and 'result' in message,
+                                      has_error=isinstance(message, dict) and 'error' in message)
         return message
     body = response.read().decode('utf-8')
     return json.loads(body) if body.strip() else None
@@ -743,6 +751,7 @@ def read_mcp_response(response):
 def call_mcp_tool(credentials, tool_name, arguments, meta=None):
     """Call one authenticated MCP tool and return its exact CallToolResult."""
     request_id = 'uclusion-cli-' + uuid.uuid4().hex
+    diagnostics.mcp_request(tool_name, request_id, arguments)
     request = {
         'jsonrpc': '2.0',
         'id': request_id,
@@ -770,8 +779,11 @@ def call_mcp_tool(credentials, tool_name, arguments, meta=None):
             if response.status != 200:
                 raise MCPCallError(f'HTTP {response.status}')
             rpc_response = read_mcp_response(response)
+            diagnostics.event('mcp_response_decoded', rpc_id=request_id,
+                              matching_id=isinstance(rpc_response, dict) and rpc_response.get('id') == request_id)
     except urllib.request.HTTPError as error:
-        body = error.read().decode('utf-8', errors='replace').strip()
+        with diagnostics.phase('http_error_body'):
+            body = error.read().decode('utf-8', errors='replace').strip()
         detail = f': {body}' if body else ''
         raise MCPCallError(f'HTTP {error.code} {error.reason}{detail}') from None
     except MCPCallError:
@@ -793,6 +805,7 @@ def call_mcp_tool(credentials, tool_name, arguments, meta=None):
     result = rpc_response.get('result')
     if not isinstance(result, dict):
         raise MCPCallError('MCP returned an invalid tool result')
+    diagnostics.event('mcp_complete', rpc_id=request_id, is_error=result.get('isError') is True)
     return result
 
 
@@ -1643,11 +1656,13 @@ def initialize(env):
     """
     api_url, json_path, credentials_path = get_env_paths(env)
 
-    credentials = get_credentials(credentials_path)
+    with diagnostics.phase('credentials'):
+        credentials = get_credentials(credentials_path)
     if credentials is None:
         return None
 
-    config = load_config(json_path)
+    with diagnostics.phase('configuration'):
+        config = load_config(json_path)
     if config is None:
         return None
 
@@ -1671,7 +1686,8 @@ def initialize(env):
     credentials['workspace_id'] = workspace_id
     credentials['api_url'] = api_url
 
-    response = login(credentials)
+    with diagnostics.phase('login'):
+        response = login(credentials)
     if response is None or 'uclusion_token' not in response:
         print("   -> ❌ Error: login failed.")
         return None
@@ -4164,6 +4180,10 @@ def build_parser():
         help='API environment to target (default: production).',
     )
     parser.add_argument(
+        '--diagnostics', metavar='DIR',
+        help='Write private, bounded local timeout diagnostics (or set UCLUSION_DIAGNOSTICS_DIR).',
+    )
+    parser.add_argument(
         '--response-stats', type=response_stats_path, metavar='PATH',
         help='Set local response-size recording during an update, or read its measurement window with usage.',
     )
@@ -5275,5 +5295,9 @@ if __name__ == "__main__":
             sys.exit(1)
         print(json.dumps(check_wait_update_notice(sys.argv[2])))
         sys.exit(0)
-    args = parse_args()
-    sys.exit(args.func(args) or 0)
+    with diagnostics.phase('arguments'):
+        args = parse_args()
+    with diagnostics.phase('command', command=args.command, environment=args.env):
+        result = args.func(args) or 0
+    diagnostics.event('command_exit', status=result)
+    sys.exit(result)

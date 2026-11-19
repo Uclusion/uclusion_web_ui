@@ -148,6 +148,7 @@ HTTP_TIMEOUT = 15
 SCRIPT_FILES = (
     ('uclusionInstall.py', 'uclusionInstall.py', 'uclusionInstall.py'),
     ('uclusionCLI.py', 'uclusion.py', 'uclusion'),
+    ('uclusionDiagnostics.py', 'uclusionDiagnostics.py', 'uclusionDiagnostics.py'),
     ('uclusionMCPProxy.py', 'uclusionMCPProxy.py', 'uclusionMCPProxy.py'),
     ('uclusionSetupMCP.py', 'uclusionSetupMCP.py', 'uclusionSetupMCP.py'),
     ('uclusionCodexNative.py', 'uclusionCodexNative.py', 'uclusionCodexNative.py'),
@@ -162,7 +163,8 @@ SCRIPT_FILES = (
 # deployment gate validates this table before publishing, so a sequential S3
 # deployment can fail a bootstrap safely but cannot install a mixed release.
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
-    'uclusionCLI.py': 'd1b5b30eb3dad7f6e5570be770d17ade4fff22c30d50fcdc4342857c5ba76d47',
+    'uclusionDiagnostics.py': 'cd92a26a3746bcf70040697eb5a6869ecdde4b944f25b2ff4706d2e1c85627d5',
+    'uclusionCLI.py': '2d49c7518f93301e6a1c419a5c65515cd017f28fa6fbd662cbc22e0f32437157',
     'uclusionMCPProxy.py': '53c727b6b050c8f34204a3ab295368ada92b1f35fe790a603a3677b92b04edd3',
     'uclusionSetupMCP.py': 'c4740e2c6a5e17e594cb7010e740d494a0e3a90cab237402e32e61061979bd22',
     'uclusionCodexNative.py': 'c493faa1c6dd06f1d64510a85c29f95bf182ddf17c2abd010d3577ef5e8ec113',

@@ -383,7 +383,7 @@ WORKFLOW_ASSET_SHA256 = {
     'skill': 'f6c75316fc522c36146b88c904891fc1cd12e04904a6628e7c24a237a3dbbbf9',
     'claude_delivery_reference': 'be03282ace9a8dc43d4d2cc6a9b3401a2827a432e1b0bf1e39e2289ab8fb1c78',
     'cursor_delivery_reference': '2ca29f118df715774d1b7df222061fd0fd78f6136d5a43a37c84d95b64444c4d',
-    'coordinator_lifecycle_reference': 'f05bc6d43e66204ea90509a8e3ca592d8d4e052d3d6b58121db8e030b8f25060',
+    'coordinator_lifecycle_reference': 'd01c6352f4cc5daea93ddca3c06b24ef1f2318630361eb6d86dd4cade9a98be6',
     'coordinator_adoption_reference': '3d03d89a08895824c6650998909508e4f8eae177e298f8b13d27e9d5f3686225',
     'coordinator_events_reference': 'df3bd402446ca9f8a48bf8e0b29cc85e50c69dfdb1939ae3490bd5ac1b94a968',
     'coordinator_conversation_reference': '9609076bc27039dc17f1847e1ee4465acb3d29856bb10d6b1b6c58d03ce6eb86',
@@ -407,9 +407,9 @@ WORKFLOW_ASSET_SHA256 = {
     'standalone_role': '24d8ae570a5907705af755791af245fb43e09b45e2873f77ead587a8dbb522ab',
     'export_search_role': '1719db839a4ad5f37e3c9a3b4095514f48aaf95060436a94ca3824bfda800bdf',
     'backlog_maintenance_role': '0a514fd9e0c32eec47aeb34c5d242cc1e738d4ac81e13cd22d3d14155f9dfef9',
-    'design_role': '6e2a705d9d1fe093f33e055b21b146b3f519ab788fb780c155b57c9fe20021a3',
+    'design_role': '772172232a6e3bfb96aa9e5bce4c8ed1b5621739f4d0936c5d4f3e7e52b03715',
     'demo_brief': 'b68f6501270c63456c19053d1b5af296350288754239c7f9d6074a3a5497789f',
-    'token_manifest': '7ab7dbf59314ade26f71aa5e64c6047d4032b50e752349e60764b4d5c1a1adbb',
+    'token_manifest': 'b91c4205d46bdfa490015b3e80450b5de3a3c311438bab3bd8a12474cc3f3faa',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',

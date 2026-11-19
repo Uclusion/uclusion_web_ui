@@ -9,7 +9,27 @@ Answer here when this is the response destination; otherwise return the exact co
 
 ## Tool discovery
 
-Use your role's `Tools:` inventory to identify the Uclusion tool needed for the current authorized action. Reuse definitions already held; otherwise discover the needed tool by exact name and read its full description and argument schema before calling. Do not preload the inventory or retrieve the whole catalog. If a name is unknown, use a narrow capability query with bounded results and read the returned definitions before calling. With `ALL_TOOLS`, emit candidate names first and full records only for selected tools; never print broad matches with full metadata.
+Use your role's `Tools:` inventory for the current action, reusing complete current definitions without preloading. For a missing definition, use native exact-name or bounded capability discovery. With `ALL_TOOLS`, replace the example values:
+
+```js
+text(ALL_TOOLS.find(t => t.name === "mcp__uclusion__get_job") ?? "No exact match");
+```
+
+```js
+text(ALL_TOOLS.filter(t => t.name.startsWith("mcp__uclusion__") && /attached files/i.test(t.description)).slice(0, 5).map(t => t.name));
+```
+
+Candidates are names only, capped at five. Load the selected exact name's full description/schema before calling. For missing matches, empty searches, unavailable tools or a changed tool set, refine the bounded names-only lookup; never dump the catalog. Reload changed definitions and report unavailable capabilities through the coordinator.
+
+## Read and reuse evidence
+
+Each helper establishes its own initial target evidence with `get_job`; another helper's conclusions or shared codes do not replace that read. Save the complete native response once before displaying a subset, in retained result state or a local artifact. Keep its location, requested target/selectors, owning job/task, and the record identities and actual versions captured. A complete retained result needs no additional copy.
+
+Before a later capsule or reply read, reuse or locally extract its complete record if already captured and still known current. A whole-scope result can satisfy later reads of its included capsule and replies; an advertised code alone does not establish that its body was captured. Preserve full human wording, author/advisory status, parent/question/option identity, returned version and selected capsule target. Summaries, hashes, token counts and partial displays do not replace bodies; do not invent missing versions.
+
+Reuse applies only to captured records and scope. Matching capsule code/version does not establish unchanged discussion or capture of other replies, Reports, options or standing notes. Read missing required evidence. Refresh affected evidence after a changed version, new human evidence, conflicting result, incomplete capture, lost content or uncertain freshness. A new reply can change discussion without changing the capsule version: fetch that record and needed context, preserving newer confirmed results and unrelated current bodies.
+
+Read truncated displays from the complete saved result. Extract held complete content for a reviewer artifact without another network read, carrying target/code/version and capture provenance. After context loss, reuse a preserved artifact only when its currentness is still established; otherwise refresh.
 
 ## Consult the coordinator
 

@@ -7,7 +7,7 @@ Read [helper-conversation](../references/helper-conversation.md) for direct huma
 
 ## Current evidence
 
-Fetch the selected target and relevant incoming records with `get_job`. The returned Job header establishes job membership. Read every advertised standing-note R-thread completely, retaining actual versions.
+Establish your own initial target evidence with `get_job`, then follow [Read and reuse evidence](../references/helper-conversation.md#read-and-reuse-evidence) for later records and incoming changes. The returned Job header establishes job membership. Read every advertised standing-note R-thread completely, retaining actual versions; reuse complete current bodies already held.
 
 When the work depends on a capsule, establish its owning job or task, complete current body, advertised R-code and actual version. Use the job capsule for work governed by one job design, an independent top-level task's own capsule without falling back to the job's, or the top-level parent capsule for grouped tasks. A standalone question has no capsule prerequisite. Comments supply context. Honor an explicit capsule/version pin; a cited version alone does not require using that version. Reconcile missing, conflicting or changed evidence before the next affected decision, preserving newer confirmed results. Correct straightforward errors; present material unresolved disagreement to the human with the decision and consequences. A job description or task body records the original request; later decisions supersede it without editing that original, so a difference explained by those decisions is neither an error nor unfinished work.
 

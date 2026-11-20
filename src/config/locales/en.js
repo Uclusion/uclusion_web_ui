@@ -552,6 +552,8 @@ const messages = defineMessages({
   commentAddSendLabel: 'Send',
   commentAddSendResolve: 'Send and resolve',
   commentAddSendDelegate: 'Send and delegate',
+  commentAddSendClose: 'Send and close',
+  questionReplyCloseHint: 'Send keeps the question open. Send and delegate asks AI to handle it. Send and close removes the question from consideration without delegating it.',
   commentAddSendAnother: 'Send and another',
   commentAddCancelLabel: 'Clear',
   commentAddSelectIssueLabel: 'Please select a type',

@@ -39,6 +39,15 @@ class ResolveCLITests(unittest.TestCase):
             'tz': 'UTC',
         })
 
+    def test_withdraw_a_delegated_question_with_a_reply(self):
+        self.invoke(['Q-all-1', '--progress-note', 'This question is no longer needed.',
+                     '--expected-question-version', '7'], {
+            'short_code_id': 'Q-all-1',
+            'progress_note': 'This question is no longer needed.',
+            'expected_question_version': 7,
+            'tz': 'America/Los_Angeles',
+        })
+
 
 if __name__ == '__main__':
     unittest.main()

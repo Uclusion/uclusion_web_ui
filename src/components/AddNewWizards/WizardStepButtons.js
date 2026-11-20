@@ -31,6 +31,8 @@ function WizardStepButtons (props) {
     showOtherNext,
     otherNextLabel,
     onOtherNext = () => {},
+    additionalNextLabel,
+    onAdditionalNext,
     marketToken,
     onOtherDoAdvance = true,
     skipNextStep,
@@ -123,6 +125,15 @@ function WizardStepButtons (props) {
         )}
       </div>
 
+      {onAdditionalNext && (
+        <div className={classes.actionContainer}>
+          <SpinningButton id="OnboardingWizardAdditionalNext" className={nextClass} disabled={!validForm}
+                          doSpin={spinOnClick} onClick={() => nextState(onAdditionalNext, true)}>
+            {intl.formatMessage({ id: additionalNextLabel })}
+          </SpinningButton>
+        </div>
+      )}
+
       {showLink && (
         <WorkspaceInviteLinker marketToken={marketToken || formData.marketToken}/>
       )}
@@ -154,6 +165,8 @@ WizardStepButtons.propTypes = {
   previousStep: PropTypes.func,
   nextStep: PropTypes.func,
   onOtherNext: PropTypes.func,
+  onAdditionalNext: PropTypes.func,
+  additionalNextLabel: PropTypes.string,
   onSkip: PropTypes.func,
   totalSteps: PropTypes.number,
   currentStep: PropTypes.number,

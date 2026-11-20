@@ -7,7 +7,7 @@ import {
   getInvestibleComments, getMarketComments, getThreadAboveIds
 } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
@@ -21,7 +21,8 @@ import { findMessageForCommentId, removeInlineMarketMessages } from '../../../ut
 import {
   changeInvestibleStageOnCommentClose,
   doesCommentResolutionRestoreStage,
-  getWorkflowStageContext
+  getWorkflowStageContext,
+  isAIAuthoredQuestionWithOptions
 } from '../../../utils/commentFunctions';
 import _ from 'lodash';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -33,6 +34,7 @@ import { REPLY_TYPE, REPORT_TYPE, TODO_TYPE } from '../../../constants/comments'
 import CommentAdd, { hasCommentValue } from '../../Comments/CommentAdd';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 import { usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { PLANNING_TYPE } from '../../../constants/markets';
@@ -55,6 +57,7 @@ function ReplyStep(props) {
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketsState] = useContext(MarketsContext);
@@ -94,6 +97,8 @@ function ReplyStep(props) {
   const message = findMessageForCommentId(commentId, messagesState.messages);
   const { useCompression } = formData;
   const parentIsTopLevel = _.isEmpty(comment.reply_id);
+  const canCloseQuestion = parentIsTopLevel && isAIAuthoredQuestionWithOptions(comment, marketPresencesState[marketId],
+    getMarketInvestibles(investibleState, comment.inline_market_id));
 
   function onSave(createdComment) {
     if (message) {
@@ -103,7 +108,7 @@ function ReplyStep(props) {
       createdComment.id));
   }
 
-  function resolve() {
+  function resolve(withdraw = false) {
     setOperationRunning(true);
     const commentRoot = getCommentRoot(commentState, marketId, commentId);
     const restoresFormerStage = !!inv && doesCommentResolutionRestoreStage(
@@ -113,7 +118,7 @@ function ReplyStep(props) {
       presences,
       getWorkflowStageContext(marketStagesState, marketId, fullStage, formerStageId)
     );
-    return resolveComment(marketId, commentRoot.id)
+    return resolveComment(marketId, commentRoot.id, withdraw)
       .then((comment) => {
         addCommentToMarket(comment, commentState, commentDispatch);
         const inlineMarketId = comment.inline_market_id;
@@ -167,6 +172,11 @@ function ReplyStep(props) {
       {!showSubTask && !noteOnly && !noteReply && (
         <Typography className={classes.introSubText} variant="subtitle1">
           For response from more than the author of this comment use @ mentions.
+        </Typography>
+      )}
+      {canCloseQuestion && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          <FormattedMessage id="questionReplyCloseHint" />
         </Typography>
       )}
       <CommentBox

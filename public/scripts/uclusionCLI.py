@@ -4771,7 +4771,10 @@ def build_parser():
     )
 
     resolve_parser = subparsers.add_parser(
-        'resolve', help='Resolve a job, task, question, option, or other comment through MCP.'
+        'resolve', help='Resolve a job or comment; withdraw a question with --progress-note.',
+        description='Resolve through MCP. To withdraw a question without delegation, pass its short code and '
+                    '--progress-note with your reply. A previously delegated question also requires '
+                    '--expected-question-version from get_job.'
     )
     resolve_parser.add_argument('legacy_short_code_id', nargs='?', help='Compatibility target short code.')
     resolve_parser.add_argument('--short-code-id', help='Target short code.')
@@ -4781,7 +4784,11 @@ def build_parser():
     )
     resolve_parser.add_argument(
         '--progress-note',
-        help='Progress note recorded on the same object in this call.',
+        help='Progress note or question-withdrawal reply recorded on the same object in this call.',
+    )
+    resolve_parser.add_argument(
+        '--expected-question-version', type=positive_int,
+        help='Question evidence version from get_job; required for a previously delegated question.',
     )
     resolve_parser.add_argument(
         '--tz',
@@ -4794,6 +4801,7 @@ def build_parser():
             mcp_field('short_code_id', 'short_code_id', 'legacy_short_code_id'),
             mcp_field('parent_question_short_code_id', 'parent_question_short_code_id'),
             mcp_field('progress_note', 'progress_note'),
+            mcp_field('expected_question_version', 'expected_question_version'),
             mcp_field('tz', 'tz'),
         ),
         ('short_code_id',),

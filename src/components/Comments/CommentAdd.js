@@ -487,6 +487,9 @@ function CommentAdd(props) {
                 }
               })}
               onOtherDoAdvance={!wizardProps.showSubTask}
+              additionalNextLabel="commentAddSendClose"
+              onAdditionalNext={isDelegate && wizardProps.parentIsTopLevel ? () =>
+                handleSave(true, undefined, undefined, true).then(() => wizardProps.onResolve(true)) : undefined}
               showTerminate={!_.isEmpty(wizardProps.terminateLabel)}
               terminateLabel={wizardProps.terminateLabel}
             />

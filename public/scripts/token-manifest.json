@@ -3996,6 +3996,15 @@
     "openai": 376
    }
   },
+  "b3729ad20442048abba8ae450c7b5d55ce9bdd9cb012e438df6b42e1e92d1260": {
+   "bytes": 9704,
+   "kind": "skill",
+   "name": "skills/uclusion/roles/design.md",
+   "tokens": {
+    "claude": 2804,
+    "openai": 1756
+   }
+  },
   "b3ab3f1978961c34a283a1fa6d028f5a0c17b49bf7d30902fe8ddf156a95a8b4": {
    "bytes": 554,
    "kind": "skill",
@@ -4714,6 +4723,15 @@
    "tokens": {
     "claude": 1778,
     "openai": 1143
+   }
+  },
+  "d6e70961e6548a9a250afd5271f258a218448dcb832e7fef6ebf482b141a6b70": {
+   "bytes": 5068,
+   "kind": "skill",
+   "name": "skills/uclusion/references/capsule-dispatch.md",
+   "tokens": {
+    "claude": 1451,
+    "openai": 878
    }
   },
   "d7dc2552411358f11ee749c5dbd69ccfcadf03bd3de77cf44faf3801565cf232": {

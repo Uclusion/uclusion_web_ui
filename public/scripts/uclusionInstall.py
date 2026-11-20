@@ -394,7 +394,7 @@ WORKFLOW_ASSET_SHA256 = {
     'audit_enabled_reference': '8358831b3f77d21ab48769c75ea72fea8dc477657f5432977c4bca1816adcc0d',
     'claims_reference': 'f482e0458cb3ef3367b84092ae318e6d2c1deba685fafd17e14682e6f5c389f5',
     'claims_enabled_reference': '24afcc6fa1622c20ac6618d05af91a89ae1cfc12dee75505f6aa893f9502e004',
-    'capsule_dispatch_reference': 'f8588938923bef4134fe29c312fe83718d4a09c8e79cf65a21731a280b9d1775',
+    'capsule_dispatch_reference': 'd6e70961e6548a9a250afd5271f258a218448dcb832e7fef6ebf482b141a6b70',
     'design_approvable_reference': '398b1df8b649422dcd1a4eea516c39ef0128d8de3a5185d72721b1ff7079bc8c',
     'delivery_common_reference': 'd8bbba52620f9c6d22b886e674fd0d4d269441ff93ccf7b16b6142bd47fe1f11',
     'durable_records_reference': 'ec31e25973f29e88e204790a2d907a772292eedfda824075e256b83b68fed486',
@@ -407,9 +407,9 @@ WORKFLOW_ASSET_SHA256 = {
     'standalone_role': '24d8ae570a5907705af755791af245fb43e09b45e2873f77ead587a8dbb522ab',
     'export_search_role': '1719db839a4ad5f37e3c9a3b4095514f48aaf95060436a94ca3824bfda800bdf',
     'backlog_maintenance_role': '0a514fd9e0c32eec47aeb34c5d242cc1e738d4ac81e13cd22d3d14155f9dfef9',
-    'design_role': '01919a430260310d2d5363a8af36841c0e7e88a0237f33680c6e287c97569e13',
+    'design_role': 'b3729ad20442048abba8ae450c7b5d55ce9bdd9cb012e438df6b42e1e92d1260',
     'demo_brief': 'b68f6501270c63456c19053d1b5af296350288754239c7f9d6074a3a5497789f',
-    'token_manifest': '4f6dbb79d9350ed187d67f40c855bc487f7e5012eac08bcb02c8751f8c49f03f',
+    'token_manifest': 'eddca80b3f9460b5201b1dc560828ffaa5f06b5eed9551ab03c18e71c3fe7b7b',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',

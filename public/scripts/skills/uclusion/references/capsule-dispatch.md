@@ -15,7 +15,9 @@ Inspect the publication status and identity separately from any later question o
 
 ## Confirm question incorporation
 
-For each answer that changes a capsule, identify every job or task whose capsule must include it. Retain the full question code, selected option when present, and the positive evidence version shown in the question you handled. Keep the question's AI handling pending until every required capsule is confirmed and the tool confirms that the answer has been included. A publication result of `unchanged` also confirms that target's capsule.
+First determine whether the question still carries an unapplied design decision. Answered explanatory questions, superseded or irrelevant choices, and answers that change no capsule can be resolved immediately with `included_in_capsule:false` and the handled evidence version. Future capsule creation and other unfinished reconciliation remain separate work; they do not keep these questions open. Retain that work's owner, targets and settled requirements. This closure does not confirm incorporation or make a conflicting capsule ready for implementation.
+
+For each still-applicable answer that changes a capsule, identify every job or task whose capsule must include it. Retain the full question code, selected option when present, and the positive evidence version shown in the question you handled. Keep its incorporation pending until every required capsule is confirmed and the tool confirms that the answer has been included. A publication result of `unchanged` also confirms that target's capsule.
 
 When an answer affects several capsules, publish the earlier targets without marking that question as included. Once all other required targets are confirmed, the final `set_design_capsule` call may record inclusion for answered questions on that capsule's own job, including human-resolved questions still awaiting AI handling.
 

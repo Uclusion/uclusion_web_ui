@@ -2,6 +2,8 @@ import concurrent.futures
 import io
 import json
 import os
+import queue
+import socket
 import sys
 import tempfile
 import threading
@@ -16,9 +18,113 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import uclusionMCPProxy as proxy
 import uclusionCLI as cli
+import uclusionCodexNative as native
 from uclusionCodexNative import (NativeCodexDelivery, NativeInbox, NativeRequestError,
                                 native_scope, native_recipients)
 from uclusionUpdateNotices import UpdateNoticeStore
+
+
+class NativeOwnershipTests(unittest.TestCase):
+    def test_helper_closes_native_socket_and_threads_without_starting_services(self):
+        self.check_owner(helper=True)
+
+    def test_root_starts_services_after_registration_and_closes_cleanly(self):
+        self.check_owner(helper=False)
+
+    def check_owner(self, helper):
+        connections = []
+        started = threading.Event()
+        original_client = native.NativeClient
+
+        class Connection:
+            def __init__(self, identity):
+                self.identity = identity
+                self.messages = queue.Queue()
+                self.socket = None
+                self.peer = None
+                self.catalog_reads = 0
+                self.owner_reads = 0
+
+            def connect(self):
+                self.socket, self.peer = socket.socketpair()
+
+            def send_text(self, text):
+                request = json.loads(text)
+                if 'id' not in request:
+                    return
+                method = request['method']
+                if method == 'initialize':
+                    result = {}
+                elif method == 'thread/loaded/list':
+                    result = {'data': ['caller'], 'nextCursor': None}
+                elif method == 'mcpServerStatus/list':
+                    self.catalog_reads += 1
+                    # The first pass precedes the MCP initialize/catalog handshake.
+                    result = {'data': [] if self.catalog_reads <= 2 else [{
+                        'runtimeStatus': 'connected',
+                        'serverInfo': {'version': '1+' + self.identity},
+                    }]}
+                elif method == 'thread/read':
+                    self.owner_reads += 1
+                    result = {'thread': {'id': 'caller', 'threadSource': 'user',
+                                        'parentThreadId': 'root' if helper else None,
+                                        'canAcceptDirectInput': not helper and self.owner_reads > 1}}
+                else:
+                    raise AssertionError(method)
+                self.messages.put(json.dumps({'id': request['id'], 'result': result}))
+
+            def receive_text(self):
+                message = self.messages.get(timeout=2)
+                if message is None:
+                    raise ConnectionError('closed')
+                return message
+
+            def close(self):
+                if self.socket is not None:
+                    self.socket.close()
+                    self.peer.close()
+                    self.socket = None
+                self.messages.put(None)
+
+        def make_client(home, observe):
+            client = original_client(home, observe)
+            client.connection = Connection(observe.__self__.identity)
+            connections.append(client)
+            return client
+
+        with tempfile.TemporaryDirectory() as directory, \
+                patch.dict(os.environ, {'UCLUSION_HOME': directory,
+                                        'UCLUSION_TOKEN_AUDIT_HOME': directory}), \
+                patch.object(native, 'NativeClient', side_effect=make_client), \
+                patch.object(NativeCodexDelivery, '_scan') as scan, \
+                patch.object(NativeCodexDelivery, '_collect_descendant_history'), \
+                patch.object(NativeCodexDelivery, '_deliver'), \
+                patch.object(NativeCodexDelivery, '_deliver_update_notice'):
+            delivery = NativeCodexDelivery('stage', 'workspace', codex_home=directory,
+                                           on_root=started.set)
+            try:
+                if helper:
+                    delivery.thread.join(timeout=2)
+                    self.assertFalse(delivery.thread.is_alive())
+                    self.assertFalse(started.is_set())
+                    scan.assert_not_called()
+                    with closing(proxy.open_inbox()) as connection:
+                        self.assertEqual(0, connection.execute(
+                            'SELECT COUNT(*) FROM codex_native_proxies').fetchone()[0])
+                    self.assertFalse(delivery.ensure_collector({'params': {'_meta': {'threadId': 'caller'}}}))
+                    with self.assertRaisesRegex(ValueError, 'independent native root'):
+                        delivery.subscription_agent({'params': {'_meta': {'threadId': 'caller'}}})
+                    self.assertFalse(delivery.thread.is_alive())
+                else:
+                    self.assertTrue(started.wait(2))
+                    self.assertTrue(delivery.thread.is_alive())
+            finally:
+                delivery.close()
+            self.assertEqual(1, len(connections))
+            self.assertIsNone(connections[0].connection.socket)
+            self.assertEqual(-1, connections[0].connection.peer.fileno())
+            self.assertFalse(connections[0].reader.is_alive())
+            self.assertFalse(delivery.thread.is_alive())
 
 
 class NativeQueue:

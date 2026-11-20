@@ -24,6 +24,11 @@ binds roots across proxy instances in that scope. Each proxy also retains its
 random identity for its own audit and context collectors. A matching working
 directory or loaded thread alone is not proof.
 Subagents, detached reviews and auxiliary transcripts are not Poke recipients.
+Each proxy first checks its own identity against the loaded native threads.
+Only an independent root starts the Poke websocket, recurring native discovery,
+update checks, and optional audit publisher. A helper closes its startup native
+connection and observer threads once identified; its ordinary MCP calls still
+work. The root's collector continues to account for its descendants.
 
 Each Poke has one recipient. Immediately before its first attempted send,
 Uclusion selects the latest eligible root from native
@@ -85,7 +90,8 @@ queues a notice for an idle registered recipient; ordinary Poke cursors are
 unchanged. Update checks run outside MCP stdout and do not block Poke delivery.
 
 The native observer feeds `uclusionTokenAudit.py` with root and descendant
-usage and turn/tool events. Collector readiness controls audit tools, and the
+usage and turn/tool events. Configured audit tools are advertised during MCP
+startup, while marker calls require a verified root and ready collector. The
 existing aggregate publisher includes final-response usage. Opt-in claims,
 response statistics, existing credentials and receipt-owned setup cleanup
 continue through the MCP registration. Installed proxy, delivery, collector
@@ -97,6 +103,18 @@ Global and project installations persist the native MCP registration alongside
 the resident Codex instructions. Existing users run the environment-correct
 `uclusion update` from their project, then fully exit and start a fresh `codex`
 session. MCP reconnect alone does not reload resident instructions.
+
+The installer recommends eight concurrent helpers, leaving room for retained
+design owners, implementation, and review. It sets the user-level
+`agents.max_concurrent_threads_per_session` when no limit is configured.
+Existing limits are replaced only after an affirmative installer answer;
+declining or providing no answer preserves them. A matching limit is unchanged.
+The legacy `agents.max_threads` alias is preserved. An explicit
+`features.multi_agent_v2.max_concurrent_threads_per_session` takes precedence
+and counts the primary thread, so its corresponding recommendation is nine.
+This counting and precedence were verified against Codex 0.170.0. Eight is a
+product default, not a benchmark-derived optimum. Restart Codex to apply it to
+new sessions. Project installs also configure this user-level default.
 
 The `uclusion codex` command is retired. Statistics are saved through
 `uclusion update --response-stats PATH` or disabled with `--no-response-stats`;

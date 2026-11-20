@@ -716,6 +716,7 @@ class CodexIntegrationConfigTests(unittest.TestCase):
     def test_project_codex_install_cleans_legacy_hooks_and_installs_agents(self):
         with tempfile.TemporaryDirectory() as project_dir, \
                 mock.patch.object(INSTALL, 'configure_codex_handoff') as handoff, \
+                mock.patch.object(INSTALL, 'configure_codex_concurrency') as concurrency, \
                 mock.patch.object(
                     INSTALL, 'write_uclusion_config',
                     return_value=({'enabled': False, 'port': 23456}, False),
@@ -744,6 +745,7 @@ class CodexIntegrationConfigTests(unittest.TestCase):
             )
 
         remove_hooks.assert_called_once_with(force=True)
+        concurrency.assert_called_once_with()
         handoff.assert_called_once_with(
             config_path=os.path.join(project_dir, '.codex', 'config.toml'), cwd=project_dir)
         install_skill.assert_called_once_with(

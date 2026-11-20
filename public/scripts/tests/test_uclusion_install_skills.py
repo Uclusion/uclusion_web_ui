@@ -289,6 +289,19 @@ class SkillAndStubInstallerTests(unittest.TestCase):
             write_text(os.path.join(skill_dir, relative_path), content)
         return retired
 
+    def test_working_roles_share_an_installed_collaboration_reference(self):
+        for client in INSTALL.CLIENT_STUB_ASSET:
+            with self.subTest(client=client), tempfile.TemporaryDirectory() as root:
+                skill_dir = os.path.join(root, 'skills', 'uclusion')
+                self.assertTrue(self.install(skill_dir, os.path.join(root, 'resident'), client))
+                shared = os.path.join(skill_dir, 'references', 'collaboration.md')
+                self.assertEqual(self.bundle['collaboration_reference'], read_text(shared))
+                for role in ('design', 'standalone', 'implementation'):
+                    role_path = os.path.join(skill_dir, 'roles', role + '.md')
+                    links = re.findall(r'\[[^]]+\]\(([^)]+\.md)\)', read_text(role_path))
+                    self.assertIn(shared, [os.path.normpath(os.path.join(
+                        os.path.dirname(role_path), link)) for link in links])
+
     def test_old_full_workflow_migrates_to_stub_and_native_skill(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             skill_dir = os.path.join(temp_dir, '.agents', 'skills', 'uclusion')
@@ -949,6 +962,9 @@ class SingleSkillRoleTests(unittest.TestCase):
 
 class NativeSkillRoutingTests(unittest.TestCase):
     def setUp(self):
+        concurrency = mock.patch.object(INSTALL, 'configure_codex_concurrency')
+        self.concurrency = concurrency.start()
+        self.addCleanup(concurrency.stop)
         handoff = mock.patch.object(INSTALL, 'configure_codex_handoff')
         self.handoff = handoff.start()
         self.addCleanup(handoff.stop)
@@ -1283,6 +1299,11 @@ class FeatureReferenceTests(unittest.TestCase):
 
 
 class InstallerWorkflowStateTests(unittest.TestCase):
+    def setUp(self):
+        concurrency = mock.patch.object(INSTALL, 'configure_codex_concurrency')
+        concurrency.start()
+        self.addCleanup(concurrency.stop)
+
     def test_codex_handoff_failure_keeps_install_pending(self):
         with tempfile.TemporaryDirectory() as project:
             config_path = os.path.join(project, 'stage_uclusion.json')

@@ -32,13 +32,16 @@ receipts prevent a second rendering of the same answer or completion package.
 The [helper conversation procedure](references/helper-conversation.md) covers
 this path; unsupported clients keep the coordinator relay.
 
-Design surfaces material choices a reasonable human could decide differently,
+Design, standalone and implementation share the
+[collaboration procedure](references/collaboration.md). Each reads it before
+substantive work and surfaces material choices a reasonable human could decide differently,
 including internal implementation choices, so the human understands and approves
-the design. It reuses settled human decisions and distinguishes facts the source
-requires from choices that still need an answer. It asks before settling the approach,
-continues independent authorized work while waiting, then publishes a design
-that explains how to build it. It works through central behavior and content with
-concrete examples or outputs so an abstract outline cannot conceal unsettled choices.
+the approach. They reuse settled human decisions and explicit delegation,
+distinguish source facts from choices that need an answer, and explain their
+recommendation's evidence and tradeoffs. They ask through their own discussion
+procedures before settling affected work and continue independent authorized work.
+Design then publishes a design that explains how to build it, with concrete
+behavior and content so an abstract outline cannot conceal unsettled choices.
 The job's current Markdown determines the next
 step. A stated return to Doable happens automatically after its questions and
 suggestions are resolved. If AI approval is required and allowed, design assesses

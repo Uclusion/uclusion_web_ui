@@ -1997,6 +1997,8 @@ def main():
     native_delivery = None
     native_initialized = threading.Event()
     work_claims = None
+    background_lock = threading.Lock()
+    background_started = False
     response_stats = ResponseStats(args.response_stats)
     record_demo_input('mcp_session_start', {})
     serving = False
@@ -2020,6 +2022,55 @@ def main():
         token_holder = MarketTokenHolder(mint_market_token)
         token = token_holder.get()
         prune_inbox()
+        work_claims = WorkClaimsManager(token_holder.get) if args.work_claims else None
+        post_url = 'https://investibles.' + api_url + '/mcp'
+
+        if args.token_collector:
+            try:
+                from uclusionTokenAudit import TokenAuditProxy
+                token_audit_runtime = TokenAuditProxy(
+                    environment, market_id, args.token_audit_source,
+                    args.token_audit_client, args.token_audit_port,
+                    make_token_audit_publisher(
+                        post_url, token_holder.get, token_refresher=token_holder.refresh
+                    ),
+                    ready_file=args.token_audit_ready_file,
+                    ready_owner=args.token_audit_owner,
+                    collector_ready=(lambda: native_delivery is not None
+                                     and native_delivery.tools_ready()) if args.codex_native else None,
+                    publish_notes=args.token_audit and not args.codex_native,
+                )
+            except Exception as error:
+                # Diagnostics must not make ordinary MCP tools unavailable.
+                sys.stderr.write('Uclusion token collector is unavailable '
+                                 f'({error.__class__.__name__}).\n')
+        if (token_audit_runtime is not None
+                and args.token_audit_client in ('claude', 'codex')):
+            collector_client = args.token_audit_client
+            collector_store = token_audit_runtime.store
+
+            def publish_measurement(row):
+                collector_store.record_response_measurement(collector_client, row)
+
+            response_stats.bind_collector(publish_measurement)
+
+        def start_background():
+            nonlocal background_started
+            with background_lock:
+                if background_started or stop_event.is_set():
+                    return
+                background_started = True
+                listener = threading.Thread(
+                    target=listen_for_pokes,
+                    args=(websocket_url, token_holder, environment, market_id, stop_event,
+                          work_claims),
+                    name='uclusion-poke-ai',
+                    daemon=True,
+                )
+                listener.start()
+                if args.codex_native and args.token_audit and token_audit_runtime is not None:
+                    token_audit_runtime.start_publishing()
+
         if args.codex_native:
             # The delivery module uses this connection's inbox and evidence
             # globals, including when the proxy was launched as a script.
@@ -2039,57 +2090,21 @@ def main():
                 context_events=response_stats.context_event if (
                     args.response_stats or args.token_collector
                 ) else None,
+                on_root=start_background,
             )
-        work_claims = WorkClaimsManager(token_holder.get) if args.work_claims else None
-        listener = threading.Thread(
-            target=listen_for_pokes,
-            args=(websocket_url, token_holder, environment, market_id, stop_event,
-                  work_claims),
-            name='uclusion-poke-ai',
-            daemon=True
-        )
-        listener.start()
+        else:
+            start_background()
         serving = True
 
-        post_url = 'https://investibles.' + api_url + '/mcp'
-        if args.token_collector:
-            try:
-                from uclusionTokenAudit import TokenAuditProxy
-                token_audit_runtime = TokenAuditProxy(
-                    environment,
-                    market_id,
-                    args.token_audit_source,
-                    args.token_audit_client,
-                    args.token_audit_port,
-                    make_token_audit_publisher(
-                        post_url, token_holder.get, token_refresher=token_holder.refresh
-                    ),
-                    ready_file=args.token_audit_ready_file,
-                    ready_owner=args.token_audit_owner,
-                    collector_ready=native_delivery.tools_ready if native_delivery else None,
-                    publish_notes=args.token_audit,
-                )
-            except Exception as error:
-                # Token accounting is opt-in diagnostics; it must not make the
-                # user's Uclusion MCP connection unavailable. Avoid exception
-                # text because import/runtime errors can contain local paths.
-                sys.stderr.write(
-                    'Uclusion token collector is unavailable '
-                    f'({error.__class__.__name__}).\n'
-                )
-        if (token_audit_runtime is not None
-                and args.token_audit_client in ('claude', 'codex')):
-            collector_client = args.token_audit_client
-            collector_store = token_audit_runtime.store
-
-            def publish_measurement(row, _store=collector_store, _client=collector_client):
-                _store.record_response_measurement(_client, row)
-
-            response_stats.bind_collector(publish_measurement)
         def token_notes_available():
             if not args.token_audit:
                 return False
             if not args.token_collector:
+                return True
+            if native_delivery is not None:
+                # Codex discovers its catalog before the MCP instance can be
+                # classified. Advertise configured tools now; marker calls
+                # still require the verified root's ready collector below.
                 return True
             if token_audit_runtime is None:
                 return False
@@ -2181,7 +2196,8 @@ def main():
             collector_unready = False
             if (audit_tool_call and args.token_audit and args.token_collector
                     and native_delivery is not None):
-                collector_unready = not native_delivery.ensure_collector(msg)
+                collector_unready = (not native_delivery.ensure_collector(msg)
+                                     or token_audit_runtime is None)
             if audit_tool_call and not args.token_audit:
                 if not is_notification:
                     write_jsonrpc_error(
@@ -2282,16 +2298,18 @@ def main():
             return
         sys.exit(1)
     finally:
-        response_stats.close()
-        if work_claims is not None:
-            # Graceful exit frees held locks immediately instead of waiting
-            # for the server-side expiry to lapse.
-            work_claims.release_all_on_exit()
-        stop_event.set()
+        with background_lock:
+            if work_claims is not None:
+                # Keep the socket alive through graceful claim release.
+                work_claims.release_all_on_exit()
+            stop_event.set()
         if native_delivery is not None:
             native_delivery.close()
-        if token_audit_runtime is not None:
-            token_audit_runtime.close()
+        # A root's startup callback can still be finishing during shutdown.
+        with background_lock:
+            if token_audit_runtime is not None:
+                token_audit_runtime.close()
+        response_stats.close()
 
 
 if __name__ == "__main__":

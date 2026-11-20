@@ -3,6 +3,8 @@
 
 Handle the assigned bug outside a job through discussion, the agreed fix, checks, the completion package and resolution. Reuse complete current instructions; reread changed, incomplete or lost instructions. If a required procedure is missing or unreadable, stop affected work and tell the coordinator its exact path and the need for a resident CLI update followed by a client restart or MCP reconnect.
 
+Read [collaboration](../references/collaboration.md) completely before substantive work.
+
 Read [helper-conversation](../references/helper-conversation.md) for direct human replies and coordinator consultation.
 
 For a bounded response assignment, handle only the named event and current record under this role's applicable authority. Return the concrete response, already-handled disposition or exact prerequisite; a response assignment alone does not authorize taking over the whole bug fix.

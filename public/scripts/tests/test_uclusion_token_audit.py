@@ -4489,6 +4489,27 @@ class OtlpAndOutboxTests(TokenAuditTestCase):
 
 
 class ProxyContractTests(TokenAuditTestCase):
+    def test_passive_codex_store_starts_no_background_service_until_root_confirmation(self):
+        publish = mock.Mock()
+        runtime = audit.TokenAuditProxy(
+            'stage', 'workspace-1', 'codex', 'codex', 23456, publish,
+            publish_notes=False,
+        )
+        self.addCleanup(runtime.close)
+        self.assertIsNone(runtime.receiver)
+        self.assertIsNone(runtime.thread)
+        self.assertTrue(os.path.isfile(runtime.store.path))
+        runtime.start_publishing()
+        publisher = runtime.thread
+        self.assertTrue(publisher.is_alive())
+        runtime.start_publishing()
+        self.assertIs(publisher, runtime.thread)
+        runtime.close()
+        self.assertFalse(publisher.is_alive())
+        runtime.start_publishing()
+        self.assertIs(publisher, runtime.thread)
+        publish.assert_not_called()
+
     def test_codex_readiness_lease_is_owner_scoped_fresh_and_revocable(self):
         first_path = os.path.join(self.temporary.name, "first.ready")
         second_path = os.path.join(self.temporary.name, "second.ready")

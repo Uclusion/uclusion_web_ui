@@ -585,7 +585,7 @@ class NativeCodexDelivery:
     def __init__(self, environment, workspace_id, codex_home=None, replay=False,
                  token_audit=False, tools_changed=lambda: None,
                  notice_source=update_notice_source, context_events=None,
-                 socket_path=None, token_collector=False):
+                 socket_path=None, token_collector=False, on_root=lambda: None):
         self.codex_home = os.path.abspath(os.path.expanduser(
             codex_home or os.environ.get('CODEX_HOME') or '~/.codex'))
         os.environ['CODEX_HOME'] = self.codex_home
@@ -618,6 +618,8 @@ class NativeCodexDelivery:
         self.token_collector = token_collector
         self.context_events = context_events
         self.tools_changed = tools_changed
+        self.on_root = on_root
+        self.helper_only = False
         self.stop = threading.Event()
         self.healthy = threading.Event()
         self.scan_requested = threading.Event()
@@ -847,6 +849,8 @@ class NativeCodexDelivery:
         root = meta.get('threadId') if isinstance(meta, dict) else None
         if not isinstance(root, str) or not root:
             raise ValueError('Agent subscription needs native caller threadId metadata')
+        if self.helper_only:
+            raise ValueError('Agent subscription caller is not an eligible independent native root')
         if not self.healthy.wait(8):
             raise ValueError('Native Codex connection is unavailable; subscription is unfinished')
         try:
@@ -860,7 +864,7 @@ class NativeCodexDelivery:
     def ensure_collector(self, request):
         meta = request.get('params', {}).get('_meta', {})
         root = meta.get('threadId') if isinstance(meta, dict) else None
-        if not isinstance(root, str) or not root:
+        if not isinstance(root, str) or not root or self.helper_only:
             return False
         self._ensure_observer(root)
         self.scan_requested.set()
@@ -895,7 +899,7 @@ class NativeCodexDelivery:
 
     def _ensure_observer(self, root):
         """Start a replacement observer only after the delivery thread has exited."""
-        if self.stop.is_set():
+        if self.stop.is_set() or self.helper_only:
             return
         with self.lock:
             if self.stop.is_set():
@@ -1200,6 +1204,34 @@ class NativeCodexDelivery:
             if not self.stop.is_set():
                 self._park_held_collectors()
 
+    def _root_owner(self):
+        """Classify this MCP instance after Codex has registered its stamped version.
+
+        A helper needs only startup discovery. It must not retain
+        the native socket, poll inboxes, or start Poke/accounting services.
+        Inspect loaded threads only; saved history cannot own a live MCP.
+        """
+        owned_helper = False
+        pending_root = False
+        cursor = None
+        while True:
+            page = self.client.request('thread/loaded/list', {'cursor': cursor})
+            for thread_id in page['data']:
+                versions = _connected_versions(self.client, thread_id)
+                if not any(version_has_marker(version, self.identity) for version in versions):
+                    continue
+                thread = self.client.request('thread/read', {
+                    'threadId': thread_id, 'includeTurns': False})['thread']
+                if thread.get('threadSource') == 'user' and not thread.get('parentThreadId'):
+                    if thread.get('canAcceptDirectInput') is True:
+                        return True
+                    pending_root = True
+                else:
+                    owned_helper = True
+            cursor = page.get('nextCursor')
+            if cursor is None:
+                return False if owned_helper and not pending_root else None
+
     def _run_connections(self):
         reported_error = None
         backoff = ReconnectBackoff()
@@ -1210,7 +1242,24 @@ class NativeCodexDelivery:
             try:
                 client.start()
                 connected_at = time.monotonic()
+                # The initialize/catalog handshake must finish before Codex
+                # can report this instance's marker. No background service is
+                # started until ownership is known.
+                while not self.stop.is_set() and not client.closed.is_set():
+                    owner = self._root_owner()
+                    if owner is not None:
+                        self.helper_only = not owner
+                        break
+                    self.stop.wait(.25)
+                if self.helper_only:
+                    self.inbox.close()
+                    return
+                if self.stop.is_set():
+                    return
+                if client.closed.is_set():
+                    raise ConnectionError('Native Codex ownership lookup disconnected')
                 self.healthy.set()
+                self.on_root()
                 reported_error = None
                 self.tools_changed()
                 next_scan = 0

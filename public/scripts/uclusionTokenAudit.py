@@ -6389,12 +6389,18 @@ class TokenAuditProxy:
             pass
         self.thread = None
         if publish_notes:
-            self.thread = threading.Thread(
-                target=self._publish_loop,
-                name="uclusion-token-audit-publisher",
-                daemon=True,
-            )
-            self.thread.start()
+            self.start_publishing()
+
+    def start_publishing(self):
+        """Start the outbox worker once the native proxy is confirmed as a root."""
+        if self.thread is not None or self.stop_event.is_set():
+            return
+        self.thread = threading.Thread(
+            target=self._publish_loop,
+            name="uclusion-token-audit-publisher",
+            daemon=True,
+        )
+        self.thread.start()
 
     def tools_ready(self):
         """Whether marker tools can currently produce an accountable run."""

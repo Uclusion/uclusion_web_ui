@@ -23,6 +23,7 @@ class AgentSubscriptionTests(unittest.TestCase):
         self.native = NativeQueue()
         self.native.roots = ['job1-root', 'job0-root']
         self.delivery = NativeCodexDelivery.__new__(NativeCodexDelivery)
+        self.delivery.helper_only = False
         self.delivery.inbox = NativeInbox('stage', 'workspace')
         self.delivery.client = self.native
         self.delivery.scope_marker = native_scope('stage', 'workspace')
@@ -212,6 +213,8 @@ class AgentSubscriptionTests(unittest.TestCase):
         self.delivery.codex_home = 'unused-native-fixture'
         self.delivery.socket_path = None
         self.delivery.tools_changed = lambda: None
+        self.delivery.on_root = lambda: None
+        self.delivery._root_owner = lambda: True
         self.delivery.lock = threading.RLock()
         self.delivery.stop = threading.Event()
         self.delivery.scan_requested = threading.Event()

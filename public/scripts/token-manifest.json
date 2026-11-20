@@ -531,6 +531,15 @@
     "openai": 279
    }
   },
+  "1c77c1e619b3f5d3f15550b60aa6be03fb9840fa08715e943fc2c15564cbc0ea": {
+   "bytes": 4032,
+   "kind": "skill",
+   "name": "skills/uclusion/roles/standalone.md",
+   "tokens": {
+    "claude": 1237,
+    "openai": 768
+   }
+  },
   "1cc19a95d2978e70996722e22d8fd2b9599c8d95da7c960dd9811449452eac8f": {
    "bytes": 1283,
    "kind": "bootstrap",
@@ -646,6 +655,15 @@
    "tokens": {
     "claude": 997,
     "openai": 643
+   }
+  },
+  "21c8ff363858203db538d707ab00e4fe94c172fc8eec50f0c130a0f36d49c997": {
+   "bytes": 7920,
+   "kind": "skill",
+   "name": "skills/uclusion/roles/design.md",
+   "tokens": {
+    "claude": 2311,
+    "openai": 1464
    }
   },
   "21e585013daa9758302af3eb044cbdefc534bac872f646b7be77d06157f3b7aa": {
@@ -1051,6 +1069,15 @@
    "tokens": {
     "claude": 493,
     "openai": 275
+   }
+  },
+  "335088690267761bfda3fd6ed817cde3872954b594561a029b3660dea00cee36": {
+   "bytes": 2454,
+   "kind": "skill",
+   "name": "skills/uclusion/references/collaboration.md",
+   "tokens": {
+    "claude": 715,
+    "openai": 408
    }
   },
   "3428aa6471ec1c498b3c309bb981f7d27ba7e1696ea40f4011695fd8ff0c39d9": {
@@ -1528,6 +1555,15 @@
    "tokens": {
     "claude": 1307,
     "openai": 772
+   }
+  },
+  "47b65c4bfda0e3bbcf1e5d964bcd14b80ad73824a5e887829962d15d6e66e0c4": {
+   "bytes": 9701,
+   "kind": "skill",
+   "name": "skills/uclusion/roles/implementation.md",
+   "tokens": {
+    "claude": 2825,
+    "openai": 1705
    }
   },
   "48127eb4669c69317b3b6ebbf72c177b8569625b76e5ae27c1eb1cc1b687d4b4": {

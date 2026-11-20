@@ -165,11 +165,11 @@ SCRIPT_FILES = (
 SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionDiagnostics.py': 'cd92a26a3746bcf70040697eb5a6869ecdde4b944f25b2ff4706d2e1c85627d5',
     'uclusionCLI.py': '2d49c7518f93301e6a1c419a5c65515cd017f28fa6fbd662cbc22e0f32437157',
-    'uclusionMCPProxy.py': '53c727b6b050c8f34204a3ab295368ada92b1f35fe790a603a3677b92b04edd3',
+    'uclusionMCPProxy.py': '2d20af284221339fc4c4683c2ca0463a2086a94ac0a9b237881535705f667551',
     'uclusionSetupMCP.py': 'c4740e2c6a5e17e594cb7010e740d494a0e3a90cab237402e32e61061979bd22',
-    'uclusionCodexNative.py': 'c493faa1c6dd06f1d64510a85c29f95bf182ddf17c2abd010d3577ef5e8ec113',
+    'uclusionCodexNative.py': 'e1ea1564bca01814755876e7fad3e185ba26eaef822821fa1fa1b03a908ba1f2',
     'uclusionUpdateNotices.py': 'a9d6ed9e082bce28ac8340d242ad34d2f180a35de6821ce72c0684503e84b7e8',
-    'uclusionTokenAudit.py': 'dfd31d35a9133f3f6f41f6abf27727515bccbbbad4e8c566207df542d50e3066',
+    'uclusionTokenAudit.py': '360ec6b0a0235c990ce278d0ba6fa007be8036047a5f5c00d66feb2cac8b4bef',
     'uclusionTokenBudget.py': '936891478e05b74af69e754571bb684cd1771ffb5db4e7cfbae79c9a5d6b6195',
 }
 USER_HOME = os.path.expanduser('~')
@@ -280,6 +280,9 @@ CODEX_HOME = os.path.abspath(os.path.expanduser(
     os.environ.get('CODEX_HOME', os.path.join(USER_HOME, '.codex'))
 ))
 CODEX_CONFIG_PATH = os.path.join(CODEX_HOME, 'config.toml')
+# Eight retained helpers leave room for design, implementation, and review.
+# Codex's public agents setting excludes the coordinator; V2's override includes it.
+CODEX_HELPER_LIMIT = 8
 CODEX_AGENTS_MD_PATH = os.path.join(CODEX_HOME, 'AGENTS.md')
 # Codex discovers user skills from the cross-agent native directory. The
 # older ~/.codex/skills location is compatibility-only and is not installed.
@@ -346,6 +349,7 @@ WORKFLOW_ASSET_PATHS = {
     'coordinator_conversation_reference': 'skills/uclusion/references/coordinator-conversation.md',
     'coordinator_completion_reference': 'skills/uclusion/references/coordinator-completion.md',
     'helper_conversation_reference': 'skills/uclusion/references/helper-conversation.md',
+    'collaboration_reference': 'skills/uclusion/references/collaboration.md',
     'completion_reference': 'skills/uclusion/references/completion.md',
     'audit_reference': 'skills/uclusion/references/audit.md',
     'audit_enabled_reference': 'skills/uclusion/references/audit-enabled.md',
@@ -389,6 +393,7 @@ WORKFLOW_ASSET_SHA256 = {
     'coordinator_conversation_reference': '9609076bc27039dc17f1847e1ee4465acb3d29856bb10d6b1b6c58d03ce6eb86',
     'coordinator_completion_reference': 'abbfb32c703ca8d38bebcf94dc9b4eaf65ffd0204b2489319205b3a63846c4c0',
     'helper_conversation_reference': '06f3975986c68fc3c7971484ea04e18e6e210c85bfbdffd68bc11884d263b9fe',
+    'collaboration_reference': '335088690267761bfda3fd6ed817cde3872954b594561a029b3660dea00cee36',
     'completion_reference': '24ec52495c2b54782798142bd3fc0dffd671dd7a6773166285406544edecd4b6',
     'audit_reference': 'e93d157b3ac5ffefb699fca5256d8b2aa8fd2eae6eea8b499104c4c649eeccda',
     'audit_enabled_reference': '8358831b3f77d21ab48769c75ea72fea8dc477657f5432977c4bca1816adcc0d',
@@ -402,14 +407,14 @@ WORKFLOW_ASSET_SHA256 = {
     'work_discovery_reference': '06e6d0f4e9d03eadadadd0afc48e429569ed2f9c7449f83b65bd01b7e7ad305b',
     'discovery_routing_reference': '6adf908f1722a8ed3601244fb5a4250b467842c733be30e7229d47fcff5a4678',
     'openai_metadata': '0948fb0e2e8d0800019e0a244cfdec54ff420a8af6f20683aca1486d194ab202',
-    'implementation_role': '0af3a22f15baeb45114494ec89fa734544f5d0b60f1fae42a2053453b6a73e26',
+    'implementation_role': '47b65c4bfda0e3bbcf1e5d964bcd14b80ad73824a5e887829962d15d6e66e0c4',
     'operation_role': '8ce7fd0909754e7218d2661a9635f338619c0549f52a5c663d6bc91579707262',
-    'standalone_role': '24d8ae570a5907705af755791af245fb43e09b45e2873f77ead587a8dbb522ab',
+    'standalone_role': '1c77c1e619b3f5d3f15550b60aa6be03fb9840fa08715e943fc2c15564cbc0ea',
     'export_search_role': '1719db839a4ad5f37e3c9a3b4095514f48aaf95060436a94ca3824bfda800bdf',
     'backlog_maintenance_role': '0a514fd9e0c32eec47aeb34c5d242cc1e738d4ac81e13cd22d3d14155f9dfef9',
-    'design_role': 'b3729ad20442048abba8ae450c7b5d55ce9bdd9cb012e438df6b42e1e92d1260',
+    'design_role': '21c8ff363858203db538d707ab00e4fe94c172fc8eec50f0c130a0f36d49c997',
     'demo_brief': 'b68f6501270c63456c19053d1b5af296350288754239c7f9d6074a3a5497789f',
-    'token_manifest': 'a0f13f54c12f338c5ce5e9517184d9a2cbb9d538ff6c1a1ef44e468a1407a799',
+    'token_manifest': '26c3baf7e3325d263bbfee5350f0bd75e77ef60518adc95eee3aa507d10dfc5e',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',
@@ -425,6 +430,7 @@ SKILL_PACKAGE_ASSETS = (
     ('coordinator_conversation_reference', os.path.join('references', 'coordinator-conversation.md')),
     ('coordinator_completion_reference', os.path.join('references', 'coordinator-completion.md')),
     ('helper_conversation_reference', os.path.join('references', 'helper-conversation.md')),
+    ('collaboration_reference', os.path.join('references', 'collaboration.md')),
     ('completion_reference', os.path.join('references', 'completion.md')),
     ('audit_reference', os.path.join('references', 'audit.md')),
     ('audit_enabled_reference', os.path.join('references', 'audit-enabled.md')),
@@ -5774,6 +5780,55 @@ def separate_codex_handoff_tables(text):
             + text[boundary:ends[0].start()] + text[ends[0].end():])
 
 
+def configure_codex_concurrency():
+    """Set the user default, preserving explicit limits unless the user agrees."""
+    codex = shutil.which('codex')
+    if not codex:
+        raise RuntimeError('Codex concurrency setup requires Codex on PATH')
+    environment = {**os.environ, 'CODEX_HOME': CODEX_HOME}
+    with codex_config_lock(CODEX_CONFIG_PATH), codex_config_session(
+            codex, [], environment, CODEX_HOME) as request:
+        result = request('config/read', {'cwd': CODEX_HOME, 'includeLayers': True})
+        config = result['config']
+        agents = config.get('agents') or {}
+        v2 = (config.get('features') or {}).get('multi_agent_v2')
+        v2_limit = (v2.get('max_concurrent_threads_per_session')
+                    if isinstance(v2, dict) and v2.get('enabled') is not False else None)
+        legacy_limit = agents.get('max_concurrent_threads_per_session', agents.get('max_threads'))
+        current = v2_limit if v2_limit is not None else legacy_limit
+        desired = CODEX_HELPER_LIMIT + 1 if v2_limit is not None else CODEX_HELPER_LIMIT
+        if current == desired:
+            print(f'  ✅ Codex concurrency limit is already {CODEX_HELPER_LIMIT} helpers.')
+            return
+        if current is not None:
+            units = 'total threads' if v2_limit is not None else 'helpers'
+            if not prompt_yes_no(
+                    f'Codex currently allows {current} {units}. Replace this limit with '
+                    f"Uclusion's recommendation of {CODEX_HELPER_LIMIT} helpers "
+                    f'({CODEX_HELPER_LIMIT + 1} total threads)?', default=False):
+                print('  ⏭  Preserved the existing Codex concurrency limit.')
+                return
+        user_layer = next((layer for layer in result.get('layers', [])
+                           if layer.get('name', {}).get('type') == 'user'
+                           and layer['name'].get('profile') is None), None)
+        user_agents = ((user_layer or {}).get('config', {}).get('agents') or {})
+        if v2_limit is not None:
+            key = 'features.multi_agent_v2.max_concurrent_threads_per_session'
+        elif 'max_threads' in user_agents:
+            key = 'agents.max_threads'
+        else:
+            key = 'agents.max_concurrent_threads_per_session'
+        request('config/batchWrite', {
+            'edits': [{'keyPath': key, 'value': desired, 'mergeStrategy': 'upsert'}],
+            'filePath': CODEX_CONFIG_PATH,
+            'expectedVersion': user_layer['version'] if user_layer else None,
+            'reloadUserConfig': True,
+        })
+    print(f'  ✅ Configured Codex for {CODEX_HELPER_LIMIT} helpers '
+          f'({CODEX_HELPER_LIMIT + 1} total threads).')
+    print('  🔄 Restart Codex to apply the concurrency limit to new sessions.')
+
+
 def configure_codex_handoff(config_path=None, cwd=None):
     """Install and trust only Uclusion's exact-tool hook using Codex's own hash."""
     config_path = os.path.abspath(config_path or CODEX_CONFIG_PATH)
@@ -8153,6 +8208,7 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
                             response_stats=response_stats,
                         )
                     if installed:
+                        configure_codex_concurrency()
                         configure_codex_handoff()
             except Exception as err:
                 workflow_results['codex'] = False
@@ -8367,6 +8423,7 @@ def install_project_level(
                 )
                 remove_legacy_codex_hooks_config(force=not interactive)
             if installed:
+                configure_codex_concurrency()
                 configure_codex_handoff(
                     config_path=os.path.join(project_dir, '.codex', 'config.toml'),
                     cwd=project_dir,

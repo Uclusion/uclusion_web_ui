@@ -111,6 +111,9 @@ class ReconnectTests(unittest.TestCase):
         delivery.joined_roots = set()
         delivery.pending_descendants = set()
         delivery.tools_changed = lambda: None
+        delivery.on_root = lambda: None
+        delivery.helper_only = False
+        delivery._root_owner = lambda: True
         delivery._observe = lambda message: None
         delivery._collect_descendant_history = lambda: None
         delivery._deliver = lambda: None

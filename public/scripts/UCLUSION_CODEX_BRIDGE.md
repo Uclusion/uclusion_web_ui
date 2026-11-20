@@ -104,17 +104,21 @@ the resident Codex instructions. Existing users run the environment-correct
 `uclusion update` from their project, then fully exit and start a fresh `codex`
 session. MCP reconnect alone does not reload resident instructions.
 
-The installer recommends eight concurrent helpers, leaving room for retained
-design owners, implementation, and review. It sets the user-level
+The installer recommends sixteen concurrent helpers, plus one coordinator.
+This limit was selected after a live capacity study showed local headroom
+during normal laptop use. It sets the user-level
 `agents.max_concurrent_threads_per_session` when no limit is configured.
 Existing limits are replaced only after an affirmative installer answer;
 declining or providing no answer preserves them. A matching limit is unchanged.
 The legacy `agents.max_threads` alias is preserved. An explicit
 `features.multi_agent_v2.max_concurrent_threads_per_session` takes precedence
-and counts the primary thread, so its corresponding recommendation is nine.
-This counting and precedence were verified against Codex 0.170.0. Eight is a
-product default, not a benchmark-derived optimum. Restart Codex to apply it to
-new sessions. Project installs also configure this user-level default.
+and counts the primary thread, so its corresponding recommendation is seventeen.
+This counting and precedence were verified against Codex 0.170.0. The
+[capacity study](UCLUSION_CODEX_CAPACITY.md) records the selected limit, workload,
+measurements and limitations. Sixteen is a practical default with observed
+headroom, not a universal safety ceiling for every workload or machine.
+Restart Codex to apply an accepted setting to new sessions. Project installs
+also configure this user-level default.
 
 The `uclusion codex` command is retired. Statistics are saved through
 `uclusion update --response-stats PATH` or disabled with `--no-response-stats`;

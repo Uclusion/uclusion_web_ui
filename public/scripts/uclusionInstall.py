@@ -280,9 +280,9 @@ CODEX_HOME = os.path.abspath(os.path.expanduser(
     os.environ.get('CODEX_HOME', os.path.join(USER_HOME, '.codex'))
 ))
 CODEX_CONFIG_PATH = os.path.join(CODEX_HOME, 'config.toml')
-# Eight retained helpers leave room for design, implementation, and review.
+# Human-selected limit after the study documented in UCLUSION_CODEX_CAPACITY.md.
 # Codex's public agents setting excludes the coordinator; V2's override includes it.
-CODEX_HELPER_LIMIT = 8
+CODEX_HELPER_LIMIT = 16
 CODEX_AGENTS_MD_PATH = os.path.join(CODEX_HOME, 'AGENTS.md')
 # Codex discovers user skills from the cross-agent native directory. The
 # older ~/.codex/skills location is compatibility-only and is not installed.

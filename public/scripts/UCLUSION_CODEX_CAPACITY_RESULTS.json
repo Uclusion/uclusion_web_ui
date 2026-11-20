@@ -1,0 +1,1202 @@
+{
+  "study": "B-all-741 capacity estimate",
+  "date": "2026-11-20",
+  "runtime_commit": "e697e6c2388d4038c828629a62c9d524f7b07c37",
+  "sdk_base_commit": "ab7374dcdc56eaf4193f3850f875d46ca571bb30",
+  "client": "codex-cli 0.170.0",
+  "model": "gpt-6.2-sol",
+  "reasoning_effort": "low",
+  "host": {
+    "cpu": "AMD Ryzen AI 7 350",
+    "physical_cores": 8,
+    "logical_cpus": 16,
+    "memory_MiB": 15097.44140625,
+    "kernel": "Linux 6.17.0-119029-tuxedo"
+  },
+  "order": [
+    16,
+    4,
+    8
+  ],
+  "fixed_work": "Independent A/B replicas of eight source-inspection/existing-test packets;16 reports and472 tests each; no source edits",
+  "packets": [
+    {
+      "id": "configuration",
+      "contract": "Existing Codex concurrency settings require an affirmative override, aliases remain valid, and native configuration preserves unrelated settings.",
+      "source": "public/scripts/uclusionInstall.py",
+      "anchors": [
+        "configure_codex_concurrency",
+        "configure_codex_integration"
+      ],
+      "tests": [
+        "public.scripts.tests.test_uclusion_codex_concurrency",
+        "public.scripts.tests.test_uclusion_install_codex.CodexIntegrationConfigTests"
+      ]
+    },
+    {
+      "id": "native-inbox",
+      "contract": "Only the root retains native delivery services; inbox admission and retry handling preserve distinct pokes without duplicate delivery.",
+      "source": "public/scripts/uclusionCodexNative.py",
+      "anchors": [
+        "_root_owner",
+        "_run_connections",
+        "class NativeInbox"
+      ],
+      "tests": [
+        "public.scripts.tests.test_uclusion_codex_native.NativeOwnershipTests",
+        "public.scripts.tests.test_uclusion_codex_native.NativeInboxTests"
+      ]
+    },
+    {
+      "id": "native-history",
+      "contract": "Update notices respect idle ownership, and audit history follows real descendants without resuming idle threads or charging replay twice.",
+      "source": "public/scripts/uclusionCodexNative.py",
+      "anchors": [
+        "_collect_descendant_history",
+        "_deliver_update_notice"
+      ],
+      "tests": [
+        "public.scripts.tests.test_uclusion_codex_native.NativeNoticeTests",
+        "public.scripts.tests.test_uclusion_codex_native.NativeCatalogAccountingTests",
+        "public.scripts.tests.test_uclusion_codex_native.NativeDescendantHistoryTests"
+      ]
+    },
+    {
+      "id": "proxy-stdio",
+      "contract": "The MCP stdio proxy preserves protocol behavior, startup failure handling, response statistics, and served-catalog accounting.",
+      "source": "public/scripts/uclusionMCPProxy.py",
+      "anchors": [
+        "serve_startup_failure",
+        "class ResponseStats",
+        "def main"
+      ],
+      "tests": [
+        "public.scripts.tests.test_uclusion_mcp_proxy_stdio"
+      ]
+    },
+    {
+      "id": "audit-storage",
+      "contract": "Concurrent audit storage maintains durable identities, checkpoints and leases without losing or duplicating updates.",
+      "source": "public/scripts/uclusionTokenAudit.py",
+      "anchors": [
+        "class TokenAuditStore",
+        "claim_checkpoint",
+        "complete_checkpoint"
+      ],
+      "tests": [
+        "public.scripts.tests.test_uclusion_token_audit.StorageConcurrencyTests"
+      ]
+    },
+    {
+      "id": "audit-transport",
+      "contract": "Codex usage and OTLP/outbox collection preserve per-response accounting, retries, and publication boundaries.",
+      "source": "public/scripts/uclusionTokenAudit.py",
+      "anchors": [
+        "class Codex",
+        "class Otlp",
+        "class TokenAuditProxy"
+      ],
+      "tests": [
+        "public.scripts.tests.test_uclusion_token_audit.CodexAuditTests",
+        "public.scripts.tests.test_uclusion_token_audit.OtlpAndOutboxTests"
+      ]
+    },
+    {
+      "id": "audit-hardening",
+      "contract": "Malformed, repeated or partial audit evidence and Claude cache counters are handled without inventing usage or corrupting durable accounting.",
+      "source": "public/scripts/uclusionTokenAudit.py",
+      "anchors": [
+        "class Claude",
+        "class TokenAuditStore"
+      ],
+      "tests": [
+        "public.scripts.tests.test_uclusion_token_audit.HardeningRegressionTests",
+        "public.scripts.tests.test_uclusion_token_audit.ClaudeAuditTests"
+      ]
+    },
+    {
+      "id": "skill-installer",
+      "contract": "The installed skill package is coherent, shared collaboration guidance reaches working roles, and package/stub failures preserve existing user state.",
+      "source": "public/scripts/uclusionInstall.py",
+      "anchors": [
+        "install_skill",
+        "WORKFLOW_ASSET_PATHS"
+      ],
+      "tests": [
+        "public.scripts.tests.test_uclusion_install_skills.SkillPackageContractTests",
+        "public.scripts.tests.test_uclusion_install_skills.SkillAndStubInstallerTests",
+        "public.scripts.tests.test_uclusion_install_skills.WorkflowBundleFetcherTests"
+      ]
+    }
+  ],
+  "baseline_tests": [
+    {
+      "packet": "configuration",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "public.scripts.tests.test_uclusion_codex_concurrency",
+        "public.scripts.tests.test_uclusion_install_codex.CodexIntegrationConfigTests"
+      ],
+      "exit_code": 0,
+      "started_at_ms": 1795202072253,
+      "completed_at_ms": 1795202074071,
+      "wall_seconds": 1.8177015781402588,
+      "tests_run": 33,
+      "test_seconds": 1.652,
+      "cpu_seconds": 0.9553829999999999,
+      "peak_child_rss_kib": 92436,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "packet": "native-inbox",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "public.scripts.tests.test_uclusion_codex_native.NativeOwnershipTests",
+        "public.scripts.tests.test_uclusion_codex_native.NativeInboxTests"
+      ],
+      "exit_code": 0,
+      "started_at_ms": 1795202074095,
+      "completed_at_ms": 1795202075713,
+      "wall_seconds": 1.617994785308838,
+      "tests_run": 28,
+      "test_seconds": 1.454,
+      "cpu_seconds": 0.31383099999999997,
+      "peak_child_rss_kib": 50672,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "packet": "native-history",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "public.scripts.tests.test_uclusion_codex_native.NativeNoticeTests",
+        "public.scripts.tests.test_uclusion_codex_native.NativeCatalogAccountingTests",
+        "public.scripts.tests.test_uclusion_codex_native.NativeDescendantHistoryTests"
+      ],
+      "exit_code": 0,
+      "started_at_ms": 1795202075743,
+      "completed_at_ms": 1795202077310,
+      "wall_seconds": 1.5668823719024658,
+      "tests_run": 25,
+      "test_seconds": 1.44,
+      "cpu_seconds": 0.446571,
+      "peak_child_rss_kib": 50160,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "packet": "proxy-stdio",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "public.scripts.tests.test_uclusion_mcp_proxy_stdio"
+      ],
+      "exit_code": 0,
+      "started_at_ms": 1795202077341,
+      "completed_at_ms": 1795202078707,
+      "wall_seconds": 1.3666844367980957,
+      "tests_run": 33,
+      "test_seconds": 1.283,
+      "cpu_seconds": 1.042421,
+      "peak_child_rss_kib": 51076,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "packet": "audit-storage",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "public.scripts.tests.test_uclusion_token_audit.StorageConcurrencyTests"
+      ],
+      "exit_code": 0,
+      "started_at_ms": 1795202078731,
+      "completed_at_ms": 1795202081551,
+      "wall_seconds": 2.8198776245117188,
+      "tests_run": 30,
+      "test_seconds": 2.676,
+      "cpu_seconds": 0.629543,
+      "peak_child_rss_kib": 51588,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "packet": "audit-transport",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "public.scripts.tests.test_uclusion_token_audit.CodexAuditTests",
+        "public.scripts.tests.test_uclusion_token_audit.OtlpAndOutboxTests"
+      ],
+      "exit_code": 0,
+      "started_at_ms": 1795202081585,
+      "completed_at_ms": 1795202086410,
+      "wall_seconds": 4.824153900146484,
+      "tests_run": 36,
+      "test_seconds": 4.667,
+      "cpu_seconds": 0.892455,
+      "peak_child_rss_kib": 49448,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "packet": "audit-hardening",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "public.scripts.tests.test_uclusion_token_audit.HardeningRegressionTests",
+        "public.scripts.tests.test_uclusion_token_audit.ClaudeAuditTests"
+      ],
+      "exit_code": 0,
+      "started_at_ms": 1795202086431,
+      "completed_at_ms": 1795202089251,
+      "wall_seconds": 2.8200604915618896,
+      "tests_run": 27,
+      "test_seconds": 2.674,
+      "cpu_seconds": 0.707853,
+      "peak_child_rss_kib": 49000,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "packet": "skill-installer",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "public.scripts.tests.test_uclusion_install_skills.SkillPackageContractTests",
+        "public.scripts.tests.test_uclusion_install_skills.SkillAndStubInstallerTests",
+        "public.scripts.tests.test_uclusion_install_skills.WorkflowBundleFetcherTests"
+      ],
+      "exit_code": 0,
+      "started_at_ms": 1795202089279,
+      "completed_at_ms": 1795202090546,
+      "wall_seconds": 1.2669899463653564,
+      "tests_run": 24,
+      "test_seconds": 1.119,
+      "cpu_seconds": 0.303095,
+      "peak_child_rss_kib": 45244,
+      "failures": [],
+      "skips": []
+    }
+  ],
+  "case_bound": {
+    "seconds": 600,
+    "reported_tokens": 4000000,
+    "sampling_seconds": 0.5
+  },
+  "comparison_endpoint": "Root input to last successful packet report write; final root consolidation excluded",
+  "resource_window": "Same interval as comparison endpoint; observer process costs excluded and sampler CPU reported separately",
+  "warm_policy": "Read all frozen source bytes before each case; no cache eviction",
+  "capture_policy_change": "After16, allow64MiB trace instead of16MiB and capture idle histories once instead of each poll.4 and8 use same policy. This can reduce observer-induced work.",
+  "invalid_zero_token_attempts": [
+    {
+      "helpers": 2,
+      "reason": "Required token-audit-port argument missing; no helper work"
+    },
+    {
+      "helpers": 16,
+      "reason": "Early full-history RPC returned list_turns is not supported yet before root materialized; no helper work"
+    }
+  ],
+  "limitations": [
+    "One measured run per level; provider/cache/background jitter; no confidence interval",
+    "16 final root capture incomplete near trace ceiling; all reports retained but final source hash check not reached",
+    "16 direct helpers but only15 peak active briefly;14 or more active for6.553s",
+    "Read-only disjoint outputs; no shared code writes, heavy builds or browser workload",
+    "0.5s process samples miss short-lived children; PSS sampling races remain",
+    "Host-wide swap/I-O pressure cannot be attributed solely to agents",
+    "Per-case reported model tokens include repeated/cached input; not dollar charges or local CPU",
+    "Capacity resource ceiling was not reached; human selected16helpers based on observed headroom"
+  ],
+  "current_harness_sha256": {
+    "capacityProbe.js": "24f4e9104c8fb894cdfb8a57065a7ae2b420d82fc01145bae491cdd21918cdcb",
+    "capacityPackets.json": "6a79495aff57813b062ed9f9f4429c13d69bda9041743a50f80ec4a5fd1adbef",
+    "capacityPacketRunner.py": "560fdce47d22989cd87bc2caa902dcad7e853afc7d834eb05be162e22cb7cee8",
+    "capacitySampler.py": "604f2766a948c6a8095db9ceb8cd865bf1a0e9eed3c68892869c28ec92316427",
+    "capacityReport.py": "378fb98f19422b5e5067e8cab2014e42ab120643bcc75a09572ce06a844461e8",
+    "nativeCodexSession.js": "0b84ec53f06263e55b417087557e8157945ec7a433e3ac60ca60bddea9c252eb"
+  },
+  "hash_provenance": "Current reproducible harness hashes; individual plans preserve pre-case revisions. The16pre-run plan predates its narrow early-history retry and is not a byte-exact loaded-harness receipt. Frozen runtime source is pinned separately.",
+  "cases": [
+    {
+      "helpers_configured": 16,
+      "total_thread_limit": 17,
+      "actual_helpers": 16,
+      "peak_active_helpers": 15,
+      "average_active_helpers": 6.843514632722826,
+      "seconds_by_active_count": {
+        "0": 6.992,
+        "1": 4.88,
+        "2": 3.357,
+        "3": 6.072,
+        "4": 6.3100000000000005,
+        "5": 4.523,
+        "6": 2.317,
+        "7": 2.483,
+        "8": 3.4619999999999997,
+        "9": 5.949,
+        "10": 8.458,
+        "11": 4.869,
+        "12": 2.4869999999999997,
+        "13": 3.25,
+        "14": 6.24,
+        "15": 0.313
+      },
+      "batch_report_seconds": 71.962,
+      "root_completion_seconds": null,
+      "packet_receipts": 16,
+      "review_reports": 16,
+      "tests_run": 472,
+      "test_process_peak_overlap": 3,
+      "packet_test_cpu_seconds": 12.217435,
+      "packet_test_wall_seconds_sum": 46.95664954185486,
+      "packets_per_minute": 13.340374086323337,
+      "private_process_peak_pss_mib": 1226.263671875,
+      "blank_client_baseline_pss_mib": 338.361328125,
+      "incremental_peak_pss_mib": 887.90234375,
+      "private_process_peak_rss_mib": 1666.23046875,
+      "missing_pss_process_samples": 13,
+      "observed_process_cpu_seconds": 32.66,
+      "mean_busy_cpu_cores": 0.459971413318337,
+      "peak_half_second_busy_cpu_cores": 1.5338645418326684,
+      "host_min_available_mib": 3847.74609375,
+      "host_baseline_available_mib": 4771.693359375,
+      "host_memory_full_psi_avg10_max": 0.0,
+      "host_swap_pages_in_delta": 525,
+      "host_swap_pages_out_delta": 645,
+      "host_oom_kills_delta": 0,
+      "cleanup_remaining_processes": 0,
+      "reported_usage": {
+        "input_tokens": 3566563,
+        "output_tokens": 14223
+      },
+      "rollout_usage_sums": {
+        "input_tokens": 3543545,
+        "cached_input_tokens": 3198592,
+        "output_tokens": 14149,
+        "total_tokens": 3557694,
+        "reasoning_output_tokens": 54
+      },
+      "tool_latency_ms": {
+        "commandExecution": {
+          "count": 141,
+          "median": 0,
+          "max": 6323
+        },
+        "mcpToolCall": {
+          "count": 16,
+          "median": 365.5,
+          "max": 819
+        }
+      },
+      "weekly_quota_used_percent_first": 87,
+      "weekly_quota_used_percent_last": 87,
+      "status": "partial final capture",
+      "source_unchanged_check": "not reached",
+      "native_error_events": 0,
+      "captured_unapproved_mcp_calls": 0,
+      "captured_mcp_calls": 16,
+      "recovered_command_errors": 3,
+      "host_pressure": {
+        "host_cpu_busy_percent_mean": 9.079546181328007,
+        "host_cpu_busy_percent_peak_half_second": 29.746835443037973,
+        "host_cpu_some_psi_avg10_peak": 0.0,
+        "host_io_full_psi_avg10_peak": 7.87,
+        "observer_sampler_cpu_seconds_in_window": 4.282969051,
+        "page_bytes": 4096
+      },
+      "packet_groups": [
+        [
+          "configuration-a"
+        ],
+        [
+          "native-inbox-a"
+        ],
+        [
+          "native-history-a"
+        ],
+        [
+          "proxy-stdio-a"
+        ],
+        [
+          "audit-storage-a"
+        ],
+        [
+          "audit-transport-a"
+        ],
+        [
+          "audit-hardening-a"
+        ],
+        [
+          "skill-installer-a"
+        ],
+        [
+          "configuration-b"
+        ],
+        [
+          "native-inbox-b"
+        ],
+        [
+          "native-history-b"
+        ],
+        [
+          "proxy-stdio-b"
+        ],
+        [
+          "audit-storage-b"
+        ],
+        [
+          "audit-transport-b"
+        ],
+        [
+          "audit-hardening-b"
+        ],
+        [
+          "skill-installer-b"
+        ]
+      ],
+      "model_effort_observed": [
+        "gpt-6.2-sol/low"
+      ],
+      "packet_report_seconds": {
+        "native-history-a": 34.75,
+        "configuration-a": 37.466,
+        "native-inbox-a": 39.742,
+        "proxy-stdio-a": 41.601,
+        "audit-storage-a": 42.671,
+        "audit-hardening-a": 45.535,
+        "audit-transport-a": 49.724,
+        "skill-installer-a": 51.504,
+        "configuration-b": 54.863,
+        "native-inbox-b": 55.402,
+        "native-history-b": 55.927,
+        "proxy-stdio-b": 58.282,
+        "audit-storage-b": 61.862,
+        "audit-transport-b": 65.566,
+        "skill-installer-b": 66.095,
+        "audit-hardening-b": 71.962
+      },
+      "active_helper_timeline": [
+        {
+          "seconds": 6.992,
+          "helpers": 1
+        },
+        {
+          "seconds": 9.205,
+          "helpers": 2
+        },
+        {
+          "seconds": 11.539,
+          "helpers": 3
+        },
+        {
+          "seconds": 13.786,
+          "helpers": 4
+        },
+        {
+          "seconds": 16.616,
+          "helpers": 5
+        },
+        {
+          "seconds": 18.734,
+          "helpers": 6
+        },
+        {
+          "seconds": 20.853,
+          "helpers": 7
+        },
+        {
+          "seconds": 22.926,
+          "helpers": 8
+        },
+        {
+          "seconds": 25.399,
+          "helpers": 9
+        },
+        {
+          "seconds": 27.995,
+          "helpers": 10
+        },
+        {
+          "seconds": 30.769,
+          "helpers": 11
+        },
+        {
+          "seconds": 32.945,
+          "helpers": 12
+        },
+        {
+          "seconds": 35.217,
+          "helpers": 13
+        },
+        {
+          "seconds": 37.385,
+          "helpers": 14
+        },
+        {
+          "seconds": 39.425,
+          "helpers": 15
+        },
+        {
+          "seconds": 39.738,
+          "helpers": 14
+        },
+        {
+          "seconds": 40.873,
+          "helpers": 13
+        },
+        {
+          "seconds": 41.693,
+          "helpers": 14
+        },
+        {
+          "seconds": 44.758,
+          "helpers": 13
+        },
+        {
+          "seconds": 45.02,
+          "helpers": 12
+        },
+        {
+          "seconds": 45.235,
+          "helpers": 11
+        },
+        {
+          "seconds": 47.928,
+          "helpers": 10
+        },
+        {
+          "seconds": 53.612,
+          "helpers": 9
+        },
+        {
+          "seconds": 56.965,
+          "helpers": 8
+        },
+        {
+          "seconds": 57.954,
+          "helpers": 7
+        },
+        {
+          "seconds": 58.364,
+          "helpers": 6
+        },
+        {
+          "seconds": 58.562,
+          "helpers": 5
+        },
+        {
+          "seconds": 60.967,
+          "helpers": 4
+        },
+        {
+          "seconds": 64.447,
+          "helpers": 3
+        },
+        {
+          "seconds": 68.272,
+          "helpers": 2
+        },
+        {
+          "seconds": 69.295,
+          "helpers": 1
+        },
+        {
+          "seconds": 71.962,
+          "helpers": 0
+        }
+      ],
+      "settled_helper_mcp": {
+        "seconds_after_root_completion": null,
+        "coordinator_proxies": [
+          {
+            "threads": 5,
+            "sockets": 2,
+            "PSSMiB": 40.05859375
+          }
+        ],
+        "helper_count": 16,
+        "helpers_threads": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "helpers_socket_counts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "helper_pss_MiB_range": [
+          36.71875,
+          37.4453125
+        ],
+        "helper_cpu_last_sample_window_seconds": 0.0,
+        "window_seconds": 9.503
+      },
+      "cleanup": [
+        {
+          "market_id": "46c9d694-abd7-4f39-a000-e305178e0a3d",
+          "deleted_at": "2026-11-20T19:33:46.193Z"
+        }
+      ],
+      "artifacts": {
+        "live-16-retry/traces/capacity-16.jsonl": {
+          "bytes": 16748629,
+          "sha256": "74fcde43460c33e30b0d3c0ca6753af3ae37fff7b3c31023721dc66ea9b01b87"
+        },
+        "live-16-retry/helpers-16/resources.jsonl": {
+          "bytes": 891945,
+          "sha256": "1eaab3f059988b2ffd0bf97e252e3f9f997b2dd6e9cb2a0db0e24d4b5c19f566"
+        },
+        "live-16-retry/helpers-16/study.json": {
+          "bytes": 18793,
+          "sha256": "f53a6f5ee61dc00ddc01dd44516f560db4df55af01d96d9c81a9e0dfc90685b8"
+        },
+        "live-16-retry/helpers-16/timing.json": {
+          "bytes": 259,
+          "sha256": "0f7ebc3b1e876c68ec04dc9497d2b150d11769317d19291dbce130ac14c89e53"
+        }
+      }
+    },
+    {
+      "helpers_configured": 4,
+      "total_thread_limit": 5,
+      "actual_helpers": 4,
+      "peak_active_helpers": 4,
+      "average_active_helpers": 3.1261578029172137,
+      "seconds_by_active_count": {
+        "0": 7.751,
+        "1": 18.375,
+        "2": 3.009,
+        "3": 5.026,
+        "4": 77.041
+      },
+      "batch_report_seconds": 111.202,
+      "root_completion_seconds": 150.871,
+      "packet_receipts": 16,
+      "review_reports": 16,
+      "tests_run": 472,
+      "test_process_peak_overlap": 2,
+      "packet_test_cpu_seconds": 12.515818,
+      "packet_test_wall_seconds_sum": 41.85208487510681,
+      "packets_per_minute": 8.632938256506177,
+      "private_process_peak_pss_mib": 741.08203125,
+      "blank_client_baseline_pss_mib": 336.03974609375,
+      "incremental_peak_pss_mib": 405.04228515625,
+      "private_process_peak_rss_mib": 1046.9453125,
+      "missing_pss_process_samples": 12,
+      "observed_process_cpu_seconds": 24.77,
+      "mean_busy_cpu_cores": 0.22414646265304775,
+      "peak_half_second_busy_cpu_cores": 0.8249496981891351,
+      "host_min_available_mib": 3240.9921875,
+      "host_baseline_available_mib": 4963.06875,
+      "host_memory_full_psi_avg10_max": 0.0,
+      "host_swap_pages_in_delta": 433,
+      "host_swap_pages_out_delta": 3500,
+      "host_oom_kills_delta": 0,
+      "cleanup_remaining_processes": 0,
+      "reported_usage": {
+        "input_tokens": 2934764,
+        "output_tokens": 11112
+      },
+      "rollout_usage_sums": {
+        "input_tokens": 2934764,
+        "cached_input_tokens": 2726528,
+        "output_tokens": 11112,
+        "reasoning_output_tokens": 25,
+        "total_tokens": 2945876
+      },
+      "tool_latency_ms": {
+        "commandExecution": {
+          "count": 88,
+          "median": 0.0,
+          "max": 6128
+        },
+        "mcpToolCall": {
+          "count": 16,
+          "median": 382.5,
+          "max": 505
+        }
+      },
+      "weekly_quota_used_percent_first": 88,
+      "weekly_quota_used_percent_last": 88,
+      "status": "passed after offline grader correction",
+      "source_unchanged_check": "passed",
+      "native_error_events": 0,
+      "captured_unapproved_mcp_calls": 0,
+      "captured_mcp_calls": 16,
+      "recovered_command_errors": 3,
+      "host_pressure": {
+        "host_cpu_busy_percent_mean": 11.570324338672512,
+        "host_cpu_busy_percent_peak_half_second": 30.102040816326532,
+        "host_cpu_some_psi_avg10_peak": 0.0,
+        "host_io_full_psi_avg10_peak": 4.07,
+        "observer_sampler_cpu_seconds_in_window": 5.429461771,
+        "page_bytes": 4096
+      },
+      "packet_groups": [
+        [
+          "audit-transport-a",
+          "audit-hardening-a",
+          "configuration-a",
+          "native-inbox-a"
+        ],
+        [
+          "native-history-a",
+          "proxy-stdio-a",
+          "skill-installer-a",
+          "audit-storage-a"
+        ],
+        [
+          "audit-transport-b",
+          "audit-hardening-b",
+          "configuration-b",
+          "native-inbox-b"
+        ],
+        [
+          "native-history-b",
+          "proxy-stdio-b",
+          "skill-installer-b",
+          "audit-storage-b"
+        ]
+      ],
+      "model_effort_observed": [
+        "gpt-6.2-sol/low"
+      ],
+      "packet_report_seconds": {
+        "audit-transport-a": 37.188,
+        "audit-transport-b": 39.059,
+        "native-history-a": 40.775,
+        "native-history-b": 42.896,
+        "audit-hardening-a": 50.4,
+        "audit-hardening-b": 55.811,
+        "proxy-stdio-a": 56.589,
+        "proxy-stdio-b": 65.569,
+        "configuration-a": 67.287,
+        "configuration-b": 70.051,
+        "skill-installer-a": 72.161,
+        "native-inbox-a": 85.794,
+        "skill-installer-b": 87.294,
+        "audit-storage-a": 91.698,
+        "native-inbox-b": 91.764,
+        "audit-storage-b": 111.202
+      },
+      "active_helper_timeline": [
+        {
+          "seconds": 7.751,
+          "helpers": 1
+        },
+        {
+          "seconds": 10.046,
+          "helpers": 2
+        },
+        {
+          "seconds": 12.211,
+          "helpers": 3
+        },
+        {
+          "seconds": 14.471,
+          "helpers": 4
+        },
+        {
+          "seconds": 91.512,
+          "helpers": 3
+        },
+        {
+          "seconds": 94.278,
+          "helpers": 2
+        },
+        {
+          "seconds": 95.122,
+          "helpers": 1
+        },
+        {
+          "seconds": 111.202,
+          "helpers": 0
+        }
+      ],
+      "settled_helper_mcp": {
+        "seconds_after_root_completion": 5.106,
+        "coordinator_proxies": [
+          {
+            "threads": 5,
+            "sockets": 2,
+            "PSSMiB": 40.826171875
+          }
+        ],
+        "helper_count": 4,
+        "helpers_threads": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "helpers_socket_counts": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "helper_pss_MiB_range": [
+          37.7255859375,
+          37.775390625
+        ],
+        "helper_cpu_last_sample_window_seconds": 0.0,
+        "window_seconds": 9.505
+      },
+      "cleanup": [
+        {
+          "market_id": "3df445a8-462a-4363-a682-986b40c2aed5",
+          "deleted_at": "2026-11-20T19:42:24.693Z"
+        }
+      ],
+      "artifacts": {
+        "live-4/traces/capacity-4.jsonl": {
+          "bytes": 7726559,
+          "sha256": "b11da7a0fc56e8040bffe2eb1f8b49b71db6ba32d815f01df5326d90d59e6ffb"
+        },
+        "live-4/helpers-4/resources.jsonl": {
+          "bytes": 1126753,
+          "sha256": "1bc34c11512fbaace5c07e769b3db96cb95da42b578ac3c2e00570a9687e34d6"
+        },
+        "live-4/helpers-4/study.json": {
+          "bytes": 18647,
+          "sha256": "e5f43800a4110133789e607ab91b93956d8ce8effc6e986fcba6d6dac563bf6b"
+        },
+        "live-4/helpers-4/timing.json": {
+          "bytes": 3570,
+          "sha256": "51eaeadeb3ad02bd36a5a850cdcf0c6ffc88bb335696149445833d46f2e38861"
+        }
+      }
+    },
+    {
+      "helpers_configured": 8,
+      "total_thread_limit": 9,
+      "actual_helpers": 8,
+      "peak_active_helpers": 8,
+      "average_active_helpers": 5.330235999297771,
+      "seconds_by_active_count": {
+        "0": 5.093,
+        "1": 12.687000000000001,
+        "2": 3.48,
+        "3": 3.743,
+        "4": 4.049,
+        "5": 2.515,
+        "6": 4.8629999999999995,
+        "7": 10.288,
+        "8": 33.028
+      },
+      "batch_report_seconds": 79.746,
+      "root_completion_seconds": 107.918,
+      "packet_receipts": 16,
+      "review_reports": 16,
+      "tests_run": 472,
+      "test_process_peak_overlap": 4,
+      "packet_test_cpu_seconds": 11.713187999999999,
+      "packet_test_wall_seconds_sum": 45.706759214401245,
+      "packets_per_minute": 12.038221352795125,
+      "private_process_peak_pss_mib": 1015.181640625,
+      "blank_client_baseline_pss_mib": 332.6509765625,
+      "incremental_peak_pss_mib": 682.5306640625,
+      "private_process_peak_rss_mib": 1498.69140625,
+      "missing_pss_process_samples": 9,
+      "observed_process_cpu_seconds": 26.580000000000002,
+      "mean_busy_cpu_cores": 0.3363314862321719,
+      "peak_half_second_busy_cpu_cores": 1.0934393638170987,
+      "host_min_available_mib": 3889.3515625,
+      "host_baseline_available_mib": 4561.42734375,
+      "host_memory_full_psi_avg10_max": 0.0,
+      "host_swap_pages_in_delta": 144,
+      "host_swap_pages_out_delta": 0,
+      "host_oom_kills_delta": 0,
+      "cleanup_remaining_processes": 0,
+      "reported_usage": {
+        "input_tokens": 3239360,
+        "output_tokens": 13269
+      },
+      "rollout_usage_sums": {
+        "input_tokens": 3239360,
+        "cached_input_tokens": 2994432,
+        "output_tokens": 13269,
+        "reasoning_output_tokens": 19,
+        "total_tokens": 3252629
+      },
+      "tool_latency_ms": {
+        "commandExecution": {
+          "count": 119,
+          "median": 0,
+          "max": 6018
+        },
+        "mcpToolCall": {
+          "count": 16,
+          "median": 366.5,
+          "max": 4787
+        }
+      },
+      "weekly_quota_used_percent_first": 89,
+      "weekly_quota_used_percent_last": 89,
+      "status": "passed",
+      "source_unchanged_check": "passed",
+      "native_error_events": 0,
+      "captured_unapproved_mcp_calls": 0,
+      "captured_mcp_calls": 16,
+      "recovered_command_errors": 5,
+      "host_pressure": {
+        "host_cpu_busy_percent_mean": 7.734404641698746,
+        "host_cpu_busy_percent_peak_half_second": 17.418546365914786,
+        "host_cpu_some_psi_avg10_peak": 0.0,
+        "host_io_full_psi_avg10_peak": 6.23,
+        "observer_sampler_cpu_seconds_in_window": 4.539072107,
+        "page_bytes": 4096
+      },
+      "packet_groups": [
+        [
+          "audit-transport-a",
+          "audit-hardening-a"
+        ],
+        [
+          "native-history-a",
+          "proxy-stdio-a"
+        ],
+        [
+          "skill-installer-a",
+          "audit-storage-a"
+        ],
+        [
+          "configuration-a",
+          "native-inbox-a"
+        ],
+        [
+          "audit-transport-b",
+          "audit-hardening-b"
+        ],
+        [
+          "native-history-b",
+          "proxy-stdio-b"
+        ],
+        [
+          "skill-installer-b",
+          "audit-storage-b"
+        ],
+        [
+          "configuration-b",
+          "native-inbox-b"
+        ]
+      ],
+      "model_effort_observed": [
+        "gpt-6.2-sol/low"
+      ],
+      "packet_report_seconds": {
+        "native-history-a": 49.692,
+        "audit-transport-a": 33.285,
+        "skill-installer-a": 39.16,
+        "native-history-b": 60.899,
+        "audit-transport-b": 41.117,
+        "configuration-a": 42.27,
+        "configuration-b": 46.043,
+        "proxy-stdio-a": 49.692,
+        "skill-installer-b": 56.831,
+        "audit-hardening-a": 58.007,
+        "proxy-stdio-b": 60.899,
+        "audit-storage-a": 61.859,
+        "audit-hardening-b": 61.751,
+        "native-inbox-a": 64.63,
+        "native-inbox-b": 67.028,
+        "audit-storage-b": 79.746
+      },
+      "active_helper_timeline": [
+        {
+          "seconds": 5.093,
+          "helpers": 1
+        },
+        {
+          "seconds": 7.114,
+          "helpers": 2
+        },
+        {
+          "seconds": 9.231,
+          "helpers": 3
+        },
+        {
+          "seconds": 11.522,
+          "helpers": 4
+        },
+        {
+          "seconds": 13.827,
+          "helpers": 5
+        },
+        {
+          "seconds": 15.87,
+          "helpers": 6
+        },
+        {
+          "seconds": 18.295,
+          "helpers": 7
+        },
+        {
+          "seconds": 21.108,
+          "helpers": 8
+        },
+        {
+          "seconds": 54.136,
+          "helpers": 7
+        },
+        {
+          "seconds": 61.611,
+          "helpers": 6
+        },
+        {
+          "seconds": 64.049,
+          "helpers": 5
+        },
+        {
+          "seconds": 64.521,
+          "helpers": 4
+        },
+        {
+          "seconds": 66.265,
+          "helpers": 3
+        },
+        {
+          "seconds": 67.717,
+          "helpers": 2
+        },
+        {
+          "seconds": 69.08,
+          "helpers": 1
+        },
+        {
+          "seconds": 79.746,
+          "helpers": 0
+        }
+      ],
+      "settled_helper_mcp": {
+        "seconds_after_root_completion": 5.063,
+        "helper_count": 8,
+        "helpers_threads": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "helpers_socket_counts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "helper_pss_MiB_range": [
+          37.5234375,
+          37.6220703125
+        ],
+        "helper_cpu_last_sample_window_seconds": 0.0,
+        "window_seconds": 9.5,
+        "coordinator_proxies": [
+          {
+            "threads": 5,
+            "sockets": 2,
+            "PSSMiB": 40.296875
+          }
+        ]
+      },
+      "cleanup": [
+        {
+          "market_id": "0710446b-2c75-492d-b977-ee07e4af0925",
+          "deleted_at": "2026-11-20T19:47:09.361Z"
+        }
+      ],
+      "artifacts": {
+        "live-8/traces/capacity-8.jsonl": {
+          "bytes": 10038159,
+          "sha256": "afb35b00a2de294af5c15385e4019a41fe470324b7ad9a9bfd820707d224ddea"
+        },
+        "live-8/helpers-8/resources.jsonl": {
+          "bytes": 1029265,
+          "sha256": "28c58ce7dd7dd1fbea1e7e1dbb9fbada9f7744501b96d581286f75714ca6536b"
+        },
+        "live-8/helpers-8/study.json": {
+          "bytes": 18695,
+          "sha256": "234df4f11563e71c70faaad138d9f456550397c8796518a7927a3a150cae7b37"
+        },
+        "live-8/helpers-8/timing.json": {
+          "bytes": 6317,
+          "sha256": "c0eb13b1618dc05b682a57f05e6f7562d8153faae2e6f73d7872eaf510486437"
+        }
+      }
+    }
+  ],
+  "human_study_context": {
+    "verbatim": "I'm on the same laptop doing other things but I didn't think it would affect the tests as that will be the case for a real user also",
+    "interpretation": "Concurrent ordinary human laptop use is representative context for a practical default with headroom. It does not invalidate the study or require an idle-machine rerun; it limits causal attribution of small timing/I-O differences to helper count."
+  },
+  "selected_default": {
+    "helpers": 16,
+    "total_threads_including_coordinator": 17,
+    "status": "selected_by_authoritative_human",
+    "verbatim": "So we are going with 16? That should be a reasonably large but fairly safe number.",
+    "record": "https://stage.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/C-all-2845",
+    "rationale": "A reasonably large allowance with observed local headroom during normal concurrent laptop use. High-count root capture is incomplete and observed overlap peaked at15; the study covers light tooling, not a universal safety ceiling."
+  }
+}

@@ -34,7 +34,7 @@ class CodexConcurrencyTests(unittest.TestCase):
         text, prompts = self.configure('# Customer settings\napproval_policy = "on-request"\n'
                                        '[agents.reviewer]\ndescription = "Keep reviewer"\n')
         config = tomllib.loads(text)
-        self.assertEqual(8, config['agents']['max_concurrent_threads_per_session'])
+        self.assertEqual(16, config['agents']['max_concurrent_threads_per_session'])
         self.assertEqual('Keep reviewer', config['agents']['reviewer']['description'])
         self.assertEqual('on-request', config['approval_policy'])
         self.assertIn('# Customer settings', text)
@@ -52,25 +52,26 @@ class CodexConcurrencyTests(unittest.TestCase):
 
     def test_acceptance_updates_existing_alias_without_duplicate_keys(self):
         text, prompts = self.configure('[agents]\nmax_threads = 3\n', answer=True)
-        self.assertEqual({'max_threads': 8}, tomllib.loads(text)['agents'])
+        self.assertEqual({'max_threads': 16}, tomllib.loads(text)['agents'])
         self.assertEqual(1, len(prompts))
+        self.assertIn('16 helpers (17 total threads)', prompts[0].args[0])
 
-    def test_v2_override_gets_nine_total_threads_and_preserves_other_features(self):
+    def test_v2_override_gets_seventeen_total_threads_and_preserves_other_features(self):
         for existing in (
-                '[agents]\nmax_concurrent_threads_per_session = 8\n'
+                '[agents]\nmax_concurrent_threads_per_session = 16\n'
                 '[features.multi_agent_v2]\nenabled = true\nmax_concurrent_threads_per_session = 4\n',
                 '# Inline settings\n[features]\n'
                 'multi_agent_v2 = { enabled = true, max_concurrent_threads_per_session = 4 }\n'):
             with self.subTest(existing=existing):
                 text, prompts = self.configure(existing, answer=True)
                 v2 = tomllib.loads(text)['features']['multi_agent_v2']
-                self.assertEqual({'enabled': True, 'max_concurrent_threads_per_session': 9}, v2)
+                self.assertEqual({'enabled': True, 'max_concurrent_threads_per_session': 17}, v2)
                 self.assertEqual(1, len(prompts))
                 self.assertIn('4 total threads', prompts[0].args[0])
 
     def test_current_recommendation_is_unchanged_without_an_override_prompt(self):
-        for existing in ('[agents]\nmax_concurrent_threads_per_session = 8\n',
-                         '[features.multi_agent_v2]\nmax_concurrent_threads_per_session = 9\n'):
+        for existing in ('[agents]\nmax_concurrent_threads_per_session = 16\n',
+                         '[features.multi_agent_v2]\nmax_concurrent_threads_per_session = 17\n'):
             with self.subTest(existing=existing):
                 text, prompts = self.configure(existing)
                 self.assertEqual(existing, text)
@@ -79,10 +80,10 @@ class CodexConcurrencyTests(unittest.TestCase):
     def test_disabled_v2_keeps_its_override_and_updates_the_active_agents_setting(self):
         text, prompts = self.configure('[agents]\nmax_concurrent_threads_per_session = 3\n'
                                        '[features.multi_agent_v2]\nenabled = false\n'
-                                       'max_concurrent_threads_per_session = 17\n', answer=True)
+                                       'max_concurrent_threads_per_session = 23\n', answer=True)
         config = tomllib.loads(text)
-        self.assertEqual(8, config['agents']['max_concurrent_threads_per_session'])
-        self.assertEqual({'enabled': False, 'max_concurrent_threads_per_session': 17},
+        self.assertEqual(16, config['agents']['max_concurrent_threads_per_session'])
+        self.assertEqual({'enabled': False, 'max_concurrent_threads_per_session': 23},
                          config['features']['multi_agent_v2'])
         self.assertIn('3 helpers', prompts[0].args[0])
 

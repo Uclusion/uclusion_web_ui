@@ -1112,7 +1112,7 @@ function Comment(props) {
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&
     !myInlinePresence.abstain && !yourVote && myMessage?.type === NOT_FULLY_VOTED_TYPE;
   const showUnmute = myInlinePresence.abstain && !resolved && enableActions && ([QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType));
-  const showPokeAI = !isCapsule && enableEditing && isSent !== false && !beingEdited && !!comment.ticket_code &&
+  const showPokeAI = !isAiAuthored && !isCapsule && enableEditing && isSent !== false && !beingEdited && !!comment.ticket_code &&
     isPokeAICommentType(commentType) && (!pokeAIMarketId || !!pokeAIParentTicketCode);
   const showSubTask = isTask && myPresence === createdBy;
   // On a task authored by someone else the single button stays a plain "Reply"; offer a separate

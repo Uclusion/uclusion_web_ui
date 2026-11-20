@@ -223,6 +223,7 @@ function Reply(props) {
   const { openInlineWizard } = useInlineWizardLaunch();
   const presences = usePresences(marketId);
   const commenter = useCommenter(comment, presences) || { name: "unknown", email: "" };
+  const isAiAuthored = !!commenter.id && _.isEmpty(commenter.email);
   const [hashFragment, noHighlightId, setNoHighlightId] = useContext(ScrollContext);
   const { editComment, openEditComment, closeEditComment } = useContext(EditCommentContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -508,7 +509,7 @@ function Reply(props) {
             doFloatRight
           />
         )}
-        {isPokeAIReplyVisible(
+        {!isAiAuthored && isPokeAIReplyVisible(
           isTopLevelSubTask,
           pokeAIMarketId,
           pokeAIParentTicketCode

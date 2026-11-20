@@ -91,7 +91,7 @@ afterAll(() => {
   window.IS_REACT_ACT_ENVIRONMENT = previousActEnvironment;
 });
 
-function replyTree(pokeAI, setOperationRunning, replyProps = {}) {
+function replyTree(pokeAI, setOperationRunning, replyProps = {}, replyOverrides = {}) {
   const inlineMarketId = 'inline-option-market';
   const root = {
     id: 'option-question',
@@ -105,12 +105,13 @@ function replyTree(pokeAI, setOperationRunning, replyProps = {}) {
     reply_id: root.id,
     root_comment_id: root.id,
     group_id: 'view-id',
-    created_by: 'ai-user',
+    created_by: 'human-user',
     ticket_code: 'C-2',
     body: '<p>Which tradeoff should we choose?</p>',
     created_at: '2026-07-28T10:01:00Z',
     updated_at: '2026-07-28T10:01:00Z',
     resolved: false,
+    ...replyOverrides,
   };
   const commentsState = { [inlineMarketId]: [root, reply] };
   const presencesState = {
@@ -194,6 +195,19 @@ describe('Reply option Poke AI routing', () => {
     );
     expect(setOperationRunning).toHaveBeenNthCalledWith(1, 'pokeAIoption-reply');
     expect(setOperationRunning).toHaveBeenLastCalledWith(false);
+
+    await act(async () => root.unmount());
+  });
+
+  it('hides Poke AI on an AI-authored reply', async () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(replyTree(jest.fn(), jest.fn(), {}, { created_by: 'ai-user' }));
+    });
+
+    expect(container.querySelector('#pokeAIoption-reply')).toBeNull();
 
     await act(async () => root.unmount());
   });

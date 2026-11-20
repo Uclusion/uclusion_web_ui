@@ -3330,6 +3330,15 @@
     "openai": 616
    }
   },
+  "99411bbd53c9bc3b51ba151c6b8a59c2e77758754b9fd7849959accb01b6aed1": {
+   "bytes": 5192,
+   "kind": "skill",
+   "name": "skills/uclusion/references/coordinator-events.md",
+   "tokens": {
+    "claude": 1533,
+    "openai": 946
+   }
+  },
   "9961bd2e7de925e7ae26b19ea9b45184705c09df182d5c44e4eebe68f0abd49a": {
    "bytes": 3186,
    "kind": "skill",

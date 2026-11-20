@@ -146,15 +146,13 @@ describe('bug row notification clear', () => {
     expect(button.disabled).toBe(false);
   });
 
-  it('shows a disabled clear button when the bug has no inbox notifications', () => {
+  it('hides the clear button when the bug has no inbox notifications', () => {
     const button = renderBugs([
       notification('other', 'other-bug'),
       notification('deleted', bug.id, { deleted: true }),
       notification('report', bug.id, { type: 'UNREAD_REPORT' }),
     ]);
-    expect(button).not.toBeNull();
-    expect(button.disabled).toBe(true);
-    act(() => button.click());
+    expect(button).toBeNull();
     expect(removeNotifications).not.toHaveBeenCalled();
     expect(container.querySelector('#bugListItemExpansionbug').style.display).toBe('none');
   });

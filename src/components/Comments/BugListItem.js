@@ -291,7 +291,7 @@ function BugListItem(props) {
                 </Tooltip>: React.Fragment}
                 {isNew ? (<TitleB style={{ color: theme.palette.type === 'dark' ? 'white' : 'black',
                   minWidth: maxWidth ? 0 : undefined }}>{displayTitle}</TitleB>) : titleWithHelp}
-                {onClearNotifications && (
+                {onClearNotifications && hasNotifications && (
                   <Box flexShrink={0}>
                     <SpinningIconLabelButton
                       id={`inboxClearBug${id}`}
@@ -301,7 +301,6 @@ function BugListItem(props) {
                       useDark={isDarkMode && !smallFont}
                       toolTipId="bugRowClearNotifications"
                       aria-label={intl.formatMessage({ id: 'bugRowClearNotifications' })}
-                      disabled={!hasNotifications}
                       onClick={onClearNotifications}
                     />
                   </Box>

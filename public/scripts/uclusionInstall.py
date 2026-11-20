@@ -280,9 +280,9 @@ CODEX_HOME = os.path.abspath(os.path.expanduser(
     os.environ.get('CODEX_HOME', os.path.join(USER_HOME, '.codex'))
 ))
 CODEX_CONFIG_PATH = os.path.join(CODEX_HOME, 'config.toml')
-# Human-selected limit after the study documented in UCLUSION_CODEX_CAPACITY.md.
+# Shared Claude/Codex allowance; see docs/studies/codex-capacity-2026-11-20/README.md.
 # Codex's public agents setting excludes the coordinator; V2's override includes it.
-CODEX_HELPER_LIMIT = 16
+AGENT_HELPER_LIMIT = 16
 CODEX_AGENTS_MD_PATH = os.path.join(CODEX_HOME, 'AGENTS.md')
 # Codex discovers user skills from the cross-agent native directory. The
 # older ~/.codex/skills location is compatibility-only and is not installed.
@@ -5780,6 +5780,50 @@ def separate_codex_handoff_tables(text):
             + text[boundary:ends[0].start()] + text[ends[0].end():])
 
 
+def configure_claude_concurrency(settings_path, inherited_settings=()):
+    """Set a scoped limit without silently overriding explicit inherited values."""
+    settings_path = os.path.abspath(os.path.expanduser(settings_path))
+    key = 'CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS'
+    desired = str(AGENT_HELPER_LIMIT)
+    with config_file_lock(settings_path):
+        target = _config_write_target(settings_path)
+        existing, signature = _read_text_snapshot(target)
+        text = existing if signature is not None else '{}\n'
+        current_path = settings_path
+        try:
+            updated = json_text_set(text, ('env', key), desired)
+            current = _json_find(text, ('env', key))
+            if current is None:
+                for current_path in reversed(inherited_settings):
+                    inherited_text, inherited_signature = _read_text_snapshot(
+                        _config_write_target(current_path))
+                    if inherited_signature is None:
+                        continue
+                    _json_document(inherited_text)
+                    current = _json_find(inherited_text, ('env', key))
+                    if current is not None:
+                        break
+        except ValueError as error:
+            raise RuntimeError(f'{current_path} has invalid Claude settings: {error}') from error
+        missing = object()
+        if current is None:
+            current = os.environ.get(key, missing)
+            current_path = 'the environment'
+        else:
+            current = current[0]
+        if current == desired:
+            print(f'  ✅ Claude concurrency limit is already {AGENT_HELPER_LIMIT} helpers.')
+            return
+        if current is not missing and not prompt_yes_no(
+                f'Claude has {key}={current!r} in {current_path}. Override it in {settings_path} with '
+                f"Uclusion's recommendation of {AGENT_HELPER_LIMIT} helpers?", default=False):
+            print('  ⏭  Preserved the existing Claude concurrency limit.')
+            return
+        atomic_write_text(settings_path, updated, existing, target, signature)
+    print(f'  ✅ Configured Claude for {AGENT_HELPER_LIMIT} concurrent helpers in {settings_path}.')
+    print('  🔄 Start a new Claude session to use the concurrency setting.')
+
+
 def configure_codex_concurrency():
     """Set the user default, preserving explicit limits unless the user agrees."""
     codex = shutil.which('codex')
@@ -5796,16 +5840,16 @@ def configure_codex_concurrency():
                     if isinstance(v2, dict) and v2.get('enabled') is not False else None)
         legacy_limit = agents.get('max_concurrent_threads_per_session', agents.get('max_threads'))
         current = v2_limit if v2_limit is not None else legacy_limit
-        desired = CODEX_HELPER_LIMIT + 1 if v2_limit is not None else CODEX_HELPER_LIMIT
+        desired = AGENT_HELPER_LIMIT + 1 if v2_limit is not None else AGENT_HELPER_LIMIT
         if current == desired:
-            print(f'  ✅ Codex concurrency limit is already {CODEX_HELPER_LIMIT} helpers.')
+            print(f'  ✅ Codex concurrency limit is already {AGENT_HELPER_LIMIT} helpers.')
             return
         if current is not None:
             units = 'total threads' if v2_limit is not None else 'helpers'
             if not prompt_yes_no(
                     f'Codex currently allows {current} {units}. Replace this limit with '
-                    f"Uclusion's recommendation of {CODEX_HELPER_LIMIT} helpers "
-                    f'({CODEX_HELPER_LIMIT + 1} total threads)?', default=False):
+                    f"Uclusion's recommendation of {AGENT_HELPER_LIMIT} helpers "
+                    f'({AGENT_HELPER_LIMIT + 1} total threads)?', default=False):
                 print('  ⏭  Preserved the existing Codex concurrency limit.')
                 return
         user_layer = next((layer for layer in result.get('layers', [])
@@ -5824,8 +5868,8 @@ def configure_codex_concurrency():
             'expectedVersion': user_layer['version'] if user_layer else None,
             'reloadUserConfig': True,
         })
-    print(f'  ✅ Configured Codex for {CODEX_HELPER_LIMIT} helpers '
-          f'({CODEX_HELPER_LIMIT + 1} total threads).')
+    print(f'  ✅ Configured Codex for {AGENT_HELPER_LIMIT} helpers '
+          f'({AGENT_HELPER_LIMIT + 1} total threads).')
     print('  🔄 Restart Codex to apply the concurrency limit to new sessions.')
 
 
@@ -8055,6 +8099,7 @@ def install_global(workspace_id, view_id, mcp_env, fetch_bundle, clients=None,
         # is no rule left in the person's settings to take back out.
         _assert_json_namespace_unambiguous(CLAUDE_JSON_PATH)
         add_claude_permissions(CLAUDE_SETTINGS_PATH)
+        configure_claude_concurrency(CLAUDE_SETTINGS_PATH)
         result = configure_claude_token_audit(
             CLAUDE_SETTINGS_PATH,
             token_audit_collector_enabled(token_audit),
@@ -8306,6 +8351,8 @@ def install_project_level(
     if claude_selected:
         _assert_json_namespace_unambiguous(os.path.join(project_dir, '.mcp.json'))
         add_claude_permissions(claude_settings_path)
+        configure_claude_concurrency(claude_settings_path, inherited_settings=(
+            CLAUDE_SETTINGS_PATH, os.path.join(project_dir, '.claude', 'settings.json')))
         result = configure_claude_token_audit(
             claude_settings_path,
             token_audit_collector_enabled(token_audit),

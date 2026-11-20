@@ -114,7 +114,7 @@ The legacy `agents.max_threads` alias is preserved. An explicit
 `features.multi_agent_v2.max_concurrent_threads_per_session` takes precedence
 and counts the primary thread, so its corresponding recommendation is seventeen.
 This counting and precedence were verified against Codex 0.170.0. The
-[capacity study](UCLUSION_CODEX_CAPACITY.md) records the selected limit, workload,
+[capacity study](https://github.com/Uclusion/uclusion_web_ui/blob/master/docs/studies/codex-capacity-2026-11-20/README.md) records the selected limit, workload,
 measurements and limitations. Sixteen is a practical default with observed
 headroom, not a universal safety ceiling for every workload or machine.
 Restart Codex to apply an accepted setting to new sessions. Project installs

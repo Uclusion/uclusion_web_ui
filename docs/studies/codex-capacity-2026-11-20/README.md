@@ -1,6 +1,12 @@
 <!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->
 # Codex concurrency capacity study
 
+Study for B-all-741, conducted November 20, 2026. See the
+[brief documentation](https://documentation.uclusion.com/github-and-cli-integrations/agent-concurrency/)
+for the selected default and its installation behavior. Claude uses the same
+sixteen-helper allowance by the human's subsequent instruction; no independent
+Claude capacity benchmark was run. The measurements below are from Codex only.
+
 The target is a practical estimate of useful agent concurrency before local
 resource use or interference becomes excessive. The human selected **sixteen
 helpers plus one coordinator (seventeen total)** after reviewing the study,
@@ -10,9 +16,10 @@ published evidence of a local resource threshold and is not used as such here.
 
 ## Workload and platform
 
-The November 20, 2026 study uses Codex CLI 0.170.0 and the Uclusion runtime from
-web UI commit `e697e6c2388d4038c828629a62c9d524f7b07c37`. This is a private copy;
-the resident installation and user configuration are not updated. Each native
+The November 20, 2026 study used Codex CLI 0.170.0 and the Uclusion runtime from
+web UI commit `e697e6c2388d4038c828629a62c9d524f7b07c37`. The runs used a private
+copy; the study itself did not update the resident installation or user
+configuration. Each native
 root and helper uses `gpt-6.2-sol` with low reasoning effort. The measured Linux
 laptop (Ryzen AI 7 350) has eight physical CPU cores, sixteen logical CPUs, and
 14.74 GiB of visible RAM. The human confirmed that they were doing other normal
@@ -189,8 +196,9 @@ The earlier unsupported eight-helper choice is not retroactively approved.
 ## Reproduction and evidence
 
 The companion SDK harness is
-[`capacityProbe.js`](../../../nodejs_sdk/testAgentDev/capacityProbe.js) in a sibling
-`nodejs_sdk` checkout, with
+[`capacityProbe.js`](https://github.com/Uclusion/nodejs_sdk/blob/dd31896f6ed7a80abdec306011ec0224c99a6995/testAgentDev/capacityProbe.js)
+in the `nodejs_sdk` repository at commit
+`dd31896f6ed7a80abdec306011ec0224c99a6995`, with
 `capacityPackets.json`, `capacityPacketRunner.py`, `capacitySampler.py` and the
 offline `capacityReport.py`. It reuses the existing native launcher, guarded DEV
 fixture deletion and artifact redaction. Example invocation from that repository:
@@ -225,7 +233,7 @@ The human's confirmation of concurrent normal laptop use is
 [C-all-2844](https://stage.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/C-all-2844).
 The human's selected sixteen-helper limit is
 [C-all-2845](https://stage.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/C-all-2845).
-The portable [results snapshot](UCLUSION_CODEX_CAPACITY_RESULTS.json) includes
+The portable [results snapshot](results.json) includes
 exact test identities, packet allocation, timelines, hardware, metrics, current
 harness hashes, raw trace/resource hashes and cleanup receipts. The benchmark
 runtime commit remains historical evidence from before the sixteen-helper

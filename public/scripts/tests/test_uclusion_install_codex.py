@@ -935,6 +935,10 @@ class ResponseStatsInstallerTests(unittest.TestCase):
                                 *install_args, clients={'claude', 'cursor'},
                                 response_stats=choice,
                             )
+                            limit_path = (Path(directory) / 'settings.json' if scope == 'global'
+                                          else Path(directory) / '.claude' / 'settings.local.json')
+                            self.assertEqual('16', json.loads(limit_path.read_text())['env'][
+                                'CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS'])
                             with open(mcp_path, encoding='utf-8') as config:
                                 updated = INSTALL.json.load(config)
                             server = updated['mcpServers']['uclusion']

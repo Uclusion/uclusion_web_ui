@@ -17,6 +17,7 @@ import SubSection from '../../containers/SubSection/SubSection';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import Link from '@material-ui/core/Link';
 import _ from 'lodash';
+import ActiveAgentPricing from './ActiveAgentPricing';
 
 
 const styleClasses = makeStyles(
@@ -64,15 +65,21 @@ function SubscriptionStatus (props) {
     invoice_payment_failed: invoicePaymentFailed,
   } = account;
   const { subscription, payment_methods: paymentMethods } = subscriptionInfo || {};
+  const pricing = subscriptionInfo?.uclusion_pricing;
+  const activeAgentPricing = pricing?.model === 'active_agent_v1';
   const classes = styleClasses();
   // some helpful constants
   const trialEndRaw = subscription?.trial_end;
   const trialEnd = trialEndRaw ? trialEndRaw*1000 : undefined;
   const onFree = subStatus === SUBSCRIPTION_STATUS_FREE;
   const isTrial = subscription?.status === 'trialing';
-  const cancellable = subStatus === SUBSCRIPTION_STATUS_ACTIVE && !isTrial;
-  const needsPayment = _.isEmpty(getUnusedFullPromotions(accountState)) && !onFree && !isTrial &&
-    (_.isEmpty(paymentMethods) || invoicePaymentFailed);
+  const stopped = subStatus === SUBSCRIPTION_STATUS_CANCELED || subStatus === SUBSCRIPTION_STATUS_UNSUBSCRIBED;
+  const cancellable = (activeAgentPricing ? !!subscription && !stopped : subStatus === SUBSCRIPTION_STATUS_ACTIVE) && !isTrial;
+  const needsPayment = activeAgentPricing
+    ? invoicePaymentFailed || (!isTrial && pricing.active_people > 0 && _.isEmpty(paymentMethods) &&
+        _.isEmpty(getUnusedFullPromotions(accountState)))
+    : _.isEmpty(getUnusedFullPromotions(accountState)) && !onFree && !isTrial &&
+        (_.isEmpty(paymentMethods) || invoicePaymentFailed);
   const tierMessage = onFree ? intl.formatMessage({ id: 'billingFreeTier' }) :
     intl.formatMessage({ id: 'billingStandardTier' });
   const subMessage = getSubscriptionMessage();
@@ -112,12 +119,19 @@ function SubscriptionStatus (props) {
         <Typography>
           See <Link href="https://documentation.uclusion.com/getting-started/login/#billing" target="_blank">billing</Link> for help.
         </Typography>
-        <Typography>
-          {tierMessage}
-        </Typography>
-        <Typography style={{marginBottom: '1rem'}}>
-          <strong>{subMessage}</strong>
-        </Typography>
+        {activeAgentPricing ? (
+          <>
+            <ActiveAgentPricing pricing={pricing} />
+            {stopped && (
+              <Typography>{subMessage}</Typography>
+            )}
+          </>
+        ) : (
+          <>
+            <Typography>{tierMessage}</Typography>
+            <Typography style={{marginBottom: '1rem'}}><strong>{subMessage}</strong></Typography>
+          </>
+        )}
         {needsPayment && (
           <Typography className={classes.noPayment} style={{marginBottom: '1rem'}}>
             {intl.formatMessage({ id: 'billingNeedCard' })}

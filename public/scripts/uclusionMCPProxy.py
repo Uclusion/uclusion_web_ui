@@ -2135,95 +2135,136 @@ def main():
             except json.JSONDecodeError as e:
                 sys.stderr.write(f"Invalid JSON from stdin: {e}\n")
                 continue
+            if not isinstance(msg, dict):
+                # A batch array or a bare value has no request id to answer.
+                sys.stderr.write('Invalid JSON-RPC message from stdin: '
+                                 f'{type(msg).__name__} is not an object\n')
+                continue
 
             is_notification = 'id' not in msg
-            record_demo_input('mcp_request', line)
             request_id = msg.get('id')
-            response_stats.set_request(msg)
-            if native_delivery and msg.get('method') == 'notifications/initialized':
-                native_initialized.set()
-                tools_changed()
+            try:
+                # A failure in this proxy's own handling answers only the
+                # request that caused it. The connection keeps serving.
+                record_demo_input('mcp_request', line)
+                response_stats.set_request(msg)
+                if native_delivery and msg.get('method') == 'notifications/initialized':
+                    native_initialized.set()
+                    tools_changed()
 
-            params = msg.get('params')
-            if (msg.get('method') == 'tools/call' and isinstance(params, dict)
-                    and params.get('name') == 'set_agent_subscription'):
-                try:
-                    msg = bind_agent_subscription(msg, native_delivery, environment)
-                    line = json.dumps(msg)
-                except (ValueError, ConnectionError, TimeoutError) as error:
-                    if not is_notification:
-                        write_jsonrpc_error(request_id, -32002, str(error), stats=response_stats)
-                    continue
-            claim_tool_call = (
-                msg.get('method') == 'tools/call'
-                and isinstance(params, dict)
-                and params.get('name') == WORK_CLAIM_TOOL_NAME
-            )
-            if claim_tool_call:
-                # The claim tool is proxy-local; it never reaches the MCP
-                # backend regardless of whether the opt-in is on.
-                if is_notification:
-                    continue
-                if work_claims is None:
-                    write_jsonrpc_error(
-                        request_id=request_id,
-                        code=-32601,
-                        message='Work claims are not enabled for this connection',
-                        stats=response_stats,
-                    )
-                    continue
-                agent_id = None
-                if native_delivery is not None:
+                params = msg.get('params')
+                if (msg.get('method') == 'tools/call' and isinstance(params, dict)
+                        and params.get('name') == 'set_agent_subscription'):
                     try:
-                        agent_id = native_delivery.subscription_agent(msg)
+                        msg = bind_agent_subscription(msg, native_delivery, environment)
+                        line = json.dumps(msg)
                     except (ValueError, ConnectionError, TimeoutError) as error:
-                        write_jsonrpc_error(request_id, -32002, str(error), stats=response_stats)
+                        if not is_notification:
+                            write_jsonrpc_error(request_id, -32002, str(error), stats=response_stats)
                         continue
-                handle_claim_tool_call(work_claims, request_id, params, stats=response_stats, agent_id=agent_id)
-                continue
-            audit_tool_call = (
-                msg.get('method') == 'tools/call'
-                and isinstance(params, dict)
-                and params.get('name') in TOKEN_AUDIT_TOOLS
-            )
-            if audit_tool_call and args.token_audit:
-                try:
-                    validate_token_audit_phase(params, args.token_audit_buckets)
-                except ValueError as error:
-                    if not is_notification:
-                        write_jsonrpc_error(request_id, -32602, str(error), stats=response_stats)
+                claim_tool_call = (
+                    msg.get('method') == 'tools/call'
+                    and isinstance(params, dict)
+                    and params.get('name') == WORK_CLAIM_TOOL_NAME
+                )
+                if claim_tool_call:
+                    # The claim tool is proxy-local; it never reaches the MCP
+                    # backend regardless of whether the opt-in is on.
+                    if is_notification:
+                        continue
+                    if work_claims is None:
+                        write_jsonrpc_error(
+                            request_id=request_id,
+                            code=-32601,
+                            message='Work claims are not enabled for this connection',
+                            stats=response_stats,
+                        )
+                        continue
+                    agent_id = None
+                    if native_delivery is not None:
+                        try:
+                            agent_id = native_delivery.subscription_agent(msg)
+                        except (ValueError, ConnectionError, TimeoutError) as error:
+                            write_jsonrpc_error(request_id, -32002, str(error), stats=response_stats)
+                            continue
+                    handle_claim_tool_call(work_claims, request_id, params, stats=response_stats, agent_id=agent_id)
                     continue
-            collector_unready = False
-            if (audit_tool_call and args.token_audit and args.token_collector
-                    and native_delivery is not None):
-                collector_unready = (not native_delivery.ensure_collector(msg)
-                                     or token_audit_runtime is None)
-            if audit_tool_call and not args.token_audit:
+                audit_tool_call = (
+                    msg.get('method') == 'tools/call'
+                    and isinstance(params, dict)
+                    and params.get('name') in TOKEN_AUDIT_TOOLS
+                )
+                if audit_tool_call and args.token_audit:
+                    try:
+                        validate_token_audit_phase(params, args.token_audit_buckets)
+                    except ValueError as error:
+                        if not is_notification:
+                            write_jsonrpc_error(request_id, -32602, str(error), stats=response_stats)
+                        continue
+                collector_unready = False
+                collector_error = None
+                if (audit_tool_call and args.token_audit and args.token_collector
+                        and native_delivery is not None):
+                    try:
+                        collector_ready = native_delivery.ensure_collector(msg)
+                    except Exception as error:
+                        # Token accounting must not make the connection
+                        # unavailable. Only this call is unready, so a
+                        # transient storage failure clears on the next one.
+                        collector_ready = False
+                        collector_error = error.__class__.__name__
+                        sys.stderr.write('Uclusion token collector could not bind this audit call '
+                                         f'({collector_error}: {error}).\n')
+                    collector_unready = not collector_ready or token_audit_runtime is None
+                if audit_tool_call and not args.token_audit:
+                    if not is_notification:
+                        write_jsonrpc_error(
+                            request_id=request_id,
+                            code=-32601,
+                            message='Token audit is not enabled for this connection',
+                            stats=response_stats,
+                        )
+                    continue
+                if audit_tool_call and (collector_unready or not token_notes_available()):
+                    # token_notes_available() is false here only when auditing is
+                    # enabled: the runtime is missing or tools_ready() failed.
+                    # That is collector unreadiness, not an audit opt-out.
+                    if not is_notification:
+                        failure = (native_delivery.collector_failure(msg)
+                                   if native_delivery is not None else None)
+                        data = None if collector_error is None else {'error': collector_error}
+                        message = 'Token audit collector is unavailable for this connection'
+                        if failure and failure.get('predicate') is not None:
+                            data = {**(data or {}),
+                                    'predicate': failure['predicate'], 'time': failure['time']}
+                        if data is not None:
+                            message += ' ' + json.dumps(data, separators=(',', ':'), sort_keys=True)
+                        write_jsonrpc_error(
+                            request_id=request_id,
+                            code=-32002,
+                            message=message,
+                            data=data,
+                            stats=response_stats,
+                        )
+                    continue
+            except Exception as error:
+                # No response has been written for this request, because the
+                # response recorders in write_message contain their own
+                # failures. If writing this error fails, the proxy ends.
+                error_class = error.__class__.__name__
+                method = msg.get('method')
+                params = msg.get('params')
+                tool = params.get('name') if (
+                    method == 'tools/call' and isinstance(params, dict)) else None
+                label = f'{method} {tool}' if isinstance(tool, str) else f'{method}'
+                sys.stderr.write(f'Uclusion proxy could not handle {label} locally '
+                                 f'({error_class}: {error}).\n')
                 if not is_notification:
                     write_jsonrpc_error(
                         request_id=request_id,
-                        code=-32601,
-                        message='Token audit is not enabled for this connection',
-                        stats=response_stats,
-                    )
-                continue
-            if audit_tool_call and (collector_unready or not token_notes_available()):
-                # token_notes_available() is false here only when auditing is
-                # enabled: the runtime is missing or tools_ready() failed.
-                # That is collector unreadiness, not an audit opt-out.
-                if not is_notification:
-                    failure = (native_delivery.collector_failure(msg)
-                               if native_delivery is not None else None)
-                    data = None
-                    message = 'Token audit collector is unavailable for this connection'
-                    if failure and failure.get('predicate') is not None:
-                        data = {'predicate': failure['predicate'], 'time': failure['time']}
-                        message += ' ' + json.dumps(data, separators=(',', ':'), sort_keys=True)
-                    write_jsonrpc_error(
-                        request_id=request_id,
-                        code=-32002,
-                        message=message,
-                        data=data,
+                        code=-32603,
+                        message=f'Uclusion proxy could not handle this request locally ({error_class})',
+                        data={'error': error_class},
                         stats=response_stats,
                     )
                 continue

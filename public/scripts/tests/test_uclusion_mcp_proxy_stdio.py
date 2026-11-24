@@ -1,6 +1,7 @@
 import io
 import json
 import os
+import sqlite3
 import stat
 import subprocess
 import sys
@@ -802,6 +803,246 @@ class ServedCatalogAccountingTests(unittest.TestCase):
         self.assertEqual([key], report["definition_fingerprints"])
         self.assertEqual("unknown", report["provider_injection"])
         self.assertEqual(2, len(manifest["tools"]))
+
+
+SYNTHETIC_ROOT = 'synthetic-root'
+ROOT_ARGUMENTS = [
+    'workspace-1', 'stage', '--codex-native', '--token-audit', '--token-collector',
+    '--token-audit-port', '35109', '--token-audit-source', 'codex',
+    '--token-audit-client', 'codex',
+]
+
+
+def _root_call(request_id, name, arguments):
+    return json.dumps({'jsonrpc': '2.0', 'id': request_id, 'method': 'tools/call', 'params': {
+        'name': name, 'arguments': arguments,
+        '_meta': {'threadId': SYNTHETIC_ROOT,
+                  'x-codex-turn-metadata': {'turn_id': 'synthetic-turn'}},
+    }})
+
+
+def _end_job_audit(request_id):
+    return _root_call(request_id, 'end_job_audit', {
+        'job_id': 'J-example-1', 'audit_run_id': 'synthetic-run',
+        'handoff_type': 'review_requested',
+    })
+
+
+def _get_job(request_id):
+    return json.dumps({'jsonrpc': '2.0', 'id': request_id, 'method': 'tools/call', 'params': {
+        'name': 'get_job', 'arguments': {'short_code_id': 'J-example-1'}}})
+
+
+class _SyntheticAppServer:
+    """The Codex app-server, reporting this MCP instance on one independent root."""
+
+    def __init__(self, delivery, path):
+        self.version = '1+' + delivery.identity + '.' + delivery.scope_marker
+        self.thread = {'id': SYNTHETIC_ROOT, 'threadSource': 'user', 'parentThreadId': None,
+                       'canAcceptDirectInput': True, 'status': {'type': 'active'}, 'path': path}
+
+    def request(self, method, params):
+        if method == 'thread/loaded/list':
+            return {'data': [SYNTHETIC_ROOT], 'nextCursor': None}
+        if method == 'thread/list':
+            return {'data': [{'id': SYNTHETIC_ROOT}], 'nextCursor': None}
+        if method == 'mcpServerStatus/list':
+            servers = [{'runtimeStatus': 'connected', 'serverInfo': {'version': self.version}}]
+            return {'data': servers if params['serverName'] == 'uclusion' else [],
+                    'nextCursor': None}
+        if method == 'thread/read':
+            thread = dict(self.thread)
+            if params.get('includeTurns'):
+                thread['turns'] = [{'id': 'synthetic-turn', 'status': 'inProgress', 'items': []}]
+            return {'thread': thread}
+        if method == 'thread/resume':
+            return {'thread': dict(self.thread)}
+        raise AssertionError('Unexpected app-server request ' + method)
+
+    def close(self):
+        pass
+
+
+class _LockedAgentInbox:
+    """An inbox connection whose agent identity write finds the database locked."""
+
+    def __init__(self, connection):
+        object.__setattr__(self, '_connection', connection)
+
+    def execute(self, sql, *args):
+        if 'INTO codex_native_agents' in sql:
+            raise sqlite3.OperationalError('database is locked')
+        return self._connection.execute(sql, *args)
+
+    def __enter__(self):
+        self._connection.__enter__()
+        return self
+
+    def __exit__(self, *exc_info):
+        return self._connection.__exit__(*exc_info)
+
+    def __getattr__(self, name):
+        return getattr(self._connection, name)
+
+    def __setattr__(self, name, value):
+        setattr(self._connection, name, value)
+
+
+class LocalRequestFailureTests(unittest.TestCase):
+    """A failure in the proxy's own handling of one request answers only that request."""
+
+    def setUp(self):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        self.home = directory.name
+        environment = mock.patch.dict(os.environ, {
+            'UCLUSION_HOME': self.home, 'UCLUSION_TOKEN_AUDIT_HOME': self.home,
+            'CODEX_HOME': self.home,
+        })
+        environment.start()
+        self.addCleanup(environment.stop)
+        for name in ('UCLUSION_TOKEN_AUDIT_DB', 'UCLUSION_TOKEN_AUDIT_SALT',
+                     'UCLUSION_CODEX_NATIVE_SOCKET', proxy.DEMO_EVIDENCE_ENV):
+            os.environ.pop(name, None)
+        self.deliveries = []
+        self.forwarded = []
+        self.store_calls = []
+
+    def backend(self, url, headers, body, refresh):
+        request = json.loads(body)
+        self.forwarded.append(request['params']['name'])
+        response = _BodyResponse(json.dumps({'jsonrpc': '2.0', 'id': request['id'], 'result': {
+            'content': [{'type': 'text', 'text': 'Backend answer.'}]}}))
+        response.headers = {'Content-Type': 'application/json'}
+        return response, None
+
+    def watch_store(self, delivery, locked=False):
+        """Record each audit store connection, optionally failing the first one."""
+        store = delivery.collectors[SYNTHETIC_ROOT].store
+        connect = store.connect
+
+        def watched_connect():
+            self.store_calls.append(sys._getframe(1).f_code.co_name)
+            if locked and len(self.store_calls) == 1:
+                raise sqlite3.OperationalError('database is locked')
+            return connect()
+        store.connect = watched_connect
+
+    def run_proxy(self, argv, lines, prepare=None):
+        """Run the real main loop over stdin lines and return replies and exit status."""
+        import uclusionCodexNative as native
+        import uclusionTokenAudit as audit
+        test = self
+        streams = [io.StringIO(''.join(line + '\n' for line in lines)), io.StringIO()]
+        outgoing = streams[1]
+        real_fdopen = os.fdopen
+
+        def fdopen(descriptor, *args, **kwargs):
+            # main() reopens the mocked stdin and stdout. Audit storage keeps real files.
+            if isinstance(descriptor, int):
+                return real_fdopen(descriptor, *args, **kwargs)
+            return streams.pop(0)
+
+        class RegisteredDelivery(native.NativeCodexDelivery):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                # Threads are mocked, so this stands in for the delivery thread
+                # after it confirms an independent root: the real scan
+                # registers and joins that root's collector.
+                self.client = _SyntheticAppServer(self, os.path.join(test.home, 'root.jsonl'))
+                self.healthy.set()
+                self._scan()
+                self.registered = (SYNTHETIC_ROOT in self.joined_roots
+                                   and SYNTHETIC_ROOT in self.collectors)
+                test.deliveries.append(self)
+                if prepare is not None:
+                    prepare(self)
+
+        arguments = proxy.parse_args(argv)
+        stderr = io.StringIO()
+        status = None
+        with mock.patch.object(proxy.sys, 'stdin'), mock.patch.object(proxy.sys, 'stdout'), \
+                mock.patch.object(proxy.os, 'fdopen', side_effect=fdopen), \
+                mock.patch.object(proxy, 'parse_args', return_value=arguments), \
+                mock.patch.object(proxy, 'prune_token_audit_storage'), \
+                mock.patch.object(proxy, 'prune_inbox'), \
+                mock.patch.object(proxy, 'get_credentials', return_value={}), \
+                mock.patch.object(proxy, 'login', return_value={'uclusion_token': 'test-token'}), \
+                mock.patch.object(proxy.threading, 'Thread'), \
+                mock.patch.object(proxy, 'record_demo_input'), \
+                mock.patch.object(native, 'NativeCodexDelivery', RegisteredDelivery), \
+                mock.patch.object(audit, 'TokenAuditProxy'), \
+                mock.patch.object(proxy, 'post_to_mcp_refreshing_token', side_effect=self.backend), \
+                redirect_stderr(stderr):
+            try:
+                proxy.main()
+            except SystemExit as exited:
+                status = exited.code
+        self.stderr = stderr.getvalue()
+        return [json.loads(line) for line in outgoing.getvalue().splitlines()], status
+
+    def assert_root_registered(self):
+        self.assertEqual(1, len(self.deliveries))
+        self.assertTrue(self.deliveries[0].registered)
+
+    def test_root_collector_storage_failure_rejects_only_the_audit_call(self):
+        replies, status = self.run_proxy(
+            ROOT_ARGUMENTS, [_end_job_audit(1), _get_job(2)],
+            prepare=lambda delivery: self.watch_store(delivery, locked=True))
+        self.assertIsNone(status, 'The proxy exited instead of serving the next request')
+        self.assert_root_registered()
+        self.assertEqual('bind_session', self.store_calls[0])
+        self.assertEqual([1, 2], [reply['id'] for reply in replies])
+        self.assertEqual({
+            'code': -32002,
+            'message': 'Token audit collector is unavailable for this connection '
+                       '{"error":"OperationalError"}',
+            'data': {'error': 'OperationalError'},
+        }, replies[0]['error'])
+        self.assertIn('result', replies[1])
+        self.assertEqual(['get_job'], self.forwarded)
+        self.assertIn('Uclusion token collector could not bind this audit call '
+                      '(OperationalError: database is locked).\n', self.stderr)
+
+    def test_root_collector_with_a_working_store_forwards_the_audit_call(self):
+        replies, status = self.run_proxy(
+            ROOT_ARGUMENTS, [_end_job_audit(1), _get_job(2)], prepare=self.watch_store)
+        self.assertIsNone(status)
+        self.assert_root_registered()
+        self.assertEqual('bind_session', self.store_calls[0])
+        self.assertEqual([1, 2], [reply['id'] for reply in replies])
+        self.assertTrue(all('result' in reply for reply in replies))
+        self.assertEqual(['end_job_audit', 'get_job'], self.forwarded)
+        self.assertNotIn('could not', self.stderr)
+
+    def test_root_subscription_storage_failure_answers_only_that_request(self):
+        import uclusionCodexNative as native
+        open_inbox = native.open_inbox
+        subscription = _root_call(1, 'set_agent_subscription', {'short_code_id': 'J-example-1'})
+        with mock.patch.object(native, 'open_inbox',
+                               side_effect=lambda: _LockedAgentInbox(open_inbox())):
+            replies, status = self.run_proxy(ROOT_ARGUMENTS, [subscription, _get_job(2)])
+        self.assertIsNone(status, 'The proxy exited instead of serving the next request')
+        self.assert_root_registered()
+        self.assertEqual([1, 2], [reply['id'] for reply in replies])
+        self.assertEqual({
+            'code': -32603,
+            'message': 'Uclusion proxy could not handle this request locally (OperationalError)',
+            'data': {'error': 'OperationalError'},
+        }, replies[0]['error'])
+        self.assertIn('result', replies[1])
+        self.assertEqual(['get_job'], self.forwarded)
+        self.assertIn('Uclusion proxy could not handle tools/call set_agent_subscription locally '
+                      '(OperationalError: database is locked).\n', self.stderr)
+
+    def test_non_object_message_is_skipped_without_a_response(self):
+        replies, status = self.run_proxy(['workspace-1', 'stage'], ['[]', _get_job(2)])
+        self.assertIsNone(status, 'The proxy exited instead of serving the next request')
+        self.assertEqual([2], [reply['id'] for reply in replies])
+        self.assertIn('result', replies[0])
+        self.assertEqual(['get_job'], self.forwarded)
+        self.assertEqual('Invalid JSON-RPC message from stdin: list is not an object\n',
+                         self.stderr)
 
 
 if __name__ == '__main__':

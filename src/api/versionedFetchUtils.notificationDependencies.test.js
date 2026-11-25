@@ -10,6 +10,12 @@ import { installEditingPause } from '../utils/editingPause';
 import { useInitialSyncComplete } from './useInitialSyncComplete';
 import { FRESHNESS_NAMESPACES, registerNamespaceReloader, reloadFromDisk } from './crossTabFreshness';
 import { MAX_HOLD_MS, QUIET_WINDOW_MS } from './syncAccumulator';
+import * as marketApi from './markets';
+import { versionsUpdateMarketPresences } from '../contexts/MarketPresencesContext/marketPresencesContextReducer';
+import {
+  APPLICATION_CACHE_NAMESPACES, cacheNeedsRebuild, completeCacheRebuild,
+  getCacheRecoveryStatus, hasPendingCacheRebuild
+} from '../utils/applicationCacheRecovery';
 import {
   refreshVersionsForNotificationDependencies,
   refreshVersionsFromPush,
@@ -1029,5 +1035,103 @@ describe('editing pause', () => {
     } finally {
       unregister.forEach((remove) => remove());
     }
+  });
+});
+
+describe('automatic cache rebuild', () => {
+  let users;
+  let errors;
+  let dispatchers;
+  const user = { id: 'current-user', current_user: true, market_capability_version: 3 };
+  const comment = { id: mockCommentId, version: 1, comment_type: 'QUESTION' };
+  const versions = [{ market_id: mockMarketId, signatures: [
+    { type: 'market_capability', object_versions: [{ object_id_one: user.id, version: 3 }] },
+    { type: 'comment', object_versions: [{ object_id_one: mockCommentId, version: 1 }] }
+  ] }];
+
+  beforeEach(() => {
+    stopRefreshRunner();
+    jest.useFakeTimers();
+    jest.isolateModules(() => { mockInitialSyncStatus = jest.requireActual('./syncStatus'); });
+    users = jest.spyOn(marketApi, 'getMarketUsers').mockResolvedValue([user]);
+    errors = jest.spyOn(console, 'error').mockImplementation(() => {});
+    getChangedIds.mockResolvedValue([{ id: mockMarketId, active: true,
+      signature: { object_type: 'market', object_id_one: mockMarketId, version: 2 } }]);
+    getVersions.mockResolvedValue(versions);
+    getMarketClient.mockResolvedValue({ id: 'client' });
+    fetchComments.mockResolvedValue([comment]);
+    versionsUpdateMarketPresences.mockImplementation((userDetails) => ({ userDetails }));
+    dispatchers = {
+      presenceDispatch: jest.fn(({ userDetails }) => Object.assign(mockPresencesState, userDetails)),
+      commentsDispatch: jest.fn(({ commentDetails }) => Object.assign(mockCommentsState, commentDetails)),
+      diffDispatch: jest.fn(), index: {}, ticketsDispatch: jest.fn()
+    };
+  });
+
+  afterEach(() => {
+    stopRefreshRunner();
+    completeCacheRebuild(Object.values(APPLICATION_CACHE_NAMESPACES));
+    delete mockPresencesState[mockMarketId];
+    delete mockCommentsState[mockMarketId];
+    mockInitialSyncStatus = undefined;
+    users.mockRestore();
+    errors.mockRestore();
+    versionsUpdateMarketPresences.mockReset();
+    jest.clearAllMocks();
+    jest.useRealTimers();
+  });
+
+  it.each([
+    [APPLICATION_CACHE_NAMESPACES.PRESENCES],
+    [APPLICATION_CACHE_NAMESPACES.COMMENTS, APPLICATION_CACHE_NAMESPACES.PRESENCES]
+  ])('rebuilds %j despite an already-cached latest market signature', async (...missing) => {
+    missing.forEach((key) => cacheNeedsRebuild(key));
+    if (!missing.includes(APPLICATION_CACHE_NAMESPACES.COMMENTS)) {
+      mockCommentsState[mockMarketId] = [comment];
+    }
+    await refreshVersionsNow(dispatchers);
+    expect(getVersions).toHaveBeenCalledWith([mockMarketId], false);
+    expect(users).toHaveBeenCalledWith([{ id: user.id, version: 3 }], { id: 'client' });
+    expect(mockPresencesState[mockMarketId]).toEqual([user]);
+    expect(mockCommentsState[mockMarketId]).toEqual([comment]);
+    expect(hasPendingCacheRebuild()).toBe(false);
+    expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(true);
+  });
+
+  it('keeps dependent startup unready through a failed fetch and retries without an action', async () => {
+    cacheNeedsRebuild(APPLICATION_CACHE_NAMESPACES.PRESENCES);
+    mockCommentsState[mockMarketId] = [comment];
+    users.mockRejectedValueOnce(new Error('Temporary server failure'));
+    await refreshVersionsNow(dispatchers);
+    expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(false);
+    expect(getCacheRecoveryStatus()).toBe('retrying');
+    expect(dispatchers.presenceDispatch).not.toHaveBeenCalled();
+
+    jest.advanceTimersByTime(1000);
+    await new Promise(jest.requireActual('timers').setImmediate);
+    expect(users).toHaveBeenCalledTimes(2);
+    expect(mockPresencesState[mockMarketId]).toEqual([user]);
+    expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(true);
+    expect(getCacheRecoveryStatus()).toBe('ready');
+  });
+
+  it('does not mark recovery complete when the server omits required participants', async () => {
+    cacheNeedsRebuild(APPLICATION_CACHE_NAMESPACES.PRESENCES);
+    mockCommentsState[mockMarketId] = [comment];
+    users.mockResolvedValueOnce([]);
+    await refreshVersionsNow(dispatchers);
+    expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(false);
+    expect(getCacheRecoveryStatus()).toBe('retrying');
+    expect(dispatchers.presenceDispatch).not.toHaveBeenCalled();
+  });
+
+  it('waits for notification server data as well as the rebuilt version caches', async () => {
+    cacheNeedsRebuild(APPLICATION_CACHE_NAMESPACES.PRESENCES);
+    cacheNeedsRebuild(APPLICATION_CACHE_NAMESPACES.NOTIFICATIONS);
+    await refreshVersionsNow(dispatchers);
+    expect(mockPresencesState[mockMarketId]).toEqual([user]);
+    expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(false);
+    await completeCacheRebuild([APPLICATION_CACHE_NAMESPACES.NOTIFICATIONS]);
+    expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(true);
   });
 });

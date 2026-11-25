@@ -1,4 +1,5 @@
 import { pushMessage } from '../utils/MessageBusUtils';
+import { hasPendingCacheRebuild } from '../utils/applicationCacheRecovery';
 
 // B-all-570: the sync layer owns the "still chunking" fact and broadcasts it, so expensive
 // always-mounted UI (NavigationChevrons and friends) can stay dormant during a cold load
@@ -25,7 +26,7 @@ export function markInitialSyncComplete() {
 }
 
 export function markDiskAdoptionComplete(marketDetails) {
-  if (marketDetails?.length) {
+  if (marketDetails?.length && !hasPendingCacheRebuild()) {
     markInitialSyncComplete();
   }
 }

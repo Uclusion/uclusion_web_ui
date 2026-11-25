@@ -39,7 +39,7 @@ function NotificationsProvider(props) {
         return hydratedState;
       }
       flushSync(() => {
-        dispatch(initializeState(hydratedState));
+        dispatch(initializeState(hydratedState, diskState == null));
         setInitialized(true);
       });
       return hydratedState;

@@ -161,6 +161,7 @@ const messages = defineMessages({
   gettingLockMessage: 'Obtaining lock',
   creatingDemoMessage: "Hang tight, we're creating a demo just for you",
   loadingMessage: 'Page loading',
+  loadingRetryMessage: 'We could not finish loading your data. Retrying automatically…',
   demoLoadingMessage: 'Please wait while your sandbox demo is downloaded - this may take some time...',
   endDemo: 'End Demo',
   endDemoExplanation: 'Create a new workspace to end all demos',

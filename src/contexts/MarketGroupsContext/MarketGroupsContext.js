@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useReducer } from 'react'
 import reducer, { initializeState } from './marketGroupsContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
+import { APPLICATION_CACHE_NAMESPACES } from '../../utils/applicationCacheRecovery';
 import beginListening from './marketGroupsContextMessages'
 import { flushSync } from 'react-dom';
 
-const MARKET_GROUPS_CONTEXT_NAMESPACE = 'market_groups';
+const MARKET_GROUPS_CONTEXT_NAMESPACE = APPLICATION_CACHE_NAMESPACES.GROUPS;
 const EMPTY_STATE = { initializing: true };
 
 const MarketGroupsContext = React.createContext(EMPTY_STATE);
@@ -19,7 +20,7 @@ function MarketGroupsProvider (props) {
     const lfg = new LocalForageHelper(MARKET_GROUPS_CONTEXT_NAMESPACE);
     return lfg.getStoredState().then((diskState) => {
       const hydratedState = diskState || {};
-      flushSync(() => dispatch(initializeState(hydratedState)));
+      flushSync(() => dispatch(initializeState(hydratedState, diskState == null)));
       return hydratedState;
     });
   }, []);

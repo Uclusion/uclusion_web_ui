@@ -12,10 +12,11 @@ const UPDATE_MARKET_GROUPS_FROM_NETWORK = 'UPDATE_MARKET_GROUPS_FROM_NETWORK';
 
 /** Messages we can send the reducer **/
 
-export function initializeState(newState) {
+export function initializeState(newState, preserveExisting=false) {
   return {
     type: INITIALIZE_STATE,
     newState,
+    preserveExisting,
   };
 }
 
@@ -58,7 +59,7 @@ function doUpdateMarketsGroups(state, action) {
 function computeNewState(state, action) {
   switch (action.type) {
     case INITIALIZE_STATE:
-      return action.newState;
+      return action.preserveExisting && !state.initializing ? state : action.newState;
     case UPDATE_MARKET_GROUPS:
       return doUpdateMarketGroups(state, action);
     case UPDATE_MARKET_GROUPS_FROM_NETWORK:
@@ -75,7 +76,8 @@ function reducer(state, action) {
     if (isLeader) {
       const lfh = new LocalForageHelper(MARKET_GROUPS_CONTEXT_NAMESPACE);
       queuePersistenceWrite('groups', () => {
-        return lfh.setState(newState).then(() => {
+        return lfh.setState(newState).then((stored) => {
+          if (stored === false) return false;
           console.info('Updated groups context storage.');
         })
       });

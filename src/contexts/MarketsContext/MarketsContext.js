@@ -2,11 +2,12 @@ import React, { useCallback, useEffect, useReducer, useState } from 'react'
 import beginListening from './marketsContextMessages'
 import reducer, { initializeState } from './marketsContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
+import { APPLICATION_CACHE_NAMESPACES } from '../../utils/applicationCacheRecovery';
 import localforage from 'localforage'
 import { flushSync } from 'react-dom';
 import { TOKEN_STORAGE_KEYSPACE } from '../../api/tokenConstants';
 
-const MARKET_CONTEXT_NAMESPACE = 'market_context';
+const MARKET_CONTEXT_NAMESPACE = APPLICATION_CACHE_NAMESPACES.MARKETS;
 const EMPTY_STATE = {
   initializing: true,
   marketDetails: [],
@@ -39,7 +40,7 @@ function MarketsProvider(props) {
     const lfg = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
     return lfg.getStoredState().then((diskState) => {
       const hydratedState = diskState || { marketDetails: [] };
-      flushSync(() => dispatch(initializeState(hydratedState)));
+      flushSync(() => dispatch(initializeState(hydratedState, diskState == null)));
       return hydratedState;
     });
   }, []);

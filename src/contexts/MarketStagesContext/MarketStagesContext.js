@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useReducer } from 'react'
 import reducer, { initializeState } from './marketStagesContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
+import { APPLICATION_CACHE_NAMESPACES } from '../../utils/applicationCacheRecovery';
 import beginListening from './marketStagesContextMessages'
 import { flushSync } from 'react-dom';
 
-const MARKET_STAGES_CONTEXT_NAMESPACE = 'market_stages';
+const MARKET_STAGES_CONTEXT_NAMESPACE = APPLICATION_CACHE_NAMESPACES.STAGES;
 const STAGES_CHANNEL = 'stages';
 const EMPTY_STATE = { initializing: true };
 
@@ -20,7 +21,7 @@ function MarketStagesProvider (props) {
     const lfg = new LocalForageHelper(MARKET_STAGES_CONTEXT_NAMESPACE);
     return lfg.getStoredState().then((diskState) => {
       const hydratedState = diskState || {};
-      flushSync(() => dispatch(initializeState(hydratedState)));
+      flushSync(() => dispatch(initializeState(hydratedState, diskState == null)));
       return hydratedState;
     });
   }, []);

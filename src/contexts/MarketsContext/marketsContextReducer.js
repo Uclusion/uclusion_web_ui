@@ -11,10 +11,11 @@ const REMOVE_MARKET_DETAILS = 'REMOVE_MARKET_DETAILS';
 const UPDATE_FROM_VERSIONS = 'UPDATE_FROM_VERSIONS';
 
 /* Possible messages to the reducer */
-export function initializeState(newState) {
+export function initializeState(newState, preserveExisting=false) {
   return {
     type: INITIALIZE_STATE,
     newState,
+    preserveExisting,
   };
 }
 
@@ -82,7 +83,7 @@ function computeNewState(state, action) {
     case REMOVE_MARKET_DETAILS:
       return removeStoredMarkets(state, action);
     case INITIALIZE_STATE:
-      return action.newState;
+      return action.preserveExisting && !state.initializing ? state : action.newState;
     default:
       return state;
   }
@@ -95,7 +96,8 @@ function reducer(state, action) {
     if (isLeader) {
       const lfh = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
       queuePersistenceWrite('markets', () => {
-        return lfh.setState(newState).then(() => {
+        return lfh.setState(newState).then((stored) => {
+          if (stored === false) return false;
           console.info('Updated market context storage.');
         });
       });

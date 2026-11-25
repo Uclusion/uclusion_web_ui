@@ -23,6 +23,7 @@ import { PLANNING_TYPE } from '../constants/markets'
 import { getMarketToken } from '../api/marketLogin';
 import { LeaderContext } from './LeaderContext/LeaderContext';
 import { isEditingPaused, onEditingResumed } from '../utils/editingPause';
+import { useInitialSyncComplete } from '../api/useInitialSyncComplete';
 
 const WebSocketContext = React.createContext({
   pokeAI: () => Promise.resolve(),
@@ -118,6 +119,7 @@ export function sendPokeAI(sendMessage, getWebSocket, marketId, message, target)
 }
 
 function WebSocketProvider(props) {
+  useInitialSyncComplete('webSocket');
   const { children, config } = props;
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);

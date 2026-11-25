@@ -13,10 +13,11 @@ const MODIFY_GROUP_MEMBERS = 'MODIFY_GROUP_MEMBERS';
 
 /** Messages you can send the reducer **/
 
-export function initializeState(newState) {
+export function initializeState(newState, preserveExisting=false) {
   return {
     type: INITIALIZE_STATE,
     newState,
+    preserveExisting,
   };
 }
 
@@ -82,7 +83,7 @@ function doModifyGroupMembers(state, action) {
 function computeNewState(state, action) {
   switch(action.type) {
     case INITIALIZE_STATE:
-      return action.newState;
+      return action.preserveExisting && !state.initializing ? state : action.newState;
     case ADD_GROUP_MEMBERS:
       return doAddGroupMembers(state, action);
     case MODIFY_GROUP_MEMBERS:
@@ -101,7 +102,8 @@ function reducer(state, action) {
     const { isLeader } = leaderContextHack;
     if (isLeader) {
       queuePersistenceWrite('members', () => {
-        return lfh.setState(newState).then(() => {
+        return lfh.setState(newState).then((stored) => {
+          if (stored === false) return false;
           console.info('Updated members context storage.');
         });
       });

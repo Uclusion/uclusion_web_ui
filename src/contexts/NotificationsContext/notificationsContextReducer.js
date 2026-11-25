@@ -6,8 +6,9 @@ import { flushPendingClears, PENDING_CLEARS_ACKED } from './pendingClearsFlusher
 import { timeSpan, timeSpanAsync } from '../../utils/renderProfiler';
 import { getInboxTarget, getMessageId, isInboxItemNavigationUrl, isInInbox } from './notificationsContextHelper';
 import { queuePersistenceWrite } from '../../api/crossTabFreshness';
+import { APPLICATION_CACHE_NAMESPACES } from '../../utils/applicationCacheRecovery';
 
-export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
+export const NOTIFICATIONS_CONTEXT_NAMESPACE = APPLICATION_CACHE_NAMESPACES.NOTIFICATIONS;
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MESSAGES = 'REMOVE_MESSAGES';
@@ -88,10 +89,11 @@ export function removeMessagesForInvestible(investibleId, useRemoveTypes) {
   }
 }
 
-export function initializeState (newState) {
+export function initializeState (newState, preserveExisting=false) {
   return {
     type: INITIALIZE_STATE,
     newState,
+    preserveExisting,
   };
 }
 
@@ -316,18 +318,42 @@ function doClearsAcked(state, action) {
   return { ...state, pendingClears };
 }
 
+function hydrateSharedState(state, diskState) {
+  // A repaired snapshot from another tab cannot contain this tab's clear if
+  // the damaged record prevented persisting it before the leadership handoff.
+  const localPending = state.pendingClears || [];
+  const pendingClears = _.unionBy(localPending, diskState.pendingClears || [],
+    (entry) => `${entry.typeObjectId}:${entry.event}`);
+  const messages = (diskState.messages || []).map((message) => {
+    const local = state.messages?.find((item) => item.type_object_id === message.type_object_id &&
+      item.updated_at === message.updated_at);
+    if (!local) return message;
+    const pending = localPending.filter((entry) => entry.typeObjectId === message.type_object_id);
+    if (local.deleted && pending.some((entry) => entry.event === 'remove')) {
+      return { ...message, deleted: true };
+    }
+    if (local.is_highlighted === false && pending.some((entry) => entry.event === 'dehighlight')) {
+      return { ...message, is_highlighted: false };
+    }
+    return message;
+  });
+  return { ...diskState, messages, pendingClears,
+    navigations: pruneNavigationsForMessages(state.navigations || [], messages) };
+}
+
 function computeNewState (state, action) {
   switch (action.type) {
     case UPDATE_MESSAGES:
       return doUpdateMessages(state, action);
     case INITIALIZE_STATE:
+      if (action.preserveExisting) {
+        return state;
+      }
       // T-all-2494: custom Back history belongs to this tab. Ignore legacy entries from the
       // shared NotificationsContext store without overwriting navigation that happened while
       // its asynchronous read was still in flight. A later disk reload also drops local
       // notification destinations that no longer exist in the shared message set.
-      return { ...action.newState,
-        navigations: pruneNavigationsForMessages(state.navigations || [], action.newState.messages || []),
-        pendingClears: action.newState.pendingClears || [] };
+      return hydrateSharedState(state, action.newState);
     case PENDING_CLEARS_ACKED:
       return doClearsAcked(state, action);
     case REMOVE_MESSAGES:
@@ -352,12 +378,13 @@ function computeNewState (state, action) {
   }
 }
 
-function storeSharedState(newState) {
+function createSharedStateWrite(newState) {
   const lfh = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
   // T-all-2494: LocalForage is shared by every tab. Keep the field for storage-schema and
   // mixed-version compatibility, but never persist one tab's custom Back history.
   const stateToStore = { ...newState, navigations: [] };
-  return timeSpanAsync('idb:notifications', () => lfh.setState(stateToStore)).then(() => {
+  return () => timeSpanAsync('idb:notifications', () => lfh.setState(stateToStore)).then((stored) => {
+    if (stored === false) return false;
     console.info('Updated notifications context storage.');
   });
 }
@@ -376,7 +403,7 @@ function reducer (state, action) {
   const sharedStateChanged = newState.messages !== state.messages ||
     newState.pendingClears !== state.pendingClears;
   if (action.type !== INITIALIZE_STATE && sharedStateChanged && leaderContextHack.isLeader) {
-    queuePersistenceWrite('notifications', () => storeSharedState(newState));
+    queuePersistenceWrite('notifications', createSharedStateWrite(newState));
   }
   if (action.type !== PENDING_CLEARS_ACKED && !_.isEmpty(newState.pendingClears)) {
     setTimeout(() => flushPendingClears(newState.pendingClears), 0);

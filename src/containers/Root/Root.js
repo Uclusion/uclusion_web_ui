@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import PropTypes from 'prop-types';
 import { CssBaseline } from '@material-ui/core';
 import { useHistory, useLocation } from 'react-router';
@@ -57,6 +57,7 @@ import { RenderCensus } from '../../utils/renderProfiler';
 import { LeaderContext } from '../../contexts/LeaderContext/LeaderContext';
 import { useInitialSyncComplete } from '../../api/useInitialSyncComplete';
 import { LONG_ABSENCE_REFRESH_REASON, viewReturnRefresh } from '../../api/viewReturnRefresh';
+import { getCacheRecoveryStatus, onCacheRecoveryChange } from '../../utils/applicationCacheRecovery';
 
 // T-all-2154 poll fast while a URL references data not yet local, then back off so a tab
 // parked on a dead link does not hit the API every two seconds indefinitely
@@ -110,6 +111,7 @@ function Root(props) {
   const soloDemo = marketDetails?.find((market) => market.market_type === PLANNING_TYPE &&
     market.object_type === DEMO_TYPE && market.name.includes('solo'));
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const cacheRecoveryStatus = useSyncExternalStore(onCacheRecoveryChange, getCacheRecoveryStatus);
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   let markets = [];
   if (myNotHiddenMarketsState.marketDetails) {
@@ -441,12 +443,13 @@ function Root(props) {
   },  [history, setOnline, isUserLoaded, setShowOfflineMessage, requestFreshness]);
 
   if (authState !== 'signedIn' || action === 'supportWorkspace' || (action === 'demo' && marketsState.initializing) || 
-    (isRootPath && marketJoinedUser && (!initialSyncComplete || _.isEmpty(defaultMarketLink)))||
+    (marketJoinedUser && (!initialSyncComplete || (isRootPath && _.isEmpty(defaultMarketLink))))||
     (isTicketPath(pathname)&&!getTicket(ticketState, pathname.substring(1)))) {
     return (
       <Screen
         hidden={false}
         loading
+        loadingMessageId={cacheRecoveryStatus === 'retrying' ? 'loadingRetryMessage' : 'loadingMessage'}
         title={intl.formatMessage({ id: 'loadingMessage' })}
       >
         <div />

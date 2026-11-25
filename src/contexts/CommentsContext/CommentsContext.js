@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useEffect, useReducer } from 'react'
 import _ from 'lodash'
 import reducer, { initializeState } from './commentsContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
+import { APPLICATION_CACHE_NAMESPACES } from '../../utils/applicationCacheRecovery';
 import beginListening from './commentsContextMessages'
 import { INDEX_COMMENT_TYPE } from '../SearchIndexContext/searchIndexContextMessages'
 import { DiffContext } from '../DiffContext/DiffContext'
@@ -11,7 +12,7 @@ import { replaceTicketItems, TicketIndexContext } from '../TicketContext/TicketI
 import { flushSync } from 'react-dom';
 
 const COMMENTS_CHANNEL = 'comments';
-const COMMENTS_CONTEXT_NAMESPACE = 'comments_context';
+const COMMENTS_CONTEXT_NAMESPACE = APPLICATION_CACHE_NAMESPACES.COMMENTS;
 const EMPTY_STATE = {initializing: true};
 
 const CommentsContext = React.createContext(EMPTY_STATE);
@@ -46,8 +47,10 @@ function CommentsProvider(props) {
     return lfg.getStoredState().then((diskState) => {
       const hydratedState = diskState || {};
       flushSync(() => {
-        replaceDerivedState(hydratedState, index, ticketsDispatch);
-        dispatch(initializeState(hydratedState));
+        if (diskState != null) {
+          replaceDerivedState(hydratedState, index, ticketsDispatch);
+        }
+        dispatch(initializeState(hydratedState, diskState == null));
       });
       return hydratedState;
     });

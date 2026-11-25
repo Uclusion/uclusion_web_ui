@@ -484,7 +484,7 @@ function Screen(props) {
   const reallyAmLoading = !hidden && !isDemoChoice && appEnabled && 
   (loading || (!userIsLoaded(userState, marketsState) && action !== 'wizard'));
   if (marketId && _.isEmpty(defaultMarket)) {
-    return <React.Fragment/>
+    return loading ? <LoadingDisplay showMessage messageId={loadingMessageId} /> : <React.Fragment/>;
   }
 
   function setMarketIdFull(newMarketId) {

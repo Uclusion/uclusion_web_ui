@@ -29,6 +29,8 @@ Before a later capsule or reply read, reuse or locally extract its complete reco
 
 Reuse applies only to captured records and scope. Matching capsule code/version does not establish unchanged discussion or capture of other replies, Reports, options or standing notes. Read missing required evidence. Refresh affected evidence after a changed version, new human evidence, conflicting result, incomplete capture, lost content or uncertain freshness. A new reply can change discussion without changing the capsule version: fetch that record and needed context, preserving newer confirmed results and unrelated current bodies.
 
+A standing note's read shows each of its sub notes by code only, and that read is complete. When the note's line for a sub note applies to your current work, read that sub note with `get_job` and `thread_only`, retaining its version. Skip the others.
+
 Read truncated displays from the complete saved result. Extract held complete content for a reviewer artifact without another network read, carrying target/code/version and capture provenance. After context loss, reuse a preserved artifact only when its currentness is still established; otherwise refresh.
 
 ## Consult the coordinator

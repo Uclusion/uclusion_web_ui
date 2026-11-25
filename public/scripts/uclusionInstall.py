@@ -392,7 +392,7 @@ WORKFLOW_ASSET_SHA256 = {
     'coordinator_events_reference': '99411bbd53c9bc3b51ba151c6b8a59c2e77758754b9fd7849959accb01b6aed1',
     'coordinator_conversation_reference': '9609076bc27039dc17f1847e1ee4465acb3d29856bb10d6b1b6c58d03ce6eb86',
     'coordinator_completion_reference': 'abbfb32c703ca8d38bebcf94dc9b4eaf65ffd0204b2489319205b3a63846c4c0',
-    'helper_conversation_reference': '06f3975986c68fc3c7971484ea04e18e6e210c85bfbdffd68bc11884d263b9fe',
+    'helper_conversation_reference': '77add11bd2804005b544ceebaa3b981857820c681edc60b11eb97b4723b40a7e',
     'collaboration_reference': '335088690267761bfda3fd6ed817cde3872954b594561a029b3660dea00cee36',
     'completion_reference': '24ec52495c2b54782798142bd3fc0dffd671dd7a6773166285406544edecd4b6',
     'audit_reference': 'e93d157b3ac5ffefb699fca5256d8b2aa8fd2eae6eea8b499104c4c649eeccda',
@@ -402,7 +402,7 @@ WORKFLOW_ASSET_SHA256 = {
     'capsule_dispatch_reference': 'd6e70961e6548a9a250afd5271f258a218448dcb832e7fef6ebf482b141a6b70',
     'design_approvable_reference': '398b1df8b649422dcd1a4eea516c39ef0128d8de3a5185d72721b1ff7079bc8c',
     'delivery_common_reference': 'd8bbba52620f9c6d22b886e674fd0d4d269441ff93ccf7b16b6142bd47fe1f11',
-    'durable_records_reference': 'ec31e25973f29e88e204790a2d907a772292eedfda824075e256b83b68fed486',
+    'durable_records_reference': '49e94353401bb4786f8525bb14ef86fba404d2bdc1fa803b1a036e356f3ca977',
     'question_tools_reference': 'a61259018e436ccab4364abf8e6d2d7b6cd78871cc655a968710f29f8785f9f2',
     'work_discovery_reference': '06e6d0f4e9d03eadadadd0afc48e429569ed2f9c7449f83b65bd01b7e7ad305b',
     'discovery_routing_reference': '6adf908f1722a8ed3601244fb5a4250b467842c733be30e7229d47fcff5a4678',
@@ -414,7 +414,7 @@ WORKFLOW_ASSET_SHA256 = {
     'backlog_maintenance_role': '0a514fd9e0c32eec47aeb34c5d242cc1e738d4ac81e13cd22d3d14155f9dfef9',
     'design_role': '21c8ff363858203db538d707ab00e4fe94c172fc8eec50f0c130a0f36d49c997',
     'demo_brief': 'b68f6501270c63456c19053d1b5af296350288754239c7f9d6074a3a5497789f',
-    'token_manifest': '26c3baf7e3325d263bbfee5350f0bd75e77ef60518adc95eee3aa507d10dfc5e',
+    'token_manifest': 'db92bca68fff30bb5ae63af4f8c80d42749cd585a31f52bf3b164a78dfaf0fc2',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',

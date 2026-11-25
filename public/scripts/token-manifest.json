@@ -1593,6 +1593,15 @@
     "openai": 750
    }
   },
+  "49e94353401bb4786f8525bb14ef86fba404d2bdc1fa803b1a036e356f3ca977": {
+   "bytes": 4525,
+   "kind": "skill",
+   "name": "skills/uclusion/references/durable-records.md",
+   "tokens": {
+    "claude": 1360,
+    "openai": 879
+   }
+  },
   "49f0a222ad442c8afd650488c172a3a2213c7bcb61a67eb93ef3b43db93cb016": {
    "bytes": 3182,
    "kind": "bootstrap",
@@ -2707,6 +2716,15 @@
    "tokens": {
     "claude": 1438,
     "openai": 859
+   }
+  },
+  "77add11bd2804005b544ceebaa3b981857820c681edc60b11eb97b4723b40a7e": {
+   "bytes": 7687,
+   "kind": "skill",
+   "name": "skills/uclusion/references/helper-conversation.md",
+   "tokens": {
+    "claude": 2275,
+    "openai": 1412
    }
   },
   "7866f08753d84f7667851ae815dee1ac9dc74ad1f372fb6ee81e3729900d347f": {
@@ -6277,6 +6295,13 @@
     "openai": 96
    }
   },
+  "9739b44056ed03054749ccc360a430a7397717687c85d816c4b10219fc40087e": {
+   "name": "resolve",
+   "tokens": {
+    "claude": 709,
+    "openai": 400
+   }
+  },
   "97738feb96bbae3516aa70ea7995f30e94f8aeeb038af3d74b28d0ab7335a5d3": {
    "name": "add_options",
    "tokens": {
@@ -6296,6 +6321,23 @@
    "tokens": {
     "claude": 973,
     "openai": 538
+   }
+  },
+  "9dc2c5ee03211789bf212827faba3add3184187a63e0cd3f0ce7588df6246ebc": {
+   "name": "add_info",
+   "tokens": {
+    "claude": null,
+    "openai": 589
+   },
+   "unavailable": {
+    "claude": "unsupported_input_schema"
+   }
+  },
+  "9f828512ab220d3017e3cadb05717e09cf60f429602cd146958b031501193efc": {
+   "name": "add_job",
+   "tokens": {
+    "claude": 1110,
+    "openai": 632
    }
   },
   "a01a02fe34012120ef4e50a613769b9d33d6160d13c4bb980ce5a45e9b23a71f": {

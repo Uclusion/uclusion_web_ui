@@ -4,13 +4,14 @@ import json
 import os
 import queue
 import socket
+import sqlite3
 import sys
 import tempfile
 import threading
 import time
 import unittest
 import uuid
-from contextlib import closing, redirect_stdout
+from contextlib import ExitStack, closing, contextmanager, redirect_stderr, redirect_stdout
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -1167,6 +1168,198 @@ class NativeDescendantHistoryTests(unittest.TestCase):
                 self.assertEqual(run_id, rows[-1]['audit_run_id'])
                 if len(rows) == 3:
                     self.assertNotEqual(run_id, rows[1]['audit_run_id'])
+
+
+class CleanupFailureCollector:
+    """A joined collector whose token-audit cleanup raises."""
+
+    def __init__(self, failing):
+        self.failing = failing
+        self.calls = []
+        self.client = 'codex'
+        self.primary_session_fp = 'fixture-session'
+        # An open audit keeps an idle root joined.
+        self.store = SimpleNamespace(session_run=lambda client, session: {'state': 'active'})
+
+    def drain_descendant_thread_ids(self):
+        return ()
+
+    def mark_partial(self, reason):
+        self.calls.append('mark_partial')
+        if self.failing == 'mark_partial':
+            raise sqlite3.OperationalError('database is locked')
+
+    def close(self):
+        self.calls.append('close')
+        if self.failing == 'close':
+            raise sqlite3.OperationalError('database is locked')
+
+
+class NativeDeliveryRecoveryTests(unittest.TestCase):
+    """An error after a dropped native connection must not stop Poke delivery."""
+
+    @contextmanager
+    def running_delivery(self, collector=None, plan=()):
+        # Each 'fail' in plan makes one NativeClient construction raise.
+        self.plan = list(plan)
+        self.constructions = 0
+        self.failed_last = False
+        self.hold_restart = False
+        self.restart_waiting = threading.Event()
+        self.connections = []
+        self.native = NativeQueue()
+        self.native.roots = ['root']
+        self.stderr = io.StringIO()
+        with ExitStack() as stack:
+            home = stack.enter_context(tempfile.TemporaryDirectory())
+            stack.enter_context(patch.dict(os.environ, {'UCLUSION_HOME': home}))
+            delivery = NativeCodexDelivery.__new__(NativeCodexDelivery)
+            delivery.codex_home = 'unused-native-fixture'
+            delivery.socket_path = None
+            delivery.environment, delivery.workspace_id = 'stage', 'workspace'
+            delivery.scope_marker = native_scope('stage', 'workspace')
+            delivery.identity = 'fixture-owner'
+            delivery.inbox = NativeInbox('stage', 'workspace')
+            delivery.notices = UpdateNoticeStore(proxy.open_inbox)
+            delivery.notice_config = SimpleNamespace(
+                environment='stage', workspace_id='workspace', instance='fixture-owner')
+            delivery.notice_leader = False
+            delivery.next_notice_maintenance = float('inf')
+            delivery.client = None
+            delivery.roots = {}
+            delivery.collectors = {'root': collector} if collector else {}
+            delivery.joined_roots = {'root'} if collector else set()
+            delivery.detached = {}
+            delivery.eligibility_failures = {}
+            delivery.pending_descendants = set()
+            delivery.scoped_roots = None
+            delivery.reconciliation_errors = {}
+            delivery.reported_error = None
+            delivery.token_audit = delivery.token_collector = False
+            delivery.context_events = None
+            delivery.tools_changed = lambda: None
+            delivery.on_root = lambda: None
+            delivery._root_owner = lambda: True
+            delivery.helper_only = False
+            delivery.stop = threading.Event()
+            delivery.healthy = threading.Event()
+            delivery.scan_requested = threading.Event()
+            delivery.lock = threading.RLock()
+            stack.enter_context(patch('uclusionCodexNative.NativeClient', side_effect=self.connect))
+            stack.enter_context(patch('uclusionCodexNative.ReconnectBackoff.wait',
+                                      side_effect=self.backoff_wait))
+            stack.enter_context(redirect_stderr(self.stderr))
+            delivery.thread = threading.Thread(target=delivery._run, daemon=True,
+                                               name='uclusion-codex-native-delivery')
+            stack.callback(self.stop_delivery, delivery)
+            delivery.thread.start()
+            yield delivery
+
+    @staticmethod
+    def stop_delivery(delivery):
+        delivery.stop.set()
+        delivery.thread.join(timeout=3)
+        delivery.inbox.close()
+
+    def connect(self, *_args):
+        self.constructions += 1
+        self.failed_last = bool(self.plan) and self.plan.pop(0) == 'fail'
+        if self.failed_last:
+            raise RuntimeError('unexpected fixture failure')
+        closed = threading.Event()
+
+        def request(method, params):
+            if closed.is_set():
+                raise ConnectionError('Native Codex observer closed')
+            if method == 'mcpServerStatus/list':
+                return {'data': [{'runtimeStatus': 'connected', 'serverInfo': {
+                    'version': '1+fixture-owner.' + native_scope('stage', 'workspace')}}]}
+            return self.native.request(method, params)
+
+        self.connections.append(SimpleNamespace(start=lambda: None, close=closed.set,
+                                                closed=closed, request=request))
+        return self.connections[-1]
+
+    def backoff_wait(self, stop):
+        if self.hold_restart and self.failed_last:
+            # Only the restart wait follows a failed construction.
+            self.restart_waiting.set()
+            return stop.wait(10)
+        return stop.wait(.01)
+
+    @staticmethod
+    def wait_until(condition, timeout=5):
+        deadline = time.monotonic() + timeout
+        while not condition():
+            if time.monotonic() >= deadline:
+                return False
+            time.sleep(.02)
+        return True
+
+    def poke(self, message):
+        proxy.enqueue_prompt('stage', 'workspace', {'message_id': message, 'message': message})
+
+    def admitted(self, message):
+        return ('root', message) in [(root, text) for root, _, text in self.native.admissions]
+
+    def stopped_lines(self):
+        return self.stderr.getvalue().count(
+            'Uclusion native Codex delivery stopped (RuntimeError); restarting.\n')
+
+    def test_collector_cleanup_error_after_drop_keeps_delivery_running(self):
+        for failing in ('close', 'mark_partial'):
+            with self.subTest(failing=failing):
+                collector = CleanupFailureCollector(failing)
+                with self.running_delivery(collector) as delivery:
+                    self.assertTrue(self.wait_until(
+                        lambda: delivery.healthy.is_set() and 'root' in delivery.roots))
+                    self.connections[0].closed.set()
+                    self.assertTrue(self.wait_until(lambda: collector.calls))
+                    message = 'Updated after the dropped connection'
+                    self.poke(message)
+                    reconnected = self.wait_until(lambda: len(self.connections) == 2)
+                    self.assertTrue(delivery.thread.is_alive(),
+                                    'The delivery thread ended after the cleanup error')
+                    self.assertTrue(reconnected)
+                    self.assertEqual({}, delivery.collectors)
+                    self.assertEqual(set(), delivery.joined_roots)
+                    self.assertEqual(['mark_partial', 'close'], collector.calls,
+                                     'close still runs after mark_partial fails')
+                    self.assertEqual(1, self.stderr.getvalue().count(
+                        'Uclusion token audit cleanup failed (OperationalError).\n'))
+                    self.assertTrue(self.wait_until(lambda: self.admitted(message)))
+
+    def test_unexpected_loop_error_restarts_delivery_and_reports_a_repeat_once(self):
+        with self.running_delivery(plan=['fail']) as delivery:
+            # The first construction raises out of the connection loop.
+            started = self.wait_until(delivery.healthy.is_set)
+            self.assertTrue(delivery.thread.is_alive(), 'The delivery thread ended after the error')
+            self.assertTrue(started)
+            self.assertEqual((2, 1), (self.constructions, len(self.connections)))
+            self.poke('Updated after the restart')
+            self.assertTrue(self.wait_until(lambda: self.admitted('Updated after the restart')))
+            self.assertEqual(1, self.stopped_lines())
+            # A healthy connection resets the report. The same error twice in
+            # a row is then reported once more, with one traceback.
+            self.plan = ['fail', 'fail']
+            self.connections[0].closed.set()
+            self.assertTrue(self.wait_until(
+                lambda: len(self.connections) == 2 and delivery.healthy.is_set()))
+            self.assertEqual(5, self.constructions)
+            self.assertEqual(2, self.stopped_lines())
+            self.assertEqual(2, self.stderr.getvalue().count('Traceback (most recent call last):'))
+            self.poke('Updated after the repeated error')
+            self.assertTrue(self.wait_until(lambda: self.admitted('Updated after the repeated error')))
+            # close() during the restart wait ends the thread without connecting.
+            self.hold_restart = True
+            self.plan = ['fail']
+            self.connections[1].closed.set()
+            self.assertTrue(self.restart_waiting.wait(5))
+            constructions = self.constructions
+            delivery.close()
+            self.assertFalse(delivery.thread.is_alive())
+            self.assertEqual(constructions, self.constructions)
+            self.assertEqual(2, len(self.connections))
 
 
 if __name__ == '__main__':

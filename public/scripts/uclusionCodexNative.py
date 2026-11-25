@@ -14,6 +14,7 @@ import subprocess
 import sys
 import threading
 import time
+import traceback
 import uuid
 from contextlib import closing
 from pathlib import Path
@@ -620,6 +621,9 @@ class NativeCodexDelivery:
         self.tools_changed = tools_changed
         self.on_root = on_root
         self.helper_only = False
+        # Shared by every run of the connection loop, so a repeating failure
+        # prints once until a healthy connection resets it.
+        self.reported_error = None
         self.stop = threading.Event()
         self.healthy = threading.Event()
         self.scan_requested = threading.Event()
@@ -1188,21 +1192,52 @@ class NativeCodexDelivery:
             for root in tuple(self.joined_roots):
                 self.context_events(root, 'unavailable')
         with self.lock:
-            for collector in self.collectors.values():
-                collector.mark_partial('session_interrupted')
-                collector.close()
+            # Clear first: a failed token-audit write must not leave a root
+            # joined or end Poke delivery.
+            collectors = tuple(self.collectors.values())
             self.collectors.clear()
             self.joined_roots.clear()
             self.pending_descendants.clear()
+            for collector in collectors:
+                # close() still runs after mark_partial fails, releasing the
+                # collector's ready lease.
+                for finish in (lambda: collector.mark_partial('session_interrupted'), collector.close):
+                    try:
+                        finish()
+                    except Exception as error:
+                        sys.stderr.write(f'Uclusion token audit cleanup failed ({type(error).__name__}).\n')
 
     def _run(self):
+        backoff = ReconnectBackoff()
         try:
-            self._run_connections()
+            while True:
+                started = time.monotonic()
+                try:
+                    self._run_connections()
+                    return
+                except Exception as error:
+                    if self.stop.is_set():
+                        raise
+                    # Rerun the connection loop instead of leaving Pokes in
+                    # the inbox. Its next scan restores the parked collectors.
+                    self._park_held_collectors()
+                    self._report_stopped(error)
+                    backoff.reset_if_stable(started)
+                    if backoff.wait(self.stop):
+                        return
         finally:
             # close() sets stop before the thread returns. Any other return
             # leaves still-held collectors for a replacement to restore.
             if not self.stop.is_set():
                 self._park_held_collectors()
+
+    def _report_stopped(self, error):
+        kind = 'stopped: ' + type(error).__name__
+        if kind == getattr(self, 'reported_error', None):
+            return
+        sys.stderr.write(f'Uclusion native Codex delivery stopped ({type(error).__name__}); restarting.\n')
+        traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+        self.reported_error = kind
 
     def _root_owner(self):
         """Classify this MCP instance after Codex has registered its stamped version.
@@ -1233,7 +1268,6 @@ class NativeCodexDelivery:
                 return False if owned_helper and not pending_root else None
 
     def _run_connections(self):
-        reported_error = None
         backoff = ReconnectBackoff()
         while not self.stop.is_set():
             client = (NativeClient(self.codex_home, self._observe, self.socket_path)
@@ -1260,7 +1294,7 @@ class NativeCodexDelivery:
                     raise ConnectionError('Native Codex ownership lookup disconnected')
                 self.healthy.set()
                 self.on_root()
-                reported_error = None
+                self.reported_error = None
                 self.tools_changed()
                 next_scan = 0
                 while not self.stop.is_set() and not client.closed.is_set():
@@ -1294,9 +1328,9 @@ class NativeCodexDelivery:
                         self.inbox.reserve()
                     except Exception as reservation_error:
                         kind += '; Poke reservation failed: ' + type(reservation_error).__name__
-                if kind != reported_error and not self.stop.is_set():
+                if kind != getattr(self, 'reported_error', None) and not self.stop.is_set():
                     sys.stderr.write(f'Uclusion native Codex connection is unavailable ({kind}); reconnecting.\n')
-                    reported_error = kind
+                    self.reported_error = kind
             finally:
                 self.healthy.clear()
                 exc_type = sys.exc_info()[0]
@@ -1307,28 +1341,32 @@ class NativeCodexDelivery:
                     and not issubclass(exc_type, Exception)
                     and not self.stop.is_set()
                 )
-                with self.lock:
-                    scoped_roots = getattr(self, 'scoped_roots', None)
-                    scoped = None if scoped_roots is None else tuple(scoped_roots)
-                if thread_exiting:
-                    client.close()
-                    self._park_held_collectors()
-                elif self.stop.is_set() or scoped is None:
-                    client.close()
-                    self._close_joined_collectors()
-                else:
-                    if self.context_events:
-                        for root in scoped:
-                            if root in self.joined_roots:
-                                self.context_events(root, 'unavailable')
-                    client.close()
+                # A cleanup error must not end the reconnect loop.
+                try:
                     with self.lock:
-                        for root in scoped:
-                            collector = self.collectors.pop(root, None)
-                            self.joined_roots.discard(root)
-                            if collector is not None:
-                                self.detached[root] = collector
-                self.tools_changed()
+                        scoped_roots = getattr(self, 'scoped_roots', None)
+                        scoped = None if scoped_roots is None else tuple(scoped_roots)
+                    if thread_exiting:
+                        client.close()
+                        self._park_held_collectors()
+                    elif self.stop.is_set() or scoped is None:
+                        client.close()
+                        self._close_joined_collectors()
+                    else:
+                        if self.context_events:
+                            for root in scoped:
+                                if root in self.joined_roots:
+                                    self.context_events(root, 'unavailable')
+                        client.close()
+                        with self.lock:
+                            for root in scoped:
+                                collector = self.collectors.pop(root, None)
+                                self.joined_roots.discard(root)
+                                if collector is not None:
+                                    self.detached[root] = collector
+                    self.tools_changed()
+                except Exception as error:
+                    sys.stderr.write(f'Uclusion native Codex connection cleanup failed ({type(error).__name__}).\n')
             if backoff.wait(self.stop):
                 break
 

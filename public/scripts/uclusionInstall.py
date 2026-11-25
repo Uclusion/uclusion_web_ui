@@ -167,7 +167,7 @@ SETUP_BOOTSTRAP_SCRIPT_SHA256 = {
     'uclusionCLI.py': '7cba72afd491c409a4ca915ba1f9b48ca030aa5b61a759f944c13d0de8f51a40',
     'uclusionMCPProxy.py': '1fd491018ee280a2e8b113805af43693209d82fb5daf4262a97434711d240d04',
     'uclusionSetupMCP.py': 'c4740e2c6a5e17e594cb7010e740d494a0e3a90cab237402e32e61061979bd22',
-    'uclusionCodexNative.py': 'e1ea1564bca01814755876e7fad3e185ba26eaef822821fa1fa1b03a908ba1f2',
+    'uclusionCodexNative.py': '279e81385b4fcf026ace3a3ad8fba096a4be59456718fd96b8eb99920d9640f2',
     'uclusionUpdateNotices.py': 'a9d6ed9e082bce28ac8340d242ad34d2f180a35de6821ce72c0684503e84b7e8',
     'uclusionTokenAudit.py': '360ec6b0a0235c990ce278d0ba6fa007be8036047a5f5c00d66feb2cac8b4bef',
     'uclusionTokenBudget.py': '936891478e05b74af69e754571bb684cd1771ffb5db4e7cfbae79c9a5d6b6195',

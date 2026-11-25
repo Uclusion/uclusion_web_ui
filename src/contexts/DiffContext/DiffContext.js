@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useReducer } from 'react'
 import reducer, { hydrateState, initializeState } from './diffContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
+import { APPLICATION_CACHE_NAMESPACES } from '../../utils/applicationCacheRecovery';
 import { flushSync } from 'react-dom';
 
-const DIFF_CONTEXT_NAMESPACE = 'diff_context';
+const DIFF_CONTEXT_NAMESPACE = APPLICATION_CACHE_NAMESPACES.DIFF;
 const EMPTY_STATE = {initializing: true};
 
 const DiffContext = React.createContext(EMPTY_STATE);
@@ -15,7 +16,7 @@ function DiffProvider(props) {
     const lfg = new LocalForageHelper(DIFF_CONTEXT_NAMESPACE);
     return lfg.getStoredState().then((diskState) => {
       const hydratedState = diskState || {};
-      flushSync(() => dispatch(actionCreator(hydratedState)));
+      flushSync(() => dispatch(actionCreator(hydratedState, diskState == null)));
       return hydratedState;
     });
   }, []);

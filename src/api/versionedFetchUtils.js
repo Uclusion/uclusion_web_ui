@@ -17,6 +17,7 @@ import { fetchInvestibles } from './marketInvestibles'
 import { LimitedParallelMap } from '../utils/PromiseUtils'
 import {
   checkInStorage,
+  checkServerSignaturesInStorage,
   checkSignatureInStorage,
 } from './storageIntrospector';
 import LocalForageHelper from '../utils/LocalForageHelper'
@@ -43,6 +44,10 @@ import { RepeatingFunction } from '../utils/RepeatingFunction';
 import { isSignedOut } from '../utils/userFunctions';
 import { getMarketClient } from './marketLogin';
 import { isInitialSyncComplete, markInitialSyncComplete } from './syncStatus';
+import {
+  cacheRebuildFailed, cancelCacheRecoveryWrites, completeCacheRebuild, getVersionCachesToRebuild,
+  hasPendingCacheRebuild, onCacheRecoveryChange
+} from '../utils/applicationCacheRecovery';
 import { TOKEN_TYPE_MARKET } from './tokenConstants';
 import TokenStorageManager from '../authorization/TokenStorageManager';
 import { addMarketsToStorage } from '../contexts/MarketsContext/marketsContextHelper';
@@ -113,6 +118,31 @@ let successfulCycleReleased = false;
 // Incremented when this tab gives up leadership. Work started under an older value may
 // finish its network calls, but it must not release data or restart the recurring runner.
 let refreshLifecycle = 0;
+const rebuiltCachesAwaitingRelease = new Set();
+let cacheRecoveryTimer;
+let cacheRecoveryRetryMs = 1000;
+
+function scheduleCacheRecovery(dispatchers) {
+  if (!hasPendingCacheRebuild() || cacheRecoveryTimer || isSignedOut()) {
+    return;
+  }
+  cacheRecoveryTimer = setTimeout(() => {
+    cacheRecoveryTimer = undefined;
+    matchErrorHandlingVersionRefresh(dispatchers, true);
+  }, cacheRecoveryRetryMs);
+  cacheRecoveryRetryMs = Math.min(cacheRecoveryRetryMs * 2, 30000);
+}
+
+onCacheRecoveryChange(() => {
+  if (!hasPendingCacheRebuild()) {
+    clearTimeout(cacheRecoveryTimer);
+    cacheRecoveryTimer = undefined;
+    cacheRecoveryRetryMs = 1000;
+    markCompleteIfCaughtUp();
+  } else if (releaseDispatchers && !refreshInProgress) {
+    scheduleCacheRecovery(releaseDispatchers);
+  }
+});
 
 function deferRefreshWhileEditing(dispatchers, releaseImmediately) {
   if (!editingRefresh) {
@@ -141,6 +171,7 @@ onEditingResumed(() => {
 function markCompleteIfCaughtUp() {
   if (!successfulCycleReleased || isInitialSyncComplete() || refreshInProgress || refreshQueued ||
       editingRefresh || syncThrottleTimer || releasePending || hasAccrued() ||
+      hasPendingCacheRebuild() ||
       !_.isEmpty(pendingPushChecks) || pendingNotificationChecks.some((check) => !check.exhausted)) {
     return;
   }
@@ -176,6 +207,8 @@ function doRelease() {
   if (successfulCycleAwaitingRelease) {
     successfulCycleAwaitingRelease = false;
     successfulCycleReleased = true;
+    completeCacheRebuild([...rebuiltCachesAwaitingRelease]);
+    rebuiltCachesAwaitingRelease.clear();
   }
   markCompleteIfCaughtUp();
   // Q-all-479 O-1: notifications release with the market data and never ahead of it, because
@@ -220,6 +253,8 @@ const matchErrorHandlingVersionRefresh = (dispatchers=undefined, releaseImmediat
   // drift runner pick up when connectivity returns (C-all-1066).
   if (typeof navigator !== 'undefined' && navigator.onLine === false) {
     console.info('Not refreshing while offline');
+    cacheRebuildFailed();
+    scheduleCacheRecovery(dispatchers);
     return Promise.resolve(false);
   }
   if (!allowWhileEditing && isEditingPaused()) {
@@ -242,6 +277,7 @@ const matchErrorHandlingVersionRefresh = (dispatchers=undefined, releaseImmediat
   return doVersionRefresh(dispatchers, () => lifecycle === refreshLifecycle)
     .catch((error) => {
       refreshSucceeded = false;
+      cacheRebuildFailed();
       if (error instanceof MatchError) {
         // just log match problems
         console.info('Ignoring match error');
@@ -310,6 +346,7 @@ const matchErrorHandlingVersionRefresh = (dispatchers=undefined, releaseImmediat
         scheduleRelease();
       }
       // undefined after an error (the catch above), a number after a clean run
+      scheduleCacheRecovery(dispatchers);
       return dirtyMarketCount;
     });
 };
@@ -413,6 +450,10 @@ export function ensureRefreshRunner() {
 
 export function stopRefreshRunner() {
   refreshLifecycle += 1;
+  cancelCacheRecoveryWrites();
+  clearTimeout(cacheRecoveryTimer);
+  cacheRecoveryTimer = undefined;
+  rebuiltCachesAwaitingRelease.clear();
   if (editingRefresh) {
     editingRefresh.resolve(false);
     editingRefresh = undefined;
@@ -496,6 +537,7 @@ export function refreshVersionsOnce(dispatchers=undefined) {
     // This follower has no recurring runner. Its successful full fetch and immediate
     // release provide a usable snapshot, as populated disk adoption does for a warm tab.
     if (lifecycle === refreshLifecycle && !isSignedOut() &&
+        !hasPendingCacheRebuild() &&
         typeof dirtyMarketCount === 'number' && dirtyMarketCount >= 0) {
       markInitialSyncComplete();
     }
@@ -791,7 +833,7 @@ export function isRefreshLifecycleCurrent(lifecycle) {
  * @returns {Promise<*>}
  */
 export function updateMarkets(marketIds, marketsStruct, maxConcurrentCount, storageStates,
-  isInline=false, refreshIsCurrent=() => true) {
+  isInline=false, refreshIsCurrent=() => true, rebuilding=false) {
   if (_.isEmpty(marketIds) || !refreshIsCurrent()) {
     return Promise.resolve(true);
   }
@@ -799,6 +841,9 @@ export function updateMarkets(marketIds, marketsStruct, maxConcurrentCount, stor
     .then((marketSignatures) => {
       if (!refreshIsCurrent()) {
         return [];
+      }
+      if (rebuilding && marketIds.some((id) => !marketSignatures.some((row) => row.market_id === id))) {
+        throw new Error('Server versions are incomplete while rebuilding cached data');
       }
       //console.error(marketSignatures);
       return new LimitedParallelMap(marketSignatures, (marketSignature) => {
@@ -809,7 +854,7 @@ export function updateMarkets(marketIds, marketsStruct, maxConcurrentCount, stor
         //console.error(marketSignature);
         const { market_id: marketId, signatures: componentSignatures } = marketSignature;
         return doRefreshMarket(marketId, componentSignatures, marketsStruct, storageStates,
-          refreshIsCurrent);
+          refreshIsCurrent, rebuilding);
       }, maxConcurrentCount);
     });
 }
@@ -951,6 +996,8 @@ async function doVersionRefresh(dispatchers, refreshIsCurrent) {
   console.info('Checking for sync');
   releaseDispatchers = dispatchers;
   const storageStates = await timeSpanAsync('getStorageStates', () => getStorageStates());
+  const rebuildingCaches = getVersionCachesToRebuild();
+  const rebuilding = rebuildingCaches.length > 0;
   if (!refreshIsCurrent()) {
     return 0;
   }
@@ -982,7 +1029,7 @@ async function doVersionRefresh(dispatchers, refreshIsCurrent) {
       bannedList.push(id);
       const tokenStorageManager = new TokenStorageManager();
       bannedPromises.push(tokenStorageManager.deleteToken(TOKEN_TYPE_MARKET, id, refreshIsCurrent));
-    } else if (forcedMarketIds.has(id) || !checkSignatureInStorage(id, signature, storageStates, true)) {
+    } else if (rebuilding || forcedMarketIds.has(id) || !checkSignatureInStorage(id, signature, storageStates, true)) {
       forcedMarketIds.delete(id);
       if (inline && active) {
         inlineList.push(id);
@@ -1016,7 +1063,7 @@ async function doVersionRefresh(dispatchers, refreshIsCurrent) {
   // TODO: this is evil. We're using the inlineMarketsStruct as an _output_ parameter that gets mutated
   const inlineMarketsStruct = {};
   await timeSpanAsync('updateMarkets:inline', () => updateMarkets(inlineList, inlineMarketsStruct,
-    MAX_CONCURRENT_API_CALLS, storageStates, true, refreshIsCurrent))
+    MAX_CONCURRENT_API_CALLS, storageStates, true, refreshIsCurrent, rebuilding))
   if (!refreshIsCurrent()) {
     return 0;
   }
@@ -1026,7 +1073,7 @@ async function doVersionRefresh(dispatchers, refreshIsCurrent) {
   console.info(foregroundList);
   // TODO: Again, this is evil. ForegroundMarketsStruct is an _output_ parameter that gets mutated
   await timeSpanAsync('updateMarkets:foreground', () => updateMarkets(foregroundList,
-    foregroundMarketsStruct, MAX_CONCURRENT_API_CALLS, storageStates, false, refreshIsCurrent));
+    foregroundMarketsStruct, MAX_CONCURRENT_API_CALLS, storageStates, false, refreshIsCurrent, rebuilding));
   if (!refreshIsCurrent()) {
     return 0;
   }
@@ -1038,7 +1085,7 @@ async function doVersionRefresh(dispatchers, refreshIsCurrent) {
   console.info('Beginning archived inline versions update');
   console.info(archivedInlineList);
   await timeSpanAsync('updateMarkets:archivedInline', () => updateMarkets(archivedInlineList,
-    archivedInlineMarketsStruct, MAX_CONCURRENT_API_CALLS, storageStates, true, refreshIsCurrent));
+    archivedInlineMarketsStruct, MAX_CONCURRENT_API_CALLS, storageStates, true, refreshIsCurrent, rebuilding));
   if (!refreshIsCurrent()) {
     return 0;
   }
@@ -1047,11 +1094,12 @@ async function doVersionRefresh(dispatchers, refreshIsCurrent) {
   console.info('Beginning background versions update');
   console.info(backgroundList);
   await timeSpanAsync('updateMarkets:background', () => updateMarkets(backgroundList,
-    backgroundMarketsStruct, MAX_CONCURRENT_ARCHIVE_API_CALLS, storageStates, false, refreshIsCurrent));
+    backgroundMarketsStruct, MAX_CONCURRENT_ARCHIVE_API_CALLS, storageStates, false, refreshIsCurrent, rebuilding));
   if (!refreshIsCurrent()) {
     return 0;
   }
   accrueForRelease(backgroundMarketsStruct);
+  rebuildingCaches.forEach((namespace) => rebuiltCachesAwaitingRelease.add(namespace));
   console.info('Ending versions update');
   // How many markets were dirty - lets push-triggered callers detect a refresh that
   // raced the async version indicator write and found nothing (T-all-2252).
@@ -1068,13 +1116,19 @@ async function doVersionRefresh(dispatchers, refreshIsCurrent) {
  * @returns {null}
  */
 async function doRefreshMarket(marketId, componentSignatures, marketsStruct, storageStates,
-  refreshIsCurrent) {
+  refreshIsCurrent, rebuilding) {
   const serverFetchSignatures = getFetchSignaturesForMarket(componentSignatures);
   const fromStorage = checkInStorage(marketId, serverFetchSignatures, storageStates);
   const { markets, comments, marketPresences, marketStages, investibles, marketGroups, groupMembers } = fromStorage;
   const promises = [];
   const marketClient = await getMarketClient(marketId);
-  if (!marketClient || !refreshIsCurrent()) {
+  if (!refreshIsCurrent()) {
+    return promises;
+  }
+  if (!marketClient) {
+    if (rebuilding) {
+      throw new Error('Unable to load a workspace while rebuilding cached data');
+    }
     return promises;
   }
   if (!_.isEmpty(markets.unmatchedSignatures)) {
@@ -1099,7 +1153,12 @@ async function doRefreshMarket(marketId, componentSignatures, marketsStruct, sto
   if (!_.isEmpty(groupMembers.unmatchedSignatures)) {
     promises.push(fetchGroupMembers(marketClient, marketId, groupMembers, marketsStruct));
   }
-  return new LimitedParallelMap(promises, (promise) => promise, MAX_CONCURRENT_API_CALLS);
+  const result = await new LimitedParallelMap(promises, (promise) => promise, MAX_CONCURRENT_API_CALLS);
+  if (rebuilding && refreshIsCurrent() && !checkServerSignaturesInStorage(marketId, serverFetchSignatures,
+    overlayStorageStates(storageStates, marketsStruct))) {
+    throw new Error('Server data is incomplete while rebuilding cached data');
+  }
+  return result;
 }
 
 function fetchMarketVersion(marketClient, marketId, marketsStruct) {

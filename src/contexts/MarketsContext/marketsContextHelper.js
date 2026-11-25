@@ -5,6 +5,7 @@ import { pushMessage } from '../../utils/MessageBusUtils'
 import { ACTIVE_STAGE, SUPPORT_SUB_TYPE } from '../../constants/markets';
 import { ADD_PRESENCE } from '../MarketPresencesContext/marketPresencesMessages'
 import { PUSH_PRESENCE_CHANNEL, PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../api/versionedFetchUtils'
+import { isInitialSyncComplete } from '../../api/syncStatus';
 import _ from 'lodash';
 
 export function getMarket(state, marketId) {
@@ -82,16 +83,32 @@ export function getSortedMarkets(filtered) {
     (market) => market.market_sub_type === SUPPORT_SUB_TYPE, 'name');
 }
 
+let reportedMissingPresenceIds = new Set();
+
 export function getNotHiddenMarketDetailsForUser(state, marketPresencesState) {
+  // Cached markets can arrive before their participants. Do not compute
+  // membership (or diagnose missing members) until startup has usable data.
+  if (!isInitialSyncComplete() || state.initializing || marketPresencesState.initializing) {
+    return { ...state, marketDetails: [] };
+  }
   if (state.marketDetails) {
+    const missingPresenceIds = new Set();
     const newMarketDetails = state.marketDetails.filter((market) => {
       const marketPresences = getMarketPresences(marketPresencesState, market?.id);
       const hasCurrentUser = !_.isEmpty(marketPresences?.find((presence) => presence.current_user));
-      if (!hasCurrentUser) {
-        console.warn(`Market ${market?.id} has no current user`);
+      // Banned users intentionally disappear from getMarketPresences above.
+      if (!hasCurrentUser && market?.id &&
+          !marketPresencesState[market.id]?.some((presence) => presence.current_user)) {
+        missingPresenceIds.add(market.id);
       }
       return hasCurrentUser;
     });
+    const newlyMissing = [...missingPresenceIds].filter((id) => !reportedMissingPresenceIds.has(id));
+    reportedMissingPresenceIds = missingPresenceIds;
+    if (newlyMissing.length) {
+      console.warn(`${newlyMissing.length} cached markets have no current user after loading. ` +
+        'Example market IDs:', newlyMissing.slice(0, 5));
+    }
     return { marketDetails: newMarketDetails };
   }
   return state;

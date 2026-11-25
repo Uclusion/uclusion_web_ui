@@ -2,10 +2,11 @@ import React, { useCallback, useEffect, useReducer } from 'react'
 import beginListening from './groupMembersMessages'
 import reducer, { initializeState } from './groupMembersContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
+import { APPLICATION_CACHE_NAMESPACES } from '../../utils/applicationCacheRecovery';
 import { flushSync } from 'react-dom';
 
 const MEMBERS_CHANNEL = 'members';
-const GROUP_MEMBERS_CONTEXT_NAMESPACE = 'group_members';
+const GROUP_MEMBERS_CONTEXT_NAMESPACE = APPLICATION_CACHE_NAMESPACES.MEMBERS;
 const EMPTY_STATE = {initializing: true};
 const GroupMembersContext = React.createContext(EMPTY_STATE);
 
@@ -19,7 +20,7 @@ function GroupMembersProvider(props) {
     const lfh = new LocalForageHelper(GROUP_MEMBERS_CONTEXT_NAMESPACE);
     return lfh.getStoredState().then((diskState) => {
       const hydratedState = diskState || {};
-      flushSync(() => dispatch(initializeState(hydratedState)));
+      flushSync(() => dispatch(initializeState(hydratedState, diskState == null)));
       return hydratedState;
     });
   }, []);

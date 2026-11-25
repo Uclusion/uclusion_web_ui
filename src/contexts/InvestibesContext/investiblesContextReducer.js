@@ -15,10 +15,11 @@ const REVERT_STAGE_GUESS = 'REVERT_STAGE_GUESS';
 
 /** Possible messages to reducer * */
 
-export function initializeState(newState) {
+export function initializeState(newState, preserveExisting=false) {
   return {
     type: INITIALIZE_STATE,
     newState,
+    preserveExisting,
   };
 }
 
@@ -129,7 +130,7 @@ function computeNewState(state, action) {
     case REVERT_STAGE_GUESS:
       return doRevertStageGuess(state, action);
     case INITIALIZE_STATE:
-      return action.newState;
+      return action.preserveExisting && !state.initializing ? state : action.newState;
     default:
       return state;
   }
@@ -143,7 +144,8 @@ function reducer(state, action) {
       // Initialize state comes from the disk so do not write it back and risk wiping out another tab
       const lfh = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
       queuePersistenceWrite('investibles', () => {
-        return lfh.setState(newState).then(() => {
+        return lfh.setState(newState).then((stored) => {
+          if (stored === false) return false;
           console.info('Updated investibles context storage.');
         });
       });

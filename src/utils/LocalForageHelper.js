@@ -1,5 +1,7 @@
 import localforage from 'localforage';
 import { isSignedOut } from './logoutState';
+import { cacheNeedsRebuild, cacheWriteSucceeded, deferRebuildingCacheWrite,
+  getCacheWriteGeneration, isApplicationCache } from './applicationCacheRecovery';
 
 class LocalForageHelper {
   namespace;
@@ -7,6 +9,7 @@ class LocalForageHelper {
 
   constructor (namespace, keyspace) {
     this.namespace = namespace;
+    this.writeGeneration = getCacheWriteGeneration();
     if (keyspace) {
       this.keyspace = keyspace;
     } else {
@@ -20,7 +23,16 @@ class LocalForageHelper {
       // Do not store when signed out to avoid leaking data
       return Promise.resolve(false);
     }
-    return localforage.createInstance({ storeName: this.keyspace }).setItem(this.namespace, state);
+    if (isApplicationCache(this.namespace, this.keyspace) &&
+        deferRebuildingCacheWrite(this.namespace, () => this.setState(state), this.writeGeneration)) {
+      return Promise.resolve(false);
+    }
+    return localforage.createInstance({ storeName: this.keyspace }).setItem(this.namespace, state).then((stored) => {
+      if (isApplicationCache(this.namespace, this.keyspace)) {
+        cacheWriteSucceeded(this.namespace);
+      }
+      return stored;
+    });
   }
 
   deleteState() {
@@ -28,7 +40,20 @@ class LocalForageHelper {
   }
 
   getStoredState() {
-    return localforage.createInstance({ storeName: this.keyspace }).getItem(this.namespace);
+    const applicationCache = isApplicationCache(this.namespace, this.keyspace);
+    return localforage.createInstance({ storeName: this.keyspace }).getItem(this.namespace).then((stored) => {
+      if (applicationCache && stored == null) {
+        cacheNeedsRebuild(this.namespace);
+        return undefined;
+      }
+      return stored;
+    }).catch((error) => {
+      if (!applicationCache) {
+        throw error;
+      }
+      cacheNeedsRebuild(this.namespace, error);
+      return undefined;
+    });
   }
 
   getState(existingState) {

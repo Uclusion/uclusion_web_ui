@@ -1,6 +1,7 @@
 import React, { useCallback, useContext, useEffect, useReducer } from 'react'
 import reducer, { initializeState, revertPendingStageGuesses } from './investiblesContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
+import { APPLICATION_CACHE_NAMESPACES } from '../../utils/applicationCacheRecovery';
 import beginListening from './investiblesContextMessages'
 import { DiffContext } from '../DiffContext/DiffContext'
 import { INDEX_INVESTIBLE_TYPE } from '../SearchIndexContext/searchIndexContextMessages'
@@ -10,7 +11,7 @@ import { replaceTicketItems, TicketIndexContext } from '../TicketContext/TicketI
 import { flushSync } from 'react-dom';
 
 const INVESTIBLES_CHANNEL = 'investibles';
-const INVESTIBLES_CONTEXT_NAMESPACE = 'investibles';
+const INVESTIBLES_CONTEXT_NAMESPACE = APPLICATION_CACHE_NAMESPACES.INVESTIBLES;
 const EMPTY_STATE = {initializing: true};
 
 const InvestiblesContext = React.createContext(EMPTY_STATE);
@@ -56,8 +57,10 @@ function InvestiblesProvider(props) {
     return lfg.getStoredState().then((diskState) => {
       const hydratedState = diskState || {};
       flushSync(() => {
-        replaceDerivedState(hydratedState, index, ticketsDispatch);
-        dispatch(initializeState(hydratedState));
+        if (diskState != null) {
+          replaceDerivedState(hydratedState, index, ticketsDispatch);
+        }
+        dispatch(initializeState(hydratedState, diskState == null));
       });
       revertPendingStageGuesses(hydratedState, dispatch);
       return hydratedState;

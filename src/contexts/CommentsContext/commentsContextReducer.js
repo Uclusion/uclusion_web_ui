@@ -14,10 +14,11 @@ const UPDATE_FROM_VERSIONS = 'UPDATE_FROM_VERSIONS';
 
 /** Messages we can send to the reducer */
 
-export function initializeState(newState) {
+export function initializeState(newState, preserveExisting=false) {
   return {
     type: INITIALIZE_STATE,
     newState,
+    preserveExisting,
   };
 }
 
@@ -80,7 +81,7 @@ function computeNewState(state, action) {
     case UPDATE_FROM_VERSIONS:
       return doAddMarketsComments(state, action);
     case INITIALIZE_STATE:
-      return action.newState;
+      return action.preserveExisting && !state.initializing ? state : action.newState;
     default:
       return state;
   }
@@ -110,7 +111,8 @@ function reducer(state, action) {
     if (isLeader) {
       const lfh = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
       queuePersistenceWrite('comments', () => {
-        return timeSpanAsync('idb:comments', () => lfh.setState(screenOutDoNotPersist(newState))).then(() => {
+        return timeSpanAsync('idb:comments', () => lfh.setState(screenOutDoNotPersist(newState))).then((stored) => {
+          if (stored === false) return false;
           console.info('Updated comment context storage.')
         });
       });

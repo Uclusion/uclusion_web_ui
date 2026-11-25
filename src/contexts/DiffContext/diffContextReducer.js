@@ -14,17 +14,19 @@ const HYDRATE_STATE = 'HYDRATE_STATE';
 const REMOVE_CONTENTS = 'REMOVE_CONTENTS';
 const ADD_CONTENTS = 'ADD_CONTENTS';
 
-export function initializeState(newState) {
+export function initializeState(newState, preserveExisting=false) {
   return {
     type: INITIALIZE_STATE,
     newState,
+    preserveExisting,
   };
 }
 
-export function hydrateState(newState) {
+export function hydrateState(newState, preserveExisting=false) {
   return {
     type: HYDRATE_STATE,
     newState,
+    preserveExisting,
   };
 }
 
@@ -114,7 +116,7 @@ function computeNewState(state, action) {
   const { type } = action;
   switch (type) {
     case HYDRATE_STATE:
-      return action.newState;
+      return action.preserveExisting && !state.initializing ? state : action.newState;
     case INITIALIZE_STATE:
       if (state.initializing) {
         return action.newState;

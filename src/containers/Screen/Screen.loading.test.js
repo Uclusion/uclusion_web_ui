@@ -16,6 +16,12 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import Screen from './Screen';
 
+let mockInitialSyncComplete = false;
+jest.mock('../../api/syncStatus', () => ({
+  ...jest.requireActual('../../api/syncStatus'),
+  isInitialSyncComplete: () => mockInitialSyncComplete
+}));
+
 jest.mock('../Header', () => ({ hidden }) => hidden ? null : <header>Workspace header</header>);
 jest.mock('../../components/Menus/Sidebar', () => ({ marketId }) => (
   <nav data-market-id={marketId}>Workspace navigation</nav>
@@ -24,6 +30,7 @@ jest.mock('../../pages/Dialog/Planning/DialogOutset', () => ({ DIALOG_OUTSET_STA
 jest.mock('../../pages/Home/OtherWorkspaceMenus', () => () => null);
 
 it('keeps desktop navigation hidden with loading until workspace content is ready', () => {
+  mockInitialSyncComplete = false;
   const previousActEnvironment = window.IS_REACT_ACT_ENVIRONMENT;
   window.IS_REACT_ACT_ENVIRONMENT = true;
   const container = document.createElement('div');
@@ -40,15 +47,15 @@ it('keeps desktop navigation hidden with loading until workspace content is read
     [InvestiblesContext, {}],
     [CommentsContext, {}],
   ];
-  function renderScreen(loading) {
+  function renderScreen(loading, loadingMessageId='loadingMessage') {
     const screen = contexts.reduceRight((children, [Context, state]) => (
       <Context.Provider value={[state, jest.fn()]}>{children}</Context.Provider>
-    ), <Screen loading={loading}><main>Workspace content</main></Screen>);
+    ), <Screen loading={loading} loadingMessageId={loadingMessageId}><main>Workspace content</main></Screen>);
     act(() => {
       root.render(
         <Router history={history}>
           <ThemeProvider theme={defaultTheme}>
-            <IntlProvider locale="en" messages={{ loadingMessage: 'Loading' }}>
+            <IntlProvider locale="en" messages={{ loadingMessage: 'Loading', loadingRetryMessage: 'Retrying automatically' }}>
               {screen}
             </IntlProvider>
           </ThemeProvider>
@@ -63,6 +70,14 @@ it('keeps desktop navigation hidden with loading until workspace content is read
     expect(container.querySelector('nav')).toBeNull();
     expect(container.querySelector('main')).toBeNull();
 
+    act(() => history.push('/dialog/workspace/workspace'));
+    renderScreen(true, 'loadingRetryMessage');
+    expect(container.querySelector('#spinner')).not.toBeNull();
+    expect(container.textContent).toContain('Retrying automatically');
+    expect(history.location.pathname).toBe('/dialog/workspace/workspace');
+    expect(container.querySelector('main')).toBeNull();
+
+    mockInitialSyncComplete = true;
     renderScreen(false);
     expect(container.querySelector('#spinner')).toBeNull();
     expect(container.querySelector('nav').getAttribute('data-market-id')).toBe('workspace');

@@ -2,10 +2,11 @@ import React, { useCallback, useEffect, useReducer } from 'react'
 import beginListening from './marketPresencesMessages'
 import reducer, { initializeState } from './marketPresencesContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
+import { APPLICATION_CACHE_NAMESPACES } from '../../utils/applicationCacheRecovery';
 import { flushSync } from 'react-dom';
 
 const PRESENCE_CHANNEL = 'presence';
-const MARKET_PRESENCES_CONTEXT_NAMESPACE = 'market_presences';
+const MARKET_PRESENCES_CONTEXT_NAMESPACE = APPLICATION_CACHE_NAMESPACES.PRESENCES;
 const EMPTY_STATE = {initializing: true};
 const MarketPresencesContext = React.createContext(EMPTY_STATE);
 
@@ -20,7 +21,7 @@ function MarketPresencesProvider(props) {
     const lfh = new LocalForageHelper(MARKET_PRESENCES_CONTEXT_NAMESPACE);
     return lfh.getStoredState().then((diskState) => {
       const hydratedState = diskState || {};
-      flushSync(() => dispatch(initializeState(hydratedState)));
+      flushSync(() => dispatch(initializeState(hydratedState, diskState == null)));
       return hydratedState;
     });
   }, []);

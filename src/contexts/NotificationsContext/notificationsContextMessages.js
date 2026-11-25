@@ -12,6 +12,10 @@ import {
   VERSIONS_EVENT
 } from '../../api/versionedFetchUtils';
 import { getMessages } from '../../api/sso'
+import { flushSync } from 'react-dom';
+import {
+  APPLICATION_CACHE_NAMESPACES, cacheRebuildFailed, completeCacheRebuild, hasPendingCacheRebuild
+} from '../../utils/applicationCacheRecovery';
 
 export const ADD_EVENT = 'add_event';
 export const DELETE_EVENT = 'delete_event';
@@ -37,13 +41,19 @@ function beginListening(dispatch, setRefreshState) {
       if (pendingRefresh !== request || !isRefreshLifecycleCurrent(refreshLifecycle)) {
         return;
       }
-      dispatch(updateMessages(messages));
+      if (hasPendingCacheRebuild()) {
+        flushSync(() => dispatch(updateMessages(messages)));
+      } else {
+        dispatch(updateMessages(messages));
+      }
       // Publish each completed snapshot even under continuous traffic. The trailing read
       // keeps the sync indicator active without starving usable messages on a slow link.
       setRefreshState({ refreshed: true, refreshError: false });
+      completeCacheRebuild([APPLICATION_CACHE_NAMESPACES.NOTIFICATIONS]);
     }).catch(() => {
       if (pendingRefresh === request && isRefreshLifecycleCurrent(refreshLifecycle)) {
         setRefreshState({ refreshError: true });
+        cacheRebuildFailed();
         console.warn('Error getting messages');
       }
     }).finally(() => {

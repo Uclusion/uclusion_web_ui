@@ -19,15 +19,15 @@ Use the entire supplied completed batch and the complete original stdout of your
 
 At the lines reported by the export, read each completed item's relevant description and task records, current capsule, decisions supported by human input and latest review to establish its outcome. Identify rejected, unresolved and speculative proposals as such; do not classify a finding whose source evidence still conflicts.
 
-Examine each job and bug in the export's open-work index at its source line for causal effects of the supplied completed outcomes. Choose the first applicable category in this order:
+Examine each job and bug in the export's open-work index at its source line for causal effects of the supplied completed outcomes. Report only a completed outcome that may materially change a candidate's proposed work, judged by what an agent starting it fresh needs to know rather than what an earlier reader would now have wrong, or that may satisfy what one of its open blockers waits for. Ignore changes to setup, reproduction or measurement and other weak connections, and do not trace history. Choose the first applicable category in this order:
 
 1. **duplicate**: the completed outcome already supplies the candidate's required outcome.
 2. **obsolete**: the completed outcome makes the candidate's premise false.
-3. **modify**: the candidate remains valuable, but the completed outcome changes its scope or assumptions.
+3. **modify**: the candidate remains valuable, but the completed outcome changes the work it proposes.
 
-Combine findings from your outcome comparison and the export's dependency matches for each affected job or bug. Use **dependency** when a target has blocker matches but is not classified as duplicate, obsolete or modify. Number each finding with the recipient's exact code in plain text first, followed by its exact short description, category, causal evidence, source locations, every matching blocker and completed code, and proposed human action.
+Combine findings from your outcome comparison and the export's dependency matches for each affected job or bug. Use **dependency** when the completed outcome may satisfy what a matching blocker waits for and the target is not classified as duplicate, obsolete or modify; do not report a blocker that only mentions completed work. Number each finding with the recipient's exact code in plain text first, followed by its exact short description, category, causal evidence, source locations, every blocker the completed outcome may clear, every completed code, and proposed human action.
 
-For duplicate/obsolete findings, propose deciding whether to resolve the target before blocker removal; for modify findings, propose the needed revision first. Offer a human choice for every matching blocker because it may represent additional conditions.
+For duplicate/obsolete findings, propose deciding whether to resolve the target before blocker removal; for modify findings, propose the needed revision first. Offer a human choice for every reported blocker because it may represent additional conditions.
 
 When neither your outcome comparison nor the export's dependency scan finds candidates, report the examined completed outcomes and the open work examined. If either analysis is incomplete, return its precise gaps instead of claiming no candidates.
 

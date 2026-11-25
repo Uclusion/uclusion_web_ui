@@ -402,7 +402,7 @@ WORKFLOW_ASSET_SHA256 = {
     'capsule_dispatch_reference': 'd6e70961e6548a9a250afd5271f258a218448dcb832e7fef6ebf482b141a6b70',
     'design_approvable_reference': '398b1df8b649422dcd1a4eea516c39ef0128d8de3a5185d72721b1ff7079bc8c',
     'delivery_common_reference': 'd8bbba52620f9c6d22b886e674fd0d4d269441ff93ccf7b16b6142bd47fe1f11',
-    'durable_records_reference': '49e94353401bb4786f8525bb14ef86fba404d2bdc1fa803b1a036e356f3ca977',
+    'durable_records_reference': 'c79b7ae76cccc5e9074c6e0f2d1ca0bfbf58cf5a2ebac2bfdd9436efa9347ce9',
     'question_tools_reference': 'a61259018e436ccab4364abf8e6d2d7b6cd78871cc655a968710f29f8785f9f2',
     'work_discovery_reference': '06e6d0f4e9d03eadadadd0afc48e429569ed2f9c7449f83b65bd01b7e7ad305b',
     'discovery_routing_reference': '6adf908f1722a8ed3601244fb5a4250b467842c733be30e7229d47fcff5a4678',
@@ -414,7 +414,7 @@ WORKFLOW_ASSET_SHA256 = {
     'backlog_maintenance_role': '0a514fd9e0c32eec47aeb34c5d242cc1e738d4ac81e13cd22d3d14155f9dfef9',
     'design_role': '21c8ff363858203db538d707ab00e4fe94c172fc8eec50f0c130a0f36d49c997',
     'demo_brief': 'b68f6501270c63456c19053d1b5af296350288754239c7f9d6074a3a5497789f',
-    'token_manifest': 'db92bca68fff30bb5ae63af4f8c80d42749cd585a31f52bf3b164a78dfaf0fc2',
+    'token_manifest': '8188833f93c9f40318d5858d88cbecb863790af37375bf6396486ceaa67b4f62',
 }
 CLIENT_STUB_ASSET = {
     'claude': 'claude_stub',

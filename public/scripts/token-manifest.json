@@ -1593,15 +1593,6 @@
     "openai": 750
    }
   },
-  "49e94353401bb4786f8525bb14ef86fba404d2bdc1fa803b1a036e356f3ca977": {
-   "bytes": 4525,
-   "kind": "skill",
-   "name": "skills/uclusion/references/durable-records.md",
-   "tokens": {
-    "claude": 1360,
-    "openai": 879
-   }
-  },
   "49f0a222ad442c8afd650488c172a3a2213c7bcb61a67eb93ef3b43db93cb016": {
    "bytes": 3182,
    "kind": "bootstrap",
@@ -4455,6 +4446,15 @@
     "openai": 463
    }
   },
+  "c79b7ae76cccc5e9074c6e0f2d1ca0bfbf58cf5a2ebac2bfdd9436efa9347ce9": {
+   "bytes": 4507,
+   "kind": "skill",
+   "name": "skills/uclusion/references/durable-records.md",
+   "tokens": {
+    "claude": 1352,
+    "openai": 874
+   }
+  },
   "c85bbd414fc2c2c76a59b384e97c6579a8ccfcaa739b4922f7ab981b14c077cb": {
    "bytes": 4779,
    "kind": "skill",
@@ -6321,16 +6321,6 @@
    "tokens": {
     "claude": 973,
     "openai": 538
-   }
-  },
-  "9dc2c5ee03211789bf212827faba3add3184187a63e0cd3f0ce7588df6246ebc": {
-   "name": "add_info",
-   "tokens": {
-    "claude": null,
-    "openai": 589
-   },
-   "unavailable": {
-    "claude": "unsupported_input_schema"
    }
   },
   "9f828512ab220d3017e3cadb05717e09cf60f429602cd146958b031501193efc": {

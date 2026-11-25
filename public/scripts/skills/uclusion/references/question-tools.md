@@ -9,7 +9,7 @@ A question with options, and each `add_options` call, includes one explained For
 
 ## Answers to job questions
 
-A clear human reply or a For vote on an Approvable option answers a job question when the author is neither AI nor advisory. Advisory input may inform reasoning or votes but does not authorize execution. When a human resolves a question, the choice is delegated to the AI and its handling remains pending; retain the question's evidence version for the required settlement.
+A clear human reply or a For vote on an Approvable option answers a job question when the author is neither AI nor advisory. Advisory input may inform reasoning or votes but does not authorize execution. When a human resolves a question, the choice is delegated to the AI and its handling remains pending; retain the question's evidence version for the required settlement. For a stage question, the option the AI then picks carries the human's authority for that job and destination, including Move to Doable; record the pick on the question. A general work request never authorizes a stage move.
 
 ## Existing standalone questions
 

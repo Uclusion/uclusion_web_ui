@@ -27,9 +27,9 @@ During open discussion, use only `get_job`, `add_info` and `add_view_note` for g
 
 Read [durable-records.md](../references/durable-records.md).
 
-Ask missing facts and open choices with `add_info`.
+Ask a question that needs no options, such as a missing fact, reproduction, observed behavior, meaning or a single permission, with `add_info`. A note never lists options or a recommendation for the human to pick.
 
-A real discrete choice may use `ask_question` on the bug with options and your initial vote. This converts the bug into a task of a new human-owned job and asks the question there. Keep questions about missing facts or meaning in `add_info`, without options. Preserve the returned job and question identities, qualified options, vote and stage. Read the returned job with `get_job` to confirm its Job header, then return that job and item identity for a new assignment even if the bug keeps its B-code.
+When a question needs options, such as a material discrete choice including a choice of permission scope, ask it with `ask_question` on the bug, with options and your initial vote, before settling the fix. This converts the bug into a task of a new human-owned job and asks the question there. Never convert a bug merely to ask a question that needs no options. Preserve the returned job and question identities, qualified options, vote and stage. Read the returned job with `get_job` to confirm its Job header, then return that job and item identity for a new assignment, with the other known choices and permissions not yet asked, even if the bug keeps its B-code.
 
 ## Completion
 

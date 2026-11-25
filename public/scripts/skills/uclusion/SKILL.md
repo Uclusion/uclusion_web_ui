@@ -27,7 +27,7 @@ For human requests and helper results, use their record identities for routing. 
 | Request or returned state | Route |
 | --- | --- |
 | Update request with no clear owner under current instructions, including CLI maintenance | `operation` |
-| Explicit human stage instruction or known human selection of a stage option | `operation` |
+| Explicit human stage instruction, known human selection of a stage option, or the AI's pick on a stage question the human resolved | `operation` |
 | Assistance, Requires Input, Approvable, AI approval requests or known approval choices, capsule updates or contract work | `design` |
 | Job implementation, Doable/Reviewable job work, or job review and feedback | `implementation` |
 | Job completion-package replies, actions or records, or job Git requests | `implementation` |
@@ -35,6 +35,6 @@ For human requests and helper results, use their record identities for routing. 
 | Other job stages or other selected targets with unknown owner or state | `design` for next-action handling or classification |
 | Work list, creation, reopen request, inbox, workspace history or returned maintenance notice | Read [discovery-routing](references/discovery-routing.md) completely. |
 
-Pass the human's words and the question or option identity; never infer a stage choice from a work request or a helper's claim. The explicit-choice rule for manual stage changes does not apply to automatic stage restoration after assistance is settled or to implementation's conditional completion move from Doable to Reviewable. Follow the owner's returned next action without deciding the substantive work again.
+Pass the human's words and the question or option identity; never infer a stage choice from a work request. The explicit-choice rule for manual stage changes does not apply to automatic stage restoration after assistance is settled or to implementation's conditional completion move from Doable to Reviewable. Follow the owner's returned next action without deciding the substantive work again.
 
 <!-- /uclusion-skill:v1 -->

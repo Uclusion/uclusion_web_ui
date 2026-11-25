@@ -50,10 +50,11 @@ AI approval but does not require it, design asks one question: **Move to Doable*
 first, then **Perform AI approval**, with its vote on Doable. An existing AI vote
 means no further AI approval.
 
-A manual stage change needs an explicit human instruction naming the destination
-or choosing a stage option. A request to do, fix or continue work, or a published
-design, supplies no such choice. Operation checks the original human instruction
-even when a helper or capsule claims permission. A stage choice goes directly to
+A manual stage change needs an explicit human instruction naming the destination,
+a choice of a stage option, or a stage question the human resolved so the AI picks.
+A request to do, fix or continue work, or a published design, supplies no such
+choice. Operation checks that authority in the human's words or the question
+record, even when a helper or capsule claims permission. A stage choice goes directly to
 operation; an approval choice goes directly to design. Design clarifies unclear
 intent. When the request is an update but current instructions leave its owner
 unclear, operation handles it instead of inferring an implementor. This applies

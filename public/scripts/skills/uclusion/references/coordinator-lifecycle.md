@@ -13,7 +13,7 @@ Before adopting work, continuing after a confirmed bug-to-job move, or recoverin
 
 ## Start and continue helpers
 
-Start a new helper with fresh context (`fork_turns:"none"` in Codex), its role name, the selected package folder and client, target, the human's substantive request and instructions verbatim, available reference identities and versions, repository and source locations, and confirmed or unfinished action receipts. When the human's words are not held, supply their exact record location for the helper to read. Supply its identity, canonical job or bug and bounded task scope, response destination and the client's confirmed coordinator contact with the initial assignment, without waiting for conversation-switch advice. For Codex, use this coordinator's actual Codex thread ID, never the Uclusion subscriber agent ID; for Claude Code, use its confirmed `SendMessage` recipient.
+Start a new helper with fresh context (`fork_turns:"none"` in Codex), its role name, the selected package folder and client, target, the human's substantive request and instructions verbatim, available reference identities and versions, repository and source locations, and confirmed or unfinished action receipts. When the human's words are not held, supply their exact record location for the helper to read. Supply its identity, canonical job or bug and bounded task scope, response destination and the client's confirmed coordinator contact with the initial assignment, without waiting for conversation-switch advice. For Codex, use this coordinator's actual Codex thread ID, never the Uclusion subscriber agent ID; for Claude Code, use its confirmed `SendMessage` recipient. Name each helper with its role first, then a short purpose, such as `design_website_options`, changing hyphens in the role to underscores only where the client's name syntax requires it.
 
 For initial handoffs and continuations, keep activation and delivery interpretation, raw protocol lines and native context, coordinator history, bootstrap instructions, session flags and event queues here. Pass the resulting bounded work request and evidence identities to the helper, preserving substantive human words even when they arrived with an activation. Do not convert activation, routing or record status into human approval, or add guidance that waives the helper's questions or permission checks. Forward actual human grants and restrictions with their source identities. The helper reads its own evidence and determines its action authority.
 
@@ -30,6 +30,10 @@ Answers, task resolution, intermediate role handoffs, assistance waits, stage ch
 Carry the responsible owner and explicit response destination on every forwarded request. Forward the human's current words and changes before the owner's next affected action. New human input here makes this conversation the destination for that request. Present the owner's exact returned content, including a supported answer or exact gap, at its destination and retain the presentation receipt.
 
 Use `get_job` only for missing routing or first-helper reference facts. Before a call, hold its exact description and schema under delivery-common's names-first rule. Use the exposed client's helper tools at the same boundary; in Codex these are `collaboration.spawn_agent`, `collaboration.send_message`, `collaboration.followup_task` and `collaboration.wait_agent`. Discover only the operation about to be used, reusing definitions already held.
+
+## End a turn
+
+While work is assigned or an accepted response is unfinished, end a turn only to wait for a human response that is saved in Uclusion and presented here, or for results from a helper that is still running. Answering a side question does not end the assigned work; continue it. Every final response states each assignment's status: what is complete, what remains and any input you need.
 
 ## Read at the action boundary
 

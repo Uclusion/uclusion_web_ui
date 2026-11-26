@@ -1115,14 +1115,13 @@ describe('automatic cache rebuild', () => {
     expect(getCacheRecoveryStatus()).toBe('ready');
   });
 
-  it('does not mark recovery complete when the server omits required participants', async () => {
+  it('publishes recovered participants when the server omits a stale comment signature', async () => {
     cacheNeedsRebuild(APPLICATION_CACHE_NAMESPACES.PRESENCES);
-    mockCommentsState[mockMarketId] = [comment];
-    users.mockResolvedValueOnce([]);
+    fetchComments.mockResolvedValueOnce([]);
     await refreshVersionsNow(dispatchers);
-    expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(false);
-    expect(getCacheRecoveryStatus()).toBe('retrying');
-    expect(dispatchers.presenceDispatch).not.toHaveBeenCalled();
+    expect(mockPresencesState[mockMarketId]).toEqual([user]);
+    expect(mockInitialSyncStatus.isInitialSyncComplete()).toBe(true);
+    expect(getCacheRecoveryStatus()).toBe('ready');
   });
 
   it('waits for notification server data as well as the rebuilt version caches', async () => {

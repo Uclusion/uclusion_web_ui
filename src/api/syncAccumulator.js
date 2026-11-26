@@ -164,32 +164,32 @@ function prependByMarket(storedByMarket, accruedByMarket) {
  * Without it, holding dispatches back would leave every accrued market looking dirty on the next
  * cycle and being fetched again (R-all-2308).
  */
-export function overlayStorageStates(storageStates, updates=accrued) {
-  if (_.isEmpty(updates)) {
+export function overlayStorageStates(storageStates) {
+  if (_.isEmpty(accrued)) {
     return storageStates;
   }
   const overlaid = { ...storageStates };
-  overlaid.commentsState = prependByMarket(storageStates.commentsState, updates.comments);
-  overlaid.marketPresencesState = prependByMarket(storageStates.marketPresencesState, updates.users);
-  overlaid.marketStagesState = prependByMarket(storageStates.marketStagesState, updates.stages);
-  overlaid.marketGroupsState = prependByMarket(storageStates.marketGroupsState, updates.group);
-  if (!_.isEmpty(updates.markets)) {
+  overlaid.commentsState = prependByMarket(storageStates.commentsState, accrued.comments);
+  overlaid.marketPresencesState = prependByMarket(storageStates.marketPresencesState, accrued.users);
+  overlaid.marketStagesState = prependByMarket(storageStates.marketStagesState, accrued.stages);
+  overlaid.marketGroupsState = prependByMarket(storageStates.marketGroupsState, accrued.group);
+  if (!_.isEmpty(accrued.markets)) {
     const stored = storageStates.marketsState || {};
-    overlaid.marketsState = { ...stored, marketDetails: updates.markets.concat(stored.marketDetails || []) };
+    overlaid.marketsState = { ...stored, marketDetails: accrued.markets.concat(stored.marketDetails || []) };
   }
-  if (!_.isEmpty(updates.investibles)) {
+  if (!_.isEmpty(accrued.investibles)) {
     // satisfyInvestibles reads Object.values, so a synthetic key is enough to be seen and keeps
     // the stored entry intact for markets this fetch did not cover.
     const merged = { ...(storageStates.investiblesState || {}) };
-    updates.investibles.forEach((item, index) => {
+    accrued.investibles.forEach((item, index) => {
       merged[`${ACCRUED_KEY_PREFIX}${item?.investible?.id || index}`] = item;
     });
     overlaid.investiblesState = merged;
   }
-  if (!_.isEmpty(updates.members)) {
+  if (!_.isEmpty(accrued.members)) {
     // satisfyGroupMembers flattens every value regardless of key.
     overlaid.groupMembersState = { ...(storageStates.groupMembersState || {}),
-      [`${ACCRUED_KEY_PREFIX}members`]: updates.members };
+      [`${ACCRUED_KEY_PREFIX}members`]: accrued.members };
   }
   return overlaid;
 }

@@ -17,7 +17,6 @@ import { fetchInvestibles } from './marketInvestibles'
 import { LimitedParallelMap } from '../utils/PromiseUtils'
 import {
   checkInStorage,
-  checkServerSignaturesInStorage,
   checkSignatureInStorage,
 } from './storageIntrospector';
 import LocalForageHelper from '../utils/LocalForageHelper'
@@ -833,7 +832,7 @@ export function isRefreshLifecycleCurrent(lifecycle) {
  * @returns {Promise<*>}
  */
 export function updateMarkets(marketIds, marketsStruct, maxConcurrentCount, storageStates,
-  isInline=false, refreshIsCurrent=() => true, rebuilding=false) {
+  isInline=false, refreshIsCurrent=() => true) {
   if (_.isEmpty(marketIds) || !refreshIsCurrent()) {
     return Promise.resolve(true);
   }
@@ -841,9 +840,6 @@ export function updateMarkets(marketIds, marketsStruct, maxConcurrentCount, stor
     .then((marketSignatures) => {
       if (!refreshIsCurrent()) {
         return [];
-      }
-      if (rebuilding && marketIds.some((id) => !marketSignatures.some((row) => row.market_id === id))) {
-        throw new Error('Server versions are incomplete while rebuilding cached data');
       }
       //console.error(marketSignatures);
       return new LimitedParallelMap(marketSignatures, (marketSignature) => {
@@ -854,7 +850,7 @@ export function updateMarkets(marketIds, marketsStruct, maxConcurrentCount, stor
         //console.error(marketSignature);
         const { market_id: marketId, signatures: componentSignatures } = marketSignature;
         return doRefreshMarket(marketId, componentSignatures, marketsStruct, storageStates,
-          refreshIsCurrent, rebuilding);
+          refreshIsCurrent);
       }, maxConcurrentCount);
     });
 }
@@ -1063,7 +1059,7 @@ async function doVersionRefresh(dispatchers, refreshIsCurrent) {
   // TODO: this is evil. We're using the inlineMarketsStruct as an _output_ parameter that gets mutated
   const inlineMarketsStruct = {};
   await timeSpanAsync('updateMarkets:inline', () => updateMarkets(inlineList, inlineMarketsStruct,
-    MAX_CONCURRENT_API_CALLS, storageStates, true, refreshIsCurrent, rebuilding))
+    MAX_CONCURRENT_API_CALLS, storageStates, true, refreshIsCurrent))
   if (!refreshIsCurrent()) {
     return 0;
   }
@@ -1073,7 +1069,7 @@ async function doVersionRefresh(dispatchers, refreshIsCurrent) {
   console.info(foregroundList);
   // TODO: Again, this is evil. ForegroundMarketsStruct is an _output_ parameter that gets mutated
   await timeSpanAsync('updateMarkets:foreground', () => updateMarkets(foregroundList,
-    foregroundMarketsStruct, MAX_CONCURRENT_API_CALLS, storageStates, false, refreshIsCurrent, rebuilding));
+    foregroundMarketsStruct, MAX_CONCURRENT_API_CALLS, storageStates, false, refreshIsCurrent));
   if (!refreshIsCurrent()) {
     return 0;
   }
@@ -1085,7 +1081,7 @@ async function doVersionRefresh(dispatchers, refreshIsCurrent) {
   console.info('Beginning archived inline versions update');
   console.info(archivedInlineList);
   await timeSpanAsync('updateMarkets:archivedInline', () => updateMarkets(archivedInlineList,
-    archivedInlineMarketsStruct, MAX_CONCURRENT_API_CALLS, storageStates, true, refreshIsCurrent, rebuilding));
+    archivedInlineMarketsStruct, MAX_CONCURRENT_API_CALLS, storageStates, true, refreshIsCurrent));
   if (!refreshIsCurrent()) {
     return 0;
   }
@@ -1094,7 +1090,7 @@ async function doVersionRefresh(dispatchers, refreshIsCurrent) {
   console.info('Beginning background versions update');
   console.info(backgroundList);
   await timeSpanAsync('updateMarkets:background', () => updateMarkets(backgroundList,
-    backgroundMarketsStruct, MAX_CONCURRENT_ARCHIVE_API_CALLS, storageStates, false, refreshIsCurrent, rebuilding));
+    backgroundMarketsStruct, MAX_CONCURRENT_ARCHIVE_API_CALLS, storageStates, false, refreshIsCurrent));
   if (!refreshIsCurrent()) {
     return 0;
   }
@@ -1116,7 +1112,7 @@ async function doVersionRefresh(dispatchers, refreshIsCurrent) {
  * @returns {null}
  */
 async function doRefreshMarket(marketId, componentSignatures, marketsStruct, storageStates,
-  refreshIsCurrent, rebuilding) {
+  refreshIsCurrent) {
   const serverFetchSignatures = getFetchSignaturesForMarket(componentSignatures);
   const fromStorage = checkInStorage(marketId, serverFetchSignatures, storageStates);
   const { markets, comments, marketPresences, marketStages, investibles, marketGroups, groupMembers } = fromStorage;
@@ -1126,9 +1122,6 @@ async function doRefreshMarket(marketId, componentSignatures, marketsStruct, sto
     return promises;
   }
   if (!marketClient) {
-    if (rebuilding) {
-      throw new Error('Unable to load a workspace while rebuilding cached data');
-    }
     return promises;
   }
   if (!_.isEmpty(markets.unmatchedSignatures)) {
@@ -1153,12 +1146,9 @@ async function doRefreshMarket(marketId, componentSignatures, marketsStruct, sto
   if (!_.isEmpty(groupMembers.unmatchedSignatures)) {
     promises.push(fetchGroupMembers(marketClient, marketId, groupMembers, marketsStruct));
   }
-  const result = await new LimitedParallelMap(promises, (promise) => promise, MAX_CONCURRENT_API_CALLS);
-  if (rebuilding && refreshIsCurrent() && !checkServerSignaturesInStorage(marketId, serverFetchSignatures,
-    overlayStorageStates(storageStates, marketsStruct))) {
-    throw new Error('Server data is incomplete while rebuilding cached data');
-  }
-  return result;
+  // Recovery uses the normal fetch contract: successful responses are usable
+  // even when stale version indicators refer to objects the server omits.
+  return new LimitedParallelMap(promises, (promise) => promise, MAX_CONCURRENT_API_CALLS);
 }
 
 function fetchMarketVersion(marketClient, marketId, marketsStruct) {

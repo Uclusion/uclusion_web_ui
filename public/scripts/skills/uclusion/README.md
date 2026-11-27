@@ -92,6 +92,9 @@ work remains available while helpers are working.
 
 ## Where to change a rule
 
+Keep skill documentation in this source directory and do not add it to
+`uclusion-documentation`.
+
 Before editing, identify the requested behavior change and the existing
 obligations and exceptions to preserve from the source and relevant human
 decisions. For each removed or rewritten rule, show where its obligation and

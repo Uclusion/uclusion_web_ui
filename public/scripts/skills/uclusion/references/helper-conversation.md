@@ -45,7 +45,7 @@ If the coordinator contact is missing, preserve the direct request and ask for t
 
 ## Human waits and completion
 
-Before yielding for a human response, save the exact question or request for permission or a decision in the relevant Uclusion thread using your role's permitted tools. Present that exact request and canonical link here when this is the response destination; otherwise return them with their responsible helper and destination through the coordinator for forwarding. If saving the request requires a tool outside your authority, ask the coordinator to arrange that write. A saved request does not grant permission or settle other decisions. Continue independent authorized work and use waits that can be interrupted while helpers are running.
+Before yielding for a human response to a product/design question or work-approval request, save the exact request in the relevant Uclusion thread using your role's permitted tools. Present that exact request and canonical link here when this is the response destination; otherwise return them with their responsible helper and destination through the coordinator for forwarding. If saving such a request requires a tool outside your authority, ask the coordinator to arrange that write. A saved request does not grant permission or settle other decisions. Continue independent authorized work and use waits that can be interrupted while helpers are running.
 
 Before presenting or handling a completion package or its reply, read [completion](completion.md).
 <!-- /uclusion-skill-reference:v1 -->

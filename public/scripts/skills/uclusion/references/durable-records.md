@@ -3,6 +3,8 @@
 
 ## Authorship and threading
 
+Keep operational coordination, such as missing severity for a requested bug filing, in the human/agent conversation, including its answer and filing receipt. Do not post these exchanges in Uclusion or ask another role to post them.
+
 Use your selected role's permitted Uclusion tools for questions, suggestions, approvals, votes, resolutions, reviews and findings. File AI questions, suggestions and reviews directly within that authority; chat does not replace their records. Request combined commit, push and notification-clear approval through a completion package.
 
 For human-authored creation, use only the person's words and reasoning. For a permitted `for_human:true` write, determine `is_my_lane` from the job or bug assignments supplied by the coordinator: true if the affected item falls within those assignments and their stated scope, false otherwise. Read the item's current records if needed to establish its job or bug membership. A subscription, read or bounded response about other work does not establish an assignment. If the coordinator's assignment information is missing or no longer current, request the missing facts before writing. Ask for any missing certainty or reason for a human vote. Choose the author of an initial vote separately from the author of its question or options, and apply the same assignment check when attributing the vote to the human. Use the native creation tool's schema for jobs, tasks, bugs and blockers.

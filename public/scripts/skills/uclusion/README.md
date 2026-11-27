@@ -1,7 +1,7 @@
 # Maintaining the Uclusion skill
 
-This guide helps people review and change the skill. The linked files contain
-the agent instructions; this README is not an additional required agent read.
+This guide is for people and agents maintaining the skill source.
+It is not part of the installed runtime package.
 
 ## Who does what
 
@@ -31,6 +31,12 @@ does not transfer delivery, assignment or audit ownership. Saved presentation
 receipts prevent a second rendering of the same answer or completion package.
 The [helper conversation procedure](references/helper-conversation.md) covers
 this path; unsupported clients keep the coordinator relay.
+
+The [write procedure](references/durable-records.md) keeps operational coordination,
+such as bug-filing severity, in chat; the
+[coordinator](references/coordinator-completion.md) and
+[conversation](references/helper-conversation.md) wait procedures require records
+for product/design questions and work approvals.
 
 Design, standalone and implementation share the
 [collaboration procedure](references/collaboration.md). Each reads it before
@@ -86,15 +92,27 @@ work remains available while helpers are working.
 
 ## Where to change a rule
 
+Before editing, identify the requested behavior change and the existing
+obligations and exceptions to preserve from the source and relevant human
+decisions. For each removed or rewritten rule, show where its obligation and
+exceptions remain, or cite the explicit human authorization to remove or change
+them.
+
 Change a role file for what that role does. Change the coordinator's routing
 table for which role receives a request. Keep shared procedures in
 [references/](references/), and link to them from the roles that use them.
 A role file should describe its own actions, not repeat another role's job.
-Review every sentence from the intended reader's available context. Keep its
-purpose, actor, action and trigger clear without relying on an unread role or
-procedure. Nearby context is sufficient; do not repeat actors mechanically.
-Test behavior, package integrity and reachable references rather than requiring
-particular instruction sentences.
+For each added or changed sentence, name its reader, actual read trigger and
+concrete decision or action within that reader's role. A shared reference being
+reachable does not make its sentences relevant to every reader. When moving a
+rule, check that its intended reader still reaches it at the right time.
+Nearby context is sufficient; do not repeat actors mechanically.
+Keep unrelated cleanup outside the patch.
+
+Review the diff against the preserved requirements before proposing checks;
+give each new case a distinct purpose and a cost. Test behavior, package
+integrity and reachable references rather than requiring particular instruction
+sentences.
 
 The coordinator always reads the entrypoint, delivery contract and compact
 [lifecycle](references/coordinator-lifecycle.md). Detailed coordinator rules

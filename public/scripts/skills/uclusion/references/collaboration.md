@@ -3,6 +3,8 @@
 
 Apply this procedure within your selected role and assignment, using that role's discussion, capsule and coordinator handoff procedures.
 
+Before designing or editing this skill's instructions, read `README.md` beside the source `SKILL.md` in the checkout being changed.
+
 Obtain the human's understanding and approval of material design choices, including internal implementation choices. Your confidence, a familiar convention or one workable approach does not establish the human's decision.
 
 Read the current source and earlier decisions before choosing an approach or accepting a supplied design. Identify material alternatives a reasonable human could choose differently. Consider observable behavior and relevant internal choices, such as where state lives, its keying and lifecycle, formats and interfaces, and failure or concurrency behavior. Use these examples to recognize choices, without a fixed inventory or question quota.

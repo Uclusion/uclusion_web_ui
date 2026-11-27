@@ -369,6 +369,15 @@
     "openai": 1036
    }
   },
+  "113a40bdfbfb261e68d4fb09d7da7a6965eb671b3d67a035836ccb7a9f4b908d": {
+   "bytes": 4740,
+   "kind": "skill",
+   "name": "skills/uclusion/references/durable-records.md",
+   "tokens": {
+    "claude": 1422,
+    "openai": 918
+   }
+  },
   "11838188e119753f2ae3ff8379f8599dcf2c1a0067c84f9c09f504e5b2215264": {
    "bytes": 4373,
    "kind": "skill",
@@ -2574,6 +2583,15 @@
     "openai": 1341
    }
   },
+  "70ac80ca9cf56ab89e773097bf7ded0f993cf2edaae20fb1a32481f2a6691da7": {
+   "bytes": 2587,
+   "kind": "skill",
+   "name": "skills/uclusion/references/collaboration.md",
+   "tokens": {
+    "claude": 758,
+    "openai": 436
+   }
+  },
   "70b19d0aa9eb7e24cab697dd469b649cad78afb45ad9854fcf1e29713856f637": {
    "bytes": 4413,
    "kind": "skill",
@@ -2626,6 +2644,15 @@
    "tokens": {
     "claude": 2599,
     "openai": 1535
+   }
+  },
+  "71a401ff25d580e95599edb291fe1618a76ece2dd64818590ce24a438a3a733d": {
+   "bytes": 4940,
+   "kind": "skill",
+   "name": "skills/uclusion/references/coordinator-completion.md",
+   "tokens": {
+    "claude": 1443,
+    "openai": 878
    }
   },
   "71cf924017f0f5fda91bdd72c458c621040c8ca4afb541b07d12c9414490dfb8": {
@@ -2914,6 +2941,15 @@
    "tokens": {
     "claude": 1005,
     "openai": 649
+   }
+  },
+  "7cddcd29fce40efb53fd339eba8318ac61ca15dad5e4d4a7e9ff9cdad5c544a7": {
+   "bytes": 7859,
+   "kind": "skill",
+   "name": "skills/uclusion/references/helper-conversation.md",
+   "tokens": {
+    "claude": 2322,
+    "openai": 1445
    }
   },
   "7d34a7e8bd4cfec194dc9f9e4d3d4563899dfd03a5a19675fe42654f4f26aa19": {
@@ -3850,6 +3886,15 @@
    "tokens": {
     "claude": 3048,
     "openai": 1797
+   }
+  },
+  "a8c2f817b768682623c5eadd04da1cf2d2a3be8564fa3f4c3b47fcfdb17c1129": {
+   "bytes": 8650,
+   "kind": "skill",
+   "name": "skills/uclusion/references/coordinator-lifecycle.md",
+   "tokens": {
+    "claude": 2597,
+    "openai": 1613
    }
   },
   "a99a808d0cacdbf139af2ab34bcf8390e3cac239ceac72e0d1486ea10d26e149": {

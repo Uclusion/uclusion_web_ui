@@ -33,7 +33,7 @@ Use `get_job` only for missing routing or first-helper reference facts. Before a
 
 ## End a turn
 
-While work is assigned or an accepted response is unfinished, end a turn only to wait for a human response that is saved in Uclusion and presented here, or for results from a helper that is still running. Answering a side question does not end the assigned work; continue it. Every final response states each assignment's status: what is complete, what remains and any input you need.
+While work is assigned or an accepted response is unfinished, end a turn only to wait for a human response presented under the [human-wait procedure](coordinator-completion.md), or for results from a helper that is still running. Answering a side question does not end the assigned work; continue it. Every final response states each assignment's status: what is complete, what remains and any input you need.
 
 ## Read at the action boundary
 

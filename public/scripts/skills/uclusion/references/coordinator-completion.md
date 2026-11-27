@@ -1,9 +1,11 @@
 <!-- uclusion-skill-reference:v1 -->
 # Human waits, completion and assignment end
 
-## Save and present a human wait
+## Present a human wait
 
-Before waiting for human input, obtain the responsible helper's confirmation that the exact question, permission request or decision is saved on its Uclusion thread and that the exact request and canonical thread link were presented in the chosen conversation. Present any missing request here when this is its response destination; otherwise forward the exact saved request to the destination helper for presentation. A saved completion package satisfies this requirement after its exact offer is presented. Ask the owner to save any request that lacks a record. Reuse current saved and presentation receipts instead of duplicating them. A saved request covers only itself.
+Keep operational coordination, such as missing severity for a requested bug filing, in the human/agent conversation, including its answer and filing receipt. Do not require or delegate a Uclusion write for these exchanges.
+
+For product/design questions and work-approval requests, obtain the responsible helper's confirmation that the exact request is saved on its Uclusion thread and that the exact request and canonical thread link were presented in the chosen conversation before waiting for human input. Present any missing request here when this is its response destination; otherwise forward the exact saved request to the destination helper for presentation. A saved completion package satisfies this requirement after its exact offer is presented. Ask the owner to save any such request that lacks a record. Reuse current saved and presentation receipts instead of duplicating them. A saved request covers only itself.
 
 ## Continue the completion owner
 

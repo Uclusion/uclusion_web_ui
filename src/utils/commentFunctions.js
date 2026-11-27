@@ -256,9 +256,13 @@ export function isAssistanceRespondedByHuman(rootComment, investibleComments, ma
       !comment.auto_closed && !comment.last_update_auto_generated;
     return isDirectResolution ? comment.updated_by : comment.created_by;
   }
-  function foldCommentActivity(comment) {
+  function foldCommentActivity(comment, comments) {
     const commentTime = new Date(comment.updated_at).getTime();
     if (isAIPresenceId(activityOwnerOf(comment))) {
+      const parent = comment.reply_id && comments.find((candidate) => candidate.id === comment.reply_id);
+      if (isAIPresenceId(comment.created_by) && parent?.created_by === comment.created_by) {
+        return;
+      }
       aiLatest = Math.max(aiLatest, commentTime);
     } else {
       humanLatest = Math.max(humanLatest || 0, commentTime);
@@ -266,21 +270,23 @@ export function isAssistanceRespondedByHuman(rootComment, investibleComments, ma
   }
   const thread = (investibleComments || []).filter((comment) => comment.root_comment_id === rootComment.id &&
     comment.id !== rootComment.id);
-  thread.forEach(foldCommentActivity);
+  const threadWithRoot = [rootComment, ...thread];
+  thread.forEach((comment) => foldCommentActivity(comment, threadWithRoot));
   if (inlineMarketId) {
     // Local short codes inside options only make sense with their parent question. Fold every
     // visible comment/reply attached to an option into that parent question's chronology.
     const inlineComments = getMarketComments(commentsState || {}, inlineMarketId)
-      .filter((comment) => !!comment.investible_id && comment.comment_type !== JUSTIFY_TYPE);
+      .filter((comment) => !!comment.investible_id);
     // T-all-2449: a live human vote already answers the question. A later AI comment inside an
     // option (like the low-certainty clarification reply) is supplementary - it must not flip
     // the question back to Unresponded. AI edits to the question itself still reopen it.
     const hasLiveHumanVote = inlinePresences.some((presence) => !_.isEmpty(presence.email) &&
       (presence.investments || []).some((investment) =>
         investment.quantity !== undefined && investment.quantity !== null && !investment.deleted));
-    const foldedInlineComments = hasLiveHumanVote ?
-      inlineComments.filter((comment) => !isAIPresenceId(activityOwnerOf(comment))) : inlineComments;
-    foldedInlineComments.forEach(foldCommentActivity);
+    // Vote reasons do not supply chronology, but remain available as reply parents.
+    const foldedInlineComments = inlineComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE &&
+      (!hasLiveHumanVote || !isAIPresenceId(activityOwnerOf(comment))));
+    foldedInlineComments.forEach((comment) => foldCommentActivity(comment, inlineComments));
     inlinePresences.forEach((presence) => {
       const isAI = _.isEmpty(presence.email);
       (presence.investments || []).filter((investment) =>

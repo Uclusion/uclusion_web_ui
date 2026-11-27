@@ -772,6 +772,14 @@ function Comment(props) {
         }
         // The only message that will be there is the one telling you the comment was resolved
         removeMessagesForCommentId(id, messagesState);
+        if (commentType === QUESTION_TYPE && market.market_type === DECISION_TYPE && market.parent_comment_id) {
+          const parent = getComment(commentsState, market.parent_comment_market_id, market.parent_comment_id);
+          if (parent) {
+            navigate(history, formCommentLink(market.parent_comment_market_id, parent.group_id,
+              parent.investible_id, comment.id), false, false,
+              { searchMatch: { marketId, commentId: comment.id } });
+          }
+        }
         setOperationRunning(false);
       });
   }

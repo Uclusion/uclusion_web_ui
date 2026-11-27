@@ -10,7 +10,7 @@ import GravatarGroup from '../Avatars/GravatarGroup';
 import { GmailTabItem, GmailTabs } from '../../containers/Tab/Inbox';
 import { Block } from '@material-ui/icons';
 import OptionVoting from '../../pages/Dialog/Decision/OptionVoting';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
@@ -67,9 +67,13 @@ function Options(props) {
       anInlineMarketPresences, messagesState);
   }
   const underConsideration = getInlineInvestiblesForStage(underConsiderationStage);
-  const firstConsidered = _.isEmpty(underConsideration) ? undefined : underConsideration[0];
+  const automaticSelection = useRef();
+  const rememberedId = automaticSelection.current?.marketId === anInlineMarket.id
+    ? automaticSelection.current.id : undefined;
+  const automaticDefault = underConsideration.find((inv) => inv.investible.id === rememberedId)
+    || underConsideration[0];
   const selectedInvestibleId = selectedInvestibleIdParent ||
-    (useCompression ? undefined : firstConsidered?.investible?.id);
+    (useCompression ? undefined : automaticDefault?.investible?.id);
   const selectedInvestible = inlineInvestibles.find((inv) => inv.investible.id === selectedInvestibleId);
   const proposedStage = getProposedOptionsStage(marketStagesState, anInlineMarket.id);
   const selectedStageTab = selectedInvestible
@@ -89,6 +93,19 @@ function Options(props) {
     ? getComment(commentsState, anInlineMarket.id, target.commentId) : undefined;
   const foundInv = inlineInvestibles.find((inv) => hash?.includes(inv.investible.id) ||
     (hash && inv.investible.id === notifiedRoot?.investible_id));
+
+  useEffect(() => {
+    if (useCompression || automaticSelection.current?.marketId !== anInlineMarket.id) {
+      automaticSelection.current = undefined;
+    }
+    // Remember only a default that actually opened. Explicit selections keep their
+    // existing saved state; passive vote reordering must not replace this content.
+    if (!useCompression && !selectedInvestibleIdParent && useTabIndex === 0 &&
+      !investibleIdTabZeroWasSet && selectedInvestibleId) {
+      automaticSelection.current = { marketId: anInlineMarket.id, id: selectedInvestibleId };
+    }
+  }, [useCompression, anInlineMarket.id, selectedInvestibleIdParent, useTabIndex,
+    investibleIdTabZeroWasSet, selectedInvestibleId]);
 
   function setUseSelectedInvestibleIdTabZero(id) {
     updatePageState({ selectedInvestibleIdTabZero: id, investibleIdTabZeroWasSet: true });
